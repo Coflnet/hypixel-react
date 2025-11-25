@@ -10,7 +10,7 @@ import HelpIcon from '@mui/icons-material/Help'
 import AddIcon from '@mui/icons-material/AddCircleOutline'
 import { camelCaseToSentenceCase, convertTagToName } from '../../utils/Formatter'
 import { FilterType, hasFlag } from '../FilterElement/FilterType'
-import { Typeahead, TypeaheadRef } from 'react-bootstrap-typeahead'
+import { Highlighter, Menu, MenuItem, Typeahead, TypeaheadRef } from 'react-bootstrap-typeahead'
 import styles from './ItemFilter.module.css'
 import { ITEM_FILTER_USE_COUNT, LAST_USED_FILTER, getSettingsObject, setSetting } from '../../utils/SettingsUtils'
 import ModAdvert from './ModAdvert'
@@ -411,6 +411,16 @@ function ItemFilter(props: Props) {
                                                     !isAnySearchInputInUse()
                                                     : props.autoSelect
                                             }
+                                            renderMenu={(results, { ...menuProps }, state) => {
+                                                return <Menu {...menuProps}>
+                                                    <Menu.Header>You can search for filters both by their name and possible values (if available)</Menu.Header>
+                                                    {results.map((option, index) => <MenuItem key={index} option={option} position={index}>
+                                                        <Highlighter search={state.text}>{(option as FilterOptions).name}</Highlighter>
+                                                    </MenuItem>
+                                                    )}
+                                                    <Menu.Divider />
+                                                </Menu>
+                                            }}
                                             ref={typeaheadRef}
                                             placeholder="Add filter"
                                             onChange={addFilter}
@@ -465,7 +475,6 @@ function ItemFilter(props: Props) {
                                             }}
                                             emptyLabel={props.emptyLabel || 'No matches found. Filters which would not show any results are hidden'}
                                         ></Typeahead>
-                                        <p className={styles.filterHelpText}>You can search for filters both by their name and possible values (if available)</p>
                                     </div>
                                 ) : (
                                     <Spinner animation="border" role="status" variant="primary" />
