@@ -38,12 +38,7 @@ function FlipCustomize() {
         let settings = getFlipCustomizeSettings()
         setIsExportDisabled(settings.blockExport === true)
         setFlipCustomizeSettings({ ...settings })
-        loadPublishedConfigs()
     }, [])
-
-    async function loadPublishedConfigs() {
-        let configs = await api.getPublishedConfigs()
-    }
 
     function setFlipCustomizeSetting(key: string, value: any) {
         flipCustomizeSettings[key] = value
@@ -537,6 +532,21 @@ function FlipCustomize() {
                                     }}
                                     defaultChecked={!flipCustomizeSettings.hideLore}
                                     id="hideLore"
+                                    style={{ display: 'inline' }}
+                                    type="checkbox"
+                                />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.Label className={styles.label} htmlFor="blockHighCompetition">
+                                    Block high competition
+                                </Form.Label>
+                                <Form.Check
+                                    onChange={event => {
+                                        updateApiSetting('blockHighCompetition', event.target.checked)
+                                        setFlipCustomizeSetting('blockHighCompetition', event.target.checked)
+                                    }}
+                                    defaultChecked={flipCustomizeSettings.blockHighCompetition}
+                                    id="blockHighCompetition"
                                     style={{ display: 'inline' }}
                                     type="checkbox"
                                 />
