@@ -542,9 +542,9 @@ function FlipCustomize() {
                                 <Form.Check
                                     onChange={event => {
                                         updateApiSetting('blockHighCompetition', event.target.checked)
-                                        setFlipCustomizeSetting('blockHighCompetition', !event.target.checked)
+                                        setFlipCustomizeSetting('blockHighCompetition', event.target.checked)
                                     }}
-                                    defaultChecked={!flipCustomizeSettings.blockHighCompetition}
+                                    defaultChecked={flipCustomizeSettings.blockHighCompetition}
                                     id="blockHighCompetition"
                                     style={{ display: 'inline' }}
                                     type="checkbox"
