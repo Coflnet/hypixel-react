@@ -28,9 +28,9 @@ interface Props {
 const coflCoinOptions: CoflCoinOption[] = [
     {
         amount: 1800,
-        paypalPrice: 8.69,
-        stripePrice: 8.42,
-        lemonsqueezyPrice: 8.69,
+        paypalPrice: 9.69,
+        stripePrice: 9.42,
+        lemonsqueezyPrice: 9.69,
         googlePlayPrice: 11.99,
         paypalProductId: 'p_cc_1800',
         stripeProductId: 's_cc_1800',

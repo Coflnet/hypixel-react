@@ -175,7 +175,7 @@ function BuySubscription(props: Props) {
         }
 
         if (targetType.productId === 'premium') {
-            return yearOption ? 96.69 : 8.69
+            return yearOption ? 96.69 : 9.69
         }
         if (targetType.productId === 'premium_plus') {
             return yearOption ? 354.2 : 35.69

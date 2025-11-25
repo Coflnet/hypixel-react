@@ -104,7 +104,7 @@ export const getTierApiProductId = (tier: PremiumTier, isYearly: boolean): strin
 
 // Fallback subscription prices
 const SUBSCRIPTION_PRICES: Record<string, { monthly: number; yearly: number }> = {
-    'premium': { monthly: 8.69, yearly: 96.69 },
+    'premium': { monthly: 9.69, yearly: 96.69 },
     'premium_plus': { monthly: 35.69, yearly: 354.2 },
     'starter_premium': { monthly: 16.99, yearly: 16.99 }
 }

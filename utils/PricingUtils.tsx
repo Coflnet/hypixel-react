@@ -3,7 +3,7 @@ import { PremiumTier } from '../components/Premium/PremiumPurchaseWizard/types'
 // Base prices in EUR (before tax)
 export const BASE_PRICES = {
     [PremiumTier.STARTER]: 16.99, // yearly
-    [PremiumTier.PREMIUM]: 8.69, // monthly
+    [PremiumTier.PREMIUM]: 9.69, // monthly
     [PremiumTier.PREMIUM_PLUS]: 354.2 / 12 // monthly (yearly)
 }
 
