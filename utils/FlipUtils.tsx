@@ -204,7 +204,7 @@ export const DEFAULT_FLIP_SETTINGS = {
         hideSellerOpenBtn: false,
         modFormat: '',
         modCountdown: false,
-        blockHighCompetition: false
+        blockHighCompetition: true
     } as FlipCustomizeSettings,
     RESTRICTIONS: [] as FlipRestriction[],
     FILTER: {
