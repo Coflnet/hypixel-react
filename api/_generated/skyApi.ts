@@ -201,6 +201,7 @@ import type {
   Recipe,
   ReferralInfo,
   ReferredBy,
+  ReverseNpcFlip,
   SaveAuction,
   SearchResultItem,
   SkyblockItem,
@@ -3986,7 +3987,7 @@ export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipM
  * @summary Get profitable npc purchase ah/bazaar sell flips
  */
 export type getApiFlipNpcResponse200 = {
-  data: ProfitableCraft[]
+  data: ReverseNpcFlip[]
   status: 200
 }
     

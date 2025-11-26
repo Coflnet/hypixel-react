@@ -457,6 +457,15 @@ export interface Composter {
   costReductionPercent: number;
 }
 
+export interface Cost {
+  /** @nullable */
+  itemName?: string | null;
+  price: number;
+  amount: number;
+  /** @nullable */
+  itemTag?: string | null;
+}
+
 /**
  * @nullable
  */
@@ -2317,6 +2326,23 @@ export interface RequiredSkill {
   /** @nullable */
   name?: string | null;
   level: number;
+}
+
+export interface ReverseNpcFlip {
+  /** @nullable */
+  npcName?: string | null;
+  /** @nullable */
+  itemId?: string | null;
+  /** @nullable */
+  itemName?: string | null;
+  npcBuyPrice: number;
+  sellPrice: number;
+  profit: number;
+  profitMargin: number;
+  /** @nullable */
+  costs?: Cost[] | null;
+  volume: number;
+  lastUpdated: string;
 }
 
 export interface Rift {
