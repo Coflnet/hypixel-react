@@ -52,13 +52,13 @@ function Startpage(props: Props) {
             if (messages.length > 0) {
                 setRecentUpdate(messages[messages.length - 1])
             } else {
-                 // Try previous month if no news this month
-                 const lastMonth = new Date(now.setMonth(now.getMonth() - 1))
-                 const resPrev = await getApiDataUpdatesYearMonth(lastMonth.getFullYear(), lastMonth.getMonth() + 1)
-                 const messagesPrev = resPrev?.data || []
-                 if (messagesPrev.length > 0) {
-                     setRecentUpdate(messagesPrev[messagesPrev.length - 1])
-                 }
+                // Try previous month if no news this month
+                const lastMonth = new Date(now.setMonth(now.getMonth() - 1))
+                const resPrev = await getApiDataUpdatesYearMonth(lastMonth.getFullYear(), lastMonth.getMonth() + 1)
+                const messagesPrev = resPrev?.data || []
+                if (messagesPrev.length > 0) {
+                    setRecentUpdate(messagesPrev[messagesPrev.length - 1])
+                }
             }
         } catch (e) {
             console.error("Failed to load updates", e)
@@ -95,7 +95,7 @@ function Startpage(props: Props) {
         return (
             <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={newItem.tag} style={style}>
                 <Link href={`/item/${newItem.tag}`} className="disableLinkStyle" style={{ textDecoration: 'none' }}>
-                    <Card style={{ backgroundColor: '#343a40', border: '1px solid #495057' }}>
+                    <Card>
                         <Card.Header style={{ height: '100%', padding: '20px', borderBottom: 'none' }}>
                             <div style={{ float: 'left' }}>
                                 <Image
@@ -108,7 +108,7 @@ function Startpage(props: Props) {
                                     loading="lazy"
                                 />
                             </div>
-                            <Card.Title className={styles.ellipsis} style={{ color: '#f8f9fa', fontSize: '1rem' }}>{newItem.name}</Card.Title>
+                            <Card.Title className={styles.ellipsis} style={{ fontSize: '1rem' }}>{newItem.name}</Card.Title>
                         </Card.Header>
                     </Card>
                 </Link>
@@ -123,18 +123,18 @@ function Startpage(props: Props) {
         })
     }
 
-    const discountCode = "BLACKFRIDAY" // Example code
+    const discountCode = "BLACK"
     const discountAmount = "20%"
 
     const salesBanner = discountCode ? (
         <Link href={`/premium?code=${discountCode}`} style={{ textDecoration: 'none' }}>
-            <div style={{ 
-                background: 'linear-gradient(90deg, #d32f2f 0%, #b71c1c 100%)', 
-                color: 'white', 
-                padding: '15px', 
-                textAlign: 'center', 
-                borderRadius: '8px', 
-                marginBottom: '20px', 
+            <div style={{
+                background: 'linear-gradient(90deg, #d32f2f 0%, #b71c1c 100%)',
+                color: 'white',
+                padding: '15px',
+                textAlign: 'center',
+                borderRadius: '8px',
+                marginBottom: '20px',
                 fontWeight: 'bold',
                 boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                 cursor: 'pointer',
@@ -148,38 +148,38 @@ function Startpage(props: Props) {
     const flipFeatures = (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '30px' }}>
             <Link href="/bazaar" style={{ textDecoration: 'none' }}>
-                <Card className={`h-100 text-center shadow-sm ${styles.hoverEffect}`} style={{ border: 'none', backgroundColor: '#343a40' }}>
+                <Card className={`h-100 text-center shadow-sm ${styles.hoverEffect}`}>
                     <Card.Body style={{ padding: '2rem' }}>
                         <StorefrontIcon style={{ fontSize: 48, marginBottom: '15px', color: '#ffc107' }} />
                         <Card.Title style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#f8f9fa' }}>Bazaar Flips</Card.Title>
-                        <Card.Text style={{ color: '#e9ecef' }}>Discover high-margin bazaar flips instantly.</Card.Text>
+                        <Card.Text style={{ color: '#adb5bd' }}>Discover high-margin bazaar flips instantly.</Card.Text>
                     </Card.Body>
                 </Card>
             </Link>
             <Link href="/fusion" style={{ textDecoration: 'none' }}>
-                <Card className={`h-100 text-center shadow-sm ${styles.hoverEffect}`} style={{ border: 'none', backgroundColor: '#343a40' }}>
+                <Card className={`h-100 text-center shadow-sm ${styles.hoverEffect}`}>
                     <Card.Body style={{ padding: '2rem' }}>
                         <MergeTypeIcon style={{ fontSize: 48, marginBottom: '15px', color: '#9c27b0' }} />
                         <Card.Title style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#f8f9fa' }}>Fusion Flips</Card.Title>
-                        <Card.Text style={{ color: '#e9ecef' }}>Combine items for guaranteed profit.</Card.Text>
+                        <Card.Text style={{ color: '#adb5bd' }}>Combine items for guaranteed profit.</Card.Text>
                     </Card.Body>
                 </Card>
             </Link>
             <Link href="/crafts" style={{ textDecoration: 'none' }}>
-                <Card className={`h-100 text-center shadow-sm ${styles.hoverEffect}`} style={{ border: 'none', backgroundColor: '#343a40' }}>
+                <Card className={`h-100 text-center shadow-sm ${styles.hoverEffect}`}>
                     <Card.Body style={{ padding: '2rem' }}>
                         <BuildIcon style={{ fontSize: 48, marginBottom: '15px', color: '#4caf50' }} />
                         <Card.Title style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#f8f9fa' }}>Craft Flips</Card.Title>
-                        <Card.Text style={{ color: '#e9ecef' }}>Find profitable crafting recipes.</Card.Text>
+                        <Card.Text style={{ color: '#adb5bd' }}>Find profitable crafting recipes.</Card.Text>
                     </Card.Body>
                 </Card>
             </Link>
             <Link href="/reverseNpc" style={{ textDecoration: 'none' }}>
-                <Card className={`h-100 text-center shadow-sm ${styles.hoverEffect}`} style={{ border: 'none', backgroundColor: '#343a40' }}>
+                <Card className={`h-100 text-center shadow-sm ${styles.hoverEffect}`}>
                     <Card.Body style={{ padding: '2rem' }}>
                         <SmartToyIcon style={{ fontSize: 48, marginBottom: '15px', color: '#2196f3' }} />
                         <Card.Title style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#f8f9fa' }}>NPC Flips</Card.Title>
-                        <Card.Text style={{ color: '#e9ecef' }}>Buy from Bazaar, sell to NPC.</Card.Text>
+                        <Card.Text style={{ color: '#adb5bd' }}>Buy from Bazaar, sell to NPC.</Card.Text>
                     </Card.Body>
                 </Card>
             </Link>
@@ -190,27 +190,27 @@ function Startpage(props: Props) {
         <div style={{ marginBottom: '30px' }}>
             <h3 style={{ marginBottom: '15px', fontWeight: 'bold' }}>More Tools</h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
-                 <Link href="/flips" style={{ textDecoration: 'none' }}>
-                    <Card className={`h-100 shadow-sm ${styles.hoverEffect}`} style={{ border: 'none', backgroundColor: '#343a40' }}>
+                <Link href="/flips" style={{ textDecoration: 'none' }}>
+                    <Card className={`h-100 shadow-sm ${styles.hoverEffect}`}>
                         <Card.Body>
                             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                                 <HandymanIcon style={{ marginRight: '10px', color: '#00bcd4' }} />
                                 <Card.Title style={{ margin: 0, color: '#f8f9fa' }}>Flipping Hub</Card.Title>
                             </div>
-                            <Card.Text style={{ color: '#e9ecef' }}>
+                            <Card.Text style={{ color: '#adb5bd' }}>
                                 Your central hub for skyblock money making.
                             </Card.Text>
                         </Card.Body>
                     </Card>
                 </Link>
-                 <Link href="/subscriptions" style={{ textDecoration: 'none' }}>
-                    <Card className={`h-100 shadow-sm ${styles.hoverEffect}`} style={{ border: 'none', backgroundColor: '#343a40' }}>
+                <Link href="/subscriptions" style={{ textDecoration: 'none' }}>
+                    <Card className={`h-100 shadow-sm ${styles.hoverEffect}`}>
                         <Card.Body>
                             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
                                 <NotificationsActiveIcon style={{ marginRight: '10px', color: '#ff9800' }} />
                                 <Card.Title style={{ margin: 0, color: '#f8f9fa' }}>Notifiers</Card.Title>
                             </div>
-                            <Card.Text style={{ color: '#e9ecef' }}>
+                            <Card.Text style={{ color: '#adb5bd' }}>
                                 Get notified about price changes or new auctions.
                             </Card.Text>
                         </Card.Body>
@@ -222,22 +222,22 @@ function Startpage(props: Props) {
 
     const wikiModSection = (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '40px' }}>
-             <Card style={{ border: 'none', backgroundColor: '#343a40' }}>
+            <Card>
                 <Card.Body>
                     <Card.Title style={{ color: '#f8f9fa' }}>📚 Wiki</Card.Title>
-                    <Card.Text style={{ color: '#e9ecef' }}>
+                    <Card.Text style={{ color: '#adb5bd' }}>
                         Learn everything about our tools, API, and how to maximize your profits.
                     </Card.Text>
-                    <Link href="/wiki" className="btn btn-outline-primary">Visit Wiki</Link>
+                    <Link href="/wiki" className="btn btn-outline-info">Visit Wiki</Link>
                 </Card.Body>
             </Card>
-             <Card style={{ border: 'none', backgroundColor: '#343a40' }}>
+            <Card>
                 <Card.Body>
-                    <Card.Title style={{ color: '#f8f9fa' }}>🛠️ Mod</Card.Title>
-                    <Card.Text style={{ color: '#e9ecef' }}>
+                    <Card.Title style={{ color: '#f8f9fa' }}>🔧 Mod</Card.Title>
+                    <Card.Text style={{ color: '#adb5bd' }}>
                         Enhance your in-game experience with our Skyblock Mod. Features include price checking and more.
                     </Card.Text>
-                    <Link href="/mod" className="btn btn-outline-primary">Get the Mod</Link>
+                    <Link href="/mod" className="btn btn-outline-info">Get the Mod</Link>
                 </Card.Body>
             </Card>
         </div>
@@ -263,10 +263,10 @@ function Startpage(props: Props) {
     return (
         <div className={styles.startpageContainer}>
             {salesBanner}
-            
+
             {favorites.length === 0 ? (
                 <div style={{ textAlign: 'center', marginBottom: '40px', marginTop: '20px' }}>
-                    <h1 style={{ fontWeight: 'bold', fontSize: '2.5rem', marginBottom: '10px' }}>Skyblock Auction House History</h1>
+                    <h1 style={{ fontWeight: 'bold', fontSize: '2.5rem', marginBottom: '10px' }}>SkyCofl - Skyblock Auction House & Bazaar</h1>
                     <p style={{ fontSize: '1.2rem', color: '#aaa', maxWidth: '800px', margin: '0 auto' }}>
                         The ultimate tool for Hypixel Skyblock players. Track prices, find flips, and dominate the economy.
                     </p>
@@ -274,18 +274,18 @@ function Startpage(props: Props) {
             ) : null}
 
             {/* News Section */}
-            <Card className={styles.startpageCard} style={{ marginBottom: '30px', borderLeft: '5px solid #007bff', backgroundColor: '#343a40', border: 'none' }}>
-                <Card.Header style={{ backgroundColor: 'transparent', borderBottom: '1px solid #495057' }}>
+            <Card className={styles.startpageCard} style={{ marginBottom: '30px', borderLeft: '5px solid #007bff' }}>
+                <Card.Header style={{  borderBottom: '1px solid #495057' }}>
                     <Card.Title style={{ margin: 0, display: 'flex', alignItems: 'center', color: '#f8f9fa' }}>
-                        <NewIcon style={{ marginRight: '10px', color: '#007bff' }} /> Latest News
+                        <NewIcon style={{ marginRight: '10px', color: '#73b7ffff' }} /> Latest News
                     </Card.Title>
                 </Card.Header>
                 <Card.Body style={{ color: '#e9ecef' }}>
                     {recentUpdate ? (
                         <div style={{ marginBottom: '15px' }}>
-                            <div 
+                            <div
                                 className={styles.markdownContent}
-                                dangerouslySetInnerHTML={{ __html: mdRenderer.render(recentUpdate.content) }} 
+                                dangerouslySetInnerHTML={{ __html: mdRenderer.render(recentUpdate.content) }}
                             />
                         </div>
                     ) : <p>Check out what's new this month!</p>}
@@ -314,7 +314,7 @@ function Startpage(props: Props) {
                 </>
             )}
 
-            <Card className={styles.startpageCard} style={{ marginTop: '40px', backgroundColor: '#343a40', border: 'none' }}>
+            <Card className={styles.startpageCard} style={{ marginTop: '40px' }}>
                 <Card.Header style={{ backgroundColor: 'transparent', borderBottom: '1px solid #495057' }}>
                     <Card.Title style={{ color: '#f8f9fa' }}>SkyCofl - Hypixel Auction House and Bazaar History</Card.Title>
                 </Card.Header>
