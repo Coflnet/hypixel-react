@@ -128,7 +128,55 @@ option {
 }
 
 .page {
-    margin: 20px 0 20px 0;
+    display: grid;
+    /* 2-column grid: main content (flexible), right ad rail (310px = 300px + 10px margin) */
+    /* Left rail removed due to sidebar navigation overlap */
+    grid-template-columns: 1fr minmax(0, 310px);
+    min-height: 100vh;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* Main content area - takes the first column */
+.page-content {
+    grid-column: 1;
+    padding: 20px 0;
+    min-width: 0; /* Prevents grid blowout */
+}
+
+/* Right ad column */
+.page-rail-right {
+    grid-column: 2;
+    position: relative;
+    align-self: stretch;
+}
+
+/* Rail ads container - handles layout of multiple ads */
+.rail-ads-container {
+    display: flex;
+    flex-direction: column;
+    gap: 600px; /* 600px spacing between ads */
+}
+
+/* Right rail starts 300px from top */
+.rail-ads-right {
+    padding-top: 300px;
+}
+
+/* Individual ad slot with 5px margin */
+.rail-ad-slot {
+    margin: 5px;
+}
+
+/* Responsive: Hide right rail on screens narrower than 1400px */
+@media (max-width: 1400px) {
+    .page {
+        grid-template-columns: 1fr 0;
+    }
+    .page-rail-right {
+        display: none;
+    }
 }
 
 .ellipse {

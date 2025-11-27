@@ -1,38 +1,32 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import NitroAdSlot from './NitroAdSlot'
 
-export default function NitroRailAd() {
-    const [isBigScreen, setIsBigScreen] = useState(false)
+interface NitroRailAdProps {
+    side: 'left' | 'right'
+}
 
-    useEffect(() => {
-        const checkScreen = () => {
-            setIsBigScreen(window.matchMedia('(min-width: 1280px)').matches)
-        }
-        checkScreen()
-        window.addEventListener('resize', checkScreen)
-        return () => window.removeEventListener('resize', checkScreen)
-    }, [])
-
-    if (!isBigScreen) {
-        return null
-    }
-
-    const commonConfig = {
-        format: 'rail',
-        railCollisionWhitelist: ['*'],
-        railOffsetTop: 100,
-        railOffsetBottom: 20,
-        railStickyTop: 20,
-        railDistance: 0,
-        railSpacing: 10,
-        railCloseColor: '#ffffff',
+/**
+ * NitroRailAd - Renders a sticky-stack ad in a grid column
+ * 
+ * This component is designed to work with the CSS grid layout in .page.
+ * The wrapper div with className is in the layout, this component just renders the ad.
+ * 
+ * Left rail: 160px wide, starts 1000px from top (CSS handles the offset)
+ * Right rail: 300px wide, can fit larger ad sizes
+ */
+export default function NitroRailAd({ side }: NitroRailAdProps) {
+    // Left rail config - 160px width
+    const leftConfig = {
+        format: 'sticky-stack',
+        stickyStackLimit: 15,
+        stickyStackSpace: 2.5,
+        stickyStackOffset: 50, // Offset from top of viewport when sticky
+        stickyStackResizable: true,
         sizes: [
             ['160', '600'],
-            ['300', '600'],
-            ['300', '480'],
-            ['300', '250'],
+            ['160', '300'],
+            ['160', '250'],
         ],
         report: {
             enabled: true,
@@ -41,15 +35,32 @@ export default function NitroRailAd() {
         }
     }
 
+    // Right rail config - 300px width for larger ads
+    const rightConfig = {
+        format: 'sticky-stack',
+        stickyStackLimit: 15,
+        stickyStackSpace: 2.5,
+        stickyStackOffset: 50, // Offset from top of viewport when sticky
+        stickyStackResizable: true,
+        sizes: [
+            ['300', '600'],
+            ['300', '480'],
+            ['300', '250'],
+            ['160', '600'],
+        ],
+        report: {
+            enabled: true,
+            wording: 'Report Ad',
+            position: 'bottom-right'
+        }
+    }
+
+    const config = side === 'left' ? leftConfig : rightConfig
+
     return (
-        <>
-            <NitroAdSlot
-                slotId="rail-right"
-                config={{
-                    ...commonConfig,
-                    rail: 'right'
-                }}
-            />
-        </>
+        <NitroAdSlot
+            slotId={`rail-${side}`}
+            config={config}
+        />
     )
 }
