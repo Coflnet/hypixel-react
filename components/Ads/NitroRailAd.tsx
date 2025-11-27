@@ -31,9 +31,8 @@ export default function NitroRailAd() {
         sizes: [
             ['160', '600'],
             ['300', '600'],
-            ['320', '480'],
+            ['300', '480'],
             ['300', '250'],
-            ['320', '480']
         ],
         report: {
             enabled: true,
