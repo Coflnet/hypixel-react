@@ -237,7 +237,6 @@ export function NpcFlips() {
                 clickMessage="Click on a flip for further details"
                 showColumns={true}
                 customItemWrapper={customItemWrapper}
-                getFlipLink={flip => `/item/${flip.itemId}`}
             />
         </>
     )

@@ -278,11 +278,11 @@ export function GenericFlipList<T>({
             const href = getFlipLink(item)
             if (href) {
                 const handleAnchorClick = (e: React.MouseEvent) => {
-                    // If there's an onFlipClick handler, call it and prevent default
-                    // so client-side navigation/behavior can occur. If not, allow
-                    // the anchor to work normally (useful when JS is disabled).
+                    // Always prevent default when JS is enabled.
+                    // The customItemWrapper or onFlipClick handles the actual interaction.
+                    // The anchor is only for non-JS clients/SEO crawlers.
+                    e.preventDefault()
                     if (onFlipClick) {
-                        e.preventDefault()
                         onFlipClick(item, e)
                     }
                 }

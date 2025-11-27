@@ -84,7 +84,7 @@ export function MainApp(props: any) {
 
         registerNotificationCallback(router)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isClientSideRendering() ? location : null])
+    }, [])
 
     useEffect(() => {
         function onNitroOptOut() {

@@ -94,3 +94,17 @@
     background-color: #505050;
     font-weight: 600;
 }
+
+.profitRowLink {
+    text-decoration: none;
+    color: inherit;
+}
+
+.profitRow.clickable {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.profitRow.clickable:hover {
+    background-color: #505050;
+}

@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Badge, Button } from 'react-bootstrap'
+import { Badge } from 'react-bootstrap'
 import NumberElement from '../../Number/Number'
 import api from '../../../api/ApiHelper'
 import { ReverseNpcFlip, Cost } from '../../../api/_generated/skyApi.schemas'
@@ -48,6 +48,7 @@ export function NpcFlipDetails(props: Props) {
 
     return (
         <div className={styles.detailsContainer}>
+
             {flip.npcName && (
                 <div className={styles.section}>
                     <h4>NPC Information</h4>
@@ -105,25 +106,17 @@ export function NpcFlipDetails(props: Props) {
             <hr />
 
             <div className={styles.section}>
-                <h4>Item Page</h4>
-                <Link href={`/item/${flip.itemId}`} style={{ textDecoration: 'none' }}>
-                    <Button variant="primary" style={{ width: '100%' }}>
-                        View Item Details →
-                    </Button>
-                </Link>
-            </div>
-
-            <hr />
-
-            <div className={styles.section}>
                 <h4>Profit Summary</h4>
                 <div className={styles.profitGrid}>
-                    <div className={styles.profitRow}>
-                        <span>Sell Price:</span>
-                        <span>
-                            <NumberElement number={Math.round(flip.sellPrice || 0)} /> Coins
-                        </span>
-                    </div>
+                    <Link href={`/item/${flip.itemId}`} className={styles.profitRowLink}>
+                        <div className={`${styles.profitRow} ${styles.clickable}`}>
+                            <span>Sell Price:</span>
+                            <span>
+                                <NumberElement number={Math.round(flip.sellPrice || 0)} /> Coins
+                                <Badge bg="info" style={{ marginLeft: '8px', fontSize: '0.7em', color: 'white' }}>View Price History →</Badge>
+                            </span>
+                        </div>
+                    </Link>
                     <div className={styles.profitRow}>
                         <span>Purchase Cost:</span>
                         <span>
