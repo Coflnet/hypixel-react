@@ -1,6 +1,7 @@
 'use client'
 import Image from 'next/image'
-import { Badge } from 'react-bootstrap'
+import Link from 'next/link'
+import { Badge, Button } from 'react-bootstrap'
 import NumberElement from '../../Number/Number'
 import api from '../../../api/ApiHelper'
 import { ReverseNpcFlip, Cost } from '../../../api/_generated/skyApi.schemas'
@@ -99,6 +100,17 @@ export function NpcFlipDetails(props: Props) {
                         })}
                     </div>
                 )}
+            </div>
+
+            <hr />
+
+            <div className={styles.section}>
+                <h4>Item Page</h4>
+                <Link href={`/item/${flip.itemId}`} style={{ textDecoration: 'none' }}>
+                    <Button variant="primary" style={{ width: '100%' }}>
+                        View Item Details →
+                    </Button>
+                </Link>
             </div>
 
             <hr />
