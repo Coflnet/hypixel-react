@@ -11,7 +11,12 @@ interface Props {
     onDurationSelect: (duration: Duration) => void
 }
 
-export default function DurationSelectionStep({ selectedType, selectedTier, selectedDuration, onDurationSelect }: Props) {
+export default function DurationSelectionStep({ 
+    selectedType, 
+    selectedTier, 
+    selectedDuration, 
+    onDurationSelect
+}: Props) {
     const tierDisplayName = getTierDisplayName(selectedTier)
     const durationOptions = getDurationOptions(selectedTier, selectedType)
 

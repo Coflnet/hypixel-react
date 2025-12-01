@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import api from '../../../api/ApiHelper'
-import { Button, Card, Col, Row, Form } from 'react-bootstrap'
+import { Button, Card, Col, Row, Form, Spinner, Alert, InputGroup } from 'react-bootstrap'
 import styles from './BuySubscription.module.css'
 import NumberElement from '../../Number/Number'
 import { toast } from 'react-toastify'
 import { Duration, PremiumTier, getTierDisplayName } from '../PremiumPurchaseWizard/types'
-import { postApiTopupRates } from '../../../api/_generated/skyApi'
-import { BatchProductPricingResponse } from '../../../api/_generated/skyApi.schemas'
+import { postApiTopupRates, getApiDiscountCode } from '../../../api/_generated/skyApi'
+import { BatchProductPricingResponse, ValidatedDiscount } from '../../../api/_generated/skyApi.schemas'
 import {
     getCurrencySymbol,
     getProviderPrice,
@@ -23,23 +23,31 @@ interface Props {
     activePremiumProduct: PremiumProduct
     selectedTier?: PremiumTier
     selectedDuration?: Duration | null
-    creatorCode?: string
+    initialDiscountCode?: string | null
 }
 
 function BuySubscription(props: Props) {
     const [selectedPremiumType, setSelectedPremiumType] = useState<PremiumType>()
     const [isYearOption, setIsYearOption] = useState<boolean>()
-    const [creatorCode, setCreatorCode] = useState(props.creatorCode || '')
+    const [creatorCode, setCreatorCode] = useState('')
+    const [discountCode, setDiscountCode] = useState(props.initialDiscountCode || '')
     const [isLoadingPrices, setIsLoadingPrices] = useState(false)
     const [pricingData, setPricingData] = useState<BatchProductPricingResponse | null>(null)
     const [pricingError, setPricingError] = useState<string | null>(null)
     const [appliedCreatorCode, setAppliedCreatorCode] = useState<string | null>(null)
+    const [validatedDiscount, setValidatedDiscount] = useState<ValidatedDiscount | null>(null)
+    const [isValidatingDiscount, setIsValidatingDiscount] = useState(false)
+    const [discountError, setDiscountError] = useState<string | null>(null)
 
     // Get country code from localStorage
     const countryCode = typeof window !== 'undefined' ? localStorage.getItem('countryCode') || 'US' : 'US'
 
     useEffect(() => {
         fetchPricing(creatorCode)
+        // Auto-validate discount code if provided from URL
+        if (props.initialDiscountCode) {
+            validateDiscountCodeValue(props.initialDiscountCode)
+        }
     }, [])
 
     const fetchPricing = async (code: string) => {
@@ -113,6 +121,49 @@ function BuySubscription(props: Props) {
         fetchPricing(creatorCode)
     }
 
+    const validateDiscountCodeValue = async (code: string) => {
+        if (!code.trim()) {
+            setDiscountError('Please enter a discount code')
+            return
+        }
+
+        setIsValidatingDiscount(true)
+        setDiscountError(null)
+        setValidatedDiscount(null)
+
+        try {
+            const response = await getApiDiscountCode(code.trim())
+            if (response.status === 200 && response.data) {
+                if (response.data.isValid) {
+                    setValidatedDiscount(response.data)
+                    setDiscountError(null)
+                } else {
+                    setDiscountError('This discount code is not valid')
+                    setValidatedDiscount(null)
+                }
+            } else {
+                setDiscountError('Could not validate discount code')
+                setValidatedDiscount(null)
+            }
+        } catch (error) {
+            console.error('Error validating discount code:', error)
+            setDiscountError('Failed to validate discount code. Please try again.')
+            setValidatedDiscount(null)
+        } finally {
+            setIsValidatingDiscount(false)
+        }
+    }
+
+    const validateDiscountCode = () => {
+        validateDiscountCodeValue(discountCode)
+    }
+
+    const clearDiscountCode = () => {
+        setDiscountCode('')
+        setValidatedDiscount(null)
+        setDiscountError(null)
+    }
+
     const getDisplayCurrency = (): string => {
         if (!pricingData || !pricingData.products || !props.selectedTier) return 'Euro'
         const productId = getProductIdForTier(props.selectedTier, wizardIsYearOption)
@@ -132,6 +183,36 @@ function BuySubscription(props: Props) {
         const productId = getProductIdForTier(props.selectedTier, wizardIsYearOption)
         const discountPercent = getDiscountPercentValue(productId)
         return discountPercent !== null && discountPercent > 0
+    }
+
+    // Get the discount code multiplier (e.g., 20% off = 0.8)
+    const getDiscountCodeMultiplier = (): number => {
+        if (!validatedDiscount || !validatedDiscount.amount || validatedDiscount.amountType !== 'percent') return 1
+        return 1 - (validatedDiscount.amount / 100)
+    }
+
+    // Calculate final price after both creator code and discount code are applied
+    const getFinalPrice = (basePrice: number): number => {
+        // Creator code discount is already applied in basePrice from API
+        // Apply discount code on top
+        return basePrice * getDiscountCodeMultiplier()
+    }
+
+    // Get the total discount percentage (creator code + discount code)
+    const getTotalDiscountInfo = (): { creatorPercent: number | null; discountCodePercent: number | null; totalSavings: number | null } => {
+        const creatorPercent = props.selectedTier ? getDiscountPercentValue(getProductIdForTier(props.selectedTier, wizardIsYearOption)) : null
+        const discountCodePercent = validatedDiscount?.amountType === 'percent' ? validatedDiscount.amount : null
+        
+        const originalPrice = getOriginalPrice()
+        const basePrice = getSubscriptionPrice()
+        const finalPrice = getFinalPrice(basePrice)
+        
+        if (originalPrice && finalPrice < originalPrice) {
+            const totalSavings = Math.round((1 - finalPrice / originalPrice) * 100)
+            return { creatorPercent, discountCodePercent: discountCodePercent ?? null, totalSavings }
+        }
+        
+        return { creatorPercent, discountCodePercent: discountCodePercent ?? null, totalSavings: null }
     }
 
     // If we have wizard selections, use them to determine the selected type and duration
@@ -208,7 +289,15 @@ function BuySubscription(props: Props) {
             productId += '-year'
         }
 
-        const productIdWithCode = appliedCreatorCode ? `${productId}?creatorCode=${encodeURIComponent(appliedCreatorCode)}` : productId
+        // Build query parameters for creator code and discount code
+        const queryParams: string[] = []
+        if (appliedCreatorCode) {
+            queryParams.push(`creatorCode=${encodeURIComponent(appliedCreatorCode)}`)
+        }
+        if (validatedDiscount?.code) {
+            queryParams.push(`discountCode=${encodeURIComponent(validatedDiscount.code)}`)
+        }
+        const productIdWithCode = queryParams.length > 0 ? `${productId}?${queryParams.join('&')}` : productId
 
         api.purchasePremiumSubscription(productIdWithCode, googleToken)
             .then(data => {
@@ -222,7 +311,10 @@ function BuySubscription(props: Props) {
     if (props.selectedTier && props.selectedDuration !== undefined) {
         const targetType = wizardSelectedType!
         const yearOption = wizardIsYearOption
-        const price = getSubscriptionPrice()
+        const basePrice = getSubscriptionPrice()
+        const finalPrice = getFinalPrice(basePrice)
+        const discountInfo = getTotalDiscountInfo()
+        const hasAnyDiscount = hasActiveDiscount() || validatedDiscount
 
         return (
             <>
@@ -244,50 +336,63 @@ function BuySubscription(props: Props) {
                     <p>
                         {yearOption ? (
                             <>
-                                <strong>Price:</strong> <NumberElement number={price} /> {getDisplayCurrency()} (+VAT) per year&nbsp;
-                                {hasActiveDiscount() && getOriginalPrice() && (
+                                <strong>Price:</strong> <NumberElement number={finalPrice} /> {getDisplayCurrency()} (+VAT) per year&nbsp;
+                                {hasAnyDiscount && getOriginalPrice() && (
                                     <>
                                         {' '}
                                         <span style={{ textDecoration: 'line-through', opacity: 0.7 }}>
                                             <NumberElement number={getOriginalPrice()!} /> {getDisplayCurrency()}
-                                        </span>
-                                        {' '}
-                                        <span style={{ color: '#4caf50', fontWeight: 'bold' }}>
-                                            {getDiscountPercentValue(getProductIdForTier(props.selectedTier!, wizardIsYearOption))}% OFF
                                         </span>
                                     </>
                                 )}
                                 <br />
-                                (<NumberElement number={parseFloat((price / 13).toFixed(2))} /> {getDisplayCurrency()} (+VAT) per 4 weeks)
+                                (<NumberElement number={parseFloat((finalPrice / 13).toFixed(2))} /> {getDisplayCurrency()} (+VAT) per 4 weeks)
                             </>
                         ) : (
                             <>
-                                <strong>Price:</strong> <NumberElement number={price} /> {getDisplayCurrency()} (+VAT) per 4 weeks
-                                {hasActiveDiscount() && getOriginalPrice() && (
+                                <strong>Price:</strong> <NumberElement number={finalPrice} /> {getDisplayCurrency()} (+VAT) per 4 weeks
+                                {hasAnyDiscount && getOriginalPrice() && (
                                     <>
                                         {' '}
                                         <span style={{ textDecoration: 'line-through', opacity: 0.7 }}>
                                             <NumberElement number={getOriginalPrice()!} /> {getDisplayCurrency()}
-                                        </span>
-                                        {' '}
-                                        <span style={{ color: '#4caf50', fontWeight: 'bold' }}>
-                                            {getDiscountPercentValue(getProductIdForTier(props.selectedTier!, wizardIsYearOption))}% OFF
                                         </span>
                                     </>
                                 )}
                             </>
                         )}
                     </p>
+                    {/* Show applied discounts */}
+                    {(discountInfo.creatorPercent || discountInfo.discountCodePercent) && (
+                        <div style={{ marginTop: '10px', padding: '10px', backgroundColor: 'rgba(76, 175, 80, 0.1)', borderRadius: '8px', border: '1px solid rgba(76, 175, 80, 0.3)' }}>
+                            <strong style={{ color: '#4caf50' }}>💰 Applied Discounts:</strong>
+                            <ul style={{ margin: '5px 0 0 0', paddingLeft: '20px', listStyle: 'none' }}>
+                                {discountInfo.creatorPercent && (
+                                    <li style={{ color: '#4caf50' }}>✓ Creator code: {discountInfo.creatorPercent}% off</li>
+                                )}
+                                {discountInfo.discountCodePercent && (
+                                    <li style={{ color: '#4caf50' }}>✓ Discount code: {discountInfo.discountCodePercent}% off</li>
+                                )}
+                            </ul>
+                            {discountInfo.totalSavings && (
+                                <p style={{ margin: '5px 0 0 0', fontWeight: 'bold', color: '#4caf50' }}>
+                                    Total savings: ~{discountInfo.totalSavings}% off original price
+                                </p>
+                            )}
+                        </div>
+                    )}
                     {yearOption && (
                         <>
-                            {targetType.productId !== 'starter_premium' && (
+                            {targetType.productId !== 'starter_premium' && !discountInfo.creatorPercent && !discountInfo.discountCodePercent && (
                                 <p className={styles.discount}>
                                     <strong>Savings:</strong> {targetType.productId === 'premium_plus' ? '23%' : '14%'} off compared to monthly billing
                                 </p>
                             )}
-                            <p>
-                                You qualify for using code <code>M2OTC1OQ</code> at checkout, to get an extra <strong>20% discount</strong> on the yearly option
-                            </p>
+                            {!validatedDiscount && (
+                                <p>
+                                    You qualify for using code <code>M2OTC1OQ</code> at checkout, to get an extra <strong>20% discount</strong> on the yearly option
+                                </p>
+                            )}
                         </>
                     )}
                 </div>
@@ -318,42 +423,119 @@ function BuySubscription(props: Props) {
                     </ul>
                 </div>
 
-                <Card style={{ marginBottom: '20px' }}>
-                    <Card.Header>
-                        <Card.Title>Creator Code</Card.Title>
-                    </Card.Header>
-                    <Card.Body>
-                        <Form.Group>
-                            <Form.Control
-                                type="text"
-                                placeholder="Enter creator code (optional)"
-                                value={creatorCode}
-                                onChange={e => setCreatorCode(e.target.value)}
-                                disabled={isLoadingPrices}
-                            />
-                            <Button
-                                variant="primary"
-                                onClick={applyCreatorCode}
-                                disabled={isLoadingPrices}
-                                style={{ marginTop: '10px', width: '100%' }}
-                            >
-                                {isLoadingPrices ? 'Loading...' : 'Apply Code'}
-                            </Button>
-                        </Form.Group>
-                        {pricingError && (
-                            <div style={{ color: 'red', marginTop: '10px' }}>
-                                {pricingError}
-                            </div>
-                        )}
-                        {appliedCreatorCode && !pricingError && (
-                            <div style={{ marginTop: '10px', color: getDiscountPercentValue(getProductIdForTier(props.selectedTier!, yearOption)) ? 'green' : 'blue' }}>
-                                {getDiscountPercentValue(getProductIdForTier(props.selectedTier!, yearOption)) 
-                                    ? `Creator code applied! You get ${getDiscountPercentValue(getProductIdForTier(props.selectedTier!, yearOption))}% off` 
-                                    : 'Creator code applied'}
-                            </div>
-                        )}
-                    </Card.Body>
-                </Card>
+                {/* Code Input Section - Side by side on desktop */}
+                <Row style={{ marginBottom: '20px' }}>
+                    <Col md={6}>
+                        <Card style={{ height: '100%' }}>
+                            <Card.Header>
+                                <Card.Title style={{ fontSize: '1rem', margin: 0 }}>Creator Code</Card.Title>
+                            </Card.Header>
+                            <Card.Body>
+                                <Form.Group>
+                                    <Form.Label style={{ color: '#adb5bd', fontSize: '0.9rem' }}>
+                                        Support a creator (Optional)
+                                    </Form.Label>
+                                    <InputGroup>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Enter creator code"
+                                            value={creatorCode}
+                                            onChange={e => setCreatorCode(e.target.value)}
+                                            disabled={isLoadingPrices}
+                                        />
+                                        <Button
+                                            variant="primary"
+                                            onClick={applyCreatorCode}
+                                            disabled={isLoadingPrices || !creatorCode.trim()}
+                                        >
+                                            {isLoadingPrices ? <Spinner size="sm" animation="border" /> : 'Apply'}
+                                        </Button>
+                                    </InputGroup>
+                                </Form.Group>
+                                {pricingError && (
+                                    <div style={{ color: 'red', marginTop: '10px', fontSize: '0.9rem' }}>
+                                        {pricingError}
+                                    </div>
+                                )}
+                                {appliedCreatorCode && !pricingError && (
+                                    <div style={{ marginTop: '10px', fontSize: '0.9rem', color: getDiscountPercentValue(getProductIdForTier(props.selectedTier!, yearOption)) ? '#20c997' : '#6c757d' }}>
+                                        {getDiscountPercentValue(getProductIdForTier(props.selectedTier!, yearOption)) 
+                                            ? `✓ Creator code applied! You get ${getDiscountPercentValue(getProductIdForTier(props.selectedTier!, yearOption))}% off` 
+                                            : '✓ Creator code applied'}
+                                    </div>
+                                )}
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                    <Col md={6}>
+                        <Card style={{ height: '100%' }}>
+                            <Card.Header>
+                                <Card.Title style={{ fontSize: '1rem', margin: 0 }}>Discount Code</Card.Title>
+                            </Card.Header>
+                            <Card.Body>
+                                <Form.Group>
+                                    <Form.Label style={{ color: '#adb5bd', fontSize: '0.9rem' }}>
+                                        Have a discount code? (Optional)
+                                    </Form.Label>
+                                    <InputGroup>
+                                        <Form.Control
+                                            type="text"
+                                            placeholder="Enter discount code"
+                                            value={discountCode}
+                                            onChange={e => {
+                                                setDiscountCode(e.target.value)
+                                                if (validatedDiscount) {
+                                                    setValidatedDiscount(null)
+                                                }
+                                                if (discountError) {
+                                                    setDiscountError(null)
+                                                }
+                                            }}
+                                            disabled={isValidatingDiscount}
+                                        />
+                                        {validatedDiscount ? (
+                                            <Button
+                                                variant="outline-secondary"
+                                                onClick={clearDiscountCode}
+                                                disabled={isValidatingDiscount}
+                                            >
+                                                Clear
+                                            </Button>
+                                        ) : (
+                                            <Button
+                                                variant="primary"
+                                                onClick={validateDiscountCode}
+                                                disabled={isValidatingDiscount || !discountCode.trim()}
+                                            >
+                                                {isValidatingDiscount ? <Spinner size="sm" animation="border" /> : 'Validate'}
+                                            </Button>
+                                        )}
+                                    </InputGroup>
+                                </Form.Group>
+                                {discountError && (
+                                    <div style={{ color: '#dc3545', marginTop: '10px', fontSize: '0.9rem' }}>
+                                        {discountError}
+                                    </div>
+                                )}
+                                {validatedDiscount && validatedDiscount.isValid && (
+                                    <div style={{ marginTop: '10px', fontSize: '0.9rem', color: '#20c997' }}>
+                                        <strong>✓ Discount code valid!</strong>
+                                        <br />
+                                        {validatedDiscount.name && <span>{validatedDiscount.name}: </span>}
+                                        <span>
+                                            {validatedDiscount.amountType === 'percent' || validatedDiscount.amountType === 'percentage'
+                                                ? `${validatedDiscount.amount}% off`
+                                                : `${validatedDiscount.amount} off`}
+                                        </span>
+                                        {validatedDiscount.durationInMonths > 0 && (
+                                            <span> for {validatedDiscount.durationInMonths} month{validatedDiscount.durationInMonths > 1 ? 's' : ''}</span>
+                                        )}
+                                    </div>
+                                )}
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
 
                 <div className={styles.purchaseButtonContainer}>
                     <Button

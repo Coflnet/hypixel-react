@@ -421,3 +421,9 @@
     color: var(--bs-success) !important;
     font-weight: 600;
 }
+
+/* Code Input Section */
+.codeInputCard {
+    max-width: 500px;
+    margin: 0 auto;
+}

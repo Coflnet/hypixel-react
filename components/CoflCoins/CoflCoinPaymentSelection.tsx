@@ -4,8 +4,8 @@ import { Card, Button, Alert, Form, InputGroup, Spinner } from 'react-bootstrap'
 import Number from '../Number/Number'
 import PurchaseElement from './PurchaseElement'
 import styles from './CoflCoinsPurchase.module.css'
-import { postApiTopupRates } from '../../api/_generated/skyApi'
-import type { BatchProductPricingResponse, ProviderPricingOption } from '../../api/_generated/skyApi.schemas'
+import { postApiTopupRates, getApiDiscountCode } from '../../api/_generated/skyApi'
+import type { BatchProductPricingResponse, ProviderPricingOption, ValidatedDiscount } from '../../api/_generated/skyApi.schemas'
 import { getProvider, getProviderPrice, getProviderOriginalPrice } from '../../utils/pricingUtils'
 
 interface CoflCoinOption {
@@ -40,6 +40,12 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
     const [pricingData, setPricingData] = useState<BatchProductPricingResponse | null>(null)
     const [pricingError, setPricingError] = useState<string | null>(null)
     const [appliedCreatorCode, setAppliedCreatorCode] = useState<string | null>(null)
+
+    // Discount code state
+    const [discountCode, setDiscountCode] = useState('')
+    const [validatedDiscount, setValidatedDiscount] = useState<ValidatedDiscount | null>(null)
+    const [isValidatingDiscount, setIsValidatingDiscount] = useState(false)
+    const [discountError, setDiscountError] = useState<string | null>(null)
 
     useEffect(() => {
         fetchPricing(creatorCode)
@@ -94,6 +100,43 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
         fetchPricing('')
     }
 
+    const validateDiscountCode = async () => {
+        if (!discountCode.trim()) return
+
+        setIsValidatingDiscount(true)
+        setDiscountError(null)
+        setValidatedDiscount(null)
+
+        try {
+            const response = await getApiDiscountCode(discountCode.trim())
+            if (response.status === 200 && response.data) {
+                if (response.data.isValid) {
+                    // Check if discount is for subscriptions only (not applicable to CoflCoins)
+                    if (response.data.isSubscriptionOnly) {
+                        setDiscountError('This discount code is only valid for subscriptions, not CoflCoins')
+                    } else {
+                        setValidatedDiscount(response.data)
+                    }
+                } else {
+                    setDiscountError('Invalid discount code')
+                }
+            } else {
+                setDiscountError('Could not validate discount code')
+            }
+        } catch (error: any) {
+            console.error('Error validating discount code:', error)
+            setDiscountError(error?.message || 'Failed to validate discount code')
+        } finally {
+            setIsValidatingDiscount(false)
+        }
+    }
+
+    const handleClearDiscountCode = () => {
+        setDiscountCode('')
+        setValidatedDiscount(null)
+        setDiscountError(null)
+    }
+
     const getProviderForComponent = (providerSlug: string, productSlug: string) => {
         return getProvider(pricingData, providerSlug, productSlug)
     }
@@ -118,7 +161,7 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
     const getDiscountMultiplier = (providerSlug: string, productSlug: string): number | undefined => {
         const originalPrice = getProviderOriginalPriceForComponent(providerSlug, productSlug)
         const discountedPrice = getProviderPriceForComponent(providerSlug, productSlug)
-        
+
         if (originalPrice && discountedPrice && originalPrice > discountedPrice) {
             return discountedPrice / originalPrice
         }
@@ -227,9 +270,9 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                 <Alert variant="info" style={{ marginBottom: '20px' }}>
                     <Alert.Heading style={{ fontSize: '0.95rem', marginBottom: '8px' }}>💡 Limited to Google Play</Alert.Heading>
                     <p style={{ marginBottom: 0, fontSize: '0.9rem' }}>
-                        The Android app only supports Google Play Billing. For other payment methods like PayPal or Stripe, visit the <a 
-                            href="https://coflnet.com/premium" 
-                            target="_blank" 
+                        The Android app only supports Google Play Billing. For other payment methods like PayPal or Stripe, visit the <a
+                            href="https://coflnet.com/premium"
+                            target="_blank"
                             rel="noopener noreferrer"
                             style={{ fontWeight: '600' }}
                         >
@@ -247,8 +290,8 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
             </div>
 
             {/* Responsive Grid Layout: Payment Options + Creator Code */}
-            <div style={{ 
-                display: 'grid', 
+            <div style={{
+                display: 'grid',
                 gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
                 gap: '20px',
                 marginBottom: '20px'
@@ -280,72 +323,137 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                     googlePlayDiscount={discountMultipliers.googlepay}
                     currencyCode={currencyCode}
                 />
-
-                {/* Creator Code Input Card */}
-                <Card style={{ backgroundColor: '#2a3644', border: '1px solid #495057', height: 'fit-content' }}>
-                    <Card.Header>
-                        <Card.Title style={{ fontSize: '1rem', margin: 0 }}>Creator Code</Card.Title>
-                    </Card.Header>
-                    <Card.Body>
-                        <Form.Group>
-                            <Form.Label style={{ color: '#adb5bd', fontSize: '0.9rem', marginBottom: '10px' }}>
-                                Support a creator (Optional)
-                            </Form.Label>
-                            <InputGroup>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Enter creator code"
-                                    value={creatorCode}
-                                    onChange={(e) => setCreatorCode(e.target.value)}
-                                    onKeyPress={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault()
-                                            handleApplyCreatorCode()
-                                        }
-                                    }}
-                                    disabled={isLoadingPrices}
-                                    style={{
-                                        backgroundColor: '#1a2332',
-                                        borderColor: '#495057',
-                                        color: '#f8f9fa'
-                                    }}
-                                />
-                                {appliedCreatorCode ? (
-                                    <Button
-                                        variant="outline-secondary"
-                                        onClick={handleClearCreatorCode}
+                <div>
+                    {/* Creator Code Input Card */}
+                    <Card style={{ backgroundColor: '#2a3644', border: '1px solid #495057', height: 'fit-content' }}>
+                        <Card.Header>
+                            <Card.Title style={{ fontSize: '1rem', margin: 0 }}>Creator Code</Card.Title>
+                        </Card.Header>
+                        <Card.Body>
+                            <Form.Group>
+                                <Form.Label style={{ color: '#adb5bd', fontSize: '0.9rem', marginBottom: '10px' }}>
+                                    Support a creator (Optional)
+                                </Form.Label>
+                                <InputGroup>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Enter creator code"
+                                        value={creatorCode}
+                                        onChange={(e) => setCreatorCode(e.target.value)}
+                                        onKeyPress={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault()
+                                                handleApplyCreatorCode()
+                                            }
+                                        }}
                                         disabled={isLoadingPrices}
-                                    >
-                                        Clear
-                                    </Button>
-                                ) : (
-                                    <Button
-                                        variant="primary"
-                                        onClick={handleApplyCreatorCode}
-                                        disabled={isLoadingPrices || !creatorCode.trim()}
-                                    >
-                                        {isLoadingPrices ? <Spinner size="sm" animation="border" /> : 'Apply'}
-                                    </Button>
+                                        style={{
+                                            backgroundColor: '#1a2332',
+                                            borderColor: '#495057',
+                                            color: '#f8f9fa'
+                                        }}
+                                    />
+                                    {appliedCreatorCode ? (
+                                        <Button
+                                            variant="outline-secondary"
+                                            onClick={handleClearCreatorCode}
+                                            disabled={isLoadingPrices}
+                                        >
+                                            Clear
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            variant="primary"
+                                            onClick={handleApplyCreatorCode}
+                                            disabled={isLoadingPrices || !creatorCode.trim()}
+                                        >
+                                            {isLoadingPrices ? <Spinner size="sm" animation="border" /> : 'Apply'}
+                                        </Button>
+                                    )}
+                                </InputGroup>
+                                {hasDiscount && appliedCreatorCode && (
+                                    <Form.Text style={{ color: '#20c997', fontWeight: '600', display: 'block', marginTop: '10px' }}>
+                                        ✓ {discountPercent}% discount applied with code "{appliedCreatorCode}"
+                                    </Form.Text>
                                 )}
-                            </InputGroup>
-                            {hasDiscount && appliedCreatorCode && (
-                                <Form.Text style={{ color: '#20c997', fontWeight: '600', display: 'block', marginTop: '10px' }}>
-                                    ✓ {discountPercent}% discount applied with code "{appliedCreatorCode}"
-                                </Form.Text>
-                            )}
-                            {pricingError && (
-                                <Form.Text style={{ color: '#dc3545', display: 'block', marginTop: '10px' }}>
-                                    {pricingError}
-                                </Form.Text>
-                            )}
-                            {!hasDiscount && !pricingError && appliedCreatorCode && (
-                                <Form.Text style={{ color: '#adb5bd', display: 'block', marginTop: '10px' }}>
-                                    Creator code applied
-                                </Form.Text>
-                            )}
-                        </Form.Group>
-                    </Card.Body>
-                </Card>
+                                {pricingError && (
+                                    <Form.Text style={{ color: '#dc3545', display: 'block', marginTop: '10px' }}>
+                                        {pricingError}
+                                    </Form.Text>
+                                )}
+                                {!hasDiscount && !pricingError && appliedCreatorCode && (
+                                    <Form.Text style={{ color: '#adb5bd', display: 'block', marginTop: '10px' }}>
+                                        Creator code applied
+                                    </Form.Text>
+                                )}
+                            </Form.Group>
+                        </Card.Body>
+                    </Card>
+
+                    {/* Discount Code Input Card */}
+                    <Card style={{ backgroundColor: '#2a3644', border: '1px solid #495057', height: 'fit-content' }}>
+                        <Card.Header>
+                            <Card.Title style={{ fontSize: '1rem', margin: 0 }}>Discount Code (optional)</Card.Title>
+                        </Card.Header>
+                        <Card.Body>
+                            <Form.Group>
+                                <InputGroup>
+                                    <Form.Control
+                                        type="text"
+                                        placeholder="Enter discount code"
+                                        value={discountCode}
+                                        onChange={(e) => setDiscountCode(e.target.value)}
+                                        onKeyPress={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault()
+                                                validateDiscountCode()
+                                            }
+                                        }}
+                                        disabled={isValidatingDiscount}
+                                        style={{
+                                            backgroundColor: '#1a2332',
+                                            borderColor: validatedDiscount ? '#20c997' : discountError ? '#dc3545' : '#495057',
+                                            color: '#f8f9fa'
+                                        }}
+                                    />
+                                    {validatedDiscount ? (
+                                        <Button
+                                            variant="outline-secondary"
+                                            onClick={handleClearDiscountCode}
+                                            disabled={isValidatingDiscount}
+                                        >
+                                            Clear
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            variant="primary"
+                                            onClick={validateDiscountCode}
+                                            disabled={isValidatingDiscount || !discountCode.trim()}
+                                        >
+                                            {isValidatingDiscount ? <Spinner size="sm" animation="border" /> : 'Apply'}
+                                        </Button>
+                                    )}
+                                </InputGroup>
+                                {validatedDiscount && (
+                                    <Form.Text style={{ color: '#20c997', fontWeight: '600', display: 'block', marginTop: '10px' }}>
+                                        ✓ Discount code "{validatedDiscount.code}" validated
+                                        {validatedDiscount.amount && validatedDiscount.amountType === 'percent' && (
+                                            <> - {validatedDiscount.amount}% off</>
+                                        )}
+                                        {validatedDiscount.amount && validatedDiscount.amountType === 'fixed' && (
+                                            <> - {validatedDiscount.amount} off</>
+                                        )}
+                                    </Form.Text>
+                                )}
+                                {discountError && (
+                                    <Form.Text style={{ color: '#dc3545', display: 'block', marginTop: '10px' }}>
+                                        {discountError}
+                                    </Form.Text>
+                                )}
+                            </Form.Group>
+                        </Card.Body>
+                    </Card>
+                </div>
             </div>
 
             <Alert variant="info" style={{ marginTop: '30px' }}>

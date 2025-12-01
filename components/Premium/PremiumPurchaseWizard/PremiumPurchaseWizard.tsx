@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { Button, Card, ProgressBar } from 'react-bootstrap'
-import { ChevronLeft, ChevronRight } from '@mui/icons-material'
+import { ChevronLeft } from '@mui/icons-material'
 import styles from './PremiumPurchaseWizard.module.css'
 import { PremiumTier, PurchaseType, Duration } from './types'
 import { TierSelectionStep, PaymentMethodStep, DurationSelectionStep, PurchaseCompletionStep } from './Steps'
@@ -20,7 +20,7 @@ function PremiumPurchaseWizard(props: Props) {
     const [selectedTier, setSelectedTier] = useState<PremiumTier | null>(null)
     const [selectedType, setSelectedType] = useState<PurchaseType | null>(null)
     const [selectedDuration, setSelectedDuration] = useState<Duration | null>(null)
-    const [creatorCode, setCreatorCode] = useState('')
+    const [urlDiscountCode, setUrlDiscountCode] = useState<string | null>(null)
 
     const totalSteps = 4
 
@@ -76,6 +76,12 @@ function PremiumPurchaseWizard(props: Props) {
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search)
         const tierParam = urlParams.get('tier')
+        const codeParam = urlParams.get('code')
+
+        // If discount code is in URL, store it for auto-apply
+        if (codeParam) {
+            setUrlDiscountCode(codeParam)
+        }
 
         // If tier is specified in URL, pre-select it
         const preSelectedTier = parseTierFromUrl(tierParam)
@@ -138,10 +144,23 @@ function PremiumPurchaseWizard(props: Props) {
         }
     }
 
-    const handleNext = () => {
-        if (canProceed() && currentStep < totalSteps) {
-            setCurrentStep(currentStep + 1)
-        }
+    // Auto-advance handlers for each step
+    const handleTierSelect = (tier: PremiumTier) => {
+        setSelectedTier(tier)
+        // Auto-advance to next step
+        setCurrentStep(2)
+    }
+
+    const handleTypeSelect = (type: PurchaseType) => {
+        setSelectedType(type)
+        // Auto-advance to next step
+        setCurrentStep(3)
+    }
+
+    const handleDurationSelect = (duration: Duration) => {
+        setSelectedDuration(duration)
+        // Auto-advance to next step
+        setCurrentStep(4)
     }
 
     const handleBack = () => {
@@ -160,7 +179,7 @@ function PremiumPurchaseWizard(props: Props) {
                 return (
                     <TierSelectionStep
                         selectedTier={selectedTier}
-                        onTierSelect={setSelectedTier}
+                        onTierSelect={handleTierSelect}
                         currentTier={currentTier}
                         isUpgrade={isUpgrade}
                         suggestedTier={suggestedTier}
@@ -168,14 +187,14 @@ function PremiumPurchaseWizard(props: Props) {
                     />
                 )
             case 2:
-                return <PaymentMethodStep selectedType={selectedType} onTypeSelect={setSelectedType} />
+                return <PaymentMethodStep selectedType={selectedType} onTypeSelect={handleTypeSelect} />
             case 3:
                 return (
                     <DurationSelectionStep
                         selectedType={selectedType!}
                         selectedTier={selectedTier!}
                         selectedDuration={selectedDuration}
-                        onDurationSelect={(duration: Duration) => setSelectedDuration(duration)}
+                        onDurationSelect={handleDurationSelect}
                     />
                 )
             case 4:
@@ -187,7 +206,7 @@ function PremiumPurchaseWizard(props: Props) {
                         activePremiumProduct={props.activePremiumProduct}
                         premiumSubscriptions={props.premiumSubscriptions}
                         onNewActivePremiumProduct={props.onNewActivePremiumProduct}
-                        creatorCode={creatorCode}
+                        initialDiscountCode={urlDiscountCode}
                     />
                 )
             default:
@@ -214,11 +233,7 @@ function PremiumPurchaseWizard(props: Props) {
                             <ChevronLeft /> Back
                         </Button>
 
-                        {currentStep < totalSteps ? (
-                            <Button variant="primary" onClick={handleNext} disabled={!canProceed()} className={styles.nextButton}>
-                                Next <ChevronRight />
-                            </Button>
-                        ) : (
+                        {currentStep === totalSteps && (
                             <div className={styles.finalStep}>
                                 <small>Complete your purchase using the options above</small>
                             </div>
