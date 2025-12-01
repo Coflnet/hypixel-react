@@ -123,7 +123,7 @@ function Startpage(props: Props) {
         })
     }
 
-    const discountCode = "BLACK"
+    const discountCode = null
     const discountAmount = "20%"
 
     const salesBanner = discountCode ? (
