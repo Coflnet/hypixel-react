@@ -1,5 +1,4 @@
 import moment from 'moment'
-import { notFound } from 'next/navigation'
 import { initAPI } from '../../../api/ApiHelper'
 import { getHeadMetadata } from '../../../utils/SSRUtils'
 import { numberWithThousandsSeparators } from '../../../utils/Formatter'
@@ -8,8 +7,34 @@ import Search from '../../../components/Search/Search'
 import { parseAuctionDetails } from '../../../utils/Parser/APIResponseParser'
 import { Container } from 'react-bootstrap'
 import { BottomBanner } from '../../../components/BottomBanner/BottomBanner'
+import Link from 'next/link'
+
+// Valid auction ID formats:
+// - 17 character hex string (e.g., "924c0480753e41aab")
+// - UUID with dashes (e.g., "924c0480-753e-41aa-b123-456789abcdef")
+// - UUID without dashes (e.g., "924c0480753e41aab123456789abcdef")
+function isValidAuctionIdFormat(id: string): boolean {
+    if (!id) return false
+    
+    // 17 character hex string
+    if (/^[0-9a-fA-F]{17}$/.test(id)) return true
+    
+    // UUID with dashes (8-4-4-4-12)
+    if (/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(id)) return true
+    
+    // UUID without dashes (32 hex chars)
+    if (/^[0-9a-fA-F]{32}$/.test(id)) return true
+    
+    return false
+}
 
 async function getAuctionDetails(auctionUUID: string) {
+    // Check if the auction ID format is valid before making API request
+    if (!isValidAuctionIdFormat(auctionUUID)) {
+        console.log('Invalid auction ID format: ' + auctionUUID)
+        return null
+    }
+
     let api = initAPI(true)
     let auctionDetails: any
     let unparsedAuctionDetails: any
@@ -97,7 +122,73 @@ export default async function Page(props) {
     let auctionDetails = auctionDetailsResult?.auctionDetails
 
     if (!auctionDetails) {
-        notFound()
+        const isValidFormat = isValidAuctionIdFormat(auctionUUID)
+        
+        return (
+            <>
+                <Container>
+                    <Search />
+                    <div style={{ marginTop: '40px', textAlign: 'center' }}>
+                        <h1>Auction Not Found</h1>
+                        {isValidFormat ? (
+                            <div className="card" style={{ marginTop: '20px', textAlign: 'left', maxWidth: '700px', margin: '20px auto' }}>
+                                <div className="card-header bg-warning text-dark">
+                                    <h4 style={{ margin: 0 }}>🔍 This auction is currently not known</h4>
+                                </div>
+                                <div className="card-body">
+                                    <p>
+                                        The auction ID <code>{auctionUUID}</code> appears to be valid, but we couldn't find it in our database.
+                                    </p>
+                                    <hr />
+                                    <p className="mb-0">
+                                        <strong>This could mean:</strong>
+                                    </p>
+                                    <ul style={{ marginTop: '10px' }}>
+                                        <li><strong>Very old auction:</strong> This auction may no longer be available in our archive.</li>
+                                        <li><strong>Very new auction:</strong> This auction might have just been created. Try again in a minute when it should be indexed.</li>
+                                    </ul>
+                                    <div style={{ marginTop: '15px' }}>
+                                        <Link href="/" className="btn btn-primary me-2">Go to Homepage</Link>
+                                        <Link
+                                            href={`/auction/${auctionUUID}`}
+                                            className="btn btn-outline-secondary"
+                                        >
+                                            Try Again
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="card" style={{ marginTop: '20px', textAlign: 'left', maxWidth: '700px', margin: '20px auto' }}>
+                                <div className="card-header bg-danger text-white">
+                                    <h4 style={{ margin: 0 }}>❌ Invalid Auction ID Format</h4>
+                                </div>
+                                <div className="card-body">
+                                    <p>
+                                        The value <code>{auctionUUID}</code> is not a valid auction ID.
+                                    </p>
+                                    <hr />
+                                    <p className="mb-0">
+                                        <strong>Valid auction ID formats:</strong>
+                                    </p>
+                                    <ul style={{ marginTop: '10px' }}>
+                                        <li>Short id (e.g., <code>924c0480753e41aab</code>)</li>
+                                        <li>UUID without dashes (e.g., <code>924c0480753e41aab123456789abcdef</code>)</li>
+                                    </ul>
+                                    <p style={{ marginTop: '15px' }}>
+                                        Please check the link for typos, or ask the person who shared this link with you to correct it.
+                                    </p>
+                                    <div style={{ marginTop: '15px' }}>
+                                        <Link href="/" className="btn btn-primary">Go to Homepage</Link>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </Container>
+                <BottomBanner />
+            </>
+        )
     }
 
     function getOriginalAuctionDetails() {
