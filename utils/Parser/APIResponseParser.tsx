@@ -229,7 +229,7 @@ export function parseSubscriptionTypes(typeInNumeric: number): SubscriptionType[
     return subTypes
 }
 
-function _getTypeFromSubTypes(subTypes: SubscriptionType[], itemFilter: string): 'item' | 'player' | 'auction' {
+function _getTypeFromSubTypes(subTypes: SubscriptionType[], itemFilter: string): 'item' | 'player' | 'auction' | 'whitelist' {
     let type
     switch (SubscriptionType[subTypes[0].toString()]) {
         case SubscriptionType.BIN:
@@ -251,6 +251,8 @@ function _getTypeFromSubTypes(subTypes: SubscriptionType[], itemFilter: string):
         case SubscriptionType.AUCTION:
             type = 'auction'
             break
+        case SubscriptionType.WHITELIST:
+            type = 'whitelist'
     }
     return type
 }
@@ -423,15 +425,15 @@ export function parseProfitableCrafts(crafts: any[] = []): ProfitableCraft[] {
             volume: craft.volume,
             requiredCollection: craft.reqCollection
                 ? {
-                      name: craft.reqCollection.name,
-                      level: craft.reqCollection.level
-                  }
+                    name: craft.reqCollection.name,
+                    level: craft.reqCollection.level
+                }
                 : null,
             requiredSlayer: craft.reqSlayer
                 ? {
-                      name: craft.reqSlayer.name,
-                      level: craft.reqSlayer.level
-                  }
+                    name: craft.reqSlayer.name,
+                    level: craft.reqSlayer.level
+                }
                 : null
         } as ProfitableCraft
         c.item.name = convertTagToName(c.item.name)

@@ -113,6 +113,7 @@ export enum SubscriptionType {
     USE_SELL_NOT_BUY = 32,
     AUCTION = 64,
     PLAYER_CREATES_AUCTION = 128,
+    WHITELIST = 512,
     BOUGHT_ANY_AUCTION = 1024
 }
 
@@ -141,7 +142,7 @@ export interface NotificationListener {
     topicId: string
     price: number
     types: SubscriptionType[]
-    type: 'player' | 'item' | 'auction' | 'bazaar'
+    type: 'player' | 'item' | 'auction' | 'bazaar' | 'whitelist'
     title?: string
     filter?: ItemFilter
 }

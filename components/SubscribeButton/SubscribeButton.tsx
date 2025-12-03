@@ -1,12 +1,11 @@
 'use client'
-import { useEffect, useState, type JSX } from 'react'
+import { useState, type JSX } from 'react'
 import { Button, Modal } from 'react-bootstrap'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import api from '../../api/ApiHelper'
 import { NotificationListener, SubscriptionType } from '../../api/ApiTypes.d'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { toast } from 'react-toastify'
-import askForNotificationPermissons from '../../utils/NotificationPermisson'
 import NotificationIcon from '@mui/icons-material/NotificationsOutlined'
 import styles from './SubscribeButton.module.css'
 import SubscribeItemContent from './SubscribeItemContent/SubscribeItemContent'
@@ -17,8 +16,8 @@ import { useRouter } from 'next/navigation'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import EditIcon from '@mui/icons-material/Edit'
 import { Typeahead } from 'react-bootstrap-typeahead'
-import NotificationTargetForm from '../NotificationTargets/NotificationTargetForm'
 import SubscribeBazaarItemContent from './SubscribeBazaarItemContent/SubscribeBazaarItemContent'
+import CreateTargetDialog from './CreateTargetDialog/CreateTargetDialog'
 
 interface Props {
     topic: string
@@ -175,27 +174,14 @@ function SubscribeButton(props: Props) {
         setShowDialog(true)
     }
 
-    let dialog2 = (
-        <Modal
-            show={showCreateTargetDialog}
-            onHide={() => {
-                setShowCreateTargetDialog(false)
-            }}
-            className={styles.subscribeDialog}
-        >
-            <Modal.Header closeButton>
-                <Modal.Title>{props.popupTitle || 'Create a Notification Target'}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <NotificationTargetForm
-                    type="CREATE"
-                    onSubmit={target => {
-                        setSelectedNotificationTargets([...selectedNotificationTargets, target])
-                    }}
-                />
-            </Modal.Body>
-        </Modal>
-    )
+    function openCreateTargetDialog() {
+        setShowCreateTargetDialog(true)
+    }
+
+    function onTargetCreated(target: NotificationTarget) {
+        setSelectedNotificationTargets([...selectedNotificationTargets, target])
+        setNotificationTargets([...notificationTargets, target])
+    }
 
     let dialog = (
         <Modal show={showDialog} onHide={closeDialog} className={styles.subscribeDialog}>
@@ -253,11 +239,7 @@ function SubscribeButton(props: Props) {
                                 }}
                                 multiple={true}
                             />
-                            <Button
-                                onClick={() => {
-                                    setShowCreateTargetDialog(true)
-                                }}
-                            >
+                            <Button variant='secondary' onClick={openCreateTargetDialog}>
                                 Create new target
                             </Button>
                         </div>
@@ -280,7 +262,12 @@ function SubscribeButton(props: Props) {
     return (
         <div className={styles.subscribeButton}>
             {dialog}
-            {dialog2}
+            <CreateTargetDialog
+                show={showCreateTargetDialog}
+                onHide={() => setShowCreateTargetDialog(false)}
+                onTargetCreated={onTargetCreated}
+                popupTitle={props.popupTitle}
+            />
             {props.isEditButton ? (
                 <div onClick={openDialog}>
                     <EditIcon />
