@@ -21,7 +21,7 @@ export async function middleware(req: NextRequest, ev: NextFetchEvent) {
         if (split[2].length < 30) {
             await api
                 .playerSearch(split[2])
-                .then(players => {
+                .then((players: any) => {
                     split[2] = players[0].uuid
                 })
                 .catch(() => {
@@ -32,47 +32,43 @@ export async function middleware(req: NextRequest, ev: NextFetchEvent) {
         }
     }
 
-    // Get the response
     const response = NextResponse.next()
-    
-    // Add SEO and sitemap headers for better search engine optimization
-    const pathname = req.nextUrl.pathname;
-    
-    // Add sitemap links to all HTML responses
-    if (!pathname.startsWith('/api/') && 
-        !pathname.startsWith('/_next/') && 
-        !pathname.includes('.xml') &&
-        !pathname.includes('.txt')) {
-        
-        const sitemapLinks = [
+    const url = req.nextUrl.clone();
+    if (!req.cookies.get('CCPAOPTOUT')) {
+        response.cookies.set('CCPAOPTOUT', '1');
+    }
+
+    if (url.pathname === '/' || url.pathname.startsWith('/item/') || url.pathname.startsWith('/player/')) {
+        response.headers.set('Link', [
             '</sitemap-index.xml>; rel="sitemap"; type="application/xml"',
             '</sitemap.xml>; rel="sitemap"; type="application/xml"'
-        ];
-        
-        // Add specific sitemap links for item pages
-        if (pathname.startsWith('/item/')) {
-            sitemapLinks.push(
-                '</sitemap-items.xml>; rel="sitemap"; type="application/xml"',
-                '</sitemap-bazaar.xml>; rel="sitemap"; type="application/xml"'
-            );
-        }
-        
-        response.headers.set('Link', sitemapLinks.join(', '));
+        ].join(', '));
     }
-    
-    // Add robots meta tags for SEO-important pages
-    if (pathname === '/' || 
-        pathname.startsWith('/flipper') || 
-        pathname.startsWith('/auction') || 
-        pathname.startsWith('/bazaar') ||
-        pathname.startsWith('/item/') ||
-        pathname.startsWith('/player/')) {
-        
+
+    if (url.pathname.startsWith('/item/')) {
+        const currentSitemapLinks = response.headers.get('Link') || '';
+        const additionalLinks = [
+            '</sitemap-items.xml>; rel="sitemap"; type="application/xml"',
+            '</sitemap-bazaar.xml>; rel="sitemap"; type="application/xml"'
+        ];
+
+        const allLinks = currentSitemapLinks ?
+            `${currentSitemapLinks}, ${additionalLinks.join(', ')}` :
+            additionalLinks.join(', ');
+
+        response.headers.set('Link', allLinks);
+    }
+
+    if (url.pathname === '/' ||
+        url.pathname.startsWith('/flipper') ||
+        url.pathname.startsWith('/auction') ||
+        url.pathname.startsWith('/bazaar') ||
+        url.pathname.startsWith('/item/')) {
+
         response.headers.set('X-Robots-Tag', 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1');
     }
-    
-    // Add cache headers for sitemap files
-    if (pathname.includes('sitemap') && pathname.endsWith('.xml')) {
+
+    if (url.pathname.includes('sitemap') && url.pathname.endsWith('.xml')) {
         response.headers.set('Content-Type', 'application/xml');
         response.headers.set('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
     }
