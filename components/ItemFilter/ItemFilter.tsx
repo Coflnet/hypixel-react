@@ -413,12 +413,11 @@ function ItemFilter(props: Props) {
                                             }
                                             renderMenu={(results, { ...menuProps }, state) => {
                                                 return <Menu {...menuProps}>
-                                                    <Menu.Header>You can search for filters both by their name and possible values (if available)</Menu.Header>
                                                     {results.map((option, index) => <MenuItem key={index} option={option} position={index}>
                                                         <Highlighter search={state.text}>{(option as FilterOptions).name}</Highlighter>
                                                     </MenuItem>
                                                     )}
-                                                    <Menu.Divider />
+                                                    <Menu.Header>You can search for filters both by their name and possible values (if available)</Menu.Header>
                                                 </Menu>
                                             }}
                                             ref={typeaheadRef}
