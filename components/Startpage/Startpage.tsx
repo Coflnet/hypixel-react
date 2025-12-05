@@ -341,7 +341,7 @@ function Startpage(props: Props) {
                     </p>
                     <p>
                         We have the longest bazaar history database and you can browser through our hypixel skyblock bazaar tracker just as easily as through
-                        the auction house. See the full orderbook of any point in the last 5 years and discorver profitable{' '}
+                        the auction house. See the full orderbook of any point in the last 5 years and discover profitable{' '}
                         <Link href="/bazaar" style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px', padding: '0 4px' }}>
                             Bazaar Flips ↗️
                         </Link>{' '}
