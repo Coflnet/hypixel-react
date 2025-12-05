@@ -507,7 +507,7 @@ function SubscriptionList() {
             <div>
                 <h3>What are Notifiers?</h3>
                 <p>
-                    Notifiers allow you to subscribe to events happening on skyblock. Most common used are price drops or jumps, auctions expring or being sold
+                    Notifiers allow you to subscribe to events happening on skyblock. Most common used are price drops or jumps, auctions expiring or being sold
                     and new rare items being listed on ah
                 </p>
                 <p>
