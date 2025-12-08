@@ -206,6 +206,7 @@ export default function HowToStartFlippingWithNoMoneyPage() {
                                 <li><Link href="/guides/getting-started-with-flipping">Getting Started with Flipping</Link></li>
                                 <li><Link href="/guides/best-flipping-strategy">Best Flipping Strategy</Link> — capital-based approaches</li>
                                 <li><Link href="/guides/npc-flipping-guide">NPC Flipping Guide</Link></li>
+                                <li><Link href="/guides/greenhouse-guide">Greenhouse Guide</Link> — setup, watering, and mutation mechanics for Garden farming</li>
                             </ul>
                             <Link href="/guides" passHref>
                                 Back to Guides
