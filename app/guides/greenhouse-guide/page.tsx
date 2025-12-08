@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Hypixel Skyblock Greenhouse Guide - Setup and Farming',
@@ -366,6 +367,11 @@ export default function GreenhouseGuide() {
           </p>
         </div>
 
+        <p>
+          Mutations drop unique items — for example you should just have received <Link href="/item/DUSTGRAIN">Dustgrain</Link>. Check the Dustgrain item page for Bazaar history,
+          current pricing, and demand to decide whether to sell or keep mutation drops.
+        </p>
+
         <div className="bg-green-900 border border-green-700 rounded p-4 my-4">
           <p className="font-semibold">🎉 Congratulations!</p>
 
@@ -375,7 +381,9 @@ export default function GreenhouseGuide() {
             Happy farming!
           </p>
         </div>
-
+        <p>
+          The best way to profit off of the Hypixel Skyblock Garden v2 Update is to bazaar flip its mutations. See <Link href="/premiumBazaar">Top realtime Bazaar Flips</Link> to find the most profitable mutations to buy and sell. 
+        </p>
         <h2>Quick Reference Checklist</h2>
 
         <div className="bg-slate-900 border border-slate-700 rounded p-4 my-4">
