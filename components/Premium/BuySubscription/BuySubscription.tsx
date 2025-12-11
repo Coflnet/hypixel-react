@@ -36,6 +36,7 @@ function BuySubscription(props: Props) {
     const [pricingError, setPricingError] = useState<string | null>(null)
     const [appliedCreatorCode, setAppliedCreatorCode] = useState<string | null>(null)
     const [validatedDiscount, setValidatedDiscount] = useState<ValidatedDiscount | null>(null)
+    const [pendingYearlyDiscount, setPendingYearlyDiscount] = useState<ValidatedDiscount | null>(null)
     const [isValidatingDiscount, setIsValidatingDiscount] = useState(false)
     const [discountError, setDiscountError] = useState<string | null>(null)
 
@@ -135,8 +136,21 @@ function BuySubscription(props: Props) {
             const response = await getApiDiscountCode(code.trim())
             if (response.status === 200 && response.data) {
                 if (response.data.isValid) {
-                    setValidatedDiscount(response.data)
-                    setDiscountError(null)
+                    // Determine whether yearly billing is currently selected
+                    const currentIsYear = isYearOption !== undefined ? isYearOption : (props.selectedDuration === Duration.YEARLY)
+
+                    // If discount name indicates yearly-only and monthly is selected, show error
+                    const name = response.data.name || ''
+                    if (name.toLowerCase().includes('yearly') && !currentIsYear) {
+                        // Keep the discount data as pending so user can opt-in to switch to yearly
+                        setPendingYearlyDiscount(response.data)
+                        setDiscountError('This discount code is only valid for yearly billing')
+                        setValidatedDiscount(null)
+                    } else {
+                        setPendingYearlyDiscount(null)
+                        setValidatedDiscount(response.data)
+                        setDiscountError(null)
+                    }
                 } else {
                     setDiscountError('This discount code is not valid')
                     setValidatedDiscount(null)
@@ -310,7 +324,7 @@ function BuySubscription(props: Props) {
 
     if (props.selectedTier && props.selectedDuration !== undefined) {
         const targetType = wizardSelectedType!
-        const yearOption = wizardIsYearOption
+        const yearOption = isYearOption !== undefined ? isYearOption : wizardIsYearOption
         const basePrice = getSubscriptionPrice()
         const finalPrice = getFinalPrice(basePrice)
         const discountInfo = getTotalDiscountInfo()
@@ -515,6 +529,22 @@ function BuySubscription(props: Props) {
                                 {discountError && (
                                     <div style={{ color: '#dc3545', marginTop: '10px', fontSize: '0.9rem' }}>
                                         {discountError}
+                                        {pendingYearlyDiscount && !(isYearOption !== undefined ? isYearOption : (props.selectedDuration === Duration.YEARLY)) && (
+                                            <div style={{ marginTop: '8px' }}>
+                                                <Button
+                                                    variant="primary"
+                                                    size="sm"
+                                                    onClick={() => {
+                                                        setIsYearOption(true)
+                                                        setValidatedDiscount(pendingYearlyDiscount)
+                                                        setPendingYearlyDiscount(null)
+                                                        setDiscountError(null)
+                                                    }}
+                                                >
+                                                    Switch to yearly and apply discount
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                                 {validatedDiscount && validatedDiscount.isValid && (
@@ -528,7 +558,7 @@ function BuySubscription(props: Props) {
                                                 : `${validatedDiscount.amount} off`}
                                         </span>
                                         {validatedDiscount.durationInMonths > 0 && (
-                                            <span> for {validatedDiscount.durationInMonths} month{validatedDiscount.durationInMonths > 1 ? 's' : ''}</span>
+                                            <span> for {validatedDiscount.durationInMonths} payment{validatedDiscount.durationInMonths > 1 ? 's' : ''}</span>
                                         )}
                                     </div>
                                 )}
