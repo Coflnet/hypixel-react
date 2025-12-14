@@ -177,7 +177,7 @@ export function parsePlayer(player: any): Player {
     return {
         name: player.name,
         uuid: player.uuid,
-        iconUrl: player.iconUrl ? player.iconUrl + '?size=8' : 'https://crafatar.com/avatars/' + player.uuid + '?size=8'
+        iconUrl: player.iconUrl ? player.iconUrl + '?size=8' : 'https://sky.coflnet.com/avatars/' + player.uuid + '?size=8'
     }
 }
 

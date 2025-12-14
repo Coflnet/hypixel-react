@@ -75,7 +75,7 @@ workbox.routing.registerRoute(
 // cache images from sky.lea.moe and craftatar
 workbox.routing.registerRoute(
     // Cache image files
-    new RegExp('(.*sky.lea.moe.*|.*crafatar.com/avatars.*)'),
+    new RegExp('(.*sky.lea.moe.*|.*sky.coflnet.com/avatars.*)'),
     // Use the cache if it's available
     workbox.strategies.staleWhileRevalidate({
         // Use a custom cache name

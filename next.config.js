@@ -12,7 +12,7 @@ const nextConfig = {
         remotePatterns: [
             {
                 protocol: 'https',
-                hostname: 'crafatar.com'
+                hostname: 'sky.coflnet.com'
             },
             {
                 protocol: 'https',

@@ -80,7 +80,7 @@ export default function TradeList(props: Props) {
                                   <Card.Title>
                                       <img
                                           title={trade.playerName}
-                                          src={'https://crafatar.com/avatars/' + trade.playerUuid + '?size=8'}
+                                          src={'https://sky.coflnet.com/avatars/' + trade.playerUuid + '?size=8'}
                                           alt=""
                                           style={{ marginRight: 10 }}
                                           crossOrigin="anonymous"
