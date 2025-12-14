@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next'
 import { SITEMAP_CONFIG, getFullUrl } from '../utils/sitemap-config'
+import { generateGuideSitemapEntries, generateWikiSitemapEntries } from '../utils/sitemap-discovery'
 
 interface Item {
     tag: string;
@@ -20,6 +21,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }))
     
     sitemapEntries.push(...staticPages)
+
+    // Add dynamically discovered guide pages
+    try {
+        const guideEntries = await generateGuideSitemapEntries('monthly', 0.7)
+        const guidePages = guideEntries.map(entry => ({
+            url: getFullUrl(entry.url),
+            lastModified: entry.lastModified,
+            changeFrequency: entry.changeFrequency,
+            priority: entry.priority
+        }))
+        sitemapEntries.push(...guidePages)
+        console.log(`Added ${guidePages.length} dynamically discovered guide pages to sitemap`)
+    } catch (error) {
+        console.error('Error adding guide pages to sitemap:', error)
+    }
+
+    // Add dynamically discovered wiki documentation pages
+    try {
+        const wikiEntries = await generateWikiSitemapEntries('monthly', 0.6)
+        const wikiPages = wikiEntries.map(entry => ({
+            url: getFullUrl(entry.url),
+            lastModified: entry.lastModified,
+            changeFrequency: entry.changeFrequency,
+            priority: entry.priority
+        }))
+        sitemapEntries.push(...wikiPages)
+        console.log(`Added ${wikiPages.length} dynamically discovered wiki docs to sitemap`)
+    } catch (error) {
+        console.error('Error adding wiki docs to sitemap:', error)
+    }
 
     // Add auction items (limited for sitemap size)
     try {
