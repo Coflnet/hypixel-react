@@ -20,12 +20,13 @@ export default function AdScriptLoader() {
         <>
             <Script
                 data-cfasync="false"
+                strategy="lazyOnload"
                 dangerouslySetInnerHTML={{
                     __html:
                         "window.nitroAds=window.nitroAds||{createAd:function(){return new Promise(e=>{window.nitroAds.queue.push(['createAd',arguments,e])})},addUserToken:function(){window.nitroAds.queue.push(['addUserToken',arguments])},queue:[]};"
                 }}
             />
-            <Script data-cfasync="false" async src="https://s.nitropay.com/ads-2186.js" />
+            <Script data-cfasync="false" strategy="lazyOnload" src="https://s.nitropay.com/ads-2186.js" />
             <NitroRailAd />
         </>
     )

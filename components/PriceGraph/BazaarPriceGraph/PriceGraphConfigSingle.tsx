@@ -1,9 +1,14 @@
 import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeparators } from '../../../utils/Formatter'
 
 const ANIMATION_THRESHOLD = 200
+const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
 
 function getPriceGraphConfigSingle() {
     return {
+        animation: !isMobile,
+        animationDuration: isMobile ? 0 : 300,
+        progressive: 100,
+        progressiveThreshold: 200,
         tooltip: {
             trigger: 'axis',
             className: 'priceGraphTooltip',

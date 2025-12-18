@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import ReactECharts from 'echarts-for-react'
-import { ChangeEvent, RefObject, Suspense, useEffect, useRef, useState } from 'react'
+import { ChangeEvent, RefObject, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Form } from 'react-bootstrap'
 import {
     getApiBazaarItemTagHistory,
@@ -95,6 +95,16 @@ function BazaarPriceGraph(props: Props) {
             
             setChartOptionsPrimary(newPrimaryOptions)
             setChartOptionsSecondary(newSecondaryOptions)
+            
+            // Force chart refresh to ensure all series display correctly
+            requestAnimationFrame(() => {
+                if (primaryChartRef.current) {
+                    primaryChartRef.current.getEchartsInstance().setOption(newPrimaryOptions as any, true)
+                }
+                if (secondaryChartRef.current && graphType === GRAPH_TYPE.SPLIT) {
+                    secondaryChartRef.current.getEchartsInstance().setOption(newSecondaryOptions as any, true)
+                }
+            })
         }
     }, [graphType])
 
@@ -114,9 +124,8 @@ function BazaarPriceGraph(props: Props) {
         setChartOptionsPrimary(initialPrimaryOptions)
         setChartOptionsSecondary(initialSecondaryOptions)
 
-        setTimeout(() => {
-            updateChart(initialFetchspan)
-        }, 100)
+        // Start chart update immediately without setTimeout to reduce blocking time
+        updateChart(initialFetchspan)
     }
 
     const updateChart = (function () {
@@ -124,9 +133,10 @@ function BazaarPriceGraph(props: Props) {
 
         return (fetchspan: DateRange) => {
             clearTimeout(timerId)
+            // Reduced debounce from 150ms to 50ms for faster response
             timerId = setTimeout(() => {
                 debouncedUpdateChart(fetchspan)
-            }, 500)
+            }, 50)
         }
     })()
 
@@ -251,7 +261,16 @@ function BazaarPriceGraph(props: Props) {
         }
         
         const data = Array.isArray(response.data) ? response.data : []
-        return data.map(parseBazaarPrice)
+        const parsedData = data.map(parseBazaarPrice)
+        
+        // Sample data on mobile to reduce rendering load
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768
+        if (isMobile && parsedData.length > 100) {
+            const step = Math.ceil(parsedData.length / 100)
+            return parsedData.filter((_, index) => index % step === 0)
+        }
+        
+        return parsedData
     }
 
     function getLegendLocalStorageKey(primary: boolean) {
@@ -280,7 +299,7 @@ function BazaarPriceGraph(props: Props) {
         }
     }
 
-    function onChartsEvents(chartOptions, localStorageKey: string, chartRef: RefObject<ReactECharts | null>): Record<string, Function> {
+    const onChartsEvents = useCallback((chartOptions, localStorageKey: string, chartRef: RefObject<ReactECharts | null>): Record<string, Function> => {
         return {
             datazoom: e => {
                 let newChartOptions = { ...chartRef.current?.getEchartsInstance().getOption() }
@@ -301,7 +320,7 @@ function BazaarPriceGraph(props: Props) {
                 localStorage.setItem(BAZAAR_GRAPH_LEGEND_SELECTION, JSON.stringify(current))
             }
         }
-    }
+    }, [mayorData, graphType])
 
     function clearChartData(primary = chartOptionsPrimary, secondary = chartOptionsSecondary) {
         primary.xAxis[0].data = []
@@ -390,15 +409,17 @@ function BazaarPriceGraph(props: Props) {
         })
     }
 
-    let graphOverlayElement = isLoading ? (
-        <div className={styles.graphOverlay}>{getLoadingElement()}</div>
-    ) : noDataFound && !isLoading ? (
-        <div className={styles.graphOverlay}>
-            <div style={{ textAlign: 'center' }}>
-                <p>No data found</p>
+    const graphOverlayElement = useMemo(() => {
+        return isLoading ? (
+            <div className={styles.graphOverlay}>{getLoadingElement()}</div>
+        ) : noDataFound && !isLoading ? (
+            <div className={styles.graphOverlay}>
+                <div style={{ textAlign: 'center' }}>
+                    <p>No data found</p>
+                </div>
             </div>
-        </div>
-    ) : null
+        ) : null
+    }, [isLoading, noDataFound])
 
     return (
         <div>
@@ -429,6 +450,10 @@ function BazaarPriceGraph(props: Props) {
                                         option={chartOptionsPrimary}
                                         className={styles.chart}
                                         onEvents={onChartsEvents(chartOptionsPrimary, getLegendLocalStorageKey(true), primaryChartRef)}
+                                        lazyUpdate={true}
+                                        notMerge={false}
+                                        opts={{ renderer: 'canvas', locale: 'EN' }}
+                                        showLoading={false}
                                     />
                                 ) : (
                                     graphOverlayElement
@@ -443,6 +468,10 @@ function BazaarPriceGraph(props: Props) {
                                             option={chartOptionsSecondary}
                                             className={styles.chart}
                                             onEvents={onChartsEvents(chartOptionsSecondary, getLegendLocalStorageKey(false), secondaryChartRef)}
+                                            lazyUpdate={true}
+                                            notMerge={false}
+                                            opts={{ renderer: 'canvas', locale: 'EN' }}
+                                            showLoading={false}
                                         />
                                     ) : (
                                         graphOverlayElement

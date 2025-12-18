@@ -15,7 +15,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
             <head>
                 <meta name="google-adsense-account" content="ca-pub-6429823223434612" />
             </head>
-            <Script async={true} src={'/preScript.js'} />
+            <Script strategy="beforeInteractive" src={'/preScript.js'} />
             <body>
                 <div className="page">
                     <Providers>
