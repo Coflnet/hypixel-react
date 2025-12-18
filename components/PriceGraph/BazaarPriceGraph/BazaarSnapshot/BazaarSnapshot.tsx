@@ -3,11 +3,12 @@ import moment from 'moment'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import Card from 'react-bootstrap/Card'
 import { Table } from 'react-bootstrap'
-import api from '../../../../api/ApiHelper'
+import { getApiBazaarItemTagSnapshot } from '../../../../api/_generated/skyApi'
 import { CUSTOM_EVENTS } from '../../../../api/ApiTypes.d'
 import { useDebounce } from '../../../../utils/Hooks'
 import Number from '../../../Number/Number'
 import styles from './BazaarSnapshot.module.css'
+import { parseBazaarSnapshot } from '../../../../utils/Parser/APIResponseParser'
 
 interface Props {
     item: Item
@@ -76,12 +77,14 @@ function BazaarSnapshot(props: Props) {
     function loadBazaarSnapshot() {
         bazaarSnapshotDateRef.current = typeof debouncedTimestamp?.getTime === 'function' ? (debouncedTimestamp as Date).getTime() : debouncedTimestamp
 
-        api.getBazaarSnapshot(props.item.tag, debouncedTimestamp).then(snapshot => {
+        const isoTimestamp = new Date(Math.round(new Date(debouncedTimestamp).getTime() / 1000) * 1000).toISOString()
+
+        getApiBazaarItemTagSnapshot(props.item.tag, { timestamp: isoTimestamp }).then(response => {
             if (
                 bazaarSnapshotDateRef.current ===
                 (typeof debouncedTimestamp?.getTime === 'function' ? (debouncedTimestamp as Date).getTime() : debouncedTimestamp)
             ) {
-                setBazaarSnapshot(snapshot)
+                setBazaarSnapshot(parseBazaarSnapshot(response.data))
             }
         })
     }

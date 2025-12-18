@@ -2,7 +2,7 @@
 import React, { ChangeEvent, useEffect, useRef, useState, type JSX } from 'react'
 import api from '../../api/ApiHelper'
 import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap'
-import { convertTagToName, getStyleForTier } from '../../utils/Formatter'
+import { convertTagToName, getItemImageUrl, getStyleForTier } from '../../utils/Formatter'
 import NavBar from '../NavBar/NavBar'
 import OptionsMenu from '../OptionsMenu/OptionsMenu'
 import SearchIcon from '@mui/icons-material/SearchOutlined'
@@ -233,7 +233,7 @@ function Search(props: Props) {
                     <img
                         crossOrigin="anonymous"
                         className="playerHeadIcon"
-                        src={props.type === 'player' ? props.selected.iconUrl : api.getItemImageUrl({ tag: (props.selected as Item).tag })}
+                        src={props.type === 'player' ? props.selected.iconUrl : getItemImageUrl({ tag: (props.selected as Item).tag })}
                         height="32"
                         width="32"
                         alt=""

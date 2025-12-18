@@ -62,6 +62,12 @@ import { websocketHelper } from './WebsocketHelper'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
 import properties from '../properties'
 import { getCurrentCoflCoins } from '../utils/CoflCoinsUtils'
+import { 
+    getApiBazaarItemTagSnapshot, 
+    getApiBazaarItemTagHistory, 
+    getApiBazaarItemTagHistoryDay, 
+    getApiBazaarItemTagHistoryWeek 
+} from './_generated/skyApi'
 
 function getApiEndpoint() {
     return isClientSideRendering() ? getProperty('apiEndpoint') : process.env.API_ENDPOINT || getProperty('apiEndpoint')
@@ -201,70 +207,38 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getBazaarPrices = (itemTag: string, fetchSpan: DateRange): Promise<BazaarPrice[]> => {
-        return new Promise((resolve, reject) => {
-            httpApi.sendApiRequest({
-                type: RequestType.BAZAAR_PRICES,
-                data: '',
-                customRequestURL: getProperty('apiEndpoint') + `/bazaar/${itemTag}/history/${fetchSpan}`,
-                requestMethod: 'GET',
-                resolve: (data: any) => {
-                    resolve(data ? data.map(parseBazaarPrice).sort((a: BazaarPrice, b: BazaarPrice) => a.timestamp.getTime() - b.timestamp.getTime()) : [])
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.BAZAAR_PRICES, error, {
-                        itemTag,
-                        fetchSpan
-                    })
-                    reject(error)
-                }
+    let getBazaarPrices = async (itemTag: string, fetchSpan: DateRange): Promise<BazaarPrice[]> => {
+        let response;
+        if (fetchSpan === DateRange.WEEK) {
+            response = await getApiBazaarItemTagHistoryWeek(itemTag)
+        } else if (fetchSpan === DateRange.DAY) {
+            response = await getApiBazaarItemTagHistoryDay(itemTag)
+        } else {
+            response = await getApiBazaarItemTagHistory(itemTag, {
+                start: new Date(0).toISOString(),
+                end: new Date().toISOString()
             })
-        })
+        }
+        return (response.data || []).map(parseBazaarPrice).sort((a: BazaarPrice, b: BazaarPrice) => a.timestamp.getTime() - b.timestamp.getTime())
     }
 
-    let getBazaarPricesByRange = (itemTag: string, startDate: Date | string | number, endDate: Date | string | number): Promise<BazaarPrice[]> => {
-        return new Promise((resolve, reject) => {
-            let startDateIso = new Date(startDate).toISOString()
-            let endDateIso = new Date(endDate).toISOString()
+    let getBazaarPricesByRange = async (itemTag: string, startDate: Date | string | number, endDate: Date | string | number): Promise<BazaarPrice[]> => {
+        let startDateIso = new Date(startDate).toISOString()
+        let endDateIso = new Date(endDate).toISOString()
 
-            httpApi.sendApiRequest({
-                type: RequestType.BAZAAR_PRICES,
-                data: '',
-                customRequestURL: getProperty('apiEndpoint') + `/bazaar/${itemTag}/history/?start=${startDateIso}&end=${endDateIso}`,
-                requestMethod: 'GET',
-                resolve: (data: any) => {
-                    data = data.filter(d => d.sell !== undefined && d.buy !== undefined)
-
-                    let buySort = [...data].sort((a, b) => a.buy - b.buy)
-                    let sellSort = [...data].sort((a, b) => a.sell - b.sell)
-
-                    let medianBuy = buySort.length > 0 ? buySort[Math.floor(buySort.length / 2)].buy : 0
-                    let medianSell = sellSort.length > 0 ? sellSort[Math.floor(sellSort.length / 2)].sell : 0
-
-                    let bazaarData: BazaarPrice[] = data
-                        .map(parseBazaarPrice)
-                        .sort((a: BazaarPrice, b: BazaarPrice) => a.timestamp.getTime() - b.timestamp.getTime())
-                    let normalizer = 8
-                    resolve(
-                        bazaarData.filter(
-                            b =>
-                                b.buyData.max < medianBuy * normalizer &&
-                                b.sellData.max < medianSell * normalizer &&
-                                b.buyData.min > medianBuy / normalizer &&
-                                b.sellData.min > medianSell / normalizer
-                        )
-                    )
-                },
-                reject: (error: any) => {
-                    apiErrorHandler(RequestType.BAZAAR_PRICES, error, {
-                        itemTag,
-                        startDateIso,
-                        endDateIso
-                    })
-                    reject(error)
-                }
-            })
+        const response = await getApiBazaarItemTagHistory(itemTag, {
+            start: startDateIso,
+            end: endDateIso
         })
+        
+        let data = response.data || []
+        data = data.filter(d => d.sell !== undefined && d.buy !== undefined)
+
+        let bazaarData: BazaarPrice[] = data
+            .map(parseBazaarPrice)
+            .sort((a: BazaarPrice, b: BazaarPrice) => a.timestamp.getTime() - b.timestamp.getTime())
+        
+        return bazaarData
     }
 
     let getAuctions = (uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<Auction[]> => {
@@ -1439,7 +1413,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 resolve: function (data) {
                     resolve(new Date(data))
                 },
-                reject: function (error) {
+                reject: (error: any) => {
                     apiErrorHandler(RequestType.FLIP_UPDATE_TIME, error, '')
                 }
             })
@@ -1762,45 +1736,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     let getBazaarSnapshot = (itemTag: string, timestamp: string | number | Date): Promise<BazaarSnapshot> => {
-        return new Promise((resolve, reject) => {
-            let isoTimestamp = new Date(Math.round(new Date(timestamp).getTime() / 1000) * 1000).toISOString()
-
-            httpApi.sendApiRequest({
-                type: RequestType.GET_BAZAAR_SNAPSHOT,
-                customRequestURL: getProperty('apiEndpoint') + `/bazaar/${itemTag}/snapshot${isoTimestamp ? `?timestamp=${isoTimestamp}` : ''}`,
-                data: '',
-                resolve: function (data) {
-                    if (!data) {
-                        resolve({
-                            item: {
-                                tag: ''
-                            },
-                            buyData: {
-                                moving: 0,
-                                orderCount: 0,
-                                price: 0,
-                                volume: 0
-                            },
-                            sellData: {
-                                moving: 0,
-                                orderCount: 0,
-                                price: 0,
-                                volume: 0
-                            },
-                            sellOrders: [],
-                            buyOrders: [],
-                            timeStamp: new Date()
-                        })
-                        return
-                    }
-                    resolve(parseBazaarSnapshot(data))
-                },
-                reject: function (error) {
-                    apiErrorHandler(RequestType.GET_BAZAAR_SNAPSHOT, error, { itemTag, timestamp: isoTimestamp })
-                    reject(error)
-                }
-            })
-        })
+        const isoTimestamp = new Date(Math.round(new Date(timestamp).getTime() / 1000) * 1000).toISOString()
+        return getApiBazaarItemTagSnapshot(itemTag, { timestamp: isoTimestamp }).then(response => parseBazaarSnapshot(response.data))
     }
 
     let getPrivacySettings = (): Promise<PrivacySettings> => {
@@ -2495,6 +2432,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 toast.error('You need to be logged in to delete a notification subscription')
                 reject()
                 return
+
             }
 
             httpApi.sendApiRequest(

@@ -98,6 +98,7 @@ function AuctionHousePriceGraph(props: Props) {
     let [itemFilter, setItemFilter] = useState<ItemFilter>()
     let [defaultRangeSwitch, setDefaultRangeSwitch] = useState(true)
     let [chartOptions, setChartOptions] = useState(graphConfig)
+    let [isSSR, setIsSSR] = useState(true)
     let [mayorData, setMayorData] = useState<MayorData[]>([])
     let [rangeSelectKey, setRangeSelectKey] = useState(generateUUID)
     let [hasPremium, setHasPremium] = useState(false)
@@ -136,6 +137,7 @@ function AuctionHousePriceGraph(props: Props) {
         mounted = true
 
         setSelectedLegendOptionsFromLocalStorage()
+        setIsSSR(false)
 
         return () => {
             mounted = false
@@ -377,11 +379,11 @@ function AuctionHousePriceGraph(props: Props) {
                 let priceSum = 0
 
                 prices.forEach(item => {
-                    priceSum += item.avg
-                    chartOptions.series[0].data.push(item.avg.toFixed(2))
-                    chartOptions.series[1].data.push(item.min.toFixed(2))
-                    chartOptions.series[2].data.push(item.max.toFixed(2))
-                    chartOptions.series[3].data.push(item.volume.toFixed(2))
+                    priceSum += item.avg || 0
+                    chartOptions.series[0].data.push(item.avg)
+                    chartOptions.series[1].data.push(item.min)
+                    chartOptions.series[2].data.push(item.max)
+                    chartOptions.series[3].data.push(item.volume)
                 })
 
                 try {
@@ -540,7 +542,13 @@ function AuctionHousePriceGraph(props: Props) {
 
             <div style={fetchspan === DateRange.ACTIVE ? { display: 'none' } : {}}>
                 <div className={styles.chartWrapper}>
-                    {!isLoading && !noDataFound ? (
+                    {isSSR ? (
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', background: 'rgba(0,0,0,0.05)', borderRadius: '8px' }}>
+                            <div className="spinner-border text-primary" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    ) : !isLoading && !noDataFound ? (
                         <ReactECharts option={chartOptions} className={styles.chart} ref={graphRef} onEvents={onChartsEvents()} />
                     ) : (
                         graphOverlayElement

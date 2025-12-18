@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { cache } from 'react'
-import { parseItem } from '../../../utils/Parser/APIResponseParser'
+import { parseItem, parseBazaarPrice } from '../../../utils/Parser/APIResponseParser'
 import { getHeadMetadata } from '../../../utils/SSRUtils'
 import { convertTagToName, numberWithThousandsSeparators, getItemImageUrl } from '../../../utils/Formatter'
 import { atobUnicode } from '../../../utils/Base64Utils'
@@ -18,8 +18,8 @@ import {
     getApiBazaarItemTagHistory, 
     getApiBazaarItemTagHistoryDay, 
     getApiBazaarItemTagHistoryWeek, 
-    getApiItemPriceItemTagHistoryDay, 
-    getApiItemPriceItemTagHistoryWeek, 
+    getApiItemPriceItemTagHistoryDay,
+    getApiItemPriceItemTagHistoryWeek,
     getApiItemPriceItemTagHistoryMonth,
     getApiItemPriceItemTagHistoryFull,
     getApiAuctionsTagItemTagRecentOverview
@@ -44,7 +44,7 @@ export default async function Page(props) {
     let tag = params.tag as string
 
     let data = await getItemData(searchParams, params)
-    let item = parseItem(data.item)
+    let item = data.item // data.item is already parsed in getItemData
 
     function getItem(): Item {
         return (
@@ -105,21 +105,36 @@ export default async function Page(props) {
 
     if (isBazaar) {
         faqPairs.push({
+            q: `What is the best way to flip ${item.name || convertTagToName(tag)}?`,
+            a: `For Bazaar items like ${item.name || convertTagToName(tag)}, the most common flipping strategy is "Bazaar Flipping" — buying low via Buy Orders and selling high via Sell Offers. Check the margin between the Buy and Sell prices to see if it's currently profitable.`
+        })
+        faqPairs.push({
             q: `How do I buy ${item.name || convertTagToName(tag)}?`,
             a: `You can buy ${item.name || convertTagToName(tag)} from the Bazaar NPC in the Hub. You can either place a Buy Order or use Buy Instantly.`
         })
     } else if (isAuction) {
+        faqPairs.push({
+            q: `What is the best way to flip ${item.name || convertTagToName(tag)}?`,
+            a: `For Auction House items, you can try "BIN Flipping" (buying underpriced Buy It Now listings) or "Auction Flipping" (winning bid-based auctions for less than their market value and reselling them as BIN).`
+        })
         faqPairs.push({
             q: `How do I buy ${item.name || convertTagToName(tag)}?`,
             a: `You can buy ${item.name || convertTagToName(tag)} from the Auction House (AH). It is typically sold as a BIN (Buy It Now) item.`
         })
     }
 
+    faqPairs.push({
+        q: `How often is the price of ${item.name || convertTagToName(tag)} updated?`,
+        a: `Prices on Coflnet are updated in real-time. We track every single transaction on the Hypixel SkyBlock Auction House and Bazaar to provide the most accurate and up-to-date market data.`
+    })
+
     return (
         <>
             <Container>
                 <Search selected={getItem()} type="item" showFavoriteToggle />
-                {item.bazaar ? <BazaarPriceGraph item={getItem()} /> : <AuctionHousePriceGraph item={getItem()} />}
+                <div style={{ minHeight: '60vh' }}>
+                    {item.bazaar ? <BazaarPriceGraph item={getItem()} /> : <AuctionHousePriceGraph item={getItem()} />}
+                </div>
             </Container>
             <NitroAdSlot
                 slotId="flip-banner"
@@ -186,28 +201,36 @@ export async function generateMetadata(props) {
 
     let tag = params?.tag as string
     let { item, filter, prices, range } = await getItemData(searchParams, params)
-    if (hasFlag(item.flags, 1)) {
+    if (item && hasFlag(item.flags, 1)) {
         let sellPriceSum = 0
         let buyPriceSum = 0
 
-        prices.forEach(p => {
-            sellPriceSum += p.sellData.price
-            buyPriceSum += p.buyData.price
-        })
+        if (Array.isArray(prices)) {
+            prices.forEach(p => {
+                if (p?.sellData?.price) sellPriceSum += p.sellData.price
+                if (p?.buyData?.price) buyPriceSum += p.buyData.price
+            })
+        }
+
+        const avgSell = prices?.length ? Math.round(sellPriceSum / prices.length) : 0
+        const avgBuy = prices?.length ? Math.round(buyPriceSum / prices.length) : 0
 
         return getHeadMetadata(
             `${item.name || convertTagToName(tag)} price`,
             `🕑 ${range ? `Range: ${range}` : null}
-            Avg Sell Price: ${sellPriceSum ? numberWithThousandsSeparators(Math.round(sellPriceSum / prices.length)) : '---'} 
-            Avg Buy Price: ${buyPriceSum ? numberWithThousandsSeparators(Math.round(buyPriceSum / prices.length)) : '---'}`,
+            Avg Sell Price: ${avgSell ? numberWithThousandsSeparators(avgSell) : '---'} 
+            Avg Buy Price: ${avgBuy ? numberWithThousandsSeparators(avgBuy) : '---'}`,
             item.iconUrl,
             [convertTagToName(item.tag)],
             `${item.name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`
         )
     }
+    
+    const avgPrice = Array.isArray(prices) ? getAvgPrice(prices) : 0
+
     return getHeadMetadata(
         `${item.name || convertTagToName(tag)} price`,
-        `💰 Price: ${getAvgPrice(prices) ? numberWithThousandsSeparators(Math.round(getAvgPrice(prices))) : '---'} Coins
+        `💰 Price: ${avgPrice ? numberWithThousandsSeparators(avgPrice) : '---'} Coins
         🕑 ${range ? `Range: ${range}` : null}
 
          ${filter ? `Filters: \n${getFiltersText(filter)}` : ''}`,
@@ -224,52 +247,24 @@ const getItemData = cache(async (searchParams, params) => {
 
     try {
         const itemDetailsResponse = await getApiItemItemTagDetails(tag)
-        let itemDetails = parseItem(itemDetailsResponse.data)
+        let itemDetails = itemDetailsResponse.data ? parseItem(itemDetailsResponse.data) : null
 
-        if (!itemDetails || !itemDetails.name) {
-            const searchResponse = await getApiItemSearchSearchVal(tag)
-            const searchResults = searchResponse.data
-            if (searchResults && searchResults.length > 0) {
-                redirect(`/item/${searchResults[0].id}`)
-            } else {
-                return {
-                    item: {
-                        tag: tag
-                    },
-                    prices: [],
-                    range: null,
-                    filter: null
-                }
-            }
-        }
+        let prices: any[] = []
+        let recentAuctions: any[] = []
 
-        if (range === 'active') {
-            return {
-                item: itemDetails,
-                prices: [],
-                range: range || null,
-                filter: itemFilter || null
-            }
-        }
-
-        let isBazaar = hasFlag(itemDetails.flags, 1)
-        let prices: any = []
-        let recentAuctions: any = []
-
-        if (isBazaar) {
-            if (range === 'full') {
-                const response = await getApiBazaarItemTagHistory(tag, {
+        if (itemDetails?.bazaar) {
+            let response;
+            if (range === 'all' || range === 'full') {
+                response = await getApiBazaarItemTagHistory(tag, {
                     start: new Date(0).toISOString(),
                     end: new Date().toISOString()
                 })
-                prices = response.data
             } else if (range === 'week') {
-                const response = await getApiBazaarItemTagHistoryWeek(tag)
-                prices = response.data
+                response = await getApiBazaarItemTagHistoryWeek(tag)
             } else {
-                const response = await getApiBazaarItemTagHistoryDay(tag)
-                prices = response.data
+                response = await getApiBazaarItemTagHistoryDay(tag)
             }
+            prices = (response?.data || []).map(parseBazaarPrice)
         } else {
             let pricesPromise;
             if (range === 'week') {
@@ -287,26 +282,24 @@ const getItemData = cache(async (searchParams, params) => {
             const [pricesResult, recentAuctionsResult] = await Promise.allSettled([pricesPromise, recentAuctionsPromise])
             
             if (pricesResult.status === 'fulfilled') {
-                prices = (pricesResult.value as any).data
+                prices = (pricesResult.value as any).data || []
             }
             if (recentAuctionsResult.status === 'fulfilled') {
-                recentAuctions = (recentAuctionsResult.value as any).data
+                recentAuctions = (recentAuctionsResult.value as any).data || []
             }
         }
 
         return {
-            item: itemDetails,
-            prices: prices || [],
-            recentAuctions: recentAuctions || [],
+            item: itemDetails || parseItem({ tag }),
+            prices: prices,
+            recentAuctions: recentAuctions,
             range: range || null,
             filter: itemFilter ? itemFilter : null
         }
     } catch (e) {
-        console.log('Error fetching item data: ' + JSON.stringify(e))
+        console.error('Error fetching item data for ' + tag, e)
         return {
-            item: {
-                tag: tag
-            },
+            item: parseItem({ tag }),
             prices: [],
             recentAuctions: [],
             range: null,

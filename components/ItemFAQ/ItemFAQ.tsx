@@ -11,6 +11,7 @@ import {
     getApiItemPriceItemTagHistoryMonth,
     getApiAuctionsTagItemTagRecentOverview 
 } from '../../api/_generated/skyApi'
+import { parseBazaarPrice } from '../../utils/Parser/APIResponseParser'
 
 interface FAQPair {
     q: string
@@ -43,7 +44,7 @@ export default function ItemFAQ({ item, initialFaqPairs, tag, range, filter }: P
                     } else {
                         response = await getApiBazaarItemTagHistoryDay(tag)
                     }
-                    prices = response.data
+                    prices = (response?.data || []).map(parseBazaarPrice)
                 } else {
                     let pricesPromise;
                     if (range === 'week') {
@@ -58,29 +59,32 @@ export default function ItemFAQ({ item, initialFaqPairs, tag, range, filter }: P
                         pricesPromise,
                         getApiAuctionsTagItemTagRecentOverview(tag, filter || {})
                     ])
-                    if (pricesRes.status === 'fulfilled') prices = (pricesRes.value as any).data
-                    if (auctionsRes.status === 'fulfilled') recentAuctions = (auctionsRes.value as any).data
+                    if (pricesRes.status === 'fulfilled') prices = (pricesRes.value as any).data || []
+                    if (auctionsRes.status === 'fulfilled') recentAuctions = (auctionsRes.value as any).data || []
                 }
 
-                const priceValues = prices
-                    .map(p => {
-                        if (p == null) return null
-                        if (p.avg !== undefined) return p.avg
-                        if (p.sellData && p.sellData.price !== undefined) return p.sellData.price
-                        if (p.price !== undefined) return p.price
-                        return null
-                    })
-                    .filter(v => v !== null && !isNaN(v))
+                const priceValues = Array.isArray(prices) 
+                    ? prices
+                        .map(p => {
+                            if (p == null) return null
+                            if (p.avg !== undefined) return p.avg
+                            if (p.sellData && p.sellData.price !== undefined) return p.sellData.price
+                            if (p.price !== undefined) return p.price
+                            return null
+                        })
+                        .filter(v => v !== null && !isNaN(v))
+                    : []
 
                 const stats = computeStats(priceValues)
                 const trend = computeTrend(priceValues)
 
                 let topSeller: string | null = null
                 let topSellerCount: number = 0
-                if (recentAuctions && recentAuctions.length > 0) {
+                if (Array.isArray(recentAuctions) && recentAuctions.length > 0) {
                     const counts: Record<string, number> = {}
                     recentAuctions.forEach(a => {
-                        const name = a.playerName || (a.seller && a.seller.name) || 'Unknown'
+                        if (!a) return
+                        const name = a.playerName || a.sellerName || a.seller?.name || 'Unknown'
                         counts[name] = (counts[name] || 0) + 1
                     })
                     const entries = Object.entries(counts).sort((a, b) => b[1] - a[1])

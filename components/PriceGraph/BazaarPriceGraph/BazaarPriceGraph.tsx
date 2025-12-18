@@ -26,6 +26,7 @@ import getPriceGraphConfigSplit from './PriceGraphConfigSplit'
 import { applyMayorDataToChart } from '../../../utils/GraphUtils'
 import { toast } from 'react-toastify'
 import SubscribeButton from '../../SubscribeButton/SubscribeButton'
+import { parseBazaarPrice } from '../../../utils/Parser/APIResponseParser'
 
 interface Props {
     item: Item
@@ -84,30 +85,37 @@ function BazaarPriceGraph(props: Props) {
 
     useEffect(() => {
         if (prices.length > 0) {
-            let chartOptions = graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit()
+            const newPrimaryOptions = graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit()
+            const newSecondaryOptions = getPriceGraphConfigSplit()
 
-            chartOptionsPrimary = chartOptions
-
-            checkForSpecialFetchspanConfiguration()
-
-            setSelectedLegendOptionsFromLocalStorage()
-            setChartOptionsPrimary(chartOptions)
-            setChartData(prices, mayorData)
+            checkForSpecialFetchspanConfiguration(newPrimaryOptions, newSecondaryOptions)
+            setSelectedLegendOptionsFromLocalStorage(newPrimaryOptions, newSecondaryOptions)
+            
+            setChartData(prices, mayorData, newPrimaryOptions, newSecondaryOptions)
+            
+            setChartOptionsPrimary(newPrimaryOptions)
+            setChartOptionsSecondary(newSecondaryOptions)
         }
     }, [graphType])
 
     function init() {
-        fetchspan = (getURLSearchParam('range') as DateRange) || DEFAULT_DATE_RANGE
-        setFetchspan(fetchspan)
+        const initialFetchspan = (getURLSearchParam('range') as DateRange) || DEFAULT_DATE_RANGE
+        setFetchspan(initialFetchspan)
 
-        graphType = (localStorage.getItem(BAZAAR_GRAPH_TYPE) as GRAPH_TYPE) || DEFAULT_GRAPH_TYPE
-        setGraphType(graphType)
-        chartOptionsPrimary = graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit()
-        setChartOptionsPrimary(graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit())
-        checkForSpecialFetchspanConfiguration()
+        const initialGraphType = (localStorage.getItem(BAZAAR_GRAPH_TYPE) as GRAPH_TYPE) || DEFAULT_GRAPH_TYPE
+        setGraphType(initialGraphType)
+        
+        const initialPrimaryOptions = initialGraphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit()
+        const initialSecondaryOptions = getPriceGraphConfigSplit()
+        
+        checkForSpecialFetchspanConfiguration(initialPrimaryOptions, initialSecondaryOptions)
+        setSelectedLegendOptionsFromLocalStorage(initialPrimaryOptions, initialSecondaryOptions)
+        
+        setChartOptionsPrimary(initialPrimaryOptions)
+        setChartOptionsSecondary(initialSecondaryOptions)
 
         setTimeout(() => {
-            updateChart(fetchspan)
+            updateChart(initialFetchspan)
         }, 100)
     }
 
@@ -136,22 +144,47 @@ function BazaarPriceGraph(props: Props) {
 
         try {
             let prices = await loadBazaarPrices(props.item.tag, fetchspan)
-            let mayorData
-            try {
-                const mayorResponse = await getApiMayor({
-                    from: new Date(prices[0].timestamp).toISOString(),
-                    to: new Date(prices[prices.length - 1].timestamp).toISOString()
-                })
-                mayorData = mayorResponse.data
-            } catch {
-                mayorData = []
+            let mayorData: MayorData[] = []
+            if (prices.length > 0) {
+                    try {
+                        // Ensure we request mayor data for the full time range (safe if API returns descending)
+                        const timestamps = prices.map(p => p.timestamp.getTime())
+                        const from = new Date(Math.min(...timestamps)).toISOString()
+                        const to = new Date(Math.max(...timestamps)).toISOString()
+                        const mayorResponse = await getApiMayor({
+                            from,
+                            to
+                        })
+                    const rawMayorData = (mayorResponse.data as any) || []
+                    // Convert date strings to Date objects
+                    mayorData = rawMayorData.map((item: any) => ({
+                        ...item,
+                        start: new Date(item.start),
+                        end: new Date(item.end)
+                    }))
+                } catch (e) {
+                    console.warn('Failed to fetch mayor data', e)
+                }
             }
             if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, fetchspan })) {
                 return
             }
             setPrices(prices)
             setMayorData(mayorData)
-            setChartData(prices, mayorData)
+            
+            const currentPrimaryOptions = graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit()
+            const currentSecondaryOptions = getPriceGraphConfigSplit()
+            
+            checkForSpecialFetchspanConfiguration(currentPrimaryOptions, currentSecondaryOptions)
+            setSelectedLegendOptionsFromLocalStorage(currentPrimaryOptions, currentSecondaryOptions)
+            
+            if (prices.length > 0) {
+                setChartData(prices, mayorData, currentPrimaryOptions, currentSecondaryOptions)
+            }
+            
+            setChartOptionsPrimary(currentPrimaryOptions)
+            setChartOptionsSecondary(currentSecondaryOptions)
+            
             setIsLoading(false)
             setNoDataFound(prices.length === 0)
         } catch (e) {
@@ -159,22 +192,22 @@ function BazaarPriceGraph(props: Props) {
             setIsLoading(false)
             setNoDataFound(true)
             setAvgBuyPrice(0)
-            setAvgBuyPrice(0)
+            setAvgSellPrice(0)
         }
     }
 
-    function checkForSpecialFetchspanConfiguration() {
+    function checkForSpecialFetchspanConfiguration(primary = chartOptionsPrimary, secondary = chartOptionsSecondary) {
         if (fetchspan === DateRange.HOUR) {
-            chartOptionsPrimary.legend.data = chartOptionsPrimary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
-            chartOptionsSecondary.legend.data = chartOptionsSecondary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
-            chartOptionsPrimary.series.forEach((s, i) => {
+            primary.legend.data = primary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
+            secondary.legend.data = secondary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
+            primary.series.forEach((s, i) => {
                 s.type = 'line'
                 if (s.name === 'Min' || s.name === 'Max') {
                     s.tooltip.show = false
                     s.data = []
                 }
             })
-            chartOptionsSecondary.series.forEach(s => {
+            secondary.series.forEach(s => {
                 s.type = 'line'
                 if (s.name.includes('Min') || s.name.includes('Max')) {
                     s.tooltip.show = false
@@ -182,28 +215,26 @@ function BazaarPriceGraph(props: Props) {
                 }
             })
         } else {
-            chartOptionsPrimary.series[0].type = 'k'
-            chartOptionsSecondary.series[0].type = 'k'
+            primary.series[0].type = 'k'
+            secondary.series[0].type = 'k'
 
-            chartOptionsPrimary.series.forEach(s => {
+            primary.series.forEach(s => {
                 s.tooltip.show = true
             })
-            chartOptionsSecondary.series.forEach(s => {
+            secondary.series.forEach(s => {
                 s.tooltip.show = true
             })
 
             if (graphType === GRAPH_TYPE.SINGLE) {
-                chartOptionsPrimary.legend.data = getPriceGraphConfigSingle().legend.data
-                chartOptionsPrimary.series[3].type = 'k'
+                primary.legend.data = getPriceGraphConfigSingle().legend.data
+                primary.series[3].type = 'k'
             } else {
-                chartOptionsPrimary.legend.data = getPriceGraphConfigSplit().legend.data
+                primary.legend.data = getPriceGraphConfigSplit().legend.data
             }
-            chartOptionsSecondary.legend.data = getPriceGraphConfigSplit().legend.data
+            secondary.legend.data = getPriceGraphConfigSplit().legend.data
         }
 
-        setSelectedLegendOptionsFromLocalStorage()
-        setChartOptionsPrimary(chartOptionsPrimary)
-        setChartOptionsSecondary(chartOptionsSecondary)
+        setSelectedLegendOptionsFromLocalStorage(primary, secondary)
     }
 
     async function loadBazaarPrices(tag: string, fetchspan: DateRange): Promise<BazaarPrice[]> {
@@ -218,7 +249,9 @@ function BazaarPriceGraph(props: Props) {
         } else {
             response = await getApiBazaarItemTagHistoryDay(tag)
         }
-        return response.data as any
+        
+        const data = Array.isArray(response.data) ? response.data : []
+        return data.map(parseBazaarPrice)
     }
 
     function getLegendLocalStorageKey(primary: boolean) {
@@ -227,27 +260,24 @@ function BazaarPriceGraph(props: Props) {
 
     function onRangeChange(timespan: DateRange) {
         setFetchspan(timespan)
-        fetchspan = timespan
         updateChart(timespan)
         document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, { detail: { timestamp: new Date() } }))
     }
 
-    function setSelectedLegendOptionsFromLocalStorage() {
+    function setSelectedLegendOptionsFromLocalStorage(primary = chartOptionsPrimary, secondary = chartOptionsSecondary) {
         let legendSelected = localStorage.getItem(BAZAAR_GRAPH_LEGEND_SELECTION)
         if (graphType === GRAPH_TYPE.SPLIT) {
-            chartOptionsPrimary.legend.selected = legendSelected
+            primary.legend.selected = legendSelected
                 ? JSON.parse(legendSelected)[getLegendLocalStorageKey(true)]
-                : chartOptionsPrimary.legend.selected
-            chartOptionsSecondary.legend.selected = legendSelected
+                : primary.legend.selected
+            secondary.legend.selected = legendSelected
                 ? JSON.parse(legendSelected)[getLegendLocalStorageKey(false)]
-                : chartOptionsSecondary.legend.selected
+                : secondary.legend.selected
         } else {
-            chartOptionsPrimary.legend.selected = legendSelected
+            primary.legend.selected = legendSelected
                 ? JSON.parse(legendSelected)[getLegendLocalStorageKey(true)]
-                : chartOptionsPrimary.legend.selected
+                : primary.legend.selected
         }
-        setChartOptionsPrimary(chartOptionsPrimary)
-        setChartOptionsSecondary(chartOptionsSecondary)
     }
 
     function onChartsEvents(chartOptions, localStorageKey: string, chartRef: RefObject<ReactECharts | null>): Record<string, Function> {
@@ -273,93 +303,76 @@ function BazaarPriceGraph(props: Props) {
         }
     }
 
-    function clearChartData() {
-        chartOptionsPrimary.xAxis[0].data = []
-        chartOptionsSecondary.xAxis[0].data = []
+    function clearChartData(primary = chartOptionsPrimary, secondary = chartOptionsSecondary) {
+        primary.xAxis[0].data = []
+        secondary.xAxis[0].data = []
 
-        chartOptionsPrimary.series.forEach(s => {
+        primary.series.forEach(s => {
             s.data = []
         })
 
-        chartOptionsSecondary.series.forEach(s => {
+        secondary.series.forEach(s => {
             s.data = []
         })
-        setChartOptionsPrimary(chartOptionsPrimary)
-        setChartOptionsSecondary(chartOptionsSecondary)
     }
 
-    function setChartData(prices: BazaarPrice[], mayorData: MayorData[]) {
-        clearChartData()
+    function setChartData(prices: BazaarPrice[], mayorData: MayorData[], primary = chartOptionsPrimary, secondary = chartOptionsSecondary) {
+        clearChartData(primary, secondary)
 
-        setXAxisData(chartOptionsPrimary, prices)
+        // Ensure chronological order: oldest -> newest
+        const ordered = prices.slice().sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+
+        setXAxisData(primary, ordered)
 
         if (graphType === GRAPH_TYPE.SPLIT) {
-            setXAxisData(chartOptionsSecondary, prices)
+            setXAxisData(secondary, ordered)
         }
 
-        let sellPriceSum = 0
-        let buyPriceSum = 0
-
-        prices.forEach((item, i) => {
-            sellPriceSum += item.sellData.price
-            buyPriceSum += item.buyData.price
-
-            chartOptionsPrimary.series[0].data.push(
-                fetchspan === DateRange.HOUR
-                    ? item.buyData.price
-                    : [item.buyData.price, prices[i + 1] ? prices[i + 1].buyData.price : item.buyData.price, item.buyData.min, item.buyData.max]
-            )
+        ordered.forEach((item, i) => {
+            const buyCandle = fetchspan === DateRange.HOUR
+                ? item.buyData.price
+                : [item.buyData.price, prices[i + 1] ? prices[i + 1].buyData.price : item.buyData.price, item.buyData.min, item.buyData.max]
+            
+            const sellCandle = fetchspan === DateRange.HOUR
+                ? item.sellData.price
+                : [item.sellData.price, prices[i + 1] ? prices[i + 1].sellData.price : item.sellData.price, item.sellData.min, item.sellData.max]
 
             if (graphType === GRAPH_TYPE.SINGLE) {
-                chartOptionsPrimary.series[1].data.push(item.buyData.min?.toFixed(2))
-                chartOptionsPrimary.series[2].data.push(item.buyData.max?.toFixed(2))
-                chartOptionsPrimary.series[3].data.push(item.buyData.volume?.toFixed(2))
-                chartOptionsPrimary.series[4].data.push(item.buyData.moving?.toFixed(2))
+                primary.series[0].data.push(buyCandle)
+                primary.series[1].data.push(item.buyData.min)
+                primary.series[2].data.push(item.buyData.max)
+                primary.series[3].data.push(item.buyData.volume)
+                primary.series[4].data.push(item.buyData.moving)
 
-                chartOptionsPrimary.series[5].data.push(
-                    fetchspan === DateRange.HOUR
-                        ? item.sellData.price?.toFixed(2)
-                        : [
-                              item.sellData.price?.toFixed(2),
-                              prices[i + 1] ? prices[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
-                              item.sellData.min?.toFixed(2),
-                              item.sellData.max?.toFixed(2)
-                          ]
-                )
-                chartOptionsPrimary.series[6].data.push(item.sellData.min?.toFixed(2))
-                chartOptionsPrimary.series[7].data.push(item.sellData.max?.toFixed(2))
-                chartOptionsPrimary.series[8].data.push(item.sellData.volume?.toFixed(2))
-                chartOptionsPrimary.series[9].data.push(item.sellData.moving?.toFixed(2))
-                applyMayorDataToChart(chartOptionsPrimary, mayorData, 10)
+                primary.series[5].data.push(sellCandle)
+                primary.series[6].data.push(item.sellData.min)
+                primary.series[7].data.push(item.sellData.max)
+                primary.series[8].data.push(item.sellData.volume)
+                primary.series[9].data.push(item.sellData.moving)
+                applyMayorDataToChart(primary, mayorData, 10)
             } else {
-                chartOptionsPrimary.series[1].data.push(item.buyData.min?.toFixed(2))
-                chartOptionsPrimary.series[2].data.push(item.buyData.max?.toFixed(2))
-                chartOptionsPrimary.series[3].data.push(item.buyData.volume?.toFixed(2))
-                chartOptionsPrimary.series[4].data.push(item.buyData.moving?.toFixed(2))
+                primary.series[0].data.push(buyCandle)
+                primary.series[1].data.push(item.buyData.min)
+                primary.series[2].data.push(item.buyData.max)
+                primary.series[3].data.push(item.buyData.volume)
+                primary.series[4].data.push(item.buyData.moving)
 
-                chartOptionsSecondary.series[0].data.push(
-                    fetchspan === DateRange.HOUR
-                        ? item.sellData.price?.toFixed(2)
-                        : [
-                              item.sellData.price?.toFixed(2),
-                              prices[i + 1] ? prices[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
-                              item.sellData.min?.toFixed(2),
-                              item.sellData.max?.toFixed(2)
-                          ]
-                )
-                chartOptionsSecondary.series[1].data.push(item.sellData.min?.toFixed(2))
-                chartOptionsSecondary.series[2].data.push(item.sellData.max?.toFixed(2))
-                chartOptionsSecondary.series[3].data.push(item.sellData.volume?.toFixed(2))
-                chartOptionsSecondary.series[4].data.push(item.sellData.moving?.toFixed(2))
-                applyMayorDataToChart(chartOptionsPrimary, mayorData, 5)
-                applyMayorDataToChart(chartOptionsSecondary, mayorData, 5)
+                secondary.series[0].data.push(sellCandle)
+                secondary.series[1].data.push(item.sellData.min)
+                secondary.series[2].data.push(item.sellData.max)
+                secondary.series[3].data.push(item.sellData.volume)
+                secondary.series[4].data.push(item.sellData.moving)
+
+                applyMayorDataToChart(primary, mayorData, 5)
+                applyMayorDataToChart(secondary, mayorData, 5)
             }
         })
 
-        setChartOptionsPrimary(chartOptionsPrimary)
-        setChartOptionsSecondary(chartOptionsSecondary)
-        setAvgBuyPrice(buyPriceSum / prices.length)
-        setAvgSellPrice(sellPriceSum / prices.length)
+        if (ordered.length > 0) {
+            // latest datapoint is the last element after ordering
+            setAvgBuyPrice(ordered[ordered.length - 1].buyData.moving)
+            setAvgSellPrice(ordered[ordered.length - 1].sellData.moving)
+        }
     }
 
     function setXAxisData(chartOptions, prices: BazaarPrice[]) {
@@ -400,7 +413,13 @@ function BazaarPriceGraph(props: Props) {
 
             <div>
                 <div className={styles.chartsWrapper}>
-                    {!isSSR ? (
+                    {isSSR ? (
+                        <div className={styles.chartWrapperSingle} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', background: 'rgba(0,0,0,0.05)', borderRadius: '8px' }}>
+                            <div className="spinner-border text-primary" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    ) : (
                         <>
                             <div className={graphType === GRAPH_TYPE.SINGLE ? styles.chartWrapperSingle : styles.chartWrapperSplit}>
                                 <h3 className={styles.graphHeadline}>{graphType === GRAPH_TYPE.SINGLE ? 'Bazaar data' : 'Buy data'}</h3>
@@ -431,7 +450,7 @@ function BazaarPriceGraph(props: Props) {
                                 </div>
                             ) : null}
                         </>
-                    ) : null}
+                    )}
                 </div>
                 <div className={styles.additionalInfos}>
                     <span className={styles.avgPrice}>

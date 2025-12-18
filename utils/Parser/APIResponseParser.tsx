@@ -2,7 +2,7 @@ import api from '../../api/ApiHelper'
 import { NotificationListener, SubscriptionType } from '../../api/ApiTypes.d'
 import { hasFlag } from '../../components/FilterElement/FilterType'
 import { getFlipFinders } from '../FlipUtils'
-import { convertTagToName } from '../Formatter'
+import { convertTagToName, getItemImageUrl } from '../Formatter'
 
 export function parseItemBidForList(bid: any): BidForList {
     return {
@@ -42,7 +42,7 @@ export function parseAuction(auction: any): Auction {
         bin: auction.bin
     } as Auction
 
-    parsedAuction.item.iconUrl = api.getItemImageUrl(parsedAuction.item)
+    parsedAuction.item.iconUrl = getItemImageUrl(parsedAuction.item)
 
     return parsedAuction
 }
@@ -87,6 +87,18 @@ export function parseItemPrice(priceData: any): ItemPrice {
 }
 
 export function parseItem(item: any): Item {
+    if (!item) {
+        return {
+            tag: '',
+            name: 'Unknown Item',
+            category: '',
+            iconUrl: '',
+            tier: '',
+            bazaar: false,
+            npcPrice: 0,
+            flags: 0
+        } as Item
+    }
     const CRAB_HAT_IMAGES = {
         red: 'https://mc-heads.net/head/56b61f826dd6bfc1e3191a8369aeb0435c5a5335563431a538585ad039da1e0c',
         orange: 'https://mc-heads.net/head/ae38a15704089676a24e9eeccf4c290644d352c7d8f2b4135fa3538625107db',
@@ -115,7 +127,7 @@ export function parseItem(item: any): Item {
         tag: item.tag,
         name: item.altNames && item.altNames[0] && item.altNames[0].Name ? item.altNames[0].Name : item.itemName || item.name,
         category: item.category,
-        iconUrl: api.getItemImageUrl(item),
+        iconUrl: getItemImageUrl(item),
         tier: item.tier,
         bazaar: hasFlag(item.flags, 1),
         npcPrice: item.npcPrice || item.npc_price || item.npc,
@@ -159,7 +171,7 @@ export function parseSearchResultItem(item: any): SearchResultItem {
     return {
         dataItem: {
             name: item.name,
-            iconUrl: item.img ? 'data:image/png;base64,' + item.img : item.type === 'item' ? api.getItemImageUrl(item) : api.getItemImageUrl(item) + '?size=8'
+            iconUrl: item.img ? 'data:image/png;base64,' + item.img : item.type === 'item' ? getItemImageUrl(item) : getItemImageUrl(item) + '?size=8'
         },
         type: item.type,
         route: _getRoute(),
@@ -311,7 +323,7 @@ export function parseFlipAuction(flip): FlipAuction {
         finder: flip.finder,
         profit: flip.Profit
     } as FlipAuction
-    parsedFlip.item.iconUrl = api.getItemImageUrl(parsedFlip.item)
+    parsedFlip.item.iconUrl = getItemImageUrl(parsedFlip.item)
 
     return parsedFlip
 }
@@ -392,7 +404,7 @@ export function parseProfitableCrafts(crafts: any[] = []): ProfitableCraft[] {
         if (seenTags.has(result.item.tag)) {
             console.warn(`Recursive craft detected for ${result.item.tag}, stopping expansion.`)
             result.item.name = convertTagToName(result.item.tag)
-            result.item.iconUrl = api.getItemImageUrl(result.item)
+            result.item.iconUrl = getItemImageUrl(result.item)
             return result
         }
 
@@ -400,7 +412,7 @@ export function parseProfitableCrafts(crafts: any[] = []): ProfitableCraft[] {
         newSeenTags.add(result.item.tag)
 
         result.item.name = convertTagToName(result.item.tag)
-        result.item.iconUrl = api.getItemImageUrl(result.item)
+        result.item.iconUrl = getItemImageUrl(result.item)
         if (result.type === 'craft') {
             const toCraft = crafts.find(craft => craft.itemId === result.item.tag)
             if (!toCraft) {
@@ -437,7 +449,7 @@ export function parseProfitableCrafts(crafts: any[] = []): ProfitableCraft[] {
                 : null
         } as ProfitableCraft
         c.item.name = convertTagToName(c.item.name)
-        c.item.iconUrl = api.getItemImageUrl(c.item)
+        c.item.iconUrl = getItemImageUrl(c.item)
 
         return c
     })
@@ -448,7 +460,7 @@ export function parseLowSupplyItem(item): LowSupplyItem {
     lowSupplyItem.supply = item.supply
     lowSupplyItem.medianPrice = item.median
     lowSupplyItem.volume = item.volume
-    lowSupplyItem.iconUrl = api.getItemImageUrl(item)
+    lowSupplyItem.iconUrl = getItemImageUrl(item)
     lowSupplyItem.name = convertTagToName(item.tag)
     return lowSupplyItem
 }
@@ -529,7 +541,7 @@ export function parseKatFlip(katFlip): KatFlip {
         volume: katFlip.volume,
         originAuctionName: katFlip.originAuctionName
     } as KatFlip
-    flip.coreData.item.iconUrl = api.getItemImageUrl(flip.coreData.item)
+    flip.coreData.item.iconUrl = getItemImageUrl(flip.coreData.item)
     return flip
 }
 
@@ -557,7 +569,7 @@ export function parseFlipTrackingFlip(flip): FlipTrackingFlip {
         }),
         flags: flip.flags ? new Set(flip.flags.split(', ')) : new Set()
     } as FlipTrackingFlip
-    flipTrackingFlip.item.iconUrl = api.getItemImageUrl(flipTrackingFlip?.item)
+    flipTrackingFlip.item.iconUrl = getItemImageUrl(flipTrackingFlip?.item)
     return flipTrackingFlip
 }
 
@@ -570,23 +582,33 @@ export function parseBazaarOrder(order): BazaarOrder {
 }
 
 export function parseBazaarSnapshot(snapshot): BazaarSnapshot {
+    if (!snapshot) {
+        return {
+            item: parseItem({ tag: '' }),
+            buyData: { orderCount: 0, price: 0, volume: 0, moving: 0 },
+            sellData: { orderCount: 0, price: 0, volume: 0, moving: 0 },
+            timeStamp: new Date(),
+            buyOrders: [],
+            sellOrders: []
+        }
+    }
     return {
-        item: parseItem({ tag: snapshot.productId }),
+        item: parseItem({ tag: snapshot.productId || '' }),
         buyData: {
-            orderCount: snapshot.buyOrdersCount,
-            price: snapshot.buyPrice,
-            volume: snapshot.buyVolume,
-            moving: snapshot.buyMovingWeek
+            orderCount: snapshot.buyOrdersCount || 0,
+            price: snapshot.buyPrice || 0,
+            volume: snapshot.buyVolume || 0,
+            moving: snapshot.buyMovingWeek || 0
         },
         sellData: {
-            orderCount: snapshot.sellOrdersCount,
-            price: snapshot.sellPrice,
-            volume: snapshot.sellVolume,
-            moving: snapshot.sellMovingWeek
+            orderCount: snapshot.sellOrdersCount || 0,
+            price: snapshot.sellPrice || 0,
+            volume: snapshot.sellVolume || 0,
+            moving: snapshot.sellMovingWeek || 0
         },
         timeStamp: parseDate(snapshot.timeStamp),
-        buyOrders: snapshot.buyOrders.map(parseBazaarOrder),
-        sellOrders: snapshot.sellOrders.map(parseBazaarOrder)
+        buyOrders: Array.isArray(snapshot.buyOrders) ? snapshot.buyOrders.map(parseBazaarOrder) : [],
+        sellOrders: Array.isArray(snapshot.sellOrders) ? snapshot.sellOrders.map(parseBazaarOrder) : []
     }
 }
 
@@ -598,22 +620,29 @@ export function parseFlipTrackingResponse(flipTrackingResponse): FlipTrackingRes
 }
 
 export function parseBazaarPrice(bazaarPrice): BazaarPrice {
+    if (!bazaarPrice) {
+        return {
+            buyData: { max: 0, min: 0, price: 0, volume: 0, moving: 0 },
+            sellData: { max: 0, min: 0, price: 0, volume: 0, moving: 0 },
+            timestamp: new Date()
+        }
+    }
     return {
         buyData: {
-            max: bazaarPrice.maxBuy || 0,
-            min: bazaarPrice.minBuy || 0,
+            max: bazaarPrice.maxBuy || bazaarPrice.buyMax || 0,
+            min: bazaarPrice.minBuy || bazaarPrice.buyMin || 0,
             price: bazaarPrice.buy || 0,
             volume: bazaarPrice.buyVolume || 0,
-            moving: bazaarPrice.buyMovingWeek || 0
+            moving: bazaarPrice.buyMovingWeek || bazaarPrice.buyMoving || 0
         },
         sellData: {
-            max: bazaarPrice.maxSell || 0,
-            min: bazaarPrice.minSell || 0,
+            max: bazaarPrice.maxSell || bazaarPrice.sellMax || 0,
+            min: bazaarPrice.minSell || bazaarPrice.sellMin || 0,
             price: bazaarPrice.sell || 0,
             volume: bazaarPrice.sellVolume || 0,
-            moving: bazaarPrice.sellMovingWeek || 0
+            moving: bazaarPrice.sellMovingWeek || bazaarPrice.sellMoving || 0
         },
-        timestamp: parseDate(bazaarPrice.timestamp)
+        timestamp: parseDate(bazaarPrice.timestamp || bazaarPrice.time)
     }
 }
 
@@ -672,7 +701,7 @@ export function parseInventoryData(data): InventoryData {
         description: data.description,
         enchantments: data.enchantments || {},
         extraAttributes: data.extraAttributes,
-        icon: api.getItemImageUrl({ tag: data.tag }),
+        icon: getItemImageUrl({ tag: data.tag }),
         id: data.id,
         itemName: data.itemName,
         tag: data.tag

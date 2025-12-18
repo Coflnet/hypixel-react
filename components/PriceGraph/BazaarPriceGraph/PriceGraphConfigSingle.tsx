@@ -40,14 +40,14 @@ function getPriceGraphConfigSingle() {
                 'Price (buy)': true,
                 'Min (buy)': false,
                 'Max (buy)': false,
-                'Volume (buy)': false,
+                'Volume (buy)': true,
                 'Moving (buy)': false,
                 'Price (sell)': true,
                 'Min (sell)': false,
                 'Max (sell)': false,
-                'Volume (sell)': false,
+                'Volume (sell)': true,
                 'Moving (sell)': false,
-                Mayors: false
+                Mayors: true
             },
             icon: 'roundRect',
             itemStyle: {},
