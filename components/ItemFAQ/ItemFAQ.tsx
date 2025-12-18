@@ -94,11 +94,25 @@ export default function ItemFAQ({ item, initialFaqPairs, tag, range, filter }: P
                 const newFaqPairs = [...initialFaqPairs]
                 
                 // Update or add dynamic questions
-                updateOrAdd(newFaqPairs, `What are the minimum, maximum, average and median prices for ${item.name || convertTagToName(tag)}?`, 
-                    stats ? `Over the last ${range}, the minimum observed price was ${numberWithThousandsSeparators(stats.min)} coins, the maximum was ${numberWithThousandsSeparators(stats.max)} coins, the average was approximately ${numberWithThousandsSeparators(stats.avg)} coins and the median was ${numberWithThousandsSeparators(stats.median)} coins.`
-                    : `No price data available for the selected range (${range}).`)
+                const itemName = item.name || convertTagToName(tag)
+                if (stats) {
+                    updateOrAdd(newFaqPairs, `What is the minimum price for ${itemName}?`, 
+                        `Over the last ${range}, the minimum observed price for ${itemName} was ${numberWithThousandsSeparators(stats.min)} coins.`)
+                    
+                    updateOrAdd(newFaqPairs, `What is the maximum price for ${itemName}?`, 
+                        `Over the last ${range}, the maximum observed price for ${itemName} was ${numberWithThousandsSeparators(stats.max)} coins.`)
+                    
+                    updateOrAdd(newFaqPairs, `What is the average price for ${itemName}?`, 
+                        `Over the last ${range}, the average price for ${itemName} was approximately ${numberWithThousandsSeparators(stats.avg)} coins.`)
+                    
+                    updateOrAdd(newFaqPairs, `What is the median price for ${itemName}?`, 
+                        `Over the last ${range}, the median price for ${itemName} was ${numberWithThousandsSeparators(stats.median)} coins.`)
+                } else {
+                    updateOrAdd(newFaqPairs, `What are the prices for ${itemName}?`, 
+                        `No price data available for the selected range (${range}).`)
+                }
 
-                updateOrAdd(newFaqPairs, `Is the price for ${item.name || convertTagToName(tag)} currently increasing or decreasing?`,
+                updateOrAdd(newFaqPairs, `Is the price for ${itemName} currently increasing or decreasing?`,
                     trend === 'increasing' ? 'Prices are currently increasing.' : trend === 'decreasing' ? 'Prices are currently decreasing.' : 'Prices are currently stable.')
 
                 if (topSeller) {

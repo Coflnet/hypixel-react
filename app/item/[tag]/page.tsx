@@ -78,17 +78,37 @@ export default async function Page(props) {
         a: `Default tier: ${defaultTier}. Category: ${category}. NPC Price: ${npcPrice === 'N/A' ? 'N/A' : numberWithThousandsSeparators(npcPrice) + ' coins'}`
     })
 
+    const isBazaar = hasFlag(item.flags, 1)
+    const isAuction = hasFlag(item.flags, 4)
+    const isMuseum = hasFlag(item.flags, 32)
+
+    let bazaarAhStatus = ''
+    if (isBazaar && isAuction) {
+        bazaarAhStatus = `Yes, ${item.name || convertTagToName(tag)} is available on both the Bazaar and the Auction House.`
+    } else if (isBazaar) {
+        bazaarAhStatus = `Yes, ${item.name || convertTagToName(tag)} is available on the Bazaar.`
+    } else if (isAuction) {
+        bazaarAhStatus = `No, ${item.name || convertTagToName(tag)} is not a Bazaar item but is traded on the Auction House.`
+    } else {
+        bazaarAhStatus = `No, ${item.name || convertTagToName(tag)} is neither available on the Bazaar nor the Auction House.`
+    }
+
     faqPairs.push({
         q: `Is ${item.name || convertTagToName(tag)} a Bazaar item?`,
-        a: item.bazaar ? `Yes, ${item.name || convertTagToName(tag)} is available on the Bazaar.` : `No, ${item.name || convertTagToName(tag)} is not a Bazaar item and is traded on the Auction House.`
+        a: bazaarAhStatus
     })
 
-    if (item.bazaar) {
+    faqPairs.push({
+        q: `Can I donate ${item.name || convertTagToName(tag)} to the Museum?`,
+        a: isMuseum ? `Yes, ${item.name || convertTagToName(tag)} can be donated to the Museum for SkyBlock XP.` : `No, ${item.name || convertTagToName(tag)} cannot be donated to the Museum.`
+    })
+
+    if (isBazaar) {
         faqPairs.push({
             q: `How do I buy ${item.name || convertTagToName(tag)}?`,
             a: `You can buy ${item.name || convertTagToName(tag)} from the Bazaar NPC in the Hub. You can either place a Buy Order or use Buy Instantly.`
         })
-    } else {
+    } else if (isAuction) {
         faqPairs.push({
             q: `How do I buy ${item.name || convertTagToName(tag)}?`,
             a: `You can buy ${item.name || convertTagToName(tag)} from the Auction House (AH). It is typically sold as a BIN (Buy It Now) item.`
