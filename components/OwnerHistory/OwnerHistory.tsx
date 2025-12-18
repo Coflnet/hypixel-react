@@ -1,13 +1,16 @@
 'use client'
 import React, { useEffect, useState } from 'react'
 import { Card, ListGroup } from 'react-bootstrap'
-import api from '../../api/ApiHelper'
+import { getApiAuctionsUidUidSold, postApiPlayerNames } from '../../api/_generated/skyApi'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import styles from './OwnerHistory.module.css'
 import ArrowRightIcon from '@mui/icons-material/ArrowRightAlt'
 import moment from 'moment'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import Number from '../Number/Number'
+import { parseOwnerHistory } from '../../utils/Parser/APIResponseParser'
+import { getItemImageUrl } from '../../utils/Formatter'
+import Image from 'next/image'
 
 interface Props {
     uid: string
@@ -24,7 +27,8 @@ function ItemHistory(props: Props) {
     async function loadOwnerHistory() {
         setIsLoading(true)
 
-        let ownerHistory = await api.getOwnerHistory(props.uid)
+        let res = await getApiAuctionsUidUidSold(props.uid)
+        let ownerHistory = (res.data as any[]).map(parseOwnerHistory)
 
         let prevOwnerObjects: OwnerHistory[] = []
 
@@ -33,7 +37,8 @@ function ItemHistory(props: Props) {
             namesToFetch.push(history.buyer.uuid)
             namesToFetch.push(history.seller.uuid)
         })
-        let names = await api.getPlayerNames(namesToFetch)
+        let namesRes = await postApiPlayerNames(namesToFetch)
+        let names = namesRes.data as { [key: string]: string }
 
         ownerHistory.forEach(history => {
             history.seller.name = names[history.seller.uuid]
@@ -94,7 +99,7 @@ function ItemHistory(props: Props) {
                                     <img
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
-                                        src={api.getItemImageUrl({
+                                        src={getItemImageUrl({
                                             tag: historyEntry.itemTag
                                         })}
                                         alt="player icon"

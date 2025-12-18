@@ -51,6 +51,8 @@ interface Item {
     category?: string
     iconUrl?: string
     bazaar?: boolean
+    npcPrice?: number
+    flags?: number
 }
 
 interface FavoriteItemEntry {

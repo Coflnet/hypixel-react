@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button, Card, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import api from '../../api/ApiHelper'
+import { getApiAuctionsTagItemTagActiveOverview, postApiPremiumUserOwns } from '../../api/_generated/skyApi'
 import { useStateWithRef, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -14,6 +14,8 @@ import { CopyButton } from '../CopyButton/CopyButton'
 import styles from './ActiveAuctions.module.css'
 import Image from 'next/image'
 import Number from '../Number/Number'
+import { parseRecentAuction, parsePremiumProducts } from '../../utils/Parser/APIResponseParser'
+import { getItemImageUrl } from '../../utils/Formatter'
 
 interface Props {
     item: Item
@@ -91,14 +93,18 @@ function ActiveAuctions(props: Props) {
             isLoadingElements.current = false
             return
         }
-        filter['page'] = page.toString()
 
-        api.getActiveAuctions(itemRef.current, orderRef.current, filter)
-            .then(auctions => {
+        getApiAuctionsTagItemTagActiveOverview(itemRef.current.tag, {
+            ...filter,
+            page: page,
+            order: orderRef.current
+        } as any)
+            .then(res => {
                 if (currentLoad !== filterString) {
                     return
                 }
                 isLoadingElements.current = false
+                const auctions = (res.data as any[]).map(parseRecentAuction)
                 if (auctions.length < FETCH_RESULT_SIZE) {
                     setAllElementsLoaded(true)
                 } else if (reset) {
@@ -125,30 +131,28 @@ function ActiveAuctions(props: Props) {
 
     function onAfterLogin() {
         console.log('onAfterLogin called')
-        api.getPremiumProducts()
-            .then(products => {
-                setIsLoggedIn(true)
-                let activePremium = getHighestPriorityPremiumProduct(products)
-                if (!activePremium) {
-                    return
-                }
-                let highestPremium = getPremiumType(activePremium)
-                premiumType = highestPremium
-                setPremiumType(() => {
-                    setAllElementsLoaded(() => {
-                        if (highestPremium !== null) {
-                            loadActiveAuctions(true)
-                        }
-                        return false
-                    })
-                    return highestPremium
+        postApiPremiumUserOwns([]).then(res => {
+            const products = parsePremiumProducts(res.data)
+            setIsLoggedIn(true)
+            let activePremium = getHighestPriorityPremiumProduct(products)
+            if (!activePremium) {
+                return
+            }
+            let highestPremium = getPremiumType(activePremium)
+            premiumType = highestPremium
+            setPremiumType(() => {
+                setAllElementsLoaded(() => {
+                    if (highestPremium !== null) {
+                        loadActiveAuctions(true)
+                    }
+                    return false
                 })
+                return highestPremium
             })
+        })
             .catch(() => {
                 setIsLoggedIn(false)
                 setPremiumType(PREMIUM_TYPES.find(p => p.productId === 'premium'))
-                setAllElementsLoaded(false)
-                loadActiveAuctions(true)
             })
     }
 
@@ -163,9 +167,9 @@ function ActiveAuctions(props: Props) {
                                     <Image
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
-                                        src={api.getItemImageUrl(props.item) || ''}
-                                        height={32}
-                                        width={32}
+                                        src={getItemImageUrl(props.item) || ''}
+                                        height="32"
+                                        width="32"
                                         alt=""
                                         style={{ marginRight: '5px' }}
                                         loading="lazy"

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { ChangeEvent, useEffect, useRef, useState } from 'react'
 import { Button, Card, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import api from '../../api/ApiHelper'
+import { getApiAuctionsTagItemTagRecentOverview, postApiPremiumUserOwns } from '../../api/_generated/skyApi'
 import { useStateWithRef, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -14,6 +14,8 @@ import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
 import Number from '../Number/Number'
 import styles from './RecentAuctions.module.css'
 import { useSearchParams } from 'next/navigation'
+import { parseRecentAuction, parsePremiumProducts } from '../../utils/Parser/APIResponseParser'
+import { getItemImageUrl } from '../../utils/Formatter'
 
 interface Props {
     item: Item
@@ -135,7 +137,8 @@ function RecentAuctions(props: Props) {
             return
         }
 
-        api.getRecentAuctions(props.item.tag, itemFilter).then(newRecentAuctions => {
+        getApiAuctionsTagItemTagRecentOverview(props.item.tag, itemFilter as any).then(res => {
+            const newRecentAuctions = (res.data as any[]).map(parseRecentAuction)
             if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
                 return
             }
@@ -167,7 +170,6 @@ function RecentAuctions(props: Props) {
                 return
             }
             let highestPremium = getPremiumType(activePremium)
-            premiumType = highestPremium
             setPremiumType(() => {
                 setAllElementsLoaded(() => {
                     if (highestPremium !== null) {
@@ -179,9 +181,9 @@ function RecentAuctions(props: Props) {
             })
         }
 
-        api.getPremiumProducts()
-            .then(products => {
-                onAfterPremiumProductsLoaded(products)
+        postApiPremiumUserOwns([])
+            .then(res => {
+                onAfterPremiumProductsLoaded(parsePremiumProducts(res.data))
             })
             .catch(() => {
                 onAfterPremiumProductsLoaded([
@@ -204,7 +206,7 @@ function RecentAuctions(props: Props) {
                                     <Image
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
-                                        src={api.getItemImageUrl(props.item) || ''}
+                                        src={getItemImageUrl(props.item) || ''}
                                         height="32"
                                         width="32"
                                         alt=""

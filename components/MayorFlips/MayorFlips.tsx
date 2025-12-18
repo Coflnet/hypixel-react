@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation'
 import api from '../../api/ApiHelper'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import NumberElement from '../Number/Number'
-import { convertTagToName } from '../../utils/Formatter'
+import { convertTagToName, getItemImageUrl } from '../../utils/Formatter'
 import { getApiFlipMayor, getGetApiFlipMayorQueryKey } from '../../api/_generated/skyApi'
 import { MayorDiffFlip } from '../../api/_generated/skyApi.schemas'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
@@ -63,7 +63,7 @@ function getItemName(flip: MayorDiffFlip): string {
 
 function renderMayorFlip(flip: MayorDiffFlip) {
     const tag = getItemTag(flip)
-    const imageUrl = tag ? api.getItemImageUrl({ tag }) : null
+    const imageUrl = tag ? getItemImageUrl({ tag }) : null
     const expectedProfit = getExpectedProfit(flip)
     const priceChangePercent = getPriceChangePercent(flip)
 

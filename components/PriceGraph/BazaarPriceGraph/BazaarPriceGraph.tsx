@@ -4,7 +4,12 @@ import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import ReactECharts from 'echarts-for-react'
 import { ChangeEvent, RefObject, Suspense, useEffect, useRef, useState } from 'react'
 import { Form } from 'react-bootstrap'
-import api from '../../../api/ApiHelper'
+import {
+    getApiBazaarItemTagHistory,
+    getApiBazaarItemTagHistoryDay,
+    getApiBazaarItemTagHistoryWeek,
+    getApiMayor
+} from '../../../api/_generated/skyApi'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { getURLSearchParam } from '../../../utils/Parser/URLParser'
@@ -133,7 +138,11 @@ function BazaarPriceGraph(props: Props) {
             let prices = await loadBazaarPrices(props.item.tag, fetchspan)
             let mayorData
             try {
-                mayorData = await api.getMayorData(prices[0].timestamp, prices[prices.length - 1].timestamp)
+                const mayorResponse = await getApiMayor({
+                    from: new Date(prices[0].timestamp).toISOString(),
+                    to: new Date(prices[prices.length - 1].timestamp).toISOString()
+                })
+                mayorData = mayorResponse.data
             } catch {
                 mayorData = []
             }
@@ -197,12 +206,19 @@ function BazaarPriceGraph(props: Props) {
         setChartOptionsSecondary(chartOptionsSecondary)
     }
 
-    function loadBazaarPrices(tag: string, fetchspan: DateRange): Promise<BazaarPrice[]> {
+    async function loadBazaarPrices(tag: string, fetchspan: DateRange): Promise<BazaarPrice[]> {
+        let response;
         if (fetchspan === DateRange.ALL) {
-            return api.getBazaarPricesByRange(tag, new Date(0), new Date())
+            response = await getApiBazaarItemTagHistory(tag, {
+                start: new Date(0).toISOString(),
+                end: new Date().toISOString()
+            })
+        } else if (fetchspan === DateRange.WEEK) {
+            response = await getApiBazaarItemTagHistoryWeek(tag)
         } else {
-            return api.getBazaarPrices(tag, fetchspan as any)
+            response = await getApiBazaarItemTagHistoryDay(tag)
         }
+        return response.data as any
     }
 
     function getLegendLocalStorageKey(primary: boolean) {

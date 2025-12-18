@@ -7,6 +7,8 @@ import Image from 'next/image'
 import NumberElement from '../Number/Number'
 import moment from 'moment'
 import api from '../../api/ApiHelper'
+import { getApiAuctionsTagItemTagArchiveOverview, getApiFilterOptions, postApiPremiumUserOwns } from '../../api/_generated/skyApi'
+import { getItemImageUrl } from '../../utils/Formatter'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { PREMIUM_RANK, PREMIUM_TYPES, hasHighEnoughPremium } from '../../utils/PremiumTypeUtils'
@@ -17,6 +19,7 @@ import { Help as HelpIcon } from '@mui/icons-material'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import ExportArchivedData from './ExportArchivedData/ExportArchivedData'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { parseArchivedAuctions, parsePremiumProducts } from '../../utils/Parser/APIResponseParser'
 
 interface Props {
     item: Item
@@ -56,15 +59,14 @@ const ArchivedAuctionsList = (props: Props) => {
     }
 
     function loadFilters(): Promise<FilterOptions[]> {
-        return Promise.all([api.getFilters(props.item?.tag || '*'), api.flipFilters(props.item?.tag || '*')]).then(filters => {
-            let result = [...(filters[0] || []), ...(filters[1] || [])]
-            return result
+        return getApiFilterOptions({ itemTag: props.item?.tag || '*' }).then(res => {
+            return res.data as FilterOptions[]
         })
     }
 
     async function onAfterLogin() {
         try {
-            let [products, filters] = await Promise.all([api.getPremiumProducts(), loadFilters()])
+            let [products, filters] = await Promise.all([postApiPremiumUserOwns([]).then(res => parsePremiumProducts(res.data)), loadFilters()])
             setIsLoggedIn(true)
             setPremiumProducts(products)
             setFilters(filters)
@@ -97,21 +99,23 @@ const ArchivedAuctionsList = (props: Props) => {
         setIsLoading(true)
         try {
             let filter = (selectedFilter as any) || {}
-            const data = await api.requestArchivedAuctions(props.item.tag, {
+            const data = await getApiAuctionsTagItemTagArchiveOverview(props.item.tag, {
                 ...filter,
-                EndAfter: Math.floor(from.getTime() / 1000).toString(),
-                EndBefore: Math.floor(to.getTime() / 1000).toString(),
-                page: reset ? 0 : currentPageRef.current.toString()
+                endAfter: Math.floor(from.getTime() / 1000).toString(),
+                endBefore: Math.floor(to.getTime() / 1000).toString(),
+                page: reset ? 0 : currentPageRef.current
             })
 
-            if (data.queryStatus === 'Pending') {
+            if (data.data.queryStatus === 'Pending') {
                 setTimeout(() => {
                     search()
                 }, 1000)
                 return
             }
 
-            let newAuctions = [...archivedAuctionsRef.current, ...data.auctions]
+            const parsedData = parseArchivedAuctions(data.data)
+
+            let newAuctions = [...archivedAuctionsRef.current, ...parsedData.auctions]
             archivedAuctionsRef.current = newAuctions
             setArchivedAuctions(newAuctions)
             let newPage = currentPageRef.current + 1
@@ -172,7 +176,7 @@ const ArchivedAuctionsList = (props: Props) => {
                                     <Image
                                         crossOrigin="anonymous"
                                         className="playerHeadIcon"
-                                        src={api.getItemImageUrl(props.item) || ''}
+                                        src={getItemImageUrl(props.item) || ''}
                                         height="32"
                                         width="32"
                                         alt=""

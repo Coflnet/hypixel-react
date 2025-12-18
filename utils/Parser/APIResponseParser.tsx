@@ -117,7 +117,9 @@ export function parseItem(item: any): Item {
         category: item.category,
         iconUrl: api.getItemImageUrl(item),
         tier: item.tier,
-        bazaar: hasFlag(item.flags, 1)
+        bazaar: hasFlag(item.flags, 1),
+        npcPrice: item.npcPrice || item.npc_price || item.npc,
+        flags: item.flags
     }
 
     if (item.flatNbt && item.flatNbt['party_hat_color'] && item.tag === 'PARTY_HAT_CRAB') {

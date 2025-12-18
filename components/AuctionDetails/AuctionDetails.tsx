@@ -6,12 +6,17 @@ import { Badge, Button, Card, ListGroup, Modal, OverlayTrigger, Tooltip as Toolt
 import Countdown from 'react-countdown'
 import { toast } from 'react-toastify'
 import { v4 as generateUUID } from 'uuid'
-import api from '../../api/ApiHelper'
+import {
+    getApiAuctionAuctionUuid,
+    getApiItemItemTagDetails,
+    getApiPlayerPlayerUuidName
+} from '../../api/_generated/skyApi'
 import {
     convertTagToName,
     formatDungeonStarsInString as getDungeonStarFormattedItemName,
     getMinecraftColorCodedElement,
-    getStyleForTier
+    getStyleForTier,
+    getItemImageUrl
 } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -25,7 +30,7 @@ import { Help as HelpIcon, ArrowDropDown as ArrowDownIcon, ArrowRight as ArrowRi
 import { FilterChecker } from '../FilterChecker/FilterChecker'
 import Image from 'next/image'
 import Number from '../Number/Number'
-import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
+import { parseAuctionDetails, parseItem } from '../../utils/Parser/APIResponseParser'
 import ItemHistory from '../OwnerHistory/OwnerHistory'
 
 interface Props {
@@ -62,14 +67,15 @@ function AuctionDetails(props: Props) {
         if (!auctionDetails) {
             setIsLoading(true)
         }
-        api.getAuctionDetails(auctionUUID)
+        getApiAuctionAuctionUuid(auctionUUID)
             .then(result => {
-                setUnparsedAuctionDetails(result.original)
-                let auctionDetails = result.parsed
+                setUnparsedAuctionDetails(result.data)
+                let auctionDetails = parseAuctionDetails(result.data)
                 auctionDetails.bids.sort((a, b) => b.amount - a.amount)
-                auctionDetails.auction.item.iconUrl = api.getItemImageUrl(auctionDetails.auction.item)
+                auctionDetails.auction.item.iconUrl = getItemImageUrl(auctionDetails.auction.item)
                 setAuctionDetails(auctionDetails)
-                api.getItemDetails(auctionDetails.auction.item.tag).then(item => {
+                getApiItemItemTagDetails(auctionDetails.auction.item.tag).then(itemRes => {
+                    const item = parseItem(itemRes.data)
                     if (!auctionDetails.auction.item.name) {
                         auctionDetails.auction.item.name = item.name
                     }
@@ -79,14 +85,14 @@ function AuctionDetails(props: Props) {
 
                 let namePromises: Promise<void>[] = []
                 auctionDetails.bids.forEach(bid => {
-                    let promise = api.getPlayerName(bid.bidder.uuid).then(name => {
-                        bid.bidder.name = name
+                    let promise = getApiPlayerPlayerUuidName(bid.bidder.uuid).then(nameRes => {
+                        bid.bidder.name = nameRes.data as any
                     })
                     namePromises.push(promise)
                 })
                 namePromises.push(
-                    api.getPlayerName(auctionDetails.auctioneer.uuid).then(name => {
-                        auctionDetails.auctioneer.name = name
+                    getApiPlayerPlayerUuidName(auctionDetails.auctioneer.uuid).then(nameRes => {
+                        auctionDetails.auctioneer.name = nameRes.data as any
                     })
                 )
                 Promise.all(namePromises).then(() => {
@@ -313,7 +319,7 @@ function AuctionDetails(props: Props) {
                         <span className={styles.itemIcon}>
                             <Image
                                 crossOrigin="anonymous"
-                                src={api.getItemImageUrl(auctionDetails.auction.item) || ''}
+                                src={getItemImageUrl(auctionDetails.auction.item) || ''}
                                 height={48}
                                 width={48}
                                 alt="item icon"

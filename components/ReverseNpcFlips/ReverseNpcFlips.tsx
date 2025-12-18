@@ -8,7 +8,7 @@ import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import NumberElement from '../Number/Number'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
-import { getMinecraftColorCodedElement } from '../../utils/Formatter'
+import { getItemImageUrl, getMinecraftColorCodedElement } from '../../utils/Formatter'
 import { getApiFlipNpcReverse } from '../../api/_generated/skyApi'
 import { NpcFlip } from '../../api/_generated/skyApi.schemas'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
@@ -252,7 +252,7 @@ export function ReverseNpcFlips() {
             <span>
                 <Image
                     crossOrigin="anonymous"
-                    src={api.getItemImageUrl({ tag }) || ''}
+                    src={getItemImageUrl({ tag }) || ''}
                     height="32"
                     width="32"
                     alt=""

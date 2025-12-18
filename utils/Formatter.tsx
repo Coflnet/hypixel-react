@@ -1,6 +1,7 @@
 import { CSSProperties, cloneElement, type JSX } from 'react'
 import { isClientSideRendering } from './SSRUtils'
 import { update } from 'idb-keyval'
+import { getSetting, ITEM_ICON_TYPE } from './SettingsUtils'
 
 /*
  Returns a given number as string with thousands-separators. Example:
@@ -346,4 +347,20 @@ export function getMinecraftColorCodedElement(text: string = '', autoFormat = tr
 
 export function removeMinecraftColorCoding(text: string = ''): string {
     return text.replace(/§[0-9a-fk-or]/gi, '')
+}
+
+export function getItemImageUrl(item: Item): string {
+    // Always use 'default' during SSR to avoid hydration mismatch
+    // The user's preference is only available on the client via localStorage
+    let type = isClientSideRendering() ? getSetting(ITEM_ICON_TYPE, 'default') : 'default'
+
+    let iconURL = item.iconUrl || (item as any).icon // this is also player images
+    if (iconURL && !iconURL.includes("mc-heads")) {
+        if (type === 'vanilla' && !iconURL.endsWith('/vanilla') && iconURL.includes('sky.coflnet.com/static/icon')) {
+            return iconURL + '/vanilla'
+        }
+        return iconURL
+    }
+    let r = `https://sky.coflnet.com/static/icon/${item.tag}${type === 'vanilla' ? '/vanilla' : ''}`
+    return r
 }

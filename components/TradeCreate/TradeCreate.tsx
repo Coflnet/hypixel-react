@@ -7,7 +7,7 @@ import AddIcon from '@mui/icons-material/AddCircleOutline'
 import MinusIcon from '@mui/icons-material/RemoveCircleOutline'
 import PlayerInventory from '../PlayerInventory/PlayerInventory'
 import TradeCreateWantedItem from '../TradeCreateWantedItem/TradeCreateWantedItem'
-import { convertTagToName, getDecimalSeparator, getMinecraftColorCodedElement, getThousandSeparator } from '../../utils/Formatter'
+import { convertTagToName, getDecimalSeparator, getItemImageUrl, getMinecraftColorCodedElement, getThousandSeparator } from '../../utils/Formatter'
 import { toast } from 'react-toastify'
 import CircularProgress from '@mui/material/CircularProgress'
 import CloseIcon from '@mui/icons-material/Close'
@@ -135,7 +135,7 @@ export default function TradeCreate(props: Props) {
                                             <img
                                                 title={convertTagToName(offer.tag)}
                                                 className={styles.image}
-                                                src={api.getItemImageUrl(offer)}
+                                                src={getItemImageUrl(offer)}
                                                 alt=""
                                                 crossOrigin="anonymous"
                                                 height={24}
@@ -181,7 +181,7 @@ export default function TradeCreate(props: Props) {
                                                 <img
                                                     title={convertTagToName(wantedItem.itemName)}
                                                     className={styles.image}
-                                                    src={api.getItemImageUrl({ tag: wantedItem.tag })}
+                                                    src={getItemImageUrl({ tag: wantedItem.tag })}
                                                     alt=""
                                                     crossOrigin="anonymous"
                                                     height={24}

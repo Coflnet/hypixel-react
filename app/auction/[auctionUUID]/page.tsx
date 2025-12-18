@@ -1,13 +1,13 @@
 import moment from 'moment'
-import { initAPI } from '../../../api/ApiHelper'
 import { getHeadMetadata } from '../../../utils/SSRUtils'
-import { numberWithThousandsSeparators } from '../../../utils/Formatter'
+import { numberWithThousandsSeparators, getItemImageUrl } from '../../../utils/Formatter'
 import AuctionDetails from '../../../components/AuctionDetails/AuctionDetails'
 import Search from '../../../components/Search/Search'
 import { parseAuctionDetails } from '../../../utils/Parser/APIResponseParser'
 import { Container } from 'react-bootstrap'
 import { BottomBanner } from '../../../components/BottomBanner/BottomBanner'
 import Link from 'next/link'
+import { getApiAuctionAuctionUuid, getApiPlayerPlayerUuidName } from '../../../api/_generated/skyApi'
 
 // Valid auction ID formats:
 // - 17 character hex string (e.g., "924c0480753e41aab")
@@ -35,13 +35,12 @@ async function getAuctionDetails(auctionUUID: string) {
         return null
     }
 
-    let api = initAPI(true)
     let auctionDetails: any
     let unparsedAuctionDetails: any
     try {
-        let result = await api.getAuctionDetails(auctionUUID)
-        auctionDetails = result.original
-        unparsedAuctionDetails = JSON.stringify(result.original)
+        let result = await getApiAuctionAuctionUuid(auctionUUID)
+        auctionDetails = result.data
+        unparsedAuctionDetails = JSON.stringify(result.data)
     } catch (e) {
         console.log('ERROR fetching Auction Details: ' + JSON.stringify(e))
         console.log('------------------------\n')
@@ -58,17 +57,16 @@ async function getAuctionDetails(auctionUUID: string) {
 
     let namePromises: Promise<void>[] = []
     try {
-        auctionDetails.iconUrl = api.getItemImageUrl(auctionDetails)
+        auctionDetails.iconUrl = getItemImageUrl({ tag: auctionDetails.tag, iconUrl: auctionDetails.iconUrl } as any)
         if (!auctionDetails.name) {
             auctionDetails.name = auctionDetails.itemName
         }
 
         auctionDetails.bids.forEach(bid => {
-            let promise = api
-                .getPlayerName(bid.bidder)
-                .then(name => {
+            let promise = getApiPlayerPlayerUuidName(bid.bidder)
+                .then(nameRes => {
                     let newBidder = {
-                        name: name,
+                        name: nameRes.data as any,
                         uuid: bid.bidder
                     }
                     bid.bidder = newBidder
@@ -85,29 +83,27 @@ async function getAuctionDetails(auctionUUID: string) {
             namePromises.push(promise)
         })
         namePromises.push(
-            api
-                .getPlayerName(auctionDetails.auctioneerId)
-                .then(name => {
+            getApiPlayerPlayerUuidName(auctionDetails.auctioneerId)
+                .then(nameRes => {
                     auctionDetails.auctioneer = {
-                        name: name,
+                        name: nameRes.data as any,
                         uuid: auctionDetails.auctioneerId
                     }
                 })
                 .catch(e => {
                     auctionDetails.auctioneer = {
-                        name: name,
+                        name: '',
                         uuid: auctionDetails.auctioneerId
                     }
                     console.error(`Error fetching playername for auctioneer ${auctionDetails.auctioneerId}. ${JSON.stringify(e)}`)
                     console.log('------------------------\n')
                 })
         )
+        await Promise.all(namePromises)
     } catch (e) {
-        console.log('ERROR building Auction Details: ' + JSON.stringify(e))
+        console.log('ERROR parsing Auction Details: ' + JSON.stringify(e))
         console.log('------------------------\n')
     }
-
-    await Promise.allSettled(namePromises)
 
     return {
         auctionDetails: auctionDetails,

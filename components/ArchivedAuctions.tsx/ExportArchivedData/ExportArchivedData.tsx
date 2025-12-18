@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Button, Card, Form, Modal } from 'react-bootstrap'
 import ItemFilterPropertiesDisplay from '../../ItemFilter/ItemFilterPropertiesDisplay'
-import api from '../../../api/ApiHelper'
+import { postApiAuctionsTagItemTagArchiveExport } from '../../../api/_generated/skyApi'
 import styles from './ExportArchivedData.module.css'
 import HelpIcon from '@mui/icons-material/Help'
 import Tooltip from '../../Tooltip/Tooltip'
@@ -42,7 +42,11 @@ function ExportArchivedData(props: Props) {
         }
 
         setIsExportRunning(true)
-        api.exportArchivedAuctionsData(props.itemTag, props.filter, discordWebhookUrl, flags)
+        postApiAuctionsTagItemTagArchiveExport(props.itemTag, {
+            discordWebhookUrl,
+            flags: flags.join(',') as any,
+            filters: props.filter as any
+        })
             .then(() => {
                 setShowConfirmDialog(false)
                 setShowModal(false)

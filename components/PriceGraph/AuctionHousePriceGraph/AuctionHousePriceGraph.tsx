@@ -3,7 +3,15 @@
 import ReactECharts from 'echarts-for-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import useRotatingMessages from '../../../hooks/useRotatingMessages'
-import api from '../../../api/ApiHelper'
+import {
+    getApiItemPriceItemTagHistoryDay,
+    getApiItemPriceItemTagHistoryWeek,
+    getApiItemPriceItemTagHistoryMonth,
+    getApiItemPriceItemTagHistoryFull,
+    getApiMayor,
+    getApiFilterOptions,
+    postApiPremiumUserOwns
+} from '../../../api/_generated/skyApi'
 import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { AUCTION_GRAPH_LEGEND_SELECTION } from '../../../utils/SettingsUtils'
 import ActiveAuctions from '../../ActiveAuctions/ActiveAuctions'
@@ -25,8 +33,9 @@ import { useGetApiItemPriceItemTagHistoryYear } from '../../../api/_generated/sk
 import Link from 'next/link'
 import { v4 as generateUUID } from 'uuid'
 import { useGetApiMayor } from '../../../api/_generated/skyApi'
-import type { PriceStatistics, CoflnetSkyMayorModelsModelElectionPeriod, AuctionPreview } from '../../../api/_generated/skyApi.schemas'
+import type { PriceStatistics, CoflnetSkyMayorModelsModelElectionPeriod, AuctionPreview, FilterOptions } from '../../../api/_generated/skyApi.schemas'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
+import { parsePremiumProducts } from '../../../utils/Parser/APIResponseParser'
 
 const HOUR_IN_MS = 60 * 60 * 1000
 
@@ -145,18 +154,23 @@ function AuctionHousePriceGraph(props: Props) {
     }, [props.item.tag])
 
     function handleAfterLoginForPremium() {
-        api.getPremiumProducts()
-            .then(products => {
-                const ok = hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM)
-                setHasPremium(ok)
-                if (ok) {
-                    updateChart(DateRange.YEAR, itemFilter)
-                }
-            })
-            .catch(() => {})
-    }
-
-    const now = new Date()
+        const googleId = sessionStorage.getItem('googleId')
+        if (!googleId) {
+            return
+        }
+        postApiPremiumUserOwns([], {
+            headers: {
+                GoogleToken: googleId
+            }
+        }).then(res => {
+            const products = parsePremiumProducts(res.data)
+            const ok = hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM)
+            setHasPremium(ok)
+            if (ok) {
+                updateChart(DateRange.YEAR, itemFilter)
+            }
+        })
+    }    const now = new Date()
     const lookbackStart = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate() + 1)
     const { from: currentMayorFrom, to: currentMayorTo } = normaliseMayorRange(lookbackStart, now)
 
@@ -324,8 +338,20 @@ function AuctionHousePriceGraph(props: Props) {
             return
         }
 
-        api.getItemPrices(props.item.tag, fetchspan as unknown as globalThis.DateRange, itemFilter)
-            .then(async prices => {
+        let pricesPromise;
+        if (fetchspan === DateRange.WEEK) {
+            pricesPromise = getApiItemPriceItemTagHistoryWeek(props.item.tag, (itemFilter || {}) as any)
+        } else if (fetchspan === DateRange.MONTH) {
+            pricesPromise = getApiItemPriceItemTagHistoryMonth(props.item.tag, (itemFilter || {}) as any)
+        } else if (fetchspan === DateRange.ALL) {
+            pricesPromise = getApiItemPriceItemTagHistoryFull(props.item.tag)
+        } else {
+            pricesPromise = getApiItemPriceItemTagHistoryDay(props.item.tag, (itemFilter || {}) as any)
+        }
+
+        pricesPromise
+            .then(async response => {
+                const prices = (response as any).data
                 if (
                     !mounted ||
                     currentLoadingString !==
@@ -338,10 +364,15 @@ function AuctionHousePriceGraph(props: Props) {
                     return
                 }
 
-                let minDate = prices[0].time
-                let maxDate = prices[prices.length - 1].time
+                if (!prices || prices.length === 0) {
+                    setIsLoading(false)
+                    return
+                }
 
-                chartOptions.xAxis[0].data = prices.map(item => item.time.getTime())
+                let minDate = new Date(prices[0].time)
+                let maxDate = new Date(prices[prices.length - 1].time)
+
+                chartOptions.xAxis[0].data = prices.map(item => new Date(item.time).getTime())
 
                 let priceSum = 0
 
@@ -354,7 +385,16 @@ function AuctionHousePriceGraph(props: Props) {
                 })
 
                 try {
-                    let mayorData = await api.getMayorData(minDate, maxDate)
+                    let mayorData = []
+                try {
+                    const mayorResponse = await getApiMayor({
+                        from: minDate.toISOString(),
+                        to: maxDate.toISOString()
+                    })
+                    mayorData = mayorResponse.data as any
+                } catch (e) {
+                    console.error('Failed to fetch mayor data', e)
+                }
                     setMayorData(mayorData)
                     applyMayorDataToChart(chartOptions, mayorData, 4)
                 } catch (e) {}
@@ -388,7 +428,7 @@ function AuctionHousePriceGraph(props: Props) {
     }
 
     function loadFilters() {
-        return api.getFilters(props.item.tag)
+        return getApiFilterOptions({ itemTag: props.item.tag }).then(res => res.data as any)
     }
 
     function setSelectedLegendOptionsFromLocalStorage() {
@@ -469,7 +509,7 @@ function AuctionHousePriceGraph(props: Props) {
 
     return (
         <div>
-            <ItemFilter filters={filters} onFilterChange={onFilterChange} showModAdvert={true} showFilterInfoElement={true} />
+            <ItemFilter filters={filters as any} onFilterChange={onFilterChange} showModAdvert={true} showFilterInfoElement={true} />
             <ItemPriceRange
                 key={rangeSelectKey}
                 setToDefaultRangeSwitch={defaultRangeSwitch}
