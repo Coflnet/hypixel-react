@@ -60,14 +60,6 @@ export default async function Page(props) {
                 <Search selected={getItem()} type="item" showFavoriteToggle />
                 {isBazaar ? <BazaarPriceGraph item={getItem()} /> : <AuctionHousePriceGraph item={getItem()} />}
 
-                <ItemFAQ
-                    item={getItem() as any}
-                    tag={tag}
-                    range={data.range}
-                    prices={data.prices}
-                    isBazaar={isBazaar}
-                    itemFlags={data.itemFlags}
-                />
                 <NitroAdSlot
                     slotId="flip-banner"
                     config={{
@@ -79,6 +71,14 @@ export default async function Page(props) {
                             position: 'bottom-right'
                         }
                     }}
+                />
+                <ItemFAQ
+                    item={getItem() as any}
+                    tag={tag}
+                    range={data.range}
+                    prices={data.prices}
+                    isBazaar={isBazaar}
+                    itemFlags={data.itemFlags}
                 />
             </Container>
             <NitroAdSlot
