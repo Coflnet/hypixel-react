@@ -31,7 +31,7 @@ enum GRAPH_TYPE {
     SINGLE = 'single'
 }
 
-const DEFAULT_GRAPH_TYPE = GRAPH_TYPE.SPLIT
+const DEFAULT_GRAPH_TYPE = GRAPH_TYPE.SINGLE
 
 let currentLoadingString
 
