@@ -11,6 +11,10 @@ import { hasFlag } from '../../../components/FilterElement/FilterType'
 import { Container } from 'react-bootstrap'
 import NitroAdSlot from '../../../components/Ads/NitroAdSlot'
 import ItemFAQ from '../../../components/ItemFAQ/ItemFAQ'
+import { getCachedItemInfo, ItemFlagsNumeric, hasItemFlag } from '../../../utils/ItemsCache'
+
+// Revalidate every 60 seconds for price data freshness
+export const revalidate = 60
 
 export default async function Page(props) {
     const params = await props.params
@@ -55,6 +59,7 @@ export default async function Page(props) {
                     range={data.range}
                     prices={data.prices}
                     isBazaar={!!item.bazaar}
+                    itemFlags={data.itemFlags}
                 />
             </Container>
             <NitroAdSlot
@@ -153,6 +158,45 @@ async function getItemData(searchParams, params) {
 
     let api = initAPI(true)
     try {
+        // First, get cached item info to know if it's bazaar (fast, from cache)
+        // This allows us to start fetching prices in parallel with item details
+        const cachedInfo = await getCachedItemInfo(tag)
+        const isBazaarFromCache = cachedInfo?.isBazaar ?? null
+
+        // If we know from cache whether item is bazaar, we can parallelize fetches
+        // Otherwise, we need to fetch item details first to determine the type
+        if (isBazaarFromCache !== null && range !== 'active') {
+            // Parallel fetch: item details and prices at the same time
+            const [itemDetails, prices] = await Promise.all([
+                api.getItemDetails(tag) as Promise<any>,
+                fetchPrices(api, tag, range, isBazaarFromCache, itemFilter)
+            ])
+
+            if (!itemDetails || !itemDetails.name) {
+                let searchResults = await api.itemSearch(tag)
+                if (searchResults) {
+                    redirect(`/item/${searchResults[0].id}`)
+                } else {
+                    return {
+                        item: { tag: tag },
+                        prices: [],
+                        range: null,
+                        filter: null,
+                        itemFlags: cachedInfo
+                    }
+                }
+            }
+
+            return {
+                item: itemDetails,
+                prices: prices || [],
+                range: range || null,
+                filter: itemFilter ? itemFilter : null,
+                itemFlags: cachedInfo
+            }
+        }
+
+        // Fallback: sequential fetch when cache miss or active range
         let itemDetails = (await api.getItemDetails(tag)) as any
 
         if (!itemDetails || !itemDetails.name) {
@@ -161,12 +205,11 @@ async function getItemData(searchParams, params) {
                 redirect(`/item/${searchResults[0].id}`)
             } else {
                 return {
-                    item: {
-                        tag: tag
-                    },
+                    item: { tag: tag },
                     prices: [],
                     range: null,
-                    filter: null
+                    filter: null,
+                    itemFlags: cachedInfo
                 }
             }
         }
@@ -176,39 +219,45 @@ async function getItemData(searchParams, params) {
                 item: itemDetails,
                 prices: [],
                 range: range || null,
-                filter: itemFilter || null
+                filter: itemFilter || null,
+                itemFlags: cachedInfo
             }
         }
 
         let isBazaar = hasFlag(itemDetails.flags, 1)
-        let prices: any = null
-
-        if (isBazaar) {
-            if (range === 'full') {
-                prices = await api.getBazaarPricesByRange(tag, new Date(0), new Date())
-            } else {
-                prices = await api.getBazaarPrices(tag, range as any)
-            }
-        } else {
-            prices = (await api.getItemPrices(tag, range as DateRange, itemFilter ? itemFilter : {})) as any
-        }
+        let prices = await fetchPrices(api, tag, range, isBazaar, itemFilter)
 
         return {
             item: itemDetails,
             prices: prices || [],
             range: range || null,
-            filter: itemFilter ? itemFilter : null
+            filter: itemFilter ? itemFilter : null,
+            itemFlags: cachedInfo
         }
     } catch (e) {
         console.log('Error fetching item data: ' + JSON.stringify(e))
         return {
-            item: {
-                tag: tag
-            },
+            item: { tag: tag },
             prices: [],
             range: null,
-            filter: null
+            filter: null,
+            itemFlags: null
         }
+    }
+}
+
+/**
+ * Fetch prices based on item type (bazaar or auction house)
+ */
+async function fetchPrices(api: API, tag: string, range: string, isBazaar: boolean, itemFilter: any): Promise<any> {
+    if (isBazaar) {
+        if (range === 'full') {
+            return api.getBazaarPricesByRange(tag, new Date(0), new Date())
+        } else {
+            return api.getBazaarPrices(tag, range as any)
+        }
+    } else {
+        return api.getItemPrices(tag, range as DateRange, itemFilter ? itemFilter : {}) as any
     }
 }
 

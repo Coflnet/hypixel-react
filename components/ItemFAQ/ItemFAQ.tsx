@@ -1,12 +1,13 @@
 import Link from 'next/link'
 import { numberWithThousandsSeparators, convertTagToName } from '../../utils/Formatter'
 import type { Item } from '../../api/_generated/skyApi.schemas'
+import type { CachedItemInfo } from '../../utils/ItemsCache'
 
 type Trend = 'increasing' | 'decreasing' | 'stable'
 
 interface FAQPair {
     q: string
-    a: string
+    a: string | React.ReactNode
 }
 
 export interface ItemFAQProps {
@@ -15,6 +16,7 @@ export interface ItemFAQProps {
     range: string | null
     prices: any[]
     isBazaar: boolean
+    itemFlags?: CachedItemInfo | null
 }
 
 function rangeToHuman(range: string | null): string {
@@ -109,7 +111,7 @@ function getFlipHref(isBazaar: boolean) {
     return isBazaar ? '/bazaar' : '/flipper'
 }
 
-export default function ItemFAQ({ item, tag, range, prices, isBazaar }: ItemFAQProps) {
+export default function ItemFAQ({ item, tag, range, prices, isBazaar, itemFlags }: ItemFAQProps) {
     const itemName = item?.itemName || convertTagToName(tag)
     const timeFrame = rangeToHuman(range)
     const values = extractPriceValues(prices, isBazaar)
@@ -118,6 +120,11 @@ export default function ItemFAQ({ item, tag, range, prices, isBazaar }: ItemFAQP
     const hasHistory = Array.isArray(prices) && prices.length > 0 && range !== 'active'
 
     const lastUpdated = new Date().toLocaleString()
+
+    // Extract flags from cached item info
+    const isMuseum = itemFlags?.isMuseum ?? false
+    const isCraftable = itemFlags?.isCraftable ?? false
+    const isFireSale = itemFlags?.isFireSale ?? false
 
     const trendText =
         trend === 'increasing'
@@ -179,17 +186,57 @@ export default function ItemFAQ({ item, tag, range, prices, isBazaar }: ItemFAQP
                 <>Use the <Link href={getFlipHref(true)}>Bazaar</Link> tools to find spreads and volume, then buy low and sell high.</>
             ) : (
                 <>Use the <Link href={getFlipHref(false)}>Flipper</Link> to find profitable Auction House flips and snipe underpriced listings.</>
-            ) as any
+            )
         }
     ]
 
-    // JSON-LD must be plain strings; resolve React nodes for the last answer.
-    const jsonLdPairs = faqPairs.map(p => ({
-        q: p.q,
-        a: typeof p.a === 'string' ? p.a : isBazaar
-            ? `Use the Bazaar tools (/bazaar) to find spreads and volume, then buy low and sell high.`
-            : `Use the Flipper (/flipper) to find profitable Auction House flips and snipe underpriced listings.`
-    }))
+    // Add Museum FAQ if item is donateable to museum
+    if (isMuseum) {
+        faqPairs.push({
+            q: `Can I donate ${itemName} to the Museum?`,
+            a: `Yes! ${itemName} can be donated to the SkyBlock Museum. Donating items to the Museum provides permanent stat bonuses and contributes to your Museum completion progress.`
+        })
+    }
+
+    // Add Craftable FAQ if item is craftable
+    if (isCraftable) {
+        faqPairs.push({
+            q: `Can I craft ${itemName}?`,
+            a: (
+                <>
+                    Yes! ${itemName} is craftable. Check the <Link href="/crafts">Crafts</Link> page to see if crafting is more profitable than buying, and view the required materials.
+                </>
+            )
+        })
+    }
+
+    // Add Fire Sale FAQ if item was from a fire sale
+    if (isFireSale) {
+        faqPairs.push({
+            q: `Was ${itemName} from a Fire Sale?`,
+            a: `Yes! ${itemName} was originally sold during a Fire Sale event. Fire Sale items are limited-edition cosmetics or items sold for a short time at a fixed price. Their value may increase over time due to limited supply.`
+        })
+    }
+
+    // JSON-LD must be plain strings; resolve React nodes to plain text
+    const jsonLdPairs = faqPairs.map(p => {
+        let answer: string
+        if (typeof p.a === 'string') {
+            answer = p.a
+        } else {
+            // Handle React node answers with plain text fallbacks
+            if (p.q.includes('flip')) {
+                answer = isBazaar
+                    ? `Use the Bazaar tools (/bazaar) to find spreads and volume, then buy low and sell high.`
+                    : `Use the Flipper (/flipper) to find profitable Auction House flips and snipe underpriced listings.`
+            } else if (p.q.includes('craft')) {
+                answer = `Yes! ${itemName} is craftable. Check the Crafts page (/crafts) to see if crafting is more profitable than buying, and view the required materials.`
+            } else {
+                answer = String(p.a)
+            }
+        }
+        return { q: p.q, a: answer }
+    })
 
     return (
         <section className="mt-5 mb-4" aria-label="Item FAQ">
