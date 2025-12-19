@@ -11,7 +11,7 @@ import type { ItemMetadataElement, ItemFlags } from '../api/_generated/skyApi.sc
  * CRAFT = 8
  * GLOWING = 16
  * MUSEUM = 32
- * FIRE_SALE = 64
+ * FIRESALE = 64
  */
 export const ItemFlagsNumeric = {
     NONE: 0,
@@ -21,7 +21,7 @@ export const ItemFlagsNumeric = {
     CRAFT: 8,
     GLOWING: 16,
     MUSEUM: 32,
-    FIRE_SALE: 64
+    FIRESALE: 64
 } as const
 
 export type ItemFlagsNumericType = (typeof ItemFlagsNumeric)[keyof typeof ItemFlagsNumeric]
@@ -44,7 +44,7 @@ export function hasItemFlag(flags: number | string | ItemFlags | undefined | nul
             [ItemFlagsNumeric.CRAFT]: 'CRAFT',
             [ItemFlagsNumeric.GLOWING]: 'GLOWING',
             [ItemFlagsNumeric.MUSEUM]: 'MUSEUM',
-            [ItemFlagsNumeric.FIRE_SALE]: 'FIRE_SALE'
+            [ItemFlagsNumeric.FIRESALE]: 'FIRESALE'
         }
         return flags.includes(flagMap[flag] || '')
     }
@@ -92,7 +92,7 @@ export const getCachedItems = unstable_cache(
                         isAuction: hasItemFlag(numericFlags, ItemFlagsNumeric.AUCTION),
                         isCraftable: hasItemFlag(numericFlags, ItemFlagsNumeric.CRAFT),
                         isMuseum: hasItemFlag(numericFlags, ItemFlagsNumeric.MUSEUM),
-                        isFireSale: hasItemFlag(numericFlags, ItemFlagsNumeric.FIRE_SALE),
+                        isFireSale: hasItemFlag(numericFlags, ItemFlagsNumeric.FIRESALE),
                         flags: numericFlags
                     })
                 }

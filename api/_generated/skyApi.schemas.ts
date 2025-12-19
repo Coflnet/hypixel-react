@@ -1426,7 +1426,7 @@ export const ItemFlags = {
   BAZAAR: 'BAZAAR',
   TRADEABLE: 'TRADEABLE',
   AUCTION: 'AUCTION',
-  FIRE_SALE: 'FIRE_SALE',
+  FIRESALE: 'FIRESALE',
   GLOWING: 'GLOWING',
   MUSEUM: 'MUSEUM',
 } as const;

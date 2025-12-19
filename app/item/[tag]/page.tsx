@@ -267,7 +267,7 @@ async function getItemData(searchParams, params) {
                         isAuction: hasItemFlag(numericFlags, ItemFlagsNumeric.AUCTION),
                         isCraftable: hasItemFlag(numericFlags, ItemFlagsNumeric.CRAFT),
                         isMuseum: hasItemFlag(numericFlags, ItemFlagsNumeric.MUSEUM),
-                        isFireSale: hasItemFlag(numericFlags, ItemFlagsNumeric.FIRE_SALE),
+                        isFireSale: hasItemFlag(numericFlags, ItemFlagsNumeric.FIRESALE),
                         flags: numericFlags
                     }
                 }
