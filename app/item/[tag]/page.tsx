@@ -10,6 +10,7 @@ import AuctionHousePriceGraph from '../../../components/PriceGraph/AuctionHouseP
 import { hasFlag } from '../../../components/FilterElement/FilterType'
 import { Container } from 'react-bootstrap'
 import NitroAdSlot from '../../../components/Ads/NitroAdSlot'
+import ItemFAQ from '../../../components/ItemFAQ/ItemFAQ'
 
 export default async function Page(props) {
     const params = await props.params
@@ -24,7 +25,7 @@ export default async function Page(props) {
             item ||
             parseItem({
                 tag: tag,
-                name: convertTagToName(tag),
+                itemName: convertTagToName(tag),
                 iconUrl: api.getItemImageUrl({ tag })
             })
         )
@@ -35,9 +36,29 @@ export default async function Page(props) {
             <Container>
                 <Search selected={getItem()} type="item" showFavoriteToggle />
                 {item.bazaar ? <BazaarPriceGraph item={getItem()} /> : <AuctionHousePriceGraph item={getItem()} />}
+
+                <NitroAdSlot
+                    slotId="flip-banner"
+                    config={{
+                        delayLoading: true,
+                        report: {
+                            enabled: true,
+                            icon: true,
+                            wording: 'Report Ad',
+                            position: 'bottom-right'
+                        }
+                    }}
+                />
+                <ItemFAQ
+                    item={getItem() as any}
+                    tag={tag}
+                    range={data.range}
+                    prices={data.prices}
+                    isBazaar={!!item.bazaar}
+                />
             </Container>
             <NitroAdSlot
-                slotId="flip-banner"
+                slotId="below-faq"
                 config={{
                     delayLoading: true,
                     report: {
