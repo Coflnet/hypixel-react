@@ -117,6 +117,8 @@ export default function ItemFAQ({ item, tag, range, prices, isBazaar }: ItemFAQP
     const trend = computeTrend(values)
     const hasHistory = Array.isArray(prices) && prices.length > 0 && range !== 'active'
 
+    const lastUpdated = new Date().toLocaleString()
+
     const trendText =
         trend === 'increasing'
             ? `The price for ${itemName} is currently increasing.`
@@ -166,6 +168,10 @@ export default function ItemFAQ({ item, tag, range, prices, isBazaar }: ItemFAQP
             a: isBazaar
                 ? `Yes! You can sell ${itemName} on the Bazaar by placing a sell order or selling instantly.` :
                ( hasHistory ? `Yes ${itemName} can be sold on the Auction House.` : `${itemName} is not auctionable on the Auction House, and not sellable on the SkyBlock Bazaar either.`)
+        },
+        {
+            q: `When was this data last updated?`,
+            a: `This FAQ was last updated at ${lastUpdated}.`
         },
         {
             q: `How to flip ${itemName}?`,
