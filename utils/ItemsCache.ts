@@ -36,7 +36,6 @@ export function hasItemFlag(flags: number | string | ItemFlags | undefined | nul
         return (flags & flag) === flag
     }
 
-    // Handle string flags from API
     if (typeof flags === 'string') {
         const flagMap: Record<number, string> = {
             [ItemFlagsNumeric.BAZAAR]: 'BAZAAR',
@@ -114,14 +113,15 @@ export const getCachedItems = unstable_cache(
 
 /**
  * Parse flags to numeric value for consistent comparison
+ * Handles both string flags (single "BAZAAR" or combined numeric) and numeric flags
+ * When multiple flags are set, the API returns a number; when only one flag is set, it may return a string
  */
-function parseFlags(flags: ItemFlags | string | number | undefined | null): number {
+export function parseFlags(flags: ItemFlags | string | number | undefined | null): number {
     if (flags === undefined || flags === null) return 0
 
     if (typeof flags === 'number') return flags
 
     if (typeof flags === 'string') {
-        // Handle string flags like "BAZAAR" or "BAZAAR,TRADEABLE"
         const flagNames = flags.split(',').map(f => f.trim().toUpperCase())
         let result = 0
         for (const name of flagNames) {

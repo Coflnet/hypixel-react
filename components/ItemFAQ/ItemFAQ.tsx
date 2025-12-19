@@ -97,11 +97,11 @@ function formatCoins(n: number) {
     return `${numberWithThousandsSeparators(n)} coins`
 }
 
-function getBuyAnswer(isBazaar: boolean, hasHistory: boolean, itemName: string) {
+function getBuyAnswer(isBazaar: boolean, isAuction: boolean, itemName: string) {
     if (isBazaar) {
         return `${itemName} is available on the Bazaar. Open the Skyblock Bazaar and place a buy order (often cheaper) or buy instantly.`
     }
-    if (hasHistory) {
+    if (isAuction) {
         return `${itemName} is typically traded on the Auction House. Search for the item on AH and compare BIN prices before buying.`
     }
     return `${itemName} does not seem to be sold regularly via Bazaar nor Auction House you can't easily buy it.`
@@ -121,10 +121,10 @@ export default function ItemFAQ({ item, tag, range, prices, isBazaar, itemFlags 
 
     const lastUpdated = new Date().toLocaleString()
 
-    // Extract flags from cached item info
     const isMuseum = itemFlags?.isMuseum ?? false
     const isCraftable = itemFlags?.isCraftable ?? false
     const isFireSale = itemFlags?.isFireSale ?? false
+    const isAuction = itemFlags?.isAuction ?? false
 
     const trendText =
         trend === 'increasing'
@@ -164,7 +164,7 @@ export default function ItemFAQ({ item, tag, range, prices, isBazaar, itemFlags 
         },
         {
             q: `How do I buy ${itemName}?`,
-            a: getBuyAnswer(isBazaar, hasHistory, itemName)
+            a: getBuyAnswer(isBazaar, isAuction, itemName)
         },
         {
             q: `How often is the price of ${itemName} updated?`,
@@ -173,8 +173,10 @@ export default function ItemFAQ({ item, tag, range, prices, isBazaar, itemFlags 
         {
             q: `Can I sell ${itemName}?`,
             a: isBazaar
-                ? `Yes! You can sell ${itemName} on the Bazaar by placing a sell order or selling instantly.` :
-               ( hasHistory ? `Yes ${itemName} can be sold on the Auction House.` : `${itemName} is not auctionable on the Auction House, and not sellable on the SkyBlock Bazaar either.`)
+                ? `Yes! You can sell ${itemName} on the Bazaar by placing a sell order or selling instantly.`
+                : isAuction
+                  ? `Yes! ${itemName} can be sold on the Auction House.`
+                  : `${itemName} is not tradeable on the Auction House and not sellable on the SkyBlock Bazaar.`
         },
         {
             q: `When was this data last updated?`,
@@ -190,47 +192,40 @@ export default function ItemFAQ({ item, tag, range, prices, isBazaar, itemFlags 
         }
     ]
 
-    // Add Museum FAQ if item is donateable to museum
     if (isMuseum) {
         faqPairs.push({
             q: `Can I donate ${itemName} to the Museum?`,
-            a: `Yes! ${itemName} can be donated to the SkyBlock Museum. Donating items to the Museum provides permanent stat bonuses and contributes to your Museum completion progress.`
+            a: `Yes! ${itemName} can be donated to the SkyBlock Museum. Donating items to the Museum provides SkyBlock XP and contributes to your Museum completion progress.`
         })
     }
 
-    // Add Craftable FAQ if item is craftable
-    if (isCraftable) {
+    if (isFireSale) {
+        faqPairs.push({
+            q: `How was ${itemName} created?`,
+            a: `${itemName} was created during a Fire Sale event. Fire Sale items have a limited quantity and were sold for a short period at a fixed price. Their value may increase over time due to scarcity.`
+        })
+    } else if (isCraftable) {
         faqPairs.push({
             q: `Can I craft ${itemName}?`,
             a: (
                 <>
-                    Yes! ${itemName} is craftable. Check the <Link href="/crafts">Crafts</Link> page to see if crafting is more profitable than buying, and view the required materials.
+                    Yes! ${itemName} is obtainable through crafting. Check the <Link href="/crafts">Crafts page</Link> to see if crafting is profitable and view the required materials.
                 </>
             )
         })
     }
 
-    // Add Fire Sale FAQ if item was from a fire sale
-    if (isFireSale) {
-        faqPairs.push({
-            q: `Was ${itemName} from a Fire Sale?`,
-            a: `Yes! ${itemName} was originally sold during a Fire Sale event. Fire Sale items are limited-edition cosmetics or items sold for a short time at a fixed price. Their value may increase over time due to limited supply.`
-        })
-    }
-
-    // JSON-LD must be plain strings; resolve React nodes to plain text
     const jsonLdPairs = faqPairs.map(p => {
         let answer: string
         if (typeof p.a === 'string') {
             answer = p.a
         } else {
-            // Handle React node answers with plain text fallbacks
             if (p.q.includes('flip')) {
                 answer = isBazaar
                     ? `Use the Bazaar tools (/bazaar) to find spreads and volume, then buy low and sell high.`
                     : `Use the Flipper (/flipper) to find profitable Auction House flips and snipe underpriced listings.`
             } else if (p.q.includes('craft')) {
-                answer = `Yes! ${itemName} is craftable. Check the Crafts page (/crafts) to see if crafting is more profitable than buying, and view the required materials.`
+                answer = `Yes! ${itemName} is obtainable through crafting. Check the Crafts page (/crafts) to see if crafting is profitable and view the required materials.`
             } else {
                 answer = String(p.a)
             }

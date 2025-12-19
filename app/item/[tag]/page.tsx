@@ -4,17 +4,33 @@ import { getHeadMetadata } from '../../../utils/SSRUtils'
 import { convertTagToName, numberWithThousandsSeparators } from '../../../utils/Formatter'
 import api, { initAPI } from '../../../api/ApiHelper'
 import { atobUnicode } from '../../../utils/Base64Utils'
+import dynamic from 'next/dynamic'
 import Search from '../../../components/Search/Search'
-import BazaarPriceGraph from '../../../components/PriceGraph/BazaarPriceGraph/BazaarPriceGraph'
-import AuctionHousePriceGraph from '../../../components/PriceGraph/AuctionHousePriceGraph/AuctionHousePriceGraph'
 import { hasFlag } from '../../../components/FilterElement/FilterType'
 import { Container } from 'react-bootstrap'
-import NitroAdSlot from '../../../components/Ads/NitroAdSlot'
-import ItemFAQ from '../../../components/ItemFAQ/ItemFAQ'
-import { getCachedItemInfo, ItemFlagsNumeric, hasItemFlag } from '../../../utils/ItemsCache'
+import { getCachedItemInfo, ItemFlagsNumeric, hasItemFlag, parseFlags } from '../../../utils/ItemsCache'
+
+const BazaarPriceGraph = dynamic(() => import('../../../components/PriceGraph/BazaarPriceGraph/BazaarPriceGraph'), {
+    loading: () => <div style={{ minHeight: '300px' }}>Loading chart...</div>
+})
+
+const AuctionHousePriceGraph = dynamic(() => import('../../../components/PriceGraph/AuctionHousePriceGraph/AuctionHousePriceGraph'), {
+    loading: () => <div style={{ minHeight: '300px' }}>Loading chart...</div>
+})
+
+const NitroAdSlot = dynamic(() => import('../../../components/Ads/NitroAdSlot'), {
+    loading: () => <div style={{ minHeight: '90px' }} />
+})
+
+const ItemFAQ = dynamic(() => import('../../../components/ItemFAQ/ItemFAQ'), {
+    loading: () => <div style={{ minHeight: '200px' }}>Loading...</div>
+})
 
 // Revalidate every 60 seconds for price data freshness
 export const revalidate = 60
+
+// Enable static params optimization for popular items
+export const dynamicParams = true
 
 export default async function Page(props) {
     const params = await props.params
@@ -22,7 +38,10 @@ export default async function Page(props) {
     let tag = params.tag as string
 
     let data = await getItemData(searchParams, params)
+    console.log('Item page data:', data)
     let item = parseItem(data.item)
+    
+    const isBazaar = data.itemFlags?.isBazaar ?? false
 
     function getItem(): Item {
         return (
@@ -39,8 +58,16 @@ export default async function Page(props) {
         <>
             <Container>
                 <Search selected={getItem()} type="item" showFavoriteToggle />
-                {item.bazaar ? <BazaarPriceGraph item={getItem()} /> : <AuctionHousePriceGraph item={getItem()} />}
+                {isBazaar ? <BazaarPriceGraph item={getItem()} /> : <AuctionHousePriceGraph item={getItem()} />}
 
+                <ItemFAQ
+                    item={getItem() as any}
+                    tag={tag}
+                    range={data.range}
+                    prices={data.prices}
+                    isBazaar={isBazaar}
+                    itemFlags={data.itemFlags}
+                />
                 <NitroAdSlot
                     slotId="flip-banner"
                     config={{
@@ -52,14 +79,6 @@ export default async function Page(props) {
                             position: 'bottom-right'
                         }
                     }}
-                />
-                <ItemFAQ
-                    item={getItem() as any}
-                    tag={tag}
-                    range={data.range}
-                    prices={data.prices}
-                    isBazaar={!!item.bazaar}
-                    itemFlags={data.itemFlags}
                 />
             </Container>
             <NitroAdSlot
@@ -158,15 +177,10 @@ async function getItemData(searchParams, params) {
 
     let api = initAPI(true)
     try {
-        // First, get cached item info to know if it's bazaar (fast, from cache)
-        // This allows us to start fetching prices in parallel with item details
         const cachedInfo = await getCachedItemInfo(tag)
         const isBazaarFromCache = cachedInfo?.isBazaar ?? null
 
-        // If we know from cache whether item is bazaar, we can parallelize fetches
-        // Otherwise, we need to fetch item details first to determine the type
         if (isBazaarFromCache !== null && range !== 'active') {
-            // Parallel fetch: item details and prices at the same time
             const [itemDetails, prices] = await Promise.all([
                 api.getItemDetails(tag) as Promise<any>,
                 fetchPrices(api, tag, range, isBazaarFromCache, itemFilter)
@@ -196,7 +210,6 @@ async function getItemData(searchParams, params) {
             }
         }
 
-        // Fallback: sequential fetch when cache miss or active range
         let itemDetails = (await api.getItemDetails(tag)) as any
 
         if (!itemDetails || !itemDetails.name) {
@@ -234,14 +247,41 @@ async function getItemData(searchParams, params) {
             filter: itemFilter ? itemFilter : null,
             itemFlags: cachedInfo
         }
-    } catch (e) {
-        console.log('Error fetching item data: ' + JSON.stringify(e))
+    } catch (error) {
+        console.error('Error fetching item data:', error instanceof Error ? error.message : error)
+
+        let cachedInfo = await getCachedItemInfo(tag).catch(() => null)
+
+        if (!cachedInfo) {
+            try {
+                const itemsResponse = await fetch('https://sky.coflnet.com/api/items', { next: { revalidate: 3600 } })
+                const items = await itemsResponse.json()
+                const item = items.find((i: any) => i.tag === tag)
+                if (item) {
+                    const numericFlags = parseFlags(item.flags)
+                    cachedInfo = {
+                        tag,
+                        name: item.name || null,
+                        isBazaar: hasItemFlag(numericFlags, ItemFlagsNumeric.BAZAAR),
+                        isTradeable: hasItemFlag(numericFlags, ItemFlagsNumeric.TRADEABLE),
+                        isAuction: hasItemFlag(numericFlags, ItemFlagsNumeric.AUCTION),
+                        isCraftable: hasItemFlag(numericFlags, ItemFlagsNumeric.CRAFT),
+                        isMuseum: hasItemFlag(numericFlags, ItemFlagsNumeric.MUSEUM),
+                        isFireSale: hasItemFlag(numericFlags, ItemFlagsNumeric.FIRE_SALE),
+                        flags: numericFlags
+                    }
+                }
+            } catch (e) {
+                console.error('Failed direct API fallback:', e)
+            }
+        }
+
         return {
             item: { tag: tag },
             prices: [],
             range: null,
             filter: null,
-            itemFlags: null
+            itemFlags: cachedInfo
         }
     }
 }

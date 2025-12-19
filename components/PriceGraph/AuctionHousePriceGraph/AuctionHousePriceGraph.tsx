@@ -338,6 +338,14 @@ function AuctionHousePriceGraph(props: Props) {
                     return
                 }
 
+                // Check if prices array has any data before accessing
+                if (!prices || prices.length === 0) {
+                    setIsLoading(false)
+                    setNoDataFound(true)
+                    setAvgPrice(0)
+                    return
+                }
+
                 let minDate = prices[0].time
                 let maxDate = prices[prices.length - 1].time
 
