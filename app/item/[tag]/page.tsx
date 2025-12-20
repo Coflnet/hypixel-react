@@ -48,8 +48,9 @@ export default async function Page(props) {
             item ||
             parseItem({
                 tag: tag,
-                itemName: convertTagToName(tag),
-                iconUrl: api.getItemImageUrl({ tag })
+                itemName: data.itemFlags?.name || convertTagToName(tag),
+                iconUrl: api.getItemImageUrl({ tag }),
+                flags: data.itemFlags?.flags
             })
         )
     }
@@ -192,7 +193,7 @@ async function getItemData(searchParams, params) {
                     redirect(`/item/${searchResults[0].id}`)
                 } else {
                     return {
-                        item: { tag: tag },
+                        item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
                         prices: [],
                         range: null,
                         filter: null,
@@ -218,7 +219,7 @@ async function getItemData(searchParams, params) {
                 redirect(`/item/${searchResults[0].id}`)
             } else {
                 return {
-                    item: { tag: tag },
+                    item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
                     prices: [],
                     range: null,
                     filter: null,
@@ -277,7 +278,7 @@ async function getItemData(searchParams, params) {
         }
 
         return {
-            item: { tag: tag },
+            item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
             prices: [],
             range: null,
             filter: null,
