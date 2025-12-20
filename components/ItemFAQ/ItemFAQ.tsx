@@ -44,13 +44,15 @@ function extractPriceValues(prices: any[], isBazaar: boolean): number[] {
         if (!p) return null
 
         if (isBazaar) {
-            const raw =
-                p.avg ??
-                p.sellData?.price ??
-                p.buyData?.price ??
-                p.price ??
-                p.sellPrice ??
-                p.buyPrice
+            // Try explicit avg first, then calculate from buy/sell data
+            let raw = p.avg
+            if (!raw && p.sellData?.price && p.buyData?.price) {
+                // Calculate average of buy and sell prices for bazaar
+                raw = (p.sellData.price + p.buyData.price) / 2
+            } else if (!raw) {
+                // Fallback to sell price, then buy price, then other fields
+                raw = p.sellData?.price ?? p.buyData?.price ?? p.price ?? p.sellPrice ?? p.buyPrice
+            }
             const n = typeof raw === 'number' ? raw : Number(raw)
             return Number.isFinite(n) ? n : null
         }
