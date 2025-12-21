@@ -221,7 +221,7 @@ async function getItemData(searchParams, params) {
                 return {
                     item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
                     prices: [],
-                    range: null,
+                    range: range || null,
                     filter: null,
                     itemFlags: cachedInfo
                 }
@@ -280,7 +280,7 @@ async function getItemData(searchParams, params) {
         return {
             item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
             prices: [],
-            range: null,
+            range: range || null,
             filter: null,
             itemFlags: cachedInfo
         }

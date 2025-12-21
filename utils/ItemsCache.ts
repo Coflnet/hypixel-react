@@ -67,15 +67,16 @@ export interface CachedItemInfo {
 /**
  * Cached function to get all items metadata
  * Revalidates every hour (3600 seconds) - same as the API endpoint update frequency
+ * Returns a Record instead of Map to avoid serialization issues with Next.js cache
  */
 export const getCachedItems = unstable_cache(
-    async (): Promise<Map<string, CachedItemInfo>> => {
+    async (): Promise<Record<string, CachedItemInfo>> => {
         try {
             const response = await getApiItems({
                 next: { revalidate: 3600 }
             } as any)
 
-            const itemsMap = new Map<string, CachedItemInfo>()
+            const itemsRecord: Record<string, CachedItemInfo> = {}
 
             if (response.data && Array.isArray(response.data)) {
                 for (const item of response.data) {
@@ -84,7 +85,7 @@ export const getCachedItems = unstable_cache(
                     const flags = item.flags
                     const numericFlags = parseFlags(flags)
 
-                    itemsMap.set(item.tag, {
+                    itemsRecord[item.tag] = {
                         tag: item.tag,
                         name: item.name || null,
                         isBazaar: hasItemFlag(numericFlags, ItemFlagsNumeric.BAZAAR),
@@ -94,14 +95,14 @@ export const getCachedItems = unstable_cache(
                         isMuseum: hasItemFlag(numericFlags, ItemFlagsNumeric.MUSEUM),
                         isFireSale: hasItemFlag(numericFlags, ItemFlagsNumeric.FIRESALE),
                         flags: numericFlags
-                    })
+                    }
                 }
             }
 
-            return itemsMap
+            return itemsRecord
         } catch (error) {
             console.error('Failed to fetch items cache:', error)
-            return new Map()
+            return {}
         }
     },
     ['items-metadata-cache'],
@@ -140,8 +141,8 @@ export function parseFlags(flags: ItemFlags | string | number | undefined | null
  * Returns null if item not found in cache
  */
 export async function getCachedItemInfo(tag: string): Promise<CachedItemInfo | null> {
-    const itemsMap = await getCachedItems()
-    return itemsMap.get(tag) || null
+    const itemsRecord = await getCachedItems()
+    return itemsRecord[tag] || null
 }
 
 /**
