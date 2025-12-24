@@ -18,12 +18,14 @@ import {
     getTierProductId,
     getFallbackSubscriptionPrice
 } from '../../../utils/pricingUtils'
+import { VAT_RATES } from '../../../utils/PricingUtils'
 
 interface Props {
     activePremiumProduct: PremiumProduct
     selectedTier?: PremiumTier
     selectedDuration?: Duration | null
     initialDiscountCode?: string | null
+    countryCode?: string
 }
 
 function BuySubscription(props: Props) {
@@ -40,8 +42,10 @@ function BuySubscription(props: Props) {
     const [isValidatingDiscount, setIsValidatingDiscount] = useState(false)
     const [discountError, setDiscountError] = useState<string | null>(null)
 
-    // Get country code from localStorage
-    const countryCode = typeof window !== 'undefined' ? localStorage.getItem('countryCode') || 'US' : 'US'
+    // Get country code from prop or localStorage
+    const countryCode = (props.countryCode && props.countryCode.length > 0)
+        ? props.countryCode
+        : (typeof window !== 'undefined' ? localStorage.getItem('countryCode') || 'US' : 'US')
 
     useEffect(() => {
         fetchPricing(creatorCode)
@@ -63,8 +67,10 @@ function BuySubscription(props: Props) {
             } else {
                 productSlugs = [
                     'l_premium',
+                    'l_premium-quarter',
                     'l_premium-year',
                     'l_prem_plus',
+                    'l_prem_plus-quarter',
                     'l_prem_plus-year',
                     'l_starter_premium'
                 ]
@@ -98,8 +104,8 @@ function BuySubscription(props: Props) {
         }
     }
 
-    const getProductIdForTier = (tier: PremiumTier, isYearly: boolean): string => {
-        return getTierApiProductId(tier, isYearly)
+    const getProductIdForTier = (tier: PremiumTier, isYearlyOrDuration: boolean | Duration): string => {
+        return getTierApiProductId(tier, isYearlyOrDuration)
     }
 
     const getProviderPriceValue = (productSlug: string, providerSlug: string): number | null => {
@@ -180,7 +186,7 @@ function BuySubscription(props: Props) {
 
     const getDisplayCurrency = (): string => {
         if (!pricingData || !pricingData.products || !props.selectedTier) return 'Euro'
-        const productId = getProductIdForTier(props.selectedTier, wizardIsYearOption)
+        const productId = getProductIdForTier(props.selectedTier, getCurrentDuration())
         const currencyCode = getCurrencyCodeValue(productId, 'lemonsqueezy')
         const symbol = getCurrencySymbol(currencyCode)
         return symbol === currencyCode ? currencyCode : symbol
@@ -188,13 +194,13 @@ function BuySubscription(props: Props) {
 
     const getOriginalPrice = (): number | null => {
         if (!pricingData || !pricingData.products || !props.selectedTier) return null
-        const productId = getProductIdForTier(props.selectedTier, wizardIsYearOption)
+        const productId = getProductIdForTier(props.selectedTier, getCurrentDuration())
         return getProviderOriginalPriceValue(productId, 'lemonsqueezy')
     }
 
     const hasActiveDiscount = (): boolean => {
         if (!pricingData || !pricingData.products || !props.selectedTier) return false
-        const productId = getProductIdForTier(props.selectedTier, wizardIsYearOption)
+        const productId = getProductIdForTier(props.selectedTier, getCurrentDuration())
         const discountPercent = getDiscountPercentValue(productId)
         return discountPercent !== null && discountPercent > 0
     }
@@ -205,16 +211,46 @@ function BuySubscription(props: Props) {
         return 1 - (validatedDiscount.amount / 100)
     }
 
+    // Get VAT rate for current country
+    const getVATRate = (): number => {
+        if (!countryCode) return 0
+        const upperCode = countryCode.toUpperCase()
+        return VAT_RATES[upperCode] ?? 0
+    }
+
+    // Check if VAT should be included in the price (known country with VAT rate)
+    const shouldIncludeVATInPrice = (): boolean => {
+        if (!countryCode) return false
+        const upperCode = countryCode.toUpperCase()
+        return upperCode !== 'US' && VAT_RATES[upperCode] !== undefined
+    }
+
+    // Calculate price with VAT included if applicable
+    const getPriceWithVAT = (basePrice: number): number => {
+        if (!shouldIncludeVATInPrice()) return basePrice
+        const vatRate = getVATRate()
+        return basePrice * (1 + vatRate)
+    }
+
+    // Get VAT display text
+    const getVATDisplayText = (): string => {
+        if (shouldIncludeVATInPrice()) return ''
+        return ' (+VAT)'
+    }
+
     // Calculate final price after both creator code and discount code are applied
     const getFinalPrice = (basePrice: number): number => {
         // Creator code discount is already applied in basePrice from API
-        // Apply discount code on top
-        return basePrice * getDiscountCodeMultiplier()
+        // Apply discount code on top and then VAT (multiplicative)
+        const discountedPrice = basePrice * getDiscountCodeMultiplier()
+        const priceWithVat = getPriceWithVAT(discountedPrice)
+        // round up to next cent for display/charging
+        return Math.ceil(priceWithVat * 100) / 100
     }
 
     // Get the total discount percentage (creator code + discount code)
     const getTotalDiscountInfo = (): { creatorPercent: number | null; discountCodePercent: number | null; totalSavings: number | null } => {
-        const creatorPercent = props.selectedTier ? getDiscountPercentValue(getProductIdForTier(props.selectedTier, wizardIsYearOption)) : null
+        const creatorPercent = props.selectedTier ? getDiscountPercentValue(getProductIdForTier(props.selectedTier, getCurrentDuration())) : null
         const discountCodePercent = validatedDiscount?.amountType === 'percent' ? validatedDiscount.amount : null
         
         const originalPrice = getOriginalPrice()
@@ -246,6 +282,12 @@ function BuySubscription(props: Props) {
         : undefined
 
     const wizardIsYearOption = props.selectedDuration === Duration.YEARLY
+    const wizardIsQuarterOption = props.selectedDuration === Duration.QUARTER
+
+    // Helper to get the current duration for product ID
+    const getCurrentDuration = (): Duration => {
+        return props.selectedDuration || Duration.MONTHLY
+    }
 
     const getDisplayTierName = () => {
         return props.selectedTier ? getTierDisplayName(props.selectedTier) : 'Premium'
@@ -256,12 +298,12 @@ function BuySubscription(props: Props) {
         if (!targetType) {
             return -1
         }
-        const yearOption = isYearOption !== undefined ? isYearOption : wizardIsYearOption
+        const currentDuration = props.selectedDuration || Duration.MONTHLY
 
         if (pricingData && pricingData.products) {
             const productId = getProductIdForTier(
                 props.selectedTier || PremiumTier.PREMIUM,
-                yearOption
+                currentDuration
             )
             const price = getProviderPriceValue(productId, 'lemonsqueezy')
             if (price !== null) {
@@ -270,10 +312,14 @@ function BuySubscription(props: Props) {
         }
 
         if (targetType.productId === 'premium') {
-            return yearOption ? 96.69 : 9.69
+            if (currentDuration === Duration.YEARLY) return 96.69
+            if (currentDuration === Duration.QUARTER) return 27.69
+            return 9.69
         }
         if (targetType.productId === 'premium_plus') {
-            return yearOption ? 354.2 : 35.69
+            if (currentDuration === Duration.YEARLY) return 354.2
+            if (currentDuration === Duration.QUARTER) return 99.69
+            return 35.69
         }
         if (targetType.productId === 'starter_premium') {
             return 16.99 // only yearly option
@@ -281,7 +327,7 @@ function BuySubscription(props: Props) {
         return -1
     }
 
-    function startSubscriptionPurchase(targetType: PremiumType, yearOption: boolean) {
+    function startSubscriptionPurchase(targetType: PremiumType, duration: Duration = Duration.MONTHLY) {
         if (!targetType) return
         const googleToken = sessionStorage.getItem('googleId')
         if (!googleToken) {
@@ -299,7 +345,9 @@ function BuySubscription(props: Props) {
         if (targetType.productId === 'starter_premium') {
             productId = 'l_starter_premium'
         }
-        if (yearOption) {
+        if (duration === Duration.QUARTER) {
+            productId += '-quarter'
+        } else if (duration === Duration.YEARLY) {
             productId += '-year'
         }
 
@@ -324,11 +372,34 @@ function BuySubscription(props: Props) {
 
     if (props.selectedTier && props.selectedDuration !== undefined) {
         const targetType = wizardSelectedType!
-        const yearOption = isYearOption !== undefined ? isYearOption : wizardIsYearOption
+        const currentDuration = getCurrentDuration()
         const basePrice = getSubscriptionPrice()
         const finalPrice = getFinalPrice(basePrice)
         const discountInfo = getTotalDiscountInfo()
         const hasAnyDiscount = hasActiveDiscount() || validatedDiscount
+
+        // Helper to get billing display text
+        const getBillingDisplayText = (): string => {
+            switch (currentDuration) {
+                case Duration.YEARLY:
+                    return 'Yearly (52 weeks)'
+                case Duration.QUARTER:
+                    return 'Quarterly (13 weeks)'
+                default:
+                    return 'Monthly (4 weeks)'
+            }
+        }
+
+        const getPricePerPeriodText = (): string => {
+            switch (currentDuration) {
+                case Duration.YEARLY:
+                    return 'per year'
+                case Duration.QUARTER:
+                    return 'per quarter'
+                default:
+                    return 'per month'
+            }
+        }
 
         return (
             <>
@@ -345,36 +416,20 @@ function BuySubscription(props: Props) {
                         </span>
                     </p>
                     <p>
-                        <strong>Billing:</strong> {yearOption ? 'Yearly (52 weeks)' : 'Monthly (4 weeks)'}
+                        <strong>Billing:</strong> {getBillingDisplayText()}
                     </p>
                     <p>
-                        {yearOption ? (
-                            <>
-                                <strong>Price:</strong> <NumberElement number={finalPrice} /> {getDisplayCurrency()} (+VAT) per year&nbsp;
-                                {hasAnyDiscount && getOriginalPrice() && (
-                                    <>
-                                        {' '}
-                                        <span style={{ textDecoration: 'line-through', opacity: 0.7 }}>
-                                            <NumberElement number={getOriginalPrice()!} /> {getDisplayCurrency()}
-                                        </span>
-                                    </>
-                                )}
-                                <br />
-                                (<NumberElement number={parseFloat((finalPrice / 13).toFixed(2))} /> {getDisplayCurrency()} (+VAT) per 4 weeks)
-                            </>
-                        ) : (
-                            <>
-                                <strong>Price:</strong> <NumberElement number={finalPrice} /> {getDisplayCurrency()} (+VAT) per 4 weeks
-                                {hasAnyDiscount && getOriginalPrice() && (
-                                    <>
-                                        {' '}
-                                        <span style={{ textDecoration: 'line-through', opacity: 0.7 }}>
-                                            <NumberElement number={getOriginalPrice()!} /> {getDisplayCurrency()}
-                                        </span>
-                                    </>
-                                )}
-                            </>
-                        )}
+                        <>
+                            <strong>Price:</strong> <NumberElement number={finalPrice} /> {getDisplayCurrency()}{getVATDisplayText()} {getPricePerPeriodText()}&nbsp;
+                            {hasAnyDiscount && getOriginalPrice() && (
+                                <>
+                                    {' '}
+                                    <span style={{ textDecoration: 'line-through', opacity: 0.7 }}>
+                                        <NumberElement number={getOriginalPrice()!} /> {getDisplayCurrency()}
+                                    </span>
+                                </>
+                            )}
+                        </>
                     </p>
                     {/* Show applied discounts */}
                     {(discountInfo.creatorPercent || discountInfo.discountCodePercent) && (
@@ -395,7 +450,7 @@ function BuySubscription(props: Props) {
                             )}
                         </div>
                     )}
-                    {yearOption && (
+                    {currentDuration === Duration.YEARLY && (
                         <>
                             {targetType.productId !== 'starter_premium' && !discountInfo.creatorPercent && !discountInfo.discountCodePercent && (
                                 <p className={styles.discount}>
@@ -472,9 +527,9 @@ function BuySubscription(props: Props) {
                                     </div>
                                 )}
                                 {appliedCreatorCode && !pricingError && (
-                                    <div style={{ marginTop: '10px', fontSize: '0.9rem', color: getDiscountPercentValue(getProductIdForTier(props.selectedTier!, yearOption)) ? '#20c997' : '#6c757d' }}>
-                                        {getDiscountPercentValue(getProductIdForTier(props.selectedTier!, yearOption)) 
-                                            ? `✓ Creator code applied! You get ${getDiscountPercentValue(getProductIdForTier(props.selectedTier!, yearOption))}% off` 
+                                    <div style={{ marginTop: '10px', fontSize: '0.9rem', color: getDiscountPercentValue(getProductIdForTier(props.selectedTier!, getCurrentDuration())) ? '#20c997' : '#6c757d' }}>
+                                        {getDiscountPercentValue(getProductIdForTier(props.selectedTier!, getCurrentDuration())) 
+                                            ? `✓ Creator code applied! You get ${getDiscountPercentValue(getProductIdForTier(props.selectedTier!, getCurrentDuration()))}% off` 
                                             : '✓ Creator code applied'}
                                     </div>
                                 )}
@@ -574,10 +629,9 @@ function BuySubscription(props: Props) {
                         className={styles.purchaseButton}
                         onClick={() => {
                             setSelectedPremiumType(targetType)
-                            setIsYearOption(yearOption)
                             startSubscriptionPurchase(
                                 selectedPremiumType || wizardSelectedType!,
-                                isYearOption !== undefined ? isYearOption : wizardIsYearOption
+                                currentDuration
                             )
                             const activeEl = document.activeElement as HTMLElement | null
                             if (activeEl && activeEl.tagName === 'BUTTON') {
@@ -617,7 +671,7 @@ function BuySubscription(props: Props) {
                                         const type = PREMIUM_TYPES.find(type => type.productId === 'premium_plus')
                                         setIsYearOption(false)
                                         setSelectedPremiumType(type)
-                                        if (type) startSubscriptionPurchase(type, false)
+                                        if (type) startSubscriptionPurchase(type, Duration.MONTHLY)
                                     }}
                                 >
                                     <NumberElement number={35.69} /> Euro (+VAT) / 4 weeks
@@ -634,7 +688,7 @@ function BuySubscription(props: Props) {
                                                 const type = PREMIUM_TYPES.find(type => type.productId === 'premium_plus')
                                                 setIsYearOption(true)
                                                 setSelectedPremiumType(type)
-                                                if (type) startSubscriptionPurchase(type, true)
+                                                if (type) startSubscriptionPurchase(type, Duration.YEARLY)
                                             }}
                                         >
                                             <NumberElement number={354.2} /> Euro (+VAT) / 52 weeks (23% off)
@@ -664,7 +718,7 @@ function BuySubscription(props: Props) {
                                         const type = PREMIUM_TYPES.find(type => type.productId === 'premium')
                                         setIsYearOption(false)
                                         setSelectedPremiumType(type)
-                                        if (type) startSubscriptionPurchase(type, false)
+                                        if (type) startSubscriptionPurchase(type, Duration.MONTHLY)
                                     }}
                                 >
                                     <NumberElement number={8.69} /> Euro (+VAT) / 4 weeks
@@ -681,7 +735,7 @@ function BuySubscription(props: Props) {
                                         const type = PREMIUM_TYPES.find(type => type.productId === 'premium')
                                         setIsYearOption(true)
                                         setSelectedPremiumType(type)
-                                        if (type) startSubscriptionPurchase(type, true)
+                                        if (type) startSubscriptionPurchase(type, Duration.YEARLY)
                                     }}
                                 >
                                     <NumberElement number={96.69} /> Euro (+VAT) / 52 weeks (14% off)

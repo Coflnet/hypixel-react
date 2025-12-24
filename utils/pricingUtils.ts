@@ -96,21 +96,53 @@ const TIER_API_PRODUCT_MAP: Record<PremiumTier, string> = {
     [PremiumTier.STARTER]: 'l_starter_premium'
 }
 
-// Get API product ID for a tier
-export const getTierApiProductId = (tier: PremiumTier, isYearly: boolean): string => {
+// Get API product ID for a tier - supports both legacy boolean and new Duration enum
+export const getTierApiProductId = (tier: PremiumTier, isYearlyOrDuration: boolean | Duration = false): string => {
     const baseId = TIER_API_PRODUCT_MAP[tier]
+    
+    // Handle Duration enum
+    if (typeof isYearlyOrDuration === 'string') {
+        switch (isYearlyOrDuration) {
+            case Duration.YEARLY:
+                return tier !== PremiumTier.STARTER ? `${baseId}-year` : baseId
+            case Duration.QUARTER:
+                return tier !== PremiumTier.STARTER ? `${baseId}-quarter` : baseId
+            case Duration.MONTHLY:
+            default:
+                return baseId
+        }
+    }
+    
+    // Handle legacy boolean
+    const isYearly = isYearlyOrDuration as boolean
     return isYearly && tier !== PremiumTier.STARTER ? `${baseId}-year` : baseId
 }
 
 // Fallback subscription prices
-const SUBSCRIPTION_PRICES: Record<string, { monthly: number; yearly: number }> = {
-    'premium': { monthly: 9.69, yearly: 96.69 },
-    'premium_plus': { monthly: 35.69, yearly: 354.2 },
-    'starter_premium': { monthly: 16.99, yearly: 16.99 }
+export const SUBSCRIPTION_PRICES: Record<string, { monthly: number; quarterly: number; yearly: number }> = {
+    'premium': { monthly: 9.69, quarterly: 27.69, yearly: 96.69 },
+    'premium_plus': { monthly: 35.69, quarterly: 99.69, yearly: 354.2 },
+    'starter_premium': { monthly: 16.99, quarterly: 16.99, yearly: 16.99 }
 }
 
 // Get fallback subscription price
-export const getFallbackSubscriptionPrice = (productId: string, isYearly: boolean): number => {
+export const getFallbackSubscriptionPrice = (productId: string, isYearly: boolean | Duration = false): number => {
     const prices = SUBSCRIPTION_PRICES[productId]
-    return prices ? (isYearly ? prices.yearly : prices.monthly) : -1
+    if (!prices) return -1
+    
+    // Handle Duration enum
+    if (typeof isYearly === 'string') {
+        switch (isYearly) {
+            case Duration.YEARLY:
+                return prices.yearly
+            case Duration.QUARTER:
+                return prices.quarterly
+            case Duration.MONTHLY:
+            default:
+                return prices.monthly
+        }
+    }
+    
+    // Handle legacy boolean
+    return (isYearly as boolean) ? prices.yearly : prices.monthly
 }

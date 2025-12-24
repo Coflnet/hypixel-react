@@ -72,6 +72,7 @@ export const getDurationOptions = (tier: PremiumTier, type: PurchaseType) => {
         // Subscription type
         return [
             { label: 'Monthly', desc: 'Flexible monthly subscription', icon: '📅', value: Duration.MONTHLY },
+            { label: 'Quarterly', desc: 'Renewing quarterly - better value', icon: '📆', value: Duration.QUARTER, badge: 'Recommended' },
             { label: 'Yearly', desc: 'Best value - save with annual billing', icon: '🎯', value: Duration.YEARLY }
         ]
     }

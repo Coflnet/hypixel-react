@@ -21,8 +21,17 @@ function PremiumPurchaseWizard(props: Props) {
     const [selectedType, setSelectedType] = useState<PurchaseType | null>(null)
     const [selectedDuration, setSelectedDuration] = useState<Duration | null>(null)
     const [urlDiscountCode, setUrlDiscountCode] = useState<string | null>(null)
+    const [countryCode, setCountryCode] = useState<string>('US')
 
     const totalSteps = 4
+
+    // Get country code on mount
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const stored = localStorage.getItem('countryCode')
+            if (stored) setCountryCode(stored)
+        }
+    }, [])
 
     // Helper function to get current tier from active premium product
     const getCurrentTier = (): PremiumTier | null => {
@@ -184,6 +193,7 @@ function PremiumPurchaseWizard(props: Props) {
                         isUpgrade={isUpgrade}
                         suggestedTier={suggestedTier}
                         activePremiumProduct={props.activePremiumProduct}
+                        onCountryCodeChange={setCountryCode}
                     />
                 )
             case 2:
@@ -195,6 +205,7 @@ function PremiumPurchaseWizard(props: Props) {
                         selectedTier={selectedTier!}
                         selectedDuration={selectedDuration}
                         onDurationSelect={handleDurationSelect}
+                        countryCode={countryCode}
                     />
                 )
             case 4:
@@ -207,6 +218,7 @@ function PremiumPurchaseWizard(props: Props) {
                         premiumSubscriptions={props.premiumSubscriptions}
                         onNewActivePremiumProduct={props.onNewActivePremiumProduct}
                         initialDiscountCode={urlDiscountCode}
+                        countryCode={countryCode}
                     />
                 )
             default:
