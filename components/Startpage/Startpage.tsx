@@ -123,8 +123,12 @@ function Startpage(props: Props) {
         })
     }
 
-    const discountCode = null
-    const discountAmount = "20%"
+    // Show CHRISTMAS25 banner only until Dec 27 of the current year
+    const now = new Date()
+    const christmasEnd = new Date(now.getFullYear(), 11, 27, 23, 59, 59) // month is 0-based: 11 = December
+    const showChristmasBanner = now <= christmasEnd
+    const discountCode = showChristmasBanner ? 'CHRISTMAS25' : null
+    const discountAmount = "25%"
 
     const salesBanner = discountCode ? (
         <Link href={`/premium?code=${discountCode}`} style={{ textDecoration: 'none' }}>
@@ -140,7 +144,7 @@ function Startpage(props: Props) {
                 cursor: 'pointer',
                 transition: 'transform 0.2s'
             }} className={styles.salesBanner}>
-                🔥 <span style={{ fontSize: '1.1em' }}>Special Offer!</span> Get <span style={{ color: '#ffeb3b' }}>{discountAmount} OFF</span> Premium with code <span style={{ backgroundColor: 'white', color: '#d32f2f', padding: '2px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>{discountCode}</span>! Click here to redeem! 🔥
+                🎄 <span style={{ fontSize: '1.1em' }}>Holiday Special!</span> Get <span style={{ color: '#ffeb3b' }}>{discountAmount} OFF</span> Premium with code <span style={{ backgroundColor: 'white', color: '#d32f2f', padding: '2px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>{discountCode}</span>! Click here to redeem! 🎄
             </div>
         </Link>
     ) : null
