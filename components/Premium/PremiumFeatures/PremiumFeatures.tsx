@@ -102,10 +102,73 @@ function PremiumFeatures() {
                         {checkIconElement}
                     </tr>
                     <tr>
+                        <td className={styles.featureColumn}>Top 3 Bazaar Flips</td>
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>Top 3 Forge Flips</td>
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>Top 3 Fusion Flips</td>
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
                         <td className={styles.featureColumn}>Top 3 Craft Flips</td>
                         {xIconElement}
                         {checkIconElement}
                         {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>Top 3 Book Flips</td>
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>Top 3 NPC Flips</td>
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>Top 3 Attribute Flips</td>
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>Top 3 Reverse NPC Flips</td>
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>Top 3 Premium Bazaar Flips</td>
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>Medium Term investment flips (Mayor cycle)</td>
+                        {xIconElement}
+                        {xIconElement}
+                        {xIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
