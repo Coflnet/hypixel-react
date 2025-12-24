@@ -3,6 +3,7 @@ import { PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import api from '../../../api/ApiHelper'
 import { Button, Card, Col, Row, Form, Spinner, Alert, InputGroup } from 'react-bootstrap'
 import styles from './BuySubscription.module.css'
+import stepStyles from '../PremiumPurchaseWizard/Steps/Steps.module.css'
 import NumberElement from '../../Number/Number'
 import { toast } from 'react-toastify'
 import { Duration, PremiumTier, getTierDisplayName } from '../PremiumPurchaseWizard/types'
@@ -51,7 +52,9 @@ function BuySubscription(props: Props) {
         fetchPricing(creatorCode)
         // Auto-validate discount code if provided from URL
         if (props.initialDiscountCode) {
-            validateDiscountCodeValue(props.initialDiscountCode)
+            setTimeout(() => {
+                validateDiscountCodeValue(props.initialDiscountCode!)
+            }, 100)
         }
     }, [])
 
@@ -408,8 +411,8 @@ function BuySubscription(props: Props) {
                     <p>
                         <strong>Tier:</strong>{' '}
                         <span
-                            className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${
-                                props.selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''
+                            className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? stepStyles.tierPremium : ''} ${
+                                props.selectedTier === PremiumTier.PREMIUM_PLUS ? stepStyles.tierPremiumPlus : ''
                             }`}
                         >
                             {getDisplayTierName()}
