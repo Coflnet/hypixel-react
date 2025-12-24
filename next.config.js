@@ -3,6 +3,8 @@ const withMDX = require('@next/mdx')()
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: true,
+    poweredByHeader: false,
+    compress: true,
     eslint: {
         ignoreDuringBuilds: true
     },
@@ -47,6 +49,23 @@ const nextConfig = {
             }
         ]
     },
+    async headers() {
+        return [
+            {
+                source: '/:path*',
+                headers: [
+                    {
+                        key: 'X-DNS-Prefetch-Control',
+                        value: 'on'
+                    },
+                    {
+                        key: 'X-Content-Type-Options',
+                        value: 'nosniff'
+                    }
+                ]
+            }
+        ]
+    },
     modularizeImports: {
         '@mui/material': {
             transform: '@mui/material/{{member}}'
@@ -54,12 +73,9 @@ const nextConfig = {
         '@mui/icons-material': {
             transform: '@mui/icons-material/{{member}}'
         }
-    }
-    ,
-    // Temporarily ignore ESLint errors during build so the CI/build can complete.
-    // Prefer fixing the lint errors long-term; this avoids blocking builds for docs/MDX fixes.
-    eslint: {
-        ignoreDuringBuilds: true
+    },
+    experimental: {
+        optimizePackageImports: ['echarts-for-react', 'react-bootstrap', '@mui/icons-material']
     }
 }
 
