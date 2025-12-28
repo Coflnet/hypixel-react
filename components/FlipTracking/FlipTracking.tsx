@@ -403,7 +403,7 @@ export function FlipTracking(props: Props) {
                         <Tooltip
                             type="hover"
                             content={<InfoIcon style={{ color: '#ff9800' }} />}
-                            tooltipContent={<div>You can only view up to 6 months at a time. Please adjust your date range.</div>}
+                            tooltipContent={<div>You can only view up to 1 year at a time. Please adjust your end time.</div>}
                         />
                     )}
                     {showPremiumPlusWarning && hasPremium && !hasPremiumPlus && (
