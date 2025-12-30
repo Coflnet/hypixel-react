@@ -29,6 +29,10 @@ export default async function Page() {
                 <Link href="/premiumBazaar" style={{ marginTop: '20px', display: 'inline-block' }}>
                     Premium Bazaar Flips (premium required)
                 </Link>
+                <span style={{ marginLeft: '12px' }} />
+                <Link href="https://donut.coflnet.com" style={{ marginTop: '20px', display: 'inline-block' }}>
+                    DonutSMP Flips
+                </Link>
             </Container>
         </>
     )
