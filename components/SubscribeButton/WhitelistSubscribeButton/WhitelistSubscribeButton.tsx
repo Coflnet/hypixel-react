@@ -80,6 +80,9 @@ function WhitelistSubscribeButton(props: Props) {
             <Modal.Body>
                 {isLoggedIn ? (
                     <div>
+                        <p>
+                            Creating this will send a notification to the selected target whenever a new auction matching your whitelist from <Link href="https://sky.colfnet.com/flipper">Auction flipper</Link> is created.
+                        </p>
                         <label htmlFor="notificationTargetsTypeahead">Targets: </label>
                         <div style={{ display: 'flex', gap: 10 }}>
                             <Typeahead
