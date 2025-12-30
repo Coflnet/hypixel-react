@@ -479,7 +479,10 @@ function SubscriptionList() {
                     <>
                         <div style={{ height: 'auto', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
                             <WhitelistSubscribeButton onAfterSubscribe={() => {
-                                loadListener();
+                                setIsLoading(true);
+                                Promise.all([loadListener(), loadSubscriptions()]).then(() => {
+                                    setIsLoading(false);
+                                });
                             }} />
                             <Button
                                 variant="primary"

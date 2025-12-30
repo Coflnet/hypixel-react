@@ -13,6 +13,8 @@ import api from '../../../api/ApiHelper'
 import CreateTargetDialog from '../CreateTargetDialog/CreateTargetDialog'
 import GoogleSignIn from '../../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../../utils/LoadingUtils'
+import { hasHighEnoughPremium, PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
+import Link from 'next/link'
 
 interface Props {
     onAfterSubscribe?(): void
@@ -28,8 +30,15 @@ function WhitelistSubscribeButton(props: Props) {
     let [selectedNotificationTargets, setSelectedNotificationTargets] = useState<NotificationTarget[]>([])
     let [isLoadingNotificationTargets, setIsLoadingNotificationTargets] = useState(false)
     let [showCreateTargetDialog, setShowCreateTargetDialog] = useState(false)
+    let [hasPremium, setHasPremium] = useState(false)
+    let [isPremiumLoading, setIsPremiumLoading] = useState(false)
 
     async function onSubscribe() {
+        if (!hasPremium) {
+            toast.error('Premium access required to create whitelist notifiers')
+            return
+        }
+
         trackEvent({ action: 'subscribed', category: 'subscriptions' })
         setShowDialog(false)
 
@@ -56,9 +65,16 @@ function WhitelistSubscribeButton(props: Props) {
     function onLogin() {
         setIsLoggedIn(true)
         setIsLoadingNotificationTargets(true)
-        api.getNotificationTargets().then(targets => {
+        setIsPremiumLoading(true)
+        Promise.all([
+            api.getNotificationTargets(),
+            api.refreshLoadPremiumProducts(products => {
+                setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
+            })
+        ]).then(([targets]) => {
             setNotificationTargets(targets)
             setIsLoadingNotificationTargets(false)
+            setIsPremiumLoading(false)
         })
     }
 
@@ -79,39 +95,61 @@ function WhitelistSubscribeButton(props: Props) {
             </Modal.Header>
             <Modal.Body>
                 {isLoggedIn ? (
-                    <div>
-                        <p>
-                            Creating this will send a notification to the selected target whenever a new auction matching your whitelist from <Link href="https://sky.colfnet.com/flipper">Auction flipper</Link> is created.
-                        </p>
-                        <label htmlFor="notificationTargetsTypeahead">Targets: </label>
-                        <div style={{ display: 'flex', gap: 10 }}>
-                            <Typeahead
-                                id="notificationTargetsTypeahead"
-                                className={styles.multiSearch}
-                                isLoading={isLoadingNotificationTargets}
-                                labelKey="name"
-                                style={{ flex: 1 }}
-                                options={notificationTargets}
-                                placeholder={'Select targets...'}
-                                selected={selectedNotificationTargets}
-                                onChange={selected => {
-                                    setSelectedNotificationTargets(selected as NotificationTarget[])
-                                }}
-                                multiple={true}
-                            />
-                            <Button
-                                onClick={() => {
-                                    setShowCreateTargetDialog(true)
-                                }}
-                                variant='secondary'
-                            >
-                                Create new target
+                    isPremiumLoading ? (
+                        getLoadingElement()
+                    ) : hasPremium ? (
+                        <div>
+                            <p>
+                                Creating this will send a notification to the selected target whenever a new auction matching your whitelist from <Link href="https://sky.colfnet.com/flipper">Auction flipper</Link> is created.
+                            </p>
+                            <label htmlFor="notificationTargetsTypeahead">Targets: </label>
+                            <div style={{ display: 'flex', gap: 10 }}>
+                                <Typeahead
+                                    id="notificationTargetsTypeahead"
+                                    className={styles.multiSearch}
+                                    isLoading={isLoadingNotificationTargets}
+                                    labelKey="name"
+                                    style={{ flex: 1 }}
+                                    options={notificationTargets}
+                                    placeholder={'Select targets...'}
+                                    selected={selectedNotificationTargets}
+                                    onChange={selected => {
+                                        setSelectedNotificationTargets(selected as NotificationTarget[])
+                                    }}
+                                    multiple={true}
+                                />
+                                <Button
+                                    onClick={() => {
+                                        setShowCreateTargetDialog(true)
+                                    }}
+                                    variant='secondary'
+                                >
+                                    Create new target
+                                </Button>
+                            </div>
+                            <Button onClick={onSubscribe} className={styles.notifyButton}>
+                                Notify me
                             </Button>
                         </div>
-                        <Button onClick={onSubscribe} className={styles.notifyButton}>
-                            Notify me
-                        </Button>
-                    </div>
+                    ) : (
+                        <div>
+                            <div style={{ textAlign: 'center', padding: '20px' }}>
+                                <div style={{ fontSize: '48px', marginBottom: '15px' }}>🔒</div>
+                                <h5 style={{ color: 'var(--bs-warning)', marginBottom: '10px' }}>Premium Feature</h5>
+                                <p style={{  marginBottom: '15px' }}>
+                                    Whitelist notifiers require at least Premium access.
+                                </p>
+                                <p style={{  marginBottom: '15px' }}>
+                                    Click the notification icon to open this dialog again after purchasing premium.
+                                </p>
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '15px' }}>
+                                <Link href="/premium?tier=premium">
+                                    <Button variant="warning">Get Premium</Button>
+                                </Link>
+                            </div>
+                        </div>
+                    )
                 ) : (
                     <p>To use notifiers, please login with Google: </p>
                 )}
