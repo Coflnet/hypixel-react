@@ -125,7 +125,7 @@ function Startpage(props: Props) {
 
     // Show CHRISTMAS25 banner only until Dec 27 of the current year
     const now = new Date()
-    const christmasEnd = new Date(now.getFullYear(), 11, 27, 23, 59, 59) // month is 0-based: 11 = December
+    const christmasEnd = new Date(2025, 11, 27, 23, 59, 59) // month is 0-based: 11 = December
     const showChristmasBanner = now <= christmasEnd
     const discountCode = showChristmasBanner ? 'CHRISTMAS25' : null
     const discountAmount = "25%"
