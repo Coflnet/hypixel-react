@@ -429,6 +429,12 @@ interface ReloadFeedback {
     additionalInformation: string
 }
 
+interface SubscriptionCancelFeedback {
+    stoppedPlayingSkyblock: boolean
+    hasComplaint: boolean
+    additionalInformation: string
+}
+
 interface ProfitableCraft {
     item: Item
     sellPrice: number
