@@ -15,6 +15,7 @@ interface Props {
     isUpgrade?: boolean
     suggestedTier?: PremiumTier | null
     activePremiumProduct?: PremiumProduct
+    onCountryCodeChange?: (countryCode: string) => void
 }
 interface ActiveDiscount {
     description: string
@@ -22,9 +23,18 @@ interface ActiveDiscount {
     code: string
 }
 
-export default function TierSelectionStep({ selectedTier, onTierSelect, currentTier, isUpgrade, suggestedTier, activePremiumProduct }: Props) {
+export default function TierSelectionStep({ selectedTier, onTierSelect, currentTier, isUpgrade, suggestedTier, activePremiumProduct, onCountryCodeChange }: Props) {
     const [selectedCountry, setSelectedCountry] = useState<Country>()
     const [defaultCountry, setDefaultCountry] = useState<Country>()
+
+    const handleCountryChange = (country: Country) => {
+        setSelectedCountry(country)
+        if (onCountryCodeChange && country.value) {
+            onCountryCodeChange(country.value)
+            localStorage.setItem('countryCode', country.value)
+            localStorage.setItem(USER_COUNTRY_CODE, country.value)
+        }
+    }
 
     useEffect(() => {
         loadDefaultCountry()
@@ -36,6 +46,10 @@ export default function TierSelectionStep({ selectedTier, onTierSelect, currentT
             const country = getCountry(cachedCountryCode)
             setDefaultCountry(country)
             setSelectedCountry(country)
+            // ensure both keys exist for other components
+            try {
+                localStorage.setItem('countryCode', cachedCountryCode)
+            } catch {}
             return
         }
 
@@ -51,11 +65,37 @@ export default function TierSelectionStep({ selectedTier, onTierSelect, currentT
             let country = getCountry(result.country) || getCountryFromUserLanguage()
             setDefaultCountry(country)
             setSelectedCountry(country)
-            localStorage.setItem(USER_COUNTRY_CODE, result.country)
+            if (onCountryCodeChange && country && country.value) {
+                onCountryCodeChange(country.value)
+                localStorage.setItem('countryCode', country.value)
+                localStorage.setItem(USER_COUNTRY_CODE, country.value)
+            } else {
+                // still persist detected country
+                try {
+                    if (country && country.value) {
+                        localStorage.setItem('countryCode', country.value)
+                        localStorage.setItem(USER_COUNTRY_CODE, country.value)
+                    } else {
+                        localStorage.setItem(USER_COUNTRY_CODE, result.country)
+                    }
+                } catch {}
+            }
         } else {
             let country = getCountryFromUserLanguage()
             setDefaultCountry(country)
             setSelectedCountry(country)
+            if (onCountryCodeChange && country && country.value) {
+                onCountryCodeChange(country.value)
+                localStorage.setItem('countryCode', country.value)
+                localStorage.setItem(USER_COUNTRY_CODE, country.value)
+            } else {
+                try {
+                    if (country && country.value) {
+                        localStorage.setItem('countryCode', country.value)
+                        localStorage.setItem(USER_COUNTRY_CODE, country.value)
+                    }
+                } catch {}
+            }
         }
     }
 
@@ -149,7 +189,7 @@ export default function TierSelectionStep({ selectedTier, onTierSelect, currentT
             {/* Country Selection */}
             <div className={styles.countrySelection}>
                 {defaultCountry ? (
-                    <CountrySelect key="country-select" isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={setSelectedCountry} />
+                    <CountrySelect key="country-select" isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={handleCountryChange} />
                 ) : (
                     <CountrySelect key="loading-country-select" isLoading />
                 )}

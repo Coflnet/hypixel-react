@@ -5,6 +5,18 @@
  * Notes: PET, RUNE and POTION item tags (somtimes called ids) are expanded to include the type, eg PET_LION.<br> All other Tags match with hypixel and can be found via the search endpoint, also see our <a href="https://sky.coflnet.com/wiki/api">api docs</a>.<br>Most of these endpoints are used for our <a href="https://sky.coflnet.com/flips">Hypixel skyblock ah and bazaar flipping service</a> and may need you to have a premium account token<br>Also if you use the api for a public project you are responsible for complying with our <a href="https://sky.coflnet.com/wiki/api#attribution">api attribution</a>.
  * OpenAPI spec version: v1
  */
+export interface ActivePet {
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  colorCode?: string | null;
+  /** @nullable */
+  progressPercent?: number | null;
+  /** @nullable */
+  targetLevel?: number | null;
+  lastUpdated: string;
+}
+
 /**
  * @nullable
  */
@@ -445,6 +457,20 @@ export interface CommandListEntry {
   description: string | null;
 }
 
+export interface CompletedBazaarFlip {
+  playerUuid: string;
+  year: number;
+  /** @nullable */
+  itemTag?: string | null;
+  /** @nullable */
+  itemName?: string | null;
+  amount: number;
+  buyPrice: number;
+  sellPrice: number;
+  profit: number;
+  soldAt: string;
+}
+
 export interface Composter {
   nextCompostAt: string;
   fuelStored: number;
@@ -455,6 +481,15 @@ export interface Composter {
   fuelCap: number;
   matterCap: number;
   costReductionPercent: number;
+}
+
+export interface Cost {
+  /** @nullable */
+  itemName?: string | null;
+  price: number;
+  amount: number;
+  /** @nullable */
+  itemTag?: string | null;
 }
 
 /**
@@ -902,6 +937,12 @@ export interface ExtractedInfo {
   /** @nullable */
   attributeLevel?: ExtractedInfoAttributeLevel;
   composter?: Composter;
+  activePet?: ActivePet;
+  /** @nullable */
+  pets?: PetState[] | null;
+  weaponInHuntaxe?: Item;
+  /** @nullable */
+  huntingToolkitItems?: Item[] | null;
 }
 
 export interface Fill {
@@ -1385,7 +1426,7 @@ export const ItemFlags = {
   BAZAAR: 'BAZAAR',
   TRADEABLE: 'TRADEABLE',
   AUCTION: 'AUCTION',
-  FIRE_SALE: 'FIRE_SALE',
+  FIRESALE: 'FIRESALE',
   GLOWING: 'GLOWING',
   MUSEUM: 'MUSEUM',
 } as const;
@@ -1839,6 +1880,32 @@ export interface Pet {
   /** @nullable */
   milestone?: PetMilestone;
   total_exp_gained: number;
+}
+
+export interface PetState {
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  type?: string | null;
+  /** @nullable */
+  tier?: string | null;
+  level: number;
+  exp: number;
+  isActive: boolean;
+  /** @nullable */
+  heldItem?: string | null;
+  candyUsed: number;
+  /** @nullable */
+  colorCode?: string | null;
+  /** @nullable */
+  tag?: string | null;
+  /** @nullable */
+  uuid?: string | null;
+  progressPercent: number;
+  targetLevel: number;
+  currentExp: number;
+  expForLevel: number;
+  lastUpdated: string;
 }
 
 export interface PetsData {
@@ -2319,6 +2386,23 @@ export interface RequiredSkill {
   level: number;
 }
 
+export interface ReverseNpcFlip {
+  /** @nullable */
+  npcName?: string | null;
+  /** @nullable */
+  itemId?: string | null;
+  /** @nullable */
+  itemName?: string | null;
+  npcBuyPrice: number;
+  sellPrice: number;
+  profit: number;
+  profitMargin: number;
+  /** @nullable */
+  costs?: Cost[] | null;
+  volume: number;
+  lastUpdated: string;
+}
+
 export interface Rift {
   inventory?: Inventory;
 }
@@ -2546,6 +2630,11 @@ export interface TopUpArguments {
    * @nullable
    */
   creatorCode?: string | null;
+  /**
+   * An optional discount code to apply to the purchase
+   * @nullable
+   */
+  discountcode?: string | null;
 }
 
 export interface TopUpIdResponse {
@@ -2602,6 +2691,24 @@ export interface UuId {
   id: number;
   /** @nullable */
   value?: string | null;
+}
+
+export interface ValidatedDiscount {
+  /** @nullable */
+  code?: string | null;
+  /** @nullable */
+  id?: string | null;
+  amount: number;
+  /** @nullable */
+  amountType?: string | null;
+  /** @nullable */
+  name?: string | null;
+  isValid: boolean;
+  isLimitedToProducts: boolean;
+  isSubscriptionOnly: boolean;
+  /** @nullable */
+  duration?: string | null;
+  durationInMonths: number;
 }
 
 export interface VisibilitySettings {
@@ -2913,6 +3020,13 @@ export type PostApiPlayerNames200Two = {[key: string]: string};
 export type PostApiPlayerNames200Three = {[key: string]: string};
 
 export type GetApiPlayerBazaarOrdersParams = {
+apiKey?: string;
+};
+
+export type GetApiPlayerBazaarFlipsParams = {
+/**
+ * Key generated from /cofl api in game
+ */
 apiKey?: string;
 };
 

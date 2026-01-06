@@ -14,8 +14,12 @@ function RootLayout({ children }: { children: React.ReactNode }) {
         <html lang="en">
             <head>
                 <meta name="google-adsense-account" content="ca-pub-6429823223434612" />
+                <link rel="preconnect" href="https://sky.coflnet.com" />
+                <link rel="preconnect" href="https://mc-heads.net" />
+                <link rel="dns-prefetch" href="https://sky.coflnet.com" />
+                <link rel="dns-prefetch" href="https://mc-heads.net" />
             </head>
-            <Script async={true} src={'/preScript.js'} />
+            <Script async={true} src={'/preScript.js'} strategy="afterInteractive" />
             <body>
                 <div className="page">
                     <Providers>

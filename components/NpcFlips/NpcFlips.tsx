@@ -1,36 +1,52 @@
 'use client'
 import Image from 'next/image'
-import React, { useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import api from '../../api/ApiHelper'
-import { getMinecraftColorCodedElement } from '../../utils/Formatter'
-import Number from '../Number/Number'
+import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
+import NumberElement from '../Number/Number'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { getApiFlipNpc, getGetApiFlipNpcQueryKey } from '../../api/_generated/skyApi'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
-import { parseProfitableCrafts } from '../../utils/Parser/APIResponseParser'
+import { ReverseNpcFlip } from '../../api/_generated/skyApi.schemas'
+import Tooltip from '../Tooltip/Tooltip'
+import { NpcFlipDetails } from './NpcFlipDetails/NpcFlipDetails'
 
-const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
+const SORT_OPTIONS: SortOption<ReverseNpcFlip>[] = [
     {
         label: 'Profit',
         value: 'profit',
-        sortFunction: (crafts: ProfitableCraft[]) => crafts.sort((a, b) => b.sellPrice - b.craftCost - (a.sellPrice - a.craftCost))
+        sortFunction: (flips: ReverseNpcFlip[]) => flips.sort((a, b) => (b.profit || 0) - (a.profit || 0))
     },
     {
         label: 'Sell Price',
         value: 'sellPrice',
-        sortFunction: (crafts: ProfitableCraft[]) => crafts.sort((a, b) => b.sellPrice - a.sellPrice)
+        sortFunction: (flips: ReverseNpcFlip[]) => flips.sort((a, b) => (b.sellPrice || 0) - (a.sellPrice || 0))
     },
     {
-        label: 'Craft Cost',
-        value: 'craftCost',
-        sortFunction: (crafts: ProfitableCraft[]) => crafts.sort((a, b) => b.craftCost - a.craftCost)
+        label: 'Purchase Cost',
+        value: 'purchaseCost',
+        sortFunction: (flips: ReverseNpcFlip[]) => flips.sort((a, b) => (b.npcBuyPrice || 0) - (a.npcBuyPrice || 0))
     },
     {
         label: 'Volume',
         value: 'volume',
-        sortFunction: crafts => crafts.sort((a, b) => b.volume - a.volume)
+        sortFunction: (flips: ReverseNpcFlip[]) => flips.sort((a, b) => (b.volume || 0) - (a.volume || 0))
+    },
+    {
+        label: 'Profit Margin',
+        value: 'profitMargin',
+        sortFunction: (flips: ReverseNpcFlip[]) => flips.sort((a, b) => (b.profitMargin || 0) - (a.profitMargin || 0))
     }
 ]
+
+function formatMargin(margin?: number | null): string {
+    if (margin === null || margin === undefined || Number.isNaN(margin)) {
+        return 'unknown'
+    }
+    const normalized = margin > 1 ? margin : margin * 100
+    const fixedDigits = normalized >= 100 ? 0 : normalized >= 10 ? 1 : 2
+    return `${normalized.toFixed(fixedDigits)}%`
+}
 
 export function NpcFlips() {
     const { data: { data: flips } = { data: [] } } = useSuspenseQuery({
@@ -38,83 +54,119 @@ export function NpcFlips() {
         queryFn: () => getApiFlipNpc()
     })
 
-    const crafts = useMemo(() => (flips ? parseProfitableCrafts(flips) : []), [flips])
+    const normalizedFlips = useMemo(() => (flips ? flips : []), [flips])
 
-    function renderFlipContent(craft: ProfitableCraft) {
+    const getTotalCost = useCallback((flip: ReverseNpcFlip): number => {
+        if (!flip.costs || flip.costs.length === 0) {
+            return flip.npcBuyPrice || 0
+        }
+        return flip.costs.reduce((sum, cost) => sum + (cost.price || 0), 0)
+    }, [])
+
+    function renderFlipContent(flip: ReverseNpcFlip) {
+        const margin = formatMargin(flip.profitMargin)
+        const totalCost = getTotalCost(flip)
+        
         return (
             <>
-                <h4>{getCraftHeader(craft)}</h4>
+                <h4>{getFlipHeader(flip)}</h4>
                 <p>
-                    <span style={{ width: '150px', float: 'left' }}>Purchase Cost:</span> <Number number={Math.round(craft.craftCost)} /> Coins
+                    <span style={{ width: '150px', float: 'left' }}>Purchase Cost:</span> <NumberElement number={Math.round(totalCost)} /> Coins
                 </p>
                 <p>
-                    <span style={{ width: '150px', float: 'left' }}>Sell Price:</span> <Number number={Math.round(craft.sellPrice)} /> Coins
+                    <span style={{ width: '150px', float: 'left' }}>Sell Price:</span> <NumberElement number={Math.round(flip.sellPrice || 0)} /> Coins
                 </p>
                 <p>
-                    <span style={{ width: '150px', float: 'left' }}>Median:</span>{' '}
-                    {craft.median > 0 ? (
-                        <span>
-                            <Number number={Math.round(craft.median)} /> Coins
-                        </span>
-                    ) : (
-                        'unknown'
-                    )}
+                    <span style={{ width: '150px', float: 'left' }}>Profit:</span>{' '}
+                    <span style={{ color: (flip.profit || 0) > 0 ? '#55ff55' : '#ff5555' }}>
+                        <NumberElement number={Math.round(flip.profit || 0)} /> Coins
+                    </span>
                 </p>
                 <p>
-                    <span style={{ width: '150px', float: 'left' }}>Volume:</span> {craft.volume > 0 ? <Number number={Math.round(craft.volume)} /> : 'unknown'}
+                    <span style={{ width: '150px', float: 'left' }}>Margin:</span> {margin}
+                </p>
+                <p>
+                    <span style={{ width: '150px', float: 'left' }}>Volume:</span>{' '}
+                    {(flip.volume || 0) > 0 ? <NumberElement number={Math.round(flip.volume || 0)} /> : 'unknown'}
                 </p>
             </>
         )
     }
 
-    function getCraftHeader(craft: ProfitableCraft): React.JSX.Element {
+    function getFlipHeader(flip: ReverseNpcFlip): React.JSX.Element {
+        const tag = flip.itemId || 'BARRIER'
+        // Use itemName if it looks like a formatted name (contains spaces or Minecraft color codes)
+        // Otherwise convert the tag to a readable name
+        const rawName = flip.itemName || flip.itemId || ''
+        const hasFormatting = rawName.includes(' ') || rawName.includes('§')
+        const name = hasFormatting ? getMinecraftColorCodedElement(rawName) : convertTagToName(rawName)
         return (
             <span>
                 <Image
                     crossOrigin="anonymous"
-                    src={api.getItemImageUrl(craft.item) || ''}
+                    src={api.getItemImageUrl({ tag }) || ''}
                     height="32"
                     width="32"
                     alt=""
                     style={{ marginRight: '5px' }}
                     loading="lazy"
                 />
-                {getMinecraftColorCodedElement(craft.item.name)}
+                {name}
             </span>
         )
     }
 
-    function filterFunction(craft: ProfitableCraft, nameFilter: string | null | undefined, minimumProfit: number): boolean {
-        const nameMatch = !nameFilter || (craft.item.name?.toLowerCase().includes(nameFilter.toLowerCase()) ?? false)
-        const profitMatch = craft.sellPrice - craft.craftCost >= minimumProfit
+    function filterFunction(flip: ReverseNpcFlip, nameFilter: string | null | undefined, minimumProfit: number): boolean {
+        const searchText = nameFilter?.toLowerCase() || ''
+        const itemName = (flip.itemName || '').toLowerCase()
+        const convertedName = convertTagToName(flip.itemId || '').toLowerCase()
+        const nameMatch = !searchText || itemName.includes(searchText) || convertedName.includes(searchText)
+        const profitMatch = (flip.profit || 0) >= minimumProfit
         return nameMatch && profitMatch
     }
 
-    function censoredItemGenerator(craft: ProfitableCraft): ProfitableCraft {
+    function censoredItemGenerator(flip: ReverseNpcFlip): ReverseNpcFlip {
         return {
-            ...craft,
-            item: {
-                tag: '',
-                name: '§6You cheated the blur ☺',
-                iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
-            },
-            craftCost: 42,
+            ...flip,
+            itemId: 'BARRIER',
+            itemName: '§6You cheated the blur ☺',
+            npcName: 'Hidden NPC',
+            npcBuyPrice: 42,
             sellPrice: 69,
-            ingredients: [
+            profit: 27,
+            profitMargin: 64.3,
+            costs: [
                 {
-                    cost: 119999545.7,
-                    count: 80,
-                    item: {
-                        tag: 'ASPECT_OF_THE_DRAGONS',
-                        name: 'Sword',
-                        iconUrl: 'https://sky.coflnet.com/static/icon/BARRIER'
-                    }
+                    itemName: 'Coins',
+                    itemTag: 'SKYBLOCK_COIN',
+                    price: 42,
+                    amount: 1
                 }
             ],
-            median: -1,
             volume: 123123,
-            requiredCollection: undefined,
-            requiredSlayer: undefined
+            lastUpdated: new Date().toISOString()
+        }
+    }
+
+    // Wrapper function for rendering with tooltip/modal
+    function customItemWrapper(flip: ReverseNpcFlip, blur: boolean, key: string, content: React.ReactNode, flipCardClass: string) {
+        if (blur) {
+            return (
+                <div key={key} className={flipCardClass}>
+                    {content}
+                </div>
+            )
+        } else {
+            return (
+                <Tooltip
+                    key={key}
+                    className={flipCardClass}
+                    type="click"
+                    content={<>{content}</>}
+                    tooltipTitle={getFlipHeader(flip)}
+                    tooltipContent={<NpcFlipDetails flip={flip} />}
+                />
+            )
         }
     }
 
@@ -175,16 +227,16 @@ export function NpcFlips() {
             </details>
             <br />
             <GenericFlipList
-                items={crafts}
+                items={normalizedFlips}
                 sortOptions={SORT_OPTIONS}
                 renderFlipContentAction={renderFlipContent}
                 filterFunction={filterFunction}
-                getFlipLink={craft => `https://sky.coflnet.com/item/${craft.item.tag}`}
-                getItemKeyAction={craft => craft.item.tag}
+                getItemKeyAction={flip => flip.itemId || ''}
                 censoredItemGenerator={censoredItemGenerator}
                 premiumMessage="The top 3 flips can only be seen with starter premium or better"
                 clickMessage="Click on a flip for further details"
                 showColumns={true}
+                customItemWrapper={customItemWrapper}
             />
         </>
     )

@@ -6,7 +6,7 @@ import { getHighestPriorityPremiumProduct, getPremiumLabelForSubscription, getPr
 import Tooltip from '../../Tooltip/Tooltip'
 import styles from './PremiumStatus.module.css'
 import { CancelOutlined } from '@mui/icons-material'
-import CancelSubscriptionConfirmDialog from '../CancelSubscriptionConfirmDialog/CancelSubscriptionConfirmDialog'
+import CancelSubscriptionFeedbackDialog from '../CancelSubscriptionFeedbackDialog/CancelSubscriptionFeedbackDialog'
 
 interface Props {
     products: PremiumProduct[]
@@ -150,15 +150,15 @@ function PremiumStatus(props: Props) {
                     </p>
                 )}
             </div>
-            <CancelSubscriptionConfirmDialog
+            <CancelSubscriptionFeedbackDialog
                 show={!!showCancelSubscriptionDialogSubscription}
-                onConfirm={() => {
+                onCancel={() => {
                     if (showCancelSubscriptionDialogSubscription) {
                         props.onSubscriptionCancel(showCancelSubscriptionDialogSubscription)
                         setShowCancelSubscriptionDialogSubscription(undefined)
                     }
                 }}
-                onHide={() => {
+                onClose={() => {
                     setShowCancelSubscriptionDialogSubscription(undefined)
                 }}
             />

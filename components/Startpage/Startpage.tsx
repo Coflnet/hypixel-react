@@ -2,51 +2,44 @@
 
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import NewIcon from '@mui/icons-material/FiberNew'
-import FireIcon from '@mui/icons-material/Fireplace'
-import PersonIcon from '@mui/icons-material/Person'
-import TimerIcon from '@mui/icons-material/Timer'
+import StorefrontIcon from '@mui/icons-material/Storefront'
+import MergeTypeIcon from '@mui/icons-material/MergeType'
+import BuildIcon from '@mui/icons-material/Build'
+import SmartToyIcon from '@mui/icons-material/SmartToy'
+import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
+import HandymanIcon from '@mui/icons-material/Handyman'
 import moment from 'moment'
-import Image from 'next/image'
 import Link from 'next/link'
+import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 import { useFavorites } from '../Favorites/FavoritesContext'
 import Card from 'react-bootstrap/Card'
-import Badge from 'react-bootstrap/Badge'
-import { FixedSizeList as List } from 'react-window'
-import api from '../../api/ApiHelper'
-import { getMinecraftColorCodedElement } from '../../utils/Formatter'
-import Number from '../Number/Number'
 import styles from './Startpage.module.css'
-import { StartpageLargeElementSkeleton } from './StartpageLargeElementSkeleton'
+import MarkdownIt from 'markdown-it'
+import api from '../../api/ApiHelper'
+import { FixedSizeList as List } from 'react-window'
 import { getApiDataUpdatesYearMonth } from '../../api/_generated/skyApi'
 
 interface Props {
-    newAuctions?: Auction[]
-    popularSearches?: PopularSearch[]
-    newPlayers?: Player[]
-    newItems?: Item[]
+    // No props needed as we fetch client side
 }
 
 function Startpage(props: Props) {
     let { trackEvent } = useMatomo()
-
-    let [newAuctions, setNewAuctions] = useState<Auction[]>(props.newAuctions || [])
-    let [endedAuctions, setEndedAuctions] = useState<Auction[]>([])
-    let [popularSearches, setPopularSearches] = useState<PopularSearch[]>(props.popularSearches || [])
-    let [newPlayers, setNewPlayers] = useState<Player[]>(props.newPlayers || [])
-    let [newItems, setNewItems] = useState<Item[]>(props.newItems || [])
-    let [recentUpdate, setRecentUpdate] = useState<any | null>(null)
-    let [isSSR, setIsSSR] = useState(true)
     const { favorites } = useFavorites()
+    const [recentUpdate, setRecentUpdate] = useState<any | null>(null)
+    const [newItems, setNewItems] = useState<Item[]>([])
+    const [isSSR, setIsSSR] = useState(true)
+
+    const mdRenderer = new MarkdownIt({ html: false, linkify: true, typographer: true, breaks: true })
 
     useEffect(() => {
         setIsSSR(false)
+        loadRecentUpdate()
+        loadNewItems()
         setTimeout(() => {
             attachScrollEvent(styles.startpageListElementWrapper)
         }, 500)
-        loadEndedAuctions()
-        loadRecentUpdate()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     async function loadRecentUpdate() {
@@ -57,153 +50,25 @@ function Startpage(props: Props) {
             const res = await getApiDataUpdatesYearMonth(year, month)
             const messages = res?.data || []
             if (messages.length > 0) {
-                const last = messages[messages.length - 1]
-                const created = new Date(last.createdAt)
-                if (now.getTime() - created.getTime() < 24 * 60 * 60 * 1000) {
-                    setRecentUpdate(last)
+                setRecentUpdate(messages[messages.length - 1])
+            } else {
+                // Try previous month if no news this month
+                const lastMonth = new Date(now.setMonth(now.getMonth() - 1))
+                const resPrev = await getApiDataUpdatesYearMonth(lastMonth.getFullYear(), lastMonth.getMonth() + 1)
+                const messagesPrev = resPrev?.data || []
+                if (messagesPrev.length > 0) {
+                    setRecentUpdate(messagesPrev[messagesPrev.length - 1])
                 }
             }
         } catch (e) {
-            // ignore
+            console.error("Failed to load updates", e)
         }
     }
 
-    function loadEndedAuctions() {
-        api.getEndedAuctions().then(endedAuctions => {
-            setEndedAuctions(endedAuctions)
-        })
-    }
-
-    function getEndString(end: Date) {
-        let momentDate = moment(end)
-        return end.getTime() < new Date().getTime() ? 'Ended ' + momentDate.fromNow() : 'Ends ' + momentDate.fromNow()
-    }
-
-    function getAuctionElement(auction: Auction, style: React.CSSProperties) {
-        return (
-            <div className={`${styles.cardWrapper}`} key={auction.uuid} style={style}>
-                <Link href={`/auction/${auction.uuid}`} className="disableLinkStyle">
-                    <Card>
-                        <Card.Header style={{ padding: '10px' }}>
-                            <p className={styles.ellipsis}>
-                                <Image
-                                    crossOrigin="anonymous"
-                                    src={api.getItemImageUrl(auction.item) || ''}
-                                    height="32"
-                                    width="32"
-                                    alt=""
-                                    style={{ marginRight: '5px' }}
-                                />
-                                {getMinecraftColorCodedElement(auction.item.name)}
-                            </p>
-                        </Card.Header>
-                        <Card.Body>
-                            <div>
-                                <ul>
-                                    <li>{getEndString(auction.end)}</li>
-                                    <li>
-                                        <Number number={auction.highestBid || auction.startingBid} /> Coins
-                                    </li>
-                                    {auction.bin ? (
-                                        <li>
-                                            <Badge style={{ marginLeft: '5px' }} bg="success">
-                                                BIN
-                                            </Badge>
-                                        </li>
-                                    ) : (
-                                        ''
-                                    )}
-                                </ul>
-                            </div>
-                        </Card.Body>
-                    </Card>
-                </Link>
-            </div>
-        )
-    }
-
-    function getNewPlayerElement(newPlayer: Player, style: React.CSSProperties) {
-        return (
-            <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={newPlayer.name} style={style}>
-                <Link href={`/player/${newPlayer.uuid}`} className="disableLinkStyle">
-                    <Card>
-                        <Card.Header style={{ height: '100%', padding: '20px' }}>
-                            <div style={{ float: 'left' }}>
-                                <Image
-                                    crossOrigin="anonymous"
-                                    className="playerHeadIcon"
-                                    src={newPlayer.iconUrl || ''}
-                                    height="32"
-                                    width="32"
-                                    alt=""
-                                    style={{ marginRight: '5px' }}
-                                    loading="lazy"
-                                />
-                            </div>
-                            <Card.Title className={styles.ellipsis}>{newPlayer.name}</Card.Title>
-                        </Card.Header>
-                    </Card>
-                </Link>
-            </div>
-        )
-    }
-
-    function getPopularSearchElement(search: PopularSearch, style: React.CSSProperties) {
-        return (
-            <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={search.url} style={style}>
-                <Link href={search.url} className="disableLinkStyle">
-                    <Card>
-                        <Card.Header style={{ height: '100%' }}>
-                            <div style={{ float: 'left' }}>
-                                <Image
-                                    crossOrigin="anonymous"
-                                    className="playerHeadIcon"
-                                    src={search.url.includes('/player') ? search.img + '?size=8' : search.img}
-                                    height="32"
-                                    width="32"
-                                    alt=""
-                                    style={{ marginRight: '5px' }}
-                                    loading="lazy"
-                                />
-                            </div>
-                            <Card.Title className={styles.ellipsis}>{search.title}</Card.Title>
-                        </Card.Header>
-                    </Card>
-                </Link>
-            </div>
-        )
-    }
-
-    function getNewItemElement(newItem: Item, style: React.CSSProperties) {
-        return (
-            <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={newItem.tag} style={style}>
-                <Link href={`/item/${newItem.tag}`} className="disableLinkStyle">
-                    <Card>
-                        <Card.Header style={{ height: '100%', padding: '20px' }}>
-                            <div style={{ float: 'left' }}>
-                                <Image
-                                    crossOrigin="anonymous"
-                                    src={newItem.iconUrl || ''}
-                                    height="32"
-                                    width="32"
-                                    alt=""
-                                    style={{ marginRight: '5px' }}
-                                    loading="lazy"
-                                />
-                            </div>
-                            <Card.Title className={styles.ellipsis}>{newItem.name}</Card.Title>
-                        </Card.Header>
-                    </Card>
-                </Link>
-            </div>
-        )
-    }
-
-    function onRecentChangesClick() {
-        trackEvent({
-            category: 'recentChanges',
-            action: 'recentChangesClicked'
-        })
+    function loadNewItems() {
+        api.getNewItems().then(items => {
+            setNewItems(items.filter(i => i.name !== 'null'))
+        }).catch(e => console.error("Failed to load new items", e))
     }
 
     function attachScrollEvent(className: string) {
@@ -226,82 +91,171 @@ function Startpage(props: Props) {
         }
     }
 
-    let newAuctionsElement = (
-        <div id="new-auctions-element" className={`${styles.cardsWrapper} ${styles.newAuctions}`}>
-            <List
-                className={styles.startpageListElementWrapper}
-                height={260 - 15}
-                itemCount={newAuctions.length}
-                itemSize={200}
-                layout="horizontal"
-                width={isSSR ? 10000 : document.getElementById('new-auctions-element')?.offsetWidth}
-            >
-                {({ index, style }) => {
-                    return getAuctionElement(newAuctions[index], style)
-                }}
-            </List>
+    function getNewItemElement(newItem: Item, style: React.CSSProperties) {
+        return (
+            <div className={`${styles.cardWrapper} ${styles.disableLinkStyle}`} key={newItem.tag} style={style}>
+                <Link href={`/item/${newItem.tag}`} className="disableLinkStyle" style={{ textDecoration: 'none' }}>
+                    <Card>
+                        <Card.Header style={{ height: '100%', padding: '20px', borderBottom: 'none' }}>
+                            <div style={{ float: 'left' }}>
+                                <Image
+                                    crossOrigin="anonymous"
+                                    src={newItem.iconUrl || ''}
+                                    height="32"
+                                    width="32"
+                                    alt=""
+                                    style={{ marginRight: '10px' }}
+                                    loading="lazy"
+                                />
+                            </div>
+                            <Card.Title className={styles.ellipsis} style={{ fontSize: '1rem' }}>{newItem.name}</Card.Title>
+                        </Card.Header>
+                    </Card>
+                </Link>
+            </div>
+        )
+    }
+
+    function onRecentChangesClick() {
+        trackEvent({
+            category: 'recentChanges',
+            action: 'recentChangesClicked'
+        })
+    }
+
+    // Show CHRISTMAS25 banner only until Dec 27 of the current year
+    const now = new Date()
+    const christmasEnd = new Date(2025, 11, 27, 23, 59, 59) // month is 0-based: 11 = December
+    const showChristmasBanner = now <= christmasEnd
+    const discountCode = showChristmasBanner ? 'CHRISTMAS25' : null
+    const discountAmount = "25%"
+
+    const salesBanner = discountCode ? (
+        <Link href={`/premium?code=${discountCode}`} style={{ textDecoration: 'none' }}>
+            <div style={{
+                background: 'linear-gradient(90deg, #d32f2f 0%, #b71c1c 100%)',
+                color: 'white',
+                padding: '15px',
+                textAlign: 'center',
+                borderRadius: '8px',
+                marginBottom: '20px',
+                fontWeight: 'bold',
+                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                cursor: 'pointer',
+                transition: 'transform 0.2s'
+            }} className={styles.salesBanner}>
+                🎄 <span style={{ fontSize: '1.1em' }}>Holiday Special!</span> Get <span style={{ color: '#ffeb3b' }}>{discountAmount} OFF</span> Premium with code <span style={{ backgroundColor: 'white', color: '#d32f2f', padding: '2px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>{discountCode}</span>! Click here to redeem! 🎄
+            </div>
+        </Link>
+    ) : null
+
+    const flipFeatures = (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+            <Link href="/bazaar" style={{ textDecoration: 'none' }}>
+                <Card className={`h-100 text-center shadow-sm ${styles.hoverEffect}`}>
+                    <Card.Body style={{ padding: '2rem' }}>
+                        <StorefrontIcon style={{ fontSize: 48, marginBottom: '15px', color: '#ffc107' }} />
+                        <Card.Title style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#f8f9fa' }}>Bazaar Flips</Card.Title>
+                        <Card.Text style={{ color: '#adb5bd' }}>Discover high-margin bazaar flips instantly.</Card.Text>
+                    </Card.Body>
+                </Card>
+            </Link>
+            <Link href="/fusion" style={{ textDecoration: 'none' }}>
+                <Card className={`h-100 text-center shadow-sm ${styles.hoverEffect}`}>
+                    <Card.Body style={{ padding: '2rem' }}>
+                        <MergeTypeIcon style={{ fontSize: 48, marginBottom: '15px', color: '#9c27b0' }} />
+                        <Card.Title style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#f8f9fa' }}>Fusion Flips</Card.Title>
+                        <Card.Text style={{ color: '#adb5bd' }}>Combine items for guaranteed profit.</Card.Text>
+                    </Card.Body>
+                </Card>
+            </Link>
+            <Link href="/crafts" style={{ textDecoration: 'none' }}>
+                <Card className={`h-100 text-center shadow-sm ${styles.hoverEffect}`}>
+                    <Card.Body style={{ padding: '2rem' }}>
+                        <BuildIcon style={{ fontSize: 48, marginBottom: '15px', color: '#4caf50' }} />
+                        <Card.Title style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#f8f9fa' }}>Craft Flips</Card.Title>
+                        <Card.Text style={{ color: '#adb5bd' }}>Find profitable crafting recipes.</Card.Text>
+                    </Card.Body>
+                </Card>
+            </Link>
+            <Link href="/reverseNpc" style={{ textDecoration: 'none' }}>
+                <Card className={`h-100 text-center shadow-sm ${styles.hoverEffect}`}>
+                    <Card.Body style={{ padding: '2rem' }}>
+                        <SmartToyIcon style={{ fontSize: 48, marginBottom: '15px', color: '#2196f3' }} />
+                        <Card.Title style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#f8f9fa' }}>NPC Flips</Card.Title>
+                        <Card.Text style={{ color: '#adb5bd' }}>Buy from Bazaar, sell to NPC.</Card.Text>
+                    </Card.Body>
+                </Card>
+            </Link>
         </div>
     )
 
-    let popularSearchesElement = (
-        <div className={`${styles.cardsWrapper} ${styles.popularSearches}`}>
-            <List
-                className={styles.startpageListElementWrapper}
-                height={130 - 15}
-                itemCount={popularSearches.length}
-                itemSize={200}
-                layout="horizontal"
-                width={isSSR ? 10000 : document.getElementById('new-auctions-element')?.offsetWidth}
-            >
-                {({ index, style }) => {
-                    return getPopularSearchElement(popularSearches[index], style)
-                }}
-            </List>
+    const moreToolsSection = (
+        <div style={{ marginBottom: '30px' }}>
+            <h3 style={{ marginBottom: '15px', fontWeight: 'bold' }}>More Tools</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
+                <Link href="/flips" style={{ textDecoration: 'none' }}>
+                    <Card className={`h-100 shadow-sm ${styles.hoverEffect}`}>
+                        <Card.Body>
+                            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                                <HandymanIcon style={{ marginRight: '10px', color: '#00bcd4' }} />
+                                <Card.Title style={{ margin: 0, color: '#f8f9fa' }}>Flipping Hub</Card.Title>
+                            </div>
+                            <Card.Text style={{ color: '#adb5bd' }}>
+                                Your central hub for skyblock money making.
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Link>
+                <Link href="/subscriptions" style={{ textDecoration: 'none' }}>
+                    <Card className={`h-100 shadow-sm ${styles.hoverEffect}`}>
+                        <Card.Body>
+                            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                                <NotificationsActiveIcon style={{ marginRight: '10px', color: '#ff9800' }} />
+                                <Card.Title style={{ margin: 0, color: '#f8f9fa' }}>Notifiers</Card.Title>
+                            </div>
+                            <Card.Text style={{ color: '#adb5bd' }}>
+                                Get notified about price changes or new auctions.
+                            </Card.Text>
+                        </Card.Body>
+                    </Card>
+                </Link>
+            </div>
         </div>
     )
 
-    let endedAuctionsElement = (
-        <div className={`${styles.cardsWrapper} ${styles.endedAuctions}`}>
-            <List
-                className={styles.startpageListElementWrapper}
-                height={260 - 15}
-                itemCount={endedAuctions.length === 0 ? 20 : endedAuctions.length}
-                itemSize={200}
-                layout="horizontal"
-                width={isSSR ? 10000 : document.getElementById('new-auctions-element')?.offsetWidth}
-            >
-                {({ index, style }) => {
-                    return endedAuctions.length === 0 ? <StartpageLargeElementSkeleton style={style} /> : getAuctionElement(endedAuctions[index], style)
-                }}
-            </List>
+    const wikiModSection = (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px', marginBottom: '40px' }}>
+            <Card>
+                <Card.Body>
+                    <Card.Title style={{ color: '#f8f9fa' }}>📚 Wiki</Card.Title>
+                    <Card.Text style={{ color: '#adb5bd' }}>
+                        Learn everything about our tools, API, and how to maximize your profits.
+                    </Card.Text>
+                    <Link href="/wiki" className="btn btn-outline-info">Visit Wiki</Link>
+                </Card.Body>
+            </Card>
+            <Card>
+                <Card.Body>
+                    <Card.Title style={{ color: '#f8f9fa' }}>🔧 Mod</Card.Title>
+                    <Card.Text style={{ color: '#adb5bd' }}>
+                        Enhance your in-game experience with our Skyblock Mod. Features include price checking and more.
+                    </Card.Text>
+                    <Link href="/mod" className="btn btn-outline-info">Get the Mod</Link>
+                </Card.Body>
+            </Card>
         </div>
     )
 
-    let newPlayersElement = (
-        <div className={`${styles.cardsWrapper} ${styles.newPlayers}`}>
-            <List
-                className={styles.startpageListElementWrapper}
-                height={130 - 15}
-                itemCount={newPlayers.length}
-                itemSize={200}
-                layout="horizontal"
-                width={isSSR ? 10000 : document.getElementById('new-auctions-element')?.offsetWidth}
-            >
-                {({ index, style }) => {
-                    return getNewPlayerElement(newPlayers[index], style)
-                }}
-            </List>
-        </div>
-    )
     let newItemsElement = (
-        <div className={`${styles.cardsWrapper} ${styles.newItems}`}>
+        <div className={`${styles.cardsWrapper} ${styles.newItems}`} style={{ marginBottom: '30px' }}>
             <List
                 className={styles.startpageListElementWrapper}
                 height={130 - 15}
                 itemCount={newItems.length}
                 itemSize={200}
                 layout="horizontal"
-                width={isSSR ? 10000 : document.getElementById('new-auctions-element')?.offsetWidth}
+                width={isSSR ? 1000 : (typeof window !== 'undefined' ? window.innerWidth * 0.9 : 1000)}
             >
                 {({ index, style }) => {
                     return getNewItemElement(newItems[index], style)
@@ -311,86 +265,64 @@ function Startpage(props: Props) {
     )
 
     return (
-        <div>
+        <div className={styles.startpageContainer}>
+            {salesBanner}
+
             {favorites.length === 0 ? (
-                <div style={{ textAlign: 'center' }}>
-                    <hr />
-                    <h1>Skyblock Auction House History</h1>
-                    <p style={{ fontSize: 'larger' }}>
-                        Browse through over 800 million auctions, over two million players and the bazaar of hypixel skyblock
+                <div style={{ textAlign: 'center', marginBottom: '40px', marginTop: '20px' }}>
+                    <h1 style={{ fontWeight: 'bold', fontSize: '2.5rem', marginBottom: '10px' }}>SkyCofl - Skyblock Auction House & Bazaar</h1>
+                    <p style={{ fontSize: '1.2rem', color: '#aaa', maxWidth: '800px', margin: '0 auto' }}>
+                        The ultimate tool for Hypixel Skyblock players. Track prices, find flips, and dominate the economy.
                     </p>
-                    <hr />
                 </div>
             ) : null}
-            <Card className={styles.startpageCard}>
-                <Card.Header>
-                    <Card.Title>
-                        <NewIcon /> New Auctions
+
+            {/* News Section */}
+            <Card className={styles.startpageCard} style={{ marginBottom: '30px', borderLeft: '5px solid #007bff' }}>
+                <Card.Header style={{  borderBottom: '1px solid #495057' }}>
+                    <Card.Title style={{ margin: 0, display: 'flex', alignItems: 'center', color: '#f8f9fa' }}>
+                        <NewIcon style={{ marginRight: '10px', color: '#73b7ffff' }} /> Latest News
                     </Card.Title>
                 </Card.Header>
-                <Card.Body className={styles.startpageCardBody} id="new-auctions-body">
-                    {newAuctionsElement}
+                <Card.Body style={{ color: '#e9ecef' }}>
+                    {recentUpdate ? (
+                        <div style={{ marginBottom: '15px' }}>
+                            <div
+                                className={styles.markdownContent}
+                                dangerouslySetInnerHTML={{ __html: mdRenderer.render(recentUpdate.content) }}
+                            />
+                        </div>
+                    ) : <p>Check out what's new this month!</p>}
+                    <Link href={`/updates/${new Date().getFullYear()}/${new Date().getMonth() + 1}`} className="btn btn-primary btn-sm">
+                        View News from {moment().format('MMMM YYYY')}
+                    </Link>
                 </Card.Body>
             </Card>
 
-            <Card className={styles.startpageCard}>
-                <Card.Header>
-                    <Card.Title>
-                        <TimerIcon /> Ended Auctions
-                    </Card.Title>
-                </Card.Header>
-                <Card.Body className={styles.startpageCardBody} id="ended-auctions-body">
-                    {endedAuctionsElement}
-                </Card.Body>
-            </Card>
+            {/* Flip Features */}
+            <h3 style={{ marginBottom: '20px', fontWeight: 'bold' }}>Flip Tools</h3>
+            {flipFeatures}
 
-            <Card className={styles.startpageCard}>
-                <Card.Header>
-                    <Card.Title>
-                        <PersonIcon /> New Players
-                    </Card.Title>
-                </Card.Header>
-                <Card.Body className={styles.startpageCardBody} id="new-players-body">
-                    {newPlayersElement}
-                </Card.Body>
-            </Card>
+            {/* More Tools */}
+            {moreToolsSection}
 
-            <Card className={styles.startpageCard}>
-                <Card.Header>
-                    <Card.Title>
-                        <FireIcon /> Popular Searches
-                    </Card.Title>
-                </Card.Header>
-                <Card.Body className={styles.startpageCardBody} id="popular-searches-body">
-                    {popularSearchesElement}
-                </Card.Body>
-            </Card>
+            {/* Wiki & Mod */}
+            <h3 style={{ marginBottom: '20px', fontWeight: 'bold' }}>Resources</h3>
+            {wikiModSection}
 
-            <Card className={styles.startpageCard}>
-                <Card.Header>
-                    <Card.Title>
-                        <NewIcon /> New Items
-                    </Card.Title>
-                </Card.Header>
-                <Card.Body className={styles.startpageCardBody} id="new-items-body">
+            {/* New Items */}
+            {newItems.length > 0 && (
+                <>
+                    <h3 style={{ marginBottom: '15px', fontWeight: 'bold' }}>New Items</h3>
                     {newItemsElement}
-                </Card.Body>
-            </Card>
+                </>
+            )}
 
             <Card className={styles.startpageCard} style={{ marginTop: '40px' }}>
-                <Card.Header>
-                    <Card.Title>SkyCofl - Hypixel Auction House and Bazaar History</Card.Title>
+                <Card.Header style={{ backgroundColor: 'transparent', borderBottom: '1px solid #495057' }}>
+                    <Card.Title style={{ color: '#f8f9fa' }}>SkyCofl - Hypixel Auction House and Bazaar History</Card.Title>
                 </Card.Header>
-                <Card.Body>
-                    {recentUpdate ? (
-                        <div style={{ marginBottom: '12px' }}>
-                            <h5>Recent update</h5>
-                            <p style={{ whiteSpace: 'pre-wrap' }}>{recentUpdate.content}</p>
-                            <Link href={`/updates/${new Date(recentUpdate.createdAt).getFullYear()}/${new Date(recentUpdate.createdAt).getMonth() + 1}`}>
-                                View all updates
-                            </Link>
-                        </div>
-                    ) : null}
+                <Card.Body style={{ color: '#e9ecef' }}>
                     <p>View, search, browse, and filter by reforge or enchantment.</p>
                     <p>You can find all current and historic prices for the auction house and bazaar on this web tracker.</p>
                     <p>
@@ -405,7 +337,7 @@ function Startpage(props: Props) {
                     </p>
                     <p>
                         The free accessible{' '}
-                        <Link href="/flipper" style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px' }}>
+                        <Link href="/flipper" style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px', padding: '0 4px' }}>
                             auction house flipper ↗️
                         </Link>{' '}
                         allows you to find profitable AH flips in no time. It supplements the option to browse all of the Skyblock history on the web tracker.
@@ -413,20 +345,20 @@ function Startpage(props: Props) {
                     </p>
                     <p>
                         We have the longest bazaar history database and you can browser through our hypixel skyblock bazaar tracker just as easily as through
-                        the auction house. See the full orderbook of any point in the last 5 years and discorver profitable{' '}
-                        <Link href="/bazaar" style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px' }}>
+                        the auction house. See the full orderbook of any point in the last 5 years and discover profitable{' '}
+                        <Link href="/bazaar" style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px', padding: '0 4px' }}>
                             Bazaar Flips ↗️
                         </Link>{' '}
                         we calculate based on the current bazaar prices.
                     </p>
                     <p>
                         We built a mod, discord bot and android app as well as provide access to most of our data via a free API. You can find more information
-                        on the <Link href="/wiki/api">wiki api page</Link>.
+                        on the <Link href="/wiki/api" style={{ color: '#6ea8fe' }}>wiki api page</Link>.
                     </p>
 
                     <p>
                         Update ads privacy settings on the{' '}
-                        <a href="/about" style={{ textDecoration: 'underline' }} onClick={onRecentChangesClick}>
+                        <a href="/about" style={{ textDecoration: 'underline', color: '#6ea8fe' }} onClick={onRecentChangesClick}>
                             about page
                         </a> (ads are not loaded on this page)
                         .

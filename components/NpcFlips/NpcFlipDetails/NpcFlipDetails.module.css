@@ -1,0 +1,110 @@
+.detailsContainer {
+    padding: 10px;
+}
+
+.section {
+    margin-bottom: 15px;
+}
+
+.section h4 {
+    margin-bottom: 10px;
+    color: #aaa;
+    font-size: 1.1em;
+}
+
+.npcInfo {
+    display: flex;
+    align-items: center;
+    background-color: #505050;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.npcInfo:hover {
+    background-color: #606060;
+}
+
+.npcName {
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+.totalCost {
+    font-size: 1em;
+    margin-bottom: 10px;
+    color: #ccc;
+}
+
+.costsList {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.costItem {
+    display: flex;
+    align-items: center;
+    background-color: #505050;
+    border-radius: 5px;
+    padding: 8px 12px;
+}
+
+.costItem.clickable {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.costItem.clickable:hover {
+    background-color: #606060;
+}
+
+.costAmount {
+    color: #ffaa00;
+    font-weight: 600;
+    margin-right: 6px;
+    min-width: 50px;
+}
+
+.costName {
+    color: #fff;
+    flex: 1;
+}
+
+.profitGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.profitRow {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 10px;
+    background-color: #404040;
+    border-radius: 4px;
+}
+
+.profitRow span:first-child {
+    color: #aaa;
+}
+
+.profitHighlight {
+    background-color: #505050;
+    font-weight: 600;
+}
+
+.profitRowLink {
+    text-decoration: none;
+    color: inherit;
+}
+
+.profitRow.clickable {
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.profitRow.clickable:hover {
+    background-color: #505050;
+}

@@ -38,6 +38,7 @@ import type {
   CoinTransaction,
   ColorSaveAuction,
   CommandListEntry,
+  CompletedBazaarFlip,
   CraftInstruction,
   CurrentPrice,
   DeleteApiNotificationsListeners401One,
@@ -96,6 +97,7 @@ import type {
   GetApiNotificationsListeners401One,
   GetApiNotificationsSubscriptions401One,
   GetApiNotificationsTargets401One,
+  GetApiPlayerBazaarFlipsParams,
   GetApiPlayerBazaarOrdersParams,
   GetApiPlayerExtractedParams,
   GetApiPlayerPlayerUuidAuctionsParams,
@@ -201,6 +203,7 @@ import type {
   Recipe,
   ReferralInfo,
   ReferredBy,
+  ReverseNpcFlip,
   SaveAuction,
   SearchResultItem,
   SkyblockItem,
@@ -210,7 +213,8 @@ import type {
   TopUpArguments,
   TopUpIdResponse,
   TopUpProduct,
-  TradeRequest
+  TradeRequest,
+  ValidatedDiscount
 } from './skyApi.schemas';
 
 
@@ -3986,7 +3990,7 @@ export function useGetApiFlipMayor<TData = Awaited<ReturnType<typeof getApiFlipM
  * @summary Get profitable npc purchase ah/bazaar sell flips
  */
 export type getApiFlipNpcResponse200 = {
-  data: ProfitableCraft[]
+  data: ReverseNpcFlip[]
   status: 200
 }
     
@@ -4095,6 +4099,9 @@ export function useGetApiFlipNpc<TData = Awaited<ReturnType<typeof getApiFlipNpc
 
 
 
+/**
+ * @summary Get reverse npc flips (buy items and instasell to npc for guranteed profit)
+ */
 export type getApiFlipNpcReverseResponse200 = {
   data: NpcFlip[]
   status: 200
@@ -4206,6 +4213,9 @@ export function useGetApiFlipNpcReverse<TData = Awaited<ReturnType<typeof getApi
  params?: GetApiFlipNpcReverseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpcReverse>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Get reverse npc flips (buy items and instasell to npc for guranteed profit)
+ */
 
 export function useGetApiFlipNpcReverse<TData = Awaited<ReturnType<typeof getApiFlipNpcReverse>>, TError = GetApiFlipNpcReverse401One | string | null>(
  params?: GetApiFlipNpcReverseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipNpcReverse>>, TError, TData>>, fetch?: RequestInit}
@@ -9361,6 +9371,126 @@ export function useGetApiPlayerBazaarOrders<TData = Awaited<ReturnType<typeof ge
 
 
 /**
+ * @summary Bazaar flips a player made while using our mod
+ */
+export type getApiPlayerBazaarFlipsResponse200 = {
+  data: CompletedBazaarFlip[]
+  status: 200
+}
+    
+export type getApiPlayerBazaarFlipsResponseComposite = getApiPlayerBazaarFlipsResponse200;
+    
+export type getApiPlayerBazaarFlipsResponse = getApiPlayerBazaarFlipsResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiPlayerBazaarFlipsUrl = (params?: GetApiPlayerBazaarFlipsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/player/bazaar/flips?${stringifiedParams}` : `https://sky.coflnet.com/api/player/bazaar/flips`
+}
+
+export const getApiPlayerBazaarFlips = async (params?: GetApiPlayerBazaarFlipsParams, options?: RequestInit): Promise<getApiPlayerBazaarFlipsResponse> => {
+  
+  const res = await fetch(getGetApiPlayerBazaarFlipsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiPlayerBazaarFlipsResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiPlayerBazaarFlipsResponse
+}
+
+
+
+export const getGetApiPlayerBazaarFlipsQueryKey = (params?: GetApiPlayerBazaarFlipsParams,) => {
+    return [`https://sky.coflnet.com/api/player/bazaar/flips`, ...(params ? [params]: [])] as const;
+    }
+
+    
+export const getGetApiPlayerBazaarFlipsQueryOptions = <TData = Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>, TError = unknown>(params?: GetApiPlayerBazaarFlipsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiPlayerBazaarFlipsQueryKey(params);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>> = ({ signal }) => getApiPlayerBazaarFlips(params, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiPlayerBazaarFlipsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>>
+export type GetApiPlayerBazaarFlipsQueryError = unknown
+
+
+export function useGetApiPlayerBazaarFlips<TData = Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>, TError = unknown>(
+ params: undefined |  GetApiPlayerBazaarFlipsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPlayerBazaarFlips<TData = Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>, TError = unknown>(
+ params?: GetApiPlayerBazaarFlipsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPlayerBazaarFlips<TData = Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>, TError = unknown>(
+ params?: GetApiPlayerBazaarFlipsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Bazaar flips a player made while using our mod
+ */
+
+export function useGetApiPlayerBazaarFlips<TData = Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>, TError = unknown>(
+ params?: GetApiPlayerBazaarFlipsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPlayerBazaarFlips>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiPlayerBazaarFlipsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
+/**
  * @summary Gives access to extracted player information like hotf, booster cookie expiry time, attribute levels etc.
  */
 export type getApiPlayerExtractedResponse200 = {
@@ -10081,6 +10211,113 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       return useMutation(mutationOptions , queryClient);
     }
     
+export type getApiDiscountCodeResponse200 = {
+  data: ValidatedDiscount
+  status: 200
+}
+    
+export type getApiDiscountCodeResponseComposite = getApiDiscountCodeResponse200;
+    
+export type getApiDiscountCodeResponse = getApiDiscountCodeResponseComposite & {
+  headers: Headers;
+}
+
+export const getGetApiDiscountCodeUrl = (code: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/discount/${code}`
+}
+
+export const getApiDiscountCode = async (code: string, options?: RequestInit): Promise<getApiDiscountCodeResponse> => {
+  
+  const res = await fetch(getGetApiDiscountCodeUrl(code),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: getApiDiscountCodeResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as getApiDiscountCodeResponse
+}
+
+
+
+export const getGetApiDiscountCodeQueryKey = (code?: string,) => {
+    return [`https://sky.coflnet.com/api/discount/${code}`] as const;
+    }
+
+    
+export const getGetApiDiscountCodeQueryOptions = <TData = Awaited<ReturnType<typeof getApiDiscountCode>>, TError = unknown>(code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiDiscountCodeQueryKey(code);
+
+  
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiDiscountCode>>> = ({ signal }) => getApiDiscountCode(code, { signal, ...fetchOptions });
+
+      
+
+      
+
+   return  { queryKey, queryFn, enabled: !!(code), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiDiscountCodeQueryResult = NonNullable<Awaited<ReturnType<typeof getApiDiscountCode>>>
+export type GetApiDiscountCodeQueryError = unknown
+
+
+export function useGetApiDiscountCode<TData = Awaited<ReturnType<typeof getApiDiscountCode>>, TError = unknown>(
+ code: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiDiscountCode>>,
+          TError,
+          Awaited<ReturnType<typeof getApiDiscountCode>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiDiscountCode<TData = Awaited<ReturnType<typeof getApiDiscountCode>>, TError = unknown>(
+ code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiDiscountCode>>,
+          TError,
+          Awaited<ReturnType<typeof getApiDiscountCode>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiDiscountCode<TData = Awaited<ReturnType<typeof getApiDiscountCode>>, TError = unknown>(
+ code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiDiscountCode<TData = Awaited<ReturnType<typeof getApiDiscountCode>>, TError = unknown>(
+ code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient 
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiDiscountCodeQueryOptions(code,options)
+
+  const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  query.queryKey = queryOptions.queryKey ;
+
+  return query;
+}
+
+
+
+
 /**
  * @summary Start a new topup session with lemonsqueezy
  */

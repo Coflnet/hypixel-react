@@ -18,6 +18,7 @@ interface Props {
     onNewActivePremiumProduct()
     selectedTier?: PremiumTier
     selectedDuration?: Duration | null
+    initialDiscountCode?: string | null
 }
 
 // Helper function to find the best matching premium option based on wizard duration

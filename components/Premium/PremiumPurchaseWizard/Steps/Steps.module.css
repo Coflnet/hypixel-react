@@ -217,7 +217,7 @@
 
 .featureList li {
     padding: 4px 0;
-    color: var(--unselected-text-muted);
+    color: #f0f0f0;
     font-size: 0.95rem;
     position: relative;
     padding-left: 20px;
@@ -230,6 +230,18 @@
     font-weight: bold;
     position: absolute;
     left: 0;
+}
+
+.monthlyPrice {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+}
+
+.monthlyPrice small {
+    color: #e0e0e0;
+    font-weight: 500;
 }
 
 .tierNote {
@@ -420,4 +432,10 @@
 .newFeature {
     color: var(--bs-success) !important;
     font-weight: 600;
+}
+
+/* Code Input Section */
+.codeInputCard {
+    max-width: 500px;
+    margin: 0 auto;
 }

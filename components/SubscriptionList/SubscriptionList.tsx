@@ -8,7 +8,7 @@ import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import { NotificationListener, SubscriptionType } from '../../api/ApiTypes.d'
 import { convertTagToName } from '../../utils/Formatter'
-import { useForceUpdate, useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
@@ -19,6 +19,7 @@ import NotificationTargets from '../NotificationTargets/NotificationTargets'
 import { Typeahead } from 'react-bootstrap-typeahead'
 
 import NotificationIcon from '@mui/icons-material/NotificationsOutlined'
+import WhitelistSubscribeButton from '../SubscribeButton/WhitelistSubscribeButton/WhitelistSubscribeButton'
 
 let mounted = true
 
@@ -159,6 +160,9 @@ function SubscriptionList() {
                         case SubscriptionType.USE_SELL_NOT_BUY.toString():
                             result = <li key={i}>Use sell price instead of buy price</li>
                             break
+                        case SubscriptionType.WHITELIST.toString():
+                            result = <li key={i}>Notify if something on your whitelist matches</li>
+                            break
                     }
                     return result
                 })}
@@ -250,6 +254,9 @@ function SubscriptionList() {
     function getSubscriptionTitle(subscription: NotificationListener): Promise<string> {
         return new Promise((resolve, reject) => {
             switch (subscription.type) {
+                case 'whitelist':
+                    resolve('Whitelist Notification')
+                    break
                 case 'item':
                 case 'bazaar':
                     resolve(convertTagToName(subscription.topicId))
@@ -378,21 +385,22 @@ function SubscriptionList() {
                         ) : null}
                     </div>
                     <div style={{ position: 'absolute', top: '0.75rem', right: '1.25rem', cursor: 'pointer', display: 'flex', alignItems: 'end' }}>
-                        <SubscribeButton
-                            topic={listener.topicId}
-                            type={listener.type}
-                            isEditButton={true}
-                            onAfterSubscribe={() => {
-                                onAfterSubscribeEdit(listener)
-                            }}
-                            prefill={{
-                                listener: listener,
-                                targetNames: subscription.id && subscription.targets.length > 0 ? subscription.targets.map(t => t.name) : []
-                            }}
-                            popupTitle="Update Notifier"
-                            popupButtonText="Update"
-                            successMessage="Notifier successfully updated"
-                        />
+                        {listener.type === 'whitelist' ? null : (
+                            <SubscribeButton
+                                topic={listener.topicId}
+                                type={listener.type}
+                                isEditButton={true}
+                                onAfterSubscribe={() => {
+                                    onAfterSubscribeEdit(listener)
+                                }}
+                                prefill={{
+                                    listener: listener,
+                                    targetNames: subscription.id && subscription.targets.length > 0 ? subscription.targets.map(t => t.name) : []
+                                }}
+                                popupTitle="Update Notifier"
+                                popupButtonText="Update"
+                                successMessage="Notifier successfully updated"
+                            />)}
                         <DeleteIcon
                             color="error"
                             onClick={() => {
@@ -470,6 +478,12 @@ function SubscriptionList() {
                 ) : (
                     <>
                         <div style={{ height: 'auto', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                            <WhitelistSubscribeButton onAfterSubscribe={() => {
+                                setIsLoading(true);
+                                Promise.all([loadListener(), loadSubscriptions()]).then(() => {
+                                    setIsLoading(false);
+                                });
+                            }} />
                             <Button
                                 variant="primary"
                                 onClick={() => {
@@ -507,7 +521,7 @@ function SubscriptionList() {
             <div>
                 <h3>What are Notifiers?</h3>
                 <p>
-                    Notifiers allow you to subscribe to events happening on skyblock. Most common used are price drops or jumps, auctions expring or being sold
+                    Notifiers allow you to subscribe to events happening on skyblock. Most common used are price drops or jumps, auctions expiring or being sold
                     and new rare items being listed on ah
                 </p>
                 <p>

@@ -21,8 +21,8 @@ function ModDetails() {
                     <h3>Recommended Installation</h3>
                     <p>
                         We recommend installing the mod from{' '}
-                        <a href="https://www.curseforge.com/minecraft/mc-mods/skycofl" target="_blank" rel="noopener noreferrer">
-                            Curseforge
+                        <a href="https://modrinth.com/mod/skycofl" target="_blank" rel="noopener noreferrer">
+                            Modrinth
                         </a>
                         . It is available for Forge 1.8.9 and <b>Fabric 1.21.5+</b>. For more information see our <a href="/wiki/mod">SkyCofl wiki</a>.
                     </p>
@@ -79,7 +79,7 @@ function ModDetails() {
                                 </g>
                             </svg>
                         </a>
-                        <Button href="https://www.curseforge.com/minecraft/mc-mods/skycofl/files/all">
+                        <Button href="https://modrinth.com/mod/skycofl">
                             Download
                             <DownloadIcon />
                         </Button>

@@ -81,7 +81,9 @@ export default function BuyingCoinsGuidePage() {
                             <CardTitle as="h2" className="mt-4">Best Daily Activities for Competitive Progress</CardTitle>
                             <ul>
                                 <li><strong>Daily Flips:</strong> Spend 30–90 minutes rotating high-volume Bazaar items; reinvest continuously.</li>
-                                <li><strong>Garden/Farming:</strong> Keep one optimized crop for steady income; swap to Mayor-boosted crops.</li>
+                                <li>
+                                    <strong>Garden/Farming:</strong> Keep one optimized crop for steady income; swap to Mayor-boosted crops. See <Link href="/guides/greenhouse-guide">Greenhouse Guide</Link> for plot setup, watering, and mutation mechanics.
+                                </li>
                                 <li><strong>Gemstone Mining:</strong> High-gear players can hit top coins/hour in Crystal Hollows.</li>
                                 <li><strong>Slayer/Dungeons:</strong> Push profitable tiers; sell drops on AH when demand spikes.</li>
                                 <li><strong>Events:</strong> Track <Link href="/mayor">Mayor</Link> perks; see market <Link href="/topMovers">Top Movers</Link> and use <Link href="/wiki/docs/mod-commands#mayorflipscommand">/cofl mayorflips</Link>.</li>

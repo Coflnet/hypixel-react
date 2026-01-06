@@ -76,7 +76,11 @@ export function useNitroAds(slotId: string, config: Record<string, any>, enabled
         const nitro = window.nitroAds
         if (nitro && typeof nitro.createAd === 'function') {
             try {
-                nitro.createAd(slotId, configRef.current)
+                const finalConfig = { ...configRef.current }
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    finalConfig.demo = true
+                }
+                nitro.createAd(slotId, finalConfig)
                 hasRequestedRef.current = true
                 return true
             } catch (e) {

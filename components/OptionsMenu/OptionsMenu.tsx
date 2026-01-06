@@ -13,26 +13,30 @@ interface AvailableLinks {
 }
 
 const CustomToggle = React.forwardRef(({ children, onClick }: any, ref) => (
-    <span
+    <button
         ref={ref as any}
         onClick={e => {
             e.preventDefault()
             onClick(e)
         }}
+        type="button"
+        aria-label="Options"
+        className={styles.toggleButton}
     >
         {children}
         <MoreVertIcon />
-    </span>
+    </button>
 ))
+CustomToggle.displayName = 'CustomToggle'
 
 function OptionsMenu(props: Props) {
     let available: AvailableLinks[] = []
     const isItemPage = (props.selected as Item)?.tag !== undefined
     const isPlayerPage = !isItemPage
     if (isItemPage) {
-        let fandomName = props.selected?.name
-        let wikiName = props.selected?.name
         let tag = (props.selected as Item).tag
+        let fandomName = (props.selected as Item).name ?? tag
+        let wikiName = (props.selected as Item).name ?? tag
         if (tag.startsWith('ENCHANTMENT_')) {
             fandomName = tag.replace('ENCHANTMENT_', '').replace('ULTIMATE_', '').replace(/_\d/, '').toLowerCase()
             fandomName = fandomName
@@ -44,19 +48,31 @@ function OptionsMenu(props: Props) {
         available.push({ title: 'Fandom', url: 'https://hypixel-skyblock.fandom.com/wiki/' + fandomName })
         available.push({ title: 'Wiki', url: 'https://wiki.hypixel.net/' + wikiName })
         if ((props.selected as Item).bazaar) {
-            available.push({ title: 'Skyblock.finance', url: 'https://Skyblock.finance/items/' + tag })
+            available.push({ title: 'Bazaartracker', url: 'https://bazaartracker.com/product/' + tag.toLowerCase() })
+            available.push({ title: 'BzMeta', url: 'https://skyblock.bz/product/' + tag.toLowerCase() })
         }
     } else if (isPlayerPage) {
         let player = props.selected as Player
         available.push({ title: 'SkyCrypt', url: 'https://sky.shiiyu.moe/stats/' + player?.uuid })
-        available.push({ title: 'Plancke', url: 'https://plancke.io/hypixel/player/stats/' + player?.uuid })
+        available.push({ title: 'Plancke', url: 'https://plancke.io/hypixel/player/stats/' + player?.name })
     }
 
     const navigate = (url: string) => {
         window.open(url, '_blank')
     }
 
-    if (!props.selected || props.selected.name === undefined) {
+    // Render if we have either a player name or an item tag (item pages may only have tag during SSG)
+    if (!props.selected) {
+        return null
+    }
+
+    const selectedAsItem = props.selected as Item
+    const selectedAsPlayer = props.selected as Player
+
+    const hasItemTag = selectedAsItem?.tag !== undefined && selectedAsItem?.tag !== null
+    const hasPlayerName = selectedAsPlayer?.name !== undefined && selectedAsPlayer?.name !== null
+
+    if (!hasItemTag && !hasPlayerName) {
         return null
     }
 

@@ -116,6 +116,9 @@ export default function GuidesPage() {
                                 <li>
                                     <Link href="/guides/buying-skyblock-coins">Buying Hypixel Skyblock Coins: Risks, Bans, and Safe Alternatives</Link> - Why buying coins is dangerous
                                 </li>
+                                <li>
+                                    <Link href="/guides/greenhouse-guide">Greenhouse Guide</Link> — setup, watering, mutation mechanics for Garden farming
+                                </li>
                             </ul>
 
                             <hr className="mt-4" />

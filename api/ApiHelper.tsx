@@ -135,7 +135,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     let getItemImageUrl = (item: Item): string => {
-        let type = getSetting(ITEM_ICON_TYPE, 'default')
+        // Always use 'default' during SSR to avoid hydration mismatch
+        // The user's preference is only available on the client via localStorage
+        let type = isClientSideRendering() ? getSetting(ITEM_ICON_TYPE, 'default') : 'default'
 
         let iconURL = item.iconUrl || (item as any).icon // this is also player images
         if (iconURL && !iconURL.includes("mc-heads")) {

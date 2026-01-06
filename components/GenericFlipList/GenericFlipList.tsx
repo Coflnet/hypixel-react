@@ -264,8 +264,8 @@ export function GenericFlipList<T>({
             const href = getFlipLink(item)
             if (href) {
                 const handleAnchorClick = (e: React.MouseEvent) => {
+                    e.preventDefault()
                     if (onFlipClick) {
-                        e.preventDefault()
                         onFlipClick(item, e)
                     }
                 }

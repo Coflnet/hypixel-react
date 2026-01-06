@@ -123,6 +123,26 @@
     font-size: 0.85rem;
 }
 
+/* Base styles for desktop/mobile action containers */
+.actionsDesktop {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.actionsDesktop :global(.btn) {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.85rem;
+}
+
+.actionsMobile {
+    display: none;
+    flex-shrink: 0;
+}
+
 .skeletonInline {
     position: relative;
     display: inline-block;
@@ -206,10 +226,36 @@
 @media (max-width: 768px) {
     .wrapper {
         padding: 0.75rem;
+        max-width: 100%;
     }
 
     .list {
-        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        grid-template-columns: 1fr;
+    }
+
+    .card {
+        max-width: 100%;
+        position: relative;
+    }
+
+    .cardLink {
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .details {
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .stats {
+        flex-wrap: wrap;
     }
 
     .actions {
@@ -217,4 +263,113 @@
         align-items: center;
         justify-content: flex-end;
     }
+
+    .actionsDesktop {
+        display: none;
+    }
+
+    .actionsMobile {
+        display: flex;
+    }
+}
+
+@media (min-width: 769px) {
+    .actionsDesktop {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .actionsMobile {
+        display: none;
+    }
+}
+
+.mobileDropdown {
+    position: relative;
+}
+
+.mobileDropdownButton {
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: #e4e4e7;
+    padding: 0.5rem;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s ease;
+}
+
+.mobileDropdownButton:hover,
+.mobileDropdownButton:focus-visible {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.mobileDropdownButton svg {
+    font-size: 1.25rem;
+}
+
+.mobileDropdownMenu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 4px;
+    background: rgba(35, 35, 35, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    z-index: 100;
+    min-width: 140px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.mobileDropdownMenu :global(.btn) {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: transparent !important;
+    border: none !important;
+    color: #e4e4e7 !important;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+    width: 100%;
+    justify-content: flex-start;
+}
+
+.mobileDropdownMenu :global(.btn):hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.mobileDropdownItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    background: transparent;
+    border: none;
+    color: #e4e4e7;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.9rem;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.mobileDropdownItem:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.mobileDropdownItem svg {
+    font-size: 1.1rem;
 }

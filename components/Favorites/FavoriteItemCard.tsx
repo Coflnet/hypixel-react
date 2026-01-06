@@ -3,11 +3,16 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Badge } from 'react-bootstrap'
+import { useState, useRef, useEffect } from 'react'
+import MoreVertIcon from '@mui/icons-material/MoreVert'
+import NotificationsOutlinedIcon from '@mui/icons-material/NotificationsOutlined'
+import StarIcon from '@mui/icons-material/Star'
 import api from '../../api/ApiHelper'
 import { convertTagToName, numberWithThousandsSeparators } from '../../utils/Formatter'
 import FavoriteToggle from './FavoriteToggle'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import styles from './FavoriteItemsBar.module.css'
+import { useFavorites } from './FavoritesContext'
 
 interface Props {
     favorite: FavoriteItemEntry
@@ -16,6 +21,24 @@ interface Props {
 }
 
 export default function FavoriteItemCard({ favorite, movement, isMovementLoading }: Props) {
+    const { toggle } = useFavorites()
+    const [dropdownOpen, setDropdownOpen] = useState(false)
+    const dropdownRef = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setDropdownOpen(false)
+            }
+        }
+        if (dropdownOpen) {
+            document.addEventListener('mousedown', handleClickOutside)
+        }
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [dropdownOpen])
+
     const currentPrice = movement?.now
     const previousPrice = movement?.recent
     const delta: number | null = currentPrice !== undefined && previousPrice !== undefined ? currentPrice - previousPrice : null
@@ -40,6 +63,17 @@ export default function FavoriteItemCard({ favorite, movement, isMovementLoading
         bazaar: favorite.bazaar
     }
     const iconSrc = item.iconUrl || api.getItemImageUrl(item)
+
+    const handleRemoveFavorite = () => {
+        const entry: FavoriteItemEntry = {
+            tag: item.tag,
+            name: item.name,
+            iconUrl: item.iconUrl,
+            bazaar: item.bazaar
+        }
+        toggle(entry)
+        setDropdownOpen(false)
+    }
 
     return (
         <article key={favorite.tag} className={styles.card}>
@@ -78,13 +112,45 @@ export default function FavoriteItemCard({ favorite, movement, isMovementLoading
                     </div>
                 </div>
             </Link>
-            <div className={styles.actions}>
+            {/* Desktop actions */}
+            <div className={styles.actionsDesktop}>
                 <SubscribeButton
                     topic={favorite.tag}
                     type={favorite.bazaar ? 'bazaar' : 'item'}
                     buttonContent={<span>Notify</span>}
                 />
                 <FavoriteToggle item={item} size="small" />
+            </div>
+            {/* Mobile dropdown menu */}
+            <div className={styles.actionsMobile} ref={dropdownRef}>
+                <div className={styles.mobileDropdown}>
+                    <button
+                        className={styles.mobileDropdownButton}
+                        onClick={() => setDropdownOpen(!dropdownOpen)}
+                        aria-label="More actions"
+                        aria-expanded={dropdownOpen}
+                    >
+                        <MoreVertIcon />
+                    </button>
+                    {dropdownOpen && (
+                        <div className={styles.mobileDropdownMenu}>
+                            <SubscribeButton
+                                topic={favorite.tag}
+                                type={favorite.bazaar ? 'bazaar' : 'item'}
+                                buttonContent={
+                                    <span className={styles.mobileDropdownItem}>
+                                        <NotificationsOutlinedIcon />
+                                        Notify
+                                    </span>
+                                }
+                            />
+                            <button className={styles.mobileDropdownItem} onClick={handleRemoveFavorite}>
+                                <StarIcon style={{ color: '#facc15' }} />
+                                Remove
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
         </article>
     )

@@ -45,11 +45,11 @@ function FlipperFAQ() {
                     </p>
                     <h3>Why is there a "premium" version?</h3>
                     <p>
-                        TLDR: Servercosts and compensation for development.
+                        TLDR: Server costs and compensation for development.
                         <br />
-                        To run the flipper and the auction explorer we have to pay for servers to run it on. While we work hard to keep the cost down they are
-                        currently up to about 503$ per month. And will increase further the more auctions we save and the the more users are using the site.
-                        Furthermore we collectively spent more than 4000 hours of our spare time developing it and would like to get a some compensation for our
+                        To run the flipper and auction explorer we have to pay for servers to run it on. While we work hard to keep the cost down they are
+                        currently up to about 503$ per month and will increase further the more auctions we save and the the more users are using the site.
+                        Furthermore, we collectively spent more than 4000 hours of our spare time developing it and would like to get some compensation for our
                         efforts. The best case would be to develop this and similar projects full time if we could.
                     </p>
                     <h3>What can the free version do?</h3>
@@ -61,8 +61,8 @@ function FlipperFAQ() {
                     </p>
                     <h3>What do I get if I buy premium?</h3>
                     <p>
-                        You get flips as soon as they are found. That allows you to buy up the most profitable flips before anyone else. Furthermore you get
-                        more filter options. Which allow you to only see flips that you are actually interested in. For a full list see{' '}
+                        You get flips as soon as they are found. That allows you to buy up the most profitable flips before anyone else. Furthermore, you get
+                        more filter options, which allow you to only see flips that you are actually interested in. For a full list see{' '}
                         <a target="_blank" href="/premium" rel="noreferrer">
                             the premium page
                         </a>

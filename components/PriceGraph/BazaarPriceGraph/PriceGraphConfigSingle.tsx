@@ -37,17 +37,17 @@ function getPriceGraphConfigSingle() {
                 'Mayors'
             ],
             selected: {
-                'Price (buy)': true,
-                'Min (buy)': false,
+                'Price (buy)': false,
+                'Min (buy)': true,
                 'Max (buy)': false,
                 'Volume (buy)': false,
                 'Moving (buy)': false,
-                'Price (sell)': true,
+                'Price (sell)': false,
                 'Min (sell)': false,
-                'Max (sell)': false,
+                'Max (sell)': true,
                 'Volume (sell)': false,
                 'Moving (sell)': false,
-                Mayors: false
+                Mayors: true
             },
             icon: 'roundRect',
             itemStyle: {},

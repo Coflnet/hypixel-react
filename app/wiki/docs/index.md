@@ -34,7 +34,7 @@ SkyCofl is a comprehensive platform for Hypixel SkyBlock players that provides:
 - **Auction House History**: Browse through over 800 million historical auctions
 - **Bazaar History**: The largest bazaar price database in existence starting just 2 days after the bazaar api released
 - **Price Tracking**: Track item prices and market trends
-- **Flip Finding**: Discover profitable auction house, bazaar buy-sel, craft, forge and many other flips
+- **Flip Finding**: Discover profitable auction house, bazaar buy-sell, craft, forge and many other flips
 - **Market Analysis**: Analyze bazaar and auction house data
 - **Notifications**: Get alerts for price changes and auction events
 - **Many more in game**: Check the [mod features](./mod) page for more details

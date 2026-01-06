@@ -15,9 +15,22 @@ interface Props {
     showIcon?: boolean
 }
 
+// Map of filter names to option values that need special postfixes
+const OPTION_POSTFIXES: Record<string, Record<string, string>> = {
+    Reforge: {
+        bloodshot: ' (from npc)'
+    }
+}
+
 export function EqualFilterElement(props: Props) {
     function _onChange(selected) {
         props.onChange(selected[0] || '')
+    }
+
+    function getOptionLabel(option: string): string {
+        const baseName = convertTagToName(option)
+        const postfix = OPTION_POSTFIXES[props.options.name]?.[option] || ''
+        return baseName + postfix
     }
 
     return (
@@ -28,7 +41,7 @@ export function EqualFilterElement(props: Props) {
             onChange={_onChange}
             options={props.options?.options}
             labelKey={option => {
-                return convertTagToName(option as string)
+                return getOptionLabel(option as string)
             }}
             isInvalid={!props.isValid}
             selectHint={(shouldSelect, event) => {
@@ -47,7 +60,7 @@ export function EqualFilterElement(props: Props) {
                             }
                             return (
                                 <Item option={result} position={index} key={index}>
-                                    {typeof result === 'string' ? convertTagToName(result as string) : (result as Option)['label']}
+                                    {typeof result === 'string' ? getOptionLabel(result as string) : (result as Option)['label']}
                                     {props.showIcon && result !== 'None' && result !== 'Any' && (
                                         <div style={{ float: 'right' }}>
                                             <img src={api.getItemImageUrl({ tag: result as string })} style={{ width: '24px', height: '24px' }}></img>

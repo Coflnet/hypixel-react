@@ -2,28 +2,28 @@
 declare module '*.scss'
 
 declare global {
-  interface Window {
-    __cmp?: any;
-    __tcfapi?: any;
-    nitroAds?: any;
-    __npcmp?: any;
-    __billingInitialized?: boolean;
-    AndroidBilling?: {
-      isAvailable(): boolean;
-      purchaseProduct(productId: string): void;
-    };
-  }
+    interface Window {
+        __cmp?: any;
+        __tcfapi?: any;
+        nitroAds?: any;
+        __npcmp?: any;
+        __billingInitialized?: boolean;
+        AndroidBilling?: {
+            isAvailable(): boolean;
+            purchaseProduct(productId: string): void;
+        };
+    }
 
-  interface WindowEventMap {
-    androidBillingReady: Event;
-    androidBillingSuccess: CustomEvent<{
-      productId: string;
-      purchaseToken: string;
-    }>;
-    androidBillingError: CustomEvent<{
-      error: string;
-    }>;
-  }
+    interface WindowEventMap {
+        androidBillingReady: Event;
+        androidBillingSuccess: CustomEvent<{
+            productId: string;
+            purchaseToken: string;
+        }>;
+        androidBillingError: CustomEvent<{
+            error: string;
+        }>;
+    }
 }
 
 interface Player {
@@ -397,6 +397,7 @@ interface FlipCustomizeSettings {
     modFormat?: string
     modCountdown?: boolean
     blockExport?: boolean
+    blockHighCompetition?: boolean
 }
 
 interface FlipRestriction {
@@ -425,6 +426,12 @@ interface ReloadFeedback {
     loadNewInformation: boolean
     somethingBroke: boolean
     otherIssue: boolean
+    additionalInformation: string
+}
+
+interface SubscriptionCancelFeedback {
+    stoppedPlayingSkyblock: boolean
+    hasComplaint: boolean
     additionalInformation: string
 }
 
