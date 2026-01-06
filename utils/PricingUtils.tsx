@@ -115,19 +115,6 @@ export function calculatePrice(tier: PremiumTier, countryCode?: string, discount
     }
 }
 
-export function getPricingPeriodText(tier: PremiumTier): string {
-    switch (tier) {
-        case PremiumTier.STARTER:
-            return 'per year'
-        case PremiumTier.PREMIUM:
-            return 'per month'
-        case PremiumTier.PREMIUM_PLUS:
-            return 'one-time'
-        default:
-            return ''
-    }
-}
-
 export const CURRENCY_SYMBOLS: Record<string, string> = {
     'USD': '$',
     'EUR': '€',
