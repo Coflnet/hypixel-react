@@ -38,9 +38,8 @@ export default async function Page(props) {
     let tag = params.tag as string
 
     let data = await getItemData(searchParams, params)
-    console.log('Item page data:', data)
     let item = parseItem(data.item)
-    
+
     const isBazaar = data.itemFlags?.isBazaar ?? false
 
     function getItem(): Item {

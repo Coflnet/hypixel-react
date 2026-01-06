@@ -25,7 +25,6 @@ function PremiumPurchaseWizard(props: Props) {
 
     const totalSteps = 4
 
-    // Get country code on mount
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const stored = localStorage.getItem('countryCode')
@@ -33,7 +32,6 @@ function PremiumPurchaseWizard(props: Props) {
         }
     }, [])
 
-    // Helper function to get current tier from active premium product
     const getCurrentTier = (): PremiumTier | null => {
         if (!props.activePremiumProduct) return null
 
@@ -45,7 +43,6 @@ function PremiumPurchaseWizard(props: Props) {
         return null
     }
 
-    // Helper function to get tier rank for comparison
     const getTierRank = (tier: PremiumTier): number => {
         switch (tier) {
             case PremiumTier.STARTER:
@@ -59,12 +56,10 @@ function PremiumPurchaseWizard(props: Props) {
         }
     }
 
-    // Helper function to check if user has active premium
     const hasActivePremium = (): boolean => {
         return props.activePremiumProduct && props.activePremiumProduct.expires.getTime() > new Date().getTime()
     }
 
-    // Helper function to get suggested upgrade tier
     const getSuggestedUpgradeTier = (): PremiumTier | null => {
         const currentTier = getCurrentTier()
         if (!currentTier) return null
@@ -81,7 +76,6 @@ function PremiumPurchaseWizard(props: Props) {
         }
     }
 
-    // Initialize wizard based on URL parameters and current state
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search)
         const tierParam = urlParams.get('tier')
@@ -92,13 +86,11 @@ function PremiumPurchaseWizard(props: Props) {
             setUrlDiscountCode(codeParam)
         }
 
-        // If tier is specified in URL, pre-select it
         const preSelectedTier = parseTierFromUrl(tierParam)
 
         if (preSelectedTier) {
             setSelectedTier(preSelectedTier)
 
-            // Skip tier selection step if it's premium+ or if user already has a lower tier
             const currentTier = getCurrentTier()
             const currentTierRank = currentTier ? getTierRank(currentTier) : 0
             const selectedTierRank = getTierRank(preSelectedTier)
@@ -107,7 +99,6 @@ function PremiumPurchaseWizard(props: Props) {
                 setCurrentStep(2) // Skip to payment method step
             }
         } else if (hasActivePremium()) {
-            // If user has active premium but no tier specified, suggest upgrade
             const suggestedTier = getSuggestedUpgradeTier()
             if (suggestedTier) {
                 setSelectedTier(suggestedTier)
@@ -122,9 +113,8 @@ function PremiumPurchaseWizard(props: Props) {
         switch (currentStep) {
             case 1:
                 if (isUpgrade) {
-                    return `Upgrade Your ${
-                        currentTier === PremiumTier.STARTER ? 'Starter Premium' : currentTier === PremiumTier.PREMIUM ? 'Premium' : 'Premium Plus'
-                    }`
+                    return `Upgrade Your ${currentTier === PremiumTier.STARTER ? 'Starter Premium' : currentTier === PremiumTier.PREMIUM ? 'Premium' : 'Premium Plus'
+                        }`
                 }
                 return 'Choose Your Premium Tier'
             case 2:

@@ -8,7 +8,6 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import api from '../../api/ApiHelper'
 import styles from './GenericFlipList.module.css'
 import { useSortedAndFilteredItems } from '../../hooks/useSortedAndFilteredItems'
-import NitroAdSlot from '../Ads/NitroAdSlot'
 
 export interface FlipListProps<T> {
     items: T[]
@@ -26,15 +25,8 @@ export interface FlipListProps<T> {
     customItemWrapper?: (item: T, blur: boolean, key: string, content: React.ReactNode, flipCardClass: string) => React.ReactNode
     onAfterSignIn?: () => void
     customHeader?: (isLoggedIn: boolean) => React.ReactNode
-    // Override the placeholder text for the minimum input. Defaults to "Minimum Profit"
     minimumPlaceholder?: string
-    // Optional: provide a function that returns a href for a flip item.
-    // If provided, non-blurred flips will be wrapped in a plain <a> so
-    // the link exists in the HTML for users/search engines with JS disabled.
     getFlipLink?: (item: T) => string | null | undefined
-    // When lists are large, render a small initial batch and load more as the
-    // user scrolls to reduce DOM size and JS work. Defaults keep at least 3
-    // items to preserve top-3 censoring for SSR.
     renderBatchSize?: number
     initialRenderCount?: number
 }
@@ -86,12 +78,10 @@ export function GenericFlipList<T>({
     const sentinelRef = React.useRef<HTMLDivElement | null>(null)
 
     useEffect(() => {
-        // reset the blur observer, when something changed
         setTimeout(setBlurObserver, 100)
         if (showColumns) {
             setColumns(getDefaultColumns())
         }
-        // Reset rendered count when the processed items change (new search/sort)
         setRenderedCount(Math.max(3, safeInitial))
     }, [])
 
@@ -149,7 +139,6 @@ export function GenericFlipList<T>({
             setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
         })
 
-        // Call the custom onAfterSignIn if provided
         if (onAfterSignIn) {
             onAfterSignIn()
         }
@@ -195,7 +184,6 @@ export function GenericFlipList<T>({
     }
 
     function getListElement(item: T, blur: boolean) {
-        // Build the inner content (blur messages + actual content)
         const inner = (
             <>
                 {blur ? (
@@ -271,16 +259,11 @@ export function GenericFlipList<T>({
             </>
         )
 
-        // If a link generator was provided and this isn't a blurred (censored) item,
-        // wrap the inner content in a plain anchor so it exists in the static HTML.
         let wrappedInner: React.ReactNode = inner
         if (!blur && typeof getFlipLink === 'function') {
             const href = getFlipLink(item)
             if (href) {
                 const handleAnchorClick = (e: React.MouseEvent) => {
-                    // Always prevent default when JS is enabled.
-                    // The customItemWrapper or onFlipClick handles the actual interaction.
-                    // The anchor is only for non-JS clients/SEO crawlers.
                     e.preventDefault()
                     if (onFlipClick) {
                         onFlipClick(item, e)
@@ -311,7 +294,6 @@ export function GenericFlipList<T>({
         )
     }
 
-    // Memoized displayed items
     const list = useMemo(() => {
         if (isProcessing) {
             return []

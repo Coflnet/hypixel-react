@@ -36,19 +36,16 @@ interface Props {
 }
 
 // prettier-ignore
-const EU_Countries = ["AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR","HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE" ]
+const EU_Countries = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"]
 let PAYPAL_STRIPE_ALLOWED = [...EU_Countries, 'GB', 'US']
 
 export default function PurchaseElement(props: Props) {
     let isDisabled = props.isDisabled || !props.countryCode
 
-    // Check if this is a custom amount (not one of the standard predefined amounts)
     const standardAmounts = [1800, 5400, 10800, 36000, 90000]
     const isCustomAmount = !standardAmounts.includes(props.coflCoinsToBuy)
-
-    // Pass custom amount for both special multiplier and custom amounts from wizard
     const shouldPassCustomAmount = props.isSpecial1800CoinsMultiplier || isCustomAmount
-    // Build Google Play card once and reuse it to avoid duplication
+
     const googlePlayCard = (
         <>
             {props.isGooglePlayAvailable ? (
@@ -70,10 +67,11 @@ export default function PurchaseElement(props: Props) {
                 />
             ) : (
                 <a href='https://play.google.com/store/apps/details?id=com.coflnet.sky'><p style={{ color: '#adb5bd', marginBottom: 0 }}>There are more options, eg. gift cards in our android app.</p>
-                        </a>
+                </a>
             )}
         </>
-    )    // On Android app, only show Google Play option (reuse googlePlayCard)
+    )
+
     if (props.isAndroidApp) {
         return (
             <Card className={styles.premiumPlanCard} style={{ width: '100%' }}>
@@ -88,11 +86,6 @@ export default function PurchaseElement(props: Props) {
             </Card>
         )
     }
-
-    console.log('PurchaseElement render', {
-        coflCoinsToBuy: props.coflCoinsToBuy,
-        isGooglePlayAvailable: props.isGooglePlayAvailable
-    })
 
     return (
         <Card className={styles.premiumPlanCard} style={{ width: '100%' }}>

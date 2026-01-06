@@ -3,10 +3,9 @@ import { useState, useEffect } from 'react'
 import { Card, Button, Alert, Form, InputGroup, Spinner } from 'react-bootstrap'
 import Number from '../Number/Number'
 import PurchaseElement from './PurchaseElement'
-import styles from './CoflCoinsPurchase.module.css'
 import { postApiTopupRates, getApiDiscountCode } from '../../api/_generated/skyApi'
-import type { BatchProductPricingResponse, ProviderPricingOption, ValidatedDiscount } from '../../api/_generated/skyApi.schemas'
-import { getProvider, getProviderPrice, getProviderOriginalPrice } from '../../utils/pricingUtils'
+import type { BatchProductPricingResponse, ValidatedDiscount } from '../../api/_generated/skyApi.schemas'
+import { getProvider, getProviderPrice, getProviderOriginalPrice } from '../../utils/PricingUtils'
 
 interface CoflCoinOption {
     amount: number

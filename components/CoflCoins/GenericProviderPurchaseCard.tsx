@@ -3,7 +3,7 @@ import Tooltip from '../Tooltip/Tooltip'
 import styles from './CoflCoinsPurchase.module.css'
 import HelpIcon from '@mui/icons-material/Help'
 import Number from '../Number/Number'
-import { getCurrencySymbol } from '../../utils/pricingUtils'
+import { getCurrencySymbol } from '../../utils/PricingUtils'
 import type { JSX } from 'react'
 
 interface Props {

@@ -2,7 +2,7 @@
 import BuySubscription from '../../BuySubscription/BuySubscription'
 import BuyPremium from '../../BuyPremium/BuyPremium'
 import styles from './Steps.module.css'
-import { Duration, PurchaseType, PremiumTier, getTierDisplayName, getDurationDisplayName } from '../types'
+import { Duration, PurchaseType, PremiumTier } from '../types'
 
 interface Props {
     selectedTier: PremiumTier
@@ -28,9 +28,9 @@ export default function PurchaseCompletionStep({
     return (
         <div className={styles.stepContent}>
             {selectedType === PurchaseType.SUBSCRIPTION && (
-                <BuySubscription 
-                    activePremiumProduct={activePremiumProduct} 
-                    selectedTier={selectedTier} 
+                <BuySubscription
+                    activePremiumProduct={activePremiumProduct}
+                    selectedTier={selectedTier}
                     selectedDuration={selectedDuration}
                     initialDiscountCode={initialDiscountCode}
                     countryCode={countryCode}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import api from '../../../api/ApiHelper'
-import { Button, Card, Col, Row, Form, Spinner, Alert, InputGroup } from 'react-bootstrap'
+import { Button, Card, Col, Row, Form, Spinner, InputGroup } from 'react-bootstrap'
 import styles from './BuySubscription.module.css'
 import stepStyles from '../PremiumPurchaseWizard/Steps/Steps.module.css'
 import NumberElement from '../../Number/Number'
@@ -16,10 +16,8 @@ import {
     getProviderCurrencyCode,
     getDiscountPercent,
     getTierApiProductId,
-    getTierProductId,
-    getFallbackSubscriptionPrice
-} from '../../../utils/pricingUtils'
-import { VAT_RATES } from '../../../utils/PricingUtils'
+    VAT_RATES
+} from '../../../utils/PricingUtils'
 
 interface Props {
     activePremiumProduct: PremiumProduct
@@ -255,33 +253,33 @@ function BuySubscription(props: Props) {
     const getTotalDiscountInfo = (): { creatorPercent: number | null; discountCodePercent: number | null; totalSavings: number | null } => {
         const creatorPercent = props.selectedTier ? getDiscountPercentValue(getProductIdForTier(props.selectedTier, getCurrentDuration())) : null
         const discountCodePercent = validatedDiscount?.amountType === 'percent' ? validatedDiscount.amount : null
-        
+
         const originalPrice = getOriginalPrice()
         const basePrice = getSubscriptionPrice()
         const finalPrice = getFinalPrice(basePrice)
-        
+
         if (originalPrice && finalPrice < originalPrice) {
             const totalSavings = Math.round((1 - finalPrice / originalPrice) * 100)
             return { creatorPercent, discountCodePercent: discountCodePercent ?? null, totalSavings }
         }
-        
+
         return { creatorPercent, discountCodePercent: discountCodePercent ?? null, totalSavings: null }
     }
 
     // If we have wizard selections, use them to determine the selected type and duration
     const wizardSelectedType = props.selectedTier
         ? PREMIUM_TYPES.find(type => {
-              switch (props.selectedTier) {
-                  case PremiumTier.PREMIUM:
-                      return type.productId === 'premium'
-                  case PremiumTier.PREMIUM_PLUS:
-                      return type.productId === 'premium_plus'
-                  case PremiumTier.STARTER:
-                      return type.productId === 'starter_premium'
-                  default:
-                      return type.productId === 'premium'
-              }
-          })
+            switch (props.selectedTier) {
+                case PremiumTier.PREMIUM:
+                    return type.productId === 'premium'
+                case PremiumTier.PREMIUM_PLUS:
+                    return type.productId === 'premium_plus'
+                case PremiumTier.STARTER:
+                    return type.productId === 'starter_premium'
+                default:
+                    return type.productId === 'premium'
+            }
+        })
         : undefined
 
     const wizardIsYearOption = props.selectedDuration === Duration.YEARLY
@@ -411,9 +409,8 @@ function BuySubscription(props: Props) {
                     <p>
                         <strong>Tier:</strong>{' '}
                         <span
-                            className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? stepStyles.tierPremium : ''} ${
-                                props.selectedTier === PremiumTier.PREMIUM_PLUS ? stepStyles.tierPremiumPlus : ''
-                            }`}
+                            className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? stepStyles.tierPremium : ''} ${props.selectedTier === PremiumTier.PREMIUM_PLUS ? stepStyles.tierPremiumPlus : ''
+                                }`}
                         >
                             {getDisplayTierName()}
                         </span>
@@ -495,7 +492,6 @@ function BuySubscription(props: Props) {
                     </ul>
                 </div>
 
-                {/* Code Input Section - Side by side on desktop */}
                 <Row style={{ marginBottom: '20px' }}>
                     <Col md={6}>
                         <Card style={{ height: '100%' }}>
@@ -531,8 +527,8 @@ function BuySubscription(props: Props) {
                                 )}
                                 {appliedCreatorCode && !pricingError && (
                                     <div style={{ marginTop: '10px', fontSize: '0.9rem', color: getDiscountPercentValue(getProductIdForTier(props.selectedTier!, getCurrentDuration())) ? '#20c997' : '#6c757d' }}>
-                                        {getDiscountPercentValue(getProductIdForTier(props.selectedTier!, getCurrentDuration())) 
-                                            ? `✓ Creator code applied! You get ${getDiscountPercentValue(getProductIdForTier(props.selectedTier!, getCurrentDuration()))}% off` 
+                                        {getDiscountPercentValue(getProductIdForTier(props.selectedTier!, getCurrentDuration()))
+                                            ? `✓ Creator code applied! You get ${getDiscountPercentValue(getProductIdForTier(props.selectedTier!, getCurrentDuration()))}% off`
                                             : '✓ Creator code applied'}
                                     </div>
                                 )}
@@ -639,7 +635,7 @@ function BuySubscription(props: Props) {
                             const activeEl = document.activeElement as HTMLElement | null
                             if (activeEl && activeEl.tagName === 'BUTTON') {
                                 activeEl.innerText = 'Redirecting to payment provider...'
-                                ;(activeEl as HTMLButtonElement).disabled = true
+                                    ; (activeEl as HTMLButtonElement).disabled = true
                             }
                         }}
                     >
