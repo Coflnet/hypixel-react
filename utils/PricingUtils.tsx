@@ -1,5 +1,6 @@
-import { BatchProductPricingResponse, ProviderPricingOption } from '../api/_generated/skyApi.schemas'
 import { PremiumTier } from '../components/Premium/PremiumPurchaseWizard/types'
+import { BatchProductPricingResponse, ProviderPricingOption } from '../api/_generated/skyApi.schemas'
+import { Duration } from '../components/Premium/PremiumPurchaseWizard/types'
 
 // Base prices in EUR (before tax)
 export const BASE_PRICES = {
@@ -114,6 +115,19 @@ export function calculatePrice(tier: PremiumTier, countryCode?: string, discount
     }
 }
 
+export function getPricingPeriodText(tier: PremiumTier): string {
+    switch (tier) {
+        case PremiumTier.STARTER:
+            return 'per year'
+        case PremiumTier.PREMIUM:
+            return 'per month'
+        case PremiumTier.PREMIUM_PLUS:
+            return 'one-time'
+        default:
+            return ''
+    }
+}
+
 export const CURRENCY_SYMBOLS: Record<string, string> = {
     'USD': '$',
     'EUR': '€',
@@ -197,18 +211,48 @@ const TIER_API_PRODUCT_MAP: Record<PremiumTier, string> = {
     [PremiumTier.STARTER]: 'l_starter_premium'
 }
 
-export const getTierApiProductId = (tier: PremiumTier, isYearly: boolean): string => {
+export const getTierApiProductId = (tier: PremiumTier, isYearlyOrDuration: boolean | Duration = false): string => {
     const baseId = TIER_API_PRODUCT_MAP[tier]
+
+    if (typeof isYearlyOrDuration === 'string') {
+        switch (isYearlyOrDuration) {
+            case Duration.YEARLY:
+                return tier !== PremiumTier.STARTER ? `${baseId}-year` : baseId
+            case Duration.QUARTER:
+                return tier !== PremiumTier.STARTER ? `${baseId}-quarter` : baseId
+            case Duration.MONTHLY:
+            default:
+                return baseId
+        }
+    }
+
+    // Handle legacy boolean
+    const isYearly = isYearlyOrDuration as boolean
     return isYearly && tier !== PremiumTier.STARTER ? `${baseId}-year` : baseId
 }
 
-const SUBSCRIPTION_PRICES: Record<string, { monthly: number; yearly: number }> = {
-    'premium': { monthly: 8.69, yearly: 96.69 },
-    'premium_plus': { monthly: 35.69, yearly: 354.2 },
-    'starter_premium': { monthly: 16.99, yearly: 16.99 }
+export const SUBSCRIPTION_PRICES: Record<string, { monthly: number; quarterly: number; yearly: number }> = {
+    'premium': { monthly: 9.69, quarterly: 27.69, yearly: 96.69 },
+    'premium_plus': { monthly: 35.69, quarterly: 99.69, yearly: 354.2 },
+    'starter_premium': { monthly: 16.99, quarterly: 16.99, yearly: 16.99 }
 }
 
-export const getFallbackSubscriptionPrice = (productId: string, isYearly: boolean): number => {
+export const getFallbackSubscriptionPrice = (productId: string, isYearly: boolean | Duration = false): number => {
     const prices = SUBSCRIPTION_PRICES[productId]
-    return prices ? (isYearly ? prices.yearly : prices.monthly) : -1
+    if (!prices) return -1
+
+    if (typeof isYearly === 'string') {
+        switch (isYearly) {
+            case Duration.YEARLY:
+                return prices.yearly
+            case Duration.QUARTER:
+                return prices.quarterly
+            case Duration.MONTHLY:
+            default:
+                return prices.monthly
+        }
+    }
+
+    // Handle legacy boolean
+    return (isYearly as boolean) ? prices.yearly : prices.monthly
 }

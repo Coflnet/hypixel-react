@@ -1,10 +1,8 @@
 'use client'
 import { Card } from 'react-bootstrap'
-import { CheckCircle } from '@mui/icons-material'
 import styles from './Steps.module.css'
 import { Duration, PurchaseType, PremiumTier, getTierDisplayName, getDurationOptions } from '../types'
-import { SUBSCRIPTION_PRICES } from '../../../../utils/pricingUtils'
-import { VAT_RATES } from '../../../../utils/PricingUtils'
+import { VAT_RATES, SUBSCRIPTION_PRICES } from '../../../../utils/PricingUtils'
 
 interface Props {
     selectedType: PurchaseType
@@ -14,10 +12,10 @@ interface Props {
     countryCode?: string
 }
 
-export default function DurationSelectionStep({ 
-    selectedType, 
-    selectedTier, 
-    selectedDuration, 
+export default function DurationSelectionStep({
+    selectedType,
+    selectedTier,
+    selectedDuration,
     onDurationSelect,
     countryCode
 }: Props) {
@@ -59,10 +57,10 @@ export default function DurationSelectionStep({
         return getPriceWithVAT(monthlyPrice)
     }
 
-        // Round up to next full cent
-        const roundUpToCent = (value: number): number => {
-            return Math.ceil(value * 100) / 100
-        }
+    // Round up to next full cent
+    const roundUpToCent = (value: number): number => {
+        return Math.ceil(value * 100) / 100
+    }
 
     if (selectedType === PurchaseType.COFLCOINS) {
         return (
@@ -70,9 +68,8 @@ export default function DurationSelectionStep({
                 <h4 className={styles.stepQuestion}>
                     How long would you like your{' '}
                     <span
-                        className={`${selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${
-                            selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''
-                        }`}
+                        className={`${selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''
+                            }`}
                     >
                         {tierDisplayName}
                     </span>
@@ -81,9 +78,8 @@ export default function DurationSelectionStep({
                 <p className={styles.coflcoinsDescription}>
                     Choose your preferred duration for{' '}
                     <span
-                        className={`${selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${
-                            selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''
-                        }`}
+                        className={`${selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''
+                            }`}
                     >
                         {tierDisplayName}
                     </span>
