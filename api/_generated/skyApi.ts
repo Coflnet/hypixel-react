@@ -90,6 +90,7 @@ import type {
   GetApiItemPriceItemTagHistoryYear401One,
   GetApiItemPriceItemTagHistoryYearParams,
   GetApiItemPriceItemTagParams,
+  GetApiItemSearchSearchValParams,
   GetApiLeaderboardProfitParams,
   GetApiLinkvertiseParams,
   GetApiMayorParams,
@@ -200,6 +201,7 @@ import type {
   PurchaseArgs,
   PutApiNotificationsSubscriptions401One,
   PutApiNotificationsTargets401One,
+  PutApiPremiumSubscriptionExternalIdReactivate401One,
   Recipe,
   ReferralInfo,
   ReferredBy,
@@ -11320,6 +11322,103 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
       return useMutation(mutationOptions , queryClient);
     }
     
+export type putApiPremiumSubscriptionExternalIdReactivateResponse200 = {
+  data: null
+  status: 200
+}
+
+export type putApiPremiumSubscriptionExternalIdReactivateResponse401ApplicationJson = {
+  data: PutApiPremiumSubscriptionExternalIdReactivate401One
+  status: 401
+}
+
+export type putApiPremiumSubscriptionExternalIdReactivateResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type putApiPremiumSubscriptionExternalIdReactivateResponse403 = {
+  data: null
+  status: 403
+}
+    
+export type putApiPremiumSubscriptionExternalIdReactivateResponseComposite = putApiPremiumSubscriptionExternalIdReactivateResponse200 | putApiPremiumSubscriptionExternalIdReactivateResponse401ApplicationJson | putApiPremiumSubscriptionExternalIdReactivateResponse401TextPlain | putApiPremiumSubscriptionExternalIdReactivateResponse403;
+    
+export type putApiPremiumSubscriptionExternalIdReactivateResponse = putApiPremiumSubscriptionExternalIdReactivateResponseComposite & {
+  headers: Headers;
+}
+
+export const getPutApiPremiumSubscriptionExternalIdReactivateUrl = (externalId: string,) => {
+
+
+  
+
+  return `https://sky.coflnet.com/api/premium/subscription/${externalId}/reactivate`
+}
+
+export const putApiPremiumSubscriptionExternalIdReactivate = async (externalId: string, options?: RequestInit): Promise<putApiPremiumSubscriptionExternalIdReactivateResponse> => {
+  
+  const res = await fetch(getPutApiPremiumSubscriptionExternalIdReactivateUrl(externalId),
+  {      
+    ...options,
+    method: 'PUT'
+    
+    
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text()
+  const data: putApiPremiumSubscriptionExternalIdReactivateResponse['data'] = body ? JSON.parse(body) : {}
+
+  return { data, status: res.status, headers: res.headers } as putApiPremiumSubscriptionExternalIdReactivateResponse
+}
+
+
+
+
+export const getPutApiPremiumSubscriptionExternalIdReactivateMutationOptions = <TError = PutApiPremiumSubscriptionExternalIdReactivate401One | string | null,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiPremiumSubscriptionExternalIdReactivate>>, TError,{externalId: string}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof putApiPremiumSubscriptionExternalIdReactivate>>, TError,{externalId: string}, TContext> => {
+
+const mutationKey = ['putApiPremiumSubscriptionExternalIdReactivate'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+      
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putApiPremiumSubscriptionExternalIdReactivate>>, {externalId: string}> = (props) => {
+          const {externalId} = props ?? {};
+
+          return  putApiPremiumSubscriptionExternalIdReactivate(externalId,fetchOptions)
+        }
+
+        
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PutApiPremiumSubscriptionExternalIdReactivateMutationResult = NonNullable<Awaited<ReturnType<typeof putApiPremiumSubscriptionExternalIdReactivate>>>
+    
+    export type PutApiPremiumSubscriptionExternalIdReactivateMutationError = PutApiPremiumSubscriptionExternalIdReactivate401One | string | null
+
+    export const usePutApiPremiumSubscriptionExternalIdReactivate = <TError = PutApiPremiumSubscriptionExternalIdReactivate401One | string | null,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiPremiumSubscriptionExternalIdReactivate>>, TError,{externalId: string}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof putApiPremiumSubscriptionExternalIdReactivate>>,
+        TError,
+        {externalId: string},
+        TContext
+      > => {
+
+      const mutationOptions = getPutApiPremiumSubscriptionExternalIdReactivateMutationOptions(options);
+
+      return useMutation(mutationOptions , queryClient);
+    }
+    
 /**
  * @summary Aggregated sumary of item prices for the 2 last days
 stackable items are reduced to a single item
@@ -13587,17 +13686,26 @@ export type getApiItemSearchSearchValResponse = getApiItemSearchSearchValRespons
   headers: Headers;
 }
 
-export const getGetApiItemSearchSearchValUrl = (searchVal: string,) => {
+export const getGetApiItemSearchSearchValUrl = (searchVal: string,
+    params?: GetApiItemSearchSearchValParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `https://sky.coflnet.com/api/item/search/${searchVal}`
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/item/search/${searchVal}?${stringifiedParams}` : `https://sky.coflnet.com/api/item/search/${searchVal}`
 }
 
-export const getApiItemSearchSearchVal = async (searchVal: string, options?: RequestInit): Promise<getApiItemSearchSearchValResponse> => {
+export const getApiItemSearchSearchVal = async (searchVal: string,
+    params?: GetApiItemSearchSearchValParams, options?: RequestInit): Promise<getApiItemSearchSearchValResponse> => {
   
-  const res = await fetch(getGetApiItemSearchSearchValUrl(searchVal),
+  const res = await fetch(getGetApiItemSearchSearchValUrl(searchVal,params),
   {      
     ...options,
     method: 'GET'
@@ -13614,21 +13722,23 @@ export const getApiItemSearchSearchVal = async (searchVal: string, options?: Req
 
 
 
-export const getGetApiItemSearchSearchValQueryKey = (searchVal?: string,) => {
-    return [`https://sky.coflnet.com/api/item/search/${searchVal}`] as const;
+export const getGetApiItemSearchSearchValQueryKey = (searchVal?: string,
+    params?: GetApiItemSearchSearchValParams,) => {
+    return [`https://sky.coflnet.com/api/item/search/${searchVal}`, ...(params ? [params]: [])] as const;
     }
 
     
-export const getGetApiItemSearchSearchValQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = unknown>(searchVal: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiItemSearchSearchValQueryOptions = <TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = unknown>(searchVal: string,
+    params?: GetApiItemSearchSearchValParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiItemSearchSearchValQueryKey(searchVal);
+  const queryKey =  queryOptions?.queryKey ?? getGetApiItemSearchSearchValQueryKey(searchVal,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>> = ({ signal }) => getApiItemSearchSearchVal(searchVal, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>> = ({ signal }) => getApiItemSearchSearchVal(searchVal,params, { signal, ...fetchOptions });
 
       
 
@@ -13642,7 +13752,8 @@ export type GetApiItemSearchSearchValQueryError = unknown
 
 
 export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = unknown>(
- searchVal: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>> & Pick<
+ searchVal: string,
+    params: undefined |  GetApiItemSearchSearchValParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiItemSearchSearchVal>>,
           TError,
@@ -13652,7 +13763,8 @@ export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof g
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = unknown>(
- searchVal: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>> & Pick<
+ searchVal: string,
+    params?: GetApiItemSearchSearchValParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiItemSearchSearchVal>>,
           TError,
@@ -13662,7 +13774,8 @@ export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof g
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = unknown>(
- searchVal: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>>, fetch?: RequestInit}
+ searchVal: string,
+    params?: GetApiItemSearchSearchValParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -13670,11 +13783,12 @@ export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof g
  */
 
 export function useGetApiItemSearchSearchVal<TData = Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError = unknown>(
- searchVal: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>>, fetch?: RequestInit}
+ searchVal: string,
+    params?: GetApiItemSearchSearchValParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiItemSearchSearchVal>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiItemSearchSearchValQueryOptions(searchVal,options)
+  const queryOptions = getGetApiItemSearchSearchValQueryOptions(searchVal,params,options)
 
   const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

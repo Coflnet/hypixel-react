@@ -834,6 +834,10 @@ export const EnchantmentType = {
   raspiration: 'raspiration',
   scuba: 'scuba',
   stealth: 'stealth',
+  ultimate_crop_fever: 'ultimate_crop_fever',
+  turbo_sunflower: 'turbo_sunflower',
+  turbo_moonflower: 'turbo_moonflower',
+  turbo_rose: 'turbo_rose',
 } as const;
 
 export interface ErrorResponse {
@@ -1014,6 +1018,7 @@ export const FinderType = {
   NUMBER_495: 495,
   NUMBER_512: 512,
   NUMBER_1024: 1024,
+  NUMBER_2048: 2048,
 } as const;
 
 export interface FlipDetails {
@@ -1426,9 +1431,10 @@ export const ItemFlags = {
   BAZAAR: 'BAZAAR',
   TRADEABLE: 'TRADEABLE',
   AUCTION: 'AUCTION',
-  FIRESALE: 'FIRESALE',
+  CRAFT: 'CRAFT',
   GLOWING: 'GLOWING',
   MUSEUM: 'MUSEUM',
+  FIRESALE: 'FIRESALE',
 } as const;
 
 /**
@@ -1694,6 +1700,7 @@ export interface ModSettings {
   justProfit: boolean;
   soundOnFlip: boolean;
   soundOnOutbid: boolean;
+  blockOutbidMsg: boolean;
   shortNumbers: boolean;
   shortNames: boolean;
   blockTenSecMsg: boolean;
@@ -2018,6 +2025,7 @@ export interface PrivacySettings {
   collectInventory: boolean;
   disableTradeStoring: boolean;
   disableKuudraTracking: boolean;
+  disableBazaarTracking: boolean;
   collectTab: boolean;
   collectScoreboard: boolean;
   allowProxy: boolean;
@@ -2026,6 +2034,9 @@ export interface PrivacySettings {
   /** @nullable */
   commandPrefixes: string[] | null;
   autoStart: boolean;
+  /** @nullable */
+  chatBlockRegex: string | null;
+  noMessageBlocking: boolean;
 }
 
 export interface ProductPricingResponse {
@@ -2257,7 +2268,7 @@ export const Reforge = {
   Fabled: 'Fabled',
   Precise: 'Precise',
   Giant: 'Giant',
-  aoteStone: 'aoteStone',
+  warped_on_aote: 'warped_on_aote',
   Spiritual: 'Spiritual',
   Treacherous: 'Treacherous',
   RENOWED: 'RENOWED',
@@ -2372,6 +2383,9 @@ export const Reforge = {
   bloodshot: 'bloodshot',
   blood_shot: 'blood_shot',
   erudite: 'erudite',
+  lunar: 'lunar',
+  sunny: 'sunny',
+  mantid: 'mantid',
 } as const;
 
 export interface RequiredCollection {
@@ -3083,6 +3097,7 @@ export type GetApiPremiumTransactions401One = {
 
 export type PostApiPremiumSubscriptionSubscriptionSlugParams = {
 creatorCode?: string;
+discountcode?: string;
 };
 
 export type PostApiPremiumSubscriptionSubscriptionSlug401One = {
@@ -3094,6 +3109,10 @@ export type GetApiPremiumSubscription401One = {
 };
 
 export type DeleteApiPremiumSubscriptionExternalId401One = {
+  message?: string;
+};
+
+export type PutApiPremiumSubscriptionExternalIdReactivate401One = {
   message?: string;
 };
 
@@ -3194,6 +3213,13 @@ export type PostApiReferralReferredBy401One = {
 
 export type GetApiReferralInfo401One = {
   message?: string;
+};
+
+export type GetApiItemSearchSearchValParams = {
+/**
+ * How many results to return
+ */
+expectedResults?: number;
 };
 
 export type GetApiSearchSearchValParams = {
