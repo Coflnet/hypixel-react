@@ -26,8 +26,9 @@ const ItemFAQ = dynamic(() => import('../../../components/ItemFAQ/ItemFAQ'), {
     loading: () => <div style={{ minHeight: '200px' }}>Loading...</div>
 })
 
-// Revalidate every 60 seconds for price data freshness
-export const revalidate = 60
+// Revalidate every 600 seconds (10 minutes) for price data freshness
+// Note: Shorter revalidation times can cause hydration mismatches in some cases
+export const revalidate = 600
 
 // Enable static params optimization for popular items
 export const dynamicParams = true
@@ -78,7 +79,7 @@ export default async function Page(props) {
                     range={data.range}
                     prices={data.prices}
                     isBazaar={isBazaar}
-                    itemFlags={data.itemFlags}
+                    itemFlags={data.itemFlags || null}
                 />
             </Container>
             <NitroAdSlot

@@ -141,8 +141,13 @@ export function parseFlags(flags: ItemFlags | string | number | undefined | null
  * Returns null if item not found in cache
  */
 export async function getCachedItemInfo(tag: string): Promise<CachedItemInfo | null> {
-    const itemsRecord = await getCachedItems()
-    return itemsRecord[tag] || null
+    try {
+        const itemsRecord = await getCachedItems()
+        return itemsRecord[tag] || null
+    } catch (error) {
+        console.error('Error getting cached item info:', error)
+        return null
+    }
 }
 
 /**

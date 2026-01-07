@@ -121,8 +121,6 @@ export default function ItemFAQ({ item, tag, range, prices, isBazaar, itemFlags 
     const trend = computeTrend(values)
     const hasHistory = Array.isArray(prices) && prices.length > 0 && range !== 'active'
 
-    const lastUpdated = new Date().toLocaleString()
-
     const isMuseum = itemFlags?.isMuseum ?? false
     const isCraftable = itemFlags?.isCraftable ?? false
     const isFireSale = itemFlags?.isFireSale ?? false
@@ -179,10 +177,6 @@ export default function ItemFAQ({ item, tag, range, prices, isBazaar, itemFlags 
                 : isAuction
                   ? `Yes! ${itemName} can be sold on the Auction House.`
                   : `${itemName} is not tradeable on the Auction House and not sellable on the SkyBlock Bazaar.`
-        },
-        {
-            q: `When was this data last updated?`,
-            a: `This FAQ was last updated at ${lastUpdated}.`
         },
         {
             q: `How to flip ${itemName}?`,
