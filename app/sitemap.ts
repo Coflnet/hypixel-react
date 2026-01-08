@@ -52,6 +52,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error('Error adding wiki docs to sitemap:', error)
     }
 
+    // Add updates archive pages (monthly) from Jan 2024 through current month
+    try {
+        const updateEntries = generateUpdateSitemapEntries(2022, 1)
+        sitemapEntries.push(...updateEntries)
+        console.log(`Added ${updateEntries.length} updates archive pages to sitemap`)
+    } catch (error) {
+        console.error('Error adding updates archive pages to sitemap:', error)
+    }
     // Add auction items (limited for sitemap size)
     try {
         const auctionItems = await generateItemSitemap('auction')
@@ -114,4 +122,35 @@ function isBazaarItem(item: Item): boolean {
         return (item.flags & 1) === 1
     }
     return typeof item.flags === 'string' && item.flags.includes('BAZAAR')
+}
+
+// Generate sitemap entries for monthly updates archive pages
+function generateUpdateSitemapEntries(startYear = 2024, startMonth = 1): MetadataRoute.Sitemap {
+    const entries: MetadataRoute.Sitemap = []
+    const today = new Date()
+
+    let year = startYear
+    let month = startMonth
+
+    while (year < today.getFullYear() || (year === today.getFullYear() && month <= today.getMonth() + 1)) {
+        const lastModified = new Date(year, month, 1)
+        const isCurrent = year === today.getFullYear() && month === today.getMonth() + 1
+
+        const changeFrequency = isCurrent ? 'daily' :  'yearly' 
+
+        entries.push({
+            url: getFullUrl(`/updates/${year}/${month}`),
+            lastModified,
+            changeFrequency,
+            priority: 0.5,
+        })
+
+        month++
+        if (month > 12) {
+            month = 1
+            year++
+        }
+    }
+
+    return entries
 }
