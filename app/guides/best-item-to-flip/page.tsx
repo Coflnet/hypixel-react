@@ -5,8 +5,9 @@ import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "What's the Best Item to Flip? | Characteristics & Selection Criteria",
-    "Learn what makes a good flip: margin %, volume, stability, competition. Use data-driven criteria to find best items vs chasing hype."
-,
+    "Learn what makes a good flip: margin %, volume, stability, competition. Use data-driven criteria to find best items vs chasing hype.",
+    undefined,
+    [],
     undefined,
     getCanonicalUrl('/guides/best-item-to-flip')
 );

@@ -5,8 +5,9 @@ import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Getting Started with Flipping | Hypixel SkyBlock Beginner Guide",
-    "Start flipping in Hypixel SkyBlock in under 1 hour. Learn how to flip with low capital, step-by-step workflows, and quick wins for beginners."
-,
+    "Start flipping in Hypixel SkyBlock in under 1 hour. Learn how to flip with low capital, step-by-step workflows, and quick wins for beginners.",
+    undefined,
+    [],
     undefined,
     getCanonicalUrl('/guides/getting-started-with-flipping')
 );

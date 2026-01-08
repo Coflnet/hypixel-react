@@ -106,11 +106,3 @@ export const metadata = getHeadMetadata(
     undefined,
     getCanonicalUrl('/premiumBazaar')
 )
-        'skyblock bazaar',
-        'bazaar flipper',
-        'bazaar profit',
-        'demand flips',
-        'live bazaar data'
-    ],
-    'Premium Bazaar Flips — Real-time Bazaar Demand & Profit Finder'
-)

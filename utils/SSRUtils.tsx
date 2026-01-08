@@ -22,10 +22,22 @@ export function getHeadMetadata(
     title: string = 'Skyblock Auction House History | Hypixel SkyBlock AH history',
     description: string = 'Browse over 800 million auctions, and the bazaar of Hypixel SkyBlock.',
     imageUrl: string = 'https://sky.coflnet.com/logo192.png',
-    keywords: string[] = [],
+    // Historically some call sites passed the canonical URL in place of keywords.
+    // Accept either an array of keywords or a string canonical URL for backwards compatibility.
+    keywordsOrCanonical: string[] | string | undefined = [],
     embedTitle: string = 'Skyblock Auction House History | Hypixel SkyBlock AH history',
     canonicalUrl?: string
 ): Metadata {
+    // Normalize arguments: if keywordsOrCanonical is a string, treat it as canonicalUrl
+    let keywordsArr: string[] = []
+    let finalCanonical: string | undefined = canonicalUrl
+
+    if (typeof keywordsOrCanonical === 'string') {
+        finalCanonical = keywordsOrCanonical
+    } else if (Array.isArray(keywordsOrCanonical)) {
+        keywordsArr = keywordsOrCanonical
+    }
+
     return {
         title: title,
         description: description,
@@ -39,7 +51,7 @@ export function getHeadMetadata(
                 width: 64
             }
         },
-        keywords: [...keywords, 'hypixel', 'skyblock', 'auction', 'history', 'bazaar', 'tracker'].join(','),
-        ...(canonicalUrl && { alternates: { canonical: canonicalUrl } })
+        keywords: [...keywordsArr, 'hypixel', 'skyblock', 'auction', 'history', 'bazaar', 'tracker'].join(','),
+        ...(finalCanonical && { alternates: { canonical: finalCanonical } })
     }
 }
