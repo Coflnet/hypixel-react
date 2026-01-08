@@ -1,6 +1,6 @@
 import { Container } from 'react-bootstrap'
 import FlippingHub from '../../components/FlippingHub/FlippingHub'
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import Search from '../../components/Search/Search'
 import NavBar from '../../components/NavBar/NavBar'
 import Link from 'next/link'
@@ -28,7 +28,11 @@ export default function FlippingHubPage() {
 
 export const metadata = getHeadMetadata(
     'Flipping Hub',
-    'Explore all Hypixel SkyBlock flipping strategies: Kat, Craft, AH, Composter, Bazaar, Forge flips and more. Detailed guides and profit tips for every flip kind.'
+    'Explore all Hypixel SkyBlock flipping strategies: Kat, Craft, AH, Composter, Bazaar, Forge flips and more. Detailed guides and profit tips for every flip kind.',
+    undefined,
+    undefined,
+    undefined,
+    getCanonicalUrl('/flips')
 )
 
 export const revalidate = 0

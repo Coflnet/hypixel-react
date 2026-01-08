@@ -1,6 +1,6 @@
 import Search from '../../components/Search/Search'
 import { initAPI } from '../../api/ApiHelper'
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import Flipper from '../../components/Flipper/Flipper'
 import { Container } from 'react-bootstrap'
 import Link from 'next/link'
@@ -38,4 +38,11 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata(undefined, 'Free auction house item flipper for Hypixel Skyblock', undefined, ['flipper'])
+export const metadata = getHeadMetadata(
+    undefined,
+    'Free auction house item flipper for Hypixel Skyblock',
+    undefined,
+    ['flipper'],
+    undefined,
+    getCanonicalUrl('/flipper')
+)

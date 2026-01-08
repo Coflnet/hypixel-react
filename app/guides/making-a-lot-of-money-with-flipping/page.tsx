@@ -1,11 +1,14 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "How to Make a Lot of Money with Flipping | Advanced Strategies to 100M+ Coins",
     "Scale from 10M to 100M+ using advanced flipping: portfolio diversification, market event exploitation, premium tools, profit reinvestment discipline."
+,
+    undefined,
+    getCanonicalUrl('/guides/making-a-lot-of-money-with-flipping')
 );
 
 export default function MakingMoneyWithFlippingPage() {

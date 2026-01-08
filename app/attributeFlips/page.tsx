@@ -3,7 +3,7 @@ import NavBar from '../../components/NavBar/NavBar'
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query'
 import { getQueryClient } from '../../utils/QueryUtils'
 import AttributeFlips from '../../components/AttributeFlips/AttributeFlips'
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import { getApiFlipAttribute, getGetApiFlipAttributeQueryKey } from '../../api/_generated/skyApi'
 
 export default async function Page() {
@@ -28,7 +28,8 @@ export const metadata = getHeadMetadata(
     'Discover profitable Hypixel SkyBlock item upgrade flips using attributes, enchants, and modifiers. Compare base cost, materials, and sale prices to find the best upgrades.',
     undefined,
     ['attribute flips', 'item upgrades', 'hypixel skyblock attributes', 'attribute shards', 'hex upgrades'],
-    'Attribute Flip Profit Calculator | Hypixel SkyBlock'
+    'Attribute Flip Profit Calculator | Hypixel SkyBlock',
+    getCanonicalUrl('/attributeFlips')
 )
 
 export const revalidate = 0

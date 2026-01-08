@@ -1,11 +1,14 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "How to Avoid Scams & Trading Fraud | Safety Guide & Red Flags",
     "Complete scam prevention guide: common fraud types, identification techniques, safe trading patterns, item value verification, reputation checking, and account security. Protect your coins & items in Hypixel Skyblock."
+,
+    undefined,
+    getCanonicalUrl('/guides/how-to-avoid-scams')
 );
 
 export default function HowToAvoidScamsPage() {

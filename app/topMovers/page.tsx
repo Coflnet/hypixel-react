@@ -1,7 +1,7 @@
 import { Container } from 'react-bootstrap'
 import NavBar from '../../components/NavBar/NavBar'
 import TopMovers from '../../components/TopMovers'
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
 
 export default function Page() {
@@ -24,7 +24,9 @@ export const metadata = getHeadMetadata(
     'Top Movers',
     'See which Hypixel SkyBlock items moved the most in the last 24 hours and jump straight into the live market data.',
     undefined,
-    ['skyblock', 'hypixel', 'price change', 'top movers', 'bazaar', 'auction house']
+    ['skyblock', 'hypixel', 'price change', 'top movers', 'bazaar', 'auction house'],
+    undefined,
+    getCanonicalUrl('/topMovers')
 )
 
 export const revalidate = 0

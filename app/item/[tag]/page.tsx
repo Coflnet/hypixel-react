@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation'
 import { parseItem } from '../../../utils/Parser/APIResponseParser'
-import { getHeadMetadata } from '../../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../../utils/SSRUtils'
 import { convertTagToName, numberWithThousandsSeparators } from '../../../utils/Formatter'
 import api, { initAPI } from '../../../api/ApiHelper'
 import { atobUnicode } from '../../../utils/Base64Utils'
@@ -156,7 +156,8 @@ export async function generateMetadata(props) {
             Avg Buy Price: ${buyPriceSum ? numberWithThousandsSeparators(Math.round(buyPriceSum / prices.length)) : '---'}`,
             item.iconUrl,
             [convertTagToName(item.tag)],
-            `${item.name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`
+            `${item.name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`,
+            getCanonicalUrl(`/item/${tag}`)
         )
     }
     return getHeadMetadata(
@@ -164,10 +165,12 @@ export async function generateMetadata(props) {
         `💰 Price: ${getAvgPrice(prices) ? numberWithThousandsSeparators(Math.round(getAvgPrice(prices))) : '---'} Coins
         🕑 ${range ? `Range: ${range}` : null}
 
-         ${filter ? `Filters: \n${getFiltersText(filter)}` : ''}`,
+         ${filter ? `Filters: 
+${getFiltersText(filter)}` : ''}`,
         item.iconUrl,
         [convertTagToName(item.tag)],
-        `${item.name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`
+        `${item.name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`,
+        getCanonicalUrl(`/item/${tag}`)
     )
 }
 

@@ -2,7 +2,7 @@ import { Container } from 'react-bootstrap'
 import { initAPI } from '../../api/ApiHelper'
 import { CraftsList } from '../../components/CraftsList/CraftsList'
 import Search from '../../components/Search/Search'
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
 
 export default async function Page() {
@@ -22,6 +22,13 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Crafts', 'List of profitable craft flips based on current ah and bazaar prices')
+export const metadata = getHeadMetadata(
+    'Crafts',
+    'List of profitable craft flips based on current ah and bazaar prices',
+    undefined,
+    undefined,
+    undefined,
+    getCanonicalUrl('/crafts')
+)
 
 export const revalidate = 0

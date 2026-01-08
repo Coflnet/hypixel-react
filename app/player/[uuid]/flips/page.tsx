@@ -6,7 +6,7 @@ import { FlipTracking } from '../../../../components/FlipTracking/FlipTracking'
 import Search from '../../../../components/Search/Search'
 import { numberWithThousandsSeparators, removeMinecraftColorCoding } from '../../../../utils/Formatter'
 import { parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser/APIResponseParser'
-import { getHeadMetadata } from '../../../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../../../utils/SSRUtils'
 import { Container } from 'react-bootstrap'
 
 export default async function Page(props) {
@@ -72,7 +72,8 @@ export async function generateMetadata(props) {
         getEmbedDescription(parseFlipTrackingResponse(flipTrackingResponse), parsedPlayer),
         parsedPlayer.iconUrl?.split('?')[0],
         ['tracker'],
-        `Tracked flips of ${parsedPlayer.name}`
+        `Tracked flips of ${parsedPlayer.name}`,
+        getCanonicalUrl(`/player/${params.uuid}/flips`)
     )
 }
 

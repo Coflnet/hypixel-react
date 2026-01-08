@@ -1,11 +1,15 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Best Flipping Strategy by Capital Level | Hypixel SkyBlock Guide",
-    "Choose your flipping strategy based on your capital: under 1M (minions/farming), 1–5M (Bazaar volume), 5–20M (craft flips), 20M+ (Auction House). Learn optimal portfolios and scaling paths."
+    "Choose your flipping strategy based on your capital: under 1M (minions/farming), 1–5M (Bazaar volume), 5–20M (craft flips), 20M+ (Auction House). Learn optimal portfolios and scaling paths.",
+    undefined,
+    [],
+    undefined,
+    getCanonicalUrl('/guides/best-flipping-strategy')
 );
 
 export default function BestFlippingStrategyPage() {

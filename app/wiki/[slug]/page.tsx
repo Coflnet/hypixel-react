@@ -5,6 +5,7 @@ import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
 import { notFound } from 'next/navigation'
 import matter from 'gray-matter'
+import { getHeadMetadata, getCanonicalUrl } from '../../../utils/SSRUtils'
 import TimezoneDetect from '../../../components/TimezoneDetect/TimezoneDetect'
 
 const docsDirectory = path.join(process.cwd(), 'app/wiki/docs')
@@ -58,8 +59,12 @@ export async function generateMetadata(props) {
     if (!doc) {
         return {}
     }
-    return {
-        title: doc.data.title || doc.slug.replace(/-/g, ' '),
-        description: doc.data.description || `Learn about ${doc.slug.replace(/-/g, ' ')} on SkyCofl`
-    }
+    return getHeadMetadata(
+        doc.data.title || doc.slug.replace(/-/g, ' '),
+        doc.data.description || `Learn about ${doc.slug.replace(/-/g, ' ')} on SkyCofl`,
+        undefined,
+        [],
+        undefined,
+        getCanonicalUrl(`/wiki/${params.slug}`)
+    )
 }

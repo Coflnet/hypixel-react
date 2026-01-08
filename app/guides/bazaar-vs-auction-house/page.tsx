@@ -1,11 +1,15 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Bazaar vs Auction House Flipping | Which is Better for Profit?",
-    "Compare Bazaar and Auction House flipping: speed vs margin, volume vs uniqueness. Learn which market fits your capital, experience level, and profit goals."
+    "Compare Bazaar and Auction House flipping: speed vs margin, volume vs uniqueness. Learn which market fits your capital, experience level, and profit goals.",
+    undefined,
+    [],
+    undefined,
+    getCanonicalUrl('/guides/bazaar-vs-auction-house')
 );
 
 export default function BazaarVsAuctionHousePage() {

@@ -1,11 +1,14 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "How to Start Flipping with No Money | Bootstrap to 1M Coins",
     "Bootstrap from zero using minions, farming, and NPC flipping. Earn 100k–500k/day, reach 1M coins in 7–30 days, then start Bazaar flipping."
+,
+    undefined,
+    getCanonicalUrl('/guides/how-to-start-flipping-with-no-money')
 );
 
 export default function HowToStartFlippingWithNoMoneyPage() {

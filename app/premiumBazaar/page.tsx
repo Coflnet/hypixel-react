@@ -1,4 +1,4 @@
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Container } from 'react-bootstrap'
 import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
@@ -98,6 +98,14 @@ export const metadata = getHeadMetadata(
         'bazaar flips',
         'real-time bazaar',
         'hypixel bazaar',
+        'bazaar profit',
+        'buy orders',
+        'sell orders',
+        'marketplace'
+    ],
+    undefined,
+    getCanonicalUrl('/premiumBazaar')
+)
         'skyblock bazaar',
         'bazaar flipper',
         'bazaar profit',

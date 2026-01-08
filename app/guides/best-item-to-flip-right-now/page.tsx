@@ -1,11 +1,14 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Best Item to Flip Right Now | Real-Time Market Analysis & Tools",
     "Find the most profitable items to flip RIGHT NOW using SkyCofl real-time market data, Top Movers tracking, and demand-based analysis. Discover high-margin opportunities with minimal competition."
+,
+    undefined,
+    getCanonicalUrl('/guides/best-item-to-flip-right-now')
 );
 
 export default function BestItemToFlipRightNowPage() {

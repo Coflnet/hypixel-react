@@ -1,4 +1,4 @@
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Container } from 'react-bootstrap'
 import { getQueryClient } from '../../utils/QueryUtils'
@@ -30,12 +30,19 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Fusion Flips', 'Discover profitable Hypixel SkyBlock Fusion machine flips.', undefined, [
-    'shards',
-    'flips',
-    'hypixel',
-    'skyblock',
-    'flip',
-    'fusion',
-    'shard flipper'
-])
+export const metadata = getHeadMetadata(
+    'Fusion Flips',
+    'Discover profitable Hypixel SkyBlock Fusion machine flips.',
+    undefined,
+    [
+        'shards',
+        'flips',
+        'hypixel',
+        'skyblock',
+        'flip',
+        'fusion',
+        'shard flipper'
+    ],
+    undefined,
+    getCanonicalUrl('/fusion')
+)

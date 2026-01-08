@@ -1,5 +1,5 @@
 import React from 'react'
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import Premium from '../../components/Premium/Premium'
 import { Container } from 'react-bootstrap'
 import { getQueryClient } from '../../utils/QueryUtils'
@@ -30,13 +30,20 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Profit Leaderboard', 'Explore the top Hypixel SkyBlock traders with our Profit Leaderboard', undefined, [
-    'leaderboard',
-    'profit',
-    'hypixel',
-    'skyblock',
-    'traders',
-    'trading',
-    'auction',
-    'bazaar'
-])
+export const metadata = getHeadMetadata(
+    'Profit Leaderboard',
+    'Explore the top Hypixel SkyBlock traders with our Profit Leaderboard',
+    undefined,
+    [
+        'leaderboard',
+        'profit',
+        'hypixel',
+        'skyblock',
+        'traders',
+        'trading',
+        'auction',
+        'bazaar'
+    ],
+    undefined,
+    getCanonicalUrl('/profitLeaderboard')
+)

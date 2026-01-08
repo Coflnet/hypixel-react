@@ -1,12 +1,15 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 import BazaarLivePreview from "../../../components/Guides/BazaarLivePreview";
 
 export const metadata: Metadata = getHeadMetadata(
     "How to Make Money with Bazaar Flipping in Hypixel Skyblock | Real Strategy + Tools",
     "Complete actionable guide to bazaar flipping for profit: buy low sell high strategies, volume analysis, fee optimization, profit calculations, capital management, item selection, turnover acceleration, SkyCofl tools, /cofl commands, real-time examples. Make 10-50M coins per hour."
+,
+    undefined,
+    getCanonicalUrl('/guides/how-to-make-money-with-bazaar-flipping')
 );
 
 export default function HowToMakeMoneyWithBazaarFlippingPage() {

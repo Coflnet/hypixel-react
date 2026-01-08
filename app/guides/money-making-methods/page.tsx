@@ -1,11 +1,15 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Best Money Making Methods in Hypixel Skyblock 2025 | Complete Comparison Guide",
-    "Complete comparison of all Skyblock money-making methods: flipping, farming, slaying, mining, fishing, dungeons, minions, and more. Includes coins/hour, time investment, barrier to entry, and SkyCofl tool recommendations."
+    "Complete comparison of all Skyblock money-making methods: flipping, farming, slaying, mining, fishing, dungeons, minions, and more. Includes coins/hour, time investment, barrier to entry, and SkyCofl tool recommendations.",
+    undefined,
+    [],
+    undefined,
+    getCanonicalUrl('/guides/money-making-methods')
 );
 
 export default function MoneyMakingMethodsPage() {

@@ -2,7 +2,7 @@ import { Container } from 'react-bootstrap'
 import { initAPI } from '../../api/ApiHelper'
 import LowSupply from '../../components/LowSupply/LowSupply'
 import NavBar from '../../components/NavBar/NavBar'
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 
 export default async function Page() {
     let api = initAPI(true)
@@ -22,6 +22,13 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Low Supply Items', 'Items that are in low supply on the auction house')
+export const metadata = getHeadMetadata(
+    'Low Supply Items',
+    'Items that are in low supply on the auction house',
+    undefined,
+    undefined,
+    undefined,
+    getCanonicalUrl('/lowSupply')
+)
 
 export const revalidate = 0

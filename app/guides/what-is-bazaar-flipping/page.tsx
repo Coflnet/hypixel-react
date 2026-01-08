@@ -1,11 +1,15 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "What is Bazaar Flipping in Hypixel Skyblock? Complete Beginner's Guide | Buy Low Sell High",
-    "Complete guide to bazaar flipping explained: how bazaar works, spread calculation, margin optimization, item selection, capital requirements, profit strategies, risk management. Learn buy orders vs instant trading, SkyCofl tools, and FAQ for all skill levels."
+    "Complete guide to bazaar flipping explained: how bazaar works, spread calculation, margin optimization, item selection, capital requirements, profit strategies, risk management. Learn buy orders vs instant trading, SkyCofl tools, and FAQ for all skill levels.",
+    undefined,
+    [],
+    undefined,
+    getCanonicalUrl('/guides/what-is-bazaar-flipping')
 );
 
 export default function WhatIsBazaarFlippingPage() {

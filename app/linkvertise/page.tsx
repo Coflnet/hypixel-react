@@ -1,6 +1,6 @@
 import { Container } from 'react-bootstrap'
 import NavBar from '../../components/NavBar/NavBar'
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import Linkvertise from '../../components/Linkvertise/Linkvertise'
 
 export default async function Page() {
@@ -17,4 +17,11 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata('Linkvertise', 'Get Starter Premium for free')
+export const metadata = getHeadMetadata(
+    'Linkvertise',
+    'Get Starter Premium for free',
+    undefined,
+    undefined,
+    undefined,
+    getCanonicalUrl('/linkvertise')
+)

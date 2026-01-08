@@ -1,11 +1,14 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Optimal Minion Setups for Maximum Passive Income | Complete ROI Guide",
     "Master minion optimization: choose profitable minion types, fuel strategies, upgrades, tier progression, ROI calculations, and break-even analysis. Generate 10M–100M+ coins per day passively."
+,
+    undefined,
+    getCanonicalUrl('/guides/optimal-minion-setups')
 );
 
 export default function OptimalMinionSetupsPage() {

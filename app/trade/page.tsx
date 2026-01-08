@@ -1,4 +1,4 @@
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Container } from 'react-bootstrap'
 import TradingOverview from '../../components/TradingOverview/TradingOverview'
@@ -19,5 +19,9 @@ export default async function Page() {
 
 export const metadata = getHeadMetadata(
     'Trading',
-    'Create and manage Hypixel SkyBlock item trades. Connect with other players, set up wanted items, and find trading partners for efficient item exchanges in the SkyBlock community.'
+    'Create and manage Hypixel SkyBlock item trades. Connect with other players, set up wanted items, and find trading partners for efficient item exchanges in the SkyBlock community.',
+    undefined,
+    undefined,
+    undefined,
+    getCanonicalUrl('/trade')
 )

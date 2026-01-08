@@ -1,11 +1,14 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Track Flip Profits Automatically | SkyCofl Mod + CSV Export",
     "Use SkyCofl Mod to log all flips, calculate coins/hour, track margins, and export CSV for analysis. From raw data to strategic optimization."
+,
+    undefined,
+    getCanonicalUrl('/guides/tracking-profits-automatically')
 );
 
 export default function TrackingProfitsAutomaticallyPage() {

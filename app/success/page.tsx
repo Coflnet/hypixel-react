@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Confetti from '../../components/Confetti/Confetti'
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Button, Container } from 'react-bootstrap'
 
@@ -28,5 +28,9 @@ export default function Page() {
 
 export const metadata = getHeadMetadata(
     'Payment Successful',
-    'Thank you for your purchase! Your premium subscription is now active. Enjoy advanced features, priority support, and enhanced Hypixel SkyBlock tools to maximize your trading profits.'
+    'Thank you for your purchase! Your premium subscription is now active. Enjoy advanced features, priority support, and enhanced Hypixel SkyBlock tools to maximize your trading profits.',
+    undefined,
+    undefined,
+    undefined,
+    getCanonicalUrl('/success')
 )

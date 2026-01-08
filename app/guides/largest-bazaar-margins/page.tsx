@@ -1,11 +1,14 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Largest Bazaar Margins Right Now | High-Margin Item Finder",
     "Find items with 5%+ spreads using Bazaar Flips tool. Learn margin consistency, volume vs margin trade-offs, and how to spot real opportunities vs manipulation."
+,
+    undefined,
+    getCanonicalUrl('/guides/largest-bazaar-margins')
 );
 
 export default function LargestBazaarMarginsPage() {

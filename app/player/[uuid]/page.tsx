@@ -1,5 +1,5 @@
 import { initAPI } from '../../../api/ApiHelper'
-import { getHeadMetadata } from '../../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../../utils/SSRUtils'
 import { notFound } from 'next/navigation'
 import PlayerDetails from '../../../components/PlayerDetails/PlayerDetails'
 import { parseAuction, parsePlayer } from '../../../utils/Parser/APIResponseParser'
@@ -64,7 +64,8 @@ export async function generateMetadata(props) {
         `Auctions and bids for ${player?.name} in Hypixel Skyblock.`,
         player?.iconUrl?.split('?')[0],
         [player?.name || ''],
-        `${player?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`
+        `${player?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`,
+        getCanonicalUrl(`/player/${params.uuid}`)
     )
 }
 

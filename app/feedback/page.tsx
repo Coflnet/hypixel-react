@@ -1,5 +1,5 @@
 import React from 'react'
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Container, Button } from 'react-bootstrap'
 
@@ -46,5 +46,9 @@ export default function Page() {
 
 export const metadata = getHeadMetadata(
     'Feedback',
-    'Share your ideas and suggestions for improving our Hypixel SkyBlock tools. Contact our support team via email or Discord to help us build better features for the community.'
+    'Share your ideas and suggestions for improving our Hypixel SkyBlock tools. Contact our support team via email or Discord to help us build better features for the community.',
+    undefined,
+    undefined,
+    undefined,
+    getCanonicalUrl('/feedback')
 )

@@ -1,11 +1,15 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Best Starter Items Under 10M | Low-Capital Flipping Guide",
-    "Top 30+ beginner-friendly items for flipping with under 10M coins. Capital allocation, first flip examples, profit targets, volume analysis, and 50-day scaling roadmap."
+    "Top 30+ beginner-friendly items for flipping with under 10M coins. Capital allocation, first flip examples, profit targets, volume analysis, and 50-day scaling roadmap.",
+    undefined,
+    [],
+    undefined,
+    getCanonicalUrl('/guides/starter-items-under-10m')
 );
 
 export default function StarterItemsUnder10MPage() {

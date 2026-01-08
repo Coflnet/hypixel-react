@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Complete Hypixel Skyblock Flipping Guides | Learn Bazaar & Auction House Strategies",
@@ -9,7 +9,7 @@ export const metadata: Metadata = getHeadMetadata(
     undefined,
     [],
     undefined,
-    "https://sky.coflnet.com/guides"
+    getCanonicalUrl("/guides")
 );
 
 export default function GuidesPage() {

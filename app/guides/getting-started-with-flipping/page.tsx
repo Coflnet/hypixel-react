@@ -1,11 +1,14 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Getting Started with Flipping | Hypixel SkyBlock Beginner Guide",
     "Start flipping in Hypixel SkyBlock in under 1 hour. Learn how to flip with low capital, step-by-step workflows, and quick wins for beginners."
+,
+    undefined,
+    getCanonicalUrl('/guides/getting-started-with-flipping')
 );
 
 export default function GettingStartedWithFlippingPage() {

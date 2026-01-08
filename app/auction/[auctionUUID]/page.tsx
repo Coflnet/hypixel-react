@@ -1,6 +1,6 @@
 import moment from 'moment'
 import { initAPI } from '../../../api/ApiHelper'
-import { getHeadMetadata } from '../../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../../utils/SSRUtils'
 import { numberWithThousandsSeparators } from '../../../utils/Formatter'
 import AuctionDetails from '../../../components/AuctionDetails/AuctionDetails'
 import Search from '../../../components/Search/Search'
@@ -254,7 +254,8 @@ export async function generateMetadata(props) {
         getAuctionDescription(auctionDetails),
         auctionDetails.auction.item.iconUrl,
         [auctionDetails.auction.item.name || auctionDetails.auction.item.tag, auctionDetails.auctioneer.name],
-        `Auction for ${auctionDetails?.auction?.item?.name} by ${auctionDetails?.auctioneer?.name} | Hypixel SkyBlock AH history tracker`
+        `Auction for ${auctionDetails?.auction?.item?.name} by ${auctionDetails?.auctioneer?.name} | Hypixel SkyBlock AH history tracker`,
+        getCanonicalUrl(`/auction/${auctionUUID}`)
     )
 }
 

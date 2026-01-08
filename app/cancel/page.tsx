@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import React from 'react'
 import Search from '../../components/Search/Search'
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import { Container, Card, CardHeader, CardTitle, CardBody, Button } from 'react-bootstrap'
 
 export default function Page() {
@@ -30,5 +30,9 @@ export default function Page() {
 
 export const metadata = getHeadMetadata(
     'Payment Canceled',
-    'Payment was canceled. No charges were made to your account. You can still access our free Hypixel SkyBlock tools or try upgrading to premium again anytime.'
+    'Payment was canceled. No charges were made to your account. You can still access our free Hypixel SkyBlock tools or try upgrading to premium again anytime.',
+    undefined,
+    undefined,
+    undefined,
+    getCanonicalUrl('/cancel')
 )

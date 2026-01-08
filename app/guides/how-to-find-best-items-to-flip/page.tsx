@@ -1,11 +1,14 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "How to Find Best Items to Flip | Volume, Margins & Liquidity Analysis",
     "Master item selection using volume metrics, buy/sell walls, spreads, and price momentum. Learn to identify high-volume, low-risk flips vs niche high-margin plays."
+,
+    undefined,
+    getCanonicalUrl('/guides/how-to-find-best-items-to-flip')
 );
 
 export default function HowToFindBestItemsToFlipPage() {

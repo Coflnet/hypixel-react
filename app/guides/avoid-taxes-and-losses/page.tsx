@@ -1,11 +1,15 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Minimize Flipping Taxes & Losses | Bazaar Fees, AH Tax, Price Crashes",
-    "Master tax minimization: Bazaar 1.25%, AH 1%–2.5%, Derpy discount. Avoid price crashes, cancelled orders, scams. Use order strategy to beat fees."
+    "Master tax minimization: Bazaar 1.25%, AH 1%–2.5%, Derpy discount. Avoid price crashes, cancelled orders, scams. Use order strategy to beat fees.",
+    undefined,
+    [],
+    undefined,
+    getCanonicalUrl('/guides/avoid-taxes-and-losses')
 );
 
 export default function AvoidTaxesAndLossesPage() {

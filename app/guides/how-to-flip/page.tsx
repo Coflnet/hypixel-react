@@ -1,11 +1,14 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "How to Flip Items in Hypixel SkyBlock | Step-by-Step Tutorial",
     "Master flipping on Bazaar and Auction House with this step-by-step guide. Learn buy/sell orders, timing, fees (1.25%/1.125%), and how to maximize profit per flip."
+,
+    undefined,
+    getCanonicalUrl('/guides/how-to-flip')
 );
 
 export default function HowToFlipPage() {

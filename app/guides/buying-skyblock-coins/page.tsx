@@ -1,11 +1,15 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Buying Hypixel Skyblock Coins: Read This Before You Risk a Ban",
-    "Buying Hypixel Skyblock coins is against the rules and far easier to detect than most macroing. Learn the ban risks, ToS implications, safer ways to earn coins fast, how to report sellers, and better alternatives like Premium-powered manual flipping."
+    "Buying Hypixel Skyblock coins is against the rules and far easier to detect than most macroing. Learn the ban risks, ToS implications, safer ways to earn coins fast, how to report sellers, and better alternatives like Premium-powered manual flipping.",
+    undefined,
+    [],
+    undefined,
+    getCanonicalUrl('/guides/buying-skyblock-coins')
 );
 
 export default function BuyingCoinsGuidePage() {

@@ -1,4 +1,4 @@
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Container } from 'react-bootstrap'
 import { getQueryClient } from '../../utils/QueryUtils'
@@ -34,5 +34,7 @@ export const metadata = getHeadMetadata(
     'NPC Flips',
     'Discover profitable Hypixel SkyBlock NPC flipping opportunities. Buy from NPCs and sell on the Auction House or Bazaar for a profit.',
     undefined,
-    ['npc', 'flips', 'hypixel', 'skyblock', 'flip', 'npc flips', 'npc flipper']
+    ['npc', 'flips', 'hypixel', 'skyblock', 'flip', 'npc flips', 'npc flipper'],
+    undefined,
+    getCanonicalUrl('/npc')
 )

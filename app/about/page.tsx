@@ -1,5 +1,5 @@
 import React from 'react'
-import { getHeadMetadata } from '../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import NcmpConsentLink from '../../components/NcmpConsentLink'
 import { Card, Container } from 'react-bootstrap'

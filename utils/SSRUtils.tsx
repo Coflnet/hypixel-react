@@ -1,7 +1,21 @@
 import { Metadata } from 'next'
 
+export const CANONICAL_DOMAIN = 'https://sky.coflnet.com'
+
 export function isClientSideRendering() {
     return typeof window !== 'undefined'
+}
+
+/**
+ * Generates a canonical URL for sky.coflnet.com based on the provided pathname and optional search string.
+ * This ensures search engines treat sky.coflnet.com as the canonical version regardless of
+ * which domain variant the page is served from (skyblock.coflnet.com, sky-commands.coflnet.com, etc.)
+ */
+export function getCanonicalUrl(pathname: string, search?: string): string {
+    // Ensure pathname starts with /
+    const normalizedPath = pathname.startsWith('/') ? pathname : `/${pathname}`
+    const searchString = search ? `?${search}` : ''
+    return `${CANONICAL_DOMAIN}${normalizedPath}${searchString}`
 }
 
 export function getHeadMetadata(

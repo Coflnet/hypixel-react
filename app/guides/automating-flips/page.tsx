@@ -1,11 +1,15 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Automating Hypixel Skyblock Flips: Tools, Ban Risks, and Safe Alternatives | SkyCofl vs TPM vs BAF",
-    "Complete guide to flipping automation: TPM bot, BAF script, banned tools, anti-cheat detection, automation risks. Why automated bots get banned, safe alternatives, SkyCofl mod features, manual vs automatic flipping, profit tracking without ban risk. FAQ on macro bots and scripting dangers."
+    "Complete guide to flipping automation: TPM bot, BAF script, banned tools, anti-cheat detection, automation risks. Why automated bots get banned, safe alternatives, SkyCofl mod features, manual vs automatic flipping, profit tracking without ban risk. FAQ on macro bots and scripting dangers.",
+    undefined,
+    [],
+    undefined,
+    getCanonicalUrl('/guides/automating-flips')
 );
 
 export default function AutomatingFlipsPage() {

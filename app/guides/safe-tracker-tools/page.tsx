@@ -1,11 +1,14 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "Safe Profit Tracker Tools for Hypixel Skyblock | Ban-Free Monitoring",
     "Complete guide to safe, ban-free tracking tools: SkyCofl Mod automatic logging, web dashboards, spreadsheet tracking, API tools. Compare tools, learn best practices, avoid automation risks."
+,
+    undefined,
+    getCanonicalUrl('/guides/safe-tracker-tools')
 );
 
 export default function SafeTrackerToolsPage() {

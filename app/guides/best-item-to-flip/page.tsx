@@ -1,11 +1,14 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
     "What's the Best Item to Flip? | Characteristics & Selection Criteria",
     "Learn what makes a good flip: margin %, volume, stability, competition. Use data-driven criteria to find best items vs chasing hype."
+,
+    undefined,
+    getCanonicalUrl('/guides/best-item-to-flip')
 );
 
 export default function BestItemToFlipPage() {

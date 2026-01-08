@@ -1,11 +1,15 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { Container, Card, CardBody, CardTitle, CardText, Col, Row, Table } from "react-bootstrap";
-import { getHeadMetadata } from "../../../utils/SSRUtils";
+import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
   "Is Bazaar Flipping Worth It? ROI Comparison vs Farming, Slaying, Mining | Truth",
-  "Complete ROI analysis: flipping vs farming vs slaying vs dungeons vs fishing. Coins per hour, capital requirements, time investment, barrier to entry, scalability. Why flipping is worth it and how to maximize profitability."
+  "Complete ROI analysis: flipping vs farming vs slaying vs dungeons vs fishing. Coins per hour, capital requirements, time investment, barrier to entry, scalability. Why flipping is worth it and how to maximize profitability.",
+  undefined,
+  [],
+  undefined,
+  getCanonicalUrl('/guides/is-flipping-worth-it')
 );
 
 export default function IsFlippingWorthItPage() {
