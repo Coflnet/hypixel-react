@@ -189,7 +189,7 @@ async function getItemData(searchParams, params) {
 
             if (!itemDetails || !itemDetails.name) {
                 let searchResults = await api.itemSearch(tag)
-                if (searchResults) {
+                if (searchResults && searchResults[0] && searchResults[0].id !== tag) {
                     redirect(`/item/${searchResults[0].id}`)
                 } else {
                     return {
@@ -215,7 +215,7 @@ async function getItemData(searchParams, params) {
 
         if (!itemDetails || !itemDetails.name) {
             let searchResults = await api.itemSearch(tag)
-            if (searchResults) {
+            if (searchResults && searchResults[0] && searchResults[0].id !== tag) {
                 redirect(`/item/${searchResults[0].id}`)
             } else {
                 return {
