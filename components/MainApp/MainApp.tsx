@@ -42,7 +42,14 @@ export function MainApp(props: any) {
                 timestamp: new Date()
             })
 
-            if (event.error.name === 'ChunkLoadError') {
+            // Handle hydration errors (React error #418)
+            if (event.message?.includes('#418') || event.message?.includes('Hydration') || event.message?.includes('hydrat')) {
+                sessionStorage.setItem('hydrationErrorDetected', 'true')
+                // Don't auto-reload for hydration errors - let the banner handle it
+                return
+            }
+
+            if (event.error?.name === 'ChunkLoadError') {
                 let chunkErrorLocalStorage = window.localStorage.getItem('chunkErrorReload')
                 if (chunkErrorLocalStorage && parseInt(chunkErrorLocalStorage) + 5000 > new Date().getTime()) {
                     alert('There is something wrong with the website-chunks. Please try Control + F5 to hard refresh the page.')

@@ -2,7 +2,12 @@
 /* eslint-disable no-undef */
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/3.0.0/workbox-sw.js')
 
+const CACHE_EXPIRATION_ONE_DAY = 60 * 60 * 24
+const CACHE_EXPIRATION_ONE_WEEK = 60 * 60 * 24 * 7
 const CACHE_EXPIRATION_ONE_YEAR = 60 * 60 * 24 * 365
+
+// Service worker version - increment to force cache refresh
+const SW_VERSION = '2.0.0'
 
 // Give the service worker access to Firebase Messaging.
 // Note that you can only use Firebase Messaging here. Other Firebase libraries
@@ -15,30 +20,55 @@ workbox.setConfig({
     debug: false
 })
 
-// cache js files
+// Skip waiting and claim clients immediately on install
+self.addEventListener('install', (event) => {
+    self.skipWaiting()
+})
+
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        Promise.all([
+            // Claim all clients immediately
+            clients.claim(),
+            // Clear old caches that might cause issues
+            caches.keys().then((keys) => {
+                return Promise.all(
+                    keys.filter((key) => {
+                        // Clear js and css caches on new SW version
+                        return key.includes('workbox:js') || key.includes('workbox:css')
+                    }).map((key) => caches.delete(key))
+                )
+            })
+        ])
+    )
+})
+
+// cache js files - use staleWhileRevalidate to always try to get fresh content
+// but fall back to cache if network fails
 workbox.routing.registerRoute(
     new RegExp('.*.js$'),
-    workbox.strategies.cacheFirst({
+    workbox.strategies.staleWhileRevalidate({
         cacheName: 'workbox:js',
         plugins: [
             new workbox.expiration.Plugin({
-                maxAgeSeconds: CACHE_EXPIRATION_ONE_YEAR
+                maxAgeSeconds: CACHE_EXPIRATION_ONE_DAY,
+                maxEntries: 50
             })
         ]
     })
 )
 
-// cache css files
+// cache css files - use staleWhileRevalidate for fresher content
 workbox.routing.registerRoute(
     // Cache CSS files
     new RegExp('.*.css$'),
-    // Use cache but update in the background ASAP
-    workbox.strategies.cacheFirst({
+    workbox.strategies.staleWhileRevalidate({
         // Use a custom cache name
         cacheName: 'workbox:css',
         plugins: [
             new workbox.expiration.Plugin({
-                maxAgeSeconds: CACHE_EXPIRATION_ONE_YEAR
+                maxAgeSeconds: CACHE_EXPIRATION_ONE_DAY,
+                maxEntries: 30
             })
         ]
     })

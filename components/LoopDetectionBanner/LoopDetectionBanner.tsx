@@ -4,6 +4,7 @@ import { Alert, Button } from 'react-bootstrap'
 import styles from './LoopDetectionBanner.module.css'
 
 const LOOP_STORAGE_KEY = 'pageLoadLoop'
+const HYDRATION_ERROR_KEY = 'hydrationErrorDetected'
 const LOOP_DETECTION_WINDOW = 10000 // 10 seconds
 const LOOP_THRESHOLD = 4 // Number of loads in the window to trigger the banner
 
@@ -15,6 +16,7 @@ interface LoadRecord {
 function LoopDetectionBanner() {
     const [showBanner, setShowBanner] = useState(false)
     const [dismissed, setDismissed] = useState(false)
+    const [isHydrationError, setIsHydrationError] = useState(false)
 
     useEffect(() => {
         if (typeof window === 'undefined') return
@@ -22,6 +24,23 @@ function LoopDetectionBanner() {
         try {
             // Check if user has permanently dismissed the banner
             if (sessionStorage.getItem('loopBannerDismissed') === 'true') {
+                return
+            }
+
+            // Listen for hydration errors (React error #418)
+            const handleError = (event: ErrorEvent) => {
+                if (event.message?.includes('#418') || event.message?.includes('Hydration')) {
+                    sessionStorage.setItem(HYDRATION_ERROR_KEY, 'true')
+                    setIsHydrationError(true)
+                    setShowBanner(true)
+                }
+            }
+            window.addEventListener('error', handleError)
+
+            // Check if there was a previous hydration error
+            if (sessionStorage.getItem(HYDRATION_ERROR_KEY) === 'true') {
+                setIsHydrationError(true)
+                setShowBanner(true)
                 return
             }
 
@@ -59,6 +78,10 @@ function LoopDetectionBanner() {
                     console.warn('Loop detected: Multiple rapid page loads on item page')
                 }
             }
+
+            return () => {
+                window.removeEventListener('error', handleError)
+            }
         } catch (e) {
             console.error('Error in loop detection:', e)
         }
@@ -91,10 +114,14 @@ function LoopDetectionBanner() {
 
             // Clear session storage for this issue
             sessionStorage.removeItem(LOOP_STORAGE_KEY)
+            sessionStorage.removeItem(HYDRATION_ERROR_KEY)
             sessionStorage.removeItem('loopBannerDismissed')
             
-            // Hard reload
-            window.location.reload()
+            // Clear localStorage items that might cause issues
+            localStorage.removeItem('chunkErrorReload')
+            
+            // Hard reload bypassing cache
+            window.location.href = window.location.href.split('?')[0] + '?cache_bust=' + Date.now()
         } catch (e) {
             console.error('Error clearing cache:', e)
             window.location.reload()
@@ -107,21 +134,23 @@ function LoopDetectionBanner() {
 
     return (
         <Alert variant="warning" className={styles.loopBanner} onClose={handleDismiss} dismissible>
-            <Alert.Heading>⚠️ Page Loading Issue Detected</Alert.Heading>
+            <Alert.Heading>⚠️ {isHydrationError ? 'Cache Conflict Detected' : 'Page Loading Issue Detected'}</Alert.Heading>
             <p>
-                We noticed this page might be reloading repeatedly. This is usually caused by cached data conflicts.
+                {isHydrationError 
+                    ? 'Your browser has outdated cached files that are conflicting with the current page. This needs to be fixed to use the site properly.'
+                    : 'We noticed this page might be reloading repeatedly. This is usually caused by cached data conflicts.'}
             </p>
             <p>
                 <strong>Try one of these solutions:</strong>
             </p>
             <ul>
+                <li><strong>Recommended:</strong> Click the button below to clear the cache and reload</li>
                 <li>Open this page in an <strong>Incognito/Private window</strong></li>
-                <li>Click the button below to clear the cache and reload</li>
                 <li>Press <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> (or <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd> on Mac) for a hard refresh</li>
             </ul>
             <div className={styles.buttonGroup}>
                 <Button variant="primary" onClick={handleClearCache}>
-                    Clear Cache & Reload
+                    🔄 Clear Cache & Reload
                 </Button>
                 <Button variant="outline-secondary" onClick={handlePermanentDismiss}>
                     Don't show again

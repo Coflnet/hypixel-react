@@ -5,9 +5,8 @@ import { convertTagToName, numberWithThousandsSeparators } from '../../../utils/
 import api, { initAPI } from '../../../api/ApiHelper'
 import { atobUnicode } from '../../../utils/Base64Utils'
 import dynamic from 'next/dynamic'
-import Search from '../../../components/Search/Search'
+import { ItemPageClient } from './ItemPageClient'
 import { hasFlag } from '../../../components/FilterElement/FilterType'
-import { Container } from 'react-bootstrap'
 import { getCachedItemInfo, ItemFlagsNumeric, hasItemFlag, parseFlags } from '../../../utils/ItemsCache'
 
 const BazaarPriceGraph = dynamic(() => import('../../../components/PriceGraph/BazaarPriceGraph/BazaarPriceGraph'), {
@@ -24,10 +23,6 @@ const NitroAdSlot = dynamic(() => import('../../../components/Ads/NitroAdSlot'),
 
 const ItemFAQ = dynamic(() => import('../../../components/ItemFAQ/ItemFAQ'), {
     loading: () => <div style={{ minHeight: '200px' }}>Loading...</div>
-})
-
-const LoopDetectionBanner = dynamic(() => import('../../../components/LoopDetectionBanner/LoopDetectionBanner'), {
-    ssr: false
 })
 
 // Revalidate every 600 seconds (10 minutes) for price data freshness
@@ -61,9 +56,7 @@ export default async function Page(props) {
 
     return (
         <>
-            <LoopDetectionBanner />
-            <Container>
-                <Search selected={getItem()} type="item" showFavoriteToggle />
+            <ItemPageClient item={getItem()}>
                 {isBazaar ? <BazaarPriceGraph item={getItem()} /> : <AuctionHousePriceGraph item={getItem()} />}
 
                 <NitroAdSlot
@@ -86,7 +79,7 @@ export default async function Page(props) {
                     isBazaar={isBazaar}
                     itemFlags={data.itemFlags || null}
                 />
-            </Container>
+            </ItemPageClient>
             <NitroAdSlot
                 slotId="below-faq"
                 config={{
