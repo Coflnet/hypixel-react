@@ -26,6 +26,10 @@ const ItemFAQ = dynamic(() => import('../../../components/ItemFAQ/ItemFAQ'), {
     loading: () => <div style={{ minHeight: '200px' }}>Loading...</div>
 })
 
+const LoopDetectionBanner = dynamic(() => import('../../../components/LoopDetectionBanner/LoopDetectionBanner'), {
+    ssr: false
+})
+
 // Revalidate every 600 seconds (10 minutes) for price data freshness
 // Note: Shorter revalidation times can cause hydration mismatches in some cases
 export const revalidate = 600
@@ -57,6 +61,7 @@ export default async function Page(props) {
 
     return (
         <>
+            <LoopDetectionBanner />
             <Container>
                 <Search selected={getItem()} type="item" showFavoriteToggle />
                 {isBazaar ? <BazaarPriceGraph item={getItem()} /> : <AuctionHousePriceGraph item={getItem()} />}

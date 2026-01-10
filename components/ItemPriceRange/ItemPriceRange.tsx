@@ -1,6 +1,6 @@
 'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import { getURLSearchParam } from '../../utils/Parser/URLParser'
 import styles from './ItemPriceRange.module.css'
@@ -29,12 +29,17 @@ interface Props {
 
 export let DEFAULT_DATE_RANGE = DateRange.DAY
 
+// Track URL updates to detect loops
+const URL_UPDATE_WINDOW = 5000 // 5 seconds
+const MAX_URL_UPDATES = 3 // Max updates in the window before we stop
+
 export function ItemPriceRange(props: Props) {
     const { trackEvent } = useMatomo()
     let pathname = usePathname()
     let router = useRouter()
     let searchParams = useSearchParams()
     let [selectedDateRange, _setSelectedDateRange] = useState(searchParams.get('range') || DEFAULT_DATE_RANGE)
+    let urlUpdateCountRef = useRef<number[]>([])
 
     useEffect(() => {
         if (props.disableAllTime && selectedDateRange === DateRange.ALL) {
@@ -83,6 +88,24 @@ export function ItemPriceRange(props: Props) {
     function setSelectedDateRange(range: string) {
         if (isClientSideRendering()) {
             let searchParams = new URLSearchParams(window.location.search)
+            const currentRange = searchParams.get('range')
+            
+            // Skip if the range is already set to the same value
+            if (currentRange === range) {
+                _setSelectedDateRange(range)
+                return
+            }
+            
+            // Loop detection: track URL updates and stop if too many in a short window
+            const now = Date.now()
+            urlUpdateCountRef.current = urlUpdateCountRef.current.filter(t => now - t < URL_UPDATE_WINDOW)
+            if (urlUpdateCountRef.current.length >= MAX_URL_UPDATES) {
+                console.warn('ItemPriceRange: Too many URL updates detected, skipping to prevent loop')
+                _setSelectedDateRange(range)
+                return
+            }
+            urlUpdateCountRef.current.push(now)
+            
             searchParams.set('range', range)
             router.replace(`${pathname}?${searchParams.toString()}`)
             _setSelectedDateRange(range)
