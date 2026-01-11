@@ -133,7 +133,7 @@ function FlipperFilter(props: Props) {
             clearTimeout(timerId)
             timerId = setTimeout(() => {
                 onSettingsChange('minProfit', minProfit || 0)
-            }, 1000)
+            }, 3000)
         }
     })()
 
