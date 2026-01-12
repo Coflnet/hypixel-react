@@ -179,7 +179,7 @@ export function FlipTracking(props: Props) {
     function checkAndSetRangeWarning(from: Date, to: Date) {
         const rangeDiff = to.getTime() - from.getTime()
         const maxRangeForTier = hasPremiumPlus ? PREMIUM_PLUS_TIME_FILTER_RANGE : hasPremium ? PREMIUM_TIME_FILTER_RANGE : DEFAULT_TIME_FILTER_RANGE
-        
+
         // Check if trying to go beyond tier's limit
         const now = new Date().getTime()
         if (from.getTime() < now - maxRangeForTier) {
@@ -190,7 +190,7 @@ export function FlipTracking(props: Props) {
             return false
         }
         setShowPremiumPlusWarning(false)
-        
+
         if (rangeDiff > MAX_RANGE_AT_ONCE) {
             setShowRangeWarning(true)
             return false
@@ -428,7 +428,7 @@ export function FlipTracking(props: Props) {
                     {trackedFlips.length === 0 ? (
                         <div className={styles.noAuctionFound}>
                             <Image src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />{' '}
-                            <p>We couldn't find any flips.</p>
+                            <p>We couldn't find any flips for this player within the selected timeframe.</p>
                         </div>
                     ) : (
                         <ListGroup className={styles.list}>{list}</ListGroup>

@@ -16,6 +16,12 @@ export default async function Page(props) {
     let flipTrackingResponse = parseFlipTrackingResponse(flipData.flipTrackingResponse)
     let player = parsePlayer(flipData.player)
 
+    let sortedFlips = flipTrackingResponse.flips.sort((a, b) => b.profit - a.profit)
+    let bestFlip = sortedFlips.length > 0 ? sortedFlips[0] : null
+    
+    const enchantments = ["Ultimate Chimera 5", "Sharpness 6", "Protection 7", "Growth 7", "Power 7", "Giant Killer 6", "Thunderlord 6", "Looting 4"]
+    const sampleEnchantment = enchantments[(player.name?.length || 0) % enchantments.length]
+
     return (
         <>
             <Container>
@@ -44,6 +50,23 @@ export default async function Page(props) {
                 <Suspense>
                     <FlipTracking totalProfit={flipTrackingResponse.totalProfit} trackedFlips={flipTrackingResponse.flips} playerUUID={params.uuid} />
                 </Suspense>
+                <div style={{ marginBottom: '20px', marginTop: '10px' }}>
+                    <p>
+                        This page displays all the flips of <b>{player.name}</b> in the last 7 days.
+                        It supports lowball tracking if the user or the player they traded with uses <Link href="/mod">our mod</Link>.
+                        It also accounts for any attribute changes done to items like applying enchantments (e.g. {sampleEnchantment}), hot potato books, adding reforges, etc.
+                        You can find such flips on the <Link href="/attributeFlips">Attribute Flips</Link> page.
+                        Some craft flips of item upgrading are also supported in tracking like necrons handle to hyperion (<Link href="/crafts">Crafts</Link>).
+                    </p>
+                    {flipTrackingResponse.totalProfit > 0 && (
+                        <p>
+                            In the last week, <b>{player.name}</b> made <b>{numberWithThousandsSeparators(flipTrackingResponse.totalProfit)}</b> coins profit.
+                            {bestFlip && (
+                                <> Their best flip was <b>{removeMinecraftColorCoding(bestFlip.item.name)}</b> for <b>{numberWithThousandsSeparators(bestFlip.profit)}</b> profit.</>
+                            )}
+                        </p>
+                    )}
+                </div>
             </Container>
         </>
     )
