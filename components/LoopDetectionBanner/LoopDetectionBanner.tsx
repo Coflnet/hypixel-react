@@ -40,7 +40,6 @@ function LoopDetectionBanner() {
             // Check if there was a previous hydration error
             if (sessionStorage.getItem(HYDRATION_ERROR_KEY) === 'true') {
                 setIsHydrationError(true)
-                setShowBanner(true)
                 return
             }
 
