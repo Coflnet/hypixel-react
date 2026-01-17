@@ -316,7 +316,7 @@ export default function TierSelectionStep({ selectedTier, onTierSelect, currentT
                             <li>Fastest auction flips</li>
                             <li>6 year data exports</li>
                             <li>Realtime market analysis</li>
-                            <li>Access to advanced tools</li>
+                            <li>Access to BazaarPro</li>
                             {isSuggestedTier(PremiumTier.PREMIUM_PLUS) && <li className={styles.newFeature}>Advanced money making methods (soon™️)</li>}
                         </ul>
                     </Card.Body>
