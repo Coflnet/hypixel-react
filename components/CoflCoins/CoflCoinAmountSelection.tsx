@@ -274,6 +274,7 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins, userCountryCode 
                                                                     <>
                                                                         Price: €
                                                                         {calculateCustomPrice(getCustomAmountValue(), baseOption.stripePrice).toFixed(2)}
+                                                                        <div className="small text-muted mb-3">€{getPricePerCoin(option).toFixed(4)} per coin</div>
                                                                     </>
                                                                 ) : (
                                                                     <span className="text-danger">Minimum amount is 1800 CoflCoins</span>
@@ -334,7 +335,7 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins, userCountryCode 
                     )}
                 </Button>
             </div>
-                        {!isAndroidApp && (
+            {!isAndroidApp && (
                 <Alert variant="info" style={{ marginBottom: '20px', marginTop: '20px' }}>
                     <div style={{ fontSize: '0.95rem' }}>
                         <strong>💡 More Payment Options Available!</strong>
@@ -363,9 +364,9 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins, userCountryCode 
                     <div style={{ fontSize: '0.95rem' }}>
                         <strong>💡 Additional Payment Options</strong>
                         <p style={{ marginBottom: 0, marginTop: '0.5rem' }}>
-                            More payment options including PayPal, Stripe, and region-specific methods are available on our <a 
-                                href="https://coflnet.com/premium" 
-                                target="_blank" 
+                            More payment options including PayPal, Stripe, and region-specific methods are available on our <a
+                                href="https://coflnet.com/premium"
+                                target="_blank"
                                 rel="noopener noreferrer"
                                 style={{ fontWeight: '600' }}
                             >
