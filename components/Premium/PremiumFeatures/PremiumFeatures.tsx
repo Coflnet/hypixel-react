@@ -304,6 +304,15 @@ function PremiumFeatures() {
                         {checkIconElement}
                     </tr>
                     <tr>
+                        <td className={styles.featureColumn}>
+                            Access to BazaarPro (<Link href="https://pro.skyblock.bz" target="_blank" rel="noreferrer">pro.skyblock.bz</Link>)
+                        </td>
+                        {xIconElement}
+                        {xIconElement}
+                        {xIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
                         <td className={styles.featureColumn}>Max. Recent/Active Auctions</td>
                         <td className={styles.premiumProductColumn}>12</td>
                         <td className={styles.premiumProductColumn}>60</td>
