@@ -273,8 +273,8 @@ These settings control the **in-game mod behavior**, including UI, sounds, notif
 
 ### modmaxItemsInInventory (MaxFlipItemsInInventory)
 - **Type:** Integer (item count)
-- **Default:** `0` (unlimited)
-- **Description:** Stop buying flips when **X flip items** are already in inventory.
+- **Default:** `0` (when full minus 2 spare slots)
+- **Description:** Stop receiving flips when **X flip items** are already in inventory. If set to 101 or higher buying won't be stopped completely but be slowed down a bit.
 - **Use case:** Prevent inventory clutter; forces you to sell before buying more.
 
 ### moddisableSpamProtection (DisableSpamProtection)
