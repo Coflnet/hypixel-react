@@ -272,6 +272,25 @@ export function TopMovers() {
         return entry.tag ? `https://sky.coflnet.com/item/${entry.tag}` : undefined
     }
 
+    function censoredItemGenerator(entry: TopMoverEntry): TopMoverEntry {
+        const fakeStats: DropStatistic = {
+            monthly: entry.stats?.monthly ?? 0,
+            recent: entry.stats?.recent ?? 0,
+            tag: 'BARRIER',
+            volume: 123123,
+            lastUpdated: new Date().toISOString(),
+            now: 69
+        }
+
+        return {
+            ...entry,
+            tag: '',
+            displayName: '§6You cheated the blur ☺',
+            stats: fakeStats,
+            change24h: calculateDelta(fakeStats.now, fakeStats.recent),
+            change30d: calculateDelta(fakeStats.now, fakeStats.monthly)
+        }
+    }
     return (
         <div>
             <p>
@@ -300,6 +319,8 @@ export function TopMovers() {
                     renderFlipContentAction={renderFlipContent}
                     filterFunction={filterFunction}
                     getItemKeyAction={entry => entry.tag}
+                    censoredItemGenerator={censoredItemGenerator}
+                    premiumMessage="The top 3 movers can only be seen with starter premium or better"
                     clickMessage="Click on a mover to open the live item page"
                     getFlipLink={getFlipLink}
                     renderBatchSize={60}
