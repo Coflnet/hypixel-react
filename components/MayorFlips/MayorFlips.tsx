@@ -170,8 +170,33 @@ export function MayorFlips() {
         }
     }, [])
 
+    // Get current and next mayor from the first flip in the list
+    const currentMayor = safeFlips.length > 0 ? safeFlips[0].currentMayor : null
+    const nextMayor = safeFlips.length > 0 ? safeFlips[0].nextMayor : null
+
     return (
         <div>
+            {currentMayor || nextMayor ? (
+                <div style={{ 
+                    padding: '15px', 
+                    marginBottom: '20px', 
+                    backgroundColor: '#f8f9fa', 
+                    border: '1px solid #dee2e6', 
+                    borderRadius: '5px'
+                }}>
+                    <h4 style={{ marginBottom: '10px' }}>Mayor Information</h4>
+                    {currentMayor && (
+                        <p style={{ marginBottom: '5px' }}>
+                            <strong>Current Mayor:</strong> {currentMayor}
+                        </p>
+                    )}
+                    {nextMayor && (
+                        <p style={{ marginBottom: '0' }}>
+                            <strong>Next Mayor:</strong> {nextMayor}
+                        </p>
+                    )}
+                </div>
+            ) : null}
             <p>
                 Capitalize on Hypixel SkyBlock mayor election cycles with data-driven flips. Our analysis tracks historic price patterns from previous mayor
                 terms to predict which items will surge or drop when the next mayor is elected. Perfect for players looking to maximize profits around election
