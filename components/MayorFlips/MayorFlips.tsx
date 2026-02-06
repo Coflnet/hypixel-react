@@ -176,27 +176,6 @@ export function MayorFlips() {
 
     return (
         <div>
-            {currentMayor || nextMayor ? (
-                <div style={{ 
-                    padding: '15px', 
-                    marginBottom: '20px', 
-                    backgroundColor: '#f8f9fa', 
-                    border: '1px solid #dee2e6', 
-                    borderRadius: '5px'
-                }}>
-                    <h4 style={{ marginBottom: '10px' }}>Mayor Information</h4>
-                    {currentMayor && (
-                        <p style={{ marginBottom: '5px' }}>
-                            <strong>Current Mayor:</strong> {currentMayor}
-                        </p>
-                    )}
-                    {nextMayor && (
-                        <p style={{ marginBottom: '0' }}>
-                            <strong>Next Mayor:</strong> {nextMayor}
-                        </p>
-                    )}
-                </div>
-            ) : null}
             <p>
                 Capitalize on Hypixel SkyBlock mayor election cycles with data-driven flips. Our analysis tracks historic price patterns from previous mayor
                 terms to predict which items will surge or drop when the next mayor is elected. Perfect for players looking to maximize profits around election
@@ -269,6 +248,26 @@ export function MayorFlips() {
                     <li>Monitor prices as the election approaches - real market conditions may differ from historic predictions.</li>
                 </ul>
             </details>
+            {currentMayor || nextMayor ? (
+                <div style={{ 
+                    padding: '15px', 
+                    marginBottom: '20px',
+                    border: '1px solid #dee2e6', 
+                    borderRadius: '5px'
+                }}>
+                    <h4 style={{ marginBottom: '10px' }}>Mayor Information</h4>
+                    {currentMayor && (
+                        <p style={{ marginBottom: '5px' }}>
+                            <strong>Current Mayor:</strong> {currentMayor}
+                        </p>
+                    )}
+                    {nextMayor && (
+                        <p style={{ marginBottom: '0' }}>
+                            <strong>Next Mayor:</strong> {nextMayor}
+                        </p>
+                    )}
+                </div>
+            ) : null}
             <br />
             <GenericFlipList
                 items={safeFlips}
