@@ -25,6 +25,9 @@ export default async function UpdatesMonthPage(props: any) {
     const now = new Date()
     const isCurrent = now.getFullYear() === year && now.getMonth() + 1 === month
 
+    // full month name for SEO and readability (e.g. "February")
+    const monthName = new Date(year, month - 1).toLocaleString('en-US', { month: 'long' })
+
     function prevMonth(y: number, m: number) {
         let mm = m - 1
         let yy = y
@@ -57,7 +60,7 @@ export default async function UpdatesMonthPage(props: any) {
         return (
             <article>
                 <h1>
-                    Updates - {year}/{month}
+                    Updates - {monthName} {year}
                 </h1>
                 <p>No updates for this month{isCurrent ? ' (yet)' : ''}.</p>
                 <div style={{ marginTop: '12px' }}>
@@ -86,7 +89,7 @@ export default async function UpdatesMonthPage(props: any) {
                         <div />
                     )}
                     <h1 className={styles.title}>
-                        Updates — {year}/{month}
+                        Updates — {monthName} {year}
                     </h1>
                     {!isCurrent ? (
                         <Link className={styles.navLink} href={`/updates/${next.year}/${next.month}`}>
@@ -156,8 +159,9 @@ export async function generateMetadata(props: any) {
     const params = await props.params
     const year = Number(params.year)
     const month = Number(params.month)
+    const monthName = new Date(year, month - 1).toLocaleString('en-US', { month: 'long' })
     return {
-        title: `Updates ${year}/${month}`,
-        description: `Dev-log updates for ${year}/${month}`
+        title: `Updates ${monthName} ${year}`,
+        description: `Dev-log updates for ${monthName} ${year}`
     }
 }
