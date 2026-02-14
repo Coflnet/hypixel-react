@@ -125,15 +125,15 @@ function Startpage(props: Props) {
 
     // Show CHRISTMAS25 banner only until Dec 27 of the current year
     const now = new Date()
-    const christmasEnd = new Date(2025, 11, 27, 23, 59, 59) // month is 0-based: 11 = December
-    const showChristmasBanner = now <= christmasEnd
-    const discountCode = showChristmasBanner ? 'CHRISTMAS25' : null
-    const discountAmount = "25%"
+    const discountEnd = new Date(2026, 1, 15, 0, 59, 59) // month is 0-based: 11 = December
+    const showChristmasBanner = now <= discountEnd
+    const discountCode = showChristmasBanner ? 'VALENTINE' : null
+    const discountAmount = "5%"
 
     const salesBanner = discountCode ? (
         <Link href={`/premium?code=${discountCode}`} style={{ textDecoration: 'none' }}>
             <div style={{
-                background: 'linear-gradient(90deg, #d32f2f 0%, #b71c1c 100%)',
+                background: 'linear-gradient(90deg, #ff6bcb 0%, #c2185b 100%)',
                 color: 'white',
                 padding: '15px',
                 textAlign: 'center',
@@ -143,8 +143,8 @@ function Startpage(props: Props) {
                 boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
                 cursor: 'pointer',
                 transition: 'transform 0.2s'
-            }} className={styles.salesBanner}>
-                🎄 <span style={{ fontSize: '1.1em' }}>Holiday Special!</span> Get <span style={{ color: '#ffeb3b' }}>{discountAmount} OFF</span> Premium with code <span style={{ backgroundColor: 'white', color: '#d32f2f', padding: '2px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>{discountCode}</span>! Click here to redeem! 🎄
+            }} className={styles.salesBanner} role="button" aria-label="Valentines promo">
+                💌 <span style={{ fontSize: '1.1em' }}>Valentine's Special — For lonely gamers</span> Treat yourself or surprise a friend! Get <span style={{ color: '#ffe082' }}>{discountAmount} OFF</span> EVERYTHING with code <span style={{ backgroundColor: 'white', color: '#c2185b', padding: '2px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>{discountCode}</span> ❤️🎮 Click to redeem!
             </div>
         </Link>
     ) : null
@@ -279,7 +279,7 @@ function Startpage(props: Props) {
 
             {/* News Section */}
             <Card className={styles.startpageCard} style={{ marginBottom: '30px', borderLeft: '5px solid #007bff' }}>
-                <Card.Header style={{  borderBottom: '1px solid #495057' }}>
+                <Card.Header style={{ borderBottom: '1px solid #495057' }}>
                     <Card.Title style={{ margin: 0, display: 'flex', alignItems: 'center', color: '#f8f9fa' }}>
                         <NewIcon style={{ marginRight: '10px', color: '#73b7ffff' }} /> Latest News
                     </Card.Title>
