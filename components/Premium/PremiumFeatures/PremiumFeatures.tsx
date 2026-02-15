@@ -224,6 +224,28 @@ function PremiumFeatures() {
                         {checkIconElement}
                     </tr>
                     <tr>
+                        <td className={styles.featureColumn}>
+                            Browse flip block reason 
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={<p>
+                                    Retrieve in-game with <br /><code>/cofl blocked &lt;uuid&gt;</code><br/>
+                                    Each blocked flip is kept for 7 days
+                                    drastically simplifying finding why a
+                                    certain flip did not show to you</p>}
+                            />
+                        </td>
+                        {xIconElement}
+                        {xIconElement}
+                        {xIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
                         <td className={styles.featureColumn}>Support the Project</td>
                         {xIconElement}
                         {checkIconElement}
