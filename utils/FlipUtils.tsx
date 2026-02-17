@@ -178,6 +178,18 @@ export const FLIP_FINDERS = [
             </span>
         ),
         selectable: true
+    },
+    {
+        value: '4096',
+        label: 'Bazaar',
+        shortLabel: 'Bazaar',
+        default: false,
+        description: (
+            <span>
+                Mix in Bazaar flips of profitable buy order -&gt; sell order opportunities.
+            </span>
+        ),
+        selectable: false
     }
 ]
 
