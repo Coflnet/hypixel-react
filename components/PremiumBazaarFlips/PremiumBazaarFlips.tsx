@@ -143,7 +143,7 @@ export function PremiumBazaarFlips() {
                 </p>
                 <p>
                     <span style={{ width: '180px', float: 'left' }}>Est. Sales/hour:</span>
-                    <Number number={Math.round(flip.flip?.volume || 0)} />
+                    <Number number={Math.round((flip.flip?.volume || 0) /24)} />
                 </p>
                 <p>
                     <span style={{ width: '180px', float: 'left' }}>Last Updated:</span>
