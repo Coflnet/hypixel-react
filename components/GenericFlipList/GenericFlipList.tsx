@@ -8,6 +8,7 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import api from '../../api/ApiHelper'
 import styles from './GenericFlipList.module.css'
 import { useSortedAndFilteredItems } from '../../hooks/useSortedAndFilteredItems'
+import ListItemAdElement from '../ListItemAdElement/ListItemAdElement'
 
 export interface FlipListProps<T> {
     items: T[]
@@ -68,6 +69,8 @@ export function GenericFlipList<T>({
     const [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
     const [columns, setColumns] = useState<number>()
     const [showPremiumModal, setShowPremiumModal] = useState(false)
+    const [listElementSizes, setListElementSizes] = useState<{ width: number; height: number }>()
+    const listRef = React.useRef<HTMLDivElement | null>(null)
 
     const { processedItems, isProcessing } = useSortedAndFilteredItems(items, orderBy, nameFilter, minimumProfit, filterFunction, sortFunctionArgs)
 
@@ -100,6 +103,14 @@ export function GenericFlipList<T>({
         observer.observe(el)
         return () => observer.disconnect()
     }, [sentinelRef.current, processedItems.length, batchSize])
+
+    useEffect(() => {
+        if (listRef.current && listRef.current.children) {
+            let height = listRef.current.children[0]?.clientHeight - 15 || 0
+            let width = listRef.current.children[0]?.clientWidth - 15 || 0
+            setListElementSizes({ width: width, height: height })
+        }
+    }, [listRef.current])
 
     function setBlurObserver() {
         if (observer) {
@@ -302,7 +313,20 @@ export function GenericFlipList<T>({
         let shown = 0
         // Only render up to renderedCount to reduce DOM size
         const toRender = processedItems.slice(0, renderedCount)
-        const list = toRender.map(item => {
+        const list: React.ReactNode[] = []
+        toRender.forEach((item, i) => {
+
+            let currColumns = columns || getDefaultColumns()
+            if ((list.length + 1) % currColumns === 0) {
+                let ad: React.ReactNode = null;
+                if (listElementSizes) {
+                    ad = <ListItemAdElement key={getItemKeyAction(item) + '-ad'} slotId={`flip-list-ad-${getItemKeyAction(item)}`} sizes={[[listElementSizes.width, listElementSizes.height]]} />
+                } else {
+                    ad = getListElement(item, true)
+                }
+                list.push(ad)
+            }
+
             const defaultContent = getListElement(item, false)
 
             if (!hasPremium && ++shown <= 3) {
@@ -310,24 +334,28 @@ export function GenericFlipList<T>({
                 const censoredContent = getListElement(censoredItem, true)
 
                 if (customItemWrapper) {
-                    return customItemWrapper(censoredItem, true, getItemKeyAction(item), censoredContent, styles.flipCard)
+                    list.push(customItemWrapper(censoredItem, true, getItemKeyAction(item), censoredContent, styles.flipCard));
+                    return;
                 }
 
-                return (
+                list.push(
                     <div className={`${styles.flipCard} ${styles.preventSelect}`} key={getItemKeyAction(item)}>
                         {censoredContent}
                     </div>
                 )
+                return;
             } else {
                 if (customItemWrapper) {
-                    return customItemWrapper(item, false, getItemKeyAction(item), defaultContent, styles.flipCard)
+                    list.push(customItemWrapper(item, false, getItemKeyAction(item), defaultContent, styles.flipCard));
+                    return;
                 }
 
-                return (
+                list.push(
                     <div className={styles.flipCard} key={getItemKeyAction(item)}>
                         {defaultContent}
                     </div>
                 )
+                return;
             }
         })
 
@@ -391,7 +419,7 @@ export function GenericFlipList<T>({
                                 const insertIndex = Math.max(0, visibleList.length - 6)
                                 visibleList.splice(insertIndex, 0, <div key="sentinel" ref={sentinelRef as any} style={{ height: 1 }} />)
                             }
-                            return <ListGroup className={styles.list}>{visibleList}</ListGroup>
+                            return <ListGroup ref={listRef} className={styles.list}>{visibleList}</ListGroup>
                         })()}
                     </>
                 )}

@@ -37,7 +37,7 @@ export function useNitroAds(slotId: string, config: Record<string, any>, enabled
                 console.warn('Failed to remove NitroAd via API:', e)
             }
         }
-        
+
         // This prevents React from trying to manipulate nodes that may have been modified by ad scripts
         try {
             const adContainer = document.getElementById(slotId)
@@ -64,7 +64,7 @@ export function useNitroAds(slotId: string, config: Record<string, any>, enabled
         } catch (e) {
             console.debug('Ad container cleanup skipped (already removed):', slotId)
         }
-        
+
         hasRequestedRef.current = false
     }, [slotId])
 
@@ -105,7 +105,7 @@ export function useNitroAds(slotId: string, config: Record<string, any>, enabled
             if (cancelled) return
 
             const created = createAd()
-            
+
             if (!created && attempt < maxAttempts) {
                 attempt++
                 const delay = Math.min(500, 100 + attempt * 50)
