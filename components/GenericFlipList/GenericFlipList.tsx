@@ -343,7 +343,9 @@ export function GenericFlipList<T>({
                         <ListItemAdElement key={getItemKeyAction(item) + '-ad'} slotId={`flip-list-ad-${getItemKeyAction(item)}`} sizes={getAdSizes()} />
                     </div>
                 } else {
-                    ad = getListElement(item, true)
+                    ad = <div className={styles.flipCard} key={getItemKeyAction(item)}>
+                        {getListElement(item, true)}
+                    </div>
                 }
                 list.push(ad)
             }
