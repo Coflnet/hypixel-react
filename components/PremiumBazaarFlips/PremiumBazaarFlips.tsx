@@ -252,7 +252,6 @@ export function PremiumBazaarFlips() {
                 filterFunction={filterFunction}
                 getItemKeyAction={flip => flip.itemName || ''}
                 censoredItemGenerator={censoredItemGenerator}
-                premiumMessage="The top 3 premium bazaar flips can only be seen with an active premium subscription"
                 clickMessage="Click on a flip for detailed item information"
             />
         </>

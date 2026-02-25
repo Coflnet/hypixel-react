@@ -158,9 +158,9 @@ function PremiumFeatures() {
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Top 3 Premium Bazaar Flips</td>
+                        <td className={styles.featureColumn}>Premium Bazaar Flips</td>
                         {xIconElement}
-                        {checkIconElement}
+                        {xIconElement}
                         {checkIconElement}
                         {checkIconElement}
                     </tr>
