@@ -2,7 +2,6 @@
 
 import NitroAdSlot from '../Ads/NitroAdSlot'
 
-
 interface ListItemAdElementProps {
     slotId: string,
     sizes: [number, number][]

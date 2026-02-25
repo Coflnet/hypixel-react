@@ -9,6 +9,7 @@ import api from '../../api/ApiHelper'
 import styles from './GenericFlipList.module.css'
 import { useSortedAndFilteredItems } from '../../hooks/useSortedAndFilteredItems'
 import ListItemAdElement from '../ListItemAdElement/ListItemAdElement'
+import { GENRIC_FLIP_LIST_COLUMNS, getSetting, setSetting } from '../../utils/SettingsUtils'
 
 export interface FlipListProps<T> {
     items: T[]
@@ -67,7 +68,7 @@ export function GenericFlipList<T>({
     const [hasPremium, setHasPremium] = useState(false)
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
-    const [columns, setColumns] = useState<number>()
+    const [columns, _setColumns] = useState<number>()
     const [showPremiumModal, setShowPremiumModal] = useState(false)
     const [listElementSizes, setListElementSizes] = useState<{ width: number; height: number }>()
     const listRef = React.useRef<HTMLDivElement | null>(null)
@@ -83,10 +84,16 @@ export function GenericFlipList<T>({
     useEffect(() => {
         setTimeout(setBlurObserver, 100)
         if (showColumns) {
-            setColumns(getDefaultColumns())
+            let columns = parseInt(getSetting(GENRIC_FLIP_LIST_COLUMNS, "0"))
+            setColumns(isNaN(columns) ? getDefaultColumns() : columns.valueOf())
         }
         setRenderedCount(Math.max(3, safeInitial))
     }, [])
+
+    function setColumns(value: number) {
+        _setColumns(value)
+        setSetting(GENRIC_FLIP_LIST_COLUMNS, value)
+    }
 
     // Observe the sentinel to incrementally render more items when the user
     // scrolls near the end of the currently rendered batch.
@@ -110,7 +117,7 @@ export function GenericFlipList<T>({
             let width = listRef.current.children[0]?.clientWidth - 15 || 0
             setListElementSizes({ width: width, height: height })
         }
-    }, [listRef.current])
+    }, [listRef.current, columns, showColumns])
 
     function setBlurObserver() {
         if (observer) {
@@ -153,6 +160,19 @@ export function GenericFlipList<T>({
         if (onAfterSignIn) {
             onAfterSignIn()
         }
+    }
+
+    function getAdSizes() {
+        let sizes: [number, number][] = [[300, 250], [336, 280], [320, 100], [970, 90], [728, 90], [970, 250]]
+        if (listElementSizes) {
+            // Filter ad sizes to not exceed list element width
+            // Height can be up to 20% higher than list elements
+            sizes = sizes.filter(size =>
+                size[0] <= listElementSizes.width &&
+                size[1] <= listElementSizes.height * 1.5
+            )
+        }
+        return sizes;
     }
 
     const onNameFilterChange = useCallback((e: any) => {
@@ -316,11 +336,12 @@ export function GenericFlipList<T>({
         const list: React.ReactNode[] = []
         toRender.forEach((item, i) => {
 
-            let currColumns = columns || getDefaultColumns()
-            if ((list.length + 1) % currColumns === 0) {
+            if ((list.length + 1) % 12 === 0 || (!hasPremium && i === 1)) {
                 let ad: React.ReactNode = null;
                 if (listElementSizes) {
-                    ad = <ListItemAdElement key={getItemKeyAction(item) + '-ad'} slotId={`flip-list-ad-${getItemKeyAction(item)}`} sizes={[[listElementSizes.width, listElementSizes.height]]} />
+                    ad = <div className={styles.flipCard} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                        <ListItemAdElement key={getItemKeyAction(item) + '-ad'} slotId={`flip-list-ad-${getItemKeyAction(item)}`} sizes={getAdSizes()} />
+                    </div>
                 } else {
                     ad = getListElement(item, true)
                 }
@@ -329,7 +350,7 @@ export function GenericFlipList<T>({
 
             const defaultContent = getListElement(item, false)
 
-            if (!hasPremium && ++shown <= 3) {
+            if (!hasPremium && ++shown <= 2) {
                 const censoredItem = censoredItemGenerator ? censoredItemGenerator(item) : item
                 const censoredContent = getListElement(censoredItem, true)
 
@@ -360,7 +381,7 @@ export function GenericFlipList<T>({
         })
 
         return list
-    }, [processedItems, hasPremium, isProcessing, censoredItemGenerator, customItemWrapper, renderedCount])
+    }, [processedItems, hasPremium, isProcessing, censoredItemGenerator, customItemWrapper, renderedCount, listElementSizes])
 
     const flipListClass = showColumns && columns ? `${styles.flipList} ${styles[`columns-${columns}`]}` : styles.flipList
     return (
