@@ -84,7 +84,7 @@ export function GenericFlipList<T>({
     useEffect(() => {
         setTimeout(setBlurObserver, 100)
         if (showColumns) {
-            let columns = parseInt(getSetting(GENRIC_FLIP_LIST_COLUMNS, "0"))
+            let columns = parseInt(getSetting(GENRIC_FLIP_LIST_COLUMNS, getDefaultColumns().toString()))
             setColumns(isNaN(columns) ? getDefaultColumns() : columns.valueOf())
         }
         setRenderedCount(Math.max(3, safeInitial))
