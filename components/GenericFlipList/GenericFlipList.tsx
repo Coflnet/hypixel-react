@@ -339,7 +339,7 @@ export function GenericFlipList<T>({
             if ((list.length + 1) % 12 === 0 || (!hasPremium && i === 1)) {
                 let ad: React.ReactNode = null;
                 if (listElementSizes) {
-                    ad = <div className={styles.flipCard} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    ad = <div className={styles.flipCard} key={getItemKeyAction(item) + '-ad'} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                         <ListItemAdElement key={getItemKeyAction(item) + '-ad'} slotId={`flip-list-ad-${getItemKeyAction(item)}`} sizes={getAdSizes()} />
                     </div>
                 } else {
