@@ -72,118 +72,55 @@ export interface ArchiveResponse {
   queryStatus: QueryStatus;
 }
 
-/**
- * Represents a profitable attribute-based crafting opportunity.
- */
 export interface AttributeFlip {
-  /**
-   * Item tag of the base item.
-   * @nullable
-   */
+  /** @nullable */
   tag?: string | null;
-  /**
-   * Display name resolved for the item.
-   * @nullable
-   */
+  /** @nullable */
   itemName?: string | null;
-  /**
-   * Identifier of the auction to purchase as the base.
-   * @nullable
-   */
+  /** @nullable */
   auctionToBuy?: string | null;
-  /** Coins required to buy the base auction. */
   auctionPrice: number;
-  /**
-   * Additional materials required to craft the upgrade.
-   * @nullable
-   */
+  profitAfterTax: number;
+  /** @nullable */
   ingredients?: AttributeFlipIngredient[] | null;
   startingKey?: AttributeFlipAuctionKey;
   endingKey?: AttributeFlipAuctionKey;
-  /** Expected sale price after applying the upgrades. */
   target: number;
-  /** Estimated total crafting cost for the upgrades. */
   estimatedCraftingCost: number;
-  /** Timestamp when the flip was identified. */
   foundAt: string;
-  /** Observed volume of relevant trades. */
   volume: number;
 }
 
-/**
- * Represents the state of an auction before or after crafting.
- */
 export interface AttributeFlipAuctionKey {
-  /**
-   * Name of the reforge applied to the item.
-   * @nullable
-   */
+  /** @nullable */
   reforge?: string | null;
-  /**
-   * Rarity tier of the item.
-   * @nullable
-   */
-  tier?: string | null;
-  /**
-   * List of enchantments present on the item.
-   * @nullable
-   */
+  tier?: Tier;
+  /** @nullable */
   enchants?: AttributeFlipEnchant[] | null;
-  /**
-   * Additional attribute modifiers applied to the item.
-   * @nullable
-   */
+  /** @nullable */
   modifiers?: AttributeFlipModifier[] | null;
-  /** Stack size of the item. */
   count: number;
 }
 
-/**
- * Represents an enchantment applied during an attribute flip.
- */
 export interface AttributeFlipEnchant {
-  /**
-   * Enchantment identifier.
-   * @nullable
-   */
+  /** @nullable */
   type?: string | null;
-  /** Enchantment level. */
   lvl: number;
 }
 
-/**
- * Represents an ingredient required for an attribute flip.
- */
 export interface AttributeFlipIngredient {
-  /**
-   * Item identifier for the ingredient.
-   * @nullable
-   */
+  /** @nullable */
   itemId?: string | null;
-  /**
-   * Attribute or component name consumed.
-   * @nullable
-   */
+  /** @nullable */
   attributeName?: string | null;
-  /** Quantity of the ingredient needed. */
   amount: number;
-  /** Estimated market price contribution for the ingredient. */
   price: number;
 }
 
-/**
- * Represents an attribute modifier key/value pair on the item.
- */
 export interface AttributeFlipModifier {
-  /**
-   * Name of the modifier.
-   * @nullable
-   */
+  /** @nullable */
   key?: string | null;
-  /**
-   * Value stored for the modifier.
-   * @nullable
-   */
+  /** @nullable */
   value?: string | null;
 }
 
@@ -252,6 +189,8 @@ export interface BazaarFlip {
   estimatedFees: number;
   timestamp: string;
   medianBuyPrice: number;
+  estimatedBuyFillSeconds: number;
+  estimatedSellFillSeconds: number;
 }
 
 /**
@@ -638,6 +577,7 @@ export interface DescriptionSetting {
   /** @nullable */
   replaceWhiteWith: string | null;
   noCookie: boolean;
+  buyOrderPrices: boolean;
   /** @nullable */
   fields?: DescriptionField[][] | null;
   highlightInfo?: HighlightInfo;
@@ -947,6 +887,7 @@ export interface ExtractedInfo {
   weaponInHuntaxe?: Item;
   /** @nullable */
   huntingToolkitItems?: Item[] | null;
+  playerElectionVote?: PlayerElectionVote;
 }
 
 export interface Fill {
@@ -1014,11 +955,12 @@ export const FinderType = {
   NUMBER_32: 32,
   NUMBER_64: 64,
   NUMBER_128: 128,
+  NUMBER_239: 239,
   NUMBER_256: 256,
-  NUMBER_495: 495,
   NUMBER_512: 512,
   NUMBER_1024: 1024,
   NUMBER_2048: 2048,
+  NUMBER_4096: 4096,
 } as const;
 
 export interface FlipDetails {
@@ -1188,6 +1130,7 @@ export interface Ingredient {
   itemId?: string | null;
   count: number;
   cost: number;
+  buyOrderCost: number;
   craftCost: number;
   /** @nullable */
   type?: string | null;
@@ -1696,6 +1639,11 @@ export interface MemberValue {
   valuePerCategory?: MemberValueValuePerCategory;
 }
 
+/**
+ * @nullable
+ */
+export type ModSettingsHotkeys = {[key: string]: string | null} | null;
+
 export interface ModSettings {
   justProfit: boolean;
   soundOnFlip: boolean;
@@ -1732,6 +1680,8 @@ export interface ModSettings {
   disableSpamProtection: boolean;
   tempBlacklistThreshold: number;
   useSellerProfileButton: boolean;
+  /** @nullable */
+  hotkeys: ModSettingsHotkeys;
 }
 
 /**
@@ -1820,6 +1770,7 @@ export interface NpcFlip {
   buyPrice: number;
   npcSellPrice: number;
   profit: number;
+  hourlySells: number;
   profitMargin: number;
   lastUpdated: string;
 }
@@ -1919,6 +1870,12 @@ export interface PetsData {
   autopet?: Autopet;
   /** @nullable */
   pets?: Pet[] | null;
+}
+
+export interface PlayerElectionVote {
+  /** @nullable */
+  votedFor?: string | null;
+  voteCount: number;
 }
 
 export interface PlayerResult {
@@ -2090,6 +2047,7 @@ export interface ProfitableCraft {
   itemName?: string | null;
   sellPrice: number;
   craftCost: number;
+  buyOrderCraftCost: number;
   /** @nullable */
   ingredients?: Ingredient[] | null;
   reqCollection?: RequiredCollection;
@@ -2505,6 +2463,64 @@ export interface SkyblockItem {
   category?: ItemCategory;
 }
 
+/**
+ * @nullable
+ */
+export type SoldAuctionFlattenedNbt = {[key: string]: string | null} | null;
+
+/**
+ * Auction with NBT data encoded as base64 string for API responses
+ */
+export interface SoldAuction {
+  /** Auction ID */
+  id: number;
+  /**
+   * Auction UUID
+   * @nullable
+   */
+  uuid?: string | null;
+  /**
+   * Item tag/ID
+   * @nullable
+   */
+  tag?: string | null;
+  /**
+   * Item name
+   * @nullable
+   */
+  itemName?: string | null;
+  /**
+   * Auctioneer UUID
+   * @nullable
+   */
+  auctioneerId?: string | null;
+  /** Starting bid amount */
+  startingBid: number;
+  /** Highest bid amount */
+  highestBidAmount: number;
+  /** Auction start time */
+  start: string;
+  /** Auction end time */
+  end: string;
+  /** Is BIN auction */
+  bin: boolean;
+  /** Item count */
+  count: number;
+  /**
+   * Enchantments
+   * @nullable
+   */
+  enchantments?: Enchantment[] | null;
+  /**
+   * NBT data as base64 encoded string
+   * @nullable
+   */
+  shortItemBytes?: string | null;
+  /** @nullable */
+  readonly flattenedNbt?: SoldAuctionFlattenedNbt;
+  tier: Tier;
+}
+
 export type SourceType = typeof SourceType[keyof typeof SourceType];
 
 
@@ -2867,6 +2883,10 @@ requestRefresh?: boolean;
 
 export type GetApiFlipNpcReverse401One = {
   message?: string;
+};
+
+export type GetApiFlipForgeParams = {
+uuid?: string;
 };
 
 export type PostApiFlipTrackPurchaseAuctionIdParams = {

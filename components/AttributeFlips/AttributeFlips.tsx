@@ -64,7 +64,7 @@ function getTotalCost(flip: GeneratedAttributeFlip): number {
 }
 
 function getProfit(flip: GeneratedAttributeFlip): number {
-    return flip.target - getTotalCost(flip)
+    return flip.profitAfterTax
 }
 
 function getDisplayName(flip: GeneratedAttributeFlip): string {

@@ -75,6 +75,7 @@ import type {
   GetApiFlipAttribute401One,
   GetApiFlipAttributeParams,
   GetApiFlipBazaarSpreadDeemand401One,
+  GetApiFlipForgeParams,
   GetApiFlipMayor401One,
   GetApiFlipNpcReverse401One,
   GetApiFlipNpcReverseParams,
@@ -209,6 +210,7 @@ import type {
   SaveAuction,
   SearchResultItem,
   SkyblockItem,
+  SoldAuction,
   SpreadFlip,
   StorageQuickStatus,
   SupplyElement,
@@ -703,7 +705,7 @@ Please credit us with providing data for whatever you are doing.
 You can also manually request a review to get older data on the discord.
  */
 export type getApiAuctionsTagItemTagSoldResponse200 = {
-  data: SaveAuction[]
+  data: SoldAuction[]
   status: 200
 }
     
@@ -4363,17 +4365,24 @@ export type getApiFlipForgeResponse = getApiFlipForgeResponseComposite & {
   headers: Headers;
 }
 
-export const getGetApiFlipForgeUrl = () => {
+export const getGetApiFlipForgeUrl = (params?: GetApiFlipForgeParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `https://sky.coflnet.com/api/flip/forge`
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/flip/forge?${stringifiedParams}` : `https://sky.coflnet.com/api/flip/forge`
 }
 
-export const getApiFlipForge = async ( options?: RequestInit): Promise<getApiFlipForgeResponse> => {
+export const getApiFlipForge = async (params?: GetApiFlipForgeParams, options?: RequestInit): Promise<getApiFlipForgeResponse> => {
   
-  const res = await fetch(getGetApiFlipForgeUrl(),
+  const res = await fetch(getGetApiFlipForgeUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -4390,21 +4399,21 @@ export const getApiFlipForge = async ( options?: RequestInit): Promise<getApiFli
 
 
 
-export const getGetApiFlipForgeQueryKey = () => {
-    return [`https://sky.coflnet.com/api/flip/forge`] as const;
+export const getGetApiFlipForgeQueryKey = (params?: GetApiFlipForgeParams,) => {
+    return [`https://sky.coflnet.com/api/flip/forge`, ...(params ? [params]: [])] as const;
     }
 
     
-export const getGetApiFlipForgeQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipForge>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiFlipForgeQueryOptions = <TData = Awaited<ReturnType<typeof getApiFlipForge>>, TError = unknown>(params?: GetApiFlipForgeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiFlipForgeQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetApiFlipForgeQueryKey(params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipForge>>> = ({ signal }) => getApiFlipForge({ signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiFlipForge>>> = ({ signal }) => getApiFlipForge(params, { signal, ...fetchOptions });
 
       
 
@@ -4418,7 +4427,7 @@ export type GetApiFlipForgeQueryError = unknown
 
 
 export function useGetApiFlipForge<TData = Awaited<ReturnType<typeof getApiFlipForge>>, TError = unknown>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData>> & Pick<
+ params: undefined |  GetApiFlipForgeParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipForge>>,
           TError,
@@ -4428,7 +4437,7 @@ export function useGetApiFlipForge<TData = Awaited<ReturnType<typeof getApiFlipF
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiFlipForge<TData = Awaited<ReturnType<typeof getApiFlipForge>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData>> & Pick<
+ params?: GetApiFlipForgeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiFlipForge>>,
           TError,
@@ -4438,7 +4447,7 @@ export function useGetApiFlipForge<TData = Awaited<ReturnType<typeof getApiFlipF
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiFlipForge<TData = Awaited<ReturnType<typeof getApiFlipForge>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData>>, fetch?: RequestInit}
+ params?: GetApiFlipForgeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -4446,11 +4455,11 @@ export function useGetApiFlipForge<TData = Awaited<ReturnType<typeof getApiFlipF
  */
 
 export function useGetApiFlipForge<TData = Awaited<ReturnType<typeof getApiFlipForge>>, TError = unknown>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData>>, fetch?: RequestInit}
+ params?: GetApiFlipForgeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiFlipForge>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiFlipForgeQueryOptions(options)
+  const queryOptions = getGetApiFlipForgeQueryOptions(params,options)
 
   const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
