@@ -186,6 +186,7 @@ function censoredFlip(): ForgeFlip {
             itemId: 'SECRET_FORGE_FLIP',
             sellPrice: 1_000_000,
             craftCost: 500_000,
+            buyOrderCraftCost: 500_000,
             volume: 999,
             median: 900_000,
             lastUpdated: new Date().toISOString()

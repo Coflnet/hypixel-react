@@ -127,6 +127,8 @@ export function BazaarFlips() {
                 profitPerHour: -100000,
                 volume: -1,
                 itemTag: 'BARRIER',
+                estimatedBuyFillSeconds: 0,
+                estimatedSellFillSeconds: 0,
                 estimatedFees: 0,
                 timestamp: '',
                 medianBuyPrice: 0
