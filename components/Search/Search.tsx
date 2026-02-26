@@ -212,7 +212,18 @@ function Search(props: Props) {
             }}
         >
             <Image className={styles.searchResultIcon} height={32} width={32} src="/Barrier.png" alt="" />
-            No search results
+               <span>No results here </span>
+                <a
+                    onClick={() => {
+                        if (typeof window !== 'undefined') {
+                            const q = encodeURIComponent(searchText || '')
+                            window.location.href = `https://skysearch.app/search?q=${q}`
+                        }
+                    }}
+                    style={{ cursor: 'pointer', color: '#0d6efd', marginTop: '6px' }}
+                >
+                    Search for {searchText} on Skysearch
+                </a>
         </ListGroup.Item>
     )
 
