@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import styles from './ListItemAdElementAdBlockBackup.module.css'
 
 export default function ListItemAdElementAdBlockBackup() {
@@ -5,7 +6,7 @@ export default function ListItemAdElementAdBlockBackup() {
         <div className={styles.backupContainer}>
             <div className={styles.spinner} />
             <div className={styles.fallbackText}>
-                Get premium to remove the ad slots
+                Get <Link href="/premium?tier=premium">premium</Link> to remove the ad slots
             </div>
         </div>
     )
