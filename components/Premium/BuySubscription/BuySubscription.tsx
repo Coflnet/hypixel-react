@@ -196,7 +196,10 @@ function BuySubscription(props: Props) {
     const getOriginalPrice = (): number | null => {
         if (!pricingData || !pricingData.products || !props.selectedTier) return null
         const productId = getProductIdForTier(props.selectedTier, getCurrentDuration())
-        return getProviderOriginalPriceValue(productId, 'lemonsqueezy')
+        const price = getProviderOriginalPriceValue(productId, 'lemonsqueezy')
+        if (price === null) return null
+        const priceWithVat = getPriceWithVAT(price)
+        return Math.ceil(priceWithVat * 100) / 100
     }
 
     const hasActiveDiscount = (): boolean => {
