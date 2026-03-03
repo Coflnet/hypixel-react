@@ -52,6 +52,10 @@ export default function DurationSelectionStep({
             monthlyPrice = prices.quarterly / 3 // 3 months
         } else if (duration === Duration.YEARLY) {
             monthlyPrice = prices.yearly / 12 // 12 months
+        } else if (duration === Duration.WEEK && prices.weekly) {
+            monthlyPrice = prices.weekly * (30 / 7) // ~4.29 weeks per month
+        } else if (duration === Duration.DAY && prices.daily) {
+            monthlyPrice = prices.daily * 30 // 30 days per month
         }
 
         return getPriceWithVAT(monthlyPrice)

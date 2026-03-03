@@ -218,9 +218,9 @@ export const getTierApiProductId = (tier: PremiumTier, isYearlyOrDuration: boole
     return isYearly && tier !== PremiumTier.STARTER ? `${baseId}-year` : baseId
 }
 
-export const SUBSCRIPTION_PRICES: Record<string, { monthly: number; quarterly: number; yearly: number }> = {
+export const SUBSCRIPTION_PRICES: Record<string, { monthly: number; quarterly: number; yearly: number; weekly?: number; daily?: number }> = {
     'premium': { monthly: 9.69, quarterly: 27.69, yearly: 96.69 },
-    'premium_plus': { monthly: 35.69, quarterly: 99.69, yearly: 354.2 },
+    'premium_plus': { monthly: 35.69, quarterly: 99.69, yearly: 354.2, weekly: 10.71, daily: 2.38 },
     'starter_premium': { monthly: 16.99, quarterly: 16.99, yearly: 16.99 }
 }
 
