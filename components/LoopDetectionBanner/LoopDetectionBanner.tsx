@@ -126,8 +126,8 @@ function LoopDetectionBanner() {
             window.location.reload()
         }
     }
-
-    if (!showBanner || dismissed) {
+    let isOnDragonPage = window.location.pathname.includes('DRAGON') // issue only occures on dragon page
+    if (!showBanner || dismissed || isOnDragonPage) {
         return null
     }
 
