@@ -462,7 +462,7 @@ function BazaarPriceGraph(props: Props) {
 
                 </div>
                 <NitroAdSlot
-                    slotId="below-auction-graph"
+                    slotId="below-bazaar-graph"
                     className='mt-2'
                     config={{
                         sizes: [[970, 90]],
