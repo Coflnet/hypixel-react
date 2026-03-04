@@ -1,7 +1,7 @@
 'use client'
 /* eslint-disable react-hooks/exhaustive-deps */
 import ReactECharts from 'echarts-for-react'
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import useRotatingMessages from '../../../hooks/useRotatingMessages'
 import api from '../../../api/ApiHelper'
 import { getLoadingElement } from '../../../utils/LoadingUtils'
@@ -27,6 +27,7 @@ import { v4 as generateUUID } from 'uuid'
 import { useGetApiMayor } from '../../../api/_generated/skyApi'
 import type { PriceStatistics, CoflnetSkyMayorModelsModelElectionPeriod, AuctionPreview } from '../../../api/_generated/skyApi.schemas'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
+import NitroAdSlot from '../../Ads/NitroAdSlot'
 
 const HOUR_IN_MS = 60 * 60 * 1000
 
@@ -153,7 +154,7 @@ function AuctionHousePriceGraph(props: Props) {
                     updateChart(DateRange.YEAR, itemFilter)
                 }
             })
-            .catch(() => {})
+            .catch(() => { })
     }
 
     const now = new Date()
@@ -163,9 +164,9 @@ function AuctionHousePriceGraph(props: Props) {
     const mayorParams =
         fetchspan === DateRange.YEAR
             ? {
-                  from: currentMayorFrom.toISOString(),
-                  to: currentMayorTo.toISOString()
-              }
+                from: currentMayorFrom.toISOString(),
+                to: currentMayorTo.toISOString()
+            }
             : undefined
 
     const mayorQuery = useGetApiMayor(mayorParams, { query: { enabled: fetchspan === DateRange.YEAR } })
@@ -329,11 +330,11 @@ function AuctionHousePriceGraph(props: Props) {
                 if (
                     !mounted ||
                     currentLoadingString !==
-                        JSON.stringify({
-                            tag: props.item.tag,
-                            fetchspan,
-                            itemFilter
-                        })
+                    JSON.stringify({
+                        tag: props.item.tag,
+                        fetchspan,
+                        itemFilter
+                    })
                 ) {
                     return
                 }
@@ -365,7 +366,7 @@ function AuctionHousePriceGraph(props: Props) {
                     let mayorData = await api.getMayorData(minDate, maxDate)
                     setMayorData(mayorData)
                     applyMayorDataToChart(chartOptions, mayorData, 4)
-                } catch (e) {}
+                } catch (e) { }
 
                 setAvgPrice(Math.round(priceSum / prices.length))
                 setNoDataFound(prices.length === 0)
@@ -514,8 +515,9 @@ function AuctionHousePriceGraph(props: Props) {
                         graphOverlayElement
                     )}
                 </div>
-                <div className={styles.additionalInfos}>
-                    <span className={styles.avgPrice}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr" }}>
+                    <div />
+                    <div className='text-center'>
                         <b>Avg Price:</b>{' '}
                         {isLoading ? (
                             '-'
@@ -524,10 +526,17 @@ function AuctionHousePriceGraph(props: Props) {
                                 <Number number={avgPrice} /> Coins
                             </span>
                         )}
-                    </span>
+                    </div>
+
+                    <div className="d-flex align-items-center" style={{ gap: '8px', minWidth: '220px', justifyContent: 'flex-end' }}>
+                        <SubscribeButton type="item" topic={props.item.tag} />
+                        <ShareButton
+                            title={'Prices for ' + props.item.name}
+                            text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock"
+                        />
+                    </div>
                 </div>
 
-                {/* Year Statistics Section */}
                 {fetchspan === DateRange.YEAR && yearStatistics && (
                     <div style={{ marginTop: '20px', padding: '15px', backgroundColor: 'var(--bs-secondary)', borderRadius: '5px' }}>
                         <h6 style={{ marginBottom: '15px', color: 'var(--bs-warning)' }}>📊 Statistics Summary</h6>
@@ -606,17 +615,20 @@ function AuctionHousePriceGraph(props: Props) {
                         )}
                     </div>
                 )}
-
-                <div className="d-flex justify-content-between align-items-center flex-wrap" style={{ gap: '8px' }}>
-                    <div style={{ flex: '1 1 auto' }} />
-                    <div className="d-flex align-items-center" style={{ gap: '8px', minWidth: '220px', justifyContent: 'flex-end' }}>
-                        <SubscribeButton type="item" topic={props.item.tag} />
-                        <ShareButton
-                            title={'Prices for ' + props.item.name}
-                            text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock"
-                        />
-                    </div>
-                </div>
+                <NitroAdSlot
+                    slotId="below-auction-graph"
+                    className='mt-2'
+                    config={{
+                        sizes: [[970, 90]],
+                        delayLoading: true,
+                        report: {
+                            enabled: true,
+                            icon: true,
+                            wording: 'Report Ad',
+                            position: 'bottom-right'
+                        }
+                    }}
+                />
                 <hr />
             </div>
 
@@ -631,12 +643,12 @@ function AuctionHousePriceGraph(props: Props) {
                         yearRecentSamples={
                             fetchspan === DateRange.YEAR && yearStatistics
                                 ? (yearStatistics.recentSamples || yearStatistics.recentAuctions || []).map(s => ({
-                                      end: s.end ? new Date(s.end) : new Date(),
-                                      price: s.price,
-                                      seller: { name: s.seller || '', uuid: '', iconUrl: undefined },
-                                      uuid: s.uuid || '',
-                                      playerName: s.playerName || ''
-                                  }))
+                                    end: s.end ? new Date(s.end) : new Date(),
+                                    price: s.price,
+                                    seller: { name: s.seller || '', uuid: '', iconUrl: undefined },
+                                    uuid: s.uuid || '',
+                                    playerName: s.playerName || ''
+                                }))
                                 : undefined
                         }
                         isYearView={fetchspan === DateRange.YEAR}
