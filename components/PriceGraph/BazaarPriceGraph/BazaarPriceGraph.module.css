@@ -25,14 +25,14 @@
 }
 
 .chartWrapperSingle {
-    height: 60vh;
+    height: 55vh;
     width: 100%;
     margin-top: 10px;
     margin-bottom: 50px;
 }
 
 .chartWrapperSplit {
-    height: 30vh;
+    height: 27.5vh;
     width: 100%;
     margin-bottom: 50px;
 }

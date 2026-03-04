@@ -19,8 +19,8 @@ import BazaarSnapshot from './BazaarSnapshot/BazaarSnapshot'
 import getPriceGraphConfigSingle from './PriceGraphConfigSingle'
 import getPriceGraphConfigSplit from './PriceGraphConfigSplit'
 import { applyMayorDataToChart } from '../../../utils/GraphUtils'
-import { toast } from 'react-toastify'
 import SubscribeButton from '../../SubscribeButton/SubscribeButton'
+import NitroAdSlot from '../../Ads/NitroAdSlot'
 
 interface Props {
     item: Item
@@ -304,11 +304,11 @@ function BazaarPriceGraph(props: Props) {
                     fetchspan === DateRange.HOUR
                         ? item.sellData.price?.toFixed(2)
                         : [
-                              item.sellData.price?.toFixed(2),
-                              prices[i + 1] ? prices[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
-                              item.sellData.min?.toFixed(2),
-                              item.sellData.max?.toFixed(2)
-                          ]
+                            item.sellData.price?.toFixed(2),
+                            prices[i + 1] ? prices[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
+                            item.sellData.min?.toFixed(2),
+                            item.sellData.max?.toFixed(2)
+                        ]
                 )
                 chartOptionsPrimary.series[6].data.push(item.sellData.min?.toFixed(2))
                 chartOptionsPrimary.series[7].data.push(item.sellData.max?.toFixed(2))
@@ -325,11 +325,11 @@ function BazaarPriceGraph(props: Props) {
                     fetchspan === DateRange.HOUR
                         ? item.sellData.price?.toFixed(2)
                         : [
-                              item.sellData.price?.toFixed(2),
-                              prices[i + 1] ? prices[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
-                              item.sellData.min?.toFixed(2),
-                              item.sellData.max?.toFixed(2)
-                          ]
+                            item.sellData.price?.toFixed(2),
+                            prices[i + 1] ? prices[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
+                            item.sellData.min?.toFixed(2),
+                            item.sellData.max?.toFixed(2)
+                        ]
                 )
                 chartOptionsSecondary.series[1].data.push(item.sellData.min?.toFixed(2))
                 chartOptionsSecondary.series[2].data.push(item.sellData.max?.toFixed(2))
@@ -459,7 +459,22 @@ function BazaarPriceGraph(props: Props) {
                             <ShareButton title={'Prices for ' + props.item.name} text="Browse the Bazaar history in Hypixel Skyblock" />
                         </div>
                     </div>
+
                 </div>
+                <NitroAdSlot
+                    slotId="below-bazaar-graph"
+                    className='mt-2'
+                    config={{
+                        sizes: [[970, 90]],
+                        delayLoading: true,
+                        report: {
+                            enabled: true,
+                            icon: true,
+                            wording: 'Report Ad',
+                            position: 'bottom-right'
+                        }
+                    }}
+                />
                 <hr />
                 <RelatedItems tag={props.item.tag} isBazaarItem={true} />
                 <BazaarSnapshot item={props.item} />
