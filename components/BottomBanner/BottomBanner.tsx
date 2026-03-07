@@ -11,7 +11,7 @@ export function BottomBanner() {
                 anchor: 'bottom',
                 anchorBgColor: 'rgb(0 0 0 / 80%)',
                 anchorClose: true,
-                anchorPersistClose: false,
+                anchorPersistClose: true,
                 anchorStickyOffset: 0,
                 mediaQuery: '(min-width: 0px)',
                 report: {
