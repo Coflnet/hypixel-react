@@ -656,7 +656,7 @@ function Flipper(props: Props) {
                         </Form>
                         <hr />
                         {flips.length === 0 && !isLoading ? (
-                            <Alert variant="warning" style={{ position: "absolute", marginRight: 15 }}>
+                            <Alert variant="warning" style={{ position: 'absolute', marginRight: 15 }}>
                                 <Alert.Heading style={{ fontSize: '1rem' }}>No flips match your current filters</Alert.Heading>
                                 <p style={{ marginBottom: 0 }}>
                                     Your filter settings are limiting results. Try reducing the minimum profit, lowering the minimum volume, increasing the
