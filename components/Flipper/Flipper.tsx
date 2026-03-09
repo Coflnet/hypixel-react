@@ -6,7 +6,7 @@ import HandIcon from '@mui/icons-material/PanTool'
 import SearchIcon from '@mui/icons-material/Search'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { Button, Card, Form, Modal } from 'react-bootstrap'
+import { Alert, Button, Card, Form, Modal } from 'react-bootstrap'
 import { Item, Menu, useContextMenu } from 'react-contexify'
 import Countdown, { zeroPad } from 'react-countdown'
 import AutoSizer from 'react-virtualized-auto-sizer'
@@ -55,8 +55,8 @@ function Flipper(props: Props) {
     let [flips, setFlips] = useState<FlipAuction[]>(
         props.flips
             ? props.flips.map(parseFlipAuction).filter(flip => {
-                  return flipperFilter.onlyUnsold ? !flip.sold : true
-              })
+                return flipperFilter.onlyUnsold ? !flip.sold : true
+            })
             : []
     )
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -208,7 +208,7 @@ function Flipper(props: Props) {
 
     function onArrowRightClick() {
         if (listRef.current) {
-            ;(listRef.current as any).scrollToItem(flips.length - 1)
+            ; (listRef.current as any).scrollToItem(flips.length - 1)
         }
     }
 
@@ -353,7 +353,7 @@ function Flipper(props: Props) {
         setFlipperFilter(newFilter)
         setFlips([])
         if (listRef.current) {
-            ;(listRef.current as any)?.scrollToItem(flips.length - 1)
+            ; (listRef.current as any)?.scrollToItem(flips.length - 1)
         }
     }
 
@@ -412,7 +412,7 @@ function Flipper(props: Props) {
             () => {
                 window.location.reload()
             },
-            () => {},
+            () => { },
             true
         )
         localStorage.removeItem('userSettings')
@@ -655,6 +655,14 @@ function Flipper(props: Props) {
                             ) : null}
                         </Form>
                         <hr />
+                        {flips.length === 0 && !isLoading ? (
+                            <Alert variant="info" style={{ position: 'absolute', marginRight: 15 }}>
+                                <Alert.Heading style={{ fontSize: '1rem' }}>No recent flips match your current filters</Alert.Heading>
+                                <p style={{ marginBottom: 0 }}>
+                                    Your filter settings are limiting results. New flips probably show up soon. If they don't in 1-2 Minutes try making your settings less strict, eg reduce your minimum profit.
+                                </p>
+                            </Alert>
+                        ) : null}
                         {!isSSR ? (
                             <div
                                 id="flipper-scroll-list-wrapper"
