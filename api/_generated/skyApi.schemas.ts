@@ -578,6 +578,7 @@ export interface DescriptionSetting {
   replaceWhiteWith: string | null;
   noCookie: boolean;
   buyOrderPrices: boolean;
+  disableAuctionStartedTime: boolean;
   /** @nullable */
   fields?: DescriptionField[][] | null;
   highlightInfo?: HighlightInfo;
@@ -2842,6 +2843,16 @@ export type GetApiBazaarItemTagSnapshotParams = {
  * Whattime to retrieve the information at (defaults to now)
  */
 timestamp?: string;
+};
+
+export type GetApiBazaarItemTagExportParams = {
+start?: string;
+end?: string;
+fullOrderBook?: boolean;
+};
+
+export type GetApiBazaarItemTagExport401One = {
+  message?: string;
 };
 
 export type GetApiCraftProfitParams = {

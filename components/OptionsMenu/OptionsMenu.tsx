@@ -1,8 +1,9 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import styles from './OptionsMenu.module.css'
 import { Button, Dropdown, DropdownButton } from 'react-bootstrap'
+import BazaarExportModal from '../BazaarExportModal/BazaarExportModal'
 
 interface Props {
     selected?: Player | Item
@@ -31,6 +32,7 @@ CustomToggle.displayName = 'CustomToggle'
 
 function OptionsMenu(props: Props) {
     let available: AvailableLinks[] = []
+    let [showExportModal, setShowExportModal] = useState(false)
     const isItemPage = (props.selected as Item)?.tag !== undefined
     const isPlayerPage = !isItemPage
     if (isItemPage) {
@@ -84,6 +86,11 @@ function OptionsMenu(props: Props) {
                         <Button>{result.title}</Button>
                     </a>
                 ))}
+                {isItemPage && (props.selected as Item).bazaar && (
+                    <Button variant="secondary" onClick={() => setShowExportModal(true)} style={{ marginLeft: 5 }}>
+                        Export
+                    </Button>
+                )}
             </div>
 
             <Dropdown className={styles.dropdown}>
@@ -99,8 +106,15 @@ function OptionsMenu(props: Props) {
                             {result.title}
                         </Dropdown.Item>
                     ))}
+                    {isItemPage && (props.selected as Item).bazaar && (
+                        <Dropdown.Item onClick={() => setShowExportModal(true)}>Export</Dropdown.Item>
+                    )}
                 </Dropdown.Menu>
             </Dropdown>
+
+            {isItemPage && (props.selected as Item).bazaar && showExportModal && (
+                <BazaarExportModal show={showExportModal} onHide={() => setShowExportModal(false)} itemTag={(props.selected as Item).tag} />
+            )}
         </div>
     )
 }

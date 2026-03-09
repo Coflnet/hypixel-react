@@ -327,6 +327,24 @@ function PremiumFeatures() {
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>
+                            Bazaar data export (JSON)
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={<p>Export bazaar price history as a zip file containing JSON. Optionally includes full order book.</p>}
+                            />
+                        </td>
+                        {xIconElement}
+                        {xIconElement}
+                        <td className={styles.premiumProductColumn}>180 days</td>
+                        <td className={styles.premiumProductColumn}>~6 years</td>
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>
                             Access to BazaarPro (<Link href="https://pro.skyblock.bz" target="_blank" rel="noreferrer">pro.skyblock.bz</Link>)
                         </td>
                         {xIconElement}
