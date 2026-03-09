@@ -656,11 +656,10 @@ function Flipper(props: Props) {
                         </Form>
                         <hr />
                         {flips.length === 0 && !isLoading ? (
-                            <Alert variant="warning" style={{ position: 'absolute', marginRight: 15 }}>
-                                <Alert.Heading style={{ fontSize: '1rem' }}>No flips match your current filters</Alert.Heading>
+                            <Alert variant="info" style={{ position: 'absolute', marginRight: 15 }}>
+                                <Alert.Heading style={{ fontSize: '1rem' }}>No recent flips match your current filters</Alert.Heading>
                                 <p style={{ marginBottom: 0 }}>
-                                    Your filter settings are limiting results. Try reducing the minimum profit, lowering the minimum volume, increasing the
-                                    maximum cost, or removing blacklist entries to see more flips.
+                                    Your filter settings are limiting results. New flips probably show up soon. If they don't in 1-2 Minutes try making your settings less strict, eg reduce your minimum profit.
                                 </p>
                             </Alert>
                         ) : null}
