@@ -146,14 +146,14 @@ function PremiumFeatures() {
                     <tr>
                         <td className={styles.featureColumn}>Top 3 Attribute Flips</td>
                         {xIconElement}
-                        {checkIconElement}
+                        {xIconElement}
                         {checkIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
-                        <td className={styles.featureColumn}>Top 3 Reverse NPC Flips</td>
+                        <td className={styles.featureColumn}>Reverse NPC Flips</td>
                         {xIconElement}
-                        {checkIconElement}
+                        {xIconElement}
                         {checkIconElement}
                         {checkIconElement}
                     </tr>
