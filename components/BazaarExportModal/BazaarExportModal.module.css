@@ -69,3 +69,28 @@
     pointer-events: auto;
     user-select: none;
 }
+
+.centerPadded {
+    text-align: center;
+    padding: 20px;
+}
+
+.actionButtonContainer {
+    margin-top: 10px;
+}
+
+.inlineElement {
+    display: inline;
+}
+
+.modalFooter {
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.footerNote {
+    width: 100%;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+    color: #aaa;
+}

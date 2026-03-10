@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { Alert, Button, Form, Modal } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import { getGetApiBazaarItemTagExportUrl } from '../../api/_generated/skyApi'
 import styles from './BazaarExportModal.module.css'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 
@@ -45,7 +46,7 @@ function BazaarExportModal(props: Props) {
         )
     }
 
-    function handleEnter() {
+    function onModalEntered() {
         let loggedIn = !!(typeof window !== 'undefined' && (sessionStorage.getItem('googleId') || localStorage.getItem('googleId')))
         setIsLoggedIn(loggedIn)
 
@@ -59,15 +60,10 @@ function BazaarExportModal(props: Props) {
 
     function onLogin() {
         setIsLoggedIn(true)
-        handleEnter()
+        onModalEntered()
     }
 
     function handleModalHide() {
-        // Reset form state when modal closes
-        setFullOrderBook(false)
-        setStartDate('')
-        setEndDate('')
-        setIsExporting(false)
         props.onHide()
     }
 
@@ -100,6 +96,7 @@ function BazaarExportModal(props: Props) {
         const end = new Date(endDate)
         const diffTime = Math.abs(end.getTime() - start.getTime())
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+        // 400 days is just a nice approximate for "more than a year" to warn about slow exports
         return diffDays > 400
     }
 
@@ -122,16 +119,13 @@ function BazaarExportModal(props: Props) {
 
         const googleToken = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId') ?? ''
 
-        const params = new URLSearchParams()
-        params.append('fullOrderBook', fullOrderBook.toString())
-        if (startDate) {
-            params.append('start', new Date(startDate).toISOString())
-        }
-        if (endDate) {
-            params.append('end', new Date(endDate).toISOString())
-        }
-
-        const url = `https://sky.coflnet.com/api/bazaar/${props.itemTag}/export?${params.toString()}`
+        // Using manual fetch instead of generated Tanstack query (e.g. useGetApiBazaarItemTagExport) 
+        // because the generated API attempts to parse the response as JSON, but this endpoint returns a binary ZIP blob.
+        const url = getGetApiBazaarItemTagExportUrl(props.itemTag, {
+            fullOrderBook: fullOrderBook,
+            start: startDate ? new Date(startDate).toISOString() : undefined,
+            end: endDate ? new Date(endDate).toISOString() : undefined
+        })
 
         fetch(url, {
             method: 'GET',
@@ -166,18 +160,18 @@ function BazaarExportModal(props: Props) {
     }
 
     return (
-        <Modal show={props.show} onHide={handleModalHide} onEntered={handleEnter} size="lg" centered>
+        <Modal show={props.show} onHide={handleModalHide} onEntered={onModalEntered} size="lg" centered>
             <Modal.Header closeButton>
                 <Modal.Title>Export Bazaar Data</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 {!isLoggedIn ? (
-                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                    <div className={styles.centerPadded}>
                         <p>You need to be logged in to export bazaar data.</p>
                         <GoogleSignIn onAfterLogin={onLogin} />
                     </div>
                 ) : !hasLoadedPremium ? (
-                    <div style={{ textAlign: 'center', padding: '20px' }}>Loading...</div>
+                    <div className={styles.centerPadded}>Loading...</div>
                 ) : (
                     <>
                         {premiumLoadError && (
@@ -198,8 +192,8 @@ function BazaarExportModal(props: Props) {
                             <Alert variant="info">
                                 Bazaar data export requires at least <strong>Premium</strong>. Exports of the last <strong>180 days</strong> are available with
                                 Premium and the last <strong>~6 years</strong> are available with Premium+.
-                                <div style={{ marginTop: '10px' }}>
-                                    <Button href="/premium?tier=premium" variant="success">
+                                <div className={styles.actionButtonContainer}>
+                                    <Button href="/premium?tier=premium" variant="success" className="disableLinkStyle">
                                         Get Premium
                                     </Button>
                                 </div>
@@ -210,8 +204,8 @@ function BazaarExportModal(props: Props) {
                             <Alert variant="info">
                                 With Premium you can export up to the last <strong>180 days</strong> of data. Upgrade to <strong>Premium+</strong> for up to{' '}
                                 <strong>~6 years</strong> of history.
-                                <div style={{ marginTop: '10px' }}>
-                                    <Button href="/premium?tier=premium_plus" variant="warning">
+                                <div className={styles.actionButtonContainer}>
+                                    <Button href="/premium?tier=premium_plus" variant="primary" className="disableLinkStyle">
                                         Upgrade to Premium+
                                     </Button>
                                 </div>
@@ -241,7 +235,7 @@ function BazaarExportModal(props: Props) {
                                     onChange={event => setFullOrderBook(event.target.checked)}
                                     defaultChecked={fullOrderBook}
                                     id="fullOrderBook"
-                                    style={{ display: 'inline' }}
+                                    className={styles.inlineElement}
                                     type="checkbox"
                                 />
                             </Form.Group>
@@ -282,8 +276,8 @@ function BazaarExportModal(props: Props) {
                                 {isStartDateExceeds180Days() && hasPremium && !hasPremiumPlus && (
                                     <Alert variant="warning">
                                         <strong>Note:</strong> The start date you selected is more than 180 days in the past. <strong>Premium+ is required</strong> to export data older than 180 days. Please upgrade to Premium+ or select a more recent start date.
-                                        <div style={{ marginTop: '10px' }}>
-                                            <Button href="/premium?tier=premium_plus" variant="warning" size="sm">
+                                        <div className={styles.actionButtonContainer}>
+                                            <Button href="/premium?tier=premium_plus" variant="primary" size="sm" className="disableLinkStyle">
                                                 Upgrade to Premium+
                                             </Button>
                                         </div>
@@ -317,9 +311,9 @@ function BazaarExportModal(props: Props) {
                     </>
                 )}
             </Modal.Body>
-            <Modal.Footer style={{ flexWrap: 'wrap', gap: '10px' }}>
+            <Modal.Footer className={styles.modalFooter}>
                 {!isLoggedIn || (!hasPremium && !hasPremiumPlus) ? (
-                    <div style={{ width: '100%', marginBottom: '10px', fontSize: '0.85rem', color: '#666' }}>
+                    <div className={styles.footerNote}>
                         {!isLoggedIn && 'Please log in to export bazaar data.'}
                         {isLoggedIn && !hasPremium && !hasPremiumPlus && premiumLoadError && (
                             'Unable to verify premium status. Please retry.'
@@ -329,11 +323,11 @@ function BazaarExportModal(props: Props) {
                         )}
                     </div>
                 ) : (
-                    <div style={{ width: '100%', marginBottom: '10px', fontSize: '0.85rem', color: '#666' }}>
+                    <div className={styles.footerNote}>
                         By clicking Download, you accept the license agreement above.
                     </div>
                 )}
-                <Button variant="outline-secondary" onClick={handleModalHide}>
+                <Button variant="secondary" onClick={handleModalHide}>
                     Cancel
                 </Button>
                 <Button
