@@ -35,6 +35,7 @@ function OptionsMenu(props: Props) {
     let [showExportModal, setShowExportModal] = useState(false)
     const isItemPage = (props.selected as Item)?.tag !== undefined
     const isPlayerPage = !isItemPage
+    const isBazaarItem = isItemPage && (props.selected as Item).bazaar
     if (isItemPage) {
         let tag = (props.selected as Item).tag
         let fandomName = (props.selected as Item).name ?? tag
@@ -86,7 +87,7 @@ function OptionsMenu(props: Props) {
                         <Button>{result.title}</Button>
                     </a>
                 ))}
-                {isItemPage && (props.selected as Item).bazaar && (
+                {isBazaarItem && (
                     <Button variant="secondary" onClick={() => setShowExportModal(true)} style={{ marginLeft: 5 }}>
                         Export
                     </Button>
@@ -106,13 +107,13 @@ function OptionsMenu(props: Props) {
                             {result.title}
                         </Dropdown.Item>
                     ))}
-                    {isItemPage && (props.selected as Item).bazaar && (
+                    {isBazaarItem && (
                         <Dropdown.Item onClick={() => setShowExportModal(true)}>Export</Dropdown.Item>
                     )}
                 </Dropdown.Menu>
             </Dropdown>
 
-            {isItemPage && (props.selected as Item).bazaar && showExportModal && (
+            {isBazaarItem && showExportModal && (
                 <BazaarExportModal show={showExportModal} onHide={() => setShowExportModal(false)} itemTag={(props.selected as Item).tag} />
             )}
         </div>
