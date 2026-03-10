@@ -70,7 +70,7 @@ function Flipper(props: Props) {
     let [lastFlipFetchTimeSeconds, setLastFlipFetchTimeSeconds] = useState<number>()
     let [lastFlipFetchTimeLoading, setLastFlipFetchTimeLoading] = useState<boolean>(false)
     let [countdownDateObject, setCountdownDateObject] = useState<Date>()
-    let [isSmall, setIsSmall] = useState(false)
+    let [isSmall, setIsSmall] = useState(true)
     let [selectedAuctionUUID, setSelectedAuctionUUID] = useState('')
     let [isSSR, setIsSSR] = useState(true)
     let [showResetToDefaultDialog, setShowResetToDefaultDialog] = useState(false)
