@@ -200,7 +200,7 @@ Get the lowest bin (Buy It Now) auctions for an item.
 
 **Example cURL:**
 ```bash
-curl -X GET "https://sky.coflnet.com/api/auctions/tag/GOLD_BLOCK/active/bin?limit=10"
+curl -X GET "https://sky.coflnet.com/api/auctions/tag/HYPERION/active/bin"
 ```
 
 **Example Node.js:**
