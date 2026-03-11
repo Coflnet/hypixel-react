@@ -2851,10 +2851,6 @@ end?: string;
 fullOrderBook?: boolean;
 };
 
-export type GetApiBazaarItemTagExport401One = {
-  message?: string;
-};
-
 export type GetApiCraftProfitParams = {
 player?: string;
 profile?: string;

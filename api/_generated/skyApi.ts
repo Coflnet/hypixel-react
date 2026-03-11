@@ -67,7 +67,6 @@ import type {
   GetApiAuctionsTagItemTagArchiveOverviewParams,
   GetApiAuctionsTagItemTagRecentOverviewParams,
   GetApiAuctionsTagItemTagSoldParams,
-  GetApiBazaarItemTagExport401One,
   GetApiBazaarItemTagExportParams,
   GetApiBazaarItemTagHistoryParams,
   GetApiBazaarItemTagSnapshotParams,
@@ -2453,23 +2452,8 @@ export type getApiBazaarItemTagExportResponse200 = {
   data: null
   status: 200
 }
-
-export type getApiBazaarItemTagExportResponse401ApplicationJson = {
-  data: GetApiBazaarItemTagExport401One
-  status: 401
-}
-
-export type getApiBazaarItemTagExportResponse401TextPlain = {
-  data: string
-  status: 401
-}
-
-export type getApiBazaarItemTagExportResponse403 = {
-  data: null
-  status: 403
-}
     
-export type getApiBazaarItemTagExportResponseComposite = getApiBazaarItemTagExportResponse200 | getApiBazaarItemTagExportResponse401ApplicationJson | getApiBazaarItemTagExportResponse401TextPlain | getApiBazaarItemTagExportResponse403;
+export type getApiBazaarItemTagExportResponseComposite = getApiBazaarItemTagExportResponse200;
     
 export type getApiBazaarItemTagExportResponse = getApiBazaarItemTagExportResponseComposite & {
   headers: Headers;
@@ -2517,7 +2501,7 @@ export const getGetApiBazaarItemTagExportQueryKey = (itemTag?: string,
     }
 
     
-export const getGetApiBazaarItemTagExportQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError = GetApiBazaarItemTagExport401One | string | null>(itemTag: string,
+export const getGetApiBazaarItemTagExportQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError = unknown>(itemTag: string,
     params?: GetApiBazaarItemTagExportParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
@@ -2537,10 +2521,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiBazaarItemTagExportQueryResult = NonNullable<Awaited<ReturnType<typeof getApiBazaarItemTagExport>>>
-export type GetApiBazaarItemTagExportQueryError = GetApiBazaarItemTagExport401One | string | null
+export type GetApiBazaarItemTagExportQueryError = unknown
 
 
-export function useGetApiBazaarItemTagExport<TData = Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError = GetApiBazaarItemTagExport401One | string | null>(
+export function useGetApiBazaarItemTagExport<TData = Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError = unknown>(
  itemTag: string,
     params: undefined |  GetApiBazaarItemTagExportParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
@@ -2551,7 +2535,7 @@ export function useGetApiBazaarItemTagExport<TData = Awaited<ReturnType<typeof g
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarItemTagExport<TData = Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError = GetApiBazaarItemTagExport401One | string | null>(
+export function useGetApiBazaarItemTagExport<TData = Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError = unknown>(
  itemTag: string,
     params?: GetApiBazaarItemTagExportParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
@@ -2562,7 +2546,7 @@ export function useGetApiBazaarItemTagExport<TData = Awaited<ReturnType<typeof g
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarItemTagExport<TData = Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError = GetApiBazaarItemTagExport401One | string | null>(
+export function useGetApiBazaarItemTagExport<TData = Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError = unknown>(
  itemTag: string,
     params?: GetApiBazaarItemTagExportParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
@@ -2573,7 +2557,7 @@ For longer timeframes we only keep 5min increments and return those, optionally 
 Note that this endpoint requires a google id token of an account with prem+ and is subject to strict non distribute and non profit license terms
  */
 
-export function useGetApiBazaarItemTagExport<TData = Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError = GetApiBazaarItemTagExport401One | string | null>(
+export function useGetApiBazaarItemTagExport<TData = Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError = unknown>(
  itemTag: string,
     params?: GetApiBazaarItemTagExportParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
