@@ -10,8 +10,12 @@ export function useCountryDetection(onCountryCodeChange?: (countryCode: string) 
     callbackRef.current = onCountryCodeChange
 
     function persistCountry(country: Country) {
-        if (country.value) {
-            localStorage.setItem(USER_COUNTRY_CODE, country.value)
+        try {
+            if (country.value) {
+                localStorage.setItem(USER_COUNTRY_CODE, country.value)
+            }
+        } catch {
+            console.error("Failed to persist country to storage")
         }
     }
 

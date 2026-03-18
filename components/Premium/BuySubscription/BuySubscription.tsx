@@ -18,6 +18,7 @@ import {
     getTierApiProductId,
     VAT_RATES
 } from '../../../utils/PricingUtils'
+import { useCountryDetection } from '../../../hooks/useCountryDetection'
 
 interface Props {
     activePremiumProduct: PremiumProduct
@@ -40,6 +41,8 @@ function BuySubscription(props: Props) {
     const [pendingYearlyDiscount, setPendingYearlyDiscount] = useState<ValidatedDiscount | null>(null)
     const [isValidatingDiscount, setIsValidatingDiscount] = useState(false)
     const [discountError, setDiscountError] = useState<string | null>(null)
+    const { defaultCountry } = useCountryDetection()
+    const country = props.countryCode || defaultCountry.value
 
     useEffect(() => {
         fetchPricing(creatorCode)
@@ -80,7 +83,7 @@ function BuySubscription(props: Props) {
 
             const response = await postApiTopupRates({
                 productSlugs: productSlugs,
-                countryCode: props.countryCode,
+                countryCode: country,
                 creatorCode: code || null
             }, {
                 headers: headers
@@ -212,15 +215,13 @@ function BuySubscription(props: Props) {
 
     // Get VAT rate for current country
     const getVATRate = (): number => {
-        if (!props.countryCode) return 0
-        const upperCode = props.countryCode.toUpperCase()
+        const upperCode = country.toUpperCase()
         return VAT_RATES[upperCode] ?? 0
     }
 
     // Check if VAT should be included in the price (known country with VAT rate)
     const shouldIncludeVATInPrice = (): boolean => {
-        if (!props.countryCode) return false
-        const upperCode = props.countryCode.toUpperCase()
+        const upperCode = country.toUpperCase()
         return upperCode !== 'US' && VAT_RATES[upperCode] !== undefined
     }
 
@@ -279,9 +280,6 @@ function BuySubscription(props: Props) {
             }
         })
         : undefined
-
-    const wizardIsYearOption = props.selectedDuration === Duration.YEARLY
-    const wizardIsQuarterOption = props.selectedDuration === Duration.QUARTER
 
     // Helper to get the current duration for product ID
     const getCurrentDuration = (): Duration => {
