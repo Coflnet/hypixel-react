@@ -55,7 +55,8 @@ export function useCountryDetection(onCountryCodeChange?: (countryCode: string) 
                 console.error('Failed to fetch country from api.country.is')
             }
 
-            applyCountry(detectedCountry || getCountryFromUserLanguage())
+            const fallbackCountry = detectedCountry || getCountryFromUserLanguage() || getCountry('US')
+            applyCountry(fallbackCountry)
         }
         detect()
     }, [])
