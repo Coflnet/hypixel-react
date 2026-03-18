@@ -38,10 +38,22 @@ export function useCountryDetection(onCountryCodeChange?: (countryCode: string) 
 
     useEffect(() => {
         async function detect() {
-            const cachedCode = localStorage.getItem(USER_COUNTRY_CODE)
+            let cachedCode: string | null = null
+            try {
+                const storedUserCode = localStorage.getItem(USER_COUNTRY_CODE)
+                const legacyCode = localStorage.getItem('countryCode')
+                cachedCode = storedUserCode || legacyCode
+            } catch {
+                cachedCode = null
+            }
+
             if (cachedCode) {
-                applyCountry(getCountry(cachedCode))
-                return
+                const normalizedCode = cachedCode.toUpperCase()
+                const cachedCountry = getCountry(normalizedCode)
+                if (cachedCountry) {
+                    applyCountry(cachedCountry)
+                    return
+                }
             }
 
             let detectedCountry: Country | undefined
