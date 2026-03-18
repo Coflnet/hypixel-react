@@ -177,7 +177,6 @@ function PremiumPurchaseWizard(props: Props) {
             case 1:
                 return (
                     <TierSelectionStep
-                        selectedTier={selectedTier}
                         onTierSelect={handleTierSelect}
                         currentTier={currentTier}
                         isUpgrade={isUpgrade}

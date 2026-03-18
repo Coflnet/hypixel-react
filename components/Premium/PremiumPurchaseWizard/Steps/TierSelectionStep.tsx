@@ -9,7 +9,6 @@ import CountrySelect from '../../../CountrySelect/CountrySelect'
 import { USER_COUNTRY_CODE } from '../../../../utils/SettingsUtils'
 
 interface Props {
-    selectedTier: PremiumTier | null
     onTierSelect: (tier: PremiumTier) => void
     currentTier?: PremiumTier | null
     isUpgrade?: boolean
@@ -23,7 +22,7 @@ interface ActiveDiscount {
     code: string
 }
 
-export default function TierSelectionStep({ selectedTier, onTierSelect, currentTier, isUpgrade, suggestedTier, activePremiumProduct, onCountryCodeChange }: Props) {
+export default function TierSelectionStep({ onTierSelect, currentTier, isUpgrade, suggestedTier, activePremiumProduct, onCountryCodeChange }: Props) {
     const [selectedCountry, setSelectedCountry] = useState<Country>()
     const [defaultCountry, setDefaultCountry] = useState<Country>()
 
@@ -49,7 +48,7 @@ export default function TierSelectionStep({ selectedTier, onTierSelect, currentT
             // ensure both keys exist for other components
             try {
                 localStorage.setItem('countryCode', cachedCountryCode)
-            } catch {}
+            } catch { }
             return
         }
 
@@ -78,7 +77,7 @@ export default function TierSelectionStep({ selectedTier, onTierSelect, currentT
                     } else {
                         localStorage.setItem(USER_COUNTRY_CODE, result.country)
                     }
-                } catch {}
+                } catch { }
             }
         } else {
             let country = getCountryFromUserLanguage()
@@ -94,7 +93,7 @@ export default function TierSelectionStep({ selectedTier, onTierSelect, currentT
                         localStorage.setItem('countryCode', country.value)
                         localStorage.setItem(USER_COUNTRY_CODE, country.value)
                     }
-                } catch {}
+                } catch { }
             }
         }
     }
@@ -199,7 +198,6 @@ export default function TierSelectionStep({ selectedTier, onTierSelect, currentT
                 {/* Starter Premium */}
                 <Card
                     className={`${styles.optionCard} 
-                        ${selectedTier === PremiumTier.STARTER ? styles.selected : ''} 
                         ${!canSelectTier(PremiumTier.STARTER) ? styles.disabled : ''}
                         ${getTierStatus(PremiumTier.STARTER) === 'current' ? styles.currentTier : ''}
                     `}
@@ -229,7 +227,6 @@ export default function TierSelectionStep({ selectedTier, onTierSelect, currentT
                 {/* Premium */}
                 <Card
                     className={`${styles.optionCard} 
-                        ${selectedTier === PremiumTier.PREMIUM ? styles.selected : ''} 
                         ${!canSelectTier(PremiumTier.PREMIUM) ? styles.disabled : ''}
                         ${getTierStatus(PremiumTier.PREMIUM) === 'current' ? styles.currentTier : ''}
                         ${isSuggestedTier(PremiumTier.PREMIUM) ? styles.suggested : ''}
@@ -267,7 +264,6 @@ export default function TierSelectionStep({ selectedTier, onTierSelect, currentT
                 {/* Premium Plus */}
                 <Card
                     className={`${styles.optionCard} 
-                        ${selectedTier === PremiumTier.PREMIUM_PLUS ? styles.selected : ''} 
                         ${!canSelectTier(PremiumTier.PREMIUM_PLUS) ? styles.disabled : ''}
                         ${getTierStatus(PremiumTier.PREMIUM_PLUS) === 'current' ? styles.currentTier : ''}
                         ${isSuggestedTier(PremiumTier.PREMIUM_PLUS) ? styles.suggested : ''}
