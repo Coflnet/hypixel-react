@@ -5,7 +5,6 @@ import { USER_COUNTRY_CODE } from '../utils/SettingsUtils'
 
 export function useCountryDetection(onCountryCodeChange?: (countryCode: string) => void) {
     const [selectedCountry, setSelectedCountry] = useState<Country>()
-    const [defaultCountry, setDefaultCountry] = useState<Country>()
     const callbackRef = useRef(onCountryCodeChange)
     const hasUserSelected = useRef(false)
     callbackRef.current = onCountryCodeChange
@@ -23,7 +22,6 @@ export function useCountryDetection(onCountryCodeChange?: (countryCode: string) 
     const applyCountry = (country: Country | undefined) => {
         if (!country) return
         if (hasUserSelected.current) return
-        setDefaultCountry(country)
         setSelectedCountry(country)
         persistCountry(country)
         if (callbackRef.current && country.value) {
@@ -75,5 +73,5 @@ export function useCountryDetection(onCountryCodeChange?: (countryCode: string) 
         detect()
     }, [])
 
-    return { selectedCountry, defaultCountry, handleCountryChange }
+    return { selectedCountry, handleCountryChange }
 }

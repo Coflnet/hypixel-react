@@ -20,7 +20,7 @@ function Payment(props: Props) {
     let [loadingId, setLoadingId] = useState('')
     let [currentRedirectLink, setCurrentRedirectLink] = useState('')
     let [showAll, setShowAll] = useState(false)
-    const { selectedCountry, defaultCountry, handleCountryChange } = useCountryDetection()
+    const { selectedCountry, handleCountryChange } = useCountryDetection()
     let [useWizard, setUseWizard] = useState(true)
     let [isGooglePlayAvailable, setIsGooglePlayAvailable] = useState(false)
     let coflCoins = useCoflCoins()

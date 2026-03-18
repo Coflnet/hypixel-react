@@ -22,7 +22,7 @@ function PremiumPurchaseWizard(props: Props) {
     const [selectedType, setSelectedType] = useState<PurchaseType | null>(null)
     const [selectedDuration, setSelectedDuration] = useState<Duration | null>(null)
     const [urlDiscountCode, setUrlDiscountCode] = useState<string | null>(null)
-    const { selectedCountry, handleCountryChange, defaultCountry } = useCountryDetection()
+    const { selectedCountry, handleCountryChange } = useCountryDetection()
 
     const totalSteps = 4
 
@@ -189,7 +189,7 @@ function PremiumPurchaseWizard(props: Props) {
                         selectedTier={selectedTier!}
                         selectedDuration={selectedDuration}
                         onDurationSelect={handleDurationSelect}
-                        countryCode={selectedCountry?.value ?? defaultCountry.value}
+                        countryCode={selectedCountry?.value}
                     />
                 )
             case 4:
@@ -202,7 +202,7 @@ function PremiumPurchaseWizard(props: Props) {
                         premiumSubscriptions={props.premiumSubscriptions}
                         onNewActivePremiumProduct={props.onNewActivePremiumProduct}
                         initialDiscountCode={urlDiscountCode}
-                        countryCode={selectedCountry?.value ?? defaultCountry.value}
+                        countryCode={selectedCountry?.value}
                     />
                 )
             default:

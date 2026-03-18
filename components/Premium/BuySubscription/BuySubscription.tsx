@@ -41,8 +41,8 @@ function BuySubscription(props: Props) {
     const [pendingYearlyDiscount, setPendingYearlyDiscount] = useState<ValidatedDiscount | null>(null)
     const [isValidatingDiscount, setIsValidatingDiscount] = useState(false)
     const [discountError, setDiscountError] = useState<string | null>(null)
-    const { defaultCountry } = useCountryDetection()
-    const country = props.countryCode || defaultCountry?.value || 'US'
+    const { selectedCountry } = useCountryDetection()
+    const country = props.countryCode || selectedCountry?.value || 'US'
 
     useEffect(() => {
         fetchPricing(creatorCode)
