@@ -166,10 +166,4 @@
         display: inline-flex;
         flex-wrap: nowrap;
     }
-    
-    .premiumTypeGroup .priceRangeButton {
-        flex: 1;
-        white-space: nowrap;
-        min-width: 120px;
-    }
 }
