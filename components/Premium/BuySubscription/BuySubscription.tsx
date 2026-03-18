@@ -41,11 +41,6 @@ function BuySubscription(props: Props) {
     const [isValidatingDiscount, setIsValidatingDiscount] = useState(false)
     const [discountError, setDiscountError] = useState<string | null>(null)
 
-    // Get country code from prop or localStorage
-    const countryCode = (props.countryCode && props.countryCode.length > 0)
-        ? props.countryCode
-        : (typeof window !== 'undefined' ? localStorage.getItem('countryCode') || 'US' : 'US')
-
     useEffect(() => {
         fetchPricing(creatorCode)
         // Auto-validate discount code if provided from URL
@@ -85,7 +80,7 @@ function BuySubscription(props: Props) {
 
             const response = await postApiTopupRates({
                 productSlugs: productSlugs,
-                countryCode: countryCode,
+                countryCode: props.countryCode,
                 creatorCode: code || null
             }, {
                 headers: headers
@@ -217,15 +212,15 @@ function BuySubscription(props: Props) {
 
     // Get VAT rate for current country
     const getVATRate = (): number => {
-        if (!countryCode) return 0
-        const upperCode = countryCode.toUpperCase()
+        if (!props.countryCode) return 0
+        const upperCode = props.countryCode.toUpperCase()
         return VAT_RATES[upperCode] ?? 0
     }
 
     // Check if VAT should be included in the price (known country with VAT rate)
     const shouldIncludeVATInPrice = (): boolean => {
-        if (!countryCode) return false
-        const upperCode = countryCode.toUpperCase()
+        if (!props.countryCode) return false
+        const upperCode = props.countryCode.toUpperCase()
         return upperCode !== 'US' && VAT_RATES[upperCode] !== undefined
     }
 
