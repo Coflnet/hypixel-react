@@ -9,7 +9,7 @@ import CountrySelect from '../../../CountrySelect/CountrySelect'
 import { USER_COUNTRY_CODE } from '../../../../utils/SettingsUtils'
 
 interface Props {
-    onTierSelect: (tier: PremiumTier) => void
+    onTierSelect(tier: PremiumTier): void
     currentTier?: PremiumTier | null
     isUpgrade?: boolean
     suggestedTier?: PremiumTier | null
