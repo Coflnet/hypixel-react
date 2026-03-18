@@ -7,6 +7,7 @@ export function useCountryDetection(onCountryCodeChange?: (countryCode: string) 
     const [selectedCountry, setSelectedCountry] = useState<Country>()
     const [defaultCountry, setDefaultCountry] = useState<Country>(getCountry('US')!)
     const callbackRef = useRef(onCountryCodeChange)
+    const hasUserSelected = useRef(false)
     callbackRef.current = onCountryCodeChange
 
     function persistCountry(country: Country) {
@@ -21,6 +22,7 @@ export function useCountryDetection(onCountryCodeChange?: (countryCode: string) 
 
     const applyCountry = (country: Country | undefined) => {
         if (!country) return
+        if (hasUserSelected.current) return
         setDefaultCountry(country)
         setSelectedCountry(country)
         persistCountry(country)
@@ -30,6 +32,7 @@ export function useCountryDetection(onCountryCodeChange?: (countryCode: string) 
     }
 
     const handleCountryChange = (country: Country) => {
+        hasUserSelected.current = true
         setSelectedCountry(country)
         persistCountry(country)
         if (callbackRef.current && country.value) {
