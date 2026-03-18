@@ -1,12 +1,69 @@
-'use client'
-import { useEffect, useState } from 'react'
-import { Card } from 'react-bootstrap'
 import styles from './Steps.module.css'
-import { PremiumTier } from '../types'
+import { PremiumTier, getTierDisplayName } from '../types'
 import { calculatePrice } from '../../../../utils/PricingUtils'
-import { Country, getCountry, getCountryFromUserLanguage } from '../../../../utils/CountryUtils'
 import CountrySelect from '../../../CountrySelect/CountrySelect'
-import { USER_COUNTRY_CODE } from '../../../../utils/SettingsUtils'
+import TierCard, { TierConfig, TierStatus } from './TierCard'
+import { Country } from '../../../../utils/CountryUtils'
+
+interface ActiveDiscount {
+    description: string
+    percentage: number
+    code: string
+}
+
+const TIER_CONFIGS: TierConfig[] = [
+    {
+        tier: PremiumTier.STARTER,
+        icon: '⭐',
+        title: 'Starter',
+        features: ['Basic price alerts', 'Everything you need to start', 'Ad-free experience'],
+        description: 'Essential features for casual players'
+    },
+    {
+        tier: PremiumTier.PREMIUM,
+        icon: '🌟',
+        title: 'Premium',
+        titleClass: 'tierPremium',
+        features: ['Optimized bazaar flips', '1 year auction house searches', 'Lowball helper'],
+        description: 'All Starter features plus advanced tools',
+        upgradeDescription: 'Upgrade from Starter to unlock advanced features'
+    },
+    {
+        tier: PremiumTier.PREMIUM_PLUS,
+        icon: '🚀',
+        title: 'Premium Plus',
+        titleClass: 'tierPremiumPlus',
+        features: ['Fastest auction flips', '6 year data exports', 'Realtime market analysis', 'Access to BazaarPro'],
+        description: 'All Premium features plus exclusive access to',
+        upgradeDescription: 'Upgrade to Premium Plus for the fastest experience'
+    }
+]
+
+const TIER_RANKS: Record<PremiumTier, number> = {
+    [PremiumTier.STARTER]: 1,
+    [PremiumTier.PREMIUM]: 2,
+    [PremiumTier.PREMIUM_PLUS]: 3
+}
+
+function getTierRank(tier: PremiumTier): number {
+    return TIER_RANKS[tier] ?? 0
+}
+
+function canSelectTier(tier: PremiumTier, currentTier?: PremiumTier | null, isUpgrade?: boolean): boolean {
+    if (!isUpgrade || !currentTier) return true
+    return getTierRank(tier) > getTierRank(currentTier)
+}
+
+function getTierStatus(tier: PremiumTier, currentTier?: PremiumTier | null, isUpgrade?: boolean): TierStatus {
+    if (!isUpgrade || !currentTier) return ''
+    const currentRank = getTierRank(currentTier)
+    const tierRank = getTierRank(tier)
+
+    if (tierRank === currentRank) return 'current'
+    if (tierRank < currentRank) return 'downgrade'
+    if (tierRank === currentRank + 1) return 'upgrade'
+    return 'higher-upgrade'
+}
 
 interface Props {
     onTierSelect(tier: PremiumTier): void
@@ -14,155 +71,70 @@ interface Props {
     isUpgrade?: boolean
     suggestedTier?: PremiumTier | null
     activePremiumProduct?: PremiumProduct
-    onCountryCodeChange?: (countryCode: string) => void
-}
-interface ActiveDiscount {
-    description: string
-    percentage: number
-    code: string
+    selectedCountry?: Country
+    defaultCountry?: Country
+    onCountryChange: (country: Country) => void
 }
 
-export default function TierSelectionStep({ onTierSelect, currentTier, isUpgrade, suggestedTier, activePremiumProduct, onCountryCodeChange }: Props) {
-    const [selectedCountry, setSelectedCountry] = useState<Country>()
-    const [defaultCountry, setDefaultCountry] = useState<Country>()
+const DISCOUNT: ActiveDiscount = {
+    description: 'Summer End Discount',
+    percentage: 0,
+    code: 'NOMACRO'
+}
 
-    const handleCountryChange = (country: Country) => {
-        setSelectedCountry(country)
-        if (onCountryCodeChange && country.value) {
-            onCountryCodeChange(country.value)
-            localStorage.setItem('countryCode', country.value)
-            localStorage.setItem(USER_COUNTRY_CODE, country.value)
-        }
-    }
+const SUGGESTED_FEATURES: Partial<Record<PremiumTier, string>> = {
+    [PremiumTier.PREMIUM]: '🆕 Enhanced flip detection',
+    [PremiumTier.PREMIUM_PLUS]: 'Advanced money making methods (soon™️)'
+}
 
-    useEffect(() => {
-        loadDefaultCountry()
-    }, [])
+const EXTRA_BADGES: Partial<Record<PremiumTier, string>> = {
+    [PremiumTier.PREMIUM]: 'Most Popular'
+}
 
-    async function loadDefaultCountry() {
-        let cachedCountryCode = localStorage.getItem(USER_COUNTRY_CODE)
-        if (cachedCountryCode) {
-            const country = getCountry(cachedCountryCode)
-            setDefaultCountry(country)
-            setSelectedCountry(country)
-            // ensure both keys exist for other components
-            try {
-                localStorage.setItem('countryCode', cachedCountryCode)
-            } catch { }
-            return
-        }
+function formatExpiryDate(date: Date): string {
+    return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    })
+}
 
-        let response: Response | null = null
-        try {
-            response = await fetch('https://api.country.is')
-        } catch {
-            console.error('Failed to fetch country from api.country.is')
-        }
+function DiscountedPrice({ tier, countryCode, discount }: { tier: PremiumTier; countryCode?: string; discount: ActiveDiscount }) {
+    const basePrice = calculatePrice(tier, countryCode)
+    const discountedPrice = calculatePrice(tier, countryCode, discount.percentage)
 
-        if (response && response.ok) {
-            let result = await response.json()
-            let country = getCountry(result.country) || getCountryFromUserLanguage()
-            setDefaultCountry(country)
-            setSelectedCountry(country)
-            if (onCountryCodeChange && country && country.value) {
-                onCountryCodeChange(country.value)
-                localStorage.setItem('countryCode', country.value)
-                localStorage.setItem(USER_COUNTRY_CODE, country.value)
-            } else {
-                // still persist detected country
-                try {
-                    if (country && country.value) {
-                        localStorage.setItem('countryCode', country.value)
-                        localStorage.setItem(USER_COUNTRY_CODE, country.value)
-                    } else {
-                        localStorage.setItem(USER_COUNTRY_CODE, result.country)
-                    }
-                } catch { }
-            }
-        } else {
-            let country = getCountryFromUserLanguage()
-            setDefaultCountry(country)
-            setSelectedCountry(country)
-            if (onCountryCodeChange && country && country.value) {
-                onCountryCodeChange(country.value)
-                localStorage.setItem('countryCode', country.value)
-                localStorage.setItem(USER_COUNTRY_CODE, country.value)
-            } else {
-                try {
-                    if (country && country.value) {
-                        localStorage.setItem('countryCode', country.value)
-                        localStorage.setItem(USER_COUNTRY_CODE, country.value)
-                    }
-                } catch { }
-            }
-        }
-    }
-
-    const starterPricing = calculatePrice(PremiumTier.STARTER, selectedCountry?.value)
-    const premiumPricing = calculatePrice(PremiumTier.PREMIUM, selectedCountry?.value)
-    const premiumPlusPricing = calculatePrice(PremiumTier.PREMIUM_PLUS, selectedCountry?.value)
-    const discountInfo: ActiveDiscount = {
-        description: 'Summer End Discount',
-        percentage: 0,
-        code: 'NOMACRO'
-    }
-    const premiumPlusDiscounted = calculatePrice(PremiumTier.PREMIUM_PLUS, selectedCountry?.value, discountInfo.percentage) // 10% discount
-
-    const getTierRank = (tier: PremiumTier): number => {
-        switch (tier) {
-            case PremiumTier.STARTER:
-                return 1
-            case PremiumTier.PREMIUM:
-                return 2
-            case PremiumTier.PREMIUM_PLUS:
-                return 3
-            default:
-                return 0
-        }
-    }
-
-    const canSelectTier = (tier: PremiumTier): boolean => {
-        if (!isUpgrade || !currentTier) return true
-        return getTierRank(tier) > getTierRank(currentTier)
-    }
-
-    const isSuggestedTier = (tier: PremiumTier): boolean => {
-        return suggestedTier === tier
-    }
-
-    const getTierStatus = (tier: PremiumTier): string => {
-        if (!isUpgrade || !currentTier) return ''
-
-        const currentRank = getTierRank(currentTier)
-        const tierRank = getTierRank(tier)
-
-        if (tierRank === currentRank) return 'current'
-        if (tierRank < currentRank) return 'downgrade'
-        if (tierRank === currentRank + 1) return 'upgrade'
-        return 'higher-upgrade'
-    }
-
-    const formatExpiryDate = (date: Date): string => {
-        return date.toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        })
+    if (discount.percentage <= 0) {
+        return <>{basePrice.displayText}</>
     }
 
     return (
+        <>
+            (yearly) starts at <br />
+            <span style={{ textDecoration: 'line-through', marginRight: 8, opacity: 0.7 }}>{basePrice.displayText}</span>
+            <br />
+            <span>{discountedPrice.displayText}</span>
+            <br />
+            <small style={{ cursor: 'help' }} className="text-success" title={`Apply code ${discount.code} at checkout to receive ${discount.percentage}% off`}>
+                -{discount.percentage}% with code <strong>{discount.code}</strong> *
+            </small>
+        </>
+    )
+}
+
+export default function TierSelectionStep({ onTierSelect, currentTier, isUpgrade, suggestedTier, activePremiumProduct, selectedCountry, defaultCountry, onCountryChange }: Props) {
+
+    const tierDisplayName = currentTier ? getTierDisplayName(currentTier) : ''
+
+    return (
         <div className={styles.stepContent}>
-            <h4 className={styles.stepQuestion}>{isUpgrade ? `Upgrade Your Premium` : 'Which premium tier would you like?'}</h4>
+            <h4 className={styles.stepQuestion}>{isUpgrade ? 'Upgrade Your Premium' : 'Which premium tier would you like?'}</h4>
             <p className={styles.stepDescription}>
                 {isUpgrade ? (
                     <>
-                        You currently have{' '}
-                        <strong>
-                            {currentTier === PremiumTier.STARTER ? 'Starter Premium' : currentTier === PremiumTier.PREMIUM ? 'Premium' : 'Premium Plus'}
-                        </strong>{' '}
-                        active until <strong>{activePremiumProduct ? formatExpiryDate(activePremiumProduct.expires) : 'Unknown'}</strong>.
+                        You currently have <strong>{tierDisplayName}</strong> active until{' '}
+                        <strong>{activePremiumProduct ? formatExpiryDate(activePremiumProduct.expires) : 'Unknown'}</strong>.
                         <br />
                         When you upgrade, your existing tier will be paused and you'll get the full benefits of the higher tier. Nothing will be lost - your
                         previous tier will resume when the upgrade expires.
@@ -172,151 +144,45 @@ export default function TierSelectionStep({ onTierSelect, currentTier, isUpgrade
                 )}
             </p>
 
-            {/* Upgrade Info Box */}
             {isUpgrade && (
                 <div className={styles.infoBox}>
                     <div className={styles.checkIcon}>ℹ️</div>
                     <div>
-                        <strong>Upgrade Protection:</strong> Your current{' '}
-                        {currentTier === PremiumTier.STARTER ? 'Starter Premium' : currentTier === PremiumTier.PREMIUM ? 'Premium' : 'Premium Plus'}{' '}
-                        subscription will be paused (not lost) while your upgrade is active. You'll automatically return to your previous tier when the upgrade
-                        expires.
+                        <strong>Upgrade Protection:</strong> Your current {tierDisplayName} subscription will be paused (not lost) while your upgrade is active.
+                        You'll automatically return to your previous tier when the upgrade expires.
                     </div>
                 </div>
             )}
 
-            {/* Country Selection */}
             <div className={styles.countrySelection}>
-                {defaultCountry ? (
-                    <CountrySelect key="country-select" isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={handleCountryChange} />
-                ) : (
-                    <CountrySelect key="loading-country-select" isLoading />
-                )}
+                <CountrySelect isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={onCountryChange} />
             </div>
 
             <div className={styles.optionsGrid}>
-                {/* Starter Premium */}
-                <Card
-                    className={`${styles.optionCard} 
-                        ${!canSelectTier(PremiumTier.STARTER) ? styles.disabled : ''}
-                        ${getTierStatus(PremiumTier.STARTER) === 'current' ? styles.currentTier : ''}
-                    `}
-                    onClick={() => canSelectTier(PremiumTier.STARTER) && onTierSelect(PremiumTier.STARTER)}
-                >
-                    <Card.Body className={styles.optionBody}>
-                        <div className={styles.optionIcon}>⭐</div>
-                        <h5 className={styles.tierTitle}>
-                            Starter
-                            {getTierStatus(PremiumTier.STARTER) === 'current' && <span className={styles.currentBadge}>Current</span>}
-                        </h5>
-                        <div className={styles.tierPrice}>starts at {starterPricing.displayText}</div>
-                        <p className={styles.tierDescription}>Essential features for casual players</p>
-                        {!canSelectTier(PremiumTier.STARTER) && (
-                            <div className={styles.disabledOverlay}>
-                                <small>Cannot downgrade</small>
-                            </div>
-                        )}
-                        <ul className={styles.featureList}>
-                            <li>Basic price alerts</li>
-                            <li>Everything you need to start</li>
-                            <li>Ad-free experience</li>
-                        </ul>
-                    </Card.Body>
-                </Card>
+                {TIER_CONFIGS.map(config => {
+                    const tier = config.tier
+                    const isSuggested = suggestedTier === tier
+                    const pricing =
+                        tier === PremiumTier.PREMIUM_PLUS ? (
+                            <DiscountedPrice tier={tier} countryCode={selectedCountry?.value} discount={DISCOUNT} />
+                        ) : (
+                            <>starts at {calculatePrice(tier, selectedCountry?.value).displayText}</>
+                        )
 
-                {/* Premium */}
-                <Card
-                    className={`${styles.optionCard} 
-                        ${!canSelectTier(PremiumTier.PREMIUM) ? styles.disabled : ''}
-                        ${getTierStatus(PremiumTier.PREMIUM) === 'current' ? styles.currentTier : ''}
-                        ${isSuggestedTier(PremiumTier.PREMIUM) ? styles.suggested : ''}
-                    `}
-                    onClick={() => canSelectTier(PremiumTier.PREMIUM) && onTierSelect(PremiumTier.PREMIUM)}
-                >
-                    <Card.Body className={styles.optionBody}>
-                        <div className={styles.optionIcon}>🌟</div>
-                        <h5 className={`${styles.tierTitle} ${styles.tierPremium}`}>
-                            Premium
-                            {getTierStatus(PremiumTier.PREMIUM) === 'current' && <span className={styles.currentBadge}>Current</span>}
-                            {isSuggestedTier(PremiumTier.PREMIUM) && <span className={styles.suggestedBadge}>Recommended Upgrade</span>}
-                        </h5>
-                        <div className={styles.tierPrice}>starts at {premiumPricing.displayText}</div>
-                        <p className={styles.tierDescription}>
-                            {isSuggestedTier(PremiumTier.PREMIUM)
-                                ? 'Upgrade from Starter to unlock advanced features'
-                                : 'All Starter features plus advanced tools'}
-                        </p>
-                        {!isSuggestedTier(PremiumTier.PREMIUM) && <small className={styles.recommendation}>Most Popular</small>}
-                        {!canSelectTier(PremiumTier.PREMIUM) && (
-                            <div className={styles.disabledOverlay}>
-                                <small>Cannot downgrade</small>
-                            </div>
-                        )}
-                        <ul className={styles.featureList}>
-                            <li>Optimized bazaar flips</li>
-                            <li>1 year auction house searches</li>
-                            <li>Lowball helper</li>
-                            {isSuggestedTier(PremiumTier.PREMIUM) && <li className={styles.newFeature}>🆕 Enhanced flip detection</li>}
-                        </ul>
-                    </Card.Body>
-                </Card>
-
-                {/* Premium Plus */}
-                <Card
-                    className={`${styles.optionCard} 
-                        ${!canSelectTier(PremiumTier.PREMIUM_PLUS) ? styles.disabled : ''}
-                        ${getTierStatus(PremiumTier.PREMIUM_PLUS) === 'current' ? styles.currentTier : ''}
-                        ${isSuggestedTier(PremiumTier.PREMIUM_PLUS) ? styles.suggested : ''}
-                    `}
-                    onClick={() => canSelectTier(PremiumTier.PREMIUM_PLUS) && onTierSelect(PremiumTier.PREMIUM_PLUS)}
-                >
-                    <Card.Body className={styles.optionBody}>
-                        <div className={styles.optionIcon}>🚀</div>
-                        <h5 className={`${styles.tierTitle} ${styles.tierPremiumPlus}`}>
-                            Premium Plus
-                            {getTierStatus(PremiumTier.PREMIUM_PLUS) === 'current' && <span className={styles.currentBadge}>Current</span>}
-                            {isSuggestedTier(PremiumTier.PREMIUM_PLUS) && <span className={styles.suggestedBadge}>Recommended Upgrade</span>}
-                        </h5>
-                        <div className={styles.tierPrice}>
-                            {discountInfo && discountInfo.percentage > 0 ? (
-                                <>
-                                    (yearly) starts at <br />
-                                    <span style={{ textDecoration: 'line-through', marginRight: 8, opacity: 0.7 }}>{premiumPlusPricing.displayText}</span>
-                                    <br />
-                                    <span>{premiumPlusDiscounted.displayText}</span>
-                                    <br />
-                                    <small
-                                        style={{ cursor: 'help' }}
-                                        className="text-success"
-                                        title={`Apply code ${discountInfo.code} at checkout to receive ${discountInfo.percentage}% off`}
-                                    >
-                                        -{discountInfo.percentage}% with code <strong>{discountInfo.code}</strong> *
-                                    </small>
-                                </>
-                            ) : (
-                                <>{premiumPlusPricing.displayText}</>
-                            )}
-                        </div>
-
-                        <p className={styles.tierDescription}>
-                            {isSuggestedTier(PremiumTier.PREMIUM_PLUS)
-                                ? 'Upgrade to Premium Plus for the fastest experience'
-                                : 'All Premium features plus exclusive access to'}
-                        </p>
-                        {!canSelectTier(PremiumTier.PREMIUM_PLUS) && (
-                            <div className={styles.disabledOverlay}>
-                                <small>Cannot downgrade</small>
-                            </div>
-                        )}
-                        <ul className={styles.featureList}>
-                            <li>Fastest auction flips</li>
-                            <li>6 year data exports</li>
-                            <li>Realtime market analysis</li>
-                            <li>Access to BazaarPro</li>
-                            {isSuggestedTier(PremiumTier.PREMIUM_PLUS) && <li className={styles.newFeature}>Advanced money making methods (soon™️)</li>}
-                        </ul>
-                    </Card.Body>
-                </Card>
+                    return (
+                        <TierCard
+                            key={tier}
+                            config={config}
+                            pricing={pricing}
+                            status={getTierStatus(tier, currentTier, isUpgrade)}
+                            isSuggested={isSuggested}
+                            canSelect={canSelectTier(tier, currentTier, isUpgrade)}
+                            onSelect={onTierSelect}
+                            extraBadge={EXTRA_BADGES[tier]}
+                            suggestedFeature={SUGGESTED_FEATURES[tier]}
+                        />
+                    )
+                })}
             </div>
 
             <div className={styles.tierNote}>
