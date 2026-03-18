@@ -4,7 +4,6 @@ import { calculatePrice } from '../../../../utils/PricingUtils'
 import CountrySelect from '../../../CountrySelect/CountrySelect'
 import TierCard, { TierConfig, TierStatus } from './TierCard'
 import { Country } from '../../../../utils/CountryUtils'
-import { useCountryDetection } from '../../../../hooks/useCountryDetection'
 
 interface ActiveDiscount {
     description: string
@@ -126,7 +125,6 @@ function DiscountedPrice({ tier, countryCode, discount }: { tier: PremiumTier; c
 export default function TierSelectionStep({ onTierSelect, currentTier, isUpgrade, suggestedTier, activePremiumProduct, selectedCountry, onCountryChange }: Props) {
 
     const tierDisplayName = currentTier ? getTierDisplayName(currentTier) : ''
-    const { defaultCountry } = useCountryDetection()
 
     return (
         <div className={styles.stepContent}>
@@ -156,7 +154,7 @@ export default function TierSelectionStep({ onTierSelect, currentTier, isUpgrade
             )}
 
             <div className={styles.countrySelection}>
-                <CountrySelect isLoading={!selectedCountry} defaultCountry={defaultCountry} onCountryChange={onCountryChange} />
+                <CountrySelect onCountryChange={onCountryChange} />
             </div>
 
             <div className={styles.optionsGrid}>

@@ -5,7 +5,7 @@ import { USER_COUNTRY_CODE } from '../utils/SettingsUtils'
 
 export function useCountryDetection(onCountryCodeChange?: (countryCode: string) => void) {
     const [selectedCountry, setSelectedCountry] = useState<Country>()
-    const [defaultCountry, setDefaultCountry] = useState<Country>(getCountry('US')!)
+    const [defaultCountry, setDefaultCountry] = useState<Country>()
     const callbackRef = useRef(onCountryCodeChange)
     const hasUserSelected = useRef(false)
     callbackRef.current = onCountryCodeChange

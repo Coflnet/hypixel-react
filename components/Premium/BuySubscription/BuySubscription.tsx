@@ -42,7 +42,7 @@ function BuySubscription(props: Props) {
     const [isValidatingDiscount, setIsValidatingDiscount] = useState(false)
     const [discountError, setDiscountError] = useState<string | null>(null)
     const { defaultCountry } = useCountryDetection()
-    const country = props.countryCode || defaultCountry.value
+    const country = props.countryCode || defaultCountry?.value || 'US'
 
     useEffect(() => {
         fetchPricing(creatorCode)

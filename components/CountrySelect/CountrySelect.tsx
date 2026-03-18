@@ -1,19 +1,19 @@
 'use client'
-import { useRef, useState, type JSX } from 'react'
+import { useId, useRef, type JSX } from 'react'
 import { Menu, MenuItem, Typeahead } from 'react-bootstrap-typeahead'
 import { Form, InputGroup } from 'react-bootstrap'
 import { Country, getCountries } from '../../utils/CountryUtils'
 import { default as TypeaheadType } from 'react-bootstrap-typeahead/types/core/Typeahead'
+import { useCountryDetection } from '../../hooks/useCountryDetection'
 
 interface Props {
     onCountryChange?(country: Country)
-    defaultCountry?: Country
-    isLoading?: boolean
 }
 
 export default function CountrySelect(props: Props) {
+    const key = useId()
     const countryOptions = getCountries()
-    let [selectedCountry, setSelectedCountryCode] = useState<any>(props.defaultCountry)
+    let { defaultCountry, selectedCountry, handleCountryChange } = useCountryDetection();
     let ref = useRef<TypeaheadType>(null)
 
     function getCountryImage(countryCode: string): JSX.Element {
@@ -28,20 +28,22 @@ export default function CountrySelect(props: Props) {
             />
         )
     }
+
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: 15, paddingBottom: 15 }}>
             <label htmlFor="countryTypeahead">Your Country: </label>
             <Typeahead
+                key={`${key}-${!defaultCountry ? 'disabled' : 'enabled'}`}
                 id="countryTypeahead"
                 style={{ width: 'auto' }}
-                disabled={props.isLoading}
-                placeholder={props.isLoading ? 'Loading...' : 'Select your country'}
+                disabled={!defaultCountry}
+                placeholder={!defaultCountry ? 'Loading...' : 'Select your country'}
                 ref={ref}
                 defaultSelected={selectedCountry ? [selectedCountry] : []}
-                isLoading={props.isLoading}
+                isLoading={!defaultCountry}
                 onChange={e => {
                     if (e[0]) {
-                        setSelectedCountryCode(e[0])
+                        handleCountryChange(e[0] as Country)
                         if (props.onCountryChange) {
                             props.onCountryChange(e[0] as Country)
                         }

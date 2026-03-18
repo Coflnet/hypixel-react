@@ -256,7 +256,7 @@ function Payment(props: Props) {
     if (!props.cancellationRightLossConfirmed || !selectedCountry) {
         return (
             <div>
-                <CountrySelect isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={handleCountryChange} />
+                <CountrySelect onCountryChange={handleCountryChange} />
 
                 {!props.cancellationRightLossConfirmed && (
                     <Alert variant="warning" style={{ marginTop: '20px' }}>
@@ -278,7 +278,7 @@ function Payment(props: Props) {
             <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <div>
-                        <CountrySelect isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={handleCountryChange} />
+                        <CountrySelect onCountryChange={handleCountryChange} />
                     </div>
                     <Button variant="outline-secondary" size="sm" onClick={() => setUseWizard(false)}>
                         Switch to Classic View
@@ -303,7 +303,7 @@ function Payment(props: Props) {
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <div>
-                    <CountrySelect isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={handleCountryChange} />
+                    <CountrySelect onCountryChange={handleCountryChange} />
                 </div>
                 <Button variant="outline-primary" size="sm" onClick={() => setUseWizard(true)}>
                     Switch to New Wizard
