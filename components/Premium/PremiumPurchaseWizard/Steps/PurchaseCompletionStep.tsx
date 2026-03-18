@@ -12,7 +12,7 @@ interface Props {
     premiumSubscriptions: PremiumSubscription[]
     onNewActivePremiumProduct: () => void
     initialDiscountCode?: string | null
-    countryCode: string
+    countryCode?: string
 }
 
 export default function PurchaseCompletionStep({
