@@ -16,7 +16,7 @@ export function useCountryDetection(onCountryCodeChange?: (countryCode: string) 
                 localStorage.setItem(USER_COUNTRY_CODE, country.value)
             }
         } catch {
-            console.error("Failed to persist country to storage")
+            console.error('Failed to persist country to storage')
         }
     }
 
