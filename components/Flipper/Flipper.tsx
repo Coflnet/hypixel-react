@@ -657,9 +657,9 @@ function Flipper(props: Props) {
                         <hr />
                         {flips.length === 0 && !isLoading ? (
                             <Alert variant="info" style={{ position: 'absolute', marginRight: 15 }}>
-                                <Alert.Heading style={{ fontSize: '1rem' }}>No recent flips match your current filters</Alert.Heading>
+                                <Alert.Heading style={{ fontSize: '1rem' }}>Waiting for new auctions</Alert.Heading>
                                 <p style={{ marginBottom: 0 }}>
-                                    Your filter settings are limiting results. New flips probably show up soon. If they don't in 1-2 Minutes try making your settings less strict, eg reduce your minimum profit.
+                                    Your filter settings are limiting results. New flips probably show up soon. If they don't in 1-2 Minutes try making your settings less strict, eg reduce your minimum profit or remove blacklist filter rules.
                                 </p>
                             </Alert>
                         ) : null}

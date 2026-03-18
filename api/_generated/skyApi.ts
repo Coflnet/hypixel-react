@@ -67,6 +67,7 @@ import type {
   GetApiAuctionsTagItemTagArchiveOverviewParams,
   GetApiAuctionsTagItemTagRecentOverviewParams,
   GetApiAuctionsTagItemTagSoldParams,
+  GetApiBazaarItemTagExportParams,
   GetApiBazaarItemTagHistoryParams,
   GetApiBazaarItemTagSnapshotParams,
   GetApiCraftProfitParams,
@@ -2443,30 +2444,41 @@ export function useGetApiBazaarItemTagSnapshot<TData = Awaited<ReturnType<typeof
 
 
 /**
- * @deprecated
+ * @summary Exports detailed item data for a specific item, if there is no start/end specified it will return a compressed file with 20sec increments of the last 2 weeks
+For longer timeframes we only keep 5min increments and return those, optionally with full orderbook for each point.
+Note that this endpoint requires a google id token of an account with prem+ and is subject to strict non distribute and non profit license terms
  */
-export type getApiBazaarPlayerPlayerIdOrdersResponse200 = {
-  data: Offer[]
+export type getApiBazaarItemTagExportResponse200 = {
+  data: null
   status: 200
 }
     
-export type getApiBazaarPlayerPlayerIdOrdersResponseComposite = getApiBazaarPlayerPlayerIdOrdersResponse200;
+export type getApiBazaarItemTagExportResponseComposite = getApiBazaarItemTagExportResponse200;
     
-export type getApiBazaarPlayerPlayerIdOrdersResponse = getApiBazaarPlayerPlayerIdOrdersResponseComposite & {
+export type getApiBazaarItemTagExportResponse = getApiBazaarItemTagExportResponseComposite & {
   headers: Headers;
 }
 
-export const getGetApiBazaarPlayerPlayerIdOrdersUrl = (playerId: string,) => {
+export const getGetApiBazaarItemTagExportUrl = (itemTag: string,
+    params?: GetApiBazaarItemTagExportParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `https://sky.coflnet.com/api/bazaar/player/${playerId}/orders`
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/bazaar/${itemTag}/export?${stringifiedParams}` : `https://sky.coflnet.com/api/bazaar/${itemTag}/export`
 }
 
-export const getApiBazaarPlayerPlayerIdOrders = async (playerId: string, options?: RequestInit): Promise<getApiBazaarPlayerPlayerIdOrdersResponse> => {
+export const getApiBazaarItemTagExport = async (itemTag: string,
+    params?: GetApiBazaarItemTagExportParams, options?: RequestInit): Promise<getApiBazaarItemTagExportResponse> => {
   
-  const res = await fetch(getGetApiBazaarPlayerPlayerIdOrdersUrl(playerId),
+  const res = await fetch(getGetApiBazaarItemTagExportUrl(itemTag,params),
   {      
     ...options,
     method: 'GET'
@@ -2476,74 +2488,82 @@ export const getApiBazaarPlayerPlayerIdOrders = async (playerId: string, options
 )
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text()
-  const data: getApiBazaarPlayerPlayerIdOrdersResponse['data'] = body ? JSON.parse(body) : {}
+  const data: getApiBazaarItemTagExportResponse['data'] = body ? JSON.parse(body) : {}
 
-  return { data, status: res.status, headers: res.headers } as getApiBazaarPlayerPlayerIdOrdersResponse
+  return { data, status: res.status, headers: res.headers } as getApiBazaarItemTagExportResponse
 }
 
 
 
-export const getGetApiBazaarPlayerPlayerIdOrdersQueryKey = (playerId?: string,) => {
-    return [`https://sky.coflnet.com/api/bazaar/player/${playerId}/orders`] as const;
+export const getGetApiBazaarItemTagExportQueryKey = (itemTag?: string,
+    params?: GetApiBazaarItemTagExportParams,) => {
+    return [`https://sky.coflnet.com/api/bazaar/${itemTag}/export`, ...(params ? [params]: [])] as const;
     }
 
     
-export const getGetApiBazaarPlayerPlayerIdOrdersQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError = unknown>(playerId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiBazaarItemTagExportQueryOptions = <TData = Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError = unknown>(itemTag: string,
+    params?: GetApiBazaarItemTagExportParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiBazaarPlayerPlayerIdOrdersQueryKey(playerId);
+  const queryKey =  queryOptions?.queryKey ?? getGetApiBazaarItemTagExportQueryKey(itemTag,params);
 
   
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>> = ({ signal }) => getApiBazaarPlayerPlayerIdOrders(playerId, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiBazaarItemTagExport>>> = ({ signal }) => getApiBazaarItemTagExport(itemTag,params, { signal, ...fetchOptions });
 
       
 
       
 
-   return  { queryKey, queryFn, enabled: !!(playerId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, enabled: !!(itemTag), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetApiBazaarPlayerPlayerIdOrdersQueryResult = NonNullable<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>>
-export type GetApiBazaarPlayerPlayerIdOrdersQueryError = unknown
+export type GetApiBazaarItemTagExportQueryResult = NonNullable<Awaited<ReturnType<typeof getApiBazaarItemTagExport>>>
+export type GetApiBazaarItemTagExportQueryError = unknown
 
 
-export function useGetApiBazaarPlayerPlayerIdOrders<TData = Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError = unknown>(
- playerId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError, TData>> & Pick<
+export function useGetApiBazaarItemTagExport<TData = Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError = unknown>(
+ itemTag: string,
+    params: undefined |  GetApiBazaarItemTagExportParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>,
+          Awaited<ReturnType<typeof getApiBazaarItemTagExport>>,
           TError,
-          Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>
+          Awaited<ReturnType<typeof getApiBazaarItemTagExport>>
         > , 'initialData'
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarPlayerPlayerIdOrders<TData = Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError = unknown>(
- playerId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError, TData>> & Pick<
+export function useGetApiBazaarItemTagExport<TData = Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError = unknown>(
+ itemTag: string,
+    params?: GetApiBazaarItemTagExportParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>,
+          Awaited<ReturnType<typeof getApiBazaarItemTagExport>>,
           TError,
-          Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>
+          Awaited<ReturnType<typeof getApiBazaarItemTagExport>>
         > , 'initialData'
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiBazaarPlayerPlayerIdOrders<TData = Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError = unknown>(
- playerId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError, TData>>, fetch?: RequestInit}
+export function useGetApiBazaarItemTagExport<TData = Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError = unknown>(
+ itemTag: string,
+    params?: GetApiBazaarItemTagExportParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @deprecated
+ * @summary Exports detailed item data for a specific item, if there is no start/end specified it will return a compressed file with 20sec increments of the last 2 weeks
+For longer timeframes we only keep 5min increments and return those, optionally with full orderbook for each point.
+Note that this endpoint requires a google id token of an account with prem+ and is subject to strict non distribute and non profit license terms
  */
 
-export function useGetApiBazaarPlayerPlayerIdOrders<TData = Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError = unknown>(
- playerId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarPlayerPlayerIdOrders>>, TError, TData>>, fetch?: RequestInit}
+export function useGetApiBazaarItemTagExport<TData = Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError = unknown>(
+ itemTag: string,
+    params?: GetApiBazaarItemTagExportParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiBazaarItemTagExport>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiBazaarPlayerPlayerIdOrdersQueryOptions(playerId,options)
+  const queryOptions = getGetApiBazaarItemTagExportQueryOptions(itemTag,params,options)
 
   const query = useQuery(queryOptions , queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

@@ -127,7 +127,7 @@ function LoopDetectionBanner() {
         }
     }
     let isOnDragonPage = window.location.pathname.includes('DRAGON') // issue only occures on dragon page
-    if (!showBanner || dismissed || isOnDragonPage) {
+    if (!showBanner || dismissed || !isOnDragonPage) {
         return null
     }
 

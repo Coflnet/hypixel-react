@@ -56,7 +56,7 @@ function Search(props: Props) {
     let [results, setResults] = useState<SearchResultItem[]>([])
     let [isSearching, setIsSearching] = useState(false)
     let [noResultsFound, setNoResultsFound] = useState(false)
-    let [isSmall, setIsSmall] = useState(true)
+    let [isSmall, setIsSmall] = useState(false)
     let [selectedIndex, setSelectedIndex] = useState(0)
     const { show: showPlayerContextMenu } = useContextMenu({
         id: PLAYER_SEARCH_CONEXT_MENU_ID
