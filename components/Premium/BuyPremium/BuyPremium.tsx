@@ -198,9 +198,8 @@ function BuyPremium(props: Props) {
                     <p>
                         <strong>Tier:</strong>{' '}
                         <span
-                            className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${
-                                props.selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''
-                            }`}
+                            className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${props.selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''
+                                }`}
                         >
                             {getDisplayTierName()}
                         </span>
@@ -314,8 +313,7 @@ function BuyPremium(props: Props) {
                                             value={premiumType.productId}
                                             className={styles.priceRangeButton}
                                             size="lg"
-                                            variant="primary"
-                                            style={getPremiumToggleButtonStyle(premiumType)}
+                                            variant="outline-primary"
                                         >
                                             {premiumType.label}
                                         </ToggleButton>

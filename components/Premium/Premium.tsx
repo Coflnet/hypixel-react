@@ -141,7 +141,7 @@ function Premium() {
                         <h2>{hasPremium && showUpgradeWizard ? 'Upgrade Premium' : 'Get Premium'}</h2>
                         {hasPremium && showUpgradeWizard && (
                             <Button
-                                variant="outline-secondary"
+                                variant="secondary"
                                 size="sm"
                                 onClick={() => {
                                     setShowUpgradeWizard(false)

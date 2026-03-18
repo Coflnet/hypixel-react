@@ -365,11 +365,11 @@
     opacity: 0.6;
     cursor: not-allowed !important;
     position: relative;
+    border-color: var(--bs-border-color) !important;
 }
 
 .disabled:hover {
     transform: none !important;
-    border-color: var(--bs-border-color) !important;
 }
 
 .disabledOverlay {
@@ -378,17 +378,17 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(255, 255, 255, 0.8);
+    background: rgba(157, 157, 157, 0.55);
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 10px;
-    color: var(--bs-gray);
+    color: red;
     font-weight: 600;
 }
 
 .currentTier {
-    border-color: var(--bs-info) !important;
+    border-color: var(--bs-info);
     background-color: transparent;
 }
 
