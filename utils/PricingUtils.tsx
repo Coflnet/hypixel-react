@@ -184,7 +184,7 @@ export const getTierProductId = (tier: PremiumTier): string => {
 const TIER_SLUG_MAP: Record<PremiumTier, { monthly: string; yearly: string }> = {
     [PremiumTier.PREMIUM]: { monthly: 'l_premium', yearly: 'l_premium-year' },
     [PremiumTier.PREMIUM_PLUS]: { monthly: 'l_prem_plus', yearly: 'l_prem_plus-year' },
-    [PremiumTier.STARTER]: { monthly: 'l_starter_premium', yearly: 'l_starter_premium' }
+    [PremiumTier.STARTER]: { monthly: 'l_starter_premium', yearly: 'l_starter_premium-year' }
 }
 
 export const getTierSubscriptionSlug = (tier: PremiumTier, isYearly: boolean): string => {
@@ -204,9 +204,9 @@ export const getTierApiProductId = (tier: PremiumTier, isYearlyOrDuration: boole
     if (typeof isYearlyOrDuration === 'string') {
         switch (isYearlyOrDuration) {
             case Duration.YEARLY:
-                return tier !== PremiumTier.STARTER ? `${baseId}-year` : baseId
+                return `${baseId}-year`
             case Duration.QUARTER:
-                return tier !== PremiumTier.STARTER ? `${baseId}-quarter` : baseId
+                return `${baseId}-quarter`
             case Duration.MONTHLY:
             default:
                 return baseId
@@ -215,7 +215,7 @@ export const getTierApiProductId = (tier: PremiumTier, isYearlyOrDuration: boole
 
     // Handle legacy boolean
     const isYearly = isYearlyOrDuration as boolean
-    return isYearly && tier !== PremiumTier.STARTER ? `${baseId}-year` : baseId
+    return isYearly ? `${baseId}-year` : baseId
 }
 
 export const SUBSCRIPTION_PRICES: Record<string, { monthly: number; quarterly: number; yearly: number; weekly?: number; daily?: number }> = {

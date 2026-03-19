@@ -40,6 +40,7 @@ function BuySubscription(props: Props) {
     const [pendingYearlyDiscount, setPendingYearlyDiscount] = useState<ValidatedDiscount | null>(null)
     const [isValidatingDiscount, setIsValidatingDiscount] = useState(false)
     const [discountError, setDiscountError] = useState<string | null>(null)
+    const [showStarterDiscountHint] = useState(() => Math.random() < 0.2)
 
     // Get country code from prop or localStorage
     const countryCode = (props.countryCode && props.countryCode.length > 0)
@@ -460,7 +461,7 @@ function BuySubscription(props: Props) {
                                     <strong>Savings:</strong> {targetType.productId === 'premium_plus' ? '23%' : '14%'} off compared to monthly billing
                                 </p>
                             )}
-                            {!validatedDiscount && (
+                            {!validatedDiscount && (targetType.productId !== 'starter_premium' || showStarterDiscountHint) && (
                                 <p>
                                     You qualify for using code <code>M2OTC1OQ</code> at checkout, to get an extra <strong>20% discount</strong> on the yearly option
                                 </p>

@@ -44,7 +44,7 @@ export default function DurationSelectionStep({
 
     // Get monthly equivalent price for a duration
     const getMonthlyPrice = (duration: Duration): number => {
-        const tierKey = selectedTier === PremiumTier.PREMIUM ? 'premium' : 'premium_plus'
+        const tierKey = selectedTier === PremiumTier.PREMIUM ? 'premium' : selectedTier === PremiumTier.STARTER ? 'starter_premium' : 'premium_plus'
         const prices = SUBSCRIPTION_PRICES[tierKey] || { monthly: 0, quarterly: 0, yearly: 0 }
 
         let monthlyPrice = prices.monthly
