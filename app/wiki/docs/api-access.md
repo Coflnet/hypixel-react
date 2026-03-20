@@ -50,6 +50,13 @@ const data = await response.json();
 console.log(data);
 ```
 
+### Terms of use
+
+- **Free access:** The API is provided free of charge.
+- **Personal use / no redistribution (non-Premium+):** For non-Premium+ users, data obtained via the API is intended for personal use only and may not be redistributed, republished, or resold in any form without explicit permission.
+- **Premium+ — expanded usage rights:** Premium+ subscribers are permitted to analyze and use data obtained from any API endpoints (including for commercial purposes) provided that the use does not create a product or service that directly competes with SkyCofl features and an active Premium+ subscription is maintained.
+- **Prohibited uses:** Providing the API data as a service, bulk redistribution, or using the data to directly compete with SkyCofl is prohibited unless agreed otherwise.
+
 ## IP Blacklist & Unblocking
 
 If you exceed the API rate limits continuously, your IP may be automatically blocked. This can happen from:
