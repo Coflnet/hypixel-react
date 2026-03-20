@@ -25,7 +25,7 @@ Add the `Authorization` header to your API requests:
 
 **cURL:**
 ```bash
-curl -H "Authorization: Bearer YOUR_TOKEN" https://sky.coflnet.com/api/bazaar/GOLD_BLOCK/snapshot
+curl -H "Authorization: Bearer YOUR_TOKEN" https://sky.coflnet.com/api/bazaar/BOOSTER_COOKIE/snapshot
 ```
 
 **Python:**
@@ -34,7 +34,7 @@ import requests
 
 headers = {"Authorization": "Bearer YOUR_TOKEN"}
 response = requests.get(
-    "https://sky.coflnet.com/api/bazaar/GOLD_BLOCK/snapshot",
+    "https://sky.coflnet.com/api/bazaar/BOOSTER_COOKIE/snapshot",
     headers=headers
 )
 print(response.json())
@@ -43,7 +43,7 @@ print(response.json())
 **JavaScript:**
 ```javascript
 const response = await fetch(
-  "https://sky.coflnet.com/api/bazaar/GOLD_BLOCK/snapshot",
+  "https://sky.coflnet.com/api/bazaar/BOOSTER_COOKIE/snapshot",
   { headers: { "Authorization": "Bearer YOUR_TOKEN" } }
 );
 const data = await response.json();
