@@ -1488,18 +1488,55 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
             let user
+            let email
             if (googleId) {
                 let parts = googleId.split('.')
                 if (parts.length > 2) {
                     let obj = JSON.parse(atobUnicode(parts[1]))
                     user = obj.sub
+                    email = obj.email
                 }
+            }
+
+            // Mask last 2 characters of email local part if user ID isn't available
+            let maskedEmail = ''
+            if (email) {
+                if (!user) {
+                    let atIndex = email.indexOf('@')
+                    if (atIndex > 2) {
+                        maskedEmail = email.substring(0, atIndex - 2) + '**' + email.substring(atIndex)
+                    } else {
+                        maskedEmail = '**' + email.substring(atIndex)
+                    }
+                } else {
+                    maskedEmail = email
+                }
+            }
+
+            // Get active premium tier from cached products
+            let premiumTier = ''
+            try {
+                let lastProducts = localStorage.getItem(LAST_PREMIUM_PRODUCTS)
+                if (lastProducts) {
+                    let products = JSON.parse(lastProducts)
+                    let activeProducts = Object.keys(products).filter(key => new Date(products[key].expiresAt) > new Date())
+                    if (activeProducts.length > 0) {
+                        premiumTier = activeProducts.join(', ')
+                    }
+                }
+            } catch {}
+
+            let feedbackWithUserInfo = {
+                ...feedback,
+                _userEmail: maskedEmail,
+                _userId: user || '',
+                _premiumTier: premiumTier
             }
 
             let requestData = {
                 Context: 'Skyblock',
                 User: user || '',
-                Feedback: JSON.stringify(feedback),
+                Feedback: JSON.stringify(feedbackWithUserInfo),
                 FeedbackName: feedbackKey
             }
 
