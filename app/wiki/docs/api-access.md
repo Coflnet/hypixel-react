@@ -6,7 +6,7 @@ order: 11
 
 ## API Authentication
 
-If you want higher rate limits or need to unblock your IP after being rate-limited, you can authenticate your API requests with a **Premium+** subscription.
+If you want to get a lot of data or need to unblock your IP after being rate-limited, you can authenticate your API requests with a **Premium+** subscription.
 
 ### Your Token & Blacklist Status
 
@@ -17,7 +17,7 @@ If you want higher rate limits or need to unblock your IP after being rate-limit
 1. Go to [sky.coflnet.com](https://sky.coflnet.com) and log in with Google
 2. Open your browser's developer console (F12)
 3. Run: `localStorage.getItem('googleId')`
-4. Copy the returned string — this is your API token
+4. Copy the returned string — this is your Account token
 
 ### Passing the token
 
@@ -54,10 +54,9 @@ console.log(data);
 
 If you exceed the API rate limits continuously, your IP may be automatically blocked. This can happen from:
 
-- Accumulating too many rate-limit (429) violations — after 500 violations your IP is permanently banned
-- Using known scraping user-agents (`python-requests`, `go-http-client`, `axios`, `node-fetch`) or an empty User-Agent — these incur penalty points that accelerate banning
-- Running a distributed proxy pool — if 5+ IPs from the same /24 subnet send over 400 requests/minute, the entire subnet is banned
-- Subnet-level bans trigger after 3000 combined violations across all IPs in the same /24 (IPv4) or /48 (IPv6) subnet
+- Accumulating too many rate-limit (429) violations — after 500 violations your IP is banned
+- Changing IPs frequently to bypass rate limits will get you banned faster
+- Please identify yourself in the user-agents, not doing so can get you banned quicker
 
 ### How to unblock your IP
 
@@ -69,14 +68,8 @@ If you exceed the API rate limits continuously, your IP may be automatically blo
 ### Staying unblocked
 
 - Always include your `Authorization: Bearer` header in requests
-- Premium+ users get higher rate limits and are exempt from IP bans
+- Premium+ users are exempt from IP bans and can just download data directly so don't need to send lots of requests.
 - Respect the rate limit headers (`X-RateLimit-Remaining`, `X-RateLimit-Reset`) even with premium
 
-## Rate Limits
-
-| Tier | Requests per 10s | Requests per minute |
-|------|-------------------|---------------------|
-| Free | 30 | 100 |
-| Premium+ (with token) | Bypasses IP limits | Bypasses IP limits |
 
 For custom rate limits for your application, contact us on [Discord](https://discord.gg/wvKXSHt).
