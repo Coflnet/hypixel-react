@@ -46,7 +46,7 @@ export function FusionFlips() {
         enabled: showMultiStep
     })
 
-    const displayedFlips = showMultiStep ? (multiStepFlips || []) : flips
+    const displayedFlips: FuseFlip[] = showMultiStep ? (Array.isArray(multiStepFlips) ? multiStepFlips : []) : flips
     const [hasPremium, setHasPremium] = useState(false)
     const [isLoggedIn, setIsLoggedIn] = useState(false)
 
