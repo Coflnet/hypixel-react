@@ -1,13 +1,15 @@
 'use client'
 import Image from 'next/image'
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import api from '../../api/ApiHelper'
 import { convertTagToName } from '../../utils/Formatter'
 import Number from '../Number/Number'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { getApiFlipFusion, getGetApiFlipFusionQueryKey } from '../../api/_generated/skyApi'
+import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
+import { getApiFlipFusion, getGetApiFlipFusionQueryKey, getApiFlipFusionMultistep, getGetApiFlipFusionMultistepQueryKey } from '../../api/_generated/skyApi'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
-import { FuseFlip } from '../../api/_generated/skyApi.schemas'
+import { FuseFlip, FusionStep } from '../../api/_generated/skyApi.schemas'
+import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import Link from 'next/link'
 
 const SORT_OPTIONS: SortOption<FuseFlip>[] = [
     {
@@ -33,15 +35,84 @@ const SORT_OPTIONS: SortOption<FuseFlip>[] = [
 ]
 
 export function FusionFlips() {
+    const [showMultiStep, setShowMultiStep] = useState(false)
     const { data: { data: flips } = { data: [] } } = useSuspenseQuery({
         queryKey: [getGetApiFlipFusionQueryKey()],
         queryFn: () => getApiFlipFusion()
     })
+    const { data: { data: multiStepFlips } = { data: [] }, isLoading: multiStepLoading } = useQuery({
+        queryKey: [getGetApiFlipFusionMultistepQueryKey()],
+        queryFn: () => getApiFlipFusionMultistep(),
+        enabled: showMultiStep
+    })
+
+    const displayedFlips = showMultiStep ? (multiStepFlips || []) : flips
+    const [hasPremium, setHasPremium] = useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return
+        const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId') ?? ''
+        setIsLoggedIn(!!token)
+        if (token) {
+            api.refreshLoadPremiumProducts(
+                products => {
+                    setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
+                },
+                () => setHasPremium(false)
+            )
+        }
+    }, [])
+
+    function renderStepDetails(step: FusionStep) {
+        return (
+            <div key={`${step.output}-${JSON.stringify(step.inputs)}`} style={{ paddingLeft: '10px', borderLeft: '2px solid #6c5ce7', marginBottom: '4px' }}>
+                <span style={{ color: '#6c5ce7', fontWeight: 'bold' }}>Step: </span>
+                {step.inputs
+                    ? Object.keys(step.inputs).map((input, idx) => (
+                          <span key={input}>
+                              {idx > 0 && ' + '}
+                              <Image
+                                  crossOrigin="anonymous"
+                                  src={api.getItemImageUrl({ tag: input }) || ''}
+                                  height="16"
+                                  width="16"
+                                  alt=""
+                                  style={{ marginRight: '2px' }}
+                                  loading="lazy"
+                              />
+                              {convertTagToName(input)} x{step.inputs![input]}
+                          </span>
+                      ))
+                    : null}
+                <span> → </span>
+                {step.output && (
+                    <>
+                        <Image
+                            crossOrigin="anonymous"
+                            src={api.getItemImageUrl({ tag: step.output }) || ''}
+                            height="16"
+                            width="16"
+                            alt=""
+                            style={{ marginRight: '2px' }}
+                            loading="lazy"
+                        />
+                        {convertTagToName(step.output)} x{step.outputCount}
+                    </>
+                )}
+            </div>
+        )
+    }
 
     function renderFlipContent(flip: FuseFlip) {
         return (
             <>
                 <h4>{getCraftHeader(flip)}</h4>
+                {flip.steps && flip.steps.length > 1 && (
+                    <p>
+                        <span style={{ color: '#6c5ce7', fontWeight: 'bold' }}>Multi-step ({flip.depth} levels)</span>
+                    </p>
+                )}
                 <p>
                     <span style={{ width: '150px', float: 'left' }}>Input Cost:</span> <Number number={Math.round(flip.inputCost)} /> Coins
                 </p>
@@ -55,28 +126,27 @@ export function FusionFlips() {
                     <span style={{ width: '150px', float: 'left' }}>Volume:</span> <Number number={Math.round(flip.volume)} />
                 </p>
                 <hr />
-                {flip.inputs
-                    ? Object.keys(flip.inputs).map(input => {
-                          return (
-                              <p key={input}>
-                                  <Image
-                                      crossOrigin="anonymous"
-                                      src={
-                                          api.getItemImageUrl({
-                                              tag: input
-                                          }) || ''
-                                      }
-                                      height="24"
-                                      width="24"
-                                      alt=""
-                                      style={{ marginRight: '5px' }}
-                                      loading="lazy"
-                                  />
-                                  {convertTagToName(input) + ' (' + flip.inputs![input] + 'x)'}
-                              </p>
-                          )
-                      })
-                    : null}
+                {flip.steps && flip.steps.length > 1 ? (
+                    <>
+                        <p style={{ fontWeight: 'bold' }}>Fusion Steps:</p>
+                        {flip.steps.map(step => renderStepDetails(step))}
+                    </>
+                ) : flip.inputs ? (
+                    Object.keys(flip.inputs).map(input => (
+                        <p key={input}>
+                            <Image
+                                crossOrigin="anonymous"
+                                src={api.getItemImageUrl({ tag: input }) || ''}
+                                height="24"
+                                width="24"
+                                alt=""
+                                style={{ marginRight: '5px' }}
+                                loading="lazy"
+                            />
+                            {convertTagToName(input) + ' (' + flip.inputs![input] + 'x)'}
+                        </p>
+                    ))
+                ) : null}
             </>
         )
     }
@@ -126,7 +196,9 @@ export function FusionFlips() {
             volume: 123123,
             inputVolume: 0,
             inputs: null,
-            output: null
+            output: null,
+            steps: null,
+            depth: 1
         }
     }
 
@@ -137,6 +209,26 @@ export function FusionFlips() {
                 The list highlights input cost, output value, output count and trade volume so you can quickly spot high-margin fusion flips. This is one of the
                 newest Skyblock money making methods introduced with the the <strong>Galatea Foraging update</strong>.
             </p>
+            <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
+                    <input
+                        type="checkbox"
+                        checked={showMultiStep}
+                        onChange={e => setShowMultiStep(e.target.checked)}
+                    />
+                    Show Multi-Step Fusions (up to 3 levels)
+                </label>
+                {showMultiStep && (
+                    hasPremium ? (
+                        <span style={{ color: '#2ecc71', fontSize: '0.9em' }}>✅ Included in your premium tier</span>
+                    ) : (
+                        <Link href="https://sky.coflnet.com/premium?tier=starter_premium" target="_blank" style={{ color: '#6c5ce7', fontSize: '0.9em' }}>
+                            🔒 Requires starter premium — combine multiple fusions for higher profit margins
+                        </Link>
+                    )
+                )}
+                {multiStepLoading && showMultiStep && <span>Loading...</span>}
+            </div>
             <details>
                 <summary>How to profit of hypixel skyblock fusion flipping</summary>
                 <ol>
@@ -171,15 +263,15 @@ export function FusionFlips() {
             </details>
             <br />
             <GenericFlipList
-                items={flips}
+                items={displayedFlips}
                 sortOptions={SORT_OPTIONS}
                 renderFlipContentAction={renderFlipContent}
                 filterFunction={filterFunction}
                 getItemKeyAction={flip => flip.output || `${JSON.stringify(flip)}`}
                 getFlipLink={flip => (flip.output ? `https://sky.coflnet.com/item/${flip.output}` : undefined)}
                 censoredItemGenerator={censoredItemGenerator}
-                premiumMessage="The top 3 flips can only be seen with starter premium or better"
-                clickMessage="Click on a flip for further details"
+                premiumMessage={showMultiStep ? "Multi-step fusion flips require starter premium or better" : "The top 3 flips can only be seen with starter premium or better"}
+                clickMessage="Click on a flip for price history"
                 showColumns={true}
             />
         </>
