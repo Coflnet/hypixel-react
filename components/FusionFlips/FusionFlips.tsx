@@ -36,13 +36,14 @@ const SORT_OPTIONS: SortOption<FuseFlip>[] = [
 
 export function FusionFlips() {
     const [showMultiStep, setShowMultiStep] = useState(false)
+    const [googleToken, setGoogleToken] = useState('')
     const { data: { data: flips } = { data: [] } } = useSuspenseQuery({
         queryKey: [getGetApiFlipFusionQueryKey()],
         queryFn: () => getApiFlipFusion()
     })
     const { data: { data: multiStepFlips } = { data: [] }, isLoading: multiStepLoading } = useQuery({
-        queryKey: [getGetApiFlipFusionMultistepQueryKey()],
-        queryFn: () => getApiFlipFusionMultistep(),
+        queryKey: [getGetApiFlipFusionMultistepQueryKey(), googleToken],
+        queryFn: () => getApiFlipFusionMultistep(googleToken ? { headers: { GoogleToken: googleToken } } : undefined),
         enabled: showMultiStep
     })
 
@@ -53,6 +54,7 @@ export function FusionFlips() {
     useEffect(() => {
         if (typeof window === 'undefined') return
         const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId') ?? ''
+        setGoogleToken(token)
         setIsLoggedIn(!!token)
         if (token) {
             api.refreshLoadPremiumProducts(
