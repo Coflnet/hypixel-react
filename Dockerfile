@@ -11,7 +11,7 @@ ENV NODE_ENV=production
 WORKDIR /opt/app
 COPY . .
 COPY --from=deps /opt/app/node_modules ./node_modules
-RUN rm -f orval.config.ts cypress.config.ts && npm run build
+RUN rm -rf orval.config.ts cypress.config.ts cypress/ docs/ scripts/ lighthouse-reports/ playwright-report/ && npm run build
 
 # Production image, copy all the files and run next
 FROM node:lts-slim AS runner
