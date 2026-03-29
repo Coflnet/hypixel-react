@@ -27,6 +27,7 @@ COPY --from=builder --chown=nextjs:nextjs /opt/app/public ./public
 COPY --from=builder --chown=nextjs:nextjs /opt/app/.next ./.next
 COPY --from=builder --chown=nextjs:nextjs /opt/app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nextjs /opt/app/package.json ./
+COPY --from=builder --chown=nextjs:nextjs /opt/app/app/wiki/docs ./app/wiki/docs
 
 USER nextjs
 EXPOSE 3000
