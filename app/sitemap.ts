@@ -82,8 +82,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 // Helper function to generate item sitemaps
 async function generateItemSitemap(type: 'auction' | 'bazaar'): Promise<MetadataRoute.Sitemap> {
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://sky.coflnet.com'
-        const response = await fetch(`${baseUrl}/api/items`)
+        const apiBase = process.env.API_ENDPOINT || 'https://sky.coflnet.com/api'
+        const response = await fetch(`${apiBase}/items`)
         
         if (!response.ok) {
             console.error(`Failed to fetch items: ${response.status}`)
