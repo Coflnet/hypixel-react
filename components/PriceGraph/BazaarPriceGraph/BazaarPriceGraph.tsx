@@ -92,7 +92,9 @@ function BazaarPriceGraph(props: Props) {
     }, [graphType])
 
     function init() {
-        fetchspan = (getURLSearchParam('range') as DateRange) || DEFAULT_DATE_RANGE
+        let urlRange = getURLSearchParam('range')
+        let validRanges = Object.values(DateRange) as string[]
+        fetchspan = (urlRange && validRanges.includes(urlRange) ? (urlRange as DateRange) : DEFAULT_DATE_RANGE)
         setFetchspan(fetchspan)
 
         graphType = (localStorage.getItem(BAZAAR_GRAPH_TYPE) as GRAPH_TYPE) || DEFAULT_GRAPH_TYPE
@@ -200,6 +202,10 @@ function BazaarPriceGraph(props: Props) {
     function loadBazaarPrices(tag: string, fetchspan: DateRange): Promise<BazaarPrice[]> {
         if (fetchspan === DateRange.ALL) {
             return api.getBazaarPricesByRange(tag, new Date(0), new Date())
+        } else if (fetchspan === DateRange.MONTH) {
+            let monthAgo = new Date()
+            monthAgo.setMonth(monthAgo.getMonth() - 1)
+            return api.getBazaarPricesByRange(tag, monthAgo, new Date())
         } else {
             return api.getBazaarPrices(tag, fetchspan as any)
         }
@@ -375,7 +381,7 @@ function BazaarPriceGraph(props: Props) {
         <div>
             <Suspense>
                 <ItemPriceRange
-                    dateRangesToDisplay={[DateRange.HOUR, DateRange.DAY, DateRange.WEEK, DateRange.ALL]}
+                    dateRangesToDisplay={[DateRange.HOUR, DateRange.DAY, DateRange.WEEK, DateRange.MONTH, DateRange.ALL]}
                     onRangeChange={onRangeChange}
                     disableAllTime={false}
                     item={props.item}

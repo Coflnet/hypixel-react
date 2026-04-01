@@ -82,7 +82,9 @@ let mounted = true
 
 function AuctionHousePriceGraph(props: Props) {
     let searchParams = useSearchParams()
-    let [fetchspan, setFetchspan] = useState((searchParams.get('range') as DateRange) || DEFAULT_DATE_RANGE)
+    let validRanges = Object.values(DateRange) as string[]
+    let urlRange = searchParams.get('range')
+    let [fetchspan, setFetchspan] = useState(urlRange && validRanges.includes(urlRange) ? (urlRange as DateRange) : DEFAULT_DATE_RANGE)
     let [isLoading, setIsLoading] = useState(false)
     let [noDataFound, setNoDataFound] = useState(false)
     let [avgPrice, setAvgPrice] = useState(0)

@@ -38,7 +38,9 @@ export function ItemPriceRange(props: Props) {
     let pathname = usePathname()
     let router = useRouter()
     let searchParams = useSearchParams()
-    let [selectedDateRange, _setSelectedDateRange] = useState(searchParams.get('range') || DEFAULT_DATE_RANGE)
+    let validRanges = Object.values(DateRange) as string[]
+    let urlRange = searchParams.get('range')
+    let [selectedDateRange, _setSelectedDateRange] = useState(urlRange && validRanges.includes(urlRange) ? urlRange : DEFAULT_DATE_RANGE)
     let urlUpdateCountRef = useRef<number[]>([])
 
     useEffect(() => {
@@ -61,7 +63,7 @@ export function ItemPriceRange(props: Props) {
 
     useEffect(() => {
         let range = getURLSearchParam('range')
-        if (!range) {
+        if (!range || !validRanges.includes(range)) {
             return
         }
         DEFAULT_DATE_RANGE = range as DateRange
