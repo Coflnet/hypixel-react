@@ -363,7 +363,7 @@ function PremiumFeatures() {
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>
-                            Access to BazaarPro (<Link href="https://pro.skyblock.bz" target="_blank" rel="noreferrer">pro.skyblock.bz</Link>)
+                            Access to BazaarPro (<Link href="https://pro.skyblock.bz/skycofl" target="_blank" rel="noreferrer">pro.skyblock.bz</Link>)
                         </td>
                         {xIconElement}
                         {xIconElement}
