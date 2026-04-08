@@ -6,6 +6,7 @@ import { getURLSearchParam } from '../../utils/Parser/URLParser'
 import styles from './ItemPriceRange.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { VALID_RANGES } from '../../hooks/useValidRange'
 
 export enum DateRange {
     ACTIVE = 'active',
@@ -38,9 +39,10 @@ export function ItemPriceRange(props: Props) {
     let pathname = usePathname()
     let router = useRouter()
     let searchParams = useSearchParams()
-    let validRanges = Object.values(DateRange) as string[]
-    let urlRange = searchParams.get('range')
-    let [selectedDateRange, _setSelectedDateRange] = useState(urlRange && validRanges.includes(urlRange) ? urlRange : DEFAULT_DATE_RANGE)
+    let [selectedDateRange, _setSelectedDateRange] = useState<DateRange>(() => {
+        let urlRange = searchParams.get('range')
+        return urlRange && VALID_RANGES.includes(urlRange) ? (urlRange as DateRange) : DEFAULT_DATE_RANGE
+    })
     let urlUpdateCountRef = useRef<number[]>([])
 
     useEffect(() => {
@@ -63,7 +65,7 @@ export function ItemPriceRange(props: Props) {
 
     useEffect(() => {
         let range = getURLSearchParam('range')
-        if (!range || !validRanges.includes(range)) {
+        if (!range || !VALID_RANGES.includes(range)) {
             return
         }
         DEFAULT_DATE_RANGE = range as DateRange

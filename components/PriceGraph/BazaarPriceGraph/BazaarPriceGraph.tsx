@@ -11,6 +11,7 @@ import { getURLSearchParam } from '../../../utils/Parser/URLParser'
 import { BAZAAR_GRAPH_LEGEND_SELECTION, BAZAAR_GRAPH_TYPE } from '../../../utils/SettingsUtils'
 import { isClientSideRendering } from '../../../utils/SSRUtils'
 import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
+import { getValidatedRange } from '../../../hooks/useValidRange'
 import Number from '../../Number/Number'
 import RelatedItems from '../../RelatedItems/RelatedItems'
 import ShareButton from '../../ShareButton/ShareButton'
@@ -92,9 +93,7 @@ function BazaarPriceGraph(props: Props) {
     }, [graphType])
 
     function init() {
-        let urlRange = getURLSearchParam('range')
-        let validRanges = Object.values(DateRange) as string[]
-        fetchspan = (urlRange && validRanges.includes(urlRange) ? (urlRange as DateRange) : DEFAULT_DATE_RANGE)
+        fetchspan = getValidatedRange(getURLSearchParam('range'))
         setFetchspan(fetchspan)
 
         graphType = (localStorage.getItem(BAZAAR_GRAPH_TYPE) as GRAPH_TYPE) || DEFAULT_GRAPH_TYPE
