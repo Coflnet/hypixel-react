@@ -7,6 +7,7 @@ import { PremiumTier, PurchaseType, Duration } from './types'
 import { TierSelectionStep, PaymentMethodStep, DurationSelectionStep, PurchaseCompletionStep } from './Steps'
 import { PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
 import { parseTierFromUrl } from '../../../utils/PremiumUpgradeUtils'
+import { useCountryDetection } from '../../../hooks/useCountryDetection'
 
 interface Props {
     activePremiumProduct: PremiumProduct
@@ -21,16 +22,9 @@ function PremiumPurchaseWizard(props: Props) {
     const [selectedType, setSelectedType] = useState<PurchaseType | null>(null)
     const [selectedDuration, setSelectedDuration] = useState<Duration | null>(null)
     const [urlDiscountCode, setUrlDiscountCode] = useState<string | null>(null)
-    const [countryCode, setCountryCode] = useState<string>('US')
+    const { selectedCountry, handleCountryChange } = useCountryDetection()
 
     const totalSteps = 4
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const stored = localStorage.getItem('countryCode')
-            if (stored) setCountryCode(stored)
-        }
-    }, [])
 
     const getCurrentTier = (): PremiumTier | null => {
         if (!props.activePremiumProduct) return null
@@ -182,7 +176,8 @@ function PremiumPurchaseWizard(props: Props) {
                         isUpgrade={isUpgrade}
                         suggestedTier={suggestedTier}
                         activePremiumProduct={props.activePremiumProduct}
-                        onCountryCodeChange={setCountryCode}
+                        selectedCountry={selectedCountry}
+                        onCountryChange={handleCountryChange}
                     />
                 )
             case 2:
@@ -194,7 +189,7 @@ function PremiumPurchaseWizard(props: Props) {
                         selectedTier={selectedTier!}
                         selectedDuration={selectedDuration}
                         onDurationSelect={handleDurationSelect}
-                        countryCode={countryCode}
+                        countryCode={selectedCountry?.value}
                     />
                 )
             case 4:
@@ -207,7 +202,7 @@ function PremiumPurchaseWizard(props: Props) {
                         premiumSubscriptions={props.premiumSubscriptions}
                         onNewActivePremiumProduct={props.onNewActivePremiumProduct}
                         initialDiscountCode={urlDiscountCode}
-                        countryCode={countryCode}
+                        countryCode={selectedCountry?.value}
                     />
                 )
             default:

@@ -169,26 +169,6 @@ function BuyPremium(props: Props) {
         return props.selectedTier ? getTierDisplayName(props.selectedTier) : purchasePremiumType.label
     }
 
-    const getDurationDisplayName = () => {
-        if (!props.selectedDuration) return getDurationString()
-        switch (props.selectedDuration) {
-            case Duration.HOUR:
-                return '1 Hour'
-            case Duration.WEEK:
-                return '1 Week'
-            case Duration.MONTHLY:
-                return '1 Month'
-            case Duration.QUARTER:
-                return '3 Months'
-            case Duration.QUARTER:
-                return 'Quarterly'
-            case Duration.YEARLY:
-                return 'Yearly'
-            default:
-                return getDurationString()
-        }
-    }
-
     // If coming from wizard, show only the selected option with summary
     if (props.selectedTier && props.selectedDuration !== undefined) {
         return (

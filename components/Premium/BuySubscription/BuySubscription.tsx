@@ -18,6 +18,7 @@ import {
     getTierApiProductId,
     VAT_RATES
 } from '../../../utils/PricingUtils'
+import { useCountryDetection } from '../../../hooks/useCountryDetection'
 
 interface Props {
     activePremiumProduct: PremiumProduct
@@ -40,12 +41,10 @@ function BuySubscription(props: Props) {
     const [pendingYearlyDiscount, setPendingYearlyDiscount] = useState<ValidatedDiscount | null>(null)
     const [isValidatingDiscount, setIsValidatingDiscount] = useState(false)
     const [discountError, setDiscountError] = useState<string | null>(null)
+    const { selectedCountry } = useCountryDetection()
     const [showStarterDiscountHint] = useState(() => Math.random() < 0.2)
 
-    // Get country code from prop or localStorage
-    const countryCode = (props.countryCode && props.countryCode.length > 0)
-        ? props.countryCode
-        : (typeof window !== 'undefined' ? localStorage.getItem('countryCode') || 'US' : 'US')
+    const country = props.countryCode || selectedCountry?.value || 'US'
 
     useEffect(() => {
         fetchPricing(creatorCode)
@@ -86,7 +85,7 @@ function BuySubscription(props: Props) {
 
             const response = await postApiTopupRates({
                 productSlugs: productSlugs,
-                countryCode: countryCode,
+                countryCode: country,
                 creatorCode: code || null
             }, {
                 headers: headers
@@ -218,15 +217,13 @@ function BuySubscription(props: Props) {
 
     // Get VAT rate for current country
     const getVATRate = (): number => {
-        if (!countryCode) return 0
-        const upperCode = countryCode.toUpperCase()
+        const upperCode = country.toUpperCase()
         return VAT_RATES[upperCode] ?? 0
     }
 
     // Check if VAT should be included in the price (known country with VAT rate)
     const shouldIncludeVATInPrice = (): boolean => {
-        if (!countryCode) return false
-        const upperCode = countryCode.toUpperCase()
+        const upperCode = country.toUpperCase()
         return upperCode !== 'US' && VAT_RATES[upperCode] !== undefined
     }
 
@@ -285,9 +282,6 @@ function BuySubscription(props: Props) {
             }
         })
         : undefined
-
-    const wizardIsYearOption = props.selectedDuration === Duration.YEARLY
-    const wizardIsQuarterOption = props.selectedDuration === Duration.QUARTER
 
     // Helper to get the current duration for product ID
     const getCurrentDuration = (): Duration => {

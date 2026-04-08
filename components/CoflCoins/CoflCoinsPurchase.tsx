@@ -7,9 +7,8 @@ import { postApiTopupPlaystore } from '../../api/_generated/skyApi'
 import { useCoflCoins } from '../../utils/Hooks'
 import CoflCoinPurchaseWizard from './CoflCoinPurchaseWizard'
 import PurchaseElement from './PurchaseElement'
-import { Country, getCountry, getCountryFromUserLanguage } from '../../utils/CountryUtils'
 import CountrySelect from '../CountrySelect/CountrySelect'
-import { USER_COUNTRY_CODE } from '../../utils/SettingsUtils'
+import { useCountryDetection } from '../../hooks/useCountryDetection'
 import styles from './CoflCoinsPurchase.module.css'
 
 interface Props {
@@ -21,8 +20,7 @@ function Payment(props: Props) {
     let [loadingId, setLoadingId] = useState('')
     let [currentRedirectLink, setCurrentRedirectLink] = useState('')
     let [showAll, setShowAll] = useState(false)
-    let [defaultCountry, setDefaultCountry] = useState<Country>()
-    let [selectedCountry, setSelectedCountry] = useState<Country>()
+    const { selectedCountry, handleCountryChange } = useCountryDetection()
     let [useWizard, setUseWizard] = useState(true)
     let [isGooglePlayAvailable, setIsGooglePlayAvailable] = useState(false)
     let coflCoins = useCoflCoins()
@@ -62,9 +60,6 @@ function Payment(props: Props) {
                 }
             }
         }
-
-        // Load country
-        loadDefaultCountry()
 
         // Check for Android Billing availability with a delay
         setTimeout(() => {
@@ -159,39 +154,6 @@ function Payment(props: Props) {
         })
 
         setIsGooglePlayAvailable(available)
-    }
-
-    async function loadDefaultCountry() {
-        let cachedCountryCode = localStorage.getItem(USER_COUNTRY_CODE)
-        if (cachedCountryCode) {
-            setDefaultCountry(getCountry(cachedCountryCode))
-            setSelectedCountry(getCountry(cachedCountryCode))
-            return
-        }
-
-        let response: Response | null = null
-        try {
-            response = await fetch('https://api.country.is')
-        } catch (error) {
-            console.warn('Failed to fetch country from api.country.is:', error)
-            // Fallback to country from browser language
-            let country = getCountryFromUserLanguage()
-            setDefaultCountry(country)
-            setSelectedCountry(country)
-            return
-        }
-
-        if (response && response.ok) {
-            let result = await response.json()
-            let country = getCountry(result.country) || getCountryFromUserLanguage()
-            setDefaultCountry(country)
-            setSelectedCountry(country)
-            localStorage.setItem(USER_COUNTRY_CODE, result.country)
-        } else {
-            let country = getCountryFromUserLanguage()
-            setDefaultCountry(country)
-            setSelectedCountry(country)
-        }
     }
 
     function onPayPaypal(productId: string, coflCoins?: number) {
@@ -294,11 +256,7 @@ function Payment(props: Props) {
     if (!props.cancellationRightLossConfirmed || !selectedCountry) {
         return (
             <div>
-                {defaultCountry ? (
-                    <CountrySelect key="country-select" isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={setSelectedCountry} />
-                ) : (
-                    <CountrySelect key="loading-country-select" isLoading />
-                )}
+                <CountrySelect onCountryChange={handleCountryChange} />
 
                 {!props.cancellationRightLossConfirmed && (
                     <Alert variant="warning" style={{ marginTop: '20px' }}>
@@ -320,16 +278,7 @@ function Payment(props: Props) {
             <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <div>
-                        {defaultCountry ? (
-                            <CountrySelect
-                                key="country-select"
-                                isLoading={!defaultCountry}
-                                defaultCountry={defaultCountry}
-                                onCountryChange={setSelectedCountry}
-                            />
-                        ) : (
-                            <CountrySelect key="loading-country-select" isLoading />
-                        )}
+                        <CountrySelect onCountryChange={handleCountryChange} />
                     </div>
                     <Button variant="outline-secondary" size="sm" onClick={() => setUseWizard(false)}>
                         Switch to Classic View
@@ -354,11 +303,7 @@ function Payment(props: Props) {
         <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <div>
-                    {defaultCountry ? (
-                        <CountrySelect key="country-select" isLoading={!defaultCountry} defaultCountry={defaultCountry} onCountryChange={setSelectedCountry} />
-                    ) : (
-                        <CountrySelect key="loading-country-select" isLoading />
-                    )}
+                    <CountrySelect onCountryChange={handleCountryChange} />
                 </div>
                 <Button variant="outline-primary" size="sm" onClick={() => setUseWizard(true)}>
                     Switch to New Wizard
