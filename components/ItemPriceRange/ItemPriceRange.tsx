@@ -89,7 +89,7 @@ export function ItemPriceRange(props: Props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.setToDefaultRangeSwitch])
 
-    function setSelectedDateRange(range: string) {
+    function setSelectedDateRange(range: DateRange) {
         if (isClientSideRendering()) {
             let searchParams = new URLSearchParams(window.location.search)
             const currentRange = searchParams.get('range')
