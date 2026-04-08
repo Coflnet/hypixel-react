@@ -238,7 +238,8 @@ async function getItemData(searchParams, params) {
 
         if (!cachedInfo) {
             try {
-                const itemsResponse = await fetch('https://sky.coflnet.com/api/items', { next: { revalidate: 3600 } })
+                const apiBase = process.env.API_ENDPOINT || 'https://sky.coflnet.com/api'
+                const itemsResponse = await fetch(`${apiBase}/items`, { next: { revalidate: 3600 } })
                 const items = await itemsResponse.json()
                 const item = items.find((i: any) => i.tag === tag)
                 if (item) {

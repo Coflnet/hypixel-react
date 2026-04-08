@@ -172,12 +172,12 @@ export const FLIP_FINDERS = [
         default: false,
         description: (
             <span>
-                Built for speed using Rust and hosted on high-performance US infrastructure directly near Hypixel servers. This finder aims to beat network delays to spot flips instantly, using a combination of LBIN checks and sales history for accuracy.
+                Built for speed using Rust, using a combination of LBIN checks and sales history for accuracy.
                 <br />
                 <i>This is a third-party finder that we provide the infrastructure for, it costs extra and only works with the mod use /cofl rust in the mod to see.</i>
             </span>
         ),
-        selectable: true
+        selectable: false
     },
     {
         value: '4096',
@@ -189,7 +189,7 @@ export const FLIP_FINDERS = [
                 Mix in Bazaar flips of profitable buy order -&gt; sell order opportunities.
             </span>
         ),
-        selectable: false
+        selectable: true
     }
 ]
 

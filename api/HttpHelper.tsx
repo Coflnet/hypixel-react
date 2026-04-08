@@ -96,7 +96,10 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
             })
                 .then(response => {
                     if (!response.ok && response.status !== 304) {
-                        return Promise.reject(response.text())
+                        let status = response.status
+                        return response.text().then(text => {
+                            return Promise.reject(`HTTP ${status}: ${(text || '').substring(0, 100)}`)
+                        })
                     }
 
                     return response.text()
@@ -122,14 +125,8 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                     cacheUtils.setIntoCache(request.customRequestURL || request.type, data, parsedResponse, maxAge)
                     removeSentRequests([...equals, request])
                 })
-                .catch(responseTextPromise => {
-                    if (!responseTextPromise || typeof responseTextPromise.then !== 'function') {
-                        request.reject(responseTextPromise || 'no responseTextPromise')
-                        return
-                    }
-                    responseTextPromise.then(responseText => {
-                        request.reject(parseResponseText(responseText) || 'no responseTextPromise after parse')
-                    })
+                .catch(errorInfo => {
+                    request.reject(errorInfo || 'request failed with no error info')
                 })
                 .finally(() => {
                     // when there are still matching request remove them

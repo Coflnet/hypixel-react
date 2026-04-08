@@ -18,6 +18,7 @@ Welcome to the comprehensive guide for SkyCofl's Hypixel SkyBlock tools and feat
 
 - [Auction House Browser](/wiki/auction-house)
 - [Item Flipper](./flipper)
+- [Flip Finders](./flip-finders)
 
 ## Tools & Utilities
 

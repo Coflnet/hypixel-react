@@ -123,6 +123,24 @@ function PremiumFeatures() {
                         {checkIconElement}
                     </tr>
                     <tr>
+                        <td className={styles.featureColumn}>
+                            Multi-Step Fusion Flips
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={<p>Combine up to 3 levels of fusions for higher profit margins by crafting intermediate shards instead of buying them</p>}
+                            />
+                        </td>
+                        {xIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                        {checkIconElement}
+                    </tr>
+                    <tr>
                         <td className={styles.featureColumn}>Top 3 Craft Flips</td>
                         {xIconElement}
                         {checkIconElement}
@@ -345,7 +363,7 @@ function PremiumFeatures() {
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>
-                            Access to BazaarPro (<Link href="https://pro.skyblock.bz" target="_blank" rel="noreferrer">pro.skyblock.bz</Link>)
+                            Access to BazaarPro (<Link href="https://pro.skyblock.bz/skycofl" target="_blank" rel="noreferrer">pro.skyblock.bz</Link>)
                         </td>
                         {xIconElement}
                         {xIconElement}

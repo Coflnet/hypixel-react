@@ -123,12 +123,11 @@ function Startpage(props: Props) {
         })
     }
 
-    // Show CHRISTMAS25 banner only until Dec 27 of the current year
     const now = new Date()
-    const discountEnd = new Date(2026, 1, 15, 0, 59, 59) // month is 0-based: 11 = December
+    const discountEnd = new Date('2026-04-15T00:00:00.000Z'); 
     const showChristmasBanner = now <= discountEnd
-    const discountCode = showChristmasBanner ? 'VALENTINE' : null
-    const discountAmount = "5%"
+    const discountCode = showChristmasBanner ? 'EASTER' : null
+    const discountAmount = "20%"
 
     const salesBanner = discountCode ? (
         <Link href={`/premium?code=${discountCode}`} style={{ textDecoration: 'none' }}>
@@ -144,7 +143,7 @@ function Startpage(props: Props) {
                 cursor: 'pointer',
                 transition: 'transform 0.2s'
             }} className={styles.salesBanner} role="button" aria-label="Valentines promo">
-                💌 <span style={{ fontSize: '1.1em' }}>Valentine's Special — For lonely gamers</span> Treat yourself or surprise a friend! Get <span style={{ color: '#ffe082' }}>{discountAmount} OFF</span> EVERYTHING with code <span style={{ backgroundColor: 'white', color: '#c2185b', padding: '2px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>{discountCode}</span> ❤️🎮 Click to redeem!
+                <span style={{ fontSize: '1.1em' }}>Easter sale</span> Get <span style={{ color: '#ffe082' }}>{discountAmount} OFF</span> subscriptions with code <span style={{ backgroundColor: 'white', color: '#c2185b', padding: '2px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>{discountCode}</span> 🎮 Click to redeem!
             </div>
         </Link>
     ) : null

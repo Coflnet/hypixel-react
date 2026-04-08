@@ -591,7 +591,14 @@ function FlipRestrictionList(props: Props) {
                     </div>
                 </div>
                 <div className={styles.restrictionList}>
-                    {!isSSR ? (
+                    {restrictionsToDisplay.length === 0 ? (
+                        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', flexDirection: 'column', gap: '10px' }}>
+                            <p>No restrictions found. Learn more about how filters work:</p>
+                            <a href="https://www.youtube.com/watch?v=k4eZ3_hroT4&t=146" target="_blank" rel="noopener noreferrer" style={{ color: '#007bff', textDecoration: 'underline' }}>
+                                How Filters Work - YouTube
+                            </a>
+                        </div>
+                    ) : !isSSR ? (
                         <AutoSizer>
                             {({ height, width }) => (
                                 <Grid

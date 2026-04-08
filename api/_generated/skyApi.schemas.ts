@@ -422,6 +422,18 @@ export interface Composter {
   costReductionPercent: number;
 }
 
+export interface CopperFlip {
+  /** @nullable */
+  itemTag?: string | null;
+  buyPrice: number;
+  analyzeCost: number;
+  copperYield: number;
+  totalCost: number;
+  copperPerCoin: number;
+  timestamp: string;
+  volume: number;
+}
+
 export interface Cost {
   /** @nullable */
   itemName?: string | null;
@@ -1074,6 +1086,22 @@ export interface FuseFlip {
   volume: number;
   inputVolume: number;
   outputValue: number;
+  /** @nullable */
+  output?: string | null;
+  outputCount: number;
+  /** @nullable */
+  steps?: FusionStep[] | null;
+  depth: number;
+}
+
+/**
+ * @nullable
+ */
+export type FusionStepInputs = {[key: string]: number} | null;
+
+export interface FusionStep {
+  /** @nullable */
+  inputs?: FusionStepInputs;
   /** @nullable */
   output?: string | null;
   outputCount: number;
@@ -1997,6 +2025,20 @@ export interface PrivacySettings {
   noMessageBlocking: boolean;
 }
 
+export interface ProblemDetails {
+  /** @nullable */
+  type?: string | null;
+  /** @nullable */
+  title?: string | null;
+  /** @nullable */
+  status?: number | null;
+  /** @nullable */
+  detail?: string | null;
+  /** @nullable */
+  instance?: string | null;
+  [key: string]: unknown;
+}
+
 export interface ProductPricingResponse {
   /** @nullable */
   productSlug?: string | null;
@@ -2889,6 +2931,10 @@ requestRefresh?: boolean;
 };
 
 export type GetApiFlipNpcReverse401One = {
+  message?: string;
+};
+
+export type GetApiFlipFusionMultistep401One = {
   message?: string;
 };
 

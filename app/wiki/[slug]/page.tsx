@@ -3,10 +3,12 @@ import path from 'path'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import remarkGfm from 'remark-gfm'
 import { notFound } from 'next/navigation'
 import matter from 'gray-matter'
 import { getHeadMetadata, getCanonicalUrl } from '../../../utils/SSRUtils'
 import TimezoneDetect from '../../../components/TimezoneDetect/TimezoneDetect'
+import ApiAccessStatus from '../../../components/ApiAccessStatus/ApiAccessStatus'
 
 const docsDirectory = path.join(process.cwd(), 'app/wiki/docs')
 
@@ -37,10 +39,11 @@ export default async function WikiPage(props) {
                 source={doc.content}
                 options={{
                     mdxOptions: {
+                        remarkPlugins: [remarkGfm],
                         rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings]
                     }
                 }}
-                components={{ TimezoneDetect }}
+                components={{ TimezoneDetect, ApiAccessStatus }}
             />
         </article>
     )

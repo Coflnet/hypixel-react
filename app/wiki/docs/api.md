@@ -418,6 +418,8 @@ The response headers tell you both how many you have left and when the limit res
 - `X-RateLimit-Remaining`: The number of requests remaining in the current period
 - `X-RateLimit-Reset`: The time at which the current rate limit window resets
 
+**Blocked?** If your IP has been blocked for exceeding rate limits, you can unblock it with a Premium+ subscription. See [API Access & Token Management](/wiki/api-access) for details.
+
 You can also contact us via discord to request higher rate limits for your application.
 
 ## Attribution

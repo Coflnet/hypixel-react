@@ -3,6 +3,7 @@ import path from 'path'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import rehypeSlug from 'rehype-slug'
 import rehypeAutolinkHeadings from 'rehype-autolink-headings'
+import remarkGfm from 'remark-gfm'
 import matter from 'gray-matter'
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import TimezoneDetect from '../../components/TimezoneDetect/TimezoneDetect'
@@ -35,6 +36,7 @@ export default async function Wiki() {
                 source={doc.content}
                 options={{
                     mdxOptions: {
+                        remarkPlugins: [remarkGfm],
                         rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings]
                     }
                 }}
