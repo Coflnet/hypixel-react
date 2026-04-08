@@ -6,17 +6,8 @@ import { getURLSearchParam } from '../../utils/Parser/URLParser'
 import styles from './ItemPriceRange.module.css'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { VALID_RANGES } from '../../hooks/useValidRange'
-
-export enum DateRange {
-    ACTIVE = 'active',
-    HOUR = 'hour',
-    DAY = 'day',
-    WEEK = 'week',
-    MONTH = 'month',
-    YEAR = 'year',
-    ALL = 'full'
-}
+import { VALID_RANGES, DateRange, DEFAULT_DATE_RANGE } from '../../hooks/useValidRange'
+export { DateRange, DEFAULT_DATE_RANGE }
 
 interface Props {
     onRangeChange?(timespan: DateRange): void
@@ -27,8 +18,6 @@ interface Props {
     setToDefaultRangeSwitch?: boolean
     dateRangesToDisplay: DateRange[]
 }
-
-export let DEFAULT_DATE_RANGE = DateRange.DAY
 
 // Track URL updates to detect loops
 const URL_UPDATE_WINDOW = 5000 // 5 seconds
@@ -44,6 +33,7 @@ export function ItemPriceRange(props: Props) {
         return urlRange && VALID_RANGES.includes(urlRange) ? (urlRange as DateRange) : DEFAULT_DATE_RANGE
     })
     let urlUpdateCountRef = useRef<number[]>([])
+    let defaultRangeRef = useRef<DateRange>(DEFAULT_DATE_RANGE)
 
     useEffect(() => {
         if (props.disableAllTime && selectedDateRange === DateRange.ALL) {
@@ -68,23 +58,23 @@ export function ItemPriceRange(props: Props) {
         if (!range || !VALID_RANGES.includes(range)) {
             return
         }
-        DEFAULT_DATE_RANGE = range as DateRange
+        defaultRangeRef.current = range as DateRange
 
         setTimeout(() => {
             setSelectedDateRange(range as DateRange)
-            DEFAULT_DATE_RANGE = DateRange.DAY
+            defaultRangeRef.current = DateRange.DAY
         }, 500)
     }, [])
 
     useEffect(() => {
         if (props.item !== undefined) {
-            setSelectedDateRange(DEFAULT_DATE_RANGE)
+            setSelectedDateRange(defaultRangeRef.current)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item.tag])
 
     useEffect(() => {
-        let setTo = selectedDateRange === DateRange.ACTIVE ? DateRange.ACTIVE : DEFAULT_DATE_RANGE
+        let setTo = selectedDateRange === DateRange.ACTIVE ? DateRange.ACTIVE : defaultRangeRef.current
         onRangeChange(setTo)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.setToDefaultRangeSwitch])

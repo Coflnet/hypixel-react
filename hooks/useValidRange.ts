@@ -1,6 +1,17 @@
 import { useState, Dispatch, SetStateAction } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { DateRange, DEFAULT_DATE_RANGE } from '../components/ItemPriceRange/ItemPriceRange'
+
+export enum DateRange {
+    ACTIVE = 'active',
+    HOUR = 'hour',
+    DAY = 'day',
+    WEEK = 'week',
+    MONTH = 'month',
+    YEAR = 'year',
+    ALL = 'full'
+}
+
+export const DEFAULT_DATE_RANGE = DateRange.DAY
 
 export const VALID_RANGES = Object.values(DateRange) as string[]
 
