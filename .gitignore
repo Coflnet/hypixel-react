@@ -39,3 +39,4 @@ cypress/videos/*
 /playwright-report/
 /playwright/.cache/
 data/
+tsconfig.tsbuildinfo

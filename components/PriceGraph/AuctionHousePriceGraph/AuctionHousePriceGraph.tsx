@@ -9,6 +9,7 @@ import { AUCTION_GRAPH_LEGEND_SELECTION } from '../../../utils/SettingsUtils'
 import ActiveAuctions from '../../ActiveAuctions/ActiveAuctions'
 import ItemFilter, { getPrefillFilter } from '../../ItemFilter/ItemFilter'
 import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
+import { useValidRange } from '../../../hooks/useValidRange'
 import Number from '../../Number/Number'
 import GoogleSignIn from '../../GoogleSignIn/GoogleSignIn'
 import RecentAuctions from '../../RecentAuctions/RecentAuctions'
@@ -82,7 +83,7 @@ let mounted = true
 
 function AuctionHousePriceGraph(props: Props) {
     let searchParams = useSearchParams()
-    let [fetchspan, setFetchspan] = useState((searchParams.get('range') as DateRange) || DEFAULT_DATE_RANGE)
+    let [fetchspan, setFetchspan] = useValidRange()
     let [isLoading, setIsLoading] = useState(false)
     let [noDataFound, setNoDataFound] = useState(false)
     let [avgPrice, setAvgPrice] = useState(0)

@@ -11,6 +11,7 @@ import { getURLSearchParam } from '../../../utils/Parser/URLParser'
 import { BAZAAR_GRAPH_LEGEND_SELECTION, BAZAAR_GRAPH_TYPE } from '../../../utils/SettingsUtils'
 import { isClientSideRendering } from '../../../utils/SSRUtils'
 import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
+import { getValidatedRange } from '../../../hooks/useValidRange'
 import Number from '../../Number/Number'
 import RelatedItems from '../../RelatedItems/RelatedItems'
 import ShareButton from '../../ShareButton/ShareButton'
@@ -92,7 +93,7 @@ function BazaarPriceGraph(props: Props) {
     }, [graphType])
 
     function init() {
-        fetchspan = (getURLSearchParam('range') as DateRange) || DEFAULT_DATE_RANGE
+        fetchspan = getValidatedRange(getURLSearchParam('range'))
         setFetchspan(fetchspan)
 
         graphType = (localStorage.getItem(BAZAAR_GRAPH_TYPE) as GRAPH_TYPE) || DEFAULT_GRAPH_TYPE
@@ -200,6 +201,10 @@ function BazaarPriceGraph(props: Props) {
     function loadBazaarPrices(tag: string, fetchspan: DateRange): Promise<BazaarPrice[]> {
         if (fetchspan === DateRange.ALL) {
             return api.getBazaarPricesByRange(tag, new Date(0), new Date())
+        } else if (fetchspan === DateRange.MONTH) {
+            let monthAgo = new Date()
+            monthAgo.setMonth(monthAgo.getMonth() - 1)
+            return api.getBazaarPricesByRange(tag, monthAgo, new Date())
         } else {
             return api.getBazaarPrices(tag, fetchspan as any)
         }
@@ -375,7 +380,7 @@ function BazaarPriceGraph(props: Props) {
         <div>
             <Suspense>
                 <ItemPriceRange
-                    dateRangesToDisplay={[DateRange.HOUR, DateRange.DAY, DateRange.WEEK, DateRange.ALL]}
+                    dateRangesToDisplay={[DateRange.HOUR, DateRange.DAY, DateRange.WEEK, DateRange.MONTH, DateRange.ALL]}
                     onRangeChange={onRangeChange}
                     disableAllTime={false}
                     item={props.item}

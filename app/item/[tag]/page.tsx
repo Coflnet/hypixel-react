@@ -155,7 +155,8 @@ ${getFiltersText(filter)}` : ''}`,
 }
 
 async function getItemData(searchParams, params) {
-    let range = searchParams.range || 'day'
+    let validRanges = ['active', 'hour', 'day', 'week', 'month', 'year', 'full']
+    let range = validRanges.includes(searchParams.range) ? searchParams.range : 'day'
     let tag = params.tag as string
     let itemFilter = getItemFilterFromUrl(searchParams)
 
@@ -278,6 +279,10 @@ async function fetchPrices(api: API, tag: string, range: string, isBazaar: boole
     if (isBazaar) {
         if (range === 'full') {
             return api.getBazaarPricesByRange(tag, new Date(0), new Date())
+        } else if (range === 'month') {
+            let monthAgo = new Date()
+            monthAgo.setMonth(monthAgo.getMonth() - 1)
+            return api.getBazaarPricesByRange(tag, monthAgo, new Date())
         } else {
             return api.getBazaarPrices(tag, range as any)
         }
