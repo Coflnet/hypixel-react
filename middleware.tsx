@@ -7,6 +7,11 @@ export async function middleware(req: NextRequest, ev: NextFetchEvent) {
         const url = req.nextUrl.clone()
         let split = url.pathname.split('/')
 
+        if (!split[2]) {
+            url.pathname = '/'
+            return NextResponse.redirect(url)
+        }
+
         // special case for people searching a hyauction account
         if (
             req.headers.get('referer')?.includes('google.com') &&
@@ -74,4 +79,8 @@ export async function middleware(req: NextRequest, ev: NextFetchEvent) {
     }
 
     return response
+}
+
+export const config = {
+    matcher: ['/', '/player/:path*', '/item/:path*', '/flipper/:path*', '/auction/:path*', '/bazaar/:path*', '/(.*sitemap.*\\.xml)']
 }
