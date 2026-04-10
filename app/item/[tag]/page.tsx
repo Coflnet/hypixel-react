@@ -169,7 +169,10 @@ async function getItemData(searchParams, params) {
         if (isBazaarFromCache !== null && range !== 'active') {
             const [itemDetails, prices] = await Promise.all([
                 api.getItemDetails(tag) as Promise<any>,
-                fetchPrices(api, tag, range, isBazaarFromCache, itemFilter).catch(() => [])
+                fetchPrices(api, tag, range, isBazaarFromCache, itemFilter).catch(e => {
+                    if (itemFilter && Object.keys(itemFilter).length > 0) throw e
+                    return []
+                })
             ])
 
             if (!itemDetails || !itemDetails.name) {
@@ -224,7 +227,10 @@ async function getItemData(searchParams, params) {
         }
 
         let isBazaar = hasFlag(itemDetails.flags, 1)
-        let prices = await fetchPrices(api, tag, range, isBazaar, itemFilter).catch(() => [])
+        let prices = await fetchPrices(api, tag, range, isBazaar, itemFilter).catch(e => {
+            if (itemFilter && Object.keys(itemFilter).length > 0) throw e
+            return []
+        })
 
         return {
             item: itemDetails,
@@ -235,6 +241,11 @@ async function getItemData(searchParams, params) {
         }
     } catch (error) {
         if (isRedirectError(error)) throw error
+
+        if (itemFilter && Object.keys(itemFilter).length > 0) {
+            redirect(`/item/${tag}`)
+        }
+
         console.error('Error fetching item data:', error instanceof Error ? error.message : error)
 
         let cachedInfo = await getCachedItemInfo(tag).catch(() => null)
