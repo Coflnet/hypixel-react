@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { isRedirectError } from 'next/dist/client/components/redirect-error'
 import { parseItem } from '../../../utils/Parser/APIResponseParser'
 import { getHeadMetadata, getCanonicalUrl } from '../../../utils/SSRUtils'
 import { convertTagToName, numberWithThousandsSeparators } from '../../../utils/Formatter'
@@ -168,7 +169,7 @@ async function getItemData(searchParams, params) {
         if (isBazaarFromCache !== null && range !== 'active') {
             const [itemDetails, prices] = await Promise.all([
                 api.getItemDetails(tag) as Promise<any>,
-                fetchPrices(api, tag, range, isBazaarFromCache, itemFilter)
+                fetchPrices(api, tag, range, isBazaarFromCache, itemFilter).catch(() => [])
             ])
 
             if (!itemDetails || !itemDetails.name) {
@@ -223,7 +224,7 @@ async function getItemData(searchParams, params) {
         }
 
         let isBazaar = hasFlag(itemDetails.flags, 1)
-        let prices = await fetchPrices(api, tag, range, isBazaar, itemFilter)
+        let prices = await fetchPrices(api, tag, range, isBazaar, itemFilter).catch(() => [])
 
         return {
             item: itemDetails,
@@ -233,6 +234,7 @@ async function getItemData(searchParams, params) {
             itemFlags: cachedInfo
         }
     } catch (error) {
+        if (isRedirectError(error)) throw error
         console.error('Error fetching item data:', error instanceof Error ? error.message : error)
 
         let cachedInfo = await getCachedItemInfo(tag).catch(() => null)
