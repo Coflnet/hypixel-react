@@ -67,8 +67,15 @@ function BazaarExportModal(props: Props) {
         props.onHide()
     }
 
+    function getExportHistoryYears(): string {
+        const dataStart = new Date(2019, 9, 1) // October 2019
+        const now = new Date()
+        const years = Math.floor((now.getTime() - dataStart.getTime()) / (365.25 * 24 * 60 * 60 * 1000))
+        return `~${years} years`
+    }
+
     function getMaxHistoryLabel(): string {
-        if (hasPremiumPlus) return '~6 years'
+        if (hasPremiumPlus) return getExportHistoryYears()
         if (hasPremium) return '180 days'
         return 'None'
     }
@@ -191,7 +198,7 @@ function BazaarExportModal(props: Props) {
                         {!hasPremium && !hasPremiumPlus && (
                             <Alert variant="info">
                                 Bazaar data export requires at least <strong>Premium</strong>. Exports of the last <strong>180 days</strong> are available with
-                                Premium and the last <strong>~6 years</strong> are available with Premium+.
+                                Premium and data since October 2019 (<strong>{getExportHistoryYears()}</strong>) is available with Premium+.
                                 <div className={styles.actionButtonContainer}>
                                     <Button href="/premium?tier=premium" variant="success" className="disableLinkStyle">
                                         Get Premium
@@ -203,7 +210,7 @@ function BazaarExportModal(props: Props) {
                         {hasPremium && !hasPremiumPlus && (
                             <Alert variant="info">
                                 With Premium you can export up to the last <strong>180 days</strong> of data. Upgrade to <strong>Premium+</strong> for up to{' '}
-                                <strong>~6 years</strong> of history.
+                                <strong>{getExportHistoryYears()}</strong> of history (data since October 2019).
                                 <div className={styles.actionButtonContainer}>
                                     <Button href="/premium?tier=premium_plus" variant="primary" className="disableLinkStyle">
                                         Upgrade to Premium+
@@ -214,7 +221,7 @@ function BazaarExportModal(props: Props) {
 
                         {hasPremiumPlus && (
                             <Alert variant="info">
-                                With Premium+ you can export up to the last <strong>~6 years</strong> of bazaar data.
+                                With Premium+ you can export data since October 2019 (<strong>{getExportHistoryYears()}</strong> of bazaar data).
                             </Alert>
                         )}
 
@@ -222,6 +229,17 @@ function BazaarExportModal(props: Props) {
                             <strong>Note:</strong> If no date range is specified, the export will contain the last 2 weeks of data in 20-second increments. The
                             export will download as a zip file containing JSON.
                         </p>
+
+                        {(hasPremium || hasPremiumPlus) && (
+                            <Alert variant="secondary" className="mt-2">
+                                <strong>Rate Limits:</strong> You can make up to <strong>5 cost units per 5 minutes</strong>.
+                                A standard export costs <strong>1 unit</strong>. A full order book export costs <strong>3 units</strong>.
+                                {hasPremium && !hasPremiumPlus && (
+                                    <> Data resolution: <strong>5-minute increments</strong>.</>)}
+                                {hasPremiumPlus && (
+                                    <> Data resolution: <strong>20-second increments</strong> (last 2 weeks), <strong>5-minute increments</strong> (older data).</>)}
+                            </Alert>
+                        )}
 
                         <hr />
 

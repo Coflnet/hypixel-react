@@ -78,5 +78,17 @@ If you exceed the API rate limits continuously, your IP may be automatically blo
 - Premium+ users are exempt from IP bans and can just download data directly so don't need to send lots of requests.
 - Respect the rate limit headers (`X-RateLimit-Remaining`, `X-RateLimit-Reset`) even with premium
 
+## Rate Limit Summary by Tier
+
+| Feature | Free | Premium | Premium+ |
+|---------|------|---------|----------|
+| General API | 100 req/min, 30 req/10s | Same | Same (account-based, IP ban exempt) |
+| Bazaar export | ❌ | 5 units/5 min, 180 days | 5 units/5 min, data since Oct 2019 |
+| Auction archive overview | ❌ | ❌ | 2s delay per request |
+| Auction archive export | ❌ | ❌ | Max 4 queued jobs, data since Oct 2019 |
+| Archive pagination | ❌ | ❌ | Available |
+| IP ban recovery | ❌ | ❌ | Auto-unblock with token |
+
+> **Export cost units:** A standard bazaar export costs 1 unit. A full order book export costs 3 units. You can make up to 5 units per 5-minute window.
 
 For custom rate limits for your application, contact us on [Discord](https://discord.gg/wvKXSHt).

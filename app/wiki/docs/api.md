@@ -409,9 +409,38 @@ func main() {
 
 ## Rate Limits
 To ensure fair usage of our API, we enforce the following rate limits:
-- maximum 100 requests per minute
-- maximum 30 requests per 10 seconds (to avoid hitting the limit and then having to wait a full minute)
 
+### General API Rate Limits
+| Window | Limit | Applies to |
+|--------|-------|------------|
+| 10 seconds | 30 requests | All users (by IP) |
+| 1 minute | 100 requests | All users (by IP) |
+
+Premium+ users with a valid `Authorization: Bearer` token are identified by their account instead of IP and are exempt from IP bans.
+
+### Bazaar Export Rate Limits
+| Window | Limit | Notes |
+|--------|-------|-------|
+| 5 minutes | 5 cost units | Full order book exports cost 3 units, standard exports cost 1 unit |
+
+**Export data access by tier:**
+| Tier | Max History | Data Resolution |
+|------|------------|----------------|
+| Free | — | No export access |
+| Premium | 180 days | 20-second increments (last 2 weeks), 5-minute increments |
+| Premium+ | Since October 2019 | 20-second increments (last 2 weeks), 5-minute increments (older) |
+
+### Auction Archive Rate Limits
+| Endpoint | Rate Limit | Tier Required |
+|----------|-----------|---------------|
+| `/auctions/tag/{tag}/archive/overview` | 2-second delay per request | Premium+ |
+| `/auctions/tag/{tag}/archive/export` | Max 4 queued jobs | Premium+ |
+| `/auctions/tag/{tag}/recent/overview` | General API limits | Free |
+| `/auctions/tag/{tag}/active/overview` | General API limits | Free |
+
+Archive pagination is only available for Premium+ users.
+
+### Rate Limit Response
 If you exceed these limits, you will receive a `429 Too Many Requests` response. Please implement appropriate retry logic in your application to handle rate limiting.
 The response headers tell you both how many you have left and when the limit resets:
 - `X-RateLimit-Limit`: The maximum number of requests allowed in the current period
