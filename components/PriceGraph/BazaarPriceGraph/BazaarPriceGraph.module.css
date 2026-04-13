@@ -26,6 +26,7 @@
 
 .chartWrapperSingle {
     height: 55vh;
+    min-height: 350px;
     width: 100%;
     margin-top: 10px;
     margin-bottom: 50px;
@@ -33,6 +34,7 @@
 
 .chartWrapperSplit {
     height: 27.5vh;
+    min-height: 180px;
     width: 100%;
     margin-bottom: 50px;
 }

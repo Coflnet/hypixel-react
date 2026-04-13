@@ -501,6 +501,53 @@ interface ItemPriceSummary {
     max: number
 }
 
+interface AdvancedAnalysisResult {
+    volumeBuckets: VolumeBucket[]
+    sellSpeedBuckets: SellSpeedBucket[]
+    totalSales: number
+    avgSellTimeSeconds: number
+    medianSellTimeSeconds: number
+    avgPrice: number
+    medianPrice: number
+    minPrice: number
+    maxPrice: number
+    binPercentage: number
+    salesPerDay: number
+    hourlyBreakdown: HourlyStat[]
+    priceStdDev: number
+    priceCoeffVariation: number
+    topSellers: SellerShare[]
+}
+
+interface HourlyStat {
+    hour: number
+    count: number
+    avgPrice: number
+    avgSellTimeSeconds: number
+}
+
+interface SellerShare {
+    seller: string
+    count: number
+    percentage: number
+}
+
+interface VolumeBucket {
+    minPrice: number
+    maxPrice: number
+    avgPrice: number
+    count: number
+}
+
+interface SellSpeedBucket {
+    minPrice: number
+    maxPrice: number
+    avgPrice: number
+    avgSellTimeSeconds: number
+    speedCategory: string
+    sampleCount: number
+}
+
 interface ItemPriceMovement {
     tag: string
     recent: number

@@ -17,6 +17,7 @@ import RelatedItems from '../../RelatedItems/RelatedItems'
 import ShareButton from '../../ShareButton/ShareButton'
 import styles from './BazaarPriceGraph.module.css'
 import BazaarSnapshot from './BazaarSnapshot/BazaarSnapshot'
+import BazaarAnalysis from '../../AdvancedAnalysis/BazaarAnalysis'
 import getPriceGraphConfigSingle from './PriceGraphConfigSingle'
 import getPriceGraphConfigSplit from './PriceGraphConfigSplit'
 import { applyMayorDataToChart } from '../../../utils/GraphUtils'
@@ -399,6 +400,8 @@ function BazaarPriceGraph(props: Props) {
                                         option={chartOptionsPrimary}
                                         className={styles.chart}
                                         onEvents={onChartsEvents(chartOptionsPrimary, getLegendLocalStorageKey(true), primaryChartRef)}
+                                        lazyUpdate
+                                        notMerge
                                     />
                                 ) : (
                                     graphOverlayElement
@@ -413,6 +416,8 @@ function BazaarPriceGraph(props: Props) {
                                             option={chartOptionsSecondary}
                                             className={styles.chart}
                                             onEvents={onChartsEvents(chartOptionsSecondary, getLegendLocalStorageKey(false), secondaryChartRef)}
+                                            lazyUpdate
+                                            notMerge
                                         />
                                     ) : (
                                         graphOverlayElement
@@ -481,6 +486,7 @@ function BazaarPriceGraph(props: Props) {
                     }}
                 />
                 <hr />
+                <BazaarAnalysis item={props.item} />
                 <RelatedItems tag={props.item.tag} isBazaarItem={true} />
                 <BazaarSnapshot item={props.item} />
             </div>

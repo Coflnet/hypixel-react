@@ -4,6 +4,8 @@ const ANIMATION_THRESHOLD = 200
 
 function getPriceGraphConfigSingle() {
     return {
+        animation: false,
+        progressive: 0,
         tooltip: {
             trigger: 'axis',
             className: 'priceGraphTooltip',
@@ -137,6 +139,8 @@ function getPriceGraphConfigSingle() {
                 smooth: true,
                 symbol: 'none',
                 yAxisIndex: 0,
+                large: true,
+                sampling: 'lttb',
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
@@ -150,6 +154,8 @@ function getPriceGraphConfigSingle() {
                 color: '#B22222',
                 symbol: 'none',
                 yAxisIndex: 0,
+                large: true,
+                sampling: 'lttb',
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
@@ -163,6 +169,8 @@ function getPriceGraphConfigSingle() {
                 color: '#4B0082',
                 symbol: 'none',
                 yAxisIndex: 1,
+                large: true,
+                sampling: 'lttb',
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
@@ -175,6 +183,8 @@ function getPriceGraphConfigSingle() {
                 type: 'line',
                 symbol: 'none',
                 yAxisIndex: 1,
+                large: true,
+                sampling: 'lttb',
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
@@ -211,6 +221,8 @@ function getPriceGraphConfigSingle() {
                 smooth: true,
                 symbol: 'none',
                 yAxisIndex: 0,
+                large: true,
+                sampling: 'lttb',
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
@@ -225,6 +237,8 @@ function getPriceGraphConfigSingle() {
                 smooth: true,
                 symbol: 'none',
                 yAxisIndex: 0,
+                large: true,
+                sampling: 'lttb',
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
@@ -239,6 +253,8 @@ function getPriceGraphConfigSingle() {
                 smooth: true,
                 symbol: 'none',
                 yAxisIndex: 1,
+                large: true,
+                sampling: 'lttb',
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
@@ -252,6 +268,8 @@ function getPriceGraphConfigSingle() {
                 yAxisIndex: 1,
                 smooth: true,
                 symbol: 'none',
+                large: true,
+                sampling: 'lttb',
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
@@ -266,6 +284,8 @@ function getPriceGraphConfigSingle() {
                 color: 'RGBA(31, 97, 141, 0.3)',
                 smooth: true,
                 symbol: 'none',
+                large: true,
+                sampling: 'lttb',
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,

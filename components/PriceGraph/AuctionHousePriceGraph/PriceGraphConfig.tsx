@@ -3,6 +3,8 @@ import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeparators } fro
 const ANIMATION_THRESHOLD = 200
 
 let option = {
+    animation: false,
+    progressive: 0,
     tooltip: {
         trigger: 'axis',
         className: 'priceGraphTooltip',
@@ -89,6 +91,8 @@ let option = {
             },
             yAxisIndex: 0,
             smooth: true,
+            large: true,
+            sampling: 'lttb',
             animationThreshold: ANIMATION_THRESHOLD,
             tooltip: {
                 valueFormatter: formatAsCoins
@@ -102,6 +106,8 @@ let option = {
             symbol: 'none',
             yAxisIndex: 0,
             smooth: true,
+            large: true,
+            sampling: 'lttb',
             animationThreshold: ANIMATION_THRESHOLD,
             tooltip: {
                 valueFormatter: formatAsCoins
@@ -115,6 +121,8 @@ let option = {
             symbol: 'none',
             yAxisIndex: 0,
             smooth: true,
+            large: true,
+            sampling: 'lttb',
             animationThreshold: ANIMATION_THRESHOLD,
             tooltip: {
                 valueFormatter: formatAsCoins
@@ -128,6 +136,8 @@ let option = {
             symbol: 'none',
             yAxisIndex: 1,
             smooth: true,
+            large: true,
+            sampling: 'lttb',
             animationThreshold: ANIMATION_THRESHOLD,
             tooltip: {
                 valueFormatter: numberWithThousandsSeparators
@@ -144,6 +154,8 @@ let option = {
             },
             yAxisIndex: 0,
             smooth: true,
+            large: true,
+            sampling: 'lttb',
             animationThreshold: ANIMATION_THRESHOLD,
             data: [] as any[]
         }

@@ -1,0 +1,291 @@
+.container {
+    padding-bottom: 25px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.headerTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.rangeSelector {
+    display: flex;
+    gap: 4px;
+}
+
+.rangeBtn {
+    padding: 4px 12px;
+    border: 1px solid var(--bs-border-color, #444);
+    background: transparent;
+    color: var(--bs-body-color, #ccc);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.rangeBtn:hover {
+    background: var(--bs-secondary-bg, #333);
+}
+
+.rangeBtnActive {
+    background: var(--bs-primary, #0d6efd);
+    color: #fff;
+    border-color: var(--bs-primary, #0d6efd);
+}
+
+.sectionsRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 768px) {
+    .sectionsRow {
+        grid-template-columns: 1fr;
+    }
+}
+
+.section {
+    background: var(--bs-secondary-bg, #1a1a2e);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid var(--bs-border-color, #333);
+}
+
+.sectionTitle {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    color: var(--bs-body-color, #ddd);
+}
+
+/* Sell Speed Table */
+.speedTable {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.speedGrid {
+    display: flex;
+    gap: 6px;
+    min-width: 0;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.speedColumn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 72px;
+    flex: 1;
+    gap: 4px;
+}
+
+.speedPrice {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--bs-body-color, #ccc);
+    text-align: center;
+    padding: 4px 2px;
+    background: var(--bs-tertiary-bg, #252540);
+    border-radius: 4px;
+    width: 100%;
+}
+
+.speedTime {
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    padding: 6px 2px;
+    border-radius: 4px;
+    width: 100%;
+    color: #fff;
+}
+
+.speedFast {
+    background: #198754;
+}
+
+.speedMed {
+    background: #b8860b;
+}
+
+.speedSlow {
+    background: #dc3545;
+}
+
+.speedVerySlow {
+    background: #8b0000;
+}
+
+.speedSamples {
+    font-size: 10px;
+    color: var(--bs-secondary-color, #888);
+    text-align: center;
+}
+
+.speedLegend {
+    display: flex;
+    gap: 12px;
+    font-size: 11px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.legendDot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+.xAxisLabel {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--bs-secondary-color, #888);
+    margin-top: 4px;
+    padding: 0 2px;
+}
+
+/* Summary stats row */
+.statsRow {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.statCard {
+    background: var(--bs-secondary-bg, #1a1a2e);
+    border-radius: 8px;
+    padding: 10px 16px;
+    border: 1px solid var(--bs-border-color, #333);
+    flex: 1;
+    min-width: 120px;
+    text-align: center;
+}
+
+.statLabel {
+    font-size: 11px;
+    color: var(--bs-secondary-color, #888);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.statValue {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--bs-body-color, #eee);
+}
+
+/* Premium lock overlay */
+.premiumLock {
+    text-align: center;
+    padding: 24px;
+    background: var(--bs-secondary-bg, #1a1a2e);
+    border-radius: 8px;
+    border: 1px solid var(--bs-border-color, #333);
+}
+
+/* Collapse toggle */
+.collapseIcon {
+    font-size: 12px;
+    color: var(--bs-secondary-color, #888);
+    width: 16px;
+    user-select: none;
+}
+
+.rangeBadge {
+    font-size: 11px;
+    background: var(--bs-tertiary-bg, #252540);
+    padding: 2px 10px;
+    border-radius: 10px;
+    color: var(--bs-secondary-color, #888);
+    font-weight: 600;
+}
+
+/* Volatility */
+.volatilityRow {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.volatilityMain {
+    flex: 1;
+    min-width: 90px;
+    text-align: center;
+    background: var(--bs-tertiary-bg, #252540);
+    border-radius: 6px;
+    padding: 8px;
+}
+
+/* Seller concentration */
+.sellerList {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sellerRow {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+}
+
+.sellerRank {
+    font-weight: 600;
+    color: var(--bs-secondary-color, #888);
+    min-width: 24px;
+}
+
+.sellerBar {
+    flex: 1;
+    height: 6px;
+    background: var(--bs-tertiary-bg, #252540);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.sellerFill {
+    height: 100%;
+    background: #3b82f6;
+    border-radius: 3px;
+    transition: width 0.3s;
+}
+
+.sellerPct {
+    font-weight: 600;
+    min-width: 40px;
+    text-align: right;
+    color: var(--bs-body-color, #ccc);
+}
+
+.sellerCount {
+    font-size: 10px;
+    color: var(--bs-secondary-color, #888);
+    min-width: 30px;
+    text-align: right;
+}
+
+.sellerConcentration {
+    font-size: 11px;
+    color: var(--bs-secondary-color, #888);
+    text-align: center;
+    margin-top: 4px;
+}

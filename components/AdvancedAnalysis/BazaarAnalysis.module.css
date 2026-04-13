@@ -1,0 +1,212 @@
+.container {
+    padding-bottom: 25px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.headerTitle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.collapseIcon {
+    font-size: 12px;
+    color: var(--bs-secondary-color, #888);
+    width: 16px;
+    user-select: none;
+}
+
+.sectionsRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+    .sectionsRow {
+        grid-template-columns: 1fr;
+    }
+}
+
+.section {
+    background: var(--bs-secondary-bg, #1a1a2e);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid var(--bs-border-color, #333);
+}
+
+.sectionTitle {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+    color: var(--bs-body-color, #ddd);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sectionBadge {
+    font-size: 11px;
+    background: var(--bs-tertiary-bg, #252540);
+    padding: 2px 8px;
+    border-radius: 10px;
+    color: var(--bs-secondary-color, #888);
+}
+
+/* Stats row */
+.statsRow {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.statCard {
+    background: var(--bs-secondary-bg, #1a1a2e);
+    border-radius: 8px;
+    padding: 10px 16px;
+    border: 1px solid var(--bs-border-color, #333);
+    flex: 1;
+    min-width: 110px;
+    text-align: center;
+}
+
+.statLabel {
+    font-size: 11px;
+    color: var(--bs-secondary-color, #888);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.statValue {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--bs-body-color, #eee);
+}
+
+.statSub {
+    font-size: 10px;
+    color: var(--bs-secondary-color, #888);
+    margin-top: 2px;
+}
+
+/* Imbalance gauge + bar */
+.imbalanceRow {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.imbalanceGauge {
+    display: flex;
+    justify-content: center;
+}
+
+.imbalanceBar {
+    padding: 0 8px;
+}
+
+.imbalanceLabel {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.barTrack {
+    width: 100%;
+    height: 8px;
+    background: #dc3545;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.barFill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.3s;
+}
+
+/* Whale orders */
+.whaleList {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.whaleRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12px;
+    padding: 4px 8px;
+    background: var(--bs-tertiary-bg, #252540);
+    border-radius: 4px;
+}
+
+.whaleBuy {
+    font-size: 10px;
+    font-weight: 700;
+    color: #28a745;
+    background: rgba(40, 167, 69, 0.15);
+    padding: 1px 6px;
+    border-radius: 3px;
+    min-width: 34px;
+    text-align: center;
+}
+
+.whaleSell {
+    font-size: 10px;
+    font-weight: 700;
+    color: #dc3545;
+    background: rgba(220, 53, 69, 0.15);
+    padding: 1px 6px;
+    border-radius: 3px;
+    min-width: 34px;
+    text-align: center;
+}
+
+.whaleValue {
+    margin-left: auto;
+    font-weight: 600;
+    color: var(--bs-warning, #ffc107);
+}
+
+/* Support & Resistance */
+.srColumns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.srLabel {
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.srRow {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    padding: 3px 6px;
+    background: var(--bs-tertiary-bg, #252540);
+    border-radius: 3px;
+    margin-bottom: 3px;
+}
+
+.srVol {
+    color: var(--bs-secondary-color, #888);
+}

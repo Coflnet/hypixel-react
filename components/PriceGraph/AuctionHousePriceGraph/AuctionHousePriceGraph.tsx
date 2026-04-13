@@ -8,12 +8,14 @@ import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { AUCTION_GRAPH_LEGEND_SELECTION } from '../../../utils/SettingsUtils'
 import ActiveAuctions from '../../ActiveAuctions/ActiveAuctions'
 import ItemFilter, { getPrefillFilter } from '../../ItemFilter/ItemFilter'
+import { setFilterIntoUrlParams } from '../../../utils/Parser/URLParser'
 import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
 import { useValidRange } from '../../../hooks/useValidRange'
 import Number from '../../Number/Number'
 import GoogleSignIn from '../../GoogleSignIn/GoogleSignIn'
 import RecentAuctions from '../../RecentAuctions/RecentAuctions'
 import RelatedItems from '../../RelatedItems/RelatedItems'
+import AdvancedAnalysis from '../../AdvancedAnalysis/AdvancedAnalysis'
 import ShareButton from '../../ShareButton/ShareButton'
 import SubscribeButton from '../../SubscribeButton/SubscribeButton'
 import QuickDateSelect from './QuickDateSelect'
@@ -102,6 +104,7 @@ function AuctionHousePriceGraph(props: Props) {
     let [isYearLoading, setIsYearLoading] = useState(false)
     let [yearParams, setYearParams] = useState<any | undefined>(undefined)
     let [yearFetchOptions, setYearFetchOptions] = useState<RequestInit | undefined>(undefined)
+    let [filterKey, setFilterKey] = useState(generateUUID)
     let loadingMessage = useRotatingMessages(
         isYearLoading,
         [
@@ -388,16 +391,20 @@ function AuctionHousePriceGraph(props: Props) {
                     chartOptions.series[3].data.push(item.volume.toFixed(2))
                 })
 
-                try {
-                    let mayorData = await api.getMayorData(minDate, maxDate)
-                    setMayorData(mayorData)
-                    applyMayorDataToChart(chartOptions, mayorData, 4)
-                } catch (e) { }
-
+                // Show chart immediately without waiting for mayor data
                 setAvgPrice(Math.round(priceSum / prices.length))
                 setNoDataFound(prices.length === 0)
                 setIsLoading(false)
-                setChartOptions(chartOptions)
+                setChartOptions({ ...chartOptions })
+
+                // Load mayor data asynchronously and overlay after chart is visible
+                api.getMayorData(minDate, maxDate)
+                    .then(mayorData => {
+                        setMayorData(mayorData)
+                        applyMayorDataToChart(chartOptions, mayorData, 4)
+                        setChartOptions({ ...chartOptions })
+                    })
+                    .catch(() => { })
             })
             .catch(e => {
                 console.error(e)
@@ -416,6 +423,16 @@ function AuctionHousePriceGraph(props: Props) {
 
     let onFilterChange = (filter: ItemFilter) => {
         setItemFilter({ ...filter })
+        setDefaultRangeSwitch(!defaultRangeSwitch)
+        if (fetchspanRef.current !== DateRange.ACTIVE) {
+            updateChart(fetchspanRef.current, filter)
+        }
+    }
+
+    let onExternalFilterChange = (filter: ItemFilter) => {
+        setItemFilter({ ...filter })
+        setFilterIntoUrlParams(router, pathname, filter)
+        setFilterKey(generateUUID())
         setDefaultRangeSwitch(!defaultRangeSwitch)
         if (fetchspanRef.current !== DateRange.ACTIVE) {
             updateChart(fetchspanRef.current, filter)
@@ -532,7 +549,7 @@ function AuctionHousePriceGraph(props: Props) {
 
     return (
         <div>
-            <ItemFilter filters={filters} onFilterChange={onFilterChange} showModAdvert={true} showFilterInfoElement={true} />
+            <ItemFilter key={filterKey} filters={filters} onFilterChange={onFilterChange} showModAdvert={true} showFilterInfoElement={true} />
             <ItemPriceRange
                 key={rangeSelectKey}
                 setToDefaultRangeSwitch={defaultRangeSwitch}
@@ -564,7 +581,7 @@ function AuctionHousePriceGraph(props: Props) {
             <div style={fetchspan === DateRange.ACTIVE ? { display: 'none' } : {}}>
                 <div className={styles.chartWrapper}>
                     {!isLoading && !noDataFound && !yearServerError && !(fetchspan === DateRange.YEAR && !hasPremium && (yearStatistics?.isPremiumRequired || !isSignedIn)) ? (
-                        <ReactECharts option={chartOptions} className={styles.chart} ref={graphRef} onEvents={onChartsEvents()} />
+                        <ReactECharts option={chartOptions} className={styles.chart} ref={graphRef} onEvents={onChartsEvents()} lazyUpdate notMerge opts={{ renderer: 'svg' }} />
                     ) : (
                         graphOverlayElement
                     )}
@@ -659,7 +676,12 @@ function AuctionHousePriceGraph(props: Props) {
                 <ActiveAuctions item={props.item} filter={itemFilter} />
             ) : (
                 <div>
-                    {fetchspan !== DateRange.YEAR && <RelatedItems tag={props.item.tag} />}
+                    {fetchspan !== DateRange.YEAR && !(itemFilter && Object.keys(itemFilter).length > 0) && (
+                        <RelatedItems tag={props.item.tag} />
+                    )}
+                    {fetchspan !== DateRange.ALL && (
+                        <AdvancedAnalysis tag={props.item.tag} itemFilter={itemFilter} fetchspan={fetchspan} onFilterChange={onExternalFilterChange} />
+                    )}
                     <RecentAuctions
                         item={props.item}
                         itemFilter={itemFilter || {}}

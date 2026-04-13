@@ -4,6 +4,8 @@ const ANIMATION_THRESHOLD = 200
 
 function getPriceGraphConfigSplit() {
     return {
+        animation: false,
+        progressive: 0,
         tooltip: {
             trigger: 'axis',
             className: 'priceGraphTooltip',
@@ -120,6 +122,8 @@ function getPriceGraphConfigSplit() {
                 yAxisIndex: 0,
                 smooth: true,
                 symbol: 'none',
+                large: true,
+                sampling: 'lttb',
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
@@ -134,6 +138,8 @@ function getPriceGraphConfigSplit() {
                 yAxisIndex: 0,
                 smooth: true,
                 symbol: 'none',
+                large: true,
+                sampling: 'lttb',
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
@@ -148,6 +154,8 @@ function getPriceGraphConfigSplit() {
                 yAxisIndex: 1,
                 smooth: true,
                 symbol: 'none',
+                large: true,
+                sampling: 'lttb',
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
@@ -161,6 +169,8 @@ function getPriceGraphConfigSplit() {
                 yAxisIndex: 0,
                 smooth: true,
                 symbol: 'none',
+                large: true,
+                sampling: 'lttb',
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
@@ -175,6 +185,8 @@ function getPriceGraphConfigSplit() {
                 color: 'RGBA(31, 97, 141, 0.3)',
                 smooth: true,
                 symbol: 'none',
+                large: true,
+                sampling: 'lttb',
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
