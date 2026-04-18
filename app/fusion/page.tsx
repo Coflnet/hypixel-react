@@ -6,6 +6,10 @@ import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { getApiFlipFusion, getGetApiFlipFusionQueryKey } from '../../api/_generated/skyApi'
 import { FusionFlips } from '../../components/FusionFlips/FusionFlips'
 import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
+import { ToolLandingSeo } from '../../components/Seo/ToolLandingSeo'
+import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoContent'
+
+const seoContent = toolLandingSeoContent.fusion
 
 export default async function Page() {
     const queryClient = getQueryClient()
@@ -16,14 +20,13 @@ export default async function Page() {
     return (
         <>
             <Container>
-                <h2>
-                    <NavBar />
-                    Fusion Flips
-                </h2>
+                <NavBar />
+                <h1>Fusion Flips</h1>
                 <hr />
                 <HydrationBoundary state={dehydrate(queryClient)}>
                     <FusionFlips />
                 </HydrationBoundary>
+                <ToolLandingSeo content={seoContent} />
             </Container>
             <BottomBanner />
         </>
@@ -31,8 +34,8 @@ export default async function Page() {
 }
 
 export const metadata = getHeadMetadata(
-    'Fusion Flips',
-    'Discover profitable Hypixel SkyBlock Fusion machine flips.',
+    seoContent.metadataTitle,
+    seoContent.metadataDescription,
     undefined,
     [
         'shards',

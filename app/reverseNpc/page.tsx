@@ -5,6 +5,10 @@ import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import { getQueryClient } from '../../utils/QueryUtils'
 import { ReverseNpcFlips } from '../../components/ReverseNpcFlips/ReverseNpcFlips'
 import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
+import { ToolLandingSeo } from '../../components/Seo/ToolLandingSeo'
+import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoContent'
+
+const seoContent = toolLandingSeoContent.reverseNpc
 
 export default async function Page() {
     const queryClient = getQueryClient()
@@ -12,14 +16,13 @@ export default async function Page() {
     return (
         <>
             <Container>
-                <h2>
-                    <NavBar />
-                    Reverse NPC Flips
-                </h2>
+                <NavBar />
+                <h1>Reverse NPC Flips</h1>
                 <hr />
                 <HydrationBoundary state={dehydrate(queryClient)}>
                     <ReverseNpcFlips />
                 </HydrationBoundary>
+                <ToolLandingSeo content={seoContent} />
             </Container>
             <BottomBanner />
         </>
@@ -27,8 +30,8 @@ export default async function Page() {
 }
 
 export const metadata = getHeadMetadata(
-    'Reverse NPC Flips',
-    'Find guaranteed profits by buying items below their vendor value and selling them back to NPCs. Track every Hypixel SkyBlock reverse NPC flip with live margins and profit data.',
+    seoContent.metadataTitle,
+    seoContent.metadataDescription,
     undefined,
     ['reverse npc flips', 'npc profit', 'npc flip', 'hypixel skyblock profit', 'reverse flipping'],
     undefined,

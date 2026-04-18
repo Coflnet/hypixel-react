@@ -4,6 +4,10 @@ import { KatFlips } from '../../components/KatFlips/KatFlips'
 import Search from '../../components/Search/Search'
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
+import { ToolLandingSeo } from '../../components/Seo/ToolLandingSeo'
+import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoContent'
+
+const seoContent = toolLandingSeoContent.kat
 
 export default async function Page() {
     let api = initAPI(true)
@@ -12,9 +16,10 @@ export default async function Page() {
         <>
             <Container>
                 <Search />
-                <h2>Kat Flips</h2>
+                <h1>Kat Flips</h1>
                 <hr />
                 <KatFlips flips={flips} />
+                <ToolLandingSeo content={seoContent} />
             </Container>
             <BottomBanner />
         </>
@@ -22,8 +27,8 @@ export default async function Page() {
 }
 
 export const metadata = getHeadMetadata(
-    'Kat Flips',
-    'List of profitable upgrades from the NPC "Kat"',
+    seoContent.metadataTitle,
+    seoContent.metadataDescription,
     undefined,
     undefined,
     undefined,

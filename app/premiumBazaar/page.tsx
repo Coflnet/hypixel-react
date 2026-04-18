@@ -1,12 +1,13 @@
+import { Metadata } from 'next'
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Container } from 'react-bootstrap'
 import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
 import { PremiumBazaarFlips } from '../../components/PremiumBazaarFlips/PremiumBazaarFlips'
+import { ToolLandingSeo } from '../../components/Seo/ToolLandingSeo'
+import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoContent'
 
-const PAGE_TITLE = 'Premium Bazaar Flips — Real-time Bazaar Demand & Profit Finder | SkyCofl'
-const PAGE_DESCRIPTION =
-    'Premium Bazaar Flips — real-time Hypixel SkyBlock bazaar demand analysis and order-book flips. Get accurate, live profit estimates, buy/sell guidance and volume forecasts using our premium market tracker (premium required).'
+const seoContent = toolLandingSeoContent.premiumBazaar
 
 export default async function Page() {
     const faqStructuredData = {
@@ -43,10 +44,8 @@ export default async function Page() {
     return (
         <>
             <Container>
-                <h1>
-                    <NavBar />
-                    Premium Bazaar Flips
-                </h1>
+                <NavBar />
+                <h1>Premium Bazaar Flips</h1>
                 <hr />
 
                 <p className="lead">
@@ -55,28 +54,8 @@ export default async function Page() {
                     spread listings.
                 </p>
 
-                <section aria-labelledby="premium-bazaar-features">
-                    <h2 id="premium-bazaar-features">Why use Premium Bazaar Flips?</h2>
-                    <ul>
-                        <li>Live demand analysis and order-book depth for accurate profit calculations</li>
-                        <li>Faster reaction to market changes and event-driven spikes</li>
-                        <li>Better volume and turnover predictions to size buy orders safely</li>
-                        <li>Direct integration with in-game mod commands like <code>/cofl bazaar</code></li>
-                    </ul>
-                </section>
-
                 <PremiumBazaarFlips />
-
-                <details style={{ marginTop: '1rem' }}>
-                    <summary>Frequently asked questions</summary>
-                    <p>
-                        <strong>Difference to regular bazaar flips:</strong> Regular flips are calculated using weekly averages and spreads. Premium flips
-                        analyze the current market state (demand, orderbook) to produce instant profit estimates.
-                    </p>
-                    <p>
-                        <strong>Access:</strong> Premium subscription and Google login are required to access the real-time data used by these flips.
-                    </p>
-                </details>
+                <ToolLandingSeo content={seoContent} />
 
             </Container>
             <BottomBanner />
@@ -89,9 +68,9 @@ export default async function Page() {
     )
 }
 
-export const metadata = getHeadMetadata(
-    PAGE_TITLE,
-    PAGE_DESCRIPTION,
+export const metadata: Metadata = getHeadMetadata(
+    seoContent.metadataTitle,
+    seoContent.metadataDescription,
     'https://sky.coflnet.com/logo192.png',
     [
         'premium bazaar',

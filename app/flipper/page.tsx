@@ -1,9 +1,14 @@
+import { Metadata } from 'next'
 import Search from '../../components/Search/Search'
 import { initAPI } from '../../api/ApiHelper'
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import Flipper from '../../components/Flipper/Flipper'
 import { Container } from 'react-bootstrap'
 import Link from 'next/link'
+import { ToolLandingSeo } from '../../components/Seo/ToolLandingSeo'
+import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoContent'
+
+const seoContent = toolLandingSeoContent.flipper
 
 export default async function Page() {
     let api = initAPI(true)
@@ -19,7 +24,7 @@ export default async function Page() {
         <>
             <Container>
                 <Search />
-                <h2>Item Flipper</h2>
+                <h1>Item Flipper</h1>
                 <hr />
                 <Flipper flips={flips} />
                 <Link href="/bazaar" style={{ marginTop: '20px', display: 'inline-block' }}>
@@ -33,14 +38,15 @@ export default async function Page() {
                 <Link href="https://donut.coflnet.com" style={{ marginTop: '20px', display: 'inline-block' }}>
                     DonutSMP Flips
                 </Link>
+                <ToolLandingSeo content={seoContent} />
             </Container>
         </>
     )
 }
 
-export const metadata = getHeadMetadata(
-    undefined,
-    'Free auction house item flipper for Hypixel Skyblock',
+export const metadata: Metadata = getHeadMetadata(
+    seoContent.metadataTitle,
+    seoContent.metadataDescription,
     undefined,
     ['flipper'],
     undefined,

@@ -7,6 +7,10 @@ import { BazaarFlips } from '../../components/BazaarFlips/BazaarFlips'
 import { getQueryClient } from '../../utils/QueryUtils'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
+import { ToolLandingSeo } from '../../components/Seo/ToolLandingSeo'
+import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoContent'
+
+const seoContent = toolLandingSeoContent.bazaar
 
 export default async function Page() {
     const queryClient = getQueryClient()
@@ -17,14 +21,13 @@ export default async function Page() {
     return (
         <>
             <Container>
-                <h2>
-                    <NavBar />
-                    Bazaar Flips
-                </h2>
+                <NavBar />
+                <h1>Bazaar Flips</h1>
                 <hr />
                 <HydrationBoundary state={dehydrate(queryClient)}>
                     <BazaarFlips />
                 </HydrationBoundary>
+                <ToolLandingSeo content={seoContent} />
             </Container>
             <BottomBanner />
         </>
@@ -32,8 +35,8 @@ export default async function Page() {
 }
 
 export const metadata = getHeadMetadata(
-    'Bazaar Flips',
-    'Discover profitable Hypixel SkyBlock bazaar flipping opportunities. Real-time flip analysis, buy/sell spreads, and insta-buy order data to maximize your coin profits.',
+    seoContent.metadataTitle,
+    seoContent.metadataDescription,
     undefined,
     ['bazaar', 'flips', 'hypixel', 'skyblock', 'flip', 'bazaar flips', 'bazaar flipper'],
     undefined,

@@ -4,6 +4,10 @@ import { CraftsList } from '../../components/CraftsList/CraftsList'
 import Search from '../../components/Search/Search'
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
+import { ToolLandingSeo } from '../../components/Seo/ToolLandingSeo'
+import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoContent'
+
+const seoContent = toolLandingSeoContent.crafts
 
 export default async function Page() {
     let api = initAPI(true)
@@ -13,9 +17,10 @@ export default async function Page() {
         <>
             <Container>
                 <Search />
-                <h2>Profitable Hypixel Skyblock Craft Flips</h2>
+                <h1>Profitable Hypixel Skyblock Craft Flips</h1>
                 <hr />
                 <CraftsList crafts={crafts} bazaarTags={bazaarTags} />
+                <ToolLandingSeo content={seoContent} />
             </Container>
             <BottomBanner />
         </>
@@ -23,8 +28,8 @@ export default async function Page() {
 }
 
 export const metadata = getHeadMetadata(
-    'Crafts',
-    'List of profitable craft flips based on current ah and bazaar prices',
+    seoContent.metadataTitle,
+    seoContent.metadataDescription,
     undefined,
     undefined,
     undefined,

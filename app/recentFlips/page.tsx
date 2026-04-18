@@ -3,17 +3,20 @@ import NavBar from '../../components/NavBar/NavBar'
 import { Container } from 'react-bootstrap'
 import RecentFlipsDynamicWrapper from '../../components/RecentFlips/RecentFlipsDynamicWrapper'
 import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
+import { ToolLandingSeo } from '../../components/Seo/ToolLandingSeo'
+import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoContent'
+
+const seoContent = toolLandingSeoContent.recentFlips
 
 export default async function Page() {
     return (
         <>
             <Container>
-                <h2>
-                    <NavBar />
-                    Recent Flips
-                </h2>
+                <NavBar />
+                <h1>Recent Flips</h1>
                 <hr />
                 <RecentFlipsDynamicWrapper />
+                <ToolLandingSeo content={seoContent} />
             </Container>
             <BottomBanner />
         </>
@@ -21,8 +24,8 @@ export default async function Page() {
 }
 
 export const metadata = getHeadMetadata(
-    'Recent Flips',
-    'Discover profitable Hypixel SkyBlock bazaar flipping opportunities. Real-time flip analysis, buy/sell spreads, and insta-buy order data to maximize your coin profits.',
+    seoContent.metadataTitle,
+    seoContent.metadataDescription,
     undefined,
     ['bazaar', 'flips', 'hypixel', 'skyblock', 'flip', 'bazaar flips', 'bazaar flipper'],
     undefined,
