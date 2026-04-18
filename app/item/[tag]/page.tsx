@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import type { Metadata } from 'next'
 import { isRedirectError } from 'next/dist/client/components/redirect-error'
 import { parseItem } from '../../../utils/Parser/APIResponseParser'
 import { getHeadMetadata, getCanonicalUrl } from '../../../utils/SSRUtils'
@@ -9,6 +10,7 @@ import dynamic from 'next/dynamic'
 import { ItemPageClient } from './ItemPageClient'
 import { hasFlag } from '../../../components/FilterElement/FilterType'
 import { getCachedItemInfo, ItemFlagsNumeric, hasItemFlag, parseFlags } from '../../../utils/ItemsCache'
+import { normalizeItemFilter } from '../../../utils/Parser/URLParser'
 
 const BazaarPriceGraph = dynamic(() => import('../../../components/PriceGraph/BazaarPriceGraph/BazaarPriceGraph'), {
     loading: () => <div style={{ minHeight: '300px' }}>Loading chart...</div>
@@ -97,7 +99,7 @@ export default async function Page(props) {
     )
 }
 
-export async function generateMetadata(props) {
+export async function generateMetadata(props): Promise<Metadata> {
     const searchParams = await props.searchParams
     const params = await props.params
     function getAvgPrice(prices) {
@@ -159,9 +161,9 @@ async function getItemData(searchParams, params) {
     let validRanges = ['active', 'hour', 'day', 'week', 'month', 'year', 'full']
     let range = validRanges.includes(searchParams.range) ? searchParams.range : 'day'
     let tag = params.tag as string
-    let itemFilter = getItemFilterFromUrl(searchParams)
 
     let api = initAPI(true)
+    let itemFilter = await normalizeServerItemFilter(api, tag, getItemFilterFromUrl(searchParams))
     try {
         const cachedInfo = await getCachedItemInfo(tag)
         const isBazaarFromCache = cachedInfo?.isBazaar ?? null
@@ -170,7 +172,7 @@ async function getItemData(searchParams, params) {
             const [itemDetails, prices] = await Promise.all([
                 api.getItemDetails(tag) as Promise<any>,
                 fetchPrices(api, tag, range, isBazaarFromCache, itemFilter).catch(e => {
-                    if (itemFilter && Object.keys(itemFilter).length > 0) throw e
+                    logPriceFetchError(tag, range, itemFilter, e)
                     return []
                 })
             ])
@@ -184,7 +186,7 @@ async function getItemData(searchParams, params) {
                         item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
                         prices: [],
                         range: null,
-                        filter: null,
+                        filter: itemFilter || null,
                         itemFlags: cachedInfo
                     }
                 }
@@ -210,7 +212,7 @@ async function getItemData(searchParams, params) {
                     item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
                     prices: [],
                     range: range || null,
-                    filter: null,
+                    filter: itemFilter || null,
                     itemFlags: cachedInfo
                 }
             }
@@ -228,7 +230,7 @@ async function getItemData(searchParams, params) {
 
         let isBazaar = hasFlag(itemDetails.flags, 1)
         let prices = await fetchPrices(api, tag, range, isBazaar, itemFilter).catch(e => {
-            if (itemFilter && Object.keys(itemFilter).length > 0) throw e
+            logPriceFetchError(tag, range, itemFilter, e)
             return []
         })
 
@@ -241,10 +243,6 @@ async function getItemData(searchParams, params) {
         }
     } catch (error) {
         if (isRedirectError(error)) throw error
-
-        if (itemFilter && Object.keys(itemFilter).length > 0) {
-            redirect(`/item/${tag}`)
-        }
 
         console.error('Error fetching item data:', error instanceof Error ? error.message : error)
 
@@ -279,10 +277,34 @@ async function getItemData(searchParams, params) {
             item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
             prices: [],
             range: range || null,
-            filter: null,
+            filter: itemFilter || null,
             itemFlags: cachedInfo
         }
     }
+}
+
+async function normalizeServerItemFilter(api: API, tag: string, itemFilter: ItemFilter | null): Promise<ItemFilter | null> {
+    if (!itemFilter || !itemFilter.PetLevel || itemFilter.Rarity) {
+        return itemFilter
+    }
+
+    try {
+        const filterOptions = await api.getFilters(tag)
+        const normalizedFilter = normalizeItemFilter(itemFilter, filterOptions)
+        return Object.keys(normalizedFilter).length > 0 ? normalizedFilter : null
+    } catch (error) {
+        console.error('Error normalizing item filter:', error instanceof Error ? error.message : error)
+        return itemFilter
+    }
+}
+
+function logPriceFetchError(tag: string, range: string, itemFilter: ItemFilter | null, error: unknown) {
+    console.error('Error fetching item prices:', {
+        tag,
+        range,
+        itemFilter,
+        error: error instanceof Error ? error.message : error
+    })
 }
 
 /**

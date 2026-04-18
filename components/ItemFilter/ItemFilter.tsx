@@ -3,7 +3,7 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Badge, Button, Card, Form, Modal, Spinner } from 'react-bootstrap'
-import { getItemFilterFromUrl, setFilterIntoUrlParams } from '../../utils/Parser/URLParser'
+import { getItemFilterFromUrl, normalizeItemFilter, setFilterIntoUrlParams } from '../../utils/Parser/URLParser'
 import FilterElement from '../FilterElement/FilterElement'
 import DeleteIcon from '@mui/icons-material/Delete'
 import HelpIcon from '@mui/icons-material/Help'
@@ -72,9 +72,10 @@ function ItemFilter(props: Props) {
         if (props.ignoreURL && !props.defaultFilter) {
             return
         }
-        itemFilter = props.defaultFilter
-            ? JSON.parse(JSON.stringify(props.defaultFilter))
-            : getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter)
+        itemFilter = normalizeItemFilter(
+            props.defaultFilter ? JSON.parse(JSON.stringify(props.defaultFilter)) : getPrefillFilter(props.filters, props.ignoreURL, props.disableLastUsedFilter),
+            props.filters || []
+        )
         if (Object.keys(itemFilter).length > 0) {
             setExpanded(true)
             Object.keys(itemFilter).forEach(name => {
@@ -501,7 +502,7 @@ export function getPrefillFilter(filterOptions: FilterOptions[] = [], ignoreURL:
     if (Object.keys(itemFilter).length === 0 && !disableLastUsedFilter) {
         itemFilter = getFilterFromLocalStorage(filterOptions) || {}
     }
-    return itemFilter
+    return normalizeItemFilter(itemFilter, filterOptions)
 }
 
 /**
