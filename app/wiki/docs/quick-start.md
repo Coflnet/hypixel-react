@@ -53,7 +53,7 @@ Find profitable auction flips:
 
 For the best experience, install our Minecraft mod:
 1. Download from the [Mod page](/mod)
-2. Install Forge 1.8.9 or Fabric 1.21+
+2. Install the current Minecraft version with the Fabric 26.1.x stack
 3. Place the mod in your mods folder
 4. Use `/cofl help` in-game for commands
 

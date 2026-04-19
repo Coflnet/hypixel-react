@@ -11,17 +11,17 @@ The SkyCofl mod brings auction house data, ah flips, bazaar flips, craft flips e
 ## Installation
 
 ### Requirements
-On minecraft 1.8.9 Forge, on Minecraft 1.21+ Fabric (like most skyblock mods)
+Use the current Hypixel-supported Minecraft build with the Fabric 26.1.x stack and Fabric API (like most SkyBlock mods).
 
 ### Recommended setup
 1. **Install Prism Launcher**: from [prismlauncher.org](https://prismlauncher.org/).
 2. **Create a new `Instance`**: Use the `Create Instance` button (may be localized, but on the top left)
-3. **Select `1.21.5` as Version and Fabric as Modloader**: For best compatability with other mods 1.21.5 is recommended.
+3. **Select the current Minecraft version with the Fabric 26.1.x stack**: This is the recommended path for compatibility with other mods.
 3. **Save configuration**: Click `Create Instance` to save, then select the instance you just created and click `Edit Instance`.
 4. **Add mods**: Click `Mods`, then `Download mods`, search for `Fabric API` and select it, then search for `SkyCofl` and select it, then click `Download and Install`.
 5. **Launch Minecraft**: Click `Play` to start Minecraft with the mod installed. Optionally add other mods like `SkyHanni` or `Skyblocker` for additional features.
 
-The setup is the same for 1.8.9 Forge, just select `1.8.9` as version and `Forge` as modloader in step 3, other mods are available in 4th step that way.
+Do not use the retired 1.8.9 Forge path for SkyBlock. Hypixel won't let you join Skyblock with 1.8.9.
 
 ## Core Features
 

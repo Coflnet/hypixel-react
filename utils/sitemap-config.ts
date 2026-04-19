@@ -423,17 +423,25 @@ export const SITEMAP_CONFIG = {
             url: '/guides/tracking-profits-automatically',
             priority: 0.7,
             changefreq: 'monthly' as const,
-            title: 'How to Track Your Profits Automatically',
-            description: 'Use automated tools to monitor your flip performance and profit in Hypixel Skyblock.',
-            keywords: ['profit tracking', 'profit calculator', 'automatic tracking']
+            title: 'How to Track Flip Profits Automatically in SkyCofl',
+            description: 'Updated April 2026. Learn how the SkyCofl Minecraft mod uses /cofl profit, CSV export, and tax-aware tracking to review Hypixel SkyBlock flips, trades, lowballs, and Bazaar profit.',
+            keywords: ['profit tracking', 'profit calculator', 'automatic tracking', 'skycofl profit', 'csv export']
+        },
+        {
+            url: '/guides/skyblock-flip-tracker',
+            priority: 0.7,
+            changefreq: 'monthly' as const,
+            title: 'Skyblock Flip Tracker Guide 2026 - AH, Trade, Lowball and Bazaar Tracking',
+            description: 'Updated April 2026. Learn how the SkyCofl Minecraft mod tracks public AH history, trade and lowball value flow, and Bazaar net profit after tax deductions in Hypixel SkyBlock.',
+            keywords: ['skyblock flip tracker', 'bazaar flip tracker', 'ah tracker', 'trade tracking', 'lowball tracking', 'skycofl guide 2026']
         },
         {
             url: '/guides/safe-tracker-tools',
             priority: 0.6,
             changefreq: 'monthly' as const,
-            title: 'Safe and Reliable Third-Party Tracker Tools',
-            description: 'Approved tools for tracking that won\'t get you banned in Hypixel Skyblock.',
-            keywords: ['safe tools', 'tracker tools', 'approved mods']
+            title: 'Which Profit Tracker Tools Are Safe in Hypixel SkyBlock?',
+            description: 'Updated April 2026. Compare safe Hypixel SkyBlock tracker tools and learn why the SkyCofl Minecraft mod is information-only, tax-aware, and automation-free.',
+            keywords: ['safe tools', 'tracker tools', 'approved mods', 'safe skycofl tracking', 'automation risks']
         },
         {
             url: '/guides/how-to-avoid-scams',

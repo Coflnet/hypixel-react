@@ -107,6 +107,9 @@ export default function GuidesPage() {
                                     <Link href="/guides/avoid-taxes-and-losses">How to Avoid Flipping Taxes and Transfer Losses</Link> - Minimize costs and maximize net profit
                                 </li>
                                 <li>
+                                    <Link href="/guides/skyblock-flip-tracker">Skyblock Flip Tracker</Link> - Public AH history, trade and lowball tracking, Bazaar profit tracking, and multi-year review workflow
+                                </li>
+                                <li>
                                     <Link href="/guides/tracking-profits-automatically">How to Track Your Profits Automatically</Link> - Use tools to monitor your flip performance
                                 </li>
                                 <li>
@@ -163,6 +166,9 @@ export default function GuidesPage() {
                             </CardText>
                             <CardText>
                                 <strong>How do I know which tool matches my current guide?</strong> Use the tool pairings above. In general, theory pages should end with either a live market tool like <Link href="/bazaar">Bazaar Flips</Link> or a validation page like <Link href="/recentFlips">Recent Flips</Link> so you can test the idea right away.
+                            </CardText>
+                            <CardText>
+                                <strong>Where should I learn the tracking workflow itself?</strong> Read <Link href="/guides/skyblock-flip-tracker">Skyblock Flip Tracker</Link> for the public player flips page, trade and lowball tracking, Bazaar profit review, and the best free research tools.
                             </CardText>
 
                             <hr className="mt-4" />
