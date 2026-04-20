@@ -4,6 +4,7 @@ import MoreVertIcon from '@mui/icons-material/MoreVert'
 import styles from './OptionsMenu.module.css'
 import { Button, Dropdown, DropdownButton } from 'react-bootstrap'
 import BazaarExportModal from '../BazaarExportModal/BazaarExportModal'
+import { convertTagToName } from '../../utils/Formatter'
 
 interface Props {
     selected?: Player | Item
@@ -11,6 +12,17 @@ interface Props {
 interface AvailableLinks {
     title: string
     url: string
+}
+
+const minecraftWikiEnchantmentTitleOverrides: Record<string, string> = {
+    Bank: 'Bank_(Enchantment)',
+    Blessing: 'Blessing_(Enchantment)',
+    Experience: 'Experience_(Enchantment)',
+    Great_Spook: 'Great_Spook_(Enchantment)',
+    Green_Thumb: 'Green_Thumb_(Enchantment)',
+    Knockback: 'Knockback_(Enchantment)',
+    Toxophilite: 'Toxophilite_(Enchantment)',
+    Wisdom: 'Wisdom_(Enchantment)'
 }
 
 const CustomToggle = React.forwardRef(({ children, onClick }: any, ref) => (
@@ -30,6 +42,41 @@ const CustomToggle = React.forwardRef(({ children, onClick }: any, ref) => (
 ))
 CustomToggle.displayName = 'CustomToggle'
 
+function formatWikiPageTitle(title: string) {
+    return title.trim().replace(/\s+/g, '_')
+}
+
+function getEnchantmentWikiBaseTitle(tag: string) {
+    return tag
+        .replace(/^ENCHANTMENT_/, '')
+        .replace(/_\d+$/, '')
+        .toLowerCase()
+        .split('_')
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1))
+        .join('_')
+}
+
+function getItemTitle(item: Item) {
+    return item.name?.trim() || convertTagToName(item.tag)
+}
+
+function getMinecraftWikiTitle(item: Item) {
+    if (item.tag.startsWith('ENCHANTMENT_')) {
+        const enchantmentTitle = getEnchantmentWikiBaseTitle(item.tag)
+        return minecraftWikiEnchantmentTitleOverrides[enchantmentTitle] ?? enchantmentTitle
+    }
+
+    return formatWikiPageTitle(getItemTitle(item))
+}
+
+function getHypixelWikiTitle(item: Item) {
+    if (item.tag.startsWith('ENCHANTMENT_')) {
+        return `${getEnchantmentWikiBaseTitle(item.tag)}_Enchantment`
+    }
+
+    return formatWikiPageTitle(getItemTitle(item))
+}
+
 function OptionsMenu(props: Props) {
     let available: AvailableLinks[] = []
     let [showExportModal, setShowExportModal] = useState(false)
@@ -37,19 +84,10 @@ function OptionsMenu(props: Props) {
     const isPlayerPage = !isItemPage
     const isBazaarItem = isItemPage && (props.selected as Item).bazaar
     if (isItemPage) {
-        let tag = (props.selected as Item).tag
-        let fandomName = (props.selected as Item).name ?? tag
-        let wikiName = (props.selected as Item).name ?? tag
-        if (tag.startsWith('ENCHANTMENT_')) {
-            fandomName = tag.replace('ENCHANTMENT_', '').replace('ULTIMATE_', '').replace(/_\d/, '').toLowerCase()
-            fandomName = fandomName
-                .split('_')
-                .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-                .join('_')
-            wikiName = fandomName + '_Enchantment'
-        }
-        available.push({ title: 'Fandom', url: 'https://hypixel-skyblock.fandom.com/wiki/' + fandomName })
-        available.push({ title: 'Wiki', url: 'https://wiki.hypixel.net/' + wikiName })
+        const selectedItem = props.selected as Item
+        const tag = selectedItem.tag
+        available.push({ title: 'SkyBlock Wiki', url: 'https://hypixelskyblock.minecraft.wiki/w/' + getMinecraftWikiTitle(selectedItem) })
+        available.push({ title: 'Wiki', url: 'https://wiki.hypixel.net/' + getHypixelWikiTitle(selectedItem) })
         if ((props.selected as Item).bazaar) {
             available.push({ title: 'Bazaartracker', url: 'https://bazaartracker.com/product/' + tag.toLowerCase() })
             available.push({ title: 'BzMeta', url: 'https://skyblock.bz/product/' + tag.toLowerCase() })
