@@ -86,6 +86,24 @@
     color: var(--bs-emphasis); /* muted paragraph color */
 }
 
+.summarySelector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.summarySelectorLabel {
+    font-weight: 700;
+    margin: 0;
+}
+
+.summaryDropdown {
+    width: auto;
+    min-width: 150px;
+}
+
 .balanceSection {
     margin-bottom: 20px;
     padding: 15px;

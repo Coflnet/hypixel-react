@@ -28,6 +28,7 @@ export const PREMIUM_TYPES: PremiumType[] = [
             { value: 1, label: '1 day', productId: 'premium_plus-day', price: 600 },
             { value: 1, label: '1 week', productId: 'premium_plus', price: 2700 },
             { value: 2, label: '2 weeks', productId: 'premium_plus', price: 2700 },
+            { value: 3, label: '3 weeks', productId: 'premium_plus', price: 2700 },
             { value: 1, label: '4 weeks (2250/week)', productId: 'premium_plus-weeks', price: 9000 },
             { value: 1, label: '11 weeks (1964/w)', productId: 'premium_plus-months', price: 21600 },
             { value: 1, label: '1 year', productId: 'premium_plus-year', price: 95000 }
@@ -48,23 +49,9 @@ export const PREMIUM_TYPES: PremiumType[] = [
     }
 ]
 
-function generateNumberOptionArray(start: number, end: number, productId: string, priceForOption: number): PremiumTypeOption[] {
-    return (Array(end - start + 1) as any)
-        .fill()
-        .map((_, idx) => start + idx)
-        .map(number => {
-            return {
-                value: number,
-                label: number,
-                productId: productId,
-                price: priceForOption
-            }
-        })
-}
-
 export function getHighestPriorityPremiumProduct(premiumProducts: PremiumProduct[] = []) {
-    let results = premiumProducts.map(product => {
-        let type = getPremiumType(product)
+    const results = premiumProducts.map(product => {
+        const type = getPremiumType(product)
         return {
             productSlug: product.productSlug,
             productId: type?.productId,
@@ -72,7 +59,7 @@ export function getHighestPriorityPremiumProduct(premiumProducts: PremiumProduct
         }
     })
 
-    let result = results.sort((a, b) => b.priority - a.priority)[0]
+    const result = results.sort((a, b) => b.priority - a.priority)[0]
     return premiumProducts.find(product => product.productSlug === result.productSlug && product.expires > new Date())
 }
 
@@ -96,7 +83,7 @@ export function getPremiumLabelForSubscription(subscription: PremiumSubscription
 export function hasHighEnoughPremium(products: PremiumProduct[], minPremiumType: PREMIUM_RANK) {
     let hasHighEnoughPremium = false
     products.forEach(product => {
-        let type = getPremiumType(product)
+        const type = getPremiumType(product)
         if (type && type.priority >= minPremiumType && product.expires > new Date()) {
             hasHighEnoughPremium = true
         }
