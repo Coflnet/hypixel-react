@@ -13,7 +13,7 @@ export function BottomBanner() {
                 anchorClose: true,
                 anchorPersistClose: true,
                 anchorStickyOffset: 0,
-                mediaQuery: '(min-width: 0px)',
+                mediaQuery: '(min-width: 768px)',
                 report: {
                     enabled: true,
                     icon: true,
