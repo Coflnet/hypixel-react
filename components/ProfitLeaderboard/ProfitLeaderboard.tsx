@@ -12,20 +12,29 @@ import { Error } from '../Error/Error'
 import { LeaderboardEntry } from '../../api/_generated/skyApi.schemas'
 import { parsePlayer } from '../../utils/Parser/APIResponseParser'
 import Tooltip from '../Tooltip/Tooltip'
+import { type GeneratedApiResponse, getGeneratedApiErrorMessage, hasSuccessfulArrayResponse, isGeneratedPremiumPlusRequired } from '../../utils/GeneratedApiResponseUtils'
 
 export function ProfitLeaderboardComponent() {
     let [googleId, setGoogleId] = useState<string>()
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
-    const { data: { data: leaderboardEntries } = { data: [] } } = useGetApiLeaderboardProfit(undefined, {
+    const query = useGetApiLeaderboardProfit(undefined, {
         fetch: {
             headers: {
                 GoogleToken: googleId || ''
             }
         },
         query: {
-            enabled: !!googleId
+            enabled: !!googleId,
+            retry: false
         }
     })
+    const response = query.data
+    const apiResponse = response as GeneratedApiResponse<LeaderboardEntry[] | { slug?: string } | string> | undefined
+    const leaderboardEntries = hasSuccessfulArrayResponse<LeaderboardEntry>(response) ? response.data : []
+    const isPremiumPlusDenied = apiResponse?.status === 401 || apiResponse?.status === 403 || isGeneratedPremiumPlusRequired(apiResponse?.data)
+    const accessMessage = isPremiumPlusDenied
+        ? getGeneratedApiErrorMessage(apiResponse, query.error, 'Seeing this list is exclusive to Premium Plus users.')
+        : null
 
     function onAfterLogin() {
         setGoogleId(sessionStorage.getItem('googleId') || '')
@@ -44,12 +53,12 @@ export function ProfitLeaderboardComponent() {
     if (wasAlreadyLoggedIn && !googleId) {
         return <GoogleSignIn onAfterLogin={onAfterLogin} />
     }
-    if ((leaderboardEntries as any)?.slug === 'no_premium_plus' || !wasAlreadyLoggedIn || !googleId) {
+    if (!wasAlreadyLoggedIn || !googleId || isPremiumPlusDenied) {
         return (
             <>
                 {description}
                 <h2>Premium Plus Required</h2>
-                <p>Seeing this list is exclusive to Premium Plus users.</p>
+                <p>{accessMessage || 'Seeing this list is exclusive to Premium Plus users.'}</p>
                 <Link href="/premium?tier=premium_plus" className="disableLinkStyle">
                     <Button>Get Premium+</Button>
                 </Link>
@@ -63,8 +72,16 @@ export function ProfitLeaderboardComponent() {
             </>
         )
     }
-    if ((leaderboardEntries as any)?.slug) {
-        return <Error title="API error while fetching profit leaderboard" errorObject={leaderboardEntries} />
+    if (query.isLoading && !response) {
+        return (
+            <>
+                {description}
+                <p>Loading profit leaderboard…</p>
+            </>
+        )
+    }
+    if (!hasSuccessfulArrayResponse<LeaderboardEntry>(response)) {
+        return <Error title="API error while fetching profit leaderboard" errorObject={apiResponse?.data} errorMessage={getGeneratedApiErrorMessage(apiResponse, query.error, 'Unable to load the profit leaderboard right now') || undefined} />
     }
 
     return (

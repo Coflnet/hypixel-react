@@ -1,15 +1,15 @@
 'use client'
 import Image from 'next/image'
 import React from 'react'
-import { Badge } from 'react-bootstrap'
+import { Alert, Badge } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import Number from '../Number/Number'
 import { SpreadFlip } from '../../api/_generated/skyApi.schemas'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { getApiFlipBazaarSpread, getGetApiFlipBazaarSpreadQueryKey } from '../../api/_generated/skyApi'
+import { useGetApiFlipBazaarSpread } from '../../api/_generated/skyApi'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import Link from 'next/link'
 import { formatToPriceToShorten } from '../../utils/Formatter'
+import { getGeneratedApiErrorMessage, hasSuccessfulArrayResponse } from '../../utils/GeneratedApiResponseUtils'
 
 const SORT_OPTIONS: SortOption<SpreadFlip>[] = [
     {
@@ -50,10 +50,10 @@ const SORT_OPTIONS: SortOption<SpreadFlip>[] = [
 ]
 
 export function BazaarFlips() {
-    const { data: { data: flips } = { data: [] } } = useSuspenseQuery({
-        queryKey: [getGetApiFlipBazaarSpreadQueryKey()],
-        queryFn: () => getApiFlipBazaarSpread()
-    })
+    const query = useGetApiFlipBazaarSpread()
+    const response = query.data
+    const flips = hasSuccessfulArrayResponse<SpreadFlip>(response) ? response.data : []
+    const errorMessage = getGeneratedApiErrorMessage(response, query.error, 'Unable to load bazaar flips right now')
 
     function renderFlipContent(flip: SpreadFlip) {
         return (
@@ -184,18 +184,24 @@ export function BazaarFlips() {
                     <li>Once its filled you claim the items and place the lowest sell order</li>
                 </ol>
             </details>
-            <GenericFlipList
-                items={flips}
-                sortOptions={SORT_OPTIONS}
-                onFlipClick={onFlipClick}
-                getFlipLink={flip => `https://sky.coflnet.com/item/${flip.flip?.itemTag}`}
-                renderFlipContentAction={renderFlipContent}
-                filterFunction={filterFunction}
-                getItemKeyAction={flip => flip.itemName || ''}
-                censoredItemGenerator={censoredItemGenerator}
-                premiumMessage="The top 3 flips can only be seen with starter premium or better"
-                clickMessage="Click on a flip for further details"
-            />
+            {query.isLoading && !response ? (
+                <p>Loading bazaar flips…</p>
+            ) : errorMessage ? (
+                <Alert variant="danger">{errorMessage}</Alert>
+            ) : (
+                <GenericFlipList
+                    items={flips}
+                    sortOptions={SORT_OPTIONS}
+                    onFlipClick={onFlipClick}
+                    getFlipLink={flip => `https://sky.coflnet.com/item/${flip.flip?.itemTag}`}
+                    renderFlipContentAction={renderFlipContent}
+                    filterFunction={filterFunction}
+                    getItemKeyAction={flip => flip.itemName || ''}
+                    censoredItemGenerator={censoredItemGenerator}
+                    premiumMessage="The top 3 flips can only be seen with starter premium or better"
+                    clickMessage="Click on a flip for further details"
+                />
+            )}
         </>
     )
 }

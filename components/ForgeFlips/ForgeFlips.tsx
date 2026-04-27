@@ -2,13 +2,14 @@
 
 import { useMemo } from 'react'
 import Image from 'next/image'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { Alert } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import NumberElement from '../Number/Number'
 import { convertTagToName } from '../../utils/Formatter'
-import { getApiFlipForge, getGetApiFlipForgeQueryKey } from '../../api/_generated/skyApi'
+import { useGetApiFlipForge } from '../../api/_generated/skyApi'
 import { ForgeFlip, ProfitableCraft } from '../../api/_generated/skyApi.schemas'
+import { getGeneratedApiErrorMessage, hasSuccessfulArrayResponse } from '../../utils/GeneratedApiResponseUtils'
 
 const SORT_OPTIONS: SortOption<ForgeFlip>[] = [
     {
@@ -195,12 +196,10 @@ function censoredFlip(): ForgeFlip {
 }
 
 export function ForgeFlips() {
-    const { data: { data: flips } = { data: [] } } = useSuspenseQuery({
-        queryKey: [getGetApiFlipForgeQueryKey()],
-        queryFn: () => getApiFlipForge()
-    })
-
-    const safeFlips = useMemo(() => flips ?? [], [flips])
+    const query = useGetApiFlipForge()
+    const response = query.data
+    const safeFlips = useMemo(() => (hasSuccessfulArrayResponse<ForgeFlip>(response) ? response.data : []), [response])
+    const errorMessage = getGeneratedApiErrorMessage(response, query.error, 'Unable to load forge flips right now')
 
     return (
         <div>
@@ -234,18 +233,24 @@ export function ForgeFlips() {
                 </ul>
             </details>
             <br />
-            <GenericFlipList
-                items={safeFlips}
-                sortOptions={SORT_OPTIONS}
-                renderFlipContentAction={renderForgeFlip}
-                filterFunction={filterFunction}
-                getItemKeyAction={flip => flip.craftData?.itemId ?? `forge-${flip.duration}-${flip.requiredHotMLevel}`}
-                getFlipLink={getFlipLink}
-                censoredItemGenerator={censoredFlip}
-                premiumMessage="The top 3 flips can only be seen with starter premium or better"
-                clickMessage="Click on a flip for further details"
-                showColumns
-            />
+            {query.isLoading && !response ? (
+                <p>Loading forge flips…</p>
+            ) : errorMessage ? (
+                <Alert variant="danger">{errorMessage}</Alert>
+            ) : (
+                <GenericFlipList
+                    items={safeFlips}
+                    sortOptions={SORT_OPTIONS}
+                    renderFlipContentAction={renderForgeFlip}
+                    filterFunction={filterFunction}
+                    getItemKeyAction={flip => flip.craftData?.itemId ?? `forge-${flip.duration}-${flip.requiredHotMLevel}`}
+                    getFlipLink={getFlipLink}
+                    censoredItemGenerator={censoredFlip}
+                    premiumMessage="The top 3 flips can only be seen with starter premium or better"
+                    clickMessage="Click on a flip for further details"
+                    showColumns
+                />
+            )}
         </div>
     )
 }

@@ -3,7 +3,7 @@ import NavBar from '../../components/NavBar/NavBar'
 import { Container } from 'react-bootstrap'
 import { getQueryClient } from '../../utils/QueryUtils'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import { getApiFlipNpc, getGetApiFlipNpcQueryKey } from '../../api/_generated/skyApi'
+import { getGetApiFlipNpcQueryOptions } from '../../api/_generated/skyApi'
 import { NpcFlips } from '../../components/NpcFlips/NpcFlips'
 import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
 import { ToolLandingSeo } from '../../components/Seo/ToolLandingSeo'
@@ -13,10 +13,7 @@ const seoContent = toolLandingSeoContent.npc
 
 export default async function Page() {
     const queryClient = getQueryClient()
-    queryClient.prefetchQuery({
-        queryKey: [getGetApiFlipNpcQueryKey()],
-        queryFn: () => getApiFlipNpc()
-    })
+    await queryClient.prefetchQuery(getGetApiFlipNpcQueryOptions())
     return (
         <>
             <Container>

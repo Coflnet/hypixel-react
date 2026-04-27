@@ -2,7 +2,7 @@ import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import AuthMod from '../../components/AuthMod/AuthMod'
 import { Container } from 'react-bootstrap'
-import { getApiFlipBazaarBooks, getGetApiFlipBazaarBooksQueryKey } from '../../api/_generated/skyApi'
+import { getGetApiFlipBazaarBooksQueryOptions } from '../../api/_generated/skyApi'
 import { getQueryClient } from '../../utils/QueryUtils'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { BookFlips } from '../../components/BookFlips/BookFlips'
@@ -14,10 +14,7 @@ const seoContent = toolLandingSeoContent.bookFlips
 
 export default async function Page() {
     const queryClient = getQueryClient()
-    queryClient.prefetchQuery({
-        queryKey: [getGetApiFlipBazaarBooksQueryKey()],
-        queryFn: () => getApiFlipBazaarBooks()
-    })
+    await queryClient.prefetchQuery(getGetApiFlipBazaarBooksQueryOptions())
     return (
         <>
             <Container>
