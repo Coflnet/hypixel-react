@@ -62,7 +62,7 @@ Different algorithms find different types of flips:
 - Shows all new auctions at starting bid
 - Use with custom whitelist rules
 - Create your own flip criteria
-- **CUATION**: You might whitelist something that is not profitable, so be careful with this one
+- **Caution**: You might whitelist something that is not profitable, so be careful with this one
 
 ## Customization
 
@@ -99,7 +99,7 @@ Create blacklists and whitelists:
 1. Use multiple finders for coverage
 2. Set up item-specific whitelists
 3. Monitor market trends to adjust what you flip
-4. Adjust filters based on your budget (if you use the mod only items costing less than you purse are shown)
+4. Adjust filters based on your budget. In the mod, only items costing less than your purse are shown.
 
 ### Risk Management
 - Never invest more than you can afford to lose
@@ -115,7 +115,7 @@ Create blacklists and whitelists:
 - Lower your minimum profit threshold
 
 ### Flips Already Sold
-- This is common on the free version and lower tiers depending on the item, if you want to flip obvious high profit flips like \<500m hyperions you will need prem+ to compete
+- This is common on the free version and lower tiers. If you want to compete for obvious high-profit flips, such as sub-500M Hyperions, you will need Premium+.
 - Consider upgrading to premium
 - Focus on lower-value flips with less competition
 

@@ -40,7 +40,7 @@ Linking your Minecraft account provides additional benefits:
 2. Join Hypixel SkyBlock
 3. The mod will give you a 3-digit verification number
 4. Create or bid on an auction with that number in the price (the mod also suggests one to bid on)
-5. Your account will be automatically verified within 3 about minutes
+5. Your account will be automatically verified within about 3 minutes
 
 ### Verification Examples
 
