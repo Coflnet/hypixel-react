@@ -9,7 +9,8 @@ import api from '../../api/ApiHelper'
 import styles from './GenericFlipList.module.css'
 import { useSortedAndFilteredItems } from '../../hooks/useSortedAndFilteredItems'
 import ListItemAdElement from '../ListItemAdElement/ListItemAdElement'
-import { GENRIC_FLIP_LIST_COLUMNS, getSetting, setSetting } from '../../utils/SettingsUtils'
+import { GENRIC_FLIP_LIST_COLUMNS, getSetting, LAST_PREMIUM_PRODUCTS, setSetting } from '../../utils/SettingsUtils'
+import { parsePremiumProducts } from '../../utils/Parser/APIResponseParser'
 
 export interface FlipListProps<T> {
     items: T[]
@@ -41,6 +42,27 @@ export interface SortOption<T> {
 
 let observer: MutationObserver
 
+function getInitialPremiumState() {
+    if (typeof window === 'undefined') {
+        return { hasPremium: false, isKnown: false }
+    }
+
+    try {
+        const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId')
+        const lastPremiumProducts = localStorage.getItem(LAST_PREMIUM_PRODUCTS)
+        if (lastPremiumProducts) {
+            return {
+                hasPremium: hasHighEnoughPremium(parsePremiumProducts(JSON.parse(lastPremiumProducts)), PREMIUM_RANK.STARTER),
+                isKnown: true
+            }
+        }
+
+        return { hasPremium: false, isKnown: !token }
+    } catch {
+        return { hasPremium: false, isKnown: true }
+    }
+}
+
 export function GenericFlipList<T>({
     items,
     sortOptions,
@@ -65,13 +87,15 @@ export function GenericFlipList<T>({
     const [nameFilter, setNameFilter] = useState<string | null>()
     const [minimumProfit, setMinimumProfit] = useState<number>(0)
     const [orderBy, setOrderBy] = useState<SortOption<T>>(sortOptions[0])
-    const [hasPremium, setHasPremium] = useState(false)
+    const [premiumState, setPremiumState] = useState(getInitialPremiumState)
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
     const [columns, _setColumns] = useState<number>()
     const [showPremiumModal, setShowPremiumModal] = useState(false)
     const [listElementSizes, setListElementSizes] = useState<{ width: number; height: number }>()
     const listRef = React.useRef<HTMLDivElement | null>(null)
+    const hasPremium = premiumState.hasPremium
+    const shouldShowAds = premiumState.isKnown && !premiumState.hasPremium
 
     const { processedItems, isProcessing } = useSortedAndFilteredItems(items, orderBy, nameFilter, minimumProfit, filterFunction, sortFunctionArgs)
 
@@ -151,11 +175,31 @@ export function GenericFlipList<T>({
         }
     }
 
-    function onAfterLogin() {
+    function loadPremiumState() {
         setIsLoggedIn(true)
-        api.refreshLoadPremiumProducts(products => {
-            setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
-        })
+        api.refreshLoadPremiumProducts(
+            products => {
+                setPremiumState({ hasPremium: hasHighEnoughPremium(products, PREMIUM_RANK.STARTER), isKnown: true })
+            },
+            () => setPremiumState({ hasPremium: false, isKnown: true })
+        )
+    }
+
+    useEffect(() => {
+        if (typeof window === 'undefined') {
+            return
+        }
+
+        const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId')
+        if (token) {
+            loadPremiumState()
+        } else {
+            setPremiumState({ hasPremium: false, isKnown: true })
+        }
+    }, [])
+
+    function onAfterLogin() {
+        loadPremiumState()
 
         if (onAfterSignIn) {
             onAfterSignIn()
@@ -336,7 +380,7 @@ export function GenericFlipList<T>({
         const list: React.ReactNode[] = []
         toRender.forEach((item, i) => {
 
-            if ((list.length + 1) % 12 === 0 || (!hasPremium && i === 1)) {
+            if (shouldShowAds && ((list.length + 1) % 12 === 0 || i === 1)) {
                 let ad: React.ReactNode = null;
                 if (listElementSizes) {
                     ad = <div className={styles.flipCard} key={getItemKeyAction(item) + '-ad'} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -383,7 +427,7 @@ export function GenericFlipList<T>({
         })
 
         return list
-    }, [processedItems, hasPremium, isProcessing, censoredItemGenerator, customItemWrapper, renderedCount, listElementSizes])
+    }, [processedItems, hasPremium, shouldShowAds, isProcessing, censoredItemGenerator, customItemWrapper, renderedCount, listElementSizes])
 
     const flipListClass = showColumns && columns ? `${styles.flipList} ${styles[`columns-${columns}`]}` : styles.flipList
     return (
@@ -393,7 +437,7 @@ export function GenericFlipList<T>({
                 <GoogleSignIn onAfterLogin={onAfterLogin} />
                 {!isLoggedIn ? <hr /> : ''}
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div className={styles.filterControls}>
                 <Form.Control className={styles.filterInput} placeholder="Item name..." onChange={onNameFilterChange} />
                 <Form.Select className={styles.filterInput} defaultValue={orderBy.value} onChange={updateOrderBy}>
                     {sortOptions.map(option => (
@@ -412,7 +456,7 @@ export function GenericFlipList<T>({
                         <option value={5}>5 Columns</option>
                     </Form.Select>
                 )}
-                {customFilters}
+                {customFilters ? <div className={styles.customFilters}>{customFilters}</div> : null}
             </div>
             <hr />
             {/* Premium modal trigger moved to the blurred message so users and crawlers still see the message in-place */}
