@@ -64,6 +64,19 @@ export function validateFilterRange(input: string, options: FilterOptions): [boo
         }
         return [true]
     }
+    if (input.includes(',')) {
+        let parts = input.split(',').map(p => p.trim()).filter(p => p.length > 0)
+        if (parts.length === 0) {
+            return [false, INVALID_NUMBER_RANGE_ERROR]
+        }
+        for (let part of parts) {
+            let [isValid, errorMessage] = validateFilterRange(part, options)
+            if (!isValid) {
+                return [false, errorMessage]
+            }
+        }
+        return [true]
+    }
     if (!input.includes('-')) {
         input = removeRangeSymbols(input)
         let number = getFilterNumber(input)

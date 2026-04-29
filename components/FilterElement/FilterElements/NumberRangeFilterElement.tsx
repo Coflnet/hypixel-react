@@ -45,6 +45,17 @@ export function NumberRangeFilterElement(props: Props) {
             {
                 regexp: new RegExp(/^>\d+$/),
                 handler: value => [parseInt(value.split('>')[1]) + 1, props.max]
+            },
+            {
+                // comma separated list of integers (e.g. "1, 3, 7"); use min/max for slider visualisation
+                regexp: new RegExp(/^\s*\d+(\s*,\s*\d+)+\s*$/),
+                handler: value => {
+                    let nums = value
+                        .split(',')
+                        .map(v => parseInt(v.trim()))
+                        .filter(v => !isNaN(v))
+                    return [Math.min(...nums), Math.max(...nums)]
+                }
             }
         ]
 
@@ -67,6 +78,11 @@ export function NumberRangeFilterElement(props: Props) {
             return
         }
         setValue(parsed)
+        // Preserve comma-separated lists verbatim so the backend receives the exact selection.
+        if (/^\s*\d+(\s*,\s*\d+)+\s*$/.test(e.target.value)) {
+            props.onChange(e.target.value.replace(/\s+/g, ''))
+            return
+        }
         props.onChange(`${parsed[0]}-${parsed[1]}`)
     }
 
