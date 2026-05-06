@@ -155,6 +155,13 @@ function BazaarPriceGraph(props: Props) {
         }
     }
 
+    function setSeriesType(chartOptions, seriesName: string, type: string) {
+        let series = chartOptions.series.find(series => series.name === seriesName)
+        if (series) {
+            series.type = type
+        }
+    }
+
     function checkForSpecialFetchspanConfiguration() {
         if (fetchspan === DateRange.HOUR) {
             chartOptionsPrimary.legend.data = chartOptionsPrimary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
@@ -174,8 +181,8 @@ function BazaarPriceGraph(props: Props) {
                 }
             })
         } else {
-            chartOptionsPrimary.series[0].type = 'k'
-            chartOptionsSecondary.series[0].type = 'k'
+            setSeriesType(chartOptionsPrimary, graphType === GRAPH_TYPE.SINGLE ? 'Price (buy)' : 'Price', 'k')
+            setSeriesType(chartOptionsSecondary, 'Price', 'k')
 
             chartOptionsPrimary.series.forEach(s => {
                 s.tooltip.show = true
@@ -186,7 +193,7 @@ function BazaarPriceGraph(props: Props) {
 
             if (graphType === GRAPH_TYPE.SINGLE) {
                 chartOptionsPrimary.legend.data = getPriceGraphConfigSingle().legend.data
-                chartOptionsPrimary.series[3].type = 'k'
+                setSeriesType(chartOptionsPrimary, 'Price (sell)', 'k')
             } else {
                 chartOptionsPrimary.legend.data = getPriceGraphConfigSplit().legend.data
             }
