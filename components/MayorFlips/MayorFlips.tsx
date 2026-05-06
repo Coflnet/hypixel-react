@@ -2,16 +2,16 @@
 
 import React, { useMemo, useState, useEffect } from 'react'
 import Image from 'next/image'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useGetApiFlipMayor, getGetApiFlipMayorQueryKey } from '../../api/_generated/skyApi'
 import { Alert } from 'react-bootstrap'
 import { useRouter } from 'next/navigation'
 import api from '../../api/ApiHelper'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import NumberElement from '../Number/Number'
 import { convertTagToName } from '../../utils/Formatter'
-import { getApiFlipMayor, getGetApiFlipMayorQueryKey } from '../../api/_generated/skyApi'
 import { MayorDiffFlip } from '../../api/_generated/skyApi.schemas'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import { getGeneratedApiErrorMessage, hasSuccessfulArrayResponse, isGeneratedPremiumRequired } from '../../utils/GeneratedApiResponseUtils'
 
 const SORT_OPTIONS: SortOption<MayorDiffFlip>[] = [
     {
@@ -134,16 +134,23 @@ function censoredFlip(): MayorDiffFlip {
 }
 
 export function MayorFlips() {
-    const token = (typeof window !== 'undefined' && (sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId'))) || ''
-
-    const { data } = useSuspenseQuery({
-        queryKey: [getGetApiFlipMayorQueryKey(), token],
-        queryFn: () =>
-            getApiFlipMayor({ headers: token ? { Authorization: `Bearer ${token}` } : {} })
+    const [googleToken, setGoogleToken] = useState('')
+    const query = useGetApiFlipMayor({
+        fetch: googleToken ? { headers: { Authorization: `Bearer ${googleToken}` } } : undefined,
+        query: {
+            queryKey: [...getGetApiFlipMayorQueryKey(), googleToken],
+            retry: false
+        }
     })
-
-    const rawFlips = (data && (data as any).data) ?? []
-    const safeFlips = useMemo(() => (Array.isArray(rawFlips) ? (rawFlips as MayorDiffFlip[]) : []), [rawFlips])
+    const response = query.data
+    const safeFlips = useMemo(() => (hasSuccessfulArrayResponse<MayorDiffFlip>(response) ? response.data : []), [response])
+    const isAccessError = response?.status === 401 || response?.status === 403 || isGeneratedPremiumRequired(response?.data)
+    const accessMessage = isAccessError
+        ? getGeneratedApiErrorMessage(response, query.error, 'Unable to load mayor flips right now')
+        : null
+    const errorMessage = isAccessError
+        ? null
+        : getGeneratedApiErrorMessage(response, query.error, 'Unable to load mayor flips right now')
 
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [hasPremium, setHasPremium] = useState(false)
@@ -154,6 +161,7 @@ export function MayorFlips() {
         if (typeof window === 'undefined') return
 
         const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId') ?? ''
+        setGoogleToken(token)
         if (token) {
             setIsLoggedIn(true)
             api.refreshLoadPremiumProducts(
@@ -199,6 +207,8 @@ export function MayorFlips() {
                     </Alert>
                 </div>
             ) : null}
+            {accessMessage ? <Alert variant="warning">{accessMessage}</Alert> : null}
+            {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 
             <details>
                 <summary>How mayor flipping works</summary>
@@ -268,19 +278,25 @@ export function MayorFlips() {
                     )}
                 </div>
             ) : null}
-            <br />
-            <GenericFlipList
-                items={safeFlips}
-                sortOptions={SORT_OPTIONS}
-                renderFlipContentAction={renderMayorFlip}
-                filterFunction={filterFunction}
-                getItemKeyAction={flip => flip.itemTag ?? flip.itemName ?? 'unknown'}
-                getFlipLink={getFlipLink}
-                censoredItemGenerator={censoredFlip}
-                premiumMessage="The top 3 mayor flips can only be seen with starter premium or better"
-                clickMessage="Click on a flip for further details"
-                showColumns
-            />
+            {query.isLoading && !response ? (
+                <Alert variant="info">Loading mayor flips…</Alert>
+            ) : !errorMessage && !accessMessage ? (
+                <>
+                    <br />
+                    <GenericFlipList
+                        items={safeFlips}
+                        sortOptions={SORT_OPTIONS}
+                        renderFlipContentAction={renderMayorFlip}
+                        filterFunction={filterFunction}
+                        getItemKeyAction={flip => flip.itemTag ?? flip.itemName ?? 'unknown'}
+                        getFlipLink={getFlipLink}
+                        censoredItemGenerator={censoredFlip}
+                        premiumMessage="The top 3 mayor flips can only be seen with starter premium or better"
+                        clickMessage="Click on a flip for further details"
+                        showColumns
+                    />
+                </>
+            ) : null}
         </div>
     )
 }

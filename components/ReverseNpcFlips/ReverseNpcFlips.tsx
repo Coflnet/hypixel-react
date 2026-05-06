@@ -1,7 +1,6 @@
 'use client'
 import Image from 'next/image'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
 import { Alert, Button, Spinner } from 'react-bootstrap'
 import PremiumNotifier from '../Premium/PremiumNotifier'
 import { toast } from 'react-toastify'
@@ -9,9 +8,10 @@ import api from '../../api/ApiHelper'
 import NumberElement from '../Number/Number'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import { getMinecraftColorCodedElement } from '../../utils/Formatter'
-import { getApiFlipNpcReverse } from '../../api/_generated/skyApi'
+import { getApiFlipNpcReverse, getGetApiFlipNpcReverseQueryKey, useGetApiFlipNpcReverse } from '../../api/_generated/skyApi'
 import { NpcFlip } from '../../api/_generated/skyApi.schemas'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
+import { getGeneratedApiErrorMessage, hasSuccessfulArrayResponse, isGeneratedPremiumRequired } from '../../utils/GeneratedApiResponseUtils'
 
 const SORT_OPTIONS: SortOption<NpcFlip>[] = [
     {
@@ -143,17 +143,18 @@ export function ReverseNpcFlips() {
         }
     }, [refreshPremiumStatus])
 
-    const { data: response, refetch } = useQuery({
-        queryKey: ['reverseNpcFlips', googleToken],
-        queryFn: () =>
-            getApiFlipNpcReverse(undefined, {
-                headers: {
-                    GoogleToken: googleToken
-                }
-            }),
-        enabled: !!googleToken,
-        staleTime: 60 * 1000,
-        retry: false
+    const { data: response, refetch } = useGetApiFlipNpcReverse(undefined, {
+        fetch: googleToken ? {
+            headers: {
+                GoogleToken: googleToken
+            }
+        } : undefined,
+        query: {
+            enabled: !!googleToken,
+            queryKey: [...getGetApiFlipNpcReverseQueryKey(), googleToken],
+            staleTime: 60 * 1000,
+            retry: false
+        }
     })
 
     useEffect(() => {
@@ -161,8 +162,8 @@ export function ReverseNpcFlips() {
             setAuthError(null)
             return
         }
-        if (response.status === 401) {
-            setAuthError('We could not load reverse NPC flips. Please sign in again to continue.')
+        if (response.status !== 200) {
+            setAuthError(getGeneratedApiErrorMessage(response, null, 'We could not load reverse NPC flips right now'))
         } else {
             setAuthError(null)
         }
@@ -187,7 +188,7 @@ export function ReverseNpcFlips() {
     }, [])
 
     const normalizedFlips = useMemo(() => {
-        if (!response || response.status !== 200 || !Array.isArray(response.data)) {
+        if (!hasSuccessfulArrayResponse<NpcFlip>(response)) {
             return []
         }
         return response.data
@@ -218,11 +219,14 @@ export function ReverseNpcFlips() {
             )
             if (refreshResponse.status !== 200) {
                 setIsRefreshing(false)
-                const message =
-                    refreshResponse.status === 403
+                const message = getGeneratedApiErrorMessage(
+                    refreshResponse,
+                    null,
+                    refreshResponse.status === 403 || isGeneratedPremiumRequired(refreshResponse.data)
                         ? 'Recalculating reverse NPC flips is a premium feature.'
                         : 'Unable to request a refresh right now. Please try again later.'
-                toast.warn(message)
+                )
+                toast.warn(message || 'Unable to request a refresh right now. Please try again later.')
                 return
             }
             setCooldown(REFRESH_DELAY_SECONDS)

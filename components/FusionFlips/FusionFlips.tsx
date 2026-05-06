@@ -1,15 +1,16 @@
 'use client'
 import Image from 'next/image'
 import React, { useState, useEffect } from 'react'
+import { Alert } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { convertTagToName } from '../../utils/Formatter'
 import Number from '../Number/Number'
-import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
-import { getApiFlipFusion, getGetApiFlipFusionQueryKey, getApiFlipFusionMultistep, getGetApiFlipFusionMultistepQueryKey } from '../../api/_generated/skyApi'
+import { getGetApiFlipFusionMultistepQueryKey, useGetApiFlipFusion, useGetApiFlipFusionMultistep } from '../../api/_generated/skyApi'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import { FuseFlip, FusionStep } from '../../api/_generated/skyApi.schemas'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import Link from 'next/link'
+import { getGeneratedApiErrorMessage, hasSuccessfulArrayResponse, isGeneratedPremiumRequired } from '../../utils/GeneratedApiResponseUtils'
 
 const SORT_OPTIONS: SortOption<FuseFlip>[] = [
     {
@@ -37,17 +38,25 @@ const SORT_OPTIONS: SortOption<FuseFlip>[] = [
 export function FusionFlips() {
     const [showMultiStep, setShowMultiStep] = useState(false)
     const [googleToken, setGoogleToken] = useState('')
-    const { data: { data: flips } = { data: [] } } = useSuspenseQuery({
-        queryKey: [getGetApiFlipFusionQueryKey()],
-        queryFn: () => getApiFlipFusion()
+    const baseQuery = useGetApiFlipFusion()
+    const baseResponse = baseQuery.data
+    const flips = hasSuccessfulArrayResponse<FuseFlip>(baseResponse) ? baseResponse.data : []
+    const multiStepQuery = useGetApiFlipFusionMultistep({
+        fetch: googleToken ? { headers: { GoogleToken: googleToken } } : undefined,
+        query: {
+            enabled: showMultiStep,
+            queryKey: [...getGetApiFlipFusionMultistepQueryKey(), googleToken],
+            retry: false
+        }
     })
-    const { data: { data: multiStepFlips } = { data: [] }, isLoading: multiStepLoading } = useQuery({
-        queryKey: [getGetApiFlipFusionMultistepQueryKey(), googleToken],
-        queryFn: () => getApiFlipFusionMultistep(googleToken ? { headers: { GoogleToken: googleToken } } : undefined),
-        enabled: showMultiStep
-    })
-
-    const displayedFlips: FuseFlip[] = showMultiStep ? (Array.isArray(multiStepFlips) ? multiStepFlips : []) : flips
+    const multiStepResponse = multiStepQuery.data
+    const multiStepFlips = hasSuccessfulArrayResponse<FuseFlip>(multiStepResponse) ? multiStepResponse.data : []
+    const multiStepLoading = multiStepQuery.isLoading && !multiStepResponse
+    const displayedFlips: FuseFlip[] = showMultiStep ? multiStepFlips : flips
+    const multiStepAccessError = showMultiStep && (multiStepResponse?.status === 401 || multiStepResponse?.status === 403 || isGeneratedPremiumRequired(multiStepResponse?.data))
+    const errorMessage = showMultiStep
+        ? getGeneratedApiErrorMessage(multiStepResponse, multiStepQuery.error, 'Unable to load multi-step fusion flips right now')
+        : getGeneratedApiErrorMessage(baseResponse, baseQuery.error, 'Unable to load fusion flips right now')
     const [hasPremium, setHasPremium] = useState(false)
     const [isLoggedIn, setIsLoggedIn] = useState(false)
 
@@ -264,18 +273,24 @@ export function FusionFlips() {
                 </p>
             </details>
             <br />
-            <GenericFlipList
-                items={displayedFlips}
-                sortOptions={SORT_OPTIONS}
-                renderFlipContentAction={renderFlipContent}
-                filterFunction={filterFunction}
-                getItemKeyAction={flip => flip.output || `${JSON.stringify(flip)}`}
-                getFlipLink={flip => (flip.output ? `https://sky.coflnet.com/item/${flip.output}` : undefined)}
-                censoredItemGenerator={censoredItemGenerator}
-                premiumMessage={showMultiStep ? "Multi-step fusion flips require starter premium or better" : "The top 3 flips can only be seen with starter premium or better"}
-                clickMessage="Click on a flip for price history"
-                showColumns={true}
-            />
+            {baseQuery.isLoading && !baseResponse ? (
+                <p>Loading fusion flips…</p>
+            ) : errorMessage ? (
+                <Alert variant={multiStepAccessError ? 'warning' : 'danger'}>{errorMessage}</Alert>
+            ) : (
+                <GenericFlipList
+                    items={displayedFlips}
+                    sortOptions={SORT_OPTIONS}
+                    renderFlipContentAction={renderFlipContent}
+                    filterFunction={filterFunction}
+                    getItemKeyAction={flip => flip.output || `${JSON.stringify(flip)}`}
+                    getFlipLink={flip => (flip.output ? `https://sky.coflnet.com/item/${flip.output}` : undefined)}
+                    censoredItemGenerator={censoredItemGenerator}
+                    premiumMessage={showMultiStep ? "Multi-step fusion flips require starter premium or better" : "The top 3 flips can only be seen with starter premium or better"}
+                    clickMessage="Click on a flip for price history"
+                    showColumns={true}
+                />
+            )}
         </>
     )
 }

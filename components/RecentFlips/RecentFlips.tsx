@@ -12,6 +12,7 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { set } from 'cypress/types/lodash'
 import Link from 'next/link'
 import { Button } from 'react-bootstrap'
+import { type GeneratedApiResponse, getGeneratedApiErrorMessage, hasSuccessfulArrayResponse, isGeneratedPremiumPlusRequired } from '../../utils/GeneratedApiResponseUtils'
 
 const SORT_OPTIONS: SortOption<FlipDetails>[] = [
     {
@@ -49,16 +50,24 @@ const SORT_OPTIONS: SortOption<FlipDetails>[] = [
 export function RecentFlips() {
     let [googleId, setGoogleId] = useState<string>()
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
-    const { data: { data: flips } = { data: [] } } = useGetApiFlipUnknown(undefined, {
+    const query = useGetApiFlipUnknown(undefined, {
         fetch: {
             headers: {
                 GoogleToken: googleId || ''
             }
         },
         query: {
-            enabled: !!googleId
+            enabled: !!googleId,
+            retry: false
         }
     })
+    const response = query.data
+    const apiResponse = response as GeneratedApiResponse<FlipDetails[] | { slug?: string } | string> | undefined
+    const flips = hasSuccessfulArrayResponse<FlipDetails>(response) ? response.data : []
+    const isPremiumPlusDenied = apiResponse?.status === 401 || apiResponse?.status === 403 || isGeneratedPremiumPlusRequired(apiResponse?.data)
+    const accessMessage = isPremiumPlusDenied
+        ? getGeneratedApiErrorMessage(apiResponse, query.error, 'This feature is exclusive to Premium Plus users.')
+        : null
 
     function onAfterLogin() {
         setGoogleId(sessionStorage.getItem('googleId') || '')
@@ -77,12 +86,12 @@ export function RecentFlips() {
         </>
     )
 
-    if ((flips as any)?.slug === 'no_premium_plus' || !wasAlreadyLoggedIn || !googleId) {
+    if (!wasAlreadyLoggedIn || !googleId || isPremiumPlusDenied) {
         return (
             <>
                 {explanation}
                 <h2>Premium Plus Required</h2>
-                <p>This feature is exclusive to Premium Plus users.</p>
+                <p>{accessMessage || 'This feature is exclusive to Premium Plus users.'}</p>
                 <Link href="/premium?tier=premium_plus" className="disableLinkStyle" rel="nofollow">
                     <Button>Get Premium+</Button>
                 </Link>
@@ -95,8 +104,16 @@ export function RecentFlips() {
             </>
         )
     }
-    if ((flips as any)?.slug) {
-        return <Error title="API error while fetching recent flips" errorObject={flips} />
+    if (query.isLoading && !response) {
+        return (
+            <>
+                {explanation}
+                <p>Loading recent flips…</p>
+            </>
+        )
+    }
+    if (!hasSuccessfulArrayResponse<FlipDetails>(response)) {
+        return <Error title="API error while fetching recent flips" errorObject={apiResponse?.data} errorMessage={getGeneratedApiErrorMessage(apiResponse, query.error, 'Unable to load recent flips right now') || undefined} />
     }
 
     function renderFlipContent(flip: FlipDetails) {

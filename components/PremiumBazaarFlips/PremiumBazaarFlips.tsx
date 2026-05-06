@@ -1,17 +1,18 @@
 'use client'
 import Image from 'next/image'
 import React, { useCallback, useEffect, useState } from 'react'
-import { Badge } from 'react-bootstrap'
+import { Alert, Badge } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import Number from '../Number/Number'
 import { DemandSpreadFlip } from '../../api/_generated/skyApi.schemas'
-import { useSuspenseQuery, useQueryClient, useIsFetching } from '@tanstack/react-query'
-import { getApiFlipBazaarSpreadDeemand, getGetApiFlipBazaarSpreadDeemandQueryKey, type getApiFlipBazaarSpreadDeemandResponse } from '../../api/_generated/skyApi'
+import { useQueryClient } from '@tanstack/react-query'
+import { getGetApiFlipBazaarSpreadDeemandQueryKey, useGetApiFlipBazaarSpreadDeemand } from '../../api/_generated/skyApi'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import Link from 'next/link'
 import { formatToPriceToShorten } from '../../utils/Formatter'
 import PremiumNotifier from '../Premium/PremiumNotifier'
 import styles from './PremiumBazaarFlips.module.css'
+import { getGeneratedApiErrorMessage, hasSuccessfulArrayResponse, isGeneratedPremiumRequired } from '../../utils/GeneratedApiResponseUtils'
 
 const SORT_OPTIONS: SortOption<DemandSpreadFlip>[] = [
     {
@@ -48,26 +49,26 @@ export function PremiumBazaarFlips() {
         setGoogleToken(token)
     }, [])
 
-    const { data: response } = useSuspenseQuery<getApiFlipBazaarSpreadDeemandResponse>({
-        queryKey: [getGetApiFlipBazaarSpreadDeemandQueryKey(), googleToken],
-        queryFn: () => getApiFlipBazaarSpreadDeemand(googleToken ? { headers: { GoogleToken: googleToken } } : undefined)
+    const query = useGetApiFlipBazaarSpreadDeemand({
+        fetch: googleToken ? { headers: { GoogleToken: googleToken } } : undefined,
+        query: {
+            queryKey: [...getGetApiFlipBazaarSpreadDeemandQueryKey(), googleToken],
+            retry: false
+        }
     })
-
-    // Detect active fetches for this query (useful during login/refresh flows).
-    const fetchingCount = useIsFetching({ queryKey: [getGetApiFlipBazaarSpreadDeemandQueryKey(), googleToken] })
-    const isFetching = fetchingCount > 0
+    const response = query.data
+    const isFetching = query.isFetching
+    const isAccessError = response?.status === 401 || response?.status === 403 || isGeneratedPremiumRequired(response?.data)
+    const hasFlips = hasSuccessfulArrayResponse<DemandSpreadFlip>(response)
 
     const handleAfterLogin = useCallback(() => {
         const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId') ?? ''
         setGoogleToken(token)
-        queryClient.invalidateQueries({ queryKey: [getGetApiFlipBazaarSpreadDeemandQueryKey(), token] })
+        queryClient.invalidateQueries({ queryKey: [...getGetApiFlipBazaarSpreadDeemandQueryKey(), token] })
     }, [queryClient])
 
-    if (response.status !== 200 || !Array.isArray(response.data)) {
-        const messageFromApi = typeof response.data === 'string'
-            ? response.data
-            : (response.data && typeof response.data === 'object' && 'message' in response.data ? String((response.data as any).message) : undefined)
-
+    if (!hasFlips) {
+        const messageFromApi = getGeneratedApiErrorMessage(response, query.error, 'Unable to load premium bazaar flips right now')
         const explanatorySection = (
             <div>
                 <p>
@@ -113,13 +114,17 @@ export function PremiumBazaarFlips() {
             <div className={styles.alertWrapper}>
                 {explanatorySection}
                 {!isFetching ? (
-                    <PremiumNotifier messageFromApi={messageFromApi} onAfterLogin={handleAfterLogin} />
+                    isAccessError ? (
+                        <PremiumNotifier messageFromApi={messageFromApi} onAfterLogin={handleAfterLogin} />
+                    ) : messageFromApi ? (
+                        <Alert variant="danger">{messageFromApi}</Alert>
+                    ) : null
                 ) : null}
             </div>
         )
     }
 
-    const flips = response.data as DemandSpreadFlip[]
+    const flips = response.data
 
     function renderFlipContent(flip: DemandSpreadFlip) {
         return (
