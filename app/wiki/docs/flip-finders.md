@@ -84,7 +84,11 @@ Identifies auctions that would be at least 5% more expensive to craft than the a
 
 Identifies profitable buy order → sell order opportunities in the Bazaar. Different market dynamics than auction house flips.
 
+On current AFv3 setups the Bazaar finder is also **continuous**: if the Bazaar finder is enabled, recommendations are distributed automatically and `/cofl getbazaarflips` only confirms that the finder is already on.
+
 **Best For**: Bazaar traders, quick turnarounds, stable profit margins, extra flip slots when auction house is full
+
+**Recent Changes**: See the [March 2026 updates](https://sky.coflnet.com/updates/2026/3) and [April 2026 updates](https://sky.coflnet.com/updates/2026/4) devlogs for the switch to continuous Bazaar distribution and the broader Bazaar-finder rollout.
 
 ## Sunset/Deprecated Finders
 
