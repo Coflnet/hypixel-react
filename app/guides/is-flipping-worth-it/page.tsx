@@ -137,7 +137,7 @@ export default function IsFlippingWorthItPage() {
               </CardText>
               <ul>
                 <li><strong>Automated tracking:</strong> Set price alerts on <Link href="/bazaar">Bazaar</Link>, receive notifications when deals appear</li>
-                <li><strong>Auto-execute:</strong> Use Coflnet Premium to get pre-analyzed flips (calculate profit margins instantly)</li>
+                <li><strong>Auto-execute:</strong> Use SkyCofl Premium to get pre-analyzed flips (calculate profit margins instantly)</li>
                 <li><strong>Zero APM intensive:</strong> Unlike farming (requires constant clicking) or slaying (requires combat skill), flipping is pure decision-making</li>
                 <li><strong>Passive mode:</strong> Place bids/offers, let orders execute while you're offline, collect profits later</li>
               </ul>

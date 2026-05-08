@@ -168,7 +168,7 @@ These settings control the **in-game mod behavior**, including UI, sounds, notif
 ### modchat (Chat)
 - **Type:** Boolean
 - **Default:** `false`
-- **Description:** Enable `/fc` **Coflnet chat** integration.
+- **Description:** Enable `/fc` **SkyCofl chat** integration.
 - **Toggle:** `/cofl chat` or `/fc` to turn on/off.
 
 ### modcountdown (DisplayTimer)
@@ -429,7 +429,7 @@ Control what data the mod **collects and uploads** for tracking/features.
 ### privacyAutoStart (AutoStart)
 - **Type:** Boolean
 - **Default:** `true`
-- **Description:** Automatically **connect to Coflnet** when joining SkyBlock.
+- **Description:** Automatically **connect to SkyCofl** when joining SkyBlock.
 - **When `false`:** Must manually run `/cofl start`.
 
 ---

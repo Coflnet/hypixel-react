@@ -111,7 +111,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **In-game blurb:** Ranked by milliseconds after grace period resets weekly you can opt out of showing up with Â§b/cl buyspeedboard disable
 
-- **Account requirements:** You must have a verified Minecraft account connected to Coflnet; otherwise the command throws a `forbidden` error. Premium isn’t required to view the board.
+- **Account requirements:** You must have a verified Minecraft account connected to SkyCofl; otherwise the command throws a `forbidden` error. Premium isn’t required to view the board.
 
 - **Arguments & options:**
 	- `[page]` – paginates the weekly leaderboard; omit for the first page.
@@ -259,7 +259,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **Primary syntax:** `/cofl ping` (also `/cl ping`)
 
-- **Summary:** Checks your ping to the Coflnet server
+- **Summary:** Checks your ping to the SkyCofl server
 
 - **Account requirements:** Available to all logged-in players.
 
@@ -432,7 +432,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **Summary:** Check how many CoflCoins you have
 
-- **Account requirements:** Requires a logged-in Coflnet account so the Payments API can look up your balance. Any tier works.
+- **Account requirements:** Requires a logged-in SkyCofl account so the Payments API can look up your balance. Any tier works.
 
 - **Arguments & subcommands:**
 	- Runs without arguments. Fetches your CoflCoin wallet and prints the total in formatted coins.
@@ -466,11 +466,11 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **In-game blurb:** Alias /fc &lt;msg&gt; Writes a message to the cofl chat Be nice and don't advertise or you may get muted
 
-- **Account requirements:** You must be logged in to send chat messages, and Coflnet now requires a verified Minecraft account before talking in `/fc`. Users without chat enabled will be prompted to toggle it on.
+- **Account requirements:** You must be logged in to send chat messages, and SkyCofl now requires a verified Minecraft account before talking in `/fc`. Users without chat enabled will be prompted to toggle it on.
 
 - **Arguments & subcommands:**
 	- No argument or `toggle` – flips the in-mod chat toggle on/off and reports the new state. Macro-only clients get a warning instead of reconnecting.
-	- `<message>` – sends the message to Coflnet chat (max 150 characters). The command rate-limits you to one message per second, rejects strings starting with `/cofl`, and reminds you to re-run `/cofl chat` if you typed `disable`.
+	- `<message>` – sends the message to SkyCofl chat (max 150 characters). The command rate-limits you to one message per second, rejects strings starting with `/cofl`, and reminds you to re-run `/cofl chat` if you typed `disable`.
 	- If chat is currently disabled in your mod settings, the command automatically toggles it on before delivering the message.
 	- Messages inherit your nickname when you are Premium Plus; otherwise your Minecraft name is shown.
 
@@ -758,12 +758,12 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **Summary:** No description in attributes
 
-- **Account requirements:** Must be logged in with sufficient CoflCoin balance. Transfers use the Payments API, so both sender and receiver need Coflnet accounts.
+- **Account requirements:** Must be logged in with sufficient CoflCoin balance. Transfers use the Payments API, so both sender and receiver need SkyCofl accounts.
 
 - **Arguments & subcommands:**
 	- `<amount> <player>` – moves the specified number of CoflCoins to another user. The amount must be a positive integer; the command rejects non-numeric input and amounts ≤ 0.
 	- The recipient is looked up by IGN; behind the scenes the command resolves the user ID and creates a transfer reference (`<ign>-<connId>`).
-	- Any API error (insufficient funds, unknown player) is surfaced as a Coflnet error code so you know what to fix.
+	- Any API error (insufficient funds, unknown player) is surfaced as a SkyCofl error code so you know what to fix.
 
 
 
@@ -1073,7 +1073,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 - **Account requirements:** Public command; it needs to fetch filter metadata from the items API, so expect a brief loading message the first time.
 
 - **Arguments & subcommands:**
-	- No argument – enumerates every filter available in CoflNet’s filter engine, including sample values and whether they accept ranges or numeric comparisons.
+	- No argument – enumerates every filter available in SkyCofl’s filter engine, including sample values and whether they accept ranges or numeric comparisons.
 	- `<search>` – type a keyword such as `sharpness` or `volume` to narrow the list. Pagination buttons let you browse deeper pages.
 	- Numeric filters show min/max bounds and note when the syntax supports ranges like `1-10` or `>2`.
 
@@ -1232,11 +1232,11 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **Arguments & options:**
 	- `<identifier>` – choose `user`, `item`, or `enchant` to mirror the `/tfm export` namespace you're importing from. The command validates the value case-insensitively.
-	- `<userName>` – the TFManager profile name that published the blacklist. The server pulls `https://tfm.thom.club/get_blacklist?blacklist_id=<userName>&type=<identifier>` and converts the JSON payload into Coflnet filters.
+	- `<userName>` – the TFManager profile name that published the blacklist. The server pulls `https://tfm.thom.club/get_blacklist?blacklist_id=<userName>&type=<identifier>` and converts the JSON payload into SkyCofl filters.
 	- On success the entries are appended to your `/cl bl list` blacklist and immediately saved. Existing entries are left untouched.
 	- If the request fails or arguments are missing you'll receive a usage prompt explaining the proper syntax.
 
-- **Note:** Imported TFManager blacklists are mapped to Coflnet filter fields (rarity, pet flags, seller filters). Review imported entries with `bl list` and adjust before bulk-saving.
+- **Note:** Imported TFManager blacklists are mapped to SkyCofl filter fields (rarity, pet flags, seller filters). Review imported entries with `bl list` and adjust before bulk-saving.
 
 
 

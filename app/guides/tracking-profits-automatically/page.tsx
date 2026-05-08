@@ -110,7 +110,7 @@ export default function TrackingProfitsAutomaticallyPage() {
                                 <section aria-labelledby="export-data" className="mt-4">
                                     <CardTitle as="h2" id="export-data">How do I export SkyCofl flip data to CSV or Python?</CardTitle>
                                     <ol>
-                                        <li>Go to the <Link href="/flips">Flip Tracker</Link> page on Coflnet.</li>
+                                        <li>Go to the <Link href="/flips">Flip Tracker</Link> page on SkyCofl.</li>
                                         <li>Click "Export CSV" after logging in.</li>
                                         <li>Open the file in Google Sheets, Excel, or Python.</li>
                                     </ol>

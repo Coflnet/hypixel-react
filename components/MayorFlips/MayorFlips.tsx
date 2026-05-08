@@ -230,7 +230,7 @@ export function MayorFlips() {
                         variant="warning"
                     >
                         <p>
-                            Mayor flip predictions are part of the premium tools on CoflNet.
+                            Mayor flip predictions are part of the premium tools on SkyCofl.
                         </p>
                         <p>
                             {isLoggedIn

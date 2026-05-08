@@ -26,7 +26,7 @@ export const SITEMAP_CONFIG = {
         'profit calculator',
         'item prices',
         'skyblock trading',
-        'coflnet',
+        'skycofl',
         'flip tracker',
         'market analysis'
     ],
@@ -246,9 +246,9 @@ export const SITEMAP_CONFIG = {
             url: '/about',
             priority: 0.5,
             changefreq: 'monthly' as const,
-            title: 'About Hypixel SkyBlock Price Tracker and Coflnet Tools',
+            title: 'About Hypixel SkyBlock Price Tracker and SkyCofl Tools',
             description: 'Learn about our mission to provide the best price tracking tools for Hypixel SkyBlock.',
-            keywords: ['about coflnet', 'price tracker info', 'team', 'mission']
+            keywords: ['about skycofl', 'price tracker info', 'team', 'mission']
         },
         {
             url: '/subscriptions',
