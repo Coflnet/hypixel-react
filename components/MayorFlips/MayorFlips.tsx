@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState, useEffect } from 'react'
+import React, { useCallback, useMemo, useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useGetApiFlipMayor, getGetApiFlipMayorQueryKey } from '../../api/_generated/skyApi'
 import { Alert } from 'react-bootstrap'
@@ -8,10 +8,11 @@ import { useRouter } from 'next/navigation'
 import api from '../../api/ApiHelper'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import NumberElement from '../Number/Number'
+import PremiumNotifier from '../Premium/PremiumNotifier'
 import { convertTagToName } from '../../utils/Formatter'
 import { MayorDiffFlip } from '../../api/_generated/skyApi.schemas'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
-import { getGeneratedApiErrorMessage, hasSuccessfulArrayResponse, isGeneratedPremiumRequired } from '../../utils/GeneratedApiResponseUtils'
+import { getGeneratedApiErrorMessage, getGeneratedApiMessage, hasSuccessfulArrayResponse, isGeneratedPremiumRequired } from '../../utils/GeneratedApiResponseUtils'
 
 const SORT_OPTIONS: SortOption<MayorDiffFlip>[] = [
     {
@@ -135,6 +136,21 @@ function censoredFlip(): MayorDiffFlip {
 
 export function MayorFlips() {
     const [googleToken, setGoogleToken] = useState('')
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [hasPremium, setHasPremium] = useState(false)
+    const router = useRouter()
+
+    const loadPremiumStatus = useCallback(() => {
+        api.refreshLoadPremiumProducts(
+            products => {
+                setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
+            },
+            () => {
+                setHasPremium(false)
+            }
+        )
+    }, [])
+
     const query = useGetApiFlipMayor({
         fetch: googleToken ? { headers: { Authorization: `Bearer ${googleToken}` } } : undefined,
         query: {
@@ -145,17 +161,10 @@ export function MayorFlips() {
     const response = query.data
     const safeFlips = useMemo(() => (hasSuccessfulArrayResponse<MayorDiffFlip>(response) ? response.data : []), [response])
     const isAccessError = response?.status === 401 || response?.status === 403 || isGeneratedPremiumRequired(response?.data)
-    const accessMessage = isAccessError
-        ? getGeneratedApiErrorMessage(response, query.error, 'Unable to load mayor flips right now')
-        : null
+    const accessMessage = isAccessError ? getGeneratedApiMessage(response?.data) : null
     const errorMessage = isAccessError
         ? null
         : getGeneratedApiErrorMessage(response, query.error, 'Unable to load mayor flips right now')
-
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
-    const [hasPremium, setHasPremium] = useState(false)
-
-    const router = useRouter()
 
     useEffect(() => {
         if (typeof window === 'undefined') return
@@ -164,19 +173,25 @@ export function MayorFlips() {
         setGoogleToken(token)
         if (token) {
             setIsLoggedIn(true)
-            api.refreshLoadPremiumProducts(
-                products => {
-                    setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
-                },
-                () => {
-                    setHasPremium(false)
-                }
-            )
+            loadPremiumStatus()
         } else {
             setIsLoggedIn(false)
             setHasPremium(false)
         }
-    }, [])
+    }, [loadPremiumStatus])
+
+    const handleAfterLogin = useCallback(() => {
+        const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId') ?? ''
+        setGoogleToken(token)
+        setIsLoggedIn(Boolean(token))
+
+        if (token) {
+            loadPremiumStatus()
+            return
+        }
+
+        setHasPremium(false)
+    }, [loadPremiumStatus])
 
     // Get current and next mayor from the first flip in the list
     const currentMayor = safeFlips.length > 0 ? safeFlips[0].currentMayor : null
@@ -189,7 +204,7 @@ export function MayorFlips() {
                 terms to predict which items will surge or drop when the next mayor is elected. Perfect for players looking to maximize profits around election
                 events.
             </p>
-            {!hasPremium ? (
+            {!hasPremium && !isAccessError ? (
                 <div data-nosnippet data-robots="noindex">
                     <Alert variant="warning">
                         <a
@@ -201,13 +216,30 @@ export function MayorFlips() {
                             }}
                             style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
                         >
-                            Mayor flips require having premium to view the top results. Sign in and purchase premium to unlock full mayor flip
-                            predictions. Click to upgrade.
+                            Mayor flips require having premium to view the top results. {isLoggedIn ? 'Upgrade to unlock the full mayor flip predictions.' : 'Sign in and purchase premium to unlock the full mayor flip predictions.'}
                         </a>
                     </Alert>
                 </div>
             ) : null}
-            {accessMessage ? <Alert variant="warning">{accessMessage}</Alert> : null}
+            {isAccessError ? (
+                <div data-nosnippet data-robots="noindex">
+                    <PremiumNotifier
+                        title="Mayor flips are a premium feature"
+                        messageFromApi={isLoggedIn ? accessMessage : null}
+                        onAfterLogin={handleAfterLogin}
+                        variant="warning"
+                    >
+                        <p>
+                            Mayor flip predictions are part of the premium tools on CoflNet.
+                        </p>
+                        <p>
+                            {isLoggedIn
+                                ? 'You are signed in, but this account still needs starter premium or better to load the mayor flip list.'
+                                : 'Sign in with Google below to load mayor flips for your account and check whether you already have premium access.'}
+                        </p>
+                    </PremiumNotifier>
+                </div>
+            ) : null}
             {errorMessage ? <Alert variant="danger">{errorMessage}</Alert> : null}
 
             <details>
@@ -280,7 +312,7 @@ export function MayorFlips() {
             ) : null}
             {query.isLoading && !response ? (
                 <Alert variant="info">Loading mayor flips…</Alert>
-            ) : !errorMessage && !accessMessage ? (
+            ) : !errorMessage && !isAccessError ? (
                 <>
                     <br />
                     <GenericFlipList
