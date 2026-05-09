@@ -13,7 +13,6 @@ import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '
 import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
 import Number from '../Number/Number'
 import styles from './RecentAuctions.module.css'
-import { useSearchParams } from 'next/navigation'
 
 interface Props {
     item: Item
@@ -43,7 +42,6 @@ function RecentAuctions(props: Props) {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [noResults, setNoResults] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
-    let searchParams = useSearchParams()
 
     let itemFilterRef = useRef<ItemFilter>(props.itemFilter)
     itemFilterRef.current = props.itemFilter
@@ -193,6 +191,19 @@ function RecentAuctions(props: Props) {
             })
     }
 
+    function getArchiveHref() {
+        const archiveSearchParams = new URLSearchParams()
+
+        Object.entries(props.itemFilter || {}).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+                archiveSearchParams.set(key, value.toString())
+            }
+        })
+
+        const archiveSearch = archiveSearchParams.toString()
+        return `/item/${props.item.tag}/archive${archiveSearch ? `?${archiveSearch}` : ''}`
+    }
+
     let recentAuctionList = recentAuctions.map(recentAuction => {
         return (
             <div key={recentAuction.uuid} className={styles.cardWrapper}>
@@ -288,7 +299,7 @@ function RecentAuctions(props: Props) {
                         {premiumType?.priority >= PREMIUM_RANK.PREMIUM_PLUS ? (
                             <Link
                                 style={{ textAlign: 'center', marginBottom: '15px' }}
-                                href={`/item/${props.item.tag}/archive?${searchParams.has('itemFilter') ? `?${searchParams.get('itemFilter')}` : ''}`}
+                                href={getArchiveHref()}
                             >
                                 <Button>Archived Auctions</Button>
                             </Link>

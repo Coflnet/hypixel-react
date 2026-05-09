@@ -34,7 +34,7 @@ export default async function Page() {
                     <hr />
                     <h3>Item icons</h3>
                     <div>
-                        The item textures are provided by <a href="https://sky.shiiyu.moe/">SkyCrypt</a>. Internally they use the work of these amazing people.
+                        The item textures are provided by <a href="https://sky.shiiiyu.moe/">SkyCrypt</a>. Internally they use the work of these amazing people.
                         <p>
                             <a href="https://minecraft.net/" target="_blank" rel="noreferrer">
                                 Vanilla{' '}
