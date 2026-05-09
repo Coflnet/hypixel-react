@@ -9,8 +9,8 @@ export const metadata: Metadata = {
     description: "A list of items that are affected by the current or upcoming mayor.",
 };
 
-export default async function MayorPage({ params }: { params: { year: string } }) {
-    const year = params.year;
+export default async function MayorPage({ params }: { params: Promise<{ year: string }> }) {
+    const { year } = await params;
     return (
         <Container>
             <NavBar />
