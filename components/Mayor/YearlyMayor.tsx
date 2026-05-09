@@ -1,40 +1,28 @@
-'use client'
-import { useGetApiMayorYear } from '../../api/_generated/skyApi'
-import { MayorDetailsDisplay } from './MayorDetailsDisplay'
+"use client";
+import { useGetApiMayorYear } from "../../api/_generated/skyApi";
+import { MayorDetailsDisplay } from "./MayorDetailsDisplay";
 
 type Props = {
-  year: string
-}
+    year: string;
+};
 
 export function YearlyMayor({ year }: Props) {
-  const yearInt = Number.parseInt(year, 10)
-  const isValidYear = Number.isInteger(yearInt)
-  const { data: mayorYearData, isLoading, error } = useGetApiMayorYear(
-    isValidYear ? yearInt : 0,
-    {
-      query: {
-        enabled: isValidYear,
-      },
-    },
-  )
+    const yearInt = parseInt(year, 10);
+    const { data: mayorYearData, isLoading, error } = useGetApiMayorYear(yearInt, {
+        query: {
+            enabled: !isNaN(yearInt),
+        },
+    });
 
-  if (!isValidYear) {
-    return <div>Invalid year</div>
-  }
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
 
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
+    if (error) {
+        return <div>Error loading mayor data for year {year}</div>;
+    }
 
-  if (error) {
-    return <div>Error loading mayor data for year {year}</div>
-  }
+    const elections = mayorYearData?.data ? (Array.isArray(mayorYearData.data) ? mayorYearData.data : [mayorYearData.data]) : [];
 
-  const elections = mayorYearData?.data
-    ? Array.isArray(mayorYearData.data)
-      ? mayorYearData.data
-      : [mayorYearData.data]
-    : []
-
-  return <MayorDetailsDisplay elections={elections} isSingleYear={true} year={year} />
+    return <MayorDetailsDisplay elections={elections} isSingleYear={true} year={year} />;
 }
