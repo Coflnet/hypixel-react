@@ -9,20 +9,15 @@ export const metadata: Metadata = {
     description: "A list of items that are affected by the current or upcoming mayor.",
 };
 
-type Props = {
-    params: {
-        year: string;
-    }
-}
-
-export default function MayorPage({ params }: Props) {
+export default async function MayorPage({ params }: { params: { year: string } }) {
+    const year = params.year;
     return (
         <Container>
             <NavBar />
             <Search />
-            <h1>Mayor Data for Year {params.year}</h1>
+            <h1>Mayor Data for Year {year}</h1>
             <hr />
-            <YearlyMayor year={params.year} />
+            <YearlyMayor year={year} />
         </Container>
     );
 }
