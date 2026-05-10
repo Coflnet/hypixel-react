@@ -101,14 +101,14 @@ If you exceed the API rate limits continuously, your IP may be automatically blo
 ### Staying unblocked
 
 - Always include your `Authorization: Bearer` header in requests
-- Premium+ users are exempt from IP bans and can just download data directly so don't need to send lots of requests.
-- Respect the rate limit headers (`X-RateLimit-Remaining`, `X-RateLimit-Reset`) even with premium
+- Premium+ users with a valid token are auto-unblocked from IP bans, but the default `30 req/10s` and `100 req/min` windows still apply unless a custom application/client limit has been configured for you.
+- Respect `429` responses and `Retry-After` even with premium. The `X-Rate-Limit-*` headers only describe the longest active window and may not warn you before a `10s` burst limit is hit.
 
 ## Rate Limit Summary by Tier
 
 | Feature | Free | Premium | Premium+ |
 |---------|------|---------|----------|
-| General API | 100 req/min, 30 req/10s | Same | Same (account-based, IP ban exempt) |
+| General API | 30 req/10s and 100 req/min | Same | Same by default, auto-unblock with token |
 | Bazaar export | ❌ | 5 units/5 min, 180 days | 5 units/5 min, data since Oct 2019 |
 | Auction archive overview | ❌ | ❌ | 2s delay per request |
 | Auction archive export | ❌ | ❌ | Max 4 queued jobs, data since Oct 2019 |
@@ -117,4 +117,4 @@ If you exceed the API rate limits continuously, your IP may be automatically blo
 
 > **Export cost units:** A standard bazaar export costs 1 unit. A full order book export costs 3 units. You can make up to 5 units per 5-minute window.
 
-For custom rate limits for your application, contact us on [Discord](https://discord.gg/wvKXSHt).
+For custom rate limits for your application, contact us on [Discord](https://discord.gg/wvKXSHt). Those limits are configured per custom application/client and are not enabled automatically by a Premium+ token.

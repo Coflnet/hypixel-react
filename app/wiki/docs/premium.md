@@ -42,7 +42,7 @@ SkyCofl offers several premium tiers to enhance your SkyBlock experience and sup
 - Flip replay system
 - **Bazaar data export** — data since October 2019, 20-second resolution for last 2 weeks, 5-minute resolution for older data (5 cost units per 5 minutes; full order book = 3 units, standard = 1 unit)
 - **Auction archive export** — CSV export via queued job system (max 4 queued), data since October 2019
-- API rate limits applied per account (IP ban exempt)
+- API access: default limits still apply (`30 req/10s` and `100 req/min`); valid Premium+ token auto-unblocks IP bans
 - Gold chat color in mod
 - Maximum notification limits (1000)
 

@@ -517,7 +517,11 @@ To ensure fair usage of our API, we enforce the following rate limits:
 | 10 seconds | 30 requests | All users (by IP) |
 | 1 minute | 100 requests | All users (by IP) |
 
-Premium+ users with a valid `Authorization: Bearer` token are identified by their account instead of IP and are exempt from IP bans.
+Both windows are enforced in parallel. A burst of 31 requests inside 10 seconds will be rejected even if you are still below 100 requests in the current minute.
+
+The short burst window exists to keep capacity available for interactive website users. For direct API usage, send requests sequentially instead of in parallel. If you need a lot of detailed data, prefer aggregate or export endpoints. If you still need to walk detailed endpoints directly, target about 1 request per second.
+
+Premium+ users should still send a valid `Authorization: Bearer` token. That token lets the backend automatically unblock an IP that hit the scraper blacklist, but it does not raise the default public limits on its own.
 
 ### Bazaar Export Rate Limits
 | Window | Limit | Notes |
@@ -543,10 +547,14 @@ Archive pagination is only available for Premium+ users.
 
 ### Rate Limit Response
 If you exceed these limits, you will receive a `429 Too Many Requests` response. Please implement appropriate retry logic in your application to handle rate limiting.
-The response headers tell you both how many you have left and when the limit resets:
-- `X-RateLimit-Limit`: The maximum number of requests allowed in the current period
-- `X-RateLimit-Remaining`: The number of requests remaining in the current period
-- `X-RateLimit-Reset`: The time at which the current rate limit window resets
+The current middleware reports headers only for the longest active window, which is usually the `1m` rule when both `10s` and `1m` limits apply. That means you can still hit the `10s` burst limit even when the headers still show remaining quota for the minute window.
+
+Header names are case-insensitive, so you may see them as lowercase in clients. The emitted header names are:
+- `X-Rate-Limit-Limit`: The reported window identifier, for example `1m` or `10s`
+- `X-Rate-Limit-Remaining`: The number of requests remaining in that reported window
+- `X-Rate-Limit-Reset`: The timestamp at which that reported window resets
+
+On `429` responses, also respect the `Retry-After` header. That is the safest way to recover after hitting either the minute window or the shorter burst window.
 
 **Blocked?** If your IP has been blocked for exceeding rate limits, you can unblock it with a Premium+ subscription. See [API Access & Token Management](/wiki/api-access) for details.
 
