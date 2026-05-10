@@ -84,6 +84,9 @@ export default function GuidesPage() {
                                     <Link href="/guides/best-flipping-strategy">What is the Best Flipping Strategy?</Link> - Compare different strategies and find what works for you
                                 </li>
                                 <li>
+                                    <Link href="/guides/npc-flipping-guide">NPC Flipping Guide</Link> - NPC to Bazaar, NPC to Auction House, and reverse NPC workflows
+                                </li>
+                                <li>
                                     <Link href="/guides/bazaar-vs-auction-house">Bazaar vs. Auction House Flipping</Link> - Understanding the differences and when to use each
                                 </li>
                                 <li>
