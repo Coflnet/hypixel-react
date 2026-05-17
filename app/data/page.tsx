@@ -32,10 +32,10 @@ export default function Page() {
                                 <Link href="/bazaar">A skyblock bazaar flipper</Link>
                             </li>
                             <li>
-                                <Link href="/bazaar">Other Hypixel Skyblock flips</Link>
+                                <Link href="/flips">Hypixel Skyblock flips</Link>
                             </li>
                             <li>
-                                <Link href="/">An AH and bazaar Browser</Link>
+                                <Link href="/">An AH and bazaar Explorer</Link>
                             </li>
                         </ul>
 
