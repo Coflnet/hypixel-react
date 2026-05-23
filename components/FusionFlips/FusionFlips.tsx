@@ -218,7 +218,7 @@ export function FusionFlips() {
             <p>
                 This is a curated list of profitable Skyblock Fusion Flips in Hypixel SkyBlock — find opportunities to fuse shards and sell the fused shard for a profit.
                 The list highlights input cost, output value, output count and trade volume so you can quickly spot high-margin fusion flips. This is one of the
-                newest Skyblock money making methods introduced with the the <strong>Galatea Foraging update</strong>.
+                newest Skyblock money making methods introduced with the <strong>Galatea Foraging update</strong>.
             </p>
             <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
@@ -253,7 +253,7 @@ export function FusionFlips() {
             <details>
                 <summary>Why Galatea Foraging matters</summary>
                 <p>
-                    The Galatea Foraging update introduced shards and shard fusion. The prices of shards can fluctuate widly throughout the week and create new
+                    The Galatea Foraging update introduced shards and shard fusion. The prices of shards can fluctuate widely throughout the week and create new
                     fusion flipping opportunities giving you the chance to profit from these changes.
                 </p>
             </details>
