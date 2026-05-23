@@ -293,7 +293,7 @@ export function FusionFlips() {
                         !showMultiStep && displayedFlips.length === 0 ? (
                             <Alert variant="info" style={{ marginBottom: 0, maxWidth: '760px' }}>
                                 <p style={{ marginBottom: '10px' }}>
-                                    No single-step fusion flips are available right now. This is common on fusion.
+                                    No single-step fusion flips are available right now. This is common while the fusion market is quiet.
                                 </p>
                                 <p style={{ marginBottom: hasPremium ? '10px' : 0 }}>
                                     Check <strong>Show Multi-Step Fusions</strong> to include deeper fusion chains.
