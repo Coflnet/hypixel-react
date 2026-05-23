@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import React, { useState, useEffect } from 'react'
-import { Alert } from 'react-bootstrap'
+import { Alert, Button } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { convertTagToName } from '../../utils/Formatter'
 import Number from '../Number/Number'
@@ -289,6 +289,27 @@ export function FusionFlips() {
                     premiumMessage={showMultiStep ? "Multi-step fusion flips require starter premium or better" : "The top 3 flips can only be seen with starter premium or better"}
                     clickMessage="Click on a flip for price history"
                     showColumns={true}
+                    emptyState={
+                        !showMultiStep && displayedFlips.length === 0 ? (
+                            <Alert variant="info" style={{ marginBottom: 0, maxWidth: '760px' }}>
+                                <p style={{ marginBottom: '10px' }}>
+                                    No single-step fusion flips are available right now. This is common on fusion.
+                                </p>
+                                <p style={{ marginBottom: hasPremium ? '10px' : 0 }}>
+                                    Check <strong>Show Multi-Step Fusions</strong> to include deeper fusion chains.
+                                </p>
+                                {hasPremium ? (
+                                    <Button size="sm" onClick={() => setShowMultiStep(true)}>
+                                        Enable Multi-Step Fusions
+                                    </Button>
+                                ) : null}
+                            </Alert>
+                        ) : (
+                            <p style={{ marginBottom: 0 }}>
+                                No fusion flips are available right now. Please check again shortly.
+                            </p>
+                        )
+                    }
                 />
             )}
         </>

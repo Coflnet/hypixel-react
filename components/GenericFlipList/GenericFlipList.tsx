@@ -32,6 +32,7 @@ export interface FlipListProps<T> {
     getFlipLink?: (item: T) => string | null | undefined
     renderBatchSize?: number
     initialRenderCount?: number
+    emptyState?: React.ReactNode
 }
 
 export interface SortOption<T> {
@@ -82,7 +83,8 @@ export function GenericFlipList<T>({
     getFlipLink,
     renderBatchSize = 42,
     initialRenderCount = 42,
-    minimumPlaceholder
+    minimumPlaceholder,
+    emptyState
 }: FlipListProps<T>) {
     const [nameFilter, setNameFilter] = useState<string | null>()
     const [minimumProfit, setMinimumProfit] = useState<number>(0)
@@ -461,7 +463,7 @@ export function GenericFlipList<T>({
             <hr />
             {/* Premium modal trigger moved to the blurred message so users and crawlers still see the message in-place */}
             <PremiumModal show={showPremiumModal} onHide={() => setShowPremiumModal(false)} />
-            <p>{clickMessage}</p>
+            {processedItems.length > 0 ? <p>{clickMessage}</p> : null}
             <div className={flipListClass}>
                 {isProcessing ? (
                     <div
@@ -477,6 +479,12 @@ export function GenericFlipList<T>({
                     >
                         <Spinner animation="border" role="status" variant="primary" />
                         <span>Processing items...</span>
+                    </div>
+                ) : processedItems.length === 0 ? (
+                    <div className={styles.emptyStateContainer}>
+                        {emptyState ?? (
+                            <p className={styles.emptyStateText}>No flips found right now. Try adjusting your filters and check again shortly.</p>
+                        )}
                     </div>
                 ) : (
                     <>
