@@ -244,7 +244,7 @@ export function FusionFlips() {
                 <summary>How to profit from hypixel skyblock fusion flipping</summary>
                 <ol>
                     <li>Pick a fusion flip that has a positive profit from the list below.</li>
-                    <li>Create a buy order for the displayed amount of each shard</li>
+                    <li>Create a buy order for the displayed amount of each shard.</li>
                     <li>Go to the fusion machine on galatea, select first one then the other shard and fuse them.</li>
                     <li>Create a sell order on the bazaar with the resulting shards</li>
                     <li>Repeat while margins and volume stay strong.</li>
