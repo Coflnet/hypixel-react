@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback } fr
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { LAST_PREMIUM_PRODUCTS } from '../../utils/SettingsUtils'
 import { parsePremiumProducts } from '../../utils/Parser/APIResponseParser'
+import properties from '../../properties'
 
 interface AdsContextValue {
     shouldShowAds: boolean
@@ -13,6 +14,10 @@ interface AdsContextValue {
 const AdsContext = createContext<AdsContextValue | undefined>(undefined)
 
 function evaluateShouldShowAds(): boolean {
+    if (properties.isTestRunner) {
+        return false
+    }
+
     if (typeof window === 'undefined') {
         return true
     }

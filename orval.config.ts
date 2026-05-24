@@ -1,4 +1,3 @@
-// @ts-expect-error Orval's package exports are resolved correctly at runtime, but this workspace tsconfig does not resolve them in config files.
 import { defineConfig } from 'orval';
 
 export default defineConfig({

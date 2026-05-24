@@ -4,13 +4,14 @@ import { usePathname } from 'next/navigation'
 import Script from 'next/script'
 import { useAds } from './Providers/AdsProvider'
 import NitroRailAd from './Ads/NitroRailAd'
+import properties from '../properties'
 
 export default function AdScriptLoader() {
     const pathname = usePathname() || ''
     const { shouldShowAds } = useAds()
 
     const matchesAdRoute = pathname !== '/' && pathname != '/about' && pathname != '/premium' && pathname != '/account'
-    const shouldLoadAds = shouldShowAds && matchesAdRoute
+    const shouldLoadAds = shouldShowAds && matchesAdRoute && !properties.isTestRunner
 
     if (!shouldLoadAds) {
         return null

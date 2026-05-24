@@ -18,6 +18,7 @@ import '../../styles/bootstrap-dark.min.css'
 import '../../styles/globals.css'
 import TopLoadingAnimation from '../TopLoader/TopLoadingAnimation'
 import { initCoflCoinManager } from '../../utils/CoflCoinsUtils'
+import properties from '../../properties'
 
 interface ErrorLog {
     error: ErrorEvent
@@ -207,7 +208,7 @@ export function MainApp(props: any) {
             <OfflineBanner />
             <TopLoadingAnimation />
             {props.children}
-            {!hasNitroCMP ? (
+            {!properties.isTestRunner && !hasNitroCMP ? (
                 <CookieConsent
                     enableDeclineButton
                     declineButtonStyle={{ backgroundColor: 'rgb(65, 65, 65)', borderRadius: '10px', color: 'lightgrey', fontSize: '14px' }}
