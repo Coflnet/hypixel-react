@@ -241,7 +241,7 @@ export function FusionFlips() {
                 {multiStepLoading && showMultiStep && <span>Loading...</span>}
             </div>
             <details>
-                <summary>How to profit from hypixel skyblock fusion flipping</summary>
+                <summary>How to profit from Hypixel SkyBlock fusion flipping</summary>
                 <ol>
                     <li>Pick a fusion flip that has a positive profit from the list below.</li>
                     <li>Create a buy order for the displayed amount of each shard.</li>
