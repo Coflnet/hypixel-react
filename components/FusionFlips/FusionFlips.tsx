@@ -253,7 +253,7 @@ export function FusionFlips() {
             <details>
                 <summary>Why Galatea Foraging matters</summary>
                 <p>
-                    The Galatea Foraging update introduced shards and shard fusion. Shard prices can fluctuate widely throughout the week and create new
+                    The Galatea Foraging update introduced shards and shard fusion. Shard prices can fluctuate widely throughout the week and create
                     fusion flipping opportunities, giving you a chance to profit from those changes.
                 </p>
             </details>
