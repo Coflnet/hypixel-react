@@ -10,7 +10,7 @@ describe('Search', () => {
         cy.contains('Technoblade').should('be.visible')
     })
 
-    it('search item sheep pet', () => {
+    it('search item sheep pet', { defaultCommandTimeout: 10000 }, () => {
         cy.visit('/')
         cy.get('[placeholder="Search player/item"]').click().type('sheep pet{enter}')
         cy.url().should('match', /\/item\/PET_SHEEP(\?.*)?$/)

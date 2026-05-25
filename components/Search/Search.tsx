@@ -49,6 +49,7 @@ interface Props {
 
 const PLAYER_SEARCH_CONEXT_MENU_ID = 'player-search-context-menu'
 const SEARCH_RESULT_CONTEXT_MENU_ID = 'search-result-context-menu'
+const SEARCH_DEBOUNCE_MS = 150
 
 function Search(props: Props) {
     let router = useRouter()
@@ -73,6 +74,7 @@ function Search(props: Props) {
     const inputId = props.hideNavbar ? searchId.current : 'search-bar'
 
     let rememberEnterPressRef = useRef(false)
+    const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     let searchElement = useRef(null)
     let forceUpdate = useForceUpdate()
@@ -84,16 +86,25 @@ function Search(props: Props) {
         document.addEventListener('click', outsideClickHandler, true)
         return () => {
             document.removeEventListener('click', outsideClickHandler, true)
+            if (searchTimeoutRef.current) {
+                clearTimeout(searchTimeoutRef.current)
+            }
         }
     }, [])
 
     useEffect(() => {
         setSearchText('')
         setResults([])
+        setIsSearching(false)
+        setNoResultsFound(false)
+        rememberEnterPressRef.current = false
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current)
+            searchTimeoutRef.current = null
+        }
     }, [props.selected])
 
-    let search = () => {
-        let searchFor = searchText
+    let search = (searchFor: string) => {
         let searchFunction = props.searchFunction || api.search
         searchFunction(searchFor).then(searchResults => {
             // has the searchtext changed?
@@ -116,23 +127,41 @@ function Search(props: Props) {
                     rememberEnterPressRef.current = false
                 }
             }
+        }).catch(() => {
+            if (
+                searchElement.current !== null &&
+                searchFor === ((searchElement.current as HTMLDivElement).querySelector(`#${inputId}`) as HTMLInputElement).value
+            ) {
+                setResults([])
+                setIsSearching(false)
+                rememberEnterPressRef.current = false
+            }
         })
     }
 
     let onSearchChange = (e: ChangeEvent) => {
         let newSearchText: string = (e.target as HTMLInputElement).value
-        searchText = newSearchText
         setSearchText(newSearchText)
-        setIsSearching(true)
+
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current)
+            searchTimeoutRef.current = null
+        }
 
         if (newSearchText === '') {
             setResults([])
             setIsSearching(false)
+            setNoResultsFound(false)
+            rememberEnterPressRef.current = false
             return
         }
 
         setNoResultsFound(false)
-        search()
+        setIsSearching(true)
+        searchTimeoutRef.current = setTimeout(() => {
+            searchTimeoutRef.current = null
+            search(newSearchText)
+        }, SEARCH_DEBOUNCE_MS)
     }
 
     function outsideClickHandler(evt) {
@@ -153,6 +182,17 @@ function Search(props: Props) {
         switch (e.key) {
             case 'Enter':
                 e.preventDefault()
+                if (searchText.trim().length === 0) {
+                    return
+                }
+                if (searchTimeoutRef.current) {
+                    clearTimeout(searchTimeoutRef.current)
+                    searchTimeoutRef.current = null
+                    rememberEnterPressRef.current = true
+                    setIsSearching(true)
+                    search(searchText)
+                    return
+                }
                 if (isSearching) {
                     rememberEnterPressRef.current = true
                     return
