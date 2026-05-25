@@ -51,6 +51,19 @@ export function getGeneratedApiMessage(data: unknown): string | null {
     return null
 }
 
+export function getGeneratedApiPremiumUrl(data: unknown): string | null {
+    if (!data || typeof data !== 'object') {
+        return null
+    }
+
+    if ('premiumUrl' in data && typeof data.premiumUrl === 'string') {
+        const trimmed = data.premiumUrl.trim()
+        return trimmed.length > 0 ? trimmed : null
+    }
+
+    return null
+}
+
 export function isGeneratedPremiumPlusRequired(data: unknown): boolean {
     const slug = getGeneratedApiSlug(data)
     if (slug && PREMIUM_PLUS_SLUGS.has(slug)) {

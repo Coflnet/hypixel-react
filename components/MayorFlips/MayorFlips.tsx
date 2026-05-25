@@ -3,7 +3,7 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react'
 import Image from 'next/image'
 import { useGetApiFlipMayor, getGetApiFlipMayorQueryKey } from '../../api/_generated/skyApi'
-import { Alert } from 'react-bootstrap'
+import { Alert, Button } from 'react-bootstrap'
 import { useRouter } from 'next/navigation'
 import api from '../../api/ApiHelper'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
@@ -12,7 +12,7 @@ import PremiumNotifier from '../Premium/PremiumNotifier'
 import { convertTagToName } from '../../utils/Formatter'
 import { MayorDiffFlip } from '../../api/_generated/skyApi.schemas'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
-import { getGeneratedApiErrorMessage, getGeneratedApiMessage, hasSuccessfulArrayResponse, isGeneratedPremiumRequired } from '../../utils/GeneratedApiResponseUtils'
+import { getGeneratedApiErrorMessage, getGeneratedApiMessage, getGeneratedApiPremiumUrl, hasSuccessfulArrayResponse, isGeneratedPremiumRequired } from '../../utils/GeneratedApiResponseUtils'
 
 const SORT_OPTIONS: SortOption<MayorDiffFlip>[] = [
     {
@@ -134,8 +134,27 @@ function censoredFlip(): MayorDiffFlip {
     }
 }
 
+function getPremiumPurchasePath(data: unknown) {
+    const premiumUrl = getGeneratedApiPremiumUrl(data)
+    if (!premiumUrl) {
+        return '/premium'
+    }
+
+    try {
+        const url = new URL(premiumUrl, 'https://sky.coflnet.com')
+        if (url.pathname !== '/premium') {
+            return '/premium'
+        }
+
+        return `${url.pathname}${url.search}${url.hash}`
+    } catch {
+        return '/premium'
+    }
+}
+
 export function MayorFlips() {
     const [googleToken, setGoogleToken] = useState('')
+    const [isAuthResolved, setIsAuthResolved] = useState(false)
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [hasPremium, setHasPremium] = useState(false)
     const router = useRouter()
@@ -155,14 +174,18 @@ export function MayorFlips() {
         fetch: googleToken ? { headers: { Authorization: `Bearer ${googleToken}` } } : undefined,
         query: {
             queryKey: [...getGetApiFlipMayorQueryKey(), googleToken],
-            retry: false
+            retry: false,
+            enabled: isAuthResolved && Boolean(googleToken)
         }
     })
     const response = query.data
-    const safeFlips = useMemo(() => (hasSuccessfulArrayResponse<MayorDiffFlip>(response) ? response.data : []), [response])
-    const isAccessError = response?.status === 401 || response?.status === 403 || isGeneratedPremiumRequired(response?.data)
-    const accessMessage = isAccessError ? getGeneratedApiMessage(response?.data) : null
-    const errorMessage = isAccessError
+    const hasFlipsResponse = hasSuccessfulArrayResponse<MayorDiffFlip>(response)
+    const safeFlips = useMemo(() => (hasFlipsResponse ? response.data : []), [hasFlipsResponse, response])
+    const isUnauthorized = response?.status === 401
+    const isPremiumRequired = response?.status === 403 || isGeneratedPremiumRequired(response?.data)
+    const accessMessage = isUnauthorized || isPremiumRequired ? getGeneratedApiMessage(response?.data) : null
+    const premiumPurchasePath = useMemo(() => getPremiumPurchasePath(response?.data), [response?.data])
+    const errorMessage = isUnauthorized || isPremiumRequired
         ? null
         : getGeneratedApiErrorMessage(response, query.error, 'Unable to load mayor flips right now')
 
@@ -178,12 +201,15 @@ export function MayorFlips() {
             setIsLoggedIn(false)
             setHasPremium(false)
         }
+
+        setIsAuthResolved(true)
     }, [loadPremiumStatus])
 
     const handleAfterLogin = useCallback(() => {
         const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId') ?? ''
         setGoogleToken(token)
         setIsLoggedIn(Boolean(token))
+        setIsAuthResolved(true)
 
         if (token) {
             loadPremiumStatus()
@@ -204,7 +230,7 @@ export function MayorFlips() {
                 terms to predict which items will surge or drop when the next mayor is elected. Perfect for players looking to maximize profits around election
                 events.
             </p>
-            {!hasPremium && !isAccessError ? (
+            {isAuthResolved && !hasPremium && !isPremiumRequired && !isUnauthorized ? (
                 <div data-nosnippet data-robots="noindex">
                     <Alert variant="warning">
                         <a
@@ -221,7 +247,18 @@ export function MayorFlips() {
                     </Alert>
                 </div>
             ) : null}
-            {isAccessError ? (
+            {isPremiumRequired ? (
+                <div data-nosnippet data-robots="noindex">
+                    <Alert variant="danger">
+                        <h3 className="h5">Starter Premium required</h3>
+                        <p>{accessMessage ?? 'Mayor flip predictions require starter premium or better.'}</p>
+                        <Button variant="danger" onClick={() => router.push(premiumPurchasePath)}>
+                            Go to premium plans
+                        </Button>
+                    </Alert>
+                </div>
+            ) : null}
+            {isUnauthorized ? (
                 <div data-nosnippet data-robots="noindex">
                     <PremiumNotifier
                         title="Mayor flips are a premium feature"
@@ -310,9 +347,9 @@ export function MayorFlips() {
                     )}
                 </div>
             ) : null}
-            {query.isLoading && !response ? (
+            {isAuthResolved && Boolean(googleToken) && query.isLoading && !response ? (
                 <Alert variant="info">Loading mayor flips…</Alert>
-            ) : !errorMessage && !isAccessError ? (
+            ) : !errorMessage && hasFlipsResponse ? (
                 <>
                     <br />
                     <GenericFlipList
