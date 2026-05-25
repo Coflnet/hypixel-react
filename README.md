@@ -1,4 +1,4 @@
-This is the current frontend for https://sky.coflnet.com
+This is the current frontend for https://sky.coflnet.com.
 You can contribute by opening pull requests.
 
 This project uses Next.js (https://github.com/vercel/next.js).
