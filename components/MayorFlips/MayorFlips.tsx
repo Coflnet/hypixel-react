@@ -250,8 +250,8 @@ export function MayorFlips() {
             {isPremiumRequired ? (
                 <div data-nosnippet data-robots="noindex">
                     <Alert variant="danger">
-                        <h3 className="h5">Starter Premium required</h3>
-                        <p>{accessMessage ?? 'Mayor flip predictions require starter premium or better.'}</p>
+                        <h3 className="h5">Premium required</h3>
+                        <p>{accessMessage ?? 'Mayor flip predictions require premium or better.'}</p>
                         <Button variant="danger" onClick={() => router.push(premiumPurchasePath)}>
                             Go to premium plans
                         </Button>
