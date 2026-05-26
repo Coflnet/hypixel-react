@@ -116,7 +116,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.SEARCH,
-                data: searchText,
+                data: '',
+                customRequestURL: `${getApiEndpoint()}/search/${encodeURIComponent(searchText)}`,
                 resolve: (items: any) => {
                     resolve(
                         !items

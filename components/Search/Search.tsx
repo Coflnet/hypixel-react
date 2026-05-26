@@ -79,6 +79,15 @@ function Search(props: Props) {
     let searchElement = useRef(null)
     let forceUpdate = useForceUpdate()
 
+    const getCurrentSearchValue = () => {
+        if (searchElement.current === null) {
+            return searchText
+        }
+
+        const input = (searchElement.current as HTMLDivElement).querySelector(`#${inputId}`) as HTMLInputElement | null
+        return input?.value ?? searchText
+    }
+
     useEffect(() => {
         if (isClientSideRendering()) {
             setIsSmall(isClientSideRendering() ? document.body.clientWidth < 1500 : false)
@@ -108,10 +117,7 @@ function Search(props: Props) {
         let searchFunction = props.searchFunction || api.search
         searchFunction(searchFor).then(searchResults => {
             // has the searchtext changed?
-            if (
-                searchElement.current !== null &&
-                searchFor === ((searchElement.current as HTMLDivElement).querySelector(`#${inputId}`) as HTMLInputElement).value
-            ) {
+            if (searchFor === getCurrentSearchValue()) {
                 let searchResultsToShow = [...searchResults]
                 if (!props.preventDisplayOfPreviousSearches) {
                     searchResultsToShow = addPreviousSearchResultsToDisplay(searchFor, searchResults, props.keyForPinnedItems)
@@ -128,10 +134,7 @@ function Search(props: Props) {
                 }
             }
         }).catch(() => {
-            if (
-                searchElement.current !== null &&
-                searchFor === ((searchElement.current as HTMLDivElement).querySelector(`#${inputId}`) as HTMLInputElement).value
-            ) {
+            if (searchFor === getCurrentSearchValue()) {
                 setResults([])
                 setIsSearching(false)
                 rememberEnterPressRef.current = false
@@ -182,7 +185,8 @@ function Search(props: Props) {
         switch (e.key) {
             case 'Enter':
                 e.preventDefault()
-                if (searchText.trim().length === 0) {
+                const currentSearchValue = getCurrentSearchValue().trim()
+                if (currentSearchValue.length === 0) {
                     return
                 }
                 if (searchTimeoutRef.current) {
@@ -190,7 +194,7 @@ function Search(props: Props) {
                     searchTimeoutRef.current = null
                     rememberEnterPressRef.current = true
                     setIsSearching(true)
-                    search(searchText)
+                    search(currentSearchValue)
                     return
                 }
                 if (isSearching) {
@@ -198,6 +202,9 @@ function Search(props: Props) {
                     return
                 }
                 if (!results || results.length === 0) {
+                    rememberEnterPressRef.current = true
+                    setIsSearching(true)
+                    search(currentSearchValue)
                     return
                 }
                 onItemClick(results[selectedIndex])
