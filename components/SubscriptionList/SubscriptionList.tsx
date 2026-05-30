@@ -10,6 +10,7 @@ import { NotificationListener, SubscriptionType } from '../../api/ApiTypes.d'
 import { convertTagToName } from '../../utils/Formatter'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
+import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
 import Number from '../Number/Number'
@@ -27,6 +28,7 @@ function SubscriptionList() {
     let [listener, setListener] = useState<NotificationListener[]>([])
     let [subscriptions, setSubscriptions] = useState<NotificationSubscription[]>([])
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let [hasStarterPremium, setHasStarterPremium] = useState(false)
     let [showDeleteAllSubscriptionDialog, setShowDeleteAllSubscriptionDialog] = useState(false)
     let [showNotificationTargets, setShowNotificationTargets] = useState(false)
     let [isLoading, setIsLoading] = useState(false)
@@ -103,6 +105,14 @@ function SubscriptionList() {
         if (googleId) {
             setIsLoggedIn(true)
             setIsLoading(true)
+            api.refreshLoadPremiumProducts(
+                products => {
+                    setHasStarterPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
+                },
+                () => {
+                    setHasStarterPremium(false)
+                }
+            )
             Promise.all([loadListener(), loadSubscriptions()]).then(() => {
                 setIsLoading(false)
             })
@@ -515,7 +525,7 @@ function SubscriptionList() {
             {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
             {!wasAlreadyLoggedIn && !isLoggedIn ? <p>To use subscriptions, please login with Google:</p> : ''}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
-            {subscriptions.length >= 3 ? (
+            {subscriptions.length >= 3 && !hasStarterPremium ? (
                 <div className="alert alert-info d-flex align-items-center justify-content-between flex-wrap gap-3" style={{ marginTop: '20px' }}>
                     <span>
                         <strong>Want more notifiers?</strong> You have reached the free limit of 3. Unlock more notifiers with{' '}
