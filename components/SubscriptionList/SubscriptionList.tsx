@@ -515,6 +515,18 @@ function SubscriptionList() {
             {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
             {!wasAlreadyLoggedIn && !isLoggedIn ? <p>To use subscriptions, please login with Google:</p> : ''}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
+            {subscriptions.length >= 3 ? (
+                <div className="alert alert-info d-flex align-items-center justify-content-between flex-wrap gap-3" style={{ marginTop: '20px' }}>
+                    <span>
+                        <strong>Want more notifiers?</strong> You have reached the free limit of 3. Unlock more notifiers with{' '}
+                        <strong>Starter Premium</strong> for under <strong>2€/month</strong>.
+                    </span>
+                    <Link href="/premium" className="btn btn-primary" style={{ flexShrink: 0 }}>
+                        Upgrade Now
+                    </Link>
+                </div>
+            ) : null}
+
             {resetSettingsElement}
             {notificationTargetsElement}
 
