@@ -135,7 +135,7 @@ function Premium() {
                 <div>{isLoading ? getLoadingElement() : ''}</div>
             </div>
             {isLoggedIn && (!hasPremium || showUpgradeWizard) ? (
-                <div style={{ marginBottom: '40px' }}>
+                <div id="buyPremium" style={{ marginBottom: '40px' }}>
                     <hr />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                         <h2>{hasPremium && showUpgradeWizard ? 'Upgrade Premium' : 'Get Premium'}</h2>
