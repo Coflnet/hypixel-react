@@ -19,6 +19,13 @@ FROM node:lts-slim AS runner
 WORKDIR /opt/app
 ENV NODE_ENV=production
 
+# Apply OS security patches (e.g. libgnutls30 CVEs) on top of the base image.
+# node:lts-slim is Debian-based; apt upgrade pulls in the latest point-release
+# fixes without changing the Debian major version.
+RUN apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN addgroup --system --gid 1001 nextjs && \
     adduser --system --uid 1001 --ingroup nextjs nextjs
 
