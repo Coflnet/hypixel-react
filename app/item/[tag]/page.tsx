@@ -218,13 +218,32 @@ async function getItemData(searchParams, params) {
             }
         }
 
+        // Build item flags from item details when not available from cache.
+        // This ensures items not in the /api/items cache still get correct
+        // bazaar/auction/tradeable flags (e.g. BOOK_OF_STATS).
+        let itemFlags = cachedInfo
+        if (!itemFlags && itemDetails.flags !== undefined) {
+            const numericFlags = parseFlags(itemDetails.flags)
+            itemFlags = {
+                tag,
+                name: itemDetails.name || null,
+                isBazaar: hasItemFlag(numericFlags, ItemFlagsNumeric.BAZAAR),
+                isTradeable: hasItemFlag(numericFlags, ItemFlagsNumeric.TRADEABLE),
+                isAuction: hasItemFlag(numericFlags, ItemFlagsNumeric.AUCTION),
+                isCraftable: hasItemFlag(numericFlags, ItemFlagsNumeric.CRAFT),
+                isMuseum: hasItemFlag(numericFlags, ItemFlagsNumeric.MUSEUM),
+                isFireSale: hasItemFlag(numericFlags, ItemFlagsNumeric.FIRESALE),
+                flags: numericFlags
+            }
+        }
+
         if (range === 'active') {
             return {
                 item: itemDetails,
                 prices: [],
                 range: range || null,
                 filter: itemFilter || null,
-                itemFlags: cachedInfo
+                itemFlags
             }
         }
 
@@ -239,7 +258,7 @@ async function getItemData(searchParams, params) {
             prices: prices || [],
             range: range || null,
             filter: itemFilter ? itemFilter : null,
-            itemFlags: cachedInfo
+            itemFlags
         }
     } catch (error) {
         if (isRedirectError(error)) throw error
