@@ -94,9 +94,7 @@ export default function FavoriteItemCard({ favorite, movement, isMovementLoading
                                 ? delta === 0
                                     ? 'No change'
                                     : `${isPositive ? '+' : ''}${numberWithThousandsSeparators(Math.round(delta))} coins`
-                                : isMovementLoading
-                                  ? ''
-                                  : 'No data'}
+                                : ''}
                             {movement && percentChange !== null && delta !== 0 ? (
                                 <span className={styles.percent}>
                                     {' '}
