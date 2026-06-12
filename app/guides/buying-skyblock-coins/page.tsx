@@ -108,6 +108,7 @@ export default function BuyingCoinsGuidePage() {
                                 <li>Use the official trade menu; avoid off-menu “gifts” and imbalanced swaps.</li>
                                 <li>Price-check on <Link href="/item">Item History</Link>; pay taxes where applicable (<Link href="/wiki/docs/mod-commands#ahtaxcommand-alias-t">/cofl ahtax</Link>).</li>
                                 <li>Document big trades (screenshots) to defend against false reports.</li>
+                                <li>Complete the in-game <Link href="/guides/safety-squad-guide">Safety Squad quest</Link> for a hands-on tutorial on account security, phishing, and scam prevention.</li>
                             </ul>
 
                             <CardTitle as="h2" className="mt-4">If You Were Banned for IRL Trading—What Now?</CardTitle>

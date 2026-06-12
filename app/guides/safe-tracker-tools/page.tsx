@@ -155,6 +155,9 @@ export default function SafeTrackerToolsPage() {
                                         <li><strong>Review your data regularly</strong> - Weekly review is the practical minimum for catching strategy drift.</li>
                                         <li><strong>Back up your data</strong> - If you keep manual sheets, preserve copies so your history survives mistakes.</li>
                                     </ul>
+                                    <CardText>
+                                        For a full walkthrough of the in-game account security tutorial, read the <Link href="/guides/safety-squad-guide">Safety Squad Guide</Link> — it covers phishing, trading scams, and the /report command.
+                                    </CardText>
                                 </section>
 
                                 <section aria-labelledby="safest-setup" className="mt-4">

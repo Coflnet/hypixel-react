@@ -222,13 +222,13 @@ export default function HowToAvoidScamsPage() {
                                 <CardText>
                                     <strong>Critical Actions (Do NOW):</strong><br/>
                                     1. Enable 2FA: accounts.microsoft.com → Security → Two-step verification<br/>
-                                    2. Change password to unique 16+ characters (CAPITAL, lowercase, numbers, symbols)<br/>
+                                    2. Change password to unique 16+ characters, best case use a long sentence that is easy to remember for you<br/>
                                     3. Check connected apps/devices and remove unknown ones<br/>
                                     4. Add recovery email and phone number to Microsoft account<br/>
                                     <br/>
                                     <strong>Ongoing Practices:</strong><br/>
                                     • Never click links from players in-game or Discord<br/>
-                                    • Only visit minecraft.net, microsoft.com, and hypixel.net<br/>
+                                    • Only visit minecraft.net, microsoft.com, hypixel.net and SkyCofl at sky.coflnet.com<br/>
                                     • Check email for suspicious login attempts (Microsoft sends alerts)<br/>
                                     • If you see login from new device, change password immediately<br/>
                                     • Use password manager (1Password, BitWarden, KeePass) for unique passwords everywhere<br/>
@@ -288,6 +288,7 @@ export default function HowToAvoidScamsPage() {
                                 • <Link href="/guides/how-to-flip">How to Flip</Link> – Step-by-step trading process<br/>
                                 • <Link href="/guides/avoid-taxes-and-losses">Avoid Taxes &amp; Losses</Link> – Minimize fees and mistakes<br/>
                                 • <Link href="/guides/best-flipping-strategy">Best Flipping Strategy</Link> – Winning approach for consistency<br/>
+                                • <Link href="/guides/safety-squad-guide">Safety Squad Guide</Link> – In-game account security quest walkthrough with quiz answers<br/>
                             </CardText>
 
                             <Link href="/guides" className="btn btn-primary mt-4">

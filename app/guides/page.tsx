@@ -119,7 +119,7 @@ export default function GuidesPage() {
                                     <Link href="/guides/safe-tracker-tools">Safe and Reliable Third-Party Tracker Tools</Link> - Approved tools that won't get you banned
                                 </li>
                                 <li>
-                                    <Link href="/guides/how-to-avoid-scams">How to Avoid Scams While Flipping</Link> - Protect yourself from common scams
+                                    <Link href="/guides/safety-squad-guide">Safety Squad Guide</Link> — complete Safety Squad quest walkthrough with quiz answers and account security tips
                                 </li>
                             </ul>
 
