@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "How to Find Best Items to Flip | Volume, Margins & Liquidity Analysis",
     "Master item selection using volume metrics, buy/sell walls, spreads, and price momentum. Learn to identify high-volume, low-risk flips vs niche high-margin plays."
@@ -19,6 +22,9 @@ export default function HowToFindBestItemsToFlipPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">How to find best items — the short answer</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 Use <Link href="/bazaar">Bazaar Flips</Link> sorted by Volume ⇩ for beginners, Advanced Users should analyze spread %, buy/sell wall liquidity, and margin stability. For 1st 100 flips, pick items with 10k+ units/day volume + 3–8% spread. Avoid single-wall monopolies (risky) and volatile items (10%+ swings in 24h).
                             </CardText>

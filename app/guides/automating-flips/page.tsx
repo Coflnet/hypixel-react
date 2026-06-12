@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "Automating Hypixel Skyblock Flips: Tools, Ban Risks, and Safe Alternatives | SkyCofl vs TPM vs BAF",
     "Complete guide to flipping automation: TPM bot, BAF script, banned tools, anti-cheat detection, automation risks. Why automated bots get banned, safe alternatives, SkyCofl mod features, manual vs automatic flipping, profit tracking without ban risk. FAQ on macro bots and scripting dangers.",
@@ -20,6 +23,9 @@ export default function AutomatingFlipsPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">Automating Flips in Hypixel SkyBlock: The Truth About Bots, Risks, and Safe Alternatives</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 <strong>The allure is real:</strong> A script that buys low, sells high, and deposits millions of coins while you sleep. No clicking, no monitoring, pure passive income.
                                 But the truth is harsh: every fully automated flipping tool carries a ban risk, and Hypixel's staff ban users daily.

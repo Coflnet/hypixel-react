@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "Getting Started with Flipping | Hypixel SkyBlock Beginner Guide",
     "Start flipping in Hypixel SkyBlock in under 1 hour. Learn how to flip with low capital, step-by-step workflows, and quick wins for beginners.",
@@ -20,6 +23,9 @@ export default function GettingStartedWithFlippingPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h2">How to Get Started with Flipping?</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 Start with low-risk, high-volume Bazaar items, use buy orders (not instant-buy), and flip 3–5 items at once to spread risk. With 500k–2M coins you can make your first profitable flip in under an hour. The site's <Link href="/bazaar">Bazaar Flips</Link> page will show you the safest starting items sorted by volume.
                             </CardText>

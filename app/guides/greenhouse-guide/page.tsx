@@ -1,6 +1,9 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = {
   title: 'Hypixel Skyblock Greenhouse Guide - Setup and Farming',
   description:
@@ -13,6 +16,10 @@ export default function GreenhouseGuide() {
     <div className="flex justify-center">
       <div className="prose prose-invert max-w-4xl">
         <h1>Hypixel Skyblock Greenhouse Guide</h1>
+
+        <p className="text-gray-400 text-sm mb-4">
+          Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+        </p>
 
         <p>
           The Greenhouse is one of the most rewarding features added in the Skyblock Garden update. This guide will walk you through unlocking your first

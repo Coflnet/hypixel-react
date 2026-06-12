@@ -2,7 +2,8 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardText, CardTitle, Col, Container, Row } from "react-bootstrap";
 import { getCanonicalUrl, getHeadMetadata } from "../../../utils/SSRUtils";
-
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
 export const metadata: Metadata = getHeadMetadata(
     "Hypixel SkyBlock NPC Flipping Guide | NPC to Bazaar, AH & Reverse",
     "Master Hypixel SkyBlock NPC flipping. Learn to buy from NPCs and resell to Bazaar or AH, and execute reverse NPC flips. Includes limits, taxes, and SkyCofl mod tools.",
@@ -20,6 +21,9 @@ export default function NpcFlippingGuidePage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">NPC Flipping Guide: The Short Answer</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 NPC flipping in Hypixel SkyBlock involves three main strategies: buying from an NPC to resell on the <Link href="/bazaar">Bazaar</Link>, buying from an NPC to list on the Auction House (AH), or buying below the NPC sell price to cash out instantly (<Link href="/reverseNpc">Reverse NPC Flipping</Link>).
                             </CardText>

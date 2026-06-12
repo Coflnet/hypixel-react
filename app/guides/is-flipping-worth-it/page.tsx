@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Container, Card, CardBody, CardTitle, CardText, Col, Row, Table } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
   "Is Bazaar Flipping Worth It? ROI Comparison vs Farming, Slaying, Mining | Truth",
   "Complete ROI analysis: flipping vs farming vs slaying vs dungeons vs fishing. Coins per hour, capital requirements, time investment, barrier to entry, scalability. Why flipping is worth it and how to maximize profitability.",
@@ -20,6 +23,9 @@ export default function IsFlippingWorthItPage() {
           <Card>
             <CardBody>
               <CardTitle as="h2">Is Bazaar Flipping Worth It?</CardTitle>
+              <CardText className="text-muted small mb-0">
+                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+              </CardText>
               <CardText>
                 <strong>Direct answer: Yes, flipping is worth it—and it beats every alternative money-making method by 2–5x ROI.</strong> Flipping generates 10–50M coins per week with minimal time investment, zero ban risk, zero skill ceiling, and scalable profits. This guide compares flipping against every other money method with real numbers, explains why flipping wins, and shows you the exact math proving it's the most efficient way to build wealth in Hypixel Skyblock.
               </CardText>

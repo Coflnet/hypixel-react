@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "Buying Hypixel Skyblock Coins: Read This Before You Risk a Ban",
     "Buying Hypixel Skyblock coins is against the rules and far easier to detect than most macroing. Learn the ban risks, ToS implications, safer ways to earn coins fast, how to report sellers, and better alternatives like Premium-powered manual flipping.",
@@ -20,6 +23,9 @@ export default function BuyingCoinsGuidePage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">Buying Hypixel Skyblock Coins: Don’t Do It. Here’s Why (and What to Do Instead)</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 Buying coins with real money violates Hypixel’s rules. It is <strong>far easier for Hypixel to detect than most macroing</strong> and will <strong>definitely get you banned</strong> or profile-wiped—often in delayed ban waves. Instead of risking your account, use safe, faster, and cheaper methods that our community already uses to earn <strong>millions to billions</strong> of coins legitimately.
                             </CardText>

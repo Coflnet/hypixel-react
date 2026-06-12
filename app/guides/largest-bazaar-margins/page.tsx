@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "Largest Bazaar Margins Right Now | High-Margin Item Finder",
     "Find items with 5%+ spreads using Bazaar Flips tool. Learn margin consistency, volume vs margin trade-offs, and how to spot real opportunities vs manipulation."
@@ -19,6 +22,9 @@ export default function LargestBazaarMarginsPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">Largest Bazaar margins — the short answer</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 Use <Link href="/bazaar">Bazaar Flips</Link> sorted by Spread ⇩ to find items with 5%+ margins. Filter by Volume (10k+/day) to avoid manipulation. Margins &gt;10% usually signal low volume or artificial inflation—check <Link href="/topMovers">Top Movers</Link> for volatility before committing capital. Real margins for safe flipping: 3–8%.
                             </CardText>

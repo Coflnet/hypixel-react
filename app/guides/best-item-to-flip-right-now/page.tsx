@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "Best Item to Flip Right Now | Real-Time Market Analysis & Tools",
     "Find the most profitable items to flip RIGHT NOW using SkyCofl real-time market data, Top Movers tracking, and demand-based analysis. Discover high-margin opportunities with minimal competition.",
@@ -20,6 +23,9 @@ export default function BestItemToFlipRightNowPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h2">What is the Best Item to Flip Right Now?</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 <strong>The best item to flip changes every minute.</strong> The Hypixel Skyblock market is incredibly dynamic—what was profitable yesterday might be oversaturated today. Instead of chasing a single answer, you need <strong>real-time tools and a strategy to identify opportunities as they happen.</strong> This guide teaches you how to spot high-margin, high-volume flips instantly using SkyCofl's market data.
                             </CardText>

@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "What's the Best Item to Flip? | Characteristics & Selection Criteria",
     "Learn what makes a good flip: margin %, volume, stability, competition. Use data-driven criteria to find best items vs chasing hype.",
@@ -20,6 +23,9 @@ export default function BestItemToFlipPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">What's the best item to flip — the short answer</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 No "best" item exists universally—it changes daily. Use <Link href="/bazaar">Bazaar Flips</Link> sorted by Volume ⇩ for beginners (pick top 3 items with 10k+ units/day + 3–8% margin). Use Spread ⇩ for intermediate (find 5–10% margins with stable volume). Avoid items with &lt;1k daily volume or &gt;20% spreads (likely manipulation). Best items = high volume + stable price + moderate margin.
                             </CardText>

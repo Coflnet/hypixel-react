@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "Best Flipping Strategy by Capital Level | Hypixel SkyBlock Guide",
     "Choose your flipping strategy based on your capital: under 1M (minions/farming), 1–5M (Bazaar volume), 5–20M (craft flips), 20M+ (Auction House). Learn optimal portfolios and scaling paths.",
@@ -20,6 +23,9 @@ export default function BestFlippingStrategyPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">Best flipping strategy — the short answer</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 Strategy depends on capital: under 1M (bootstrap), 1–5M (Bazaar volume), 5–20M (craft flips + hybrid), 20M+ (Auction House + high-margin plays). The "best" strategy is diversified across 3–4 methods to hedge risk. Use <Link href="/bazaar">Bazaar Flips</Link> and <Link href="/crafts">Craft Flips</Link> to find daily opportunities.
                             </CardText>

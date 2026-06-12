@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "How to Start Flipping with No Money | Bootstrap to 1M Coins",
     "Bootstrap from zero using minions, farming, and NPC flipping. Earn 100k–500k/day, reach 1M coins in 7–30 days, then start Bazaar flipping."
@@ -19,6 +22,9 @@ export default function HowToStartFlippingWithNoMoneyPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">How to bootstrap from zero — the short answer</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 Start with Sugar Cane Minions (fastest path), farming, or NPC flipping. Target: 100k–500k/day. Timeline: 7–30 days to reach 1M coins. Once you hit 1M, begin <Link href="/bazaar">Bazaar flipping</Link> to compound exponentially. The "no money" phase is a grind, but essential for beginners.
                             </CardText>

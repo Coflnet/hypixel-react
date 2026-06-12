@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "What is Bazaar Flipping in Hypixel Skyblock? Complete Beginner's Guide | Buy Low Sell High",
     "Complete guide to bazaar flipping explained: how bazaar works, spread calculation, margin optimization, item selection, capital requirements, profit strategies, risk management. Learn buy orders vs instant trading, SkyCofl tools, and FAQ for all skill levels.",
@@ -20,6 +23,9 @@ export default function WhatIsBazaarFlippingPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">What is Bazaar Flipping in Hypixel Skyblock?</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 <strong>Bazaar flipping is the practice of buying items low and selling them high on the Hypixel SkyBlock Bazaar to generate profit.</strong> Unlike flipping on the Auction House (which has a 1-hour hold), Bazaar flips are instant or near-instant, making them ideal for high-frequency trading. You profit from the spread: the difference between the buy price and sell price, minus transaction fees. It's the most scalable method to generate 10-50M coins per hour with minimal capital requirements (as low as 500K to start).
                             </CardText>

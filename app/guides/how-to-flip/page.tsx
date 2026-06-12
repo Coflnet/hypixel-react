@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "How to Flip Items in Hypixel SkyBlock | Bazaar and Auction House Guide",
     "Learn how to flip items in Hypixel SkyBlock with a step-by-step Bazaar and Auction House flipping guide. Find profitable items, calculate fees, avoid risky flips, and use live tools to improve profit per flip."
@@ -19,6 +22,9 @@ export default function HowToFlipPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">How to Flip Items in Hypixel SkyBlock</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 This Hypixel SkyBlock flipping guide covers the two main markets: Bazaar flipping for fast, high-volume buy-order trades and Auction House flipping for slower, higher-margin item deals. Flipping works by buying below market value, accounting for fees, and relisting where real buyers already exist. Use <Link href="/bazaar">Bazaar Flips</Link> to find high-volume, low-risk items for your first 10 flips.
                             </CardText>

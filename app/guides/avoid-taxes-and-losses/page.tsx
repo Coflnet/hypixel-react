@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "Minimize Flipping Taxes & Losses | Bazaar Fees, AH Tax, Price Crashes",
     "Master tax minimization: Bazaar 1.25%, AH 1%–2.5%, Derpy discount. Avoid price crashes, cancelled orders, scams. Use order strategy to beat fees.",
@@ -20,6 +23,9 @@ export default function AvoidTaxesAndLossesPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">How to Avoid Common Flipping Taxes and Transfer Losses</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 Every flip you make in Hypixel Skyblock comes with costs beyond just the purchase price. Understanding and minimizing these taxes and fees is essential to maintaining healthy profit margins.
                             </CardText>

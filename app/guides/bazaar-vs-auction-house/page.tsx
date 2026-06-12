@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "Bazaar vs Auction House Flipping | Which is Better for Profit?",
     "Compare Bazaar and Auction House flipping: speed vs margin, volume vs uniqueness. Learn which market fits your capital, experience level, and profit goals.",
@@ -20,6 +23,9 @@ export default function BazaarVsAuctionHousePage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">Bazaar vs Auction House — the short answer</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 Bazaar is faster (30–90 min per flip), easier for beginners, and scales with volume. Auction House has higher margins (10–50%+) but requires 1–7 days per flip and deeper item knowledge (reforges, pet levels, enchants). Start with Bazaar to learn mechanics, graduate to AH once you have 5M+ coins and understand item valuation.
                             </CardText>

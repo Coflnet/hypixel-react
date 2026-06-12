@@ -1,6 +1,9 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
 
+const LAST_UPDATED_ISO = "2026-06-12";
+const LAST_UPDATED_LABEL = "June 12, 2026";
+
 export const metadata: Metadata = {
   title: 'Hypixel Skyblock Safety Squad Guide - Account Security and Scam Prevention',
   description:
@@ -70,6 +73,10 @@ export default function SafetySquadGuide() {
         />
 
         <h1>Hypixel Skyblock Safety Squad Guide</h1>
+
+        <p className="text-gray-400 text-sm mb-4">
+          Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+        </p>
 
         <p>
           The Safety Squad is a tutorial quest in Hypixel Skyblock that teaches you about account security and how to recognize common scams. 

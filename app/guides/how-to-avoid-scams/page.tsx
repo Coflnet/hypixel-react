@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "How to Avoid Scams & Trading Fraud | Safety Guide & Red Flags",
     "Complete scam prevention guide: common fraud types, identification techniques, safe trading patterns, item value verification, reputation checking, and account security. Protect your coins & items in Hypixel Skyblock."
@@ -19,6 +22,9 @@ export default function HowToAvoidScamsPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h2">How to Avoid Scams &amp; Trading Fraud</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 Scamming is one of the biggest threats to your wealth in Hypixel Skyblock. Whether through market manipulation, fake items, account takeovers, or phishing, scammers use sophisticated tactics to steal coins and items. The good news: <strong>most scams are completely preventable if you know the warning signs.</strong> This comprehensive guide reveals every common scam type, how to identify them instantly, and the exact strategies that keep experienced traders safe.
                             </CardText>

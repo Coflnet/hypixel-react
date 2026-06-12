@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "Best Money Making Methods in Hypixel Skyblock 2025 | Complete Comparison Guide",
     "Complete comparison of all Skyblock money-making methods: flipping, farming, slaying, mining, fishing, dungeons, minions, and more. Includes coins/hour, time investment, barrier to entry, and SkyCofl tool recommendations.",
@@ -20,6 +23,9 @@ export default function MoneyMakingMethodsPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">Best Money Making Methods in Hypixel Skyblock (2025)</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 <strong>Not all grinding is created equal.</strong> In Hypixel Skyblock, your coin-per-hour, time investment, and barrier to entry vary wildly depending on your method. <strong>Bazaar flipping remains the most capital-efficient path,</strong> but farming, slaying, mining, fishing, and other methods each have their place depending on your stage and goals. This guide compares every major money-making method with real data so you can choose what's right for you.
                             </CardText>

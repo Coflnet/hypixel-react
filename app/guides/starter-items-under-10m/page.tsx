@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "Best Starter Items Under 10M | Low-Capital Flipping Guide",
     "Top 30+ beginner-friendly items for flipping with under 10M coins. Capital allocation, first flip examples, profit targets, volume analysis, and 50-day scaling roadmap.",
@@ -20,6 +23,9 @@ export default function StarterItemsUnder10MPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">Best Starter Items Under 10M Coins</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 When flipping with under 10M coins, <strong>success depends 100% on item selection</strong>. You need high-volume, low-margin items that flip fast. One successful 3% margin flip × 50 times/day beats one 50% margin flip that never sells. This guide shows exactly which 30+ items work best at each capital level (0-2M, 2-5M, 5-10M) with real examples, profit targets, and a 50-day scaling roadmap.
                             </CardText>

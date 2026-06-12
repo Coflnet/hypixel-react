@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "How to Make a Lot of Money with Flipping | Advanced Strategies to 100M+ Coins",
     "Scale from 10M to 100M+ using advanced flipping: portfolio diversification, market event exploitation, premium tools, profit reinvestment discipline."
@@ -19,6 +22,9 @@ export default function MakingMoneyWithFlippingPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">How to make a lot of money with flipping — the short answer</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 Scale from 10M to 100M+ by: (1) diversifying across Bazaar, Crafts, AuctionHouse, (2) exploiting mayor perks and events,
                                 (3) reinvesting 100% of profits (4) using premium tools for edge,

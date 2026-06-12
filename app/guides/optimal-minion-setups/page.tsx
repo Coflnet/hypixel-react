@@ -3,6 +3,9 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "Optimal Minion Setups for Maximum Passive Income | Complete ROI Guide",
     "Master minion optimization: choose profitable minion types, fuel strategies, upgrades, tier progression, ROI calculations, and break-even analysis. Generate 10M–100M+ coins per day passively."
@@ -19,6 +22,9 @@ export default function OptimalMinionSetupsPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">Optimal Minion Setups for Maximum Passive Income</CardTitle>
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 <strong>Minions are the ultimate set-and-forget income.</strong> While they require upfront capital to set up, a fully optimized minion farm can generate 10M–100M+ coins per day with zero active play. This guide teaches you how to choose the right minions, fuel them efficiently, and maximize ROI so your minions earn while you sleep.
                             </CardText>

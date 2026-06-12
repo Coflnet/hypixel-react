@@ -4,6 +4,9 @@ import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 import BazaarLivePreview from "../../../components/Guides/BazaarLivePreview";
 
+const LAST_UPDATED_ISO = "2026-04-19";
+const LAST_UPDATED_LABEL = "April 19, 2026";
+
 export const metadata: Metadata = getHeadMetadata(
     "How to Make Money with Bazaar Flipping in Hypixel SkyBlock | Strategy and Tools",
     "Actionable Hypixel SkyBlock Bazaar flipping guide: learn buy orders, sell offers, spread checks, volume analysis, fee optimization, capital management, item selection, SkyCofl tools, /cofl commands, and risk control."
@@ -20,7 +23,9 @@ export default function HowToMakeMoneyWithBazaarFlippingPage() {
                     <Card>
                         <CardBody>
                             <CardTitle as="h1">How to Make Money with Bazaar Flipping: Complete Profit Strategy</CardTitle>
-
+                            <CardText className="text-muted small mb-0">
+                                Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                            </CardText>
                             <CardText>
                                 <strong>Bazaar flipping is one of the fastest, most scalable money-making methods in Hypixel SkyBlock.</strong> The basic loop is simple: place buy orders below market, wait for players to fill them, then create sell offers above your entry price. This guide focuses on the parts that decide whether a flip is actually profitable: spread, volume, fees, turnover speed, capital allocation, and risk control.
                             </CardText>
