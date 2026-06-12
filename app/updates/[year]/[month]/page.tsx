@@ -5,6 +5,9 @@ import { getApiDataUpdatesYearMonth } from '../../../../api/_generated/skyApi'
 import styles from './page.module.css'
 import { Container } from 'react-bootstrap'
 
+const LAST_UPDATED_ISO = "2026-06-13"
+const LAST_UPDATED_LABEL = "June 13, 2026"
+
 export default async function UpdatesMonthPage(props: any) {
     const params = await props.params
     const year = Number(params.year)
@@ -56,22 +59,86 @@ export default async function UpdatesMonthPage(props: any) {
 
     const hasUpdates = !!(displayMessages && displayMessages.length > 0)
 
+    // same month last year / next year for quick switching
+    const lastYear = { year: year - 1, month }
+    const nextYear = { year: year + 1, month }
+    const lastYearDate = new Date(lastYear.year, lastYear.month - 1, 1)
+    const nextYearDate = new Date(nextYear.year, nextYear.month - 1, 1)
+    const showLastYear = lastYearDate >= minDate
+    const showNextYear = nextYearDate <= new Date()
+
+    function renderBreadcrumb() {
+        return (
+            <nav aria-label="breadcrumb" className={styles.breadcrumbNav}>
+                <ol className="breadcrumb">
+                    <li className="breadcrumb-item"><Link href="/">Home</Link></li>
+                    <li className="breadcrumb-item"><Link href="/updates">Updates</Link></li>
+                    <li className="breadcrumb-item active" aria-current="page">{monthName} {year}</li>
+                </ol>
+            </nav>
+        )
+    }
+
+    function renderYearSwitch() {
+        return (
+            <div className={styles.yearSwitch}>
+                {showLastYear ? (
+                    <Link href={`/updates/${lastYear.year}/${lastYear.month}`} className={styles.yearLink}>
+                        ← {monthName} {lastYear.year}
+                    </Link>
+                ) : <div />}
+                {showNextYear ? (
+                    <Link href={`/updates/${nextYear.year}/${nextYear.month}`} className={styles.yearLink}>
+                        {monthName} {nextYear.year} →
+                    </Link>
+                ) : <div />}
+            </div>
+        )
+    }
+
     if (!hasUpdates) {
         return (
-            <article>
-                <h1>
-                    Updates - {monthName} {year}
-                </h1>
-                <p>No updates for this month{isCurrent ? ' (yet)' : ''}.</p>
-                <div style={{ marginTop: '12px' }}>
-                    {/* For months without updates, only show forward navigation per spec (but not when current month) */}
-                    {!isCurrent ? (
-                        <Link href={`/updates/${next.year}/${next.month}`} style={{ marginRight: '8px' }}>
-                            Next →
-                        </Link>
-                    ) : null}
-                </div>
-            </article>
+            <Container>
+                <article>
+                    {renderBreadcrumb()}
+                    <div className={styles.topNav}>
+                        {showPrev ? (
+                            <Link className={styles.navLink} href={`/updates/${prev.year}/${prev.month}`}>
+                                ← Prev
+                            </Link>
+                        ) : (
+                            <div />
+                        )}
+                        <div className={styles.titleGroup}>
+                            <h1 className={styles.title}>
+                                Updates — {monthName} {year}
+                            </h1>
+                            <Link href="/updates" className={styles.archiveLink}>
+                                All months
+                            </Link>
+                        </div>
+                        {!isCurrent ? (
+                            <Link className={styles.navLink} href={`/updates/${next.year}/${next.month}`}>
+                                Next →
+                            </Link>
+                        ) : (
+                            <div />
+                        )}
+                    </div>
+                    <p className={styles.lastUpdated}>
+                        Page last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                    </p>
+                    {renderYearSwitch()}
+                    <p>No updates for this month{isCurrent ? ' (yet)' : ''}.</p>
+                    <div className={styles.bottomNav}>
+                        {!isCurrent ? (
+                            <Link className={styles.navLink} href={`/updates/${next.year}/${next.month}`}>
+                                Next →
+                            </Link>
+                        ) : null}
+                    </div>
+                </article>
+            </Container>
         )
     }
 
@@ -80,6 +147,7 @@ export default async function UpdatesMonthPage(props: any) {
     return (
         <Container>
             <article>
+                {renderBreadcrumb()}
                 <div className={styles.topNav}>
                     {showPrev ? (
                         <Link className={styles.navLink} href={`/updates/${prev.year}/${prev.month}`}>
@@ -88,9 +156,14 @@ export default async function UpdatesMonthPage(props: any) {
                     ) : (
                         <div />
                     )}
-                    <h1 className={styles.title}>
-                        Updates — {monthName} {year}
-                    </h1>
+                    <div className={styles.titleGroup}>
+                        <h1 className={styles.title}>
+                            Updates — {monthName} {year}
+                        </h1>
+                        <Link href="/updates" className={styles.archiveLink}>
+                            All months
+                        </Link>
+                    </div>
                     {!isCurrent ? (
                         <Link className={styles.navLink} href={`/updates/${next.year}/${next.month}`}>
                             Next →
@@ -99,6 +172,10 @@ export default async function UpdatesMonthPage(props: any) {
                         <div />
                     )}
                 </div>
+                <p className={styles.lastUpdated}>
+                    Page last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
+                </p>
+                {renderYearSwitch()}
 
                 <div className={styles.messages}>
                     {displayMessages.map((m: any) => {
@@ -160,8 +237,23 @@ export async function generateMetadata(props: any) {
     const year = Number(params.year)
     const month = Number(params.month)
     const monthName = new Date(year, month - 1).toLocaleString('en-US', { month: 'long' })
+    const description =
+        `Browse the SkyCofl dev-log for ${monthName} ${year}. See new features, bug fixes, pricing improvements, security patches, and community-requested changes released that month for the Hypixel SkyBlock price tracker, website, API, and in-game mod.`
     return {
-        title: `Updates ${monthName} ${year}`,
-        description: `Dev-log updates for ${monthName} ${year}`
+        title: `SkyCofl Updates — ${monthName} ${year} | Dev-Log & Changelog`,
+        description,
+        keywords: [
+            `skyblock updates ${monthName} ${year}`,
+            `skycofl ${monthName} ${year}`,
+            'dev-log',
+            'changelog',
+            'hypixel skyblock news',
+            'feature releases',
+            'bug fixes',
+        ],
+        openGraph: {
+            title: `SkyCofl Updates — ${monthName} ${year}`,
+            description,
+        },
     }
 }

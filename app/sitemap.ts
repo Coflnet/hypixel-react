@@ -22,6 +22,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     
     sitemapEntries.push(...staticPages)
 
+    // Add the root updates archive page
+    sitemapEntries.push({
+        url: getFullUrl('/updates'),
+        lastModified: today,
+        changeFrequency: 'weekly' as const,
+        priority: 0.6,
+    })
+
     // Add dynamically discovered guide pages
     try {
         const guideEntries = await generateGuideSitemapEntries('monthly', 0.7)

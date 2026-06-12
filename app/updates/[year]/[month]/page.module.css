@@ -12,9 +12,56 @@
   margin-bottom: 16px;
 }
 
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
 .title {
   font-size: 1.6rem;
   margin: 0;
+}
+
+.archiveLink {
+  font-size: 0.85rem;
+  opacity: 0.75;
+  text-decoration: none;
+}
+
+.lastUpdated {
+  text-align: center;
+  font-size: 0.85rem;
+  opacity: 0.6;
+  margin-top: -8px;
+  margin-bottom: 16px;
+}
+
+.breadcrumbNav {
+  margin-bottom: 12px;
+}
+
+.yearSwitch {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  font-size: 0.9rem;
+}
+
+.yearLink {
+  text-decoration: none;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--bs-border-color);
+  white-space: nowrap;
+}
+
+.yearSwitchLabel {
+  opacity: 0.5;
+  font-size: 0.8rem;
 }
 
 .navLink {
