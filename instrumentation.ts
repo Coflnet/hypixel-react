@@ -4,13 +4,29 @@ export async function register() {
         if (!internalApiBase) return
 
         const originalFetch = globalThis.fetch
+        const externalDomains = ['https://sky.coflnet.com', 'https://sky-commands.coflnet.com']
         globalThis.fetch = function patchedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-            if (typeof input === 'string' && input.startsWith('https://sky.coflnet.com')) {
-                input = input.replace('https://sky.coflnet.com', internalApiBase)
-            } else if (input instanceof URL && input.origin === 'https://sky.coflnet.com') {
-                input = new URL(input.pathname + input.search + input.hash, internalApiBase)
-            } else if (input instanceof Request && input.url.startsWith('https://sky.coflnet.com')) {
-                input = new Request(input.url.replace('https://sky.coflnet.com', internalApiBase), input)
+            if (typeof input === 'string') {
+                for (const domain of externalDomains) {
+                    if (input.startsWith(domain)) {
+                        input = input.replace(domain, internalApiBase)
+                        break
+                    }
+                }
+            } else if (input instanceof URL) {
+                for (const domain of externalDomains) {
+                    if (input.origin === domain) {
+                        input = new URL(input.pathname + input.search + input.hash, internalApiBase)
+                        break
+                    }
+                }
+            } else if (input instanceof Request) {
+                for (const domain of externalDomains) {
+                    if (input.url.startsWith(domain)) {
+                        input = new Request(input.url.replace(domain, internalApiBase), input)
+                        break
+                    }
+                }
             }
             return originalFetch(input, init)
         }
