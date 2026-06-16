@@ -15,40 +15,10 @@ permissions:
 
 jobs:
   container-ci:
-    needs: trivy-scan
     uses: Coflnet/.github/.github/workflows/container-ci.yml@main
     with:
       k8s_file: main/sky/chart/charts/hypixel-react/values.yaml
       repo_url: https://github.com/Coflnet/k8s
+      scan_with_trivy: true
     secrets:
       ARGO_WEBHOOK_SECRET: ${{ secrets.ARGO_WEBHOOK_SECRET }}
-
-  trivy-scan:
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run Trivy vulnerability scanner in fs mode
-        uses: aquasecurity/trivy-action@v0.36.0
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          trivy-config: trivy.yaml
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        if: always()
-        uses: github/codeql-action/upload-sarif@v4
-        with:
-          sarif_file: 'trivy-results.sarif'
-          category: trivy-scan
