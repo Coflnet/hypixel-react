@@ -1,0 +1,9 @@
+# Trivy configuration for CI pipeline
+# Docs: https://aquasecurity.github.io/trivy/latest/docs/references/config/
+exit-code: 1
+severity:
+  - HIGH
+  - CRITICAL
+vuln-type:
+  - library
+ignore-unfixed: true

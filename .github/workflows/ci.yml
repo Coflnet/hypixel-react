@@ -7,11 +7,40 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+  security-events: write
+
 jobs:
   container-ci:
+    needs: trivy-scan
     uses: Coflnet/.github/.github/workflows/container-ci.yml@main
     with:
       k8s_file: main/sky/chart/charts/hypixel-react/values.yaml
       repo_url: https://github.com/Coflnet/k8s
     secrets:
       ARGO_WEBHOOK_SECRET: ${{ secrets.ARGO_WEBHOOK_SECRET }}
+
+  trivy-scan:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Run Trivy vulnerability scanner in fs mode
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          trivy-config: trivy.yaml
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: 'trivy-results.sarif'
+          category: trivy-scan
