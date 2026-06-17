@@ -80,12 +80,12 @@ function NotificationTargetForm(props: Props) {
                             defaultValue={target || undefined}
                             type="text"
                             onChange={e => setTarget(e.target.value)}
-                            placeholder={type === 'DiscordWebhook' ? 'Discord Webhook Url (https://discord.com/api/...)' : 'Webhook Url'}
-                            isInvalid={(type === 'DiscordWebhook' && target && !target?.startsWith('https://discord.com/api/')) === true}
+                            placeholder={type === 'DiscordWebhook' ? 'Discord Webhook Url (https://discord.com/api/... or https://discordapp.com/api/...)' : 'Webhook Url'}
+                            isInvalid={(type === 'DiscordWebhook' && target && !target?.startsWith('https://discord.com/api/') && !target?.startsWith('https://discordapp.com/api/webhooks/')) === true}
                         />
-                        {type === 'DiscordWebhook' && target && !target?.startsWith('https://discord.com/api/') ? (
+                        {type === 'DiscordWebhook' && target && !target?.startsWith('https://discord.com/api/') && !target?.startsWith('https://discordapp.com/api/webhooks/') ? (
                             <div>
-                                <span style={{ color: 'red' }}>The Discord Webhook URL has to start with "https://discord.com/api/..."</span>
+                                <span style={{ color: 'red' }}>The Discord Webhook URL has to start with "https://discord.com/api/..." or "https://discordapp.com/api/webhooks/..."</span>
                             </div>
                         ) : null}
                     </Form.Group>

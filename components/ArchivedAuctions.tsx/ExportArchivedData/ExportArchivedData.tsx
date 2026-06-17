@@ -23,7 +23,7 @@ function ExportArchivedData(props: Props) {
     let [showConfirmDialog, setShowConfirmDialog] = useState(false)
     let [isExportRunning, setIsExportRunning] = useState(false)
 
-    let isDiscordWebhookUrlValid = discordWebhookUrl && discordWebhookUrl.startsWith('https://discord.com/api/webhooks/')
+    let isDiscordWebhookUrlValid = discordWebhookUrl && (discordWebhookUrl.startsWith('https://discord.com/api/webhooks/') || discordWebhookUrl.startsWith('https://discordapp.com/api/webhooks/'))
 
     useEffect(() => {
         setShowModal(props.show)
@@ -78,11 +78,11 @@ function ExportArchivedData(props: Props) {
                         <Form.Control
                             defaultValue={discordWebhookUrl}
                             onChange={e => setDiscordWebhookUrl(e.target.value)}
-                            placeholder="Discord Webhook Url (https://discord.com/api/...)"
+                            placeholder="Discord Webhook Url (https://discord.com/api/... or https://discordapp.com/api/...)"
                         />
-                        {discordWebhookUrl && !discordWebhookUrl?.startsWith('https://discord.com/api/') ? (
+                        {discordWebhookUrl && !discordWebhookUrl?.startsWith('https://discord.com/api/') && !discordWebhookUrl?.startsWith('https://discordapp.com/api/webhooks/') ? (
                             <div>
-                                <span style={{ color: 'red' }}>The Discord Webhook URL has to start with "https://discord.com/api/..."</span>
+                                <span style={{ color: 'red' }}>The Discord Webhook URL has to start with "https://discord.com/api/..." or "https://discordapp.com/api/webhooks/..."</span>
                             </div>
                         ) : null}
                     </div>
