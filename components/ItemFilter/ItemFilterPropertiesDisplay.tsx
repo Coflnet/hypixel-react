@@ -114,10 +114,12 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     if (localFilter._sellerName && key === SELLER_FORMAT_FILTER) {
                         display = localFilter._sellerName
                     }
+                    let label = camelCaseToSentenceCase(key)
 
                     // Special case for skin filter
                     if (key === SKIN_FILTER || key === PET_SKIN_FILTER) {
                         info = 'This filter only works on applied skins on pets/armor. For the items there is the "ItemCategory" filter.'
+                        label += ' (applied)'
                     }
 
                     if (!localFilter[key] && !display) {
@@ -127,7 +129,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     return (
                         <span key={key}>
                             <div className="ellipse mb-2" title={display}>
-                                {camelCaseToSentenceCase(key)}: {display}
+                                {label}: {display}
                                 {info ? (
                                     <Tooltip
                                         type="hover"
