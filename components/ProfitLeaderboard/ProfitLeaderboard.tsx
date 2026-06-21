@@ -42,11 +42,15 @@ export function ProfitLeaderboardComponent() {
 
     let description = (
         <p>
-            This is the leaderboard of the skyblock ah flippers with the most profit in the last 7 days.
+            Compare your weekly trading profit against the top Hypixel SkyBlock flippers. Discover the best traders, study their strategies, and copy trade the most consistent earners.
             <br />
-            The board resets every Monday Morning and gets updated whenever the tracked flips of a player are viewed.
+            The board resets every Monday morning and updates whenever a player&apos;s tracked flips are viewed. The current week&apos;s top 50 are displayed here with Premium+.
             <br />
-            Ultimate list to find skyblock billionaires!
+            Want to see your own rank? Use <code>/cofl lb</code> in the{' '}
+            <a href="/mod" target="_blank" rel="noopener noreferrer">
+                SkyCofl mod
+            </a>{' '}
+            — it works even without premium.
         </p>
     )
 

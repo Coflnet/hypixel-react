@@ -864,61 +864,62 @@ export const toolLandingSeoContent = {
         ]
     },
     profitLeaderboard: {
-        metadataTitle: 'Profit Leaderboard | Top Hypixel SkyBlock Traders and Flip Performance',
+        metadataTitle: 'Profit Leaderboard | Top Hypixel SkyBlock Traders — Compare, Track, and Copy Trade',
         metadataDescription:
-            'Explore the SkyCofl Profit Leaderboard to benchmark Hypixel SkyBlock trading performance, compare long-run results, and study what consistent profitability looks like.',
+            'Compare your weekly Hypixel SkyBlock trading profit against the top flippers. Discover the best traders, copy their strategies, and track your own rank with the SkyCofl mod.',
         intro: [
-            'The Profit Leaderboard is a benchmarking tool. It shows what sustained profitability looks like across real SkyCofl users and gives context for how far different trading approaches can scale.',
-            'Its best use is calibration, not imitation. A leaderboard tells you what strong results look like over time, but your own progress still depends on capital, market choice, and execution quality.'
+            'The Profit Leaderboard is a competitive tool where you compare your weekly performance against other SkyBlock traders. Use it to discover the top flippers, study what they are doing differently, and even copy trade the most consistent earners.',
+            'The leaderboard resets every week, so rankings always reflect current market conditions and active traders. Last week\'s places 100–150 are publicly visible so you can study the broader competitive field without a premium account.'
         ],
         sections: [
             {
                 title: 'Why the leaderboard matters',
                 bullets: [
-                    'It turns abstract goals into visible performance ranges.',
-                    'It helps you compare short-term flip wins against long-term consistency.',
-                    'It keeps your expectations grounded in real trading outcomes instead of isolated screenshots.'
+                    'It lets you compare your profit directly against the best traders and see where you rank.',
+                    'It helps you discover top-performing players and copy their trading approaches.',
+                    'Weekly resets keep the competition fresh and reward active, adaptive traders.'
                 ]
             },
             {
                 title: 'How to use it productively',
                 bullets: [
-                    'Benchmark your own growth rate rather than trying to copy one trader line for line.',
-                    'Use leaderboard performance together with recent flips and personal tracking to find gaps in your process.',
-                    'Treat the leaderboard as proof that consistency matters more than one oversized flip.'
+                    'The current week\'s top 50 are displayed with Premium+. Use this to identify the strongest traders right now.',
+                    'Check last week\'s leaderboard publicly to study consistent performers and find traders worth copy trading.',
+                    'Get your own rank instantly by using the /cofl lb command in the SkyCofl mod, even without premium.',
+                    'Match your capital and time budget against leaderboard benchmarks to set realistic weekly profit targets.'
                 ]
             }
         ],
         faqs: [
             {
-                question: 'Can the leaderboard tell me exactly what to flip next?',
-                answer: 'No. It is better for benchmarking than for direct trade selection. Use it to understand performance, then use flip tools to find current opportunities.'
+                question: 'How do I see my own rank on the leaderboard?',
+                answer: 'Use /cofl lb in the SkyCofl mod to see your current weekly profit rank. This works regardless of whether you have premium. Download the mod from the /mod page.'
             },
             {
-                question: 'Why is long-run profit more useful than one big flip?',
-                answer: 'Because repeatable process beats isolated luck. The leaderboard highlights consistency, which is what sustainable trading actually depends on.'
+                question: 'Can I copy trade the top players on the leaderboard?',
+                answer: 'Yes. The leaderboard helps you identify the most consistent earners. You can click through to their player profiles, study their recent flips, and follow their trading patterns.'
             }
         ],
         relatedLinks: [
             {
+                href: '/mod',
+                label: 'SkyCofl Mod',
+                description: 'Install the mod to use /cofl lb and see your own rank directly in-game.'
+            },
+            {
                 href: '/recentFlips',
                 label: 'Recent Flips',
-                description: 'Move from high-level performance back down to individual executed trades.'
+                description: 'Click into any top trader\'s profile and inspect their individual executed trades.'
             },
             {
                 href: '/guides/tracking-profits-automatically',
                 label: 'Tracking Profits Automatically',
-                description: 'Build your own performance history instead of relying on memory.'
+                description: 'Build your own performance history so your rank stays accurate every week.'
             },
             {
-                href: '/guides/best-flipping-strategy',
-                label: 'Best Flipping Strategy',
-                description: 'Choose a method that matches your current bankroll and time budget.'
-            },
-            {
-                href: '/premiumBazaar',
-                label: 'Premium Bazaar Flips',
-                description: 'Use stronger signals when you are trying to raise your consistency.'
+                href: '/premium',
+                label: 'Premium',
+                description: 'Upgrade to Premium+ to unlock the full top 50 leaderboard and advanced copy trading tools.'
             }
         ]
     }
