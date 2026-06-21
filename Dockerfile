@@ -26,6 +26,16 @@ RUN apt-get update \
     && apt-get upgrade -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
+# Strip npm + corepack from the runtime image — they are not needed to
+# run `next start` and removing them eliminates CVEs bundled with npm
+# (e.g. undici CVE-2026-12151) as well as reducing the attack surface.
+RUN rm -rf /usr/local/lib/node_modules/npm \
+           /usr/local/lib/node_modules/corepack \
+           /usr/local/bin/npm \
+           /usr/local/bin/npx \
+           /usr/local/bin/corepack \
+           /opt/yarn-v1.22.22
+
 RUN addgroup --system --gid 1001 nextjs && \
     adduser --system --uid 1001 --ingroup nextjs nextjs
 
