@@ -29,6 +29,8 @@ function Startpage(props: Props) {
     const { favorites } = useFavorites()
     const [recentUpdate, setRecentUpdate] = useState<any | null>(null)
     const [newItems, setNewItems] = useState<Item[]>([])
+    const [updatesFailed, setUpdatesFailed] = useState(false)
+    const [newItemsFailed, setNewItemsFailed] = useState(false)
     const [isSSR, setIsSSR] = useState(true)
 
     const mdRenderer = new MarkdownIt({ html: false, linkify: true, typographer: true, breaks: true })
@@ -61,14 +63,20 @@ function Startpage(props: Props) {
                 }
             }
         } catch (e) {
-            console.error("Failed to load updates", e)
+            setUpdatesFailed(true)
+            console.error("Failed to load updates:", e instanceof Error ? e.message : e)
+            console.error("Full error:", JSON.stringify(e, Object.getOwnPropertyNames(e)))
         }
     }
 
     function loadNewItems() {
         api.getNewItems().then(items => {
             setNewItems(items.filter(i => i.name !== 'null'))
-        }).catch(e => console.error("Failed to load new items", e))
+        }).catch(e => {
+            setNewItemsFailed(true)
+            console.error("Failed to load new items:", e instanceof Error ? e.message : e)
+            console.error("Full error:", JSON.stringify(e, Object.getOwnPropertyNames(e)))
+        })
     }
 
     function attachScrollEvent(className: string) {
@@ -276,7 +284,8 @@ function Startpage(props: Props) {
                 </div>
             ) : null}
 
-            {/* News Section */}
+            {/* News Section — hidden if API is unavailable */}
+            {!updatesFailed && (
             <Card className={styles.startpageCard} style={{ marginBottom: '30px', borderLeft: '5px solid #007bff' }}>
                 <Card.Header style={{ borderBottom: '1px solid #495057' }}>
                     <Card.Title style={{ margin: 0, display: 'flex', alignItems: 'center', color: '#f8f9fa' }}>
@@ -297,6 +306,7 @@ function Startpage(props: Props) {
                     </Link>
                 </Card.Body>
             </Card>
+            )}
 
             {/* Flip Features */}
             <h3 style={{ marginBottom: '20px', fontWeight: 'bold' }}>Flip Tools</h3>
@@ -309,8 +319,8 @@ function Startpage(props: Props) {
             <h3 style={{ marginBottom: '20px', fontWeight: 'bold' }}>Resources</h3>
             {wikiModSection}
 
-            {/* New Items */}
-            {newItems.length > 0 && (
+            {/* New Items — hidden if API is unavailable or empty */}
+            {!newItemsFailed && newItems.length > 0 && (
                 <>
                     <h3 style={{ marginBottom: '15px', fontWeight: 'bold' }}>New Items</h3>
                     {newItemsElement}
