@@ -88,22 +88,30 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             return
         }
         if (isClientSideRendering()) {
-            toast.error(error.message, {
-                onClick: () => {
-                    if (error.traceId && canUseClipBoard()) {
-                        writeToClipboard(error.traceId)
-                        toast.success(
-                            <span>
-                                Copied the error trace to the clipboard. Please use this to ask for help on our{' '}
-                                <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
-                                    Discord
-                                </a>
-                                .
-                            </span>
-                        )
+            toast.error(
+                <span>
+                    <div>{error.message}</div>
+                    <div style={{ fontSize: '0.85em', marginTop: '4px', opacity: 0.9 }}>
+                        Request-Type: {requestType}
+                    </div>
+                </span>,
+                {
+                    onClick: () => {
+                        if (error.traceId && canUseClipBoard()) {
+                            writeToClipboard(error.traceId)
+                            toast.success(
+                                <span>
+                                    Copied the error trace to the clipboard. Please use this to ask for help on our{' '}
+                                    <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
+                                        Discord
+                                    </a>
+                                    .
+                                </span>
+                            )
+                        }
                     }
                 }
-            })
+            )
         }
         console.log('RequestType: ' + requestType)
         console.log('ErrorMessage: ' + error.message)
@@ -122,8 +130,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         !items
                             ? []
                             : items.map((item: any) => {
-                                  return parseSearchResultItem(item)
-                              })
+                                return parseSearchResultItem(item)
+                            })
                     )
                 },
                 reject: (error: any) => {
@@ -286,10 +294,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     returnSSRResponse
                         ? resolve(auctions)
                         : resolve(
-                              auctions.map((auction: any) => {
-                                  return parseAuction(auction)
-                              })
-                          )
+                            auctions.map((auction: any) => {
+                                return parseAuction(auction)
+                            })
+                        )
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.PLAYER_AUCTION, error, { uuid, page })
@@ -364,7 +372,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         websocketHelper.sendRequest({
             type: RequestType.TRACK_SEARCH,
             data: requestData,
-            resolve: () => {},
+            resolve: () => { },
             reject: (error: any) => {
                 apiErrorHandler(RequestType.TRACK_SEARCH, error, requestData)
             }
@@ -1470,11 +1478,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     returnSSRResponse
                         ? resolve(items)
                         : resolve(
-                              items.map(item => {
-                                  let lowSupplyItem = parseLowSupplyItem(item)
-                                  return lowSupplyItem
-                              })
-                          )
+                            items.map(item => {
+                                let lowSupplyItem = parseLowSupplyItem(item)
+                                return lowSupplyItem
+                            })
+                        )
                 },
                 reject: function (error) {
                     apiErrorHandler(RequestType.GET_LOW_SUPPLY_ITEMS, error, '')
@@ -1524,7 +1532,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         premiumTier = activeProducts.join(', ')
                     }
                 }
-            } catch {}
+            } catch { }
 
             let feedbackWithUserInfo = {
                 ...feedback,
@@ -1940,7 +1948,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         if (typeof window !== 'undefined') {
                             try {
                                 window.dispatchEvent(new CustomEvent('premium.products.updated'))
-                            } catch (e) {}
+                            } catch (e) { }
                         }
                         resolve(parsePremiumProducts(products))
                     },
