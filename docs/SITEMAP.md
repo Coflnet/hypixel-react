@@ -87,7 +87,7 @@ Different cache durations for optimal performance:
 - `profit calculator`
 - `item prices`
 - `skyblock trading`
-- `coflnet`
+- `skycofl`
 - `flip tracker`
 - `market analysis`
 

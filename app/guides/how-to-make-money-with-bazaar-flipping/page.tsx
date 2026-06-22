@@ -5,8 +5,8 @@ import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 import BazaarLivePreview from "../../../components/Guides/BazaarLivePreview";
 
 export const metadata: Metadata = getHeadMetadata(
-    "How to Make Money with Bazaar Flipping in Hypixel Skyblock | Real Strategy + Tools",
-    "Complete actionable guide to bazaar flipping for profit: buy low sell high strategies, volume analysis, fee optimization, profit calculations, capital management, item selection, turnover acceleration, SkyCofl tools, /cofl commands, real-time examples. Make 10-50M coins per hour."
+    "How to Make Money with Bazaar Flipping in Hypixel SkyBlock | Strategy and Tools",
+    "Actionable Hypixel SkyBlock Bazaar flipping guide: learn buy orders, sell offers, spread checks, volume analysis, fee optimization, capital management, item selection, SkyCofl tools, /cofl commands, and risk control."
 ,
     undefined,
     getCanonicalUrl('/guides/how-to-make-money-with-bazaar-flipping')
@@ -22,7 +22,7 @@ export default function HowToMakeMoneyWithBazaarFlippingPage() {
                             <CardTitle as="h1">How to Make Money with Bazaar Flipping: Complete Profit Strategy</CardTitle>
 
                             <CardText>
-                                <strong>Bazaar flipping is one of the fastest, most scalable money-making methods in Hypixel Skyblock.</strong> With proper strategy, you can earn 10-50M coins per hour, and the barrier to entry is lower than slaying or dungeons (just 500K-5M to start). This guide gives you a step-by-step action plan, real profit examples, and advanced optimization techniques used by professional flippers.
+                                <strong>Bazaar flipping is one of the fastest, most scalable money-making methods in Hypixel SkyBlock.</strong> The basic loop is simple: place buy orders below market, wait for players to fill them, then create sell offers above your entry price. This guide focuses on the parts that decide whether a flip is actually profitable: spread, volume, fees, turnover speed, capital allocation, and risk control.
                             </CardText>
 
                             <CardTitle as="h2" className="mt-4">The Bazaar Flipping Formula: Buy Low, Sell High, Repeat</CardTitle>
@@ -90,11 +90,11 @@ export default function HowToMakeMoneyWithBazaarFlippingPage() {
 
                             <CardTitle as="h2" className="mt-4">Step 5: Data-Driven Item Selection — Use Tools, Not Gut Feeling</CardTitle>
                             <CardText>
-                                Professional flippers use data, not intuition. Here's the toolkit:
+                                Professional flippers use data, not intuition. If you want consistent Bazaar flipping profit, build each trade around live spread data, recent volume, price history, and a clear exit plan. Here's the toolkit:
                             </CardText>
                             <ul>
                                 <li><strong><Link href="/bazaar">Bazaar Flips Tool</Link>:</strong> Sort by profit, volume, and spread. Compare 7-day history to spot trends. This is your primary research tool.</li>
-                                <li><strong><Link href="/topMovers">Top Movers</Link>:</strong> See which items are trending up or down in price. Spot early shifts in demand.</li>
+                                <li><strong><Link href="/topMovers">Top Movers</Link>:</strong> See which items are trending up or down in price. Spot early shifts in demand and avoid items that are crashing.</li>
                                 <li><strong><Link href="/crafts">Crafts Tool</Link>:</strong> Identify items that are inputs for recipes. Crafting demand often spikes, creating flip opportunities.</li>
                                 <li><strong>SkyCofl Mod Commands:</strong> Use <code>/cofl bazaar itemname</code> for real-time in-game spread verification. Use <code>/cofl profit</code> to track all your flips automatically.</li>
                                 <li><strong><Link href="/premiumBazaar">Premium Bazaar</Link>:</strong> For advanced players: demand-based flip rankings. Spot opportunities others miss.</li>

@@ -28,7 +28,7 @@ Volume represents the sales per day, so how many items sell in 24 hours on avera
 Selects estimated profit of a flip (which depends on the [flip finder](#flipfinder) that found the flip). You may place [variables](#variables) in the value to use the main filter values. Profit is calculated as `profit = target - cost - taxes`, so if you buy an item for 100m and sell it for 120m profit is ~17m.
 
 ## ProfitPerUnit
-Selects estimated profit devided by stack size. So for a stack of 64 items with 128k coins profit it would be 1.97k coins profit per item (again including ah taxes). This is useful for items that are sold in stacks and not (yet) on the bazaar, like runes.
+Selects estimated profit divided by stack size. For a stack of 64 items with 128k coins profit, this would be 1.97k coins profit per item (again including AH taxes). This is useful for items that are sold in stacks and not (yet) on the Bazaar, like runes.
 
 ## ProfitPercentage
 Selects estimated profit percentage of a flip, so how much profit you make compared to the cost. It is calculated as `profit_percentage = (target - cost - taxes) / cost * 100`, so if you buy an item for 100m and sell it for 120m profit is ~17%.
@@ -58,7 +58,7 @@ This meta filter allows you to define groups that only trigger when a certain ma
 This meta filter allows you to define groups that only trigger when a certain mayor was in office last. This is useful for items are sold off at the end of a mayor term.
 
 ## NextMayor
-This meta filter allows you to define groups that only trigger when a certain mayor is in office next. Based on public election data, it will not trigger on hidden elextions. This is useful for items that raise/fall in value when a mayor is elected.
+This meta filter allows you to define groups that only trigger when a certain mayor is in office next. Based on public election data, it will not trigger on hidden elections. This is useful for items that rise or fall in value when a mayor is elected.
 
 ## ActivePerk
 Triggers when either the current mayor or minister has a given perk active
@@ -110,10 +110,10 @@ Prioritizes opening matching flips with the open best/next flip hotkey (ie makin
 Meta filter that only matches in specific hour(s) of the day based on UTC time. 8-12 includes 12:59 as its the 12th hour. Useful for enabling filters on "peak" activity hours on the auction house.
 
 ## UtcDayOfWeek
-Meta filter to enly enable groups in specific day of the week based on UTC time. Sunday is 0, Saturday is 6
+Meta filter to only enable groups on specific days of the week based on UTC time. Sunday is 0, Saturday is 6
 
 ## CurrentEvent
-Meta filter to enable filer groups only when a specific event is currently active. This is useful for items that are only available during an event, like spooky festival items.
+Meta filter to enable filter groups only when a specific event is currently active. This is useful for items that are only available during an event, like spooky festival items.
 
 ## YearOfThe
 Meta filter to enable a group during a year of the X. Eg year of the seal or year of the pig.
@@ -127,10 +127,10 @@ Price changes from 20k to 19k are result in a volatility of `2`, from 20 to 5 wo
 Filtering for \<10 would be considered rather stable items and >30 rather volatile items.
 
 ## ReferenceCount
-Count of references used for flip, together with high volume indicates that item is new and may be volatilie
+Count of references used for a flip. Together with high volume, this can indicate that an item is new and may be volatile.
 
 ## OldestReferenceAge
-How many days ago the oldest reference used for anit market manipulation was sold. 0 is today. This is similar to [ReferenceAge](#referenceage) but for the oldest reference instead of the short term median which is the 3rd (or on high volume items 5th) recent one. This allows you to distinglish if a references for price finding are recent indicating that somebody tries to manipulate the price.
+How many days ago the oldest reference used for anti market manipulation was sold. 0 is today. This is similar to [ReferenceAge](#referenceage), but for the oldest reference instead of the short-term median, which is the 3rd most recent reference (or the 5th on high-volume items). This helps you distinguish whether price-finding references are recent enough to suggest somebody may be trying to manipulate the price.
 
 ## DoNotRelist
 Meta filter to mark items to not recommend relisting on automatic flipping clients like BAF
@@ -142,7 +142,7 @@ Meta filter to reduce the target price. Values above 1 reduces by absolute numbe
 Sets a static price to relist at (by modifying the flip target price), mostly useful for user finder. Target values are remembered and suggested when listing items for the first time (will not if it didn't sell and you relist the item).
 
 ## TargetPrice
-Allows filtering for the price estimation of aflip. This will always filter for the original value before [ReduceTargetBy](#reducetargetby),[CapTargetPirceAt](#captargetpriceat) or [RelistAt](#relistat) changes are applied.
+Allows filtering for the price estimation of a flip. This will always filter for the original value before [ReduceTargetBy](#reducetargetby), [CapTargetPriceAt](#captargetpriceat), or [RelistAt](#relistat) changes are applied.
 
 ## CapTargetPriceAt
 Limit target price at a certain value. If a flip estimate is lower than this it would be used, if its higher its capped.
@@ -202,10 +202,10 @@ Meta filter that triggers a group if the currently connected user has the name/u
 Meta filter to filter for amount in purse, can have a bit of delay if it changed recently
 
 ## HasRune
-Has the item any rune applied
+Checks whether the item has any rune applied.
 
 ## IsFarmingItem
-Matches multiple item used by or related to farming
+Matches multiple items used by or related to farming.
 
 ## EstProfitPerHour
 Range based profit per hour based on [AverageSellTime](#averagetimetosell), recommended for whitelisting high values. Helps get fast selling lower profit items that would be blocked by minprofit but are generally considered good flips.

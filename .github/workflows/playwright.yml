@@ -8,19 +8,20 @@ jobs:
   cypress-run:
     timeout-minutes: 60
     runs-on: ubuntu-24.04
+    env:
+      TEST_RUNNER: "true"
+      NEXT_PUBLIC_TEST_RUNNER: "true"
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-      - uses : actions/setup-node@v3
+        uses: actions/checkout@v6
+      - uses : actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '22'
       - name: Install dependencies
         run: npm ci
       - name: build app
         run: npm run build
       - name: Cypress run
-        uses: cypress-io/github-action@v6
-        env:
-          TEST_RUNNER: "true"
+        uses: cypress-io/github-action@v7
         with:
           start: npm start

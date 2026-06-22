@@ -1,15 +1,16 @@
 'use client'
 import Image from 'next/image'
 import React, { useState, useEffect } from 'react'
+import { Alert, Button } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { convertTagToName } from '../../utils/Formatter'
 import Number from '../Number/Number'
-import { useSuspenseQuery, useQuery } from '@tanstack/react-query'
-import { getApiFlipFusion, getGetApiFlipFusionQueryKey, getApiFlipFusionMultistep, getGetApiFlipFusionMultistepQueryKey } from '../../api/_generated/skyApi'
+import { getGetApiFlipFusionMultistepQueryKey, useGetApiFlipFusion, useGetApiFlipFusionMultistep } from '../../api/_generated/skyApi'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import { FuseFlip, FusionStep } from '../../api/_generated/skyApi.schemas'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import Link from 'next/link'
+import { getGeneratedApiErrorMessage, hasSuccessfulArrayResponse, isGeneratedPremiumRequired } from '../../utils/GeneratedApiResponseUtils'
 
 const SORT_OPTIONS: SortOption<FuseFlip>[] = [
     {
@@ -37,17 +38,25 @@ const SORT_OPTIONS: SortOption<FuseFlip>[] = [
 export function FusionFlips() {
     const [showMultiStep, setShowMultiStep] = useState(false)
     const [googleToken, setGoogleToken] = useState('')
-    const { data: { data: flips } = { data: [] } } = useSuspenseQuery({
-        queryKey: [getGetApiFlipFusionQueryKey()],
-        queryFn: () => getApiFlipFusion()
+    const baseQuery = useGetApiFlipFusion()
+    const baseResponse = baseQuery.data
+    const flips = hasSuccessfulArrayResponse<FuseFlip>(baseResponse) ? baseResponse.data : []
+    const multiStepQuery = useGetApiFlipFusionMultistep({
+        fetch: googleToken ? { headers: { GoogleToken: googleToken } } : undefined,
+        query: {
+            enabled: showMultiStep,
+            queryKey: [...getGetApiFlipFusionMultistepQueryKey(), googleToken],
+            retry: false
+        }
     })
-    const { data: { data: multiStepFlips } = { data: [] }, isLoading: multiStepLoading } = useQuery({
-        queryKey: [getGetApiFlipFusionMultistepQueryKey(), googleToken],
-        queryFn: () => getApiFlipFusionMultistep(googleToken ? { headers: { GoogleToken: googleToken } } : undefined),
-        enabled: showMultiStep
-    })
-
-    const displayedFlips: FuseFlip[] = showMultiStep ? (Array.isArray(multiStepFlips) ? multiStepFlips : []) : flips
+    const multiStepResponse = multiStepQuery.data
+    const multiStepFlips = hasSuccessfulArrayResponse<FuseFlip>(multiStepResponse) ? multiStepResponse.data : []
+    const multiStepLoading = multiStepQuery.isLoading && !multiStepResponse
+    const displayedFlips: FuseFlip[] = showMultiStep ? multiStepFlips : flips
+    const multiStepAccessError = showMultiStep && (multiStepResponse?.status === 401 || multiStepResponse?.status === 403 || isGeneratedPremiumRequired(multiStepResponse?.data))
+    const errorMessage = showMultiStep
+        ? getGeneratedApiErrorMessage(multiStepResponse, multiStepQuery.error, 'Unable to load multi-step fusion flips right now')
+        : getGeneratedApiErrorMessage(baseResponse, baseQuery.error, 'Unable to load fusion flips right now')
     const [hasPremium, setHasPremium] = useState(false)
     const [isLoggedIn, setIsLoggedIn] = useState(false)
 
@@ -207,9 +216,9 @@ export function FusionFlips() {
     return (
         <>
             <p>
-                This is a curated list of profitable Skyblock Fusion Flips in Hypixel SkyBlock — find opportunities to fuse shards and sell the fused shard for a profit.
-                The list highlights input cost, output value, output count and trade volume so you can quickly spot high-margin fusion flips. This is one of the
-                newest Skyblock money making methods introduced with the the <strong>Galatea Foraging update</strong>.
+                This is a curated list of profitable Skyblock Fusion Flips in Hypixel SkyBlock — find opportunities to fuse shards and sell the fused shards for a profit.
+                The list highlights input cost, output value, output count and trade volume so you can compare high-margin fusion flips quickly. This is one of the
+                newer Skyblock money making methods introduced with the <strong>Galatea Foraging update</strong>.
             </p>
             <div style={{ marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '5px', cursor: 'pointer' }}>
@@ -232,20 +241,20 @@ export function FusionFlips() {
                 {multiStepLoading && showMultiStep && <span>Loading...</span>}
             </div>
             <details>
-                <summary>How to profit of hypixel skyblock fusion flipping</summary>
+                <summary>How to profit from Hypixel SkyBlock fusion flipping</summary>
                 <ol>
                     <li>Pick a fusion flip that has a positive profit from the list below.</li>
-                    <li>Buy order the displayed amount of each shard</li>
-                    <li>Go to the fusion machine on galatea, select first one then the other shard and fuse them.</li>
-                    <li>Create a sell order on the bazaar with the resulting shards</li>
-                    <li>Repeat when margins and volume look healthy.</li>
+                    <li>Create a buy order for the displayed amount of each shard.</li>
+                    <li>Go to the fusion machine on galatea, select first one, then the other shard and fuse them.</li>
+                    <li>Create a sell order on the bazaar with the resulting shards.</li>
+                    <li>Repeat while margins stay strong and volume remains healthy.</li>
                 </ol>
             </details>
             <details>
                 <summary>Why Galatea Foraging matters</summary>
                 <p>
-                    The Galatea Foraging update introduced shards and shard fusion. The prices of shards can fluctuate widly throughout the week and create new
-                    fusion flipping opportunities giving you the chance to profit from these changes.
+                    The Galatea Foraging update introduced shards and shard fusion. Shard prices can fluctuate throughout the week and create
+                    fusion flipping opportunities, giving you a chance to profit from those market shifts.
                 </p>
             </details>
             <details>
@@ -264,18 +273,45 @@ export function FusionFlips() {
                 </p>
             </details>
             <br />
-            <GenericFlipList
-                items={displayedFlips}
-                sortOptions={SORT_OPTIONS}
-                renderFlipContentAction={renderFlipContent}
-                filterFunction={filterFunction}
-                getItemKeyAction={flip => flip.output || `${JSON.stringify(flip)}`}
-                getFlipLink={flip => (flip.output ? `https://sky.coflnet.com/item/${flip.output}` : undefined)}
-                censoredItemGenerator={censoredItemGenerator}
-                premiumMessage={showMultiStep ? "Multi-step fusion flips require starter premium or better" : "The top 3 flips can only be seen with starter premium or better"}
-                clickMessage="Click on a flip for price history"
-                showColumns={true}
-            />
+            {baseQuery.isLoading && !baseResponse ? (
+                <p>Loading fusion flips…</p>
+            ) : errorMessage ? (
+                <Alert variant={multiStepAccessError ? 'warning' : 'danger'}>{errorMessage}</Alert>
+            ) : (
+                <GenericFlipList
+                    items={displayedFlips}
+                    sortOptions={SORT_OPTIONS}
+                    renderFlipContentAction={renderFlipContent}
+                    filterFunction={filterFunction}
+                    getItemKeyAction={flip => flip.output || `${JSON.stringify(flip)}`}
+                    getFlipLink={flip => (flip.output ? `https://sky.coflnet.com/item/${flip.output}` : undefined)}
+                    censoredItemGenerator={censoredItemGenerator}
+                    premiumMessage={showMultiStep ? "Multi-step fusion flips require starter premium or better" : "The top 3 flips can only be seen with starter premium or better"}
+                    clickMessage="Click on a flip for price history"
+                    showColumns={true}
+                    emptyState={
+                        !showMultiStep && displayedFlips.length === 0 ? (
+                            <Alert variant="info" style={{ marginBottom: 0, maxWidth: '760px' }}>
+                                <p style={{ marginBottom: '10px' }}>
+                                    No single-step fusion flips are available right now. This is common while the fusion market is quiet.
+                                </p>
+                                <p style={{ marginBottom: hasPremium ? '10px' : 0 }}>
+                                    Check <strong>Show Multi-Step Fusions</strong> to include deeper fusion chains.
+                                </p>
+                                {hasPremium ? (
+                                    <Button size="sm" onClick={() => setShowMultiStep(true)}>
+                                        Enable Multi-Step Fusions
+                                    </Button>
+                                ) : null}
+                            </Alert>
+                        ) : (
+                            <p style={{ marginBottom: 0 }}>
+                                No fusion flips are available right now. Please check again shortly.
+                            </p>
+                        )
+                    }
+                />
+            )}
         </>
     )
 }

@@ -1,13 +1,14 @@
 'use client'
 import Image from 'next/image'
 import React from 'react'
+import { Alert } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import Number from '../Number/Number'
 import { BookFlip } from '../../api/_generated/skyApi.schemas'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { getApiFlipBazaarBooks, getGetApiFlipBazaarBooksQueryKey } from '../../api/_generated/skyApi'
+import { useGetApiFlipBazaarBooks } from '../../api/_generated/skyApi'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import { convertTagToName, formatToPriceToShorten } from '../../utils/Formatter'
+import { getGeneratedApiErrorMessage, hasSuccessfulArrayResponse } from '../../utils/GeneratedApiResponseUtils'
 
 const SORT_OPTIONS: SortOption<BookFlip>[] = [
     {
@@ -23,10 +24,10 @@ const SORT_OPTIONS: SortOption<BookFlip>[] = [
 ]
 
 export function BookFlips() {
-    const { data: { data: flips } = { data: [] } } = useSuspenseQuery({
-        queryKey: [getGetApiFlipBazaarBooksQueryKey()],
-        queryFn: () => getApiFlipBazaarBooks()
-    })
+    const query = useGetApiFlipBazaarBooks()
+    const response = query.data
+    const flips = hasSuccessfulArrayResponse<BookFlip>(response) ? response.data : []
+    const errorMessage = getGeneratedApiErrorMessage(response, query.error, 'Unable to load book flips right now')
 
     function renderFlipContent(flip: BookFlip) {
         return (
@@ -128,17 +129,23 @@ export function BookFlips() {
                     flips are visible only to users with starter premium or higher.
                 </p>
             </details>
-            <GenericFlipList
-                items={flips}
-                sortOptions={SORT_OPTIONS}
-                renderFlipContentAction={renderFlipContent}
-                filterFunction={filterFunction}
-                getFlipLink={flip => `https://sky.coflnet.com/item/${flip.endTag}`}
-                getItemKeyAction={flip => flip.endTag || JSON.stringify(flip)}
-                censoredItemGenerator={censoredItemGenerator}
-                premiumMessage="The top 3 flips can only be seen with starter premium or better"
-                clickMessage="Click on a flip for further details"
-            />
+            {query.isLoading && !response ? (
+                <p>Loading book flips…</p>
+            ) : errorMessage ? (
+                <Alert variant="danger">{errorMessage}</Alert>
+            ) : (
+                <GenericFlipList
+                    items={flips}
+                    sortOptions={SORT_OPTIONS}
+                    renderFlipContentAction={renderFlipContent}
+                    filterFunction={filterFunction}
+                    getFlipLink={flip => `https://sky.coflnet.com/item/${flip.endTag}`}
+                    getItemKeyAction={flip => flip.endTag || JSON.stringify(flip)}
+                    censoredItemGenerator={censoredItemGenerator}
+                    premiumMessage="The top 3 flips can only be seen with starter premium or better"
+                    clickMessage="Click on a flip for further details"
+                />
+            )}
         </>
     )
 }

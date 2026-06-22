@@ -55,11 +55,31 @@ By the time you read this there may be new commands available, the tab-auto comp
 - **Account requirements:** Open to every user. Free-tier players can view the list, but the first two entries are watermarked as Premium-only if you have no subscription active.
 
 - **Arguments & options:**
-	- Optional `[search|page]` input lets you filter by item tag or go straight to another page of results.
+	- No argument (or a general search / page number) shows the top live bazaar flips, already filtered to items you can afford with your current purse.
+	- `h` / `history [account] [days]` shows a bazaar profit summary. `days` defaults to `7` and can be fractional (for example `0.5` for 12 hours).
+	- `l` / `list [account] [days]` shows your recently completed bazaar flips, either across all verified accounts or for a single verified account name.
 	- The command auto-hides “manipulated” items if you toggled `HideManipulated` in settings; it strikes those entries when visibility is forced.
 	- Each row exposes `/bz <query>` so you can open Hypixel’s bazaar instantly, plus hover notes covering profit/hour, fees, and hourly volume.
 
-- **Note:** Bazaar results already subtract the 1.25% bazaar fee and respect your purse size—use search and paging to focus the list on items you can afford.
+- **Note:** Bazaar results already subtract the 1.25% bazaar fee and respect your purse size. Use `history` for tracked profit and `list` to audit recent completed flips.
+
+
+
+### BitsCommand
+
+- **Primary syntax:** `/cofl bits` (also `/cl bits`)
+
+- **Summary:** Shows you the best item to convert your bits for coins
+
+- **Account requirements:** Works for any connected mod user with synced Bits balance. No paid tier is required.
+
+- **Arguments & options:**
+	- No argument – ranks Elizabeth shop options by current coins per bit.
+	- The command summary highlights the best option you can currently afford with your available Bits.
+	- Clicking an entry runs `/warp elizabeth`; hover text shows the total Bits required and the approximate total coin value.
+	- Normal `ReadOnlyListCommand` paging and search still apply, but there are no extra custom keywords beyond the base list behavior.
+
+- **Note:** Use this when you want a quick market-aware bit conversion without checking every Community Shop item manually.
 
 
 
@@ -91,7 +111,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **In-game blurb:** Ranked by milliseconds after grace period resets weekly you can opt out of showing up with Â§b/cl buyspeedboard disable
 
-- **Account requirements:** You must have a verified Minecraft account connected to Coflnet; otherwise the command throws a `forbidden` error. Premium isn’t required to view the board.
+- **Account requirements:** You must have a verified Minecraft account connected to SkyCofl; otherwise the command throws a `forbidden` error. Premium isn’t required to view the board.
 
 - **Arguments & options:**
 	- `[page]` – paginates the weekly leaderboard; omit for the first page.
@@ -239,7 +259,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **Primary syntax:** `/cofl ping` (also `/cl ping`)
 
-- **Summary:** Checks your ping to the Coflnet server
+- **Summary:** Checks your ping to the SkyCofl server
 
 - **Account requirements:** Available to all logged-in players.
 
@@ -376,7 +396,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **Summary:** Generate an API key for accessing external services
 
-- **Account requirements:** You must be logged in on the official mod (session user ID present) to view or generate keys. Creating a new key additionally needs mod version ≥ 1.7.3, an active profile ID (swap islands once so the mod can read it), and a verified Minecraft account.
+- **Account requirements:** You must be logged in on the official mod (session user ID present) to view or generate keys. Creating a new key additionally needs mod version ≥ 1.7.3, chat collection enabled long enough to capture your active profile ID, and a verified Minecraft account.
 
 - **Arguments & subcommands:**
 	- No argument – if you already have an active key, prints the newest ones (up to five) with creation/usage timestamps and copy buttons. If you have none, the command generates one automatically.
@@ -412,7 +432,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **Summary:** Check how many CoflCoins you have
 
-- **Account requirements:** Requires a logged-in Coflnet account so the Payments API can look up your balance. Any tier works.
+- **Account requirements:** Requires a logged-in SkyCofl account so the Payments API can look up your balance. Any tier works.
 
 - **Arguments & subcommands:**
 	- Runs without arguments. Fetches your CoflCoin wallet and prints the total in formatted coins.
@@ -446,11 +466,11 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **In-game blurb:** Alias /fc &lt;msg&gt; Writes a message to the cofl chat Be nice and don't advertise or you may get muted
 
-- **Account requirements:** You must be logged in to send chat messages, and Coflnet now requires a verified Minecraft account before talking in `/fc`. Users without chat enabled will be prompted to toggle it on.
+- **Account requirements:** You must be logged in to send chat messages, and SkyCofl now requires a verified Minecraft account before talking in `/fc`. Users without chat enabled will be prompted to toggle it on.
 
 - **Arguments & subcommands:**
 	- No argument or `toggle` – flips the in-mod chat toggle on/off and reports the new state. Macro-only clients get a warning instead of reconnecting.
-	- `<message>` – sends the message to Coflnet chat (max 150 characters). The command rate-limits you to one message per second, rejects strings starting with `/cofl`, and reminds you to re-run `/cofl chat` if you typed `disable`.
+	- `<message>` – sends the message to SkyCofl chat (max 150 characters). The command rate-limits you to one message per second, rejects strings starting with `/cofl`, and reminds you to re-run `/cofl chat` if you typed `disable`.
 	- If chat is currently disabled in your mod settings, the command automatically toggles it on before delivering the message.
 	- Messages inherit your nickname when you are Premium Plus; otherwise your Minecraft name is shown.
 
@@ -502,6 +522,26 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- `verify` – details the auction bid verification process and why it matters.
 	- `commands` (alias `c`) – lists every public `/cofl` command, ten per page, with short hover descriptions. Add a page number (e.g. `/cofl help commands 2`) to jump to later pages.
 	- Unknown topics fall back to the selector and suggest the closest match.
+
+
+
+### KeyBindCommand
+
+- **Primary syntax:** `/cofl keybind` (also `/cl keybind`)
+
+- **Summary:** Binds a command/feature to a hotkey
+
+- **Account requirements:** Works for connected official-mod users. Bindings are stored in your mod settings and synced through your saved config.
+
+- **Arguments & subcommands:**
+	- `list` / `l` – show your current key bindings.
+	- `add <key> <command>` – bind a single-character key to a built-in action or any regular command.
+	- `remove <key>` / `rm <key>` – remove an existing binding.
+	- `help` – prints the built-in actions and usage reminders.
+	- Built-in actions currently include `openitemurl`, `openitemmarket`, and `craftbreakdown`.
+	- Keys must be single characters. If you bind a normal command, include the leading `/`.
+
+- **Note:** This is the current quick-launch path for opening the held item on the website or jumping straight into market lookups without typing commands manually.
 
 
 
@@ -557,8 +597,13 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- `offer <price>` – skip straight to the picker with a pre-filled price. The command suggests high/medium/low presets after it reads price estimates.
 	- `on` / `off` – temporarily enable or disable receiving lowball visits for the current session.
 	- `always` / `never` – toggle the permanent account flag that auto-enables or blocks lowballers every time you connect.
+	- `list` – show your currently stored lowball offers, including remove buttons.
+	- `remove <offer-uuid>` – delete one of your existing offers.
+	- `status` – show both the permanent lowball preference and the current session state.
 	- `help` – prints a quick summary of every subcommand.
 	- When you confirm an offer, the command pings all eligible lowballers with visit links to your island.
+
+- **Note:** Lowball offers are also persisted for roughly 7 days, so `list`, `remove`, and `status` are the normal maintenance tools after you post an item.
 
 
 
@@ -713,12 +758,12 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **Summary:** No description in attributes
 
-- **Account requirements:** Must be logged in with sufficient CoflCoin balance. Transfers use the Payments API, so both sender and receiver need Coflnet accounts.
+- **Account requirements:** Must be logged in with sufficient CoflCoin balance. Transfers use the Payments API, so both sender and receiver need SkyCofl accounts.
 
 - **Arguments & subcommands:**
 	- `<amount> <player>` – moves the specified number of CoflCoins to another user. The amount must be a positive integer; the command rejects non-numeric input and amounts ≤ 0.
 	- The recipient is looked up by IGN; behind the scenes the command resolves the user ID and creates a transfer reference (`<ign>-<connId>`).
-	- Any API error (insufficient funds, unknown player) is surfaced as a Coflnet error code so you know what to fix.
+	- Any API error (insufficient funds, unknown player) is surfaced as a SkyCofl error code so you know what to fix.
 
 
 
@@ -739,6 +784,27 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- `price` / `profit` / `vol` / `volume` / `age` – change the sort order to suit your goal (high sell price, raw profit, daily volume, or newest finds first).
 	- Hover each entry to see the ingredients you must apply before selling the upgraded item.
 	- The command automatically filters out pet-experience edge cases that would be unrealistic to flip.
+
+
+
+### CopperCommand
+
+- **Primary syntax:** `/cofl copper` (also `/cl copper`)
+
+- **Summary:** Shows the most profitable greenhouse crops to buy from bazaar for copper
+
+- **In-game blurb:** Filters based on your discovered greenhouse crops
+
+- **Account requirements:** Requires your current profile to have greenhouse crop discovery data synced. No paid tier is required.
+
+- **Arguments & subcommands:**
+	- No argument – ranks the discovered greenhouse crops by copper-per-coin efficiency.
+	- `cost` – sort by highest total cost.
+	- `yield` – sort by highest copper yield.
+	- `volume` – sort by highest market volume.
+	- Hover text shows buy price, analyze cost, total cost, copper yield, and observed volume.
+
+- **Note:** The command filters out greenhouse crops you have not discovered yet, so it stays aligned with your current profile progression.
 
 
 
@@ -790,8 +856,11 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **Arguments & subcommands:**
 	- No argument – lists profitable Fusion Module flips, showing the output shard, input items, per-unit volumes, and direct Bazaar shortcuts.
-	- The base list controls provide search and pagination. There are no special keywords beyond what `ReadOnlyListCommand` already supports.
+	- `multistep` – switch to multi-step fusion chains. This requires at least Starter Premium.
+	- The base list controls still provide search and pagination for both modes.
 	- Every row includes hover text that calls out the assumed buy/sell order setup (top buy/top sell).
+
+- **Note:** `multistep` is the current way to surface deeper fusion paths; the default mode still shows only the standard single-step opportunities.
 
 
 
@@ -815,6 +884,22 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- `refresh` – forces a re-sync of expiry times and tiers from the backend.
 	- `refund` – if you bought a Premium+ 4-week bundle in the last ten days, triggers a refund workflow.
 	- `help` – prints the full usage reference.
+
+### NpcCommand
+
+- **Primary syntax:** `/cofl npc` (also `/cl npc`)
+
+- **Summary:** Displays the best items to buy and sell to NPCs for profit
+
+- **Account requirements:** Works for connected mod users. Free users can run it, but the top six entries stay hidden until you upgrade.
+
+- **Arguments & subcommands:**
+	- No argument – lists the best NPC flips sorted by hourly profit.
+	- Clicking a row opens `/bz <item>` for bazaar items or `/ahs <item>` for AH-only items.
+	- Hover text shows buy price, NPC sell price, sells per hour, per-item profit, and percentage margin.
+	- After the list, the command prints how much of your daily 500m NPC sell cap you already used and how long until the next reset.
+
+- **Note:** Use this for low-risk, guaranteed sell targets. The hourly-profit ranking is based on observed sell speed, not just raw per-item margin.
 
 
 
@@ -988,7 +1073,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 - **Account requirements:** Public command; it needs to fetch filter metadata from the items API, so expect a brief loading message the first time.
 
 - **Arguments & subcommands:**
-	- No argument – enumerates every filter available in CoflNet’s filter engine, including sample values and whether they accept ranges or numeric comparisons.
+	- No argument – enumerates every filter available in SkyCofl’s filter engine, including sample values and whether they accept ranges or numeric comparisons.
 	- `<search>` – type a keyword such as `sharpness` or `volume` to narrow the list. Pagination buttons let you browse deeper pages.
 	- Numeric filters show min/max bounds and note when the syntax supports ranges like `1-10` or `>2`.
 
@@ -1147,11 +1232,11 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **Arguments & options:**
 	- `<identifier>` – choose `user`, `item`, or `enchant` to mirror the `/tfm export` namespace you're importing from. The command validates the value case-insensitively.
-	- `<userName>` – the TFManager profile name that published the blacklist. The server pulls `https://tfm.thom.club/get_blacklist?blacklist_id=<userName>&type=<identifier>` and converts the JSON payload into Coflnet filters.
+	- `<userName>` – the TFManager profile name that published the blacklist. The server pulls `https://tfm.thom.club/get_blacklist?blacklist_id=<userName>&type=<identifier>` and converts the JSON payload into SkyCofl filters.
 	- On success the entries are appended to your `/cl bl list` blacklist and immediately saved. Existing entries are left untouched.
 	- If the request fails or arguments are missing you'll receive a usage prompt explaining the proper syntax.
 
-- **Note:** Imported TFManager blacklists are mapped to Coflnet filter fields (rarity, pet flags, seller filters). Review imported entries with `bl list` and adjust before bulk-saving.
+- **Note:** Imported TFManager blacklists are mapped to SkyCofl filter fields (rarity, pet flags, seller filters). Review imported entries with `bl list` and adjust before bulk-saving.
 
 
 

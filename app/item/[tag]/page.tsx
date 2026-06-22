@@ -1,4 +1,6 @@
 import { redirect } from 'next/navigation'
+import type { Metadata } from 'next'
+import { isRedirectError } from 'next/dist/client/components/redirect-error'
 import { parseItem } from '../../../utils/Parser/APIResponseParser'
 import { getHeadMetadata, getCanonicalUrl } from '../../../utils/SSRUtils'
 import { convertTagToName, numberWithThousandsSeparators } from '../../../utils/Formatter'
@@ -8,6 +10,7 @@ import dynamic from 'next/dynamic'
 import { ItemPageClient } from './ItemPageClient'
 import { hasFlag } from '../../../components/FilterElement/FilterType'
 import { getCachedItemInfo, ItemFlagsNumeric, hasItemFlag, parseFlags } from '../../../utils/ItemsCache'
+import { normalizeItemFilter } from '../../../utils/Parser/URLParser'
 
 const BazaarPriceGraph = dynamic(() => import('../../../components/PriceGraph/BazaarPriceGraph/BazaarPriceGraph'), {
     loading: () => <div style={{ minHeight: '300px' }}>Loading chart...</div>
@@ -96,7 +99,7 @@ export default async function Page(props) {
     )
 }
 
-export async function generateMetadata(props) {
+export async function generateMetadata(props): Promise<Metadata> {
     const searchParams = await props.searchParams
     const params = await props.params
     function getAvgPrice(prices) {
@@ -155,11 +158,12 @@ ${getFiltersText(filter)}` : ''}`,
 }
 
 async function getItemData(searchParams, params) {
-    let range = searchParams.range || 'day'
+    let validRanges = ['active', 'hour', 'day', 'week', 'month', 'year', 'full']
+    let range = validRanges.includes(searchParams.range) ? searchParams.range : 'day'
     let tag = params.tag as string
-    let itemFilter = getItemFilterFromUrl(searchParams)
 
     let api = initAPI(true)
+    let itemFilter = await normalizeServerItemFilter(api, tag, getItemFilterFromUrl(searchParams))
     try {
         const cachedInfo = await getCachedItemInfo(tag)
         const isBazaarFromCache = cachedInfo?.isBazaar ?? null
@@ -167,7 +171,10 @@ async function getItemData(searchParams, params) {
         if (isBazaarFromCache !== null && range !== 'active') {
             const [itemDetails, prices] = await Promise.all([
                 api.getItemDetails(tag) as Promise<any>,
-                fetchPrices(api, tag, range, isBazaarFromCache, itemFilter)
+                fetchPrices(api, tag, range, isBazaarFromCache, itemFilter).catch(e => {
+                    logPriceFetchError(tag, range, itemFilter, e)
+                    return []
+                })
             ])
 
             if (!itemDetails || !itemDetails.name) {
@@ -179,7 +186,7 @@ async function getItemData(searchParams, params) {
                         item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
                         prices: [],
                         range: null,
-                        filter: null,
+                        filter: itemFilter || null,
                         itemFlags: cachedInfo
                     }
                 }
@@ -205,9 +212,28 @@ async function getItemData(searchParams, params) {
                     item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
                     prices: [],
                     range: range || null,
-                    filter: null,
+                    filter: itemFilter || null,
                     itemFlags: cachedInfo
                 }
+            }
+        }
+
+        // Build item flags from item details when not available from cache.
+        // This ensures items not in the /api/items cache still get correct
+        // bazaar/auction/tradeable flags (e.g. BOOK_OF_STATS).
+        let itemFlags = cachedInfo
+        if (!itemFlags && itemDetails.flags !== undefined) {
+            const numericFlags = parseFlags(itemDetails.flags)
+            itemFlags = {
+                tag,
+                name: itemDetails.name || null,
+                isBazaar: hasItemFlag(numericFlags, ItemFlagsNumeric.BAZAAR),
+                isTradeable: hasItemFlag(numericFlags, ItemFlagsNumeric.TRADEABLE),
+                isAuction: hasItemFlag(numericFlags, ItemFlagsNumeric.AUCTION),
+                isCraftable: hasItemFlag(numericFlags, ItemFlagsNumeric.CRAFT),
+                isMuseum: hasItemFlag(numericFlags, ItemFlagsNumeric.MUSEUM),
+                isFireSale: hasItemFlag(numericFlags, ItemFlagsNumeric.FIRESALE),
+                flags: numericFlags
             }
         }
 
@@ -217,21 +243,26 @@ async function getItemData(searchParams, params) {
                 prices: [],
                 range: range || null,
                 filter: itemFilter || null,
-                itemFlags: cachedInfo
+                itemFlags
             }
         }
 
         let isBazaar = hasFlag(itemDetails.flags, 1)
-        let prices = await fetchPrices(api, tag, range, isBazaar, itemFilter)
+        let prices = await fetchPrices(api, tag, range, isBazaar, itemFilter).catch(e => {
+            logPriceFetchError(tag, range, itemFilter, e)
+            return []
+        })
 
         return {
             item: itemDetails,
             prices: prices || [],
             range: range || null,
             filter: itemFilter ? itemFilter : null,
-            itemFlags: cachedInfo
+            itemFlags
         }
     } catch (error) {
+        if (isRedirectError(error)) throw error
+
         console.error('Error fetching item data:', error instanceof Error ? error.message : error)
 
         let cachedInfo = await getCachedItemInfo(tag).catch(() => null)
@@ -265,10 +296,34 @@ async function getItemData(searchParams, params) {
             item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
             prices: [],
             range: range || null,
-            filter: null,
+            filter: itemFilter || null,
             itemFlags: cachedInfo
         }
     }
+}
+
+async function normalizeServerItemFilter(api: API, tag: string, itemFilter: ItemFilter | null): Promise<ItemFilter | null> {
+    if (!itemFilter || !itemFilter.PetLevel || itemFilter.Rarity) {
+        return itemFilter
+    }
+
+    try {
+        const filterOptions = await api.getFilters(tag)
+        const normalizedFilter = normalizeItemFilter(itemFilter, filterOptions)
+        return Object.keys(normalizedFilter).length > 0 ? normalizedFilter : null
+    } catch (error) {
+        console.error('Error normalizing item filter:', error instanceof Error ? error.message : error)
+        return itemFilter
+    }
+}
+
+function logPriceFetchError(tag: string, range: string, itemFilter: ItemFilter | null, error: unknown) {
+    console.error('Error fetching item prices:', {
+        tag,
+        range,
+        itemFilter,
+        error: error instanceof Error ? error.message : error
+    })
 }
 
 /**
@@ -278,6 +333,10 @@ async function fetchPrices(api: API, tag: string, range: string, isBazaar: boole
     if (isBazaar) {
         if (range === 'full') {
             return api.getBazaarPricesByRange(tag, new Date(0), new Date())
+        } else if (range === 'month') {
+            let monthAgo = new Date()
+            monthAgo.setMonth(monthAgo.getMonth() - 1)
+            return api.getBazaarPricesByRange(tag, monthAgo, new Date())
         } else {
             return api.getBazaarPrices(tag, range as any)
         }

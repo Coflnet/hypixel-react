@@ -1,5 +1,5 @@
 ---
-title: "Programatic API access"
+title: "Programmatic API access"
 description: "API access for developers"
 order: 10
 ---
@@ -7,31 +7,33 @@ order: 10
 We provide a free API for developers to access most of our data. You can check out the openapi documentation [here](https://sky.coflnet.com/api).
 
 ## Player Data
-We extract player specific game data via our mod directly from the skyblock to build features with.  
-You can get access to this data via our API via endpoints starting with `/api/player/`.  
-Data not visible publicly via hypixel apis (like the auctions) requires an api key from the player.  
-You (and your users) can get an api key via running `/cofl api` command with our mod.  
-That api key can then be passed to the endpoint both
+We extract player-specific game data via our mod directly from SkyBlock to build features with.  
+Player-scoped endpoints live under `/api/player/` and use **player API keys** generated via `/cofl api` in the mod.  
+Those keys currently expire after 180 days and can be passed in any of these forms:
 * Via query parameter `?apiKey=YOUR_API_KEY`
-* Via header `x-api-key: YOUR_API_KEY`
+* Via query parameter `?apikey=YOUR_API_KEY` or `?key=YOUR_API_KEY`
+* Via header `X-Api-Key: YOUR_API_KEY` or `x-api-key: YOUR_API_KEY`
 
 ### Attributes
-You can get the players attribute levels via `/api/player/extracted`. Its updated whenever the player opens the huntig box.
+You can get the player's extracted in-game state via `/api/player/extracted`. That payload is reused for attributes, booster cookie state, composter data, and Heart of the Mountain / Heart of the Forest data whenever the mod syncs those screens in-game.
 
 ### Bazaar Orders
-You can get the current bazaar orders of a player via `/api/player/bazaar` endpoint. It contains order size, price and last known fill state.
+You can get the current bazaar orders of a player via `/api/player/bazaar/orders`. It contains order size, price, and the last known fill state.
+
+### Bazaar Flips
+You can get completed bazaar flips tracked by the mod via `/api/player/bazaar/flips`.
 
 ### Booster Cookie 
-You can get the players current booster expiry via `/api/player/extracted`. Its updated whenever the player opens the skyblock menu (so pretty often)
+You can get the player's current booster cookie expiry via `/api/player/extracted`.
 
 ### Composter
-You can get the players current composter upgrades and fill state via `/api/player/extracted`
+You can get the player's current composter upgrades and fill state via `/api/player/extracted`.
 
 ### Heart of the forest
-You can get the players current heart of the forest and heart of the mountain level via `/api/player/extracted`
+You can get the player's current Heart of the Forest and Heart of the Mountain state via `/api/player/extracted`.
 
 ### Missing any data?
-If you need any other data that is visible in game, please contact us via discord or email. Alternatively open a pullrequest yourself in the [PlayerState repostiory](https://github.com/Coflnet/SkyPlayerState) which handles the data extraction and storage or the [API repository](https://github.com/Coflnet/SkyApi) which exposes the data.
+If you need any other data that is visible in game, please contact us via Discord or email. Alternatively open a pull request yourself in the [PlayerState repository](https://github.com/Coflnet/SkyPlayerState) which handles the data extraction and storage or the [API repository](https://github.com/Coflnet/SkyApi) which exposes the data.
 
 ## Bazaar
 
@@ -161,6 +163,66 @@ def get_bazaar_history(item_tag, days=7):
 history = get_bazaar_history('GOLD_BLOCK')
 for entry in history:
     print(f"{entry['timestamp']}: Buy {entry['buy']}, Sell {entry['sell']}")
+```
+
+### Bazaar Export
+
+Download raw bazaar snapshots for local analysis.
+
+**Endpoint:** `GET /api/bazaar/{itemTag}/export`
+
+**Authentication:** Requires an authenticated account token. Use `Authorization: Bearer YOUR_TOKEN`. The legacy `GoogleToken: YOUR_TOKEN` header is still accepted by the backend, but new integrations should prefer `Authorization`.
+
+**Parameters:**
+- `itemTag` (path, required): The bazaar item tag to export
+- `start` (query, optional): Export start time as ISO 8601. If omitted, the export starts 14 days ago.
+- `end` (query, optional): Export end time as ISO 8601. Defaults to now.
+- `fullOrderBook` (query, optional, default `false`): Include full order-book snapshots. This costs 3 export units instead of 1.
+
+**Tier gates:**
+- `Premium`: Export up to 180 days back
+- `Premium+`: Export back to October 2019
+- `Free`: No export access
+
+**Response:**
+- Streams a `.zip` file containing `{itemTag}.json`
+- Without explicit `start` / `end`, the default export returns the last 14 days
+- Recent windows use 20-second bazaar snapshots; older windows fall back to coarser 5-minute data
+
+**Example cURL:**
+```bash
+curl -L \
+  -H "Authorization: Bearer YOUR_TOKEN" \
+  "https://sky.coflnet.com/api/bazaar/BOOSTER_COOKIE/export?start=2026-04-01T00:00:00Z&end=2026-04-07T00:00:00Z"
+```
+
+## Item Price Analysis
+
+For auction-backed item analysis beyond simple LBIN or history charts, use the advanced analysis endpoint.
+
+**Endpoint:** `GET /api/item/price/{itemTag}/analysis`
+
+**Parameters:**
+- `itemTag` (path, required): The item tag to analyze
+- `days` (query, optional, default `7`): Analysis window, clamped to `1-365`
+- Additional item filters (query, optional): Any supported item filters can be passed directly as query parameters, similar to other `/api/item/price/*` endpoints
+
+**Tier gates:**
+- `1-7` days: Free
+- `8-30` days: Starter Premium
+- `31-365` days: Premium
+
+**Response highlights:**
+- Total sales, sales per day, BIN percentage, and top sellers
+- Average and median price
+- Average and median sell time
+- Price volatility (`priceStdDev`, `priceCoeffVariation`)
+- Volume buckets and sell-speed buckets
+- Hourly breakdown by sale count, average price, and average sell time
+
+**Example cURL:**
+```bash
+curl "https://sky.coflnet.com/api/item/price/HYPERION/analysis?days=30&Tier=LEGENDARY"
 ```
 
 ## Auctions
@@ -406,17 +468,93 @@ func main() {
 }
 ```
 
+## Flip Utility Endpoints
+
+These endpoints back several website tools and current in-game commands.
+
+| Endpoint | Purpose | Auth / Tier |
+|----------|---------|-------------|
+| `GET /api/flip/attribute` | Attribute craft flips | `Authorization` token + Premium |
+| `GET /api/flip/npc` | Buy-to-NPC profit ideas | Public |
+| `GET /api/flip/npc/reverse` | Reverse NPC flips | `Authorization` token; `requestRefresh=true` only refreshes for Premium |
+| `GET /api/flip/fusion` | Single-step fusion flips | Public |
+| `GET /api/flip/fusion/multistep` | Multi-step fusion flips | `Authorization` token + Starter Premium |
+| `GET /api/flip/copper` | Copper conversion flips | Public |
+
+## Lowball Offers
+
+Lowball offers are exposed through the SkyApi wrapper and backed by the lowball offer service in SkyModCommands.
+
+**Endpoints:**
+- `GET /api/lowball/own` - List your own offers. Requires `Authorization: Bearer YOUR_TOKEN`.
+- `GET /api/lowball/item/{itemTag}` - Browse current public offers for an item.
+- `DELETE /api/lowball/offer/{offerId}` - Delete one of your own offers. Requires `Authorization: Bearer YOUR_TOKEN`.
+
+**Query parameters:**
+- `before` (optional): ISO 8601 cursor for pagination
+- `limit` (optional, default `20`): Number of results to return
+
+**Current behavior:**
+- Offers are retained for roughly 7 days
+- Pagination uses the offer creation timestamp (`before=<timestamp>`)
+- The public item listing endpoint is read-only; create and management flows currently happen through the mod-side command flow
+
+## Recent Devlogs
+
+Relevant rollout notes for the current API behavior:
+
+- [March 2026 updates](https://sky.coflnet.com/updates/2026/3) - API token docs, copper flips, multi-step fusion flips, Bazaar export rollout, and IP rate-limit blacklisting
+- [April 2026 updates](https://sky.coflnet.com/updates/2026/4) - Bazaar export fixes, Premium+ requirements for older detailed bazaar data, and API wiki rate-limit clarifications
+- [May 2026 updates](https://sky.coflnet.com/updates/2026/5) - follow-up fixes affecting Bazaar recommendations and filter handling
+
 
 ## Rate Limits
 To ensure fair usage of our API, we enforce the following rate limits:
-- maximum 100 requests per minute
-- maximum 30 requests per 10 seconds (to avoid hitting the limit and then having to wait a full minute)
 
+### General API Rate Limits
+| Window | Limit | Applies to |
+|--------|-------|------------|
+| 10 seconds | 30 requests | All users (by IP) |
+| 1 minute | 100 requests | All users (by IP) |
+
+Both windows are enforced in parallel. A burst of 31 requests inside 10 seconds will be rejected even if you are still below 100 requests in the current minute.
+
+The short burst window exists to keep capacity available for interactive website users. For direct API usage, send requests sequentially instead of in parallel. If you need a lot of detailed data, prefer aggregate or export endpoints. If you still need to walk detailed endpoints directly, target about 1 request per second.
+
+Premium+ users should still send a valid `Authorization: Bearer` token. That token lets the backend automatically unblock an IP that hit the scraper blacklist, but it does not raise the default public limits on its own.
+
+### Bazaar Export Rate Limits
+| Window | Limit | Notes |
+|--------|-------|-------|
+| 5 minutes | 5 cost units | Full order book exports cost 3 units, standard exports cost 1 unit |
+
+**Export data access by tier:**
+| Tier | Max History | Data Resolution |
+|------|------------|----------------|
+| Free | — | No export access |
+| Premium | 180 days | 20-second increments (last 2 weeks), 5-minute increments |
+| Premium+ | Since October 2019 | 20-second increments (last 2 weeks), 5-minute increments (older) |
+
+### Auction Archive Rate Limits
+| Endpoint | Rate Limit | Tier Required |
+|----------|-----------|---------------|
+| `/auctions/tag/{tag}/archive/overview` | 2-second delay per request | Premium+ |
+| `/auctions/tag/{tag}/archive/export` | Max 4 queued jobs | Premium+ |
+| `/auctions/tag/{tag}/recent/overview` | General API limits | Free |
+| `/auctions/tag/{tag}/active/overview` | General API limits | Free |
+
+Archive pagination is only available for Premium+ users.
+
+### Rate Limit Response
 If you exceed these limits, you will receive a `429 Too Many Requests` response. Please implement appropriate retry logic in your application to handle rate limiting.
-The response headers tell you both how many you have left and when the limit resets:
-- `X-RateLimit-Limit`: The maximum number of requests allowed in the current period
-- `X-RateLimit-Remaining`: The number of requests remaining in the current period
-- `X-RateLimit-Reset`: The time at which the current rate limit window resets
+The current middleware reports headers only for the longest active window, which is usually the `1m` rule when both `10s` and `1m` limits apply. That means you can still hit the `10s` burst limit even when the headers still show remaining quota for the minute window.
+
+Header names are case-insensitive, so you may see them as lowercase in clients. The emitted header names are:
+- `X-Rate-Limit-Limit`: The reported window identifier, for example `1m` or `10s`
+- `X-Rate-Limit-Remaining`: The number of requests remaining in that reported window
+- `X-Rate-Limit-Reset`: The timestamp at which that reported window resets
+
+On `429` responses, also respect the `Retry-After` header. That is the safest way to recover after hitting either the minute window or the shorter burst window.
 
 **Blocked?** If your IP has been blocked for exceeding rate limits, you can unblock it with a Premium+ subscription. See [API Access & Token Management](/wiki/api-access) for details.
 

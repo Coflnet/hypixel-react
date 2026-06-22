@@ -1,5 +1,6 @@
 let properties = {}
 let isSSR = typeof window === 'undefined'
+let isTestRunner = process.env.TEST_RUNNER === 'true' || process.env.NEXT_PUBLIC_TEST_RUNNER === 'true'
 properties = {
     commandEndpoint:
         isSSR || window.location.host.startsWith('localhost') || window.location.hostname.includes('pr-env-sky-')
@@ -11,7 +12,7 @@ properties = {
     refLink: 'https://sky.coflnet.com/refed',
     websocketOldEndpoint: 'wss://skyblock-backend.coflnet.com/skyblock',
     feedbackEndpoint: 'https://feedback.coflnet.com/api/',
-    isTestRunner: process.env.TEST_RUNNER === 'true' || false
+    isTestRunner
 }
 
 export default properties

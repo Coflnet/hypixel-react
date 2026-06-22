@@ -1,15 +1,16 @@
 'use client'
 import Image from 'next/image'
 import React, { useCallback, useMemo } from 'react'
+import { Alert } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
 import NumberElement from '../Number/Number'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import { getApiFlipNpc, getGetApiFlipNpcQueryKey } from '../../api/_generated/skyApi'
+import { useGetApiFlipNpc } from '../../api/_generated/skyApi'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import { ReverseNpcFlip } from '../../api/_generated/skyApi.schemas'
 import Tooltip from '../Tooltip/Tooltip'
 import { NpcFlipDetails } from './NpcFlipDetails/NpcFlipDetails'
+import { getGeneratedApiErrorMessage, hasSuccessfulArrayResponse } from '../../utils/GeneratedApiResponseUtils'
 
 const SORT_OPTIONS: SortOption<ReverseNpcFlip>[] = [
     {
@@ -49,12 +50,10 @@ function formatMargin(margin?: number | null): string {
 }
 
 export function NpcFlips() {
-    const { data: { data: flips } = { data: [] } } = useSuspenseQuery({
-        queryKey: [getGetApiFlipNpcQueryKey()],
-        queryFn: () => getApiFlipNpc()
-    })
-
-    const normalizedFlips = useMemo(() => (flips ? flips : []), [flips])
+    const query = useGetApiFlipNpc()
+    const response = query.data
+    const normalizedFlips = useMemo(() => (hasSuccessfulArrayResponse<ReverseNpcFlip>(response) ? response.data : []), [response])
+    const errorMessage = getGeneratedApiErrorMessage(response, query.error, 'Unable to load NPC flips right now')
 
     const getTotalCost = useCallback((flip: ReverseNpcFlip): number => {
         if (!flip.costs || flip.costs.length === 0) {
@@ -226,18 +225,24 @@ export function NpcFlips() {
                 </p>
             </details>
             <br />
-            <GenericFlipList
-                items={normalizedFlips}
-                sortOptions={SORT_OPTIONS}
-                renderFlipContentAction={renderFlipContent}
-                filterFunction={filterFunction}
-                getItemKeyAction={flip => flip.itemId || ''}
-                censoredItemGenerator={censoredItemGenerator}
-                premiumMessage="The top 3 flips can only be seen with starter premium or better"
-                clickMessage="Click on a flip for further details"
-                showColumns={true}
-                customItemWrapper={customItemWrapper}
-            />
+            {query.isLoading && !response ? (
+                <p>Loading NPC flips…</p>
+            ) : errorMessage ? (
+                <Alert variant="danger">{errorMessage}</Alert>
+            ) : (
+                <GenericFlipList
+                    items={normalizedFlips}
+                    sortOptions={SORT_OPTIONS}
+                    renderFlipContentAction={renderFlipContent}
+                    filterFunction={filterFunction}
+                    getItemKeyAction={flip => flip.itemId || ''}
+                    censoredItemGenerator={censoredItemGenerator}
+                    premiumMessage="The top 3 flips can only be seen with starter premium or better"
+                    clickMessage="Click on a flip for further details"
+                    showColumns={true}
+                    customItemWrapper={customItemWrapper}
+                />
+            )}
         </>
     )
 }

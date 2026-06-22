@@ -12,6 +12,16 @@ import styles from './BuyPremium.module.css'
 import BuyPremiumConfirmationDialog from '../BuyPremiumConfirmationDialog/BuyPremiumConfirmationDialog'
 import { PremiumTier, Duration, getTierDisplayName } from '../PremiumPurchaseWizard/types'
 
+const getPremiumOptionKey = (option: PremiumTypeOption): string => `${option.productId}:${option.value}:${option.label}`
+
+const getScalablePremiumPlusWeekOptions = (premiumType: PremiumType): PremiumTypeOption[] => {
+    if (premiumType.productId !== 'premium_plus') {
+        return []
+    }
+
+    return premiumType.options.filter(option => option.productId === 'premium_plus' && option.value >= 1 && option.value <= 3)
+}
+
 interface Props {
     activePremiumProduct: PremiumProduct
     premiumSubscriptions: PremiumSubscription[]
@@ -40,7 +50,7 @@ const findMatchingPremiumOption = (premiumType: PremiumType, wizardDuration: Dur
                 return lowerLabel.includes('month') || lowerLabel.includes('4 weeks')
             case Duration.QUARTER:
                 // Prefer an option explicitly representing 3 months (value === 3) or matching common quarterly labels
-                if ((option as any).value === 3) return true
+                if (option.value === 3) return true
                 return lowerLabel.includes('3 month') || lowerLabel.includes('3 months') || lowerLabel.includes('11 weeks') || lowerLabel.includes('6 months')
             case Duration.YEARLY:
                 return lowerLabel.includes('year') || lowerLabel.includes('12 months')
@@ -70,12 +80,12 @@ function BuyPremium(props: Props) {
     }
 
     const initialPremiumType = getInitialPremiumType()
-    let [purchasePremiumType, setPurchasePremiumType] = useState<PremiumType>(initialPremiumType)
-    let [purchaseSuccessfulOption, setPurchaseSuccessfulDuration] = useState<PremiumTypeOption>()
-    let [isPurchasing, setIsPurchasing] = useState(false)
-    let [purchasePremiumOption, setPurchasePremiumOption] = useState<PremiumTypeOption>(findMatchingPremiumOption(initialPremiumType, props.selectedDuration))
-    let [showPrepaidConfirmationDialog, setShowPrepaidConfirmationDialog] = useState(false)
-    let coflCoins = useCoflCoins()
+    const [purchasePremiumType, setPurchasePremiumType] = useState<PremiumType>(initialPremiumType)
+    const [purchaseSuccessfulOption, setPurchaseSuccessfulDuration] = useState<PremiumTypeOption>()
+    const [isPurchasing, setIsPurchasing] = useState(false)
+    const [purchasePremiumOption, setPurchasePremiumOption] = useState<PremiumTypeOption>(findMatchingPremiumOption(initialPremiumType, props.selectedDuration))
+    const [showPrepaidConfirmationDialog, setShowPrepaidConfirmationDialog] = useState(false)
+    const coflCoins = useCoflCoins()
 
     function scrollToCoflCoinsPurchase() {
         if (typeof window === 'undefined') return
@@ -107,13 +117,15 @@ function BuyPremium(props: Props) {
         setPurchasePremiumOption(initialOption)
     }, [props.selectedTier, props.selectedDuration])
 
-    function onDurationChange(event: ChangeEvent<HTMLSelectElement>) {
-        let option = JSON.parse(event.target.value)
-        setPurchasePremiumOption(option)
+    function onDurationChange(event: ChangeEvent<HTMLSelectElement>, availableOptions: PremiumTypeOption[] = purchasePremiumType.options) {
+        const option = availableOptions.find(option => getPremiumOptionKey(option) === event.target.value)
+        if (option) {
+            setPurchasePremiumOption(option)
+        }
     }
 
     function onPremiumTypeChange(productId) {
-        let selectedType = PREMIUM_TYPES.find(type => type.productId === productId)
+        const selectedType = PREMIUM_TYPES.find(type => type.productId === productId)
         if (selectedType) {
             setPurchasePremiumType(selectedType)
             setPurchasePremiumOption(selectedType.options[0])
@@ -147,47 +159,20 @@ function BuyPremium(props: Props) {
 
     function getDurationString(): string {
         let durationString = purchasePremiumType.durationString
-        let duration = +purchasePremiumOption.value
+        const duration = +purchasePremiumOption.value
         if (durationString && duration > 1) {
             durationString += 's'
         }
         return durationString
     }
 
-    function getPremiumToggleButtonStyle(premiumType: PremiumType) {
-        switch (premiumType.productId) {
-            case 'premium':
-                return { color: 'var(--bs-success)' }
-            case 'premium_plus':
-                return { color: 'var(--bs-body-color)' }
-            default:
-                return {}
-        }
-    }
-
     const getDisplayTierName = () => {
         return props.selectedTier ? getTierDisplayName(props.selectedTier) : purchasePremiumType.label
     }
 
-    const getDurationDisplayName = () => {
-        if (!props.selectedDuration) return getDurationString()
-        switch (props.selectedDuration) {
-            case Duration.HOUR:
-                return '1 Hour'
-            case Duration.WEEK:
-                return '1 Week'
-            case Duration.MONTHLY:
-                return '1 Month'
-            case Duration.QUARTER:
-                return '3 Months'
-            case Duration.QUARTER:
-                return 'Quarterly'
-            case Duration.YEARLY:
-                return 'Yearly'
-            default:
-                return getDurationString()
-        }
-    }
+    const scalablePremiumPlusWeekOptions = getScalablePremiumPlusWeekOptions(purchasePremiumType)
+    const showScalableWeekSelector =
+        props.selectedTier === PremiumTier.PREMIUM_PLUS && props.selectedDuration === Duration.WEEK && scalablePremiumPlusWeekOptions.length > 0
 
     // If coming from wizard, show only the selected option with summary
     if (props.selectedTier && props.selectedDuration !== undefined) {
@@ -207,9 +192,27 @@ function BuyPremium(props: Props) {
                     <p>
                         <strong>Payment Method:</strong> CoflCoins
                     </p>
-                    <p>
-                        <strong>Duration:</strong> {purchasePremiumOption.label}
-                    </p>
+                    {showScalableWeekSelector ? (
+                        <div className={styles.summarySelector}>
+                            <span className={styles.summarySelectorLabel}>Duration:</span>
+                            <Form.Select
+                                aria-label="Select Premium Plus duration in weeks"
+                                className={`${styles.dropdown} ${styles.summaryDropdown}`}
+                                value={getPremiumOptionKey(purchasePremiumOption)}
+                                onChange={event => onDurationChange(event, scalablePremiumPlusWeekOptions)}
+                            >
+                                {scalablePremiumPlusWeekOptions.map(option => (
+                                    <option key={getPremiumOptionKey(option)} value={getPremiumOptionKey(option)}>
+                                        {option.label}
+                                    </option>
+                                ))}
+                            </Form.Select>
+                        </div>
+                    ) : (
+                        <p>
+                            <strong>Duration:</strong> {purchasePremiumOption.label}
+                        </p>
+                    )}
                     <p>
                         <strong>Price:</strong> <Number number={getPurchasePrice()} /> CoflCoins
                     </p>
@@ -329,11 +332,11 @@ function BuyPremium(props: Props) {
                                     onChange={onDurationChange}
                                     className={styles.dropdown}
                                     key={purchasePremiumType.productId}
-                                    defaultValue={purchasePremiumOption.value}
+                                    value={getPremiumOptionKey(purchasePremiumOption)}
                                 >
                                     {purchasePremiumType.options.map(option => {
                                         return (
-                                            <option key={option.label} value={JSON.stringify(option)}>
+                                            <option key={getPremiumOptionKey(option)} value={getPremiumOptionKey(option)}>
                                                 {option.label}
                                             </option>
                                         )

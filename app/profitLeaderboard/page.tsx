@@ -7,6 +7,10 @@ import { getApiLeaderboardProfit, getGetApiLeaderboardProfitQueryKey } from '../
 import NavBar from '../../components/NavBar/NavBar'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { ProfitLeaderboardComponent } from '../../components/ProfitLeaderboard/ProfitLeaderboard'
+import { ToolLandingSeo } from '../../components/Seo/ToolLandingSeo'
+import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoContent'
+
+const seoContent = toolLandingSeoContent.profitLeaderboard
 
 export default async function Page() {
     const queryClient = getQueryClient()
@@ -17,22 +21,21 @@ export default async function Page() {
     return (
         <>
             <Container>
-                <h2>
-                    <NavBar />
-                    Profit Leaderboard
-                </h2>
+                <NavBar />
+                <h1>Profit Leaderboard</h1>
                 <hr />
                 <HydrationBoundary state={dehydrate(queryClient)}>
                     <ProfitLeaderboardComponent />
                 </HydrationBoundary>
+                <ToolLandingSeo content={seoContent} />
             </Container>
         </>
     )
 }
 
 export const metadata = getHeadMetadata(
-    'Profit Leaderboard',
-    'Explore the top Hypixel SkyBlock traders with our Profit Leaderboard',
+    seoContent.metadataTitle,
+    seoContent.metadataDescription,
     undefined,
     [
         'leaderboard',

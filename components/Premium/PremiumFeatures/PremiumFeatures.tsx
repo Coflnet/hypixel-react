@@ -422,7 +422,7 @@ function PremiumFeatures() {
                         <td className={`${styles.premiumProductColumn} text-success`} style={{ fontWeight: 'bold' }}>
                             Green
                         </td>
-                        <td className={`${styles.premiumProductColumn} text-muted`} style={{ fontWeight: 'bold' }}>
+                        <td className={`${styles.premiumProductColumn}`} style={{ color: 'gold', fontWeight: 'bold' }}>
                             Gold
                         </td>
                     </tr>

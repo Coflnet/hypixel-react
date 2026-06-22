@@ -6,17 +6,15 @@ import Link from 'next/link'
 import moment from 'moment'
 import { Alert, Badge, Button } from 'react-bootstrap'
 import PremiumNotifier from '../Premium/PremiumNotifier'
-import { useQueryClient, useSuspenseQuery, useIsFetching } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import api from '../../api/ApiHelper'
 import Number from '../Number/Number'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import { convertTagToName, getStyleForTier } from '../../utils/Formatter'
 import {
-    getApiFlipAttribute,
     getGetApiFlipAttributeQueryKey,
-    getGetApiFlipAttributeQueryOptions,
-    type getApiFlipAttributeResponse
+    useGetApiFlipAttribute
 } from '../../api/_generated/skyApi'
 import type {
     AttributeFlip as GeneratedAttributeFlip,
@@ -25,6 +23,7 @@ import type {
     AttributeFlipModifier as GeneratedAttributeFlipModifier
 } from '../../api/_generated/skyApi.schemas'
 import styles from './AttributeFlips.module.css'
+import { getGeneratedApiErrorMessage, hasSuccessfulArrayResponse, isGeneratedPremiumRequired } from '../../utils/GeneratedApiResponseUtils'
 
 const SORT_OPTIONS: SortOption<GeneratedAttributeFlip>[] = [
     {
@@ -319,26 +318,26 @@ export function AttributeFlips() {
         setGoogleToken(token)
     }, [])
 
-    const { data: response } = useSuspenseQuery<getApiFlipAttributeResponse>({
-        queryKey: [getGetApiFlipAttributeQueryKey(), googleToken],
-        queryFn: () => getApiFlipAttribute(undefined, googleToken ? { headers: { GoogleToken: googleToken } } : undefined)
+    const query = useGetApiFlipAttribute(undefined, {
+        fetch: googleToken ? { headers: { GoogleToken: googleToken } } : undefined,
+        query: {
+            queryKey: [...getGetApiFlipAttributeQueryKey(), googleToken],
+            retry: false
+        }
     })
-
-    // Detect active fetches for this query (useful during login/refresh flows).
-    const fetchingCount = useIsFetching({ queryKey: [getGetApiFlipAttributeQueryKey(), googleToken] })
-    const isFetching = fetchingCount > 0
+    const response = query.data
+    const isFetching = query.isFetching
+    const isAccessError = response?.status === 401 || response?.status === 403 || isGeneratedPremiumRequired(response?.data)
+    const hasFlips = hasSuccessfulArrayResponse<GeneratedAttributeFlip>(response)
 
     const handleAfterLogin = useCallback(() => {
         const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId') ?? ''
         setGoogleToken(token)
-        queryClient.invalidateQueries({ queryKey: [getGetApiFlipAttributeQueryKey(), token] })
+        queryClient.invalidateQueries({ queryKey: [...getGetApiFlipAttributeQueryKey(), token] })
     }, [queryClient])
 
-    if (response.status !== 200 || !Array.isArray(response.data)) {
-        const messageFromApi = typeof response.data === 'string'
-            ? response.data
-            : (response.data && typeof response.data === 'object' && 'message' in response.data ? String((response.data as any).message) : undefined)
-
+    if (!hasFlips) {
+        const messageFromApi = getGeneratedApiErrorMessage(response, query.error, 'Unable to load attribute flips right now')
         const explanatorySection = (
             <div>
                 <p>
@@ -372,13 +371,17 @@ export function AttributeFlips() {
             <div className={styles.alertWrapper}>
                 {explanatorySection}
                 {!isFetching ? (
-                    <PremiumNotifier messageFromApi={messageFromApi} onAfterLogin={handleAfterLogin} />
+                    isAccessError ? (
+                        <PremiumNotifier messageFromApi={messageFromApi} onAfterLogin={handleAfterLogin} />
+                    ) : messageFromApi ? (
+                        <Alert variant="danger">{messageFromApi}</Alert>
+                    ) : null
                 ) : null}
             </div>
         )
     }
 
-    const flips = response.data as GeneratedAttributeFlip[]
+    const flips = response.data
 
     const explanatorySection = (
         <div>

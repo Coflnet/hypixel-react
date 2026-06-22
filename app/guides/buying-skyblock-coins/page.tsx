@@ -24,7 +24,7 @@ export default function BuyingCoinsGuidePage() {
                                 Buying coins with real money violates Hypixel’s rules. It is <strong>far easier for Hypixel to detect than most macroing</strong> and will <strong>definitely get you banned</strong> or profile-wiped—often in delayed ban waves. Instead of risking your account, use safe, faster, and cheaper methods that our community already uses to earn <strong>millions to billions</strong> of coins legitimately.
                             </CardText>
                             <CardText>
-                                If you came here looking for automation: read our sister article <Link href="/guides/automating-flips">Automating Flips: Tools, Risks, and Safe Alternatives</Link>. TL;DR: Full automation risks bans; the winning approach is <strong>Premium-assisted manual flipping</strong> with Coflnet.
+                                If you came here looking for automation: read our sister article <Link href="/guides/automating-flips">Automating Flips: Tools, Risks, and Safe Alternatives</Link>. TL;DR: Full automation risks bans; the winning approach is <strong>Premium-assisted manual flipping</strong> with SkyCofl.
                             </CardText>
 
                             <CardTitle as="h2" className="mt-4">Legal and ToS Implications</CardTitle>
@@ -70,7 +70,7 @@ export default function BuyingCoinsGuidePage() {
 
                             <CardTitle as="h2" className="mt-4">Safer Alternatives: Earn Big, Fast—Legit</CardTitle>
                             <CardText>
-                                The fastest, safest path is <strong>Premium-assisted manual flipping</strong>. It’s cheaper than buying coins and scales into <strong>millions → billions</strong> over time. Coflnet has already helped users earn <strong>over 1 trillion coins</strong>, and <strong>80% of active flippers use our service</strong>.
+                                The fastest, safest path is <strong>Premium-assisted manual flipping</strong>. It’s cheaper than buying coins and scales into <strong>millions → billions</strong> over time. SkyCofl has already helped users earn <strong>over 1 trillion coins</strong>, and <strong>80% of active flippers use our service</strong>.
                             </CardText>
                             <ul>
                                 <li><strong>Bazaar Flipping (Beginner → Advanced):</strong> Start with <Link href="/bazaar">Bazaar Flips</Link>, then upgrade to <Link href="/premiumBazaar">Premium Bazaar</Link> for demand-spread flips. In-game, use <Link href="/wiki/docs/mod-commands#bazaarcommand-alias-bz">/cofl bazaar</Link>.</li>
@@ -114,12 +114,12 @@ export default function BuyingCoinsGuidePage() {
                             <ol>
                                 <li><strong>Appeal:</strong> Use the Hypixel appeal portal with precise evidence and timestamps. Note: <em>RWT appeals rarely succeed</em>.</li>
                                 <li><strong>Hygiene:</strong> Secure your accounts (Microsoft/Mojang, Discord). Remove any automation or RWT tools.</li>
-                                <li><strong>Start Clean:</strong> If unbanned, delete risky tools; stick to Coflnet’s compliant ecosystem. If not, consider a fresh start—and stay legit.</li>
+                                <li><strong>Start Clean:</strong> If unbanned, delete risky tools; stick to SkyCofl’s compliant ecosystem. If not, consider a fresh start—and stay legit.</li>
                             </ol>
 
                             <hr />
                             <CardText>
-                                <strong>Bottom line:</strong> Buying coins is a fast track to a ban. <strong>Premium-assisted manual flipping</strong> with Coflnet is safer, cheaper, and proven—our users have already earned <strong>1,000,000,000,000+</strong> coins, and <strong>80% of flippers</strong> rely on our tools. Get started with <Link href="/premiumBazaar">Premium Bazaar</Link>, <Link href="/bazaar">Bazaar Flips</Link>, and <Link href="/flipper">AH Flipper</Link>—then track your success with <Link href="/wiki/docs/mod-commands#profitcommand">/cofl profit</Link>.
+                                <strong>Bottom line:</strong> Buying coins is a fast track to a ban. <strong>Premium-assisted manual flipping</strong> with SkyCofl is safer, cheaper, and proven—our users have already earned <strong>1,000,000,000,000+</strong> coins, and <strong>80% of flippers</strong> rely on our tools. Get started with <Link href="/premiumBazaar">Premium Bazaar</Link>, <Link href="/bazaar">Bazaar Flips</Link>, and <Link href="/flipper">AH Flipper</Link>—then track your success with <Link href="/wiki/docs/mod-commands#profitcommand">/cofl profit</Link>.
                             </CardText>
                             <Link href="/guides" passHref>
                                 Back to Guides

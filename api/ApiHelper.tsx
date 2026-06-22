@@ -124,7 +124,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
                 type: RequestType.SEARCH,
-                data: searchText,
+                data: '',
+                customRequestURL: `${getApiEndpoint()}/search/${encodeURIComponent(searchText)}`,
                 resolve: (items: any) => {
                     resolve(
                         !items
@@ -567,6 +568,27 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                                 resolve()
                             })
                             .catch(e => {
+                                let errorMessage = typeof e === 'string' ? e : e?.message || ''
+                                if (errorMessage.includes('subscription_limit_reached')) {
+                                    toast.error(
+                                        <span>
+                                            You have reached the free subscription limit.{' '}
+                                            <a
+                                                href="/premium"
+                                                style={{ color: 'inherit', textDecoration: 'underline', fontWeight: 'bold' }}
+                                                onClick={() => {
+                                                    window.location.href = '/premium'
+                                                }}
+                                            >
+                                                Upgrade to Starter Premium
+                                            </a>{' '}
+                                            for under 2€/month to unlock more notifiers.
+                                        </span>,
+                                        { autoClose: 15000 }
+                                    )
+                                    reject(e)
+                                    return
+                                }
                                 apiErrorHandler(RequestType.SUBSCRIBE, e)
                                 reject(e)
                             })
@@ -2524,6 +2546,27 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                         resolve(data)
                     },
                     reject: (error: any) => {
+                        let errorMessage = typeof error === 'string' ? error : error?.message || ''
+                        if (errorMessage.includes('subscription_limit_reached')) {
+                            toast.error(
+                                <span>
+                                    You have reached the free subscription limit.{' '}
+                                    <a
+                                        href="/premium"
+                                        style={{ color: 'inherit', textDecoration: 'underline', fontWeight: 'bold' }}
+                                        onClick={() => {
+                                            window.location.href = '/premium'
+                                        }}
+                                    >
+                                        Upgrade to Starter Premium
+                                    </a>{' '}
+                                    for under 2€/month to unlock more notifiers.
+                                </span>,
+                                { autoClose: 15000 }
+                            )
+                            reject(error)
+                            return
+                        }
                         apiErrorHandler(RequestType.ADD_NOTIFICATION_SUBSCRIPTION, error)
                         reject(error)
                     }

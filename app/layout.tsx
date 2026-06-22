@@ -8,6 +8,7 @@ import { MainApp } from '../components/MainApp/MainApp'
 import AdScriptLoader from '../components/AdScriptLoader'
 import ConsentButton from '../components/ConsentButton'
 import NitroCMPEnhancer from '../components/NitroCMPEnhancer'
+import properties from '../properties'
 
 function RootLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -27,8 +28,12 @@ function RootLayout({ children }: { children: React.ReactNode }) {
                         <AdScriptLoader />
                     </Providers>
                 </div>
-                <ConsentButton />
-                <NitroCMPEnhancer />
+                {!properties.isTestRunner ? (
+                    <>
+                        <ConsentButton />
+                        <NitroCMPEnhancer />
+                    </>
+                ) : null}
             </body>
         </html>
     )

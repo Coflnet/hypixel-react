@@ -11,6 +11,7 @@ import { getURLSearchParam } from '../../../utils/Parser/URLParser'
 import { BAZAAR_GRAPH_LEGEND_SELECTION, BAZAAR_GRAPH_TYPE } from '../../../utils/SettingsUtils'
 import { isClientSideRendering } from '../../../utils/SSRUtils'
 import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
+import { getValidatedRange } from '../../../hooks/useValidRange'
 import Number from '../../Number/Number'
 import RelatedItems from '../../RelatedItems/RelatedItems'
 import ShareButton from '../../ShareButton/ShareButton'
@@ -92,7 +93,7 @@ function BazaarPriceGraph(props: Props) {
     }, [graphType])
 
     function init() {
-        fetchspan = (getURLSearchParam('range') as DateRange) || DEFAULT_DATE_RANGE
+        fetchspan = getValidatedRange(getURLSearchParam('range'))
         setFetchspan(fetchspan)
 
         graphType = (localStorage.getItem(BAZAAR_GRAPH_TYPE) as GRAPH_TYPE) || DEFAULT_GRAPH_TYPE
@@ -154,6 +155,13 @@ function BazaarPriceGraph(props: Props) {
         }
     }
 
+    function setSeriesType(chartOptions, seriesName: string, type: string) {
+        let series = chartOptions.series.find(series => series.name === seriesName)
+        if (series) {
+            series.type = type
+        }
+    }
+
     function checkForSpecialFetchspanConfiguration() {
         if (fetchspan === DateRange.HOUR) {
             chartOptionsPrimary.legend.data = chartOptionsPrimary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
@@ -173,8 +181,8 @@ function BazaarPriceGraph(props: Props) {
                 }
             })
         } else {
-            chartOptionsPrimary.series[0].type = 'k'
-            chartOptionsSecondary.series[0].type = 'k'
+            setSeriesType(chartOptionsPrimary, graphType === GRAPH_TYPE.SINGLE ? 'Price (buy)' : 'Price', 'k')
+            setSeriesType(chartOptionsSecondary, 'Price', 'k')
 
             chartOptionsPrimary.series.forEach(s => {
                 s.tooltip.show = true
@@ -185,7 +193,7 @@ function BazaarPriceGraph(props: Props) {
 
             if (graphType === GRAPH_TYPE.SINGLE) {
                 chartOptionsPrimary.legend.data = getPriceGraphConfigSingle().legend.data
-                chartOptionsPrimary.series[3].type = 'k'
+                setSeriesType(chartOptionsPrimary, 'Price (sell)', 'k')
             } else {
                 chartOptionsPrimary.legend.data = getPriceGraphConfigSplit().legend.data
             }
@@ -200,6 +208,10 @@ function BazaarPriceGraph(props: Props) {
     function loadBazaarPrices(tag: string, fetchspan: DateRange): Promise<BazaarPrice[]> {
         if (fetchspan === DateRange.ALL) {
             return api.getBazaarPricesByRange(tag, new Date(0), new Date())
+        } else if (fetchspan === DateRange.MONTH) {
+            let monthAgo = new Date()
+            monthAgo.setMonth(monthAgo.getMonth() - 1)
+            return api.getBazaarPricesByRange(tag, monthAgo, new Date())
         } else {
             return api.getBazaarPrices(tag, fetchspan as any)
         }
@@ -375,7 +387,7 @@ function BazaarPriceGraph(props: Props) {
         <div>
             <Suspense>
                 <ItemPriceRange
-                    dateRangesToDisplay={[DateRange.HOUR, DateRange.DAY, DateRange.WEEK, DateRange.ALL]}
+                    dateRangesToDisplay={[DateRange.HOUR, DateRange.DAY, DateRange.WEEK, DateRange.MONTH, DateRange.ALL]}
                     onRangeChange={onRangeChange}
                     disableAllTime={false}
                     item={props.item}

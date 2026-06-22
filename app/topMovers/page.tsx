@@ -3,17 +3,20 @@ import NavBar from '../../components/NavBar/NavBar'
 import TopMovers from '../../components/TopMovers'
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
+import { ToolLandingSeo } from '../../components/Seo/ToolLandingSeo'
+import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoContent'
+
+const seoContent = toolLandingSeoContent.topMovers
 
 export default function Page() {
     return (
         <>
             <Container>
-                <h2>
-                    <NavBar />
-                    Top Movers
-                </h2>
+                <NavBar />
+                <h1>Top Movers</h1>
                 <hr />
                 <TopMovers />
+                <ToolLandingSeo content={seoContent} />
             </Container>
             <BottomBanner />
         </>
@@ -21,8 +24,8 @@ export default function Page() {
 }
 
 export const metadata = getHeadMetadata(
-    'Top Movers',
-    'See which Hypixel SkyBlock items moved the most in the last 24 hours and jump straight into the live market data.',
+    seoContent.metadataTitle,
+    seoContent.metadataDescription,
     undefined,
     ['skyblock', 'hypixel', 'price change', 'top movers', 'bazaar', 'auction house'],
     undefined,

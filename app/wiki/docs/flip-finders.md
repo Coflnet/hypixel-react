@@ -60,7 +60,7 @@ Machine learning-based algorithm that estimates item values based on historical 
 - **Speed**: Fast
 - **Coverage**: Varies
 
-An experimental finder that attempts to predict item values without historical references. May occasionally overvalue flips due to it calculating it the craft cost from more commonly sold attributes.
+An experimental finder that attempts to predict item values without historical references. It may occasionally overvalue flips when craft costs are inferred from more commonly sold attributes.
 
 **⚠️ Warning**: Use with caution. Test thoroughly before committing significant coins.
 
@@ -84,7 +84,11 @@ Identifies auctions that would be at least 5% more expensive to craft than the a
 
 Identifies profitable buy order → sell order opportunities in the Bazaar. Different market dynamics than auction house flips.
 
+On current AFv3 setups the Bazaar finder is also **continuous**: if the Bazaar finder is enabled, recommendations are distributed automatically and `/cofl getbazaarflips` only confirms that the finder is already on.
+
 **Best For**: Bazaar traders, quick turnarounds, stable profit margins, extra flip slots when auction house is full
+
+**Recent Changes**: See the [March 2026 updates](https://sky.coflnet.com/updates/2026/3) and [April 2026 updates](https://sky.coflnet.com/updates/2026/4) devlogs for the switch to continuous Bazaar distribution and the broader Bazaar-finder rollout.
 
 ## Sunset/Deprecated Finders
 
@@ -140,13 +144,13 @@ All Active Finders = Maximum coverage
 ### For Beginners
 1. Start with **Sniper** + **Sniper Median** - they are the fastest and most reliable for obvious deals
 2. Add **Flipper** for more complex items - slower but catches modded items
-4. Monitor your profit ratio - not all flips are created equal
+3. Monitor your profit ratio - not all flips are created equal
 
 ### For Experienced Players
 1. Use **User/Whitelist** to exploit niche markets
-3. Build your own valuations with **CraftCost** finder plus craft cost weight whitelist filter
-4. Try **Bazaar** if auction house margins narrow
-5. Experiment with **AI** and **Stonks** for emerging trends
+2. Build your own valuations with **CraftCost** finder plus craft cost weight whitelist filter
+3. Try **Bazaar** if auction house margins narrow
+4. Experiment with **AI** and **Stonks** for emerging trends
 
 ### Finder Selection Strategy
 - **High Speed Required**: Sniper, Sniper Median, Bazaar

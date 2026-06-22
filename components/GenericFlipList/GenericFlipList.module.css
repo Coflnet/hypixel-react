@@ -80,7 +80,39 @@
     width: calc(20% - 10px);
 }
 
+.filterControls {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 12px;
+    align-items: start;
+}
+
+@media all and (min-width: 992px) {
+    .filterControls {
+        max-width: calc(100% - 180px);
+    }
+}
+
 .filterInput {
     width: 100%;
-    margin-right: 3vh;
+    min-width: 0;
+}
+
+.customFilters {
+    grid-column: 1 / -1;
+    min-width: 260px;
+}
+
+.emptyStateContainer {
+    width: 100%;
+    min-height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 16px;
+}
+
+.emptyStateText {
+    margin: 0;
 }

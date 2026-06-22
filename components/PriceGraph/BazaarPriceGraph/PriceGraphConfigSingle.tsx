@@ -147,7 +147,7 @@ function getPriceGraphConfigSingle() {
             {
                 name: 'Max (buy)',
                 type: 'line',
-                color: '#B22222',
+                color: '#871919',
                 symbol: 'none',
                 yAxisIndex: 0,
                 animationThreshold: ANIMATION_THRESHOLD,
@@ -221,7 +221,7 @@ function getPriceGraphConfigSingle() {
             {
                 name: 'Max (sell)',
                 type: 'line',
-                color: '#B22222',
+                color: '#ea3838',
                 smooth: true,
                 symbol: 'none',
                 yAxisIndex: 0,
@@ -235,7 +235,7 @@ function getPriceGraphConfigSingle() {
             {
                 name: 'Volume (sell)',
                 type: 'line',
-                color: '#4B0082',
+                color: '#C8A2FF',
                 smooth: true,
                 symbol: 'none',
                 yAxisIndex: 1,

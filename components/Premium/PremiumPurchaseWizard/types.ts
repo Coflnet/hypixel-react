@@ -58,7 +58,7 @@ export const getDurationOptions = (tier: PremiumTier, type: PurchaseType) => {
                 ]
             case PremiumTier.PREMIUM_PLUS:
                 return [
-                    { label: '1 Week', desc: 'Weekly access', icon: '📆', value: Duration.WEEK },
+                    { label: '1-3 Weeks', desc: 'Choose 1, 2, or 3 weeks in the next step', icon: '📆', value: Duration.WEEK, badge: 'Flexible' },
                     { label: '4 Weeks', desc: 'Approximately one month', icon: '📅', value: Duration.MONTHLY, badge: 'Popular' },
                     { label: '11 Weeks', desc: 'Extended multi-week access', icon: '🔁', value: Duration.QUARTER, badge: 'Best Value' },
                     { label: '1 Day', desc: 'Daily access period', icon: '📅', value: Duration.DAY }

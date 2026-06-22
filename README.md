@@ -1,7 +1,8 @@
-This is the current frontend for https://sky.coflnet.com
+This is the current frontend for https://sky.coflnet.com.
 You can contribute by opening pull requests.
+Cluster CI builds the production image after pushes.
 
-This project uses Next.js (https://github.com/vercel/next.js)
+This project uses Next.js (https://github.com/vercel/next.js).
 
 ## Available Scripts
 

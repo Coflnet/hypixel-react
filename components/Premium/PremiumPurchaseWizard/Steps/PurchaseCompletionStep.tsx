@@ -44,8 +44,6 @@ export default function PurchaseCompletionStep({
                     selectedTier={selectedTier}
                     selectedDuration={selectedDuration}
                     initialDiscountCode={initialDiscountCode}
-                    // pass countryCode if BuyPremium ever needs VAT-aware logic
-                    // countryCode={countryCode}
                 />
             )}
         </div>

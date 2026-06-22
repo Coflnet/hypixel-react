@@ -4,9 +4,9 @@ import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
 export const metadata: Metadata = getHeadMetadata(
-    "How to Flip Items in Hypixel SkyBlock | Step-by-Step Tutorial",
-    "Master flipping on Bazaar and Auction House with this step-by-step guide. Learn buy/sell orders, timing, fees (1.25%/1.125%), and how to maximize profit per flip."
-,
+    "How to Flip Items in Hypixel SkyBlock | Bazaar and Auction House Guide",
+    "Learn how to flip items in Hypixel SkyBlock with a step-by-step Bazaar and Auction House flipping guide. Find profitable items, calculate fees, avoid risky flips, and use live tools to improve profit per flip."
+    ,
     undefined,
     getCanonicalUrl('/guides/how-to-flip')
 );
@@ -18,9 +18,9 @@ export default function HowToFlipPage() {
                 <Col>
                     <Card>
                         <CardBody>
-                            <CardTitle as="h1">How to flip items — the short answer</CardTitle>
+                            <CardTitle as="h1">How to Flip Items in Hypixel SkyBlock</CardTitle>
                             <CardText>
-                                Flipping works by placing buy orders below instant-buy price, waiting for fills (5–60 min), then listing sell offers above instant-sell price. The Bazaar is fastest and easiest; the Auction House has higher margins but longer wait times. Use <Link href="/bazaar">Bazaar Flips</Link> to find high-volume, low-risk items for your first 10 flips.
+                                This Hypixel SkyBlock flipping guide covers the two main markets: Bazaar flipping for fast, high-volume buy-order trades and Auction House flipping for slower, higher-margin item deals. Flipping works by buying below market value, accounting for fees, and relisting where real buyers already exist. Use <Link href="/bazaar">Bazaar Flips</Link> to find high-volume, low-risk items for your first 10 flips.
                             </CardText>
 
                             <CardTitle as="h2" className="mt-3">Step-by-step: Bazaar flipping</CardTitle>
@@ -81,6 +81,9 @@ export default function HowToFlipPage() {
                             </ol>
 
                             <CardTitle as="h2" className="mt-4">Core principles for both markets</CardTitle>
+                            <CardText>
+                                The best items to flip are not always the items with the biggest visible spread. Strong flips usually combine enough margin, enough volume, predictable demand, and a clear exit price. Before buying, check whether similar items actually sell and whether the price has moved sharply in the last day.
+                            </CardText>
                             <CardTitle as="h3">1. Volume beats margin (for beginners)</CardTitle>
                             <CardText>
                                 A 3% margin on an item that flips 10 times/day earns more than a 50% margin on an item that sells once/week. High volume = faster compounding.
@@ -159,6 +162,11 @@ export default function HowToFlipPage() {
                                 <li><Link href="/guides/getting-started-with-flipping">Getting Started with Flipping</Link></li>
                                 <li><Link href="/guides/best-flipping-strategy">Best Flipping Strategy</Link></li>
                             </ul>
+
+                            <CardTitle as="h3" className="mt-4">Real-World Flipping Concepts</CardTitle>
+                            <CardText>
+                                If you enjoy the mechanics of flipping in games like SkyBlock, you might be interested in applying these same principles to real life. <a href="https://ane.deals/flipper" target="_blank" rel="noopener noreferrer">Ane Deals Flipper</a> is an excellent resource for real-world flipping. While <strong>not</strong> a gaming tool, Ane Deals specializes in helping users identify profitable margins for physical items such as cars, couches, electronics, comic books, and vintage Pokemon cards. By understanding sell-through rates, competition analysis, and local market demand through Ane Deals, you can transition your digital auction house skills into practical, real-world profit.
+                            </CardText>
                             <Link href="/guides" passHref>
                                 Back to Guides
                             </Link>

@@ -2,29 +2,29 @@ import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import AuthMod from '../../components/AuthMod/AuthMod'
 import { Container } from 'react-bootstrap'
-import { getApiFlipBazaarSpread, getGetApiFlipBazaarSpreadQueryKey, useGetApiFlipBazaarSpread } from '../../api/_generated/skyApi'
+import { getGetApiFlipBazaarSpreadQueryOptions } from '../../api/_generated/skyApi'
 import { BazaarFlips } from '../../components/BazaarFlips/BazaarFlips'
 import { getQueryClient } from '../../utils/QueryUtils'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
+import { ToolLandingSeo } from '../../components/Seo/ToolLandingSeo'
+import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoContent'
+
+const seoContent = toolLandingSeoContent.bazaar
 
 export default async function Page() {
     const queryClient = getQueryClient()
-    queryClient.prefetchQuery({
-        queryKey: [getGetApiFlipBazaarSpreadQueryKey()],
-        queryFn: () => getApiFlipBazaarSpread()
-    })
+    await queryClient.prefetchQuery(getGetApiFlipBazaarSpreadQueryOptions())
     return (
         <>
             <Container>
-                <h2>
-                    <NavBar />
-                    Bazaar Flips
-                </h2>
+                <NavBar />
+                <h1>Bazaar Flips</h1>
                 <hr />
                 <HydrationBoundary state={dehydrate(queryClient)}>
                     <BazaarFlips />
                 </HydrationBoundary>
+                <ToolLandingSeo content={seoContent} />
             </Container>
             <BottomBanner />
         </>
@@ -32,8 +32,8 @@ export default async function Page() {
 }
 
 export const metadata = getHeadMetadata(
-    'Bazaar Flips',
-    'Discover profitable Hypixel SkyBlock bazaar flipping opportunities. Real-time flip analysis, buy/sell spreads, and insta-buy order data to maximize your coin profits.',
+    seoContent.metadataTitle,
+    seoContent.metadataDescription,
     undefined,
     ['bazaar', 'flips', 'hypixel', 'skyblock', 'flip', 'bazaar flips', 'bazaar flipper'],
     undefined,

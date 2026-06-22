@@ -1,0 +1,17 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  container-ci:
+    uses: Coflnet/.github/.github/workflows/container-ci.yml@main
+    with:
+      k8s_file: main/sky/chart/charts/hypixel-react/values.yaml
+      repo_url: https://github.com/Coflnet/k8s
+    secrets:
+      ARGO_WEBHOOK_SECRET: ${{ secrets.ARGO_WEBHOOK_SECRET }}

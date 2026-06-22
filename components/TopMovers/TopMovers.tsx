@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useMemo } from 'react'
-import { Alert, Spinner } from 'react-bootstrap'
+import React, { useCallback, useMemo, useState } from 'react'
+import { Alert, Form, Spinner } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
-import { useGetApiPricesChange } from '../../api/_generated/skyApi'
+import { useGetApiItemsBazaarTags, useGetApiPricesChange } from '../../api/_generated/skyApi'
 import { DropStatistic } from '../../api/_generated/skyApi.schemas'
 import NumberElement from '../Number/Number'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
@@ -14,7 +14,9 @@ interface TopMoverEntry {
     stats: DropStatistic
     displayName: string
     change24h: number | null
+    change24hPercent: number | null
     change30d: number | null
+    isBazaar: boolean | null
 }
 
 const SORT_OPTIONS: SortOption<TopMoverEntry>[] = [
@@ -32,6 +34,23 @@ const SORT_OPTIONS: SortOption<TopMoverEntry>[] = [
         label: 'Biggest drop (24h)',
         value: 'recentDrop',
         sortFunction: items => items.sort((a, b) => (a.change24h ?? Number.POSITIVE_INFINITY) - (b.change24h ?? Number.POSITIVE_INFINITY))
+    },
+    {
+        label: 'Largest 24h move (%)',
+        value: 'absRecentPercent',
+        sortFunction: items => items.sort((a, b) => Math.abs(b.change24hPercent ?? 0) - Math.abs(a.change24hPercent ?? 0))
+    },
+    {
+        label: 'Biggest gain (24h %)',
+        value: 'recentGainPercent',
+        sortFunction: items =>
+            items.sort((a, b) => (b.change24hPercent ?? Number.NEGATIVE_INFINITY) - (a.change24hPercent ?? Number.NEGATIVE_INFINITY))
+    },
+    {
+        label: 'Biggest drop (24h %)',
+        value: 'recentDropPercent',
+        sortFunction: items =>
+            items.sort((a, b) => (a.change24hPercent ?? Number.POSITIVE_INFINITY) - (b.change24hPercent ?? Number.POSITIVE_INFINITY))
     },
     {
         label: 'Highest volume',
@@ -85,6 +104,17 @@ function calculateDelta(current?: number | null, previous?: number | null): numb
         return null
     }
     return current - previous
+}
+
+function calculatePercentChange(current?: number | null, previous?: number | null): number | null {
+    if (current === null || current === undefined || previous === null || previous === undefined || previous === 0) {
+        return null
+    }
+    if (Number.isNaN(current) || Number.isNaN(previous)) {
+        return null
+    }
+
+    return ((current - previous) / previous) * 100
 }
 
 function getShortNumberDecimals(value: number): number {
@@ -149,6 +179,21 @@ function renderChange(delta?: number | null) {
     )
 }
 
+function renderPercentChange(delta?: number | null) {
+    if (delta === null || delta === undefined || Number.isNaN(delta)) {
+        return <span>Unknown</span>
+    }
+
+    if (delta === 0) {
+        return <span>0%</span>
+    }
+
+    const color = delta > 0 ? '#55ff55' : delta < 0 ? '#ff5555' : undefined
+    const sign = delta > 0 ? '+' : ''
+
+    return <span style={{ color }}>{sign}{delta.toFixed(2)}%</span>
+}
+
 function renderCoins(value?: number | null) {
     if (value === null || value === undefined || Number.isNaN(value)) {
         return <span>Unknown</span>
@@ -170,14 +215,32 @@ function renderVolume(value?: number | null) {
 }
 
 export function TopMovers() {
+    const [showIncreasing, setShowIncreasing] = useState(true)
+    const [showDecreasing, setShowDecreasing] = useState(true)
+    const [showBazaar, setShowBazaar] = useState(true)
+    const [showNonBazaar, setShowNonBazaar] = useState(true)
+
     const { data, isLoading, isError, error } = useGetApiPricesChange(undefined, {
         query: {
             refetchInterval: 60 * 1000,
             staleTime: 60 * 1000
         }
     })
+    const { data: bazaarTagsData } = useGetApiItemsBazaarTags({
+        query: {
+            staleTime: 60 * 60 * 1000,
+            refetchInterval: 60 * 60 * 1000
+        }
+    })
 
     const apiStatus = data?.status ?? null
+    const bazaarTagSet = useMemo(() => {
+        if (!bazaarTagsData?.data) {
+            return null
+        }
+
+        return new Set(bazaarTagsData.data)
+    }, [bazaarTagsData])
 
     const movers = useMemo<TopMoverEntry[]>(() => {
         if (!data || data.status !== 200 || !data.data) {
@@ -188,17 +251,20 @@ export function TopMovers() {
             .map(([tag, stats]) => {
                 const displayName = convertTagToName(stats?.tag ?? tag)
                 const change24h = calculateDelta(stats?.now, stats?.recent)
+                const change24hPercent = calculatePercentChange(stats?.now, stats?.recent)
                 const change30d = calculateDelta(stats?.now, stats?.monthly)
                 return {
                     tag,
                     stats,
                     displayName,
                     change24h,
-                    change30d
+                    change24hPercent,
+                    change30d,
+                    isBazaar: bazaarTagSet ? bazaarTagSet.has(tag) : null
                 }
             })
             .filter(entry => entry.stats && entry.change24h !== null)
-    }, [data])
+    }, [bazaarTagSet, data])
 
     const lastUpdatedText = useMemo(() => {
         if (movers.length === 0) {
@@ -245,10 +311,17 @@ export function TopMovers() {
                     <span style={{ width: '200px', float: 'left' }}>24h price change:</span> {renderChange(entry.change24h)}
                 </p>
                 <p>
+                    <span style={{ width: '200px', float: 'left' }}>24h price change %:</span> {renderPercentChange(entry.change24hPercent)}
+                </p>
+                <p>
                     <span style={{ width: '200px', float: 'left' }}>30d price change:</span> {renderChange(entry.change30d)}
                 </p>
                 <p>
                     <span style={{ width: '200px', float: 'left' }}>Current price:</span> {renderCoins(entry.stats.now)}
+                </p>
+                <p>
+                    <span style={{ width: '200px', float: 'left' }}>Market:</span>{' '}
+                    <span>{entry.isBazaar === null ? 'Unknown' : entry.isBazaar ? 'Bazaar' : 'Auction House'}</span>
                 </p>
                 <p>
                     <span style={{ width: '200px', float: 'left' }}>24h traded volume:</span> {renderVolume(entry.stats.volume)}
@@ -261,12 +334,63 @@ export function TopMovers() {
         )
     }
 
-    function filterFunction(entry: TopMoverEntry, nameFilter: string | null | undefined, minimumChange: number) {
+    const filterFunction = useCallback((entry: TopMoverEntry, nameFilter: string | null | undefined, minimumChange: number) => {
         const normalizedMinimum = Number(minimumChange) || 0
         const matchesName = !nameFilter || `${entry.displayName} ${entry.tag}`.toLowerCase().includes(nameFilter.toLowerCase())
         const matchesChange = Math.abs(entry.change24h ?? 0) >= normalizedMinimum
-        return matchesName && matchesChange
-    }
+        const matchesDirection =
+            (showIncreasing && (entry.change24h ?? 0) >= 0) ||
+            (showDecreasing && (entry.change24h ?? 0) <= 0)
+
+        const matchesMarket =
+            entry.isBazaar === null ||
+            (showBazaar && entry.isBazaar) ||
+            (showNonBazaar && !entry.isBazaar)
+
+        return matchesName && matchesChange && matchesDirection && matchesMarket
+    }, [showBazaar, showDecreasing, showIncreasing, showNonBazaar])
+
+    const customFilters = useMemo(
+        () => (
+            <div className="d-flex flex-wrap align-items-center gap-3">
+                <div className="d-flex flex-wrap align-items-center gap-2">
+                    <span>Trend:</span>
+                    <Form.Check
+                        checked={showIncreasing}
+                        id="top-movers-increasing"
+                        label="Increasing"
+                        onChange={event => setShowIncreasing(event.target.checked)}
+                        type="checkbox"
+                    />
+                    <Form.Check
+                        checked={showDecreasing}
+                        id="top-movers-decreasing"
+                        label="Decreasing"
+                        onChange={event => setShowDecreasing(event.target.checked)}
+                        type="checkbox"
+                    />
+                </div>
+                <div className="d-flex flex-wrap align-items-center gap-2">
+                    <span>Market:</span>
+                    <Form.Check
+                        checked={showBazaar}
+                        id="top-movers-bazaar"
+                        label="Bazaar"
+                        onChange={event => setShowBazaar(event.target.checked)}
+                        type="checkbox"
+                    />
+                    <Form.Check
+                        checked={showNonBazaar}
+                        id="top-movers-non-bazaar"
+                        label="Non-bazaar"
+                        onChange={event => setShowNonBazaar(event.target.checked)}
+                        type="checkbox"
+                    />
+                </div>
+            </div>
+        ),
+        [showBazaar, showDecreasing, showIncreasing, showNonBazaar]
+    )
 
     function getFlipLink(entry: TopMoverEntry) {
         return entry.tag ? `https://sky.coflnet.com/item/${entry.tag}` : undefined
@@ -288,7 +412,9 @@ export function TopMovers() {
             displayName: '§6You cheated the blur ☺',
             stats: fakeStats,
             change24h: calculateDelta(fakeStats.now, fakeStats.recent),
-            change30d: calculateDelta(fakeStats.now, fakeStats.monthly)
+            change24hPercent: calculatePercentChange(fakeStats.now, fakeStats.recent),
+            change30d: calculateDelta(fakeStats.now, fakeStats.monthly),
+            isBazaar: false
         }
     }
     return (
@@ -317,6 +443,7 @@ export function TopMovers() {
                     items={movers}
                     sortOptions={SORT_OPTIONS}
                     renderFlipContentAction={renderFlipContent}
+                    customFilters={customFilters}
                     filterFunction={filterFunction}
                     getItemKeyAction={entry => entry.tag}
                     censoredItemGenerator={censoredItemGenerator}

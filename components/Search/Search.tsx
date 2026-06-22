@@ -49,6 +49,7 @@ interface Props {
 
 const PLAYER_SEARCH_CONEXT_MENU_ID = 'player-search-context-menu'
 const SEARCH_RESULT_CONTEXT_MENU_ID = 'search-result-context-menu'
+const SEARCH_DEBOUNCE_MS = 150
 
 function Search(props: Props) {
     let router = useRouter()
@@ -73,9 +74,19 @@ function Search(props: Props) {
     const inputId = props.hideNavbar ? searchId.current : 'search-bar'
 
     let rememberEnterPressRef = useRef(false)
+    const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     let searchElement = useRef(null)
     let forceUpdate = useForceUpdate()
+
+    const getCurrentSearchValue = () => {
+        if (searchElement.current === null) {
+            return searchText
+        }
+
+        const input = (searchElement.current as HTMLDivElement).querySelector(`#${inputId}`) as HTMLInputElement | null
+        return input?.value ?? searchText
+    }
 
     useEffect(() => {
         if (isClientSideRendering()) {
@@ -84,23 +95,29 @@ function Search(props: Props) {
         document.addEventListener('click', outsideClickHandler, true)
         return () => {
             document.removeEventListener('click', outsideClickHandler, true)
+            if (searchTimeoutRef.current) {
+                clearTimeout(searchTimeoutRef.current)
+            }
         }
     }, [])
 
     useEffect(() => {
         setSearchText('')
         setResults([])
+        setIsSearching(false)
+        setNoResultsFound(false)
+        rememberEnterPressRef.current = false
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current)
+            searchTimeoutRef.current = null
+        }
     }, [props.selected])
 
-    let search = () => {
-        let searchFor = searchText
+    let search = (searchFor: string) => {
         let searchFunction = props.searchFunction || api.search
         searchFunction(searchFor).then(searchResults => {
             // has the searchtext changed?
-            if (
-                searchElement.current !== null &&
-                searchFor === ((searchElement.current as HTMLDivElement).querySelector(`#${inputId}`) as HTMLInputElement).value
-            ) {
+            if (searchFor === getCurrentSearchValue()) {
                 let searchResultsToShow = [...searchResults]
                 if (!props.preventDisplayOfPreviousSearches) {
                     searchResultsToShow = addPreviousSearchResultsToDisplay(searchFor, searchResults, props.keyForPinnedItems)
@@ -116,23 +133,38 @@ function Search(props: Props) {
                     rememberEnterPressRef.current = false
                 }
             }
+        }).catch(() => {
+            if (searchFor === getCurrentSearchValue()) {
+                setResults([])
+                setIsSearching(false)
+                rememberEnterPressRef.current = false
+            }
         })
     }
 
     let onSearchChange = (e: ChangeEvent) => {
         let newSearchText: string = (e.target as HTMLInputElement).value
-        searchText = newSearchText
         setSearchText(newSearchText)
-        setIsSearching(true)
+
+        if (searchTimeoutRef.current) {
+            clearTimeout(searchTimeoutRef.current)
+            searchTimeoutRef.current = null
+        }
 
         if (newSearchText === '') {
             setResults([])
             setIsSearching(false)
+            setNoResultsFound(false)
+            rememberEnterPressRef.current = false
             return
         }
 
         setNoResultsFound(false)
-        search()
+        setIsSearching(true)
+        searchTimeoutRef.current = setTimeout(() => {
+            searchTimeoutRef.current = null
+            search(newSearchText)
+        }, SEARCH_DEBOUNCE_MS)
     }
 
     function outsideClickHandler(evt) {
@@ -153,11 +185,26 @@ function Search(props: Props) {
         switch (e.key) {
             case 'Enter':
                 e.preventDefault()
+                const currentSearchValue = getCurrentSearchValue().trim()
+                if (currentSearchValue.length === 0) {
+                    return
+                }
+                if (searchTimeoutRef.current) {
+                    clearTimeout(searchTimeoutRef.current)
+                    searchTimeoutRef.current = null
+                    rememberEnterPressRef.current = true
+                    setIsSearching(true)
+                    search(currentSearchValue)
+                    return
+                }
                 if (isSearching) {
                     rememberEnterPressRef.current = true
                     return
                 }
                 if (!results || results.length === 0) {
+                    rememberEnterPressRef.current = true
+                    setIsSearching(true)
+                    search(currentSearchValue)
                     return
                 }
                 onItemClick(results[selectedIndex])
