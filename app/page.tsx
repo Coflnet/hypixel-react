@@ -1,4 +1,3 @@
-import React from 'react'
 import StartpageComponent from '../components/Startpage/Startpage'
 import Search from '../components/Search/Search'
 import { getHeadMetadata, getCanonicalUrl } from '../utils/SSRUtils'

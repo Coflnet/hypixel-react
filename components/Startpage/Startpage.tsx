@@ -50,6 +50,11 @@ function Startpage(props: Props) {
             const year = now.getFullYear()
             const month = now.getMonth() + 1
             const res = await getApiDataUpdatesYearMonth(year, month)
+            if (res.status >= 400) {
+                throw new Error(`API returned status ${res.status}`, {
+                    cause: JSON.stringify(res)
+                })
+            }
             const messages = res?.data || []
             if (messages.length > 0) {
                 setRecentUpdate(messages[messages.length - 1])
@@ -132,7 +137,7 @@ function Startpage(props: Props) {
     }
 
     const now = new Date()
-    const discountEnd = new Date('2026-04-15T00:00:00.000Z'); 
+    const discountEnd = new Date('2026-04-15T00:00:00.000Z');
     const showChristmasBanner = now <= discountEnd
     const discountCode = showChristmasBanner ? 'EASTER' : null
     const discountAmount = "20%"
@@ -286,26 +291,26 @@ function Startpage(props: Props) {
 
             {/* News Section — hidden if API is unavailable */}
             {!updatesFailed && (
-            <Card className={styles.startpageCard} style={{ marginBottom: '30px', borderLeft: '5px solid #007bff' }}>
-                <Card.Header style={{ borderBottom: '1px solid #495057' }}>
-                    <Card.Title style={{ margin: 0, display: 'flex', alignItems: 'center', color: '#f8f9fa' }}>
-                        <NewIcon style={{ marginRight: '10px', color: '#73b7ffff' }} /> Latest News
-                    </Card.Title>
-                </Card.Header>
-                <Card.Body style={{ color: '#e9ecef' }}>
-                    {recentUpdate ? (
-                        <div style={{ marginBottom: '15px' }}>
-                            <div
-                                className={styles.markdownContent}
-                                dangerouslySetInnerHTML={{ __html: mdRenderer.render(recentUpdate.content) }}
-                            />
-                        </div>
-                    ) : <p>Check out what's new this month!</p>}
-                    <Link href={`/updates/${new Date().getFullYear()}/${new Date().getMonth() + 1}`} className="btn btn-primary btn-sm">
-                        View News from {moment().format('MMMM YYYY')}
-                    </Link>
-                </Card.Body>
-            </Card>
+                <Card className={styles.startpageCard} style={{ marginBottom: '30px', borderLeft: '5px solid #007bff' }}>
+                    <Card.Header style={{ borderBottom: '1px solid #495057' }}>
+                        <Card.Title style={{ margin: 0, display: 'flex', alignItems: 'center', color: '#f8f9fa' }}>
+                            <NewIcon style={{ marginRight: '10px', color: '#73b7ffff' }} /> Latest News
+                        </Card.Title>
+                    </Card.Header>
+                    <Card.Body style={{ color: '#e9ecef' }}>
+                        {recentUpdate ? (
+                            <div style={{ marginBottom: '15px' }}>
+                                <div
+                                    className={styles.markdownContent}
+                                    dangerouslySetInnerHTML={{ __html: mdRenderer.render(recentUpdate.content) }}
+                                />
+                            </div>
+                        ) : <p>Check out what's new this month!</p>}
+                        <Link href={`/updates/${new Date().getFullYear()}/${new Date().getMonth() + 1}`} className="btn btn-primary btn-sm">
+                            View News from {moment().format('MMMM YYYY')}
+                        </Link>
+                    </Card.Body>
+                </Card>
             )}
 
             {/* Flip Features */}
