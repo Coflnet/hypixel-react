@@ -1,0 +1,105 @@
+.container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 2rem auto;
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: #f0f0f0;
+}
+
+.container h1 {
+    text-align: center;
+    color: #00aaff;
+    margin-bottom: 1rem;
+}
+
+.container h2 {
+    text-align: center;
+    color: #00aaff;
+    margin-bottom: 2rem;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+}
+
+.table th, .table td {
+    border: 1px solid #333;
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.table th {
+    background-color: #003366;
+    color: #ffffff;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.table tr:nth-child(even) {
+    background-color: #2a2a2a;
+}
+
+.table tr:hover {
+    background-color: #3a3a3a;
+}
+
+.yearLinks {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.yearLinks a {
+    text-decoration: none;
+    color: #f0f0f0;
+    background-color: #0055a4;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.yearLinks a:hover {
+    background-color: #0077cc;
+    text-decoration: none;
+}
+
+.customAccordion {
+    --bs-accordion-bg: #1a1a1a;
+    --bs-accordion-color: #f0f0f0;
+    --bs-accordion-border-color: #333;
+    --bs-accordion-active-bg: #222;
+    --bs-accordion-active-color: #00aaff;
+    --bs-accordion-btn-focus-box-shadow: none;
+}
+
+.customAccordion :global(.accordion-button) {
+    font-weight: 500;
+}
+
+.customAccordion :global(.accordion-button:not(.collapsed)::after) {
+    filter: invert(1);
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 1rem;
+    }
+
+    .table th, .table td {
+        padding: 8px;
+    }
+
+    .yearLinks {
+        gap: 0.5rem;
+    }
+
+    .yearLinks a {
+        padding: 0.4rem 0.8rem;
+    }
+}
