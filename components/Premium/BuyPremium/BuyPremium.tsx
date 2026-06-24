@@ -146,6 +146,10 @@ function BuyPremium(props: Props) {
             setIsPurchasing(false)
             toast.success('Purchase successful')
             props.onNewActivePremiumProduct()
+        }).catch(err => {
+            console.error('Error purchasing premium:', err)
+            setIsPurchasing(false)
+            toast.error('Purchase failed. Please try again later.')
         })
     }
 
