@@ -234,6 +234,7 @@ function FilterElement(props: Props) {
                             {props.options.name[0].toLowerCase() === props.options.name[0]
                                 ? convertTagToName(props.options.name)
                                 : camelCaseToSentenceCase(props.options.name)}
+                            {props.options.name === 'Skin' || props.options.name === 'PetSkin' ? ' (applied)' : ''}
                         </b>
                         {props.options.description ? (
                             <Tooltip
