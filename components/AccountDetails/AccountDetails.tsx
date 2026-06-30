@@ -173,7 +173,22 @@ function AccountDetails() {
                         hasLoadingError={hasLoadingPremiumError}
                     />
                     <p>
-                        <span className={styles.label}>CoflCoins:</span> <Number number={coflCoins} />
+                        <span className={styles.label}>CoflCoins:</span>{' '}
+                        {coflCoins === -1 ? (
+                            <Tooltip
+                                type="hover"
+                                content={<span style={{ color: 'red' }}>Failed to load</span>}
+                                tooltipContent={
+                                    <span>
+                                        The CoflCoins amount could currently not be loaded. If this keeps happening for a while, a system may be
+                                        down &ndash; please reach out to support. Don't worry: your coins are stored 3x replicated so none are lost,
+                                        and the balance should be available again soon.
+                                    </span>
+                                }
+                            />
+                        ) : (
+                            <Number number={coflCoins} />
+                        )}
                         <Button
                             className={styles.sendCoflCoinsButton}
                             onClick={() => {
