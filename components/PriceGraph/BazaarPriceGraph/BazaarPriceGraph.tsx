@@ -326,7 +326,6 @@ function BazaarPriceGraph(props: Props) {
                 chartOptionsPrimary.series[7].data.push(item.sellData.max?.toFixed(2))
                 chartOptionsPrimary.series[8].data.push(item.sellData.volume?.toFixed(2))
                 chartOptionsPrimary.series[9].data.push(item.sellData.moving?.toFixed(2))
-                applyMayorDataToChart(chartOptionsPrimary, mayorData, 10)
             } else {
                 chartOptionsPrimary.series[1].data.push(item.buyData.min?.toFixed(2))
                 chartOptionsPrimary.series[2].data.push(item.buyData.max?.toFixed(2))
@@ -347,10 +346,15 @@ function BazaarPriceGraph(props: Props) {
                 chartOptionsSecondary.series[2].data.push(item.sellData.max?.toFixed(2))
                 chartOptionsSecondary.series[3].data.push(item.sellData.volume?.toFixed(2))
                 chartOptionsSecondary.series[4].data.push(item.sellData.moving?.toFixed(2))
-                applyMayorDataToChart(chartOptionsPrimary, mayorData, 5)
-                applyMayorDataToChart(chartOptionsSecondary, mayorData, 5)
             }
         })
+
+        if (graphType === GRAPH_TYPE.SINGLE) {
+            applyMayorDataToChart(chartOptionsPrimary, mayorData, 10)
+        } else {
+            applyMayorDataToChart(chartOptionsPrimary, mayorData, 5)
+            applyMayorDataToChart(chartOptionsSecondary, mayorData, 5)
+        }
 
         setChartOptionsPrimary(chartOptionsPrimary)
         setChartOptionsSecondary(chartOptionsSecondary)

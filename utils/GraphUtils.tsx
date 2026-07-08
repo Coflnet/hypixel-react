@@ -2,12 +2,24 @@ export function applyMayorDataToChart(chartOptions, mayorData: MayorData[], seri
     let minDate = new Date(chartOptions.xAxis[0].data[0])
     let maxDate = new Date(chartOptions.xAxis[0].data[chartOptions.xAxis[0].data.length - 1])
 
-    let mayorDataCopy = [...mayorData].map((data, i) => {
+    // Sort chronologically and toggle the color only when the mayor actually changes,
+    // so consecutive terms won by the same mayor keep the same shade and the shading
+    // reliably alternates from one mayor to the next (array order/duplicates aren't guaranteed).
+    let sortedMayorData = [...mayorData].sort((a, b) => a.start.getTime() - b.start.getTime())
+
+    let colorIndex = -1
+    let previousWinnerKey: string | undefined
+    let mayorDataCopy = sortedMayorData.map(data => {
+        let winnerKey = data.winner?.key || data.winner?.name
+        if (winnerKey !== previousWinnerKey) {
+            colorIndex++
+            previousWinnerKey = winnerKey
+        }
         return {
             ...data,
             startPercentage: calculateDatePercentage(minDate, maxDate, data.start) * 100,
             endPercentage: calculateDatePercentage(minDate, maxDate, data.end) * 100,
-            color: i % 2 === 0 ? 'RGBA(123, 125, 125, 0.3)' : 'RGBA(31, 97, 141, 0.3)'
+            color: colorIndex % 2 === 0 ? 'RGBA(123, 125, 125, 0.3)' : 'RGBA(31, 97, 141, 0.3)'
         }
     })
 
