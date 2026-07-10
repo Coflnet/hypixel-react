@@ -27,6 +27,7 @@ export enum RequestType {
     RECENT_AUCTIONS = 'recentAuctions',
     SUBSCRIBE_FLIPS = 'subFlip',
     UNSUBSCRIBE_FLIPS = 'unsubFlip',
+    SUBSCRIBE_UPDATES = 'subUpdates',
     GET_FLIPS = 'getFlips',
     GET_FILTER = 'getFilter',
     NEW_AUCTIONS = 'newAuctions',

@@ -971,6 +971,76 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    /**
+     * Subscribes to live updates for a single auction. Whenever a new bid is placed on it, the backend
+     * resends the full auction state and `onUpdate` is called with the freshly parsed details.
+     * Only one live-update subscription (auction or sold) can be active per connection; this replaces any previous one.
+     */
+    let subscribeAuctionUpdates = (auctionUUID: string, onUpdate: (auctionDetails: AuctionDetails) => void, onErrorCallback?: Function): void => {
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_UPDATES)
+        websocketHelper.subscribe({
+            type: RequestType.SUBSCRIBE_UPDATES,
+            data: { topic: `auction/${auctionUUID}` },
+            callback: function (response) {
+                if (response.type === 'auctionUpdate') {
+                    onUpdate(parseAuctionDetails(response.data))
+                }
+            },
+            resubscribe: function () {
+                subscribeAuctionUpdates(auctionUUID, onUpdate, onErrorCallback)
+            },
+            onError: function (message) {
+                if (onErrorCallback) {
+                    onErrorCallback(message)
+                }
+            }
+        })
+    }
+
+    /**
+     * Subscribes to sold auctions of a given item tag. Whenever an auction of that tag is sold and matches the
+     * given filter, `onSold` is called with the parsed recent auction.
+     * Only one live-update subscription (auction or sold) can be active per connection; this replaces any previous one.
+     */
+    let subscribeSoldAuctions = (
+        itemTag: string,
+        itemFilter: ItemFilter,
+        onSold: (auction: RecentAuction) => void,
+        onErrorCallback?: Function
+    ): void => {
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_UPDATES)
+        // strip UI-only keys before sending (mirrors the notification subscribe)
+        let filter = { ...(itemFilter || {}) } as { [key: string]: any }
+        delete filter._hide
+        delete filter._sellerName
+        websocketHelper.subscribe({
+            type: RequestType.SUBSCRIBE_UPDATES,
+            data: { topic: `sold/${itemTag}`, filter },
+            callback: function (response) {
+                if (response.type === 'soldAuction') {
+                    onSold(parseRecentAuction(response.data))
+                }
+            },
+            resubscribe: function () {
+                subscribeSoldAuctions(itemTag, itemFilter, onSold, onErrorCallback)
+            },
+            onError: function (message) {
+                if (onErrorCallback) {
+                    onErrorCallback(message)
+                }
+            }
+        })
+    }
+
+    // Stops receiving live updates. This is a local-only cleanup: it drops the subscription so its
+    // callback no longer fires and it isn't restored on reconnect. There is no backend round-trip -
+    // the backend keeps a single slot per connection that is replaced by the next subscribe and freed
+    // when the connection closes, so an explicit unsubscribe message (which could race a newer
+    // subscribe, since the backend dispatches each socket message on its own task) isn't needed.
+    let unsubscribeUpdates = (): void => {
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_UPDATES)
+    }
+
     let getFilters = (tag: string): Promise<FilterOptions[]> => {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
@@ -2875,6 +2945,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getRecentAuctions,
         getFlips,
         subscribeFlips,
+        subscribeAuctionUpdates,
+        subscribeSoldAuctions,
+        unsubscribeUpdates,
         getFilters,
         getNewPlayers,
         getNewItems,

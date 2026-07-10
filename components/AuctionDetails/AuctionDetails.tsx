@@ -56,6 +56,41 @@ function AuctionDetails(props: Props) {
         loadAuctionDetails(props.auctionUUID!)
     }, [props.auctionUUID])
 
+    // subscribe to live updates so new bids show up without a page refresh
+    useEffect(() => {
+        if (!props.auctionUUID) {
+            return
+        }
+        api.subscribeAuctionUpdates(props.auctionUUID, applyAuctionUpdate)
+        return () => {
+            api.unsubscribeUpdates()
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [props.auctionUUID])
+
+    function applyAuctionUpdate(newAuctionDetails: AuctionDetails) {
+        newAuctionDetails.bids.sort((a, b) => b.amount - a.amount)
+        newAuctionDetails.auction.item.iconUrl = api.getItemImageUrl(newAuctionDetails.auction.item)
+        setAuctionDetails(newAuctionDetails)
+
+        let namePromises: Promise<void>[] = []
+        newAuctionDetails.bids.forEach(bid => {
+            namePromises.push(
+                api.getPlayerName(bid.bidder.uuid).then(name => {
+                    bid.bidder.name = name
+                })
+            )
+        })
+        namePromises.push(
+            api.getPlayerName(newAuctionDetails.auctioneer.uuid).then(name => {
+                newAuctionDetails.auctioneer.name = name
+            })
+        )
+        Promise.all(namePromises).then(() => {
+            forceUpdate()
+        })
+    }
+
     let tryNumber = 1
     function loadAuctionDetails(auctionUUID: string) {
         // if auction details are already available, don't show loading animation to prevent flickering
