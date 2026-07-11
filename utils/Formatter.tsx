@@ -10,7 +10,35 @@ export function numberWithThousandsSeparators(number?: number, thousandSeperator
     if (!number) {
         return '0'
     }
-    return number.toLocaleString()
+    // no explicit separators: fall back to the viewer's locale (default behaviour)
+    if (thousandSeperator === undefined && decimalSeperator === undefined) {
+        return number.toLocaleString()
+    }
+    // explicit separators: group deterministically (used for SSR and the price inputs)
+    let [intPart, decPart] = Math.abs(number).toString().split('.')
+    let grouped = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, thousandSeperator ?? '')
+    let sign = number < 0 ? '-' : ''
+    return decPart !== undefined ? `${sign}${grouped}${decimalSeperator ?? '.'}${decPart}` : `${sign}${grouped}`
+}
+
+/*
+ Groups the digits of a numeric input value with spaces every three digits so big prices are
+ readable while typing. Example: "3333333" => "3 333 333". Non-digits are stripped; empty stays
+ empty (so a cleared input doesn't show "0").
+*/
+export function formatThousandsSpaced(value: string | number): string {
+    let digits = parseFormattedNumber(value.toString())
+    if (!digits) {
+        return ''
+    }
+    return numberWithThousandsSeparators(Number(digits), ' ')
+}
+
+/*
+ Strips any grouping/formatting back to a plain digit string, e.g. "3 333 333" => "3333333".
+*/
+export function parseFormattedNumber(value: string): string {
+    return value.replace(/\D/g, '')
 }
 
 /**

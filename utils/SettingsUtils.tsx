@@ -526,3 +526,4 @@ export const AUTO_REDIRECT_FROM_LINKVERTISE_EXPLANATION = 'autoRedirectFromLinkv
 export const ITEM_ICON_TYPE = 'itemIconType'
 export const ITEM_FAVORITES_KEY = 'favoriteItems'
 export const GENRIC_FLIP_LIST_COLUMNS = 'genericFlipListColumns'
+export const NOTIFIER_LAST_CHANNELS = 'notifierLastChannels'

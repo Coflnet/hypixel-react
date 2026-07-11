@@ -14,3 +14,28 @@
     background-color: #444;
     color: white;
 }
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background-color: rgba(128, 128, 128, 0.18);
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.noChannels {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 0.8rem;
+    opacity: 0.7;
+}

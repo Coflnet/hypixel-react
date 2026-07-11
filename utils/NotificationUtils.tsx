@@ -76,3 +76,36 @@ export function getNotficationWhenEnumAsString(when: NotificationWhen | number):
             return 'Never'
     }
 }
+
+// The API sends notification type/when either as string enum names or as their numeric value depending on the endpoint.
+// These helpers let callers compare against a name without caring which form they got.
+const NOTIFICATION_TYPE_NUMBERS: { [key in NotificationType]?: number } = {
+    WEBHOOK: 1,
+    DISCORD: 2,
+    DiscordWebhook: 3,
+    FIREBASE: 4,
+    EMAIL: 5,
+    InGame: 6
+}
+
+const NOTIFICATION_WHEN_NUMBERS: { [key in NotificationWhen]: number } = {
+    NEVER: 0,
+    AfterFail: 1,
+    ALWAYS: 2
+}
+
+export function isNotificationType(type: NotificationType | number | undefined, name: NotificationType): boolean {
+    return type === name || type === NOTIFICATION_TYPE_NUMBERS[name]
+}
+
+export function isNotificationWhen(when: NotificationWhen | number | undefined, name: NotificationWhen): boolean {
+    return when === name || when === NOTIFICATION_WHEN_NUMBERS[name]
+}
+
+/**
+ * Finds the target that marks in-game notifications as disabled (type InGame, when NEVER).
+ * Only one such marker is ever needed per user; it is shared across all notifiers.
+ */
+export function findInGameNeverTarget(targets: NotificationTarget[]): NotificationTarget | undefined {
+    return targets.find(t => isNotificationType(t.type, 'InGame') && isNotificationWhen(t.when, 'NEVER'))
+}

@@ -17,9 +17,8 @@ import Number from '../Number/Number'
 import SubscribeButton from '../SubscribeButton/SubscribeButton'
 import styles from './SubscriptionList.module.css'
 import NotificationTargets from '../NotificationTargets/NotificationTargets'
-import { Typeahead } from 'react-bootstrap-typeahead'
-
-import NotificationIcon from '@mui/icons-material/NotificationsOutlined'
+import ChannelChips from './ChannelChips'
+import NewNotifierButton from './NewNotifierButton'
 import WhitelistSubscribeButton from '../SubscribeButton/WhitelistSubscribeButton/WhitelistSubscribeButton'
 
 let mounted = true
@@ -27,6 +26,7 @@ let mounted = true
 function SubscriptionList() {
     let [listener, setListener] = useState<NotificationListener[]>([])
     let [subscriptions, setSubscriptions] = useState<NotificationSubscription[]>([])
+    let [allTargets, setAllTargets] = useState<NotificationTarget[]>([])
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [hasStarterPremium, setHasStarterPremium] = useState(false)
     let [showDeleteAllSubscriptionDialog, setShowDeleteAllSubscriptionDialog] = useState(false)
@@ -100,6 +100,15 @@ function SubscriptionList() {
         })
     }
 
+    function loadTargets() {
+        return api.getNotificationTargets().then(targets => {
+            if (!mounted) {
+                return
+            }
+            setAllTargets(targets)
+        })
+    }
+
     function onLogin() {
         let googleId = sessionStorage.getItem('googleId')
         if (googleId) {
@@ -113,7 +122,7 @@ function SubscriptionList() {
                     setHasStarterPremium(false)
                 }
             )
-            Promise.all([loadListener(), loadSubscriptions()]).then(() => {
+            Promise.all([loadListener(), loadSubscriptions(), loadTargets()]).then(() => {
                 setIsLoading(false)
             })
         }
@@ -255,7 +264,7 @@ function SubscriptionList() {
             setSubscriptions([])
 
             setIsLoading(true)
-            Promise.all([loadListener(), loadSubscriptions()]).then(() => {
+            Promise.all([loadListener(), loadSubscriptions(), loadTargets()]).then(() => {
                 setIsLoading(false)
             })
         })
@@ -336,22 +345,9 @@ function SubscriptionList() {
                         <Badge style={{ marginRight: '5px' }} bg="primary">
                             {i + 1}
                         </Badge>
-                        {subscription.sourceType}
+                        Legacy notifier
                     </h5>
-                    <p>SourceSubIdRegex: {subscription.sourceSubIdRegex}</p>
-                    <div style={{ float: 'right' }}>
-                        <p>Notification Targets: {subscription.targets.length > 0 ? null : 'None'}</p>
-                        {subscriptions.length > 0 ? (
-                            <Typeahead
-                                disabled
-                                id={`notificationTargetsTypeahead-${subscription.id}`}
-                                multiple
-                                labelKey={'name'}
-                                defaultSelected={subscription.targets}
-                                options={subscription.targets ? subscription.targets : []}
-                            />
-                        ) : null}
-                    </div>
+                    <ChannelChips subscription={subscription} allTargets={allTargets} />
                     <div style={{ position: 'absolute', top: '0.75rem', right: '1.25rem', cursor: 'pointer', display: 'flex', alignItems: 'end' }}>
                         <DeleteIcon
                             color="error"
@@ -359,7 +355,7 @@ function SubscriptionList() {
                                 await api.deleteNotificationSubscription(subscription)
                                 toast.success('Subscription deleted')
                                 setIsLoading(true)
-                                await Promise.all([loadListener(), loadSubscriptions()])
+                                await Promise.all([loadListener(), loadSubscriptions(), loadTargets()])
                                 setIsLoading(false)
                             }}
                         />
@@ -381,19 +377,7 @@ function SubscriptionList() {
                     {getSubTypesAsList(listener.types, listener.price)}
                     {listener.filter ? <hr /> : null}
                     <ItemFilterPropertiesDisplay filter={listener.filter} />
-                    <div style={{ float: 'right' }}>
-                        <p>Notification Targets: {subscription.targets.length > 0 ? null : 'None'}</p>
-                        {subscriptions.length > 0 ? (
-                            <Typeahead
-                                disabled
-                                id={`notificationTargetsTypeahead-${subscription.id}`}
-                                multiple
-                                labelKey={'name'}
-                                defaultSelected={subscription.targets}
-                                options={subscription.targets ? subscription.targets : []}
-                            />
-                        ) : null}
-                    </div>
+                    <ChannelChips subscription={subscription} allTargets={allTargets} />
                     <div style={{ position: 'absolute', top: '0.75rem', right: '1.25rem', cursor: 'pointer', display: 'flex', alignItems: 'end' }}>
                         {listener.type === 'whitelist' ? null : (
                             <SubscribeButton
@@ -405,7 +389,7 @@ function SubscriptionList() {
                                 }}
                                 prefill={{
                                     listener: listener,
-                                    targetNames: subscription.id && subscription.targets.length > 0 ? subscription.targets.map(t => t.name) : []
+                                    targetIds: subscription.id && subscription.targets.length > 0 ? subscription.targets.map(t => t.id) : []
                                 }}
                                 popupTitle="Update Notifier"
                                 popupButtonText="Update"
@@ -422,14 +406,6 @@ function SubscriptionList() {
             )
         }
     })
-
-    function openDialog() {
-        toast.warn('Not on this page, use the search bar to go to what you want to be notified about')
-        const searchBar = document.getElementById('search-bar') as HTMLInputElement | null
-        if (searchBar) {
-            searchBar.focus()
-        }
-    }
 
     let resetSettingsElement = (
         <Modal
@@ -472,7 +448,7 @@ function SubscriptionList() {
             }}
         >
             <Modal.Header closeButton>
-                <Modal.Title>Notification Targets</Modal.Title>
+                <Modal.Title>Channels</Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <NotificationTargets />
@@ -487,20 +463,28 @@ function SubscriptionList() {
                     getLoadingElement()
                 ) : (
                     <>
-                        <div style={{ height: 'auto', display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+                        <div style={{ height: 'auto', display: 'flex', justifyContent: 'flex-end', gap: 10, flexWrap: 'wrap' }}>
+                            <NewNotifierButton
+                                onAfterSubscribe={() => {
+                                    setIsLoading(true)
+                                    Promise.all([loadListener(), loadSubscriptions(), loadTargets()]).then(() => {
+                                        setIsLoading(false)
+                                    })
+                                }}
+                            />
                             <WhitelistSubscribeButton onAfterSubscribe={() => {
                                 setIsLoading(true);
-                                Promise.all([loadListener(), loadSubscriptions()]).then(() => {
+                                Promise.all([loadListener(), loadSubscriptions(), loadTargets()]).then(() => {
                                     setIsLoading(false);
                                 });
                             }} />
                             <Button
-                                variant="primary"
+                                variant="secondary"
                                 onClick={() => {
                                     setShowNotificationTargets(true)
                                 }}
                             >
-                                Notification Targets
+                                Channels
                             </Button>
                             <Button
                                 variant="danger"
@@ -543,16 +527,12 @@ function SubscriptionList() {
             <div>
                 <h3>What are Notifiers?</h3>
                 <p>
-                    Notifiers allow you to subscribe to events happening on skyblock. Most common used are price drops or jumps, auctions expiring or being sold
-                    and new rare items being listed on ah
+                    Notifiers alert you about events on Skyblock — the most common are price drops or jumps, auctions expiring or being sold, and new rare items
+                    being listed on the auction house.
                 </p>
                 <p>
-                    To subscribe to something click the{' '}
-                    <Button style={{ width: 'max-content' }} onClick={openDialog}>
-                        <NotificationIcon />
-                        Notify
-                    </Button>{' '}
-                    Button on a page you want to be notified about
+                    Use <b>New notifier</b> above to search for an item or player, or press the <b>Notify</b> button on any item, player or auction page. Choose{' '}
+                    <b>where</b> you want to be notified — in-game, on this device, or a Discord server — under <b>Channels</b>.
                 </p>
             </div>
         </div>

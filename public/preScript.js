@@ -1,11 +1,28 @@
 if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/serviceWorker.js').then(
+    // this script is injected after hydration (afterInteractive), so the window "load" event may have
+    // already fired by the time it runs. in that case addEventListener('load') would never trigger and
+    // window.messaging would never be set, so run immediately when the document is already complete.
+    if (document.readyState === 'complete') {
+        registerServiceWorker()
+    } else {
+        window.addEventListener('load', registerServiceWorker)
+    }
+} else {
+    console.log('ServiceWorker was not registered')
+}
+
+function registerServiceWorker() {
+    navigator.serviceWorker.register('/serviceWorker.js').then(
             function (registration) {
                 setTimeout(() => {
-                    loadScript('https://www.gstatic.com/firebasejs/8.2.2/firebase-app.js')
-                    loadScript('https://www.gstatic.com/firebasejs/8.2.2/firebase-messaging.js')
-                    pushNotifications(registration)
+                    // load firebase-app before firebase-messaging: as two async scripts their execution order
+                    // is a race, and firebase-messaging throws ("be sure to load firebase-app.js first" /
+                    // reading 'INTERNAL') when it runs first. chaining the loads makes the order deterministic.
+                    loadScript('https://www.gstatic.com/firebasejs/8.2.2/firebase-app.js', function () {
+                        loadScript('https://www.gstatic.com/firebasejs/8.2.2/firebase-messaging.js', function () {
+                            pushNotifications(registration)
+                        })
+                    })
                 }, 5000)
 
                 // Registration was successful
@@ -34,16 +51,16 @@ if ('serviceWorker' in navigator) {
                 break
             }
         }
-    })
-} else {
-    console.log('ServiceWorker was not registered')
 }
 
-function loadScript(url) {
+function loadScript(url, onLoad) {
     let script = document.createElement('script')
     script.type = 'text/javascript'
     script.async = true
     script.src = url
+    if (onLoad) {
+        script.onload = onLoad
+    }
     document.getElementsByTagName('head')[0].appendChild(script)
 }
 

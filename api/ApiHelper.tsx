@@ -559,7 +559,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                                 return {
                                     id: t.id || 0,
                                     name: t.name || '',
-                                    isDisabled: false,
+                                    isDisabled: t.isDisabled ?? false,
                                     priority: 0
                                 }
                             })
@@ -568,6 +568,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                                 resolve()
                             })
                             .catch(e => {
+                                // The listener was already created but linking the subscription failed.
+                                // Roll it back so it doesn't linger invisibly and count against the limit.
+                                unsubscribe(listener).catch(() => {})
                                 let errorMessage = typeof e === 'string' ? e : e?.message || ''
                                 if (errorMessage.includes('subscription_limit_reached')) {
                                     toast.error(

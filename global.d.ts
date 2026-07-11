@@ -726,6 +726,14 @@ interface NotificationTarget {
     target: string | null
     name: string | null
     useCount: number
+    // only used when passing targets into subscribe(): attaches the target's connection as disabled
+    // (e.g. the in-game "never notify" marker, which must exist but must never be sent to)
+    isDisabled?: boolean
+}
+
+interface SubscribePrefill {
+    listener: NotificationListener
+    targetIds: number[]
 }
 
 interface NotificationSubscription {

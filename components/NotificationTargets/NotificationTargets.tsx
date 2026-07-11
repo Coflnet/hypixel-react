@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { Button, Table } from 'react-bootstrap'
+import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import NotificationTargetForm from './NotificationTargetForm'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -29,9 +30,20 @@ function NotificationTargets() {
     }
 
     function deleteNotificationTarget(target: NotificationTarget) {
-        api.deleteNotificationTarget(target).then(() => {
-            setNotificationTargets(notificationTargets.filter(t => t.name !== target.name))
-        })
+        api.deleteNotificationTarget(target)
+            .then(() => {
+                setNotificationTargets(notificationTargets.filter(t => t.name !== target.name))
+            })
+            .catch(error => {
+                // the http layer rejects with a plain string like `HTTP 500: {"slug":"subscription_depends",...}`,
+                // so apiErrorHandler (which only handles error.message) stays silent - surface it here instead.
+                let message = typeof error === 'string' ? error : error?.message
+                if (message && message.includes('subscription_depends')) {
+                    toast.error(`"${target.name}" is still used by at least one notifier. Switch those notifiers to another channel first, then delete it.`)
+                } else {
+                    toast.error(message || 'Could not delete this channel. Please try again.')
+                }
+            })
     }
 
     function sendTestNotification(target: NotificationTarget) {
@@ -42,7 +54,7 @@ function NotificationTargets() {
         <>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 {!showAddNotificationTarget ? (
-                    <Button onClick={() => setShowAddNotificationTarget(true)}>Add Notification Target</Button>
+                    <Button onClick={() => setShowAddNotificationTarget(true)}>Add channel</Button>
                 ) : (
                     <Button
                         onClick={() => {
@@ -87,7 +99,7 @@ function NotificationTargets() {
                     ) : (
                         notificationTargets.map(target => {
                             return (
-                                <tr>
+                                <tr key={target.id ?? target.name}>
                                     <td className="ellipse" style={{ maxWidth: '250px' }} title={target.target || ''}>
                                         {target.name}
                                     </td>
