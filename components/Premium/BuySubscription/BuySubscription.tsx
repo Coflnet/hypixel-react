@@ -6,7 +6,9 @@ import styles from './BuySubscription.module.css'
 import stepStyles from '../PremiumPurchaseWizard/Steps/Steps.module.css'
 import NumberElement from '../../Number/Number'
 import { toast } from 'react-toastify'
-import { Duration, PremiumTier, getTierDisplayName } from '../PremiumPurchaseWizard/types'
+import { Duration, PremiumTier, PurchaseType, getTierDisplayName } from '../PremiumPurchaseWizard/types'
+import { TierUpsellPanel } from '../../Discounts/DiscountBanners'
+import discountStyles from '../../Discounts/Discounts.module.css'
 import { postApiTopupRates, getApiDiscountCode } from '../../../api/_generated/skyApi'
 import { BatchProductPricingResponse, ValidatedDiscount } from '../../../api/_generated/skyApi.schemas'
 import {
@@ -19,6 +21,7 @@ import {
     VAT_RATES
 } from '../../../utils/PricingUtils'
 import { useCountryDetection } from '../../../hooks/useCountryDetection'
+import { formatDiscountEndDate, getActiveSubscriptionDiscount } from '../../../utils/DiscountUtils'
 
 interface Props {
     activePremiumProduct: PremiumProduct
@@ -26,6 +29,7 @@ interface Props {
     selectedDuration?: Duration | null
     initialDiscountCode?: string | null
     countryCode?: string
+    onUpgradeTier?: (tier: PremiumTier) => void
 }
 
 function BuySubscription(props: Props) {
@@ -42,7 +46,7 @@ function BuySubscription(props: Props) {
     const [isValidatingDiscount, setIsValidatingDiscount] = useState(false)
     const [discountError, setDiscountError] = useState<string | null>(null)
     const { selectedCountry } = useCountryDetection()
-    const [showStarterDiscountHint] = useState(() => Math.random() < 0.2)
+    const summerDiscount = getActiveSubscriptionDiscount()
 
     const country = props.countryCode || selectedCountry?.value || 'US'
 
@@ -251,7 +255,12 @@ function BuySubscription(props: Props) {
     }
 
     // Get the total discount percentage (creator code + discount code)
-    const getTotalDiscountInfo = (): { creatorPercent: number | null; discountCodePercent: number | null; totalSavings: number | null } => {
+    const getTotalDiscountInfo = (): {
+        creatorPercent: number | null
+        discountCodePercent: number | null
+        totalSavings: number | null
+        absoluteSavings: number | null
+    } => {
         const creatorPercent = props.selectedTier ? getDiscountPercentValue(getProductIdForTier(props.selectedTier, getCurrentDuration())) : null
         const discountCodePercent = validatedDiscount?.amountType === 'percent' ? validatedDiscount.amount : null
 
@@ -261,10 +270,11 @@ function BuySubscription(props: Props) {
 
         if (originalPrice && finalPrice < originalPrice) {
             const totalSavings = Math.round((1 - finalPrice / originalPrice) * 100)
-            return { creatorPercent, discountCodePercent: discountCodePercent ?? null, totalSavings }
+            const absoluteSavings = Math.round((originalPrice - finalPrice) * 100) / 100
+            return { creatorPercent, discountCodePercent: discountCodePercent ?? null, totalSavings, absoluteSavings }
         }
 
-        return { creatorPercent, discountCodePercent: discountCodePercent ?? null, totalSavings: null }
+        return { creatorPercent, discountCodePercent: discountCodePercent ?? null, totalSavings: null, absoluteSavings: null }
     }
 
     // If we have wizard selections, use them to determine the selected type and duration
@@ -441,56 +451,69 @@ function BuySubscription(props: Props) {
                                     <li style={{ color: '#4caf50' }}>✓ Discount code: {discountInfo.discountCodePercent}% off</li>
                                 )}
                             </ul>
-                            {discountInfo.totalSavings && (
+                            {discountInfo.absoluteSavings ? (
+                                <p style={{ margin: '5px 0 0 0', fontWeight: 'bold', color: '#4caf50' }}>
+                                    You save <NumberElement number={discountInfo.absoluteSavings} /> {getDisplayCurrency()}
+                                    {discountInfo.totalSavings ? ` (~${discountInfo.totalSavings}% off)` : ''}
+                                </p>
+                            ) : discountInfo.totalSavings ? (
                                 <p style={{ margin: '5px 0 0 0', fontWeight: 'bold', color: '#4caf50' }}>
                                     Total savings: ~{discountInfo.totalSavings}% off original price
                                 </p>
-                            )}
+                            ) : null}
                         </div>
                     )}
-                    {currentDuration === Duration.YEARLY && (
-                        <>
-                            {targetType.productId !== 'starter_premium' && !discountInfo.creatorPercent && !discountInfo.discountCodePercent && (
-                                <p className={styles.discount}>
-                                    <strong>Savings:</strong> {targetType.productId === 'premium_plus' ? '23%' : '14%'} off compared to monthly billing
-                                </p>
-                            )}
-                            {!validatedDiscount && (targetType.productId !== 'starter_premium' || showStarterDiscountHint) && (
-                                <p>
-                                    You qualify for using code <code>M2OTC1OQ</code> at checkout, to get an extra <strong>20% discount</strong> on the yearly option
-                                </p>
-                            )}
-                        </>
+                    {currentDuration === Duration.YEARLY && targetType.productId !== 'starter_premium' && !discountInfo.creatorPercent && !discountInfo.discountCodePercent && (
+                        <p className={styles.discount}>
+                            <strong>Savings:</strong> {targetType.productId === 'premium_plus' ? '23%' : '14%'} off compared to monthly billing
+                        </p>
+                    )}
+                    {summerDiscount && !validatedDiscount && (
+                        <p className={styles.discount}>
+                            ☀️ <strong>{summerDiscount.label}:</strong> use code <code>{summerDiscount.code}</code> at checkout for{' '}
+                            <strong>{summerDiscount.percentage}% off</strong> until {formatDiscountEndDate(summerDiscount.endsAt)}.
+                        </p>
                     )}
                 </div>
 
-                <div className={styles.featuresSection}>
-                    <h6>What you'll get:</h6>
-                    <ul>
-                        {targetType.productId === 'premium_plus' ? (
-                            <>
-                                <li>Top flip receive time</li>
-                                <li>All tools for analysis</li>
-                                <li>Full auction archive</li>
-                                <li>Data export & API access</li>
-                            </>
-                        ) : targetType.productId === 'starter_premium' ? (
-                            <>
-                                <li>Ad-free experience</li>
-                                <li>Extended limits across features</li>
-                                <li>Starter tools & access</li>
-                            </>
-                        ) : (
-                            <>
-                                <li>Up to 1s slower than Premium+</li>
-                                <li>A lot of tools</li>
-                                <li>Extended history & filter access</li>
-                            </>
-                        )}
-                    </ul>
+                <div className={discountStyles.featuresRow}>
+                    <div className={styles.featuresSection}>
+                        <h6>What you'll get:</h6>
+                        <ul>
+                            {targetType.productId === 'premium_plus' ? (
+                                <>
+                                    <li>Top flip receive time</li>
+                                    <li>All tools for analysis</li>
+                                    <li>Full auction archive</li>
+                                    <li>Data export & API access</li>
+                                </>
+                            ) : targetType.productId === 'starter_premium' ? (
+                                <>
+                                    <li>Ad-free experience</li>
+                                    <li>Extended limits across features</li>
+                                    <li>Starter tools & access</li>
+                                </>
+                            ) : (
+                                <>
+                                    <li>Up to 1s slower than Premium+</li>
+                                    <li>A lot of tools</li>
+                                    <li>Extended history & filter access</li>
+                                </>
+                            )}
+                        </ul>
+                    </div>
+                    {props.selectedTier && (
+                        <TierUpsellPanel
+                            currentTier={props.selectedTier}
+                            purchaseType={PurchaseType.SUBSCRIPTION}
+                            duration={currentDuration}
+                            countryCode={country}
+                            onUpgrade={tier => props.onUpgradeTier?.(tier)}
+                        />
+                    )}
                 </div>
 
-                <Row style={{ marginBottom: '20px' }}>
+                <Row className="g-3" style={{ marginBottom: '20px' }}>
                     <Col md={6}>
                         <Card style={{ height: '100%' }}>
                             <Card.Header>
@@ -675,9 +698,12 @@ function BuySubscription(props: Props) {
                                 </Button>
                                 {!props.activePremiumProduct || props.activePremiumProduct.expires.getTime() < new Date().getTime() + 3600 * 24 * 3 ? (
                                     <>
-                                        <p>
-                                            Use code <code>M2OTC1OQ</code> at checkout, to get a <b>20% discount</b> on the yearly options
-                                        </p>
+                                        {summerDiscount && (
+                                            <p>
+                                                ☀️ <b>{summerDiscount.label}:</b> use code <code>{summerDiscount.code}</code> at checkout for a{' '}
+                                                <b>{summerDiscount.percentage}% discount</b> until {formatDiscountEndDate(summerDiscount.endsAt)}
+                                            </p>
+                                        )}
                                         <Button
                                             variant="success"
                                             className={styles.purchaseButton}
@@ -720,9 +746,10 @@ function BuySubscription(props: Props) {
                                 >
                                     <NumberElement number={8.69} /> Euro (+VAT) / 4 weeks
                                 </Button>
-                                {!props.activePremiumProduct || props.activePremiumProduct.expires.getTime() < new Date().getTime() + 3600 * 24 * 3 ? (
+                                {summerDiscount && (!props.activePremiumProduct || props.activePremiumProduct.expires.getTime() < new Date().getTime() + 3600 * 24 * 3) ? (
                                     <p>
-                                        Use code <code>M2OTC1OQ</code> at checkout, to get an extra <b>20% discount</b> on the yearly options
+                                        ☀️ <b>{summerDiscount.label}:</b> use code <code>{summerDiscount.code}</code> at checkout for a{' '}
+                                        <b>{summerDiscount.percentage}% discount</b> until {formatDiscountEndDate(summerDiscount.endsAt)}
                                     </p>
                                 ) : null}
                                 <Button

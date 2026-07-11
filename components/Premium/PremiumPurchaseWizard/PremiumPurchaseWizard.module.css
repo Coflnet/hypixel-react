@@ -42,6 +42,8 @@
 .wizardBody {
     padding: 40px 30px;
     min-height: 400px;
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 .stepContent {
@@ -247,5 +249,42 @@
     .backButton, .nextButton {
         width: 100%;
         justify-content: center;
+    }
+}
+
+/* Small phones - keep the wizard comfortable on narrow screens */
+@media (max-width: 480px) {
+    .wizard {
+        padding: 6px;
+    }
+
+    .wizardCard {
+        border-radius: 8px;
+    }
+
+    .wizardHeader {
+        padding: 18px 12px;
+    }
+
+    .wizardHeader h3 {
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+
+    .stepIndicator {
+        font-size: 0.8rem;
+    }
+
+    .wizardBody {
+        padding: 20px 12px;
+        min-height: 0;
+    }
+
+    .stepContent {
+        gap: 20px;
+    }
+
+    .wizardFooter {
+        padding: 15px 12px;
     }
 }

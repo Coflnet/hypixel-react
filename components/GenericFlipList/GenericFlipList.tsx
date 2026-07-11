@@ -4,6 +4,7 @@ import { Form, ListGroup, Spinner } from 'react-bootstrap'
 import Link from 'next/link'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import PremiumModal from '../PremiumModal/PremiumModal'
+import { FlipListDiscountNote } from '../Discounts/DiscountBanners'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import api from '../../api/ApiHelper'
 import styles from './GenericFlipList.module.css'
@@ -312,6 +313,7 @@ export function GenericFlipList<T>({
                                 </span>
                             )
                         })()}
+                        <FlipListDiscountNote />
                     </p>
                 ) : null}
                 {showTechSavvyMessage && blur ? (

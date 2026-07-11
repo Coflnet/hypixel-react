@@ -400,3 +400,45 @@
     max-width: 500px;
     margin: 0 auto;
 }
+
+/* Small phones */
+@media (max-width: 480px) {
+    .stepContent {
+        gap: 20px;
+    }
+
+    .stepQuestion {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+    }
+
+    .stepDescription,
+    .coflcoinsDescription {
+        font-size: 0.9rem;
+    }
+
+    .optionBody {
+        padding: 16px 12px;
+    }
+
+    .optionIcon {
+        font-size: 2rem;
+        margin-bottom: 10px;
+    }
+
+    .tierTitle,
+    .paymentTitle,
+    .durationTitle {
+        font-size: 1.05rem;
+    }
+
+    .countrySelection {
+        width: 100%;
+    }
+
+    .tierNote,
+    .infoBox {
+        padding: 12px;
+        font-size: 0.85rem;
+    }
+}

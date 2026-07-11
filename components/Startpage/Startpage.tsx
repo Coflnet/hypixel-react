@@ -19,6 +19,7 @@ import MarkdownIt from 'markdown-it'
 import api from '../../api/ApiHelper'
 import { FixedSizeList as List } from 'react-window'
 import { getApiDataUpdatesYearMonth } from '../../api/_generated/skyApi'
+import { SubscriptionSalesBanner } from '../Discounts/DiscountBanners'
 
 interface Props {
     // No props needed as we fetch client side
@@ -135,31 +136,6 @@ function Startpage(props: Props) {
             action: 'recentChangesClicked'
         })
     }
-
-    const now = new Date()
-    const discountEnd = new Date('2026-04-15T00:00:00.000Z');
-    const showChristmasBanner = now <= discountEnd
-    const discountCode = showChristmasBanner ? 'EASTER' : null
-    const discountAmount = "20%"
-
-    const salesBanner = discountCode ? (
-        <Link href={`/premium?code=${discountCode}`} style={{ textDecoration: 'none' }}>
-            <div style={{
-                background: 'linear-gradient(90deg, #ff6bcb 0%, #c2185b 100%)',
-                color: 'white',
-                padding: '15px',
-                textAlign: 'center',
-                borderRadius: '8px',
-                marginBottom: '20px',
-                fontWeight: 'bold',
-                boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
-                cursor: 'pointer',
-                transition: 'transform 0.2s'
-            }} className={styles.salesBanner} role="button" aria-label="Valentines promo">
-                <span style={{ fontSize: '1.1em' }}>Easter sale</span> Get <span style={{ color: '#ffe082' }}>{discountAmount} OFF</span> subscriptions with code <span style={{ backgroundColor: 'white', color: '#c2185b', padding: '2px 8px', borderRadius: '4px', fontFamily: 'monospace' }}>{discountCode}</span> 🎮 Click to redeem!
-            </div>
-        </Link>
-    ) : null
 
     const flipFeatures = (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '30px' }}>
@@ -278,7 +254,7 @@ function Startpage(props: Props) {
 
     return (
         <div className={styles.startpageContainer}>
-            {salesBanner}
+            <SubscriptionSalesBanner />
 
             {favorites.length === 0 ? (
                 <div style={{ textAlign: 'center', marginBottom: '40px', marginTop: '20px' }}>

@@ -4,12 +4,7 @@ import { calculatePrice } from '../../../../utils/PricingUtils'
 import CountrySelect from '../../../CountrySelect/CountrySelect'
 import TierCard, { TierConfig, TierStatus } from './TierCard'
 import { Country } from '../../../../utils/CountryUtils'
-
-interface ActiveDiscount {
-    description: string
-    percentage: number
-    code: string
-}
+import { Discount, formatDiscountEndDate, getActiveSubscriptionDiscount } from '../../../../utils/DiscountUtils'
 
 const TIER_CONFIGS: TierConfig[] = [
     {
@@ -75,12 +70,6 @@ interface Props {
     onCountryChange: (country: Country) => void
 }
 
-const DISCOUNT: ActiveDiscount = {
-    description: 'Summer End Discount',
-    percentage: 0,
-    code: 'NOMACRO'
-}
-
 const SUGGESTED_FEATURES: Partial<Record<PremiumTier, string>> = {
     [PremiumTier.PREMIUM]: '🆕 Enhanced flip detection',
     [PremiumTier.PREMIUM_PLUS]: 'Advanced money making methods (soon™️)'
@@ -100,23 +89,24 @@ function formatExpiryDate(date: Date): string {
     })
 }
 
-function DiscountedPrice({ tier, countryCode, discount }: { tier: PremiumTier; countryCode?: string; discount: ActiveDiscount }) {
+function DiscountedPrice({ tier, countryCode, discount }: { tier: PremiumTier; countryCode?: string; discount: Discount | null }) {
     const basePrice = calculatePrice(tier, countryCode)
-    const discountedPrice = calculatePrice(tier, countryCode, discount.percentage)
 
-    if (discount.percentage <= 0) {
-        return <>{basePrice.displayText}</>
+    if (!discount || discount.percentage <= 0) {
+        return <>starts at {basePrice.displayText}</>
     }
+
+    const discountedPrice = calculatePrice(tier, countryCode, discount.percentage)
 
     return (
         <>
-            (yearly) starts at <br />
+            starts at <br />
             <span style={{ textDecoration: 'line-through', marginRight: 8, opacity: 0.7 }}>{basePrice.displayText}</span>
             <br />
             <span>{discountedPrice.displayText}</span>
             <br />
             <small style={{ cursor: 'help' }} className="text-success" title={`Apply code ${discount.code} at checkout to receive ${discount.percentage}% off`}>
-                -{discount.percentage}% with code <strong>{discount.code}</strong> *
+                -{discount.percentage}% with code <strong>{discount.code}</strong>
             </small>
         </>
     )
@@ -125,6 +115,7 @@ function DiscountedPrice({ tier, countryCode, discount }: { tier: PremiumTier; c
 export default function TierSelectionStep({ onTierSelect, currentTier, isUpgrade, suggestedTier, activePremiumProduct, selectedCountry, onCountryChange }: Props) {
 
     const tierDisplayName = currentTier ? getTierDisplayName(currentTier) : ''
+    const discount = getActiveSubscriptionDiscount()
 
     return (
         <div className={styles.stepContent}>
@@ -161,12 +152,7 @@ export default function TierSelectionStep({ onTierSelect, currentTier, isUpgrade
                 {TIER_CONFIGS.map(config => {
                     const tier = config.tier
                     const isSuggested = suggestedTier === tier
-                    const pricing =
-                        tier === PremiumTier.PREMIUM_PLUS ? (
-                            <DiscountedPrice tier={tier} countryCode={selectedCountry?.value} discount={DISCOUNT} />
-                        ) : (
-                            <>starts at {calculatePrice(tier, selectedCountry?.value).displayText}</>
-                        )
+                    const pricing = <DiscountedPrice tier={tier} countryCode={selectedCountry?.value} discount={discount} />
 
                     return (
                         <TierCard
@@ -194,8 +180,13 @@ export default function TierSelectionStep({ onTierSelect, currentTier, isUpgrade
                 )}
                 <br />
                 Prices include applicable VAT/sales tax for your country where available. For the US and some other countries, VAT will be added at checkout.
-                <br />* Using discount codes NOMACRO or similar adds the condition that you won't use any automated software (macros) to interact with Hypixel
-                otherwise you risk getting service revoked with no refund.
+                {discount && (
+                    <>
+                        <br />
+                        ☀️ <strong>{discount.label}:</strong> Apply code <code>{discount.code}</code> at checkout for {discount.percentage}% off any
+                        subscription until {formatDiscountEndDate(discount.endsAt)}.
+                    </>
+                )}
             </div>
         </div>
     )

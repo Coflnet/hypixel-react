@@ -17,6 +17,7 @@ import { toast } from 'react-toastify'
 import BuySubscription from './BuySubscription/BuySubscription'
 import PremiumPurchaseWizard from './PremiumPurchaseWizard/PremiumPurchaseWizard'
 import { parseTierFromUrl } from '../../utils/PremiumUpgradeUtils'
+import { CoinsSaleNote } from '../Discounts/DiscountBanners'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -248,6 +249,7 @@ function Premium() {
                         </div>
                     ) : null}
                     <div id="coflcoins-purchase">
+                        <CoinsSaleNote />
                         <CoflCoinsPurchase cancellationRightLossConfirmed={cancellationRightLossConfirmed} />
                     </div>
                 </div>

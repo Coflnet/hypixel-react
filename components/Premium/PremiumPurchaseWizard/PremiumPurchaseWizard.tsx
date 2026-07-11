@@ -7,6 +7,7 @@ import { PremiumTier, PurchaseType, Duration } from './types'
 import { TierSelectionStep, PaymentMethodStep, DurationSelectionStep, PurchaseCompletionStep } from './Steps'
 import { PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
 import { parseTierFromUrl } from '../../../utils/PremiumUpgradeUtils'
+import { getActiveSubscriptionDiscount } from '../../../utils/DiscountUtils'
 import { useCountryDetection } from '../../../hooks/useCountryDetection'
 
 interface Props {
@@ -22,6 +23,7 @@ function PremiumPurchaseWizard(props: Props) {
     const [selectedType, setSelectedType] = useState<PurchaseType | null>(null)
     const [selectedDuration, setSelectedDuration] = useState<Duration | null>(null)
     const [urlDiscountCode, setUrlDiscountCode] = useState<string | null>(null)
+    const [upgradeDiscountCode, setUpgradeDiscountCode] = useState<string | null>(null)
     const { selectedCountry, handleCountryChange } = useCountryDetection()
 
     const totalSteps = 4
@@ -162,6 +164,16 @@ function PremiumPurchaseWizard(props: Props) {
         }
     }
 
+    // Upgrade to a higher tier in place (from the "What you could get" panel) and
+    // auto-apply the active sale code so the discount is already filled in.
+    const handleTierUpgrade = (tier: PremiumTier) => {
+        setSelectedTier(tier)
+        const discount = getActiveSubscriptionDiscount()
+        if (discount) {
+            setUpgradeDiscountCode(discount.code)
+        }
+    }
+
     const renderCurrentStep = () => {
         const currentTier = getCurrentTier()
         const isUpgrade = !!(hasActivePremium() && currentTier)
@@ -201,8 +213,9 @@ function PremiumPurchaseWizard(props: Props) {
                         activePremiumProduct={props.activePremiumProduct}
                         premiumSubscriptions={props.premiumSubscriptions}
                         onNewActivePremiumProduct={props.onNewActivePremiumProduct}
-                        initialDiscountCode={urlDiscountCode}
+                        initialDiscountCode={upgradeDiscountCode ?? urlDiscountCode}
                         countryCode={selectedCountry?.value}
+                        onSelectTier={handleTierUpgrade}
                     />
                 )
             default:

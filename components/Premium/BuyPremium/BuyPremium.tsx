@@ -10,7 +10,9 @@ import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
 import Number from '../../Number/Number'
 import styles from './BuyPremium.module.css'
 import BuyPremiumConfirmationDialog from '../BuyPremiumConfirmationDialog/BuyPremiumConfirmationDialog'
-import { PremiumTier, Duration, getTierDisplayName } from '../PremiumPurchaseWizard/types'
+import { PremiumTier, Duration, PurchaseType, getTierDisplayName } from '../PremiumPurchaseWizard/types'
+import { TierUpsellPanel } from '../../Discounts/DiscountBanners'
+import discountStyles from '../../Discounts/Discounts.module.css'
 
 const getPremiumOptionKey = (option: PremiumTypeOption): string => `${option.productId}:${option.value}:${option.label}`
 
@@ -29,6 +31,7 @@ interface Props {
     selectedTier?: PremiumTier
     selectedDuration?: Duration | null
     initialDiscountCode?: string | null
+    onUpgradeTier?: (tier: PremiumTier) => void
 }
 
 // Helper function to find the best matching premium option based on wizard duration
@@ -235,30 +238,40 @@ function BuyPremium(props: Props) {
                     )}
                 </div>
 
-                <div className={styles.featuresSection}>
-                    <h6>What you'll get:</h6>
-                    <ul>
-                        {props.selectedTier === PremiumTier.PREMIUM_PLUS ? (
-                            <>
-                                <li>Top flip receive time</li>
-                                <li>All tools for analysis</li>
-                                <li>Full auction archive</li>
-                                <li>Data export & API access</li>
-                            </>
-                        ) : props.selectedTier === PremiumTier.PREMIUM ? (
-                            <>
-                                <li>Up to 1s slower than Premium+</li>
-                                <li>A lot of tools</li>
-                                <li>Extended history & filter access</li>
-                            </>
-                        ) : (
-                            <>
-                                <li>Premium flip notifications</li>
-                                <li>Basic tools and analysis</li>
-                                <li>Limited history access</li>
-                            </>
-                        )}
-                    </ul>
+                <div className={discountStyles.featuresRow}>
+                    <div className={styles.featuresSection}>
+                        <h6>What you'll get:</h6>
+                        <ul>
+                            {props.selectedTier === PremiumTier.PREMIUM_PLUS ? (
+                                <>
+                                    <li>Top flip receive time</li>
+                                    <li>All tools for analysis</li>
+                                    <li>Full auction archive</li>
+                                    <li>Data export & API access</li>
+                                </>
+                            ) : props.selectedTier === PremiumTier.PREMIUM ? (
+                                <>
+                                    <li>Up to 1s slower than Premium+</li>
+                                    <li>A lot of tools</li>
+                                    <li>Extended history & filter access</li>
+                                </>
+                            ) : (
+                                <>
+                                    <li>Premium flip notifications</li>
+                                    <li>Basic tools and analysis</li>
+                                    <li>Limited history access</li>
+                                </>
+                            )}
+                        </ul>
+                    </div>
+                    {props.selectedTier && (
+                        <TierUpsellPanel
+                            currentTier={props.selectedTier}
+                            purchaseType={PurchaseType.COFLCOINS}
+                            duration={props.selectedDuration}
+                            onUpgrade={tier => props.onUpgradeTier?.(tier)}
+                        />
+                    )}
                 </div>
 
                 <div className={styles.purchaseInfo}>

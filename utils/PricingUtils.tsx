@@ -243,3 +243,21 @@ export const getFallbackSubscriptionPrice = (productId: string, isYearly: boolea
     // Handle legacy boolean
     return (isYearly as boolean) ? prices.yearly : prices.monthly
 }
+
+// Whether the price charged for this country already includes VAT (known VAT country, not US).
+// US/unknown countries are charged the base price plus VAT added later ("+VAT"), so VAT is not
+// part of the amount we display or discount here.
+export const shouldIncludeVAT = (countryCode?: string): boolean => {
+    if (!countryCode) return false
+    const upperCode = countryCode.toUpperCase()
+    return upperCode !== 'US' && VAT_RATES[upperCode] !== undefined
+}
+
+// Add the country's VAT to a base price when that country is charged VAT-inclusive prices.
+export const getPriceWithVAT = (basePrice: number, countryCode?: string): number => {
+    if (!shouldIncludeVAT(countryCode)) {
+        return basePrice
+    }
+    const vatRate = VAT_RATES[countryCode!.toUpperCase()] ?? 0
+    return basePrice * (1 + vatRate)
+}
