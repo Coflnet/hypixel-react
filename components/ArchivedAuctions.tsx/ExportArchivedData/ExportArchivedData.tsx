@@ -71,7 +71,7 @@ function ExportArchivedData(props: Props) {
                     <div style={{ marginBottom: '15px' }}>
                         <p>
                             Clicking start export schedules one export to go through our archive and extract the items matching the specified filter. Each
-                            export will contain up to <NumberElement number={1000} /> auctions matching your filter. You can shedule 4 exports at once.
+                            export will contain up to <NumberElement number={1000} /> auctions matching your filter. You can schedule 4 exports at once.
                         </p>
                         <hr />
                         <p style={{ margin: 0 }}>The file will be sent to the following Discord Webhook:</p>
