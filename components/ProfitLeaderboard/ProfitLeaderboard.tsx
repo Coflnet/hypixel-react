@@ -6,7 +6,6 @@ import { Button, Table } from 'react-bootstrap'
 import Number from '../Number/Number'
 import Link from 'next/link'
 import { useState } from 'react'
-import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import dynamic from 'next/dynamic'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { Error } from '../Error/Error'
@@ -78,7 +77,6 @@ function LeaderboardTable(props: { entries: LeaderboardEntry[] }) {
 
 export function ProfitLeaderboardComponent() {
     let [googleId, setGoogleId] = useState<string>()
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     const query = useGetApiLeaderboardProfit(undefined, {
         fetch: {
             headers: {
@@ -126,9 +124,6 @@ export function ProfitLeaderboardComponent() {
         </p>
     )
 
-    if (wasAlreadyLoggedIn && !googleId) {
-        return <GoogleSignIn onAfterLogin={onAfterLogin} />
-    }
     if (isNotLoggedIn) {
         return (
             <>
