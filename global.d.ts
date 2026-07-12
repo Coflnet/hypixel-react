@@ -310,7 +310,7 @@ interface API {
     updateConfig(configName: string, updateNotes: string = ''): Promise<void>
     requestArchivedAuctions(itemTag: string, itemFilter?: ItemFilter): Promise<ArchivedAuctionResponse>
     exportArchivedAuctionsData(itemTag: string, itemFilter: ItemFilter, discordWebhookUrl: string, flags: string[]): Promise<void>
-    getLinkvertiseLink(): Promise<string>
+    getLinkvertiseLink(provider?: string): Promise<string>
     getPremiumSubscriptions(): Promise<PremiumSubscription[]>
     cancelPremiumSubscription(id: string): Promise<void>
     purchasePremiumSubscription(productSlug: string, googleToken: string): Promise<PaymentResponse>

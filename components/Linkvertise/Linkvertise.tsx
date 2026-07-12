@@ -26,9 +26,9 @@ export default function LowSupply() {
         }
     }
 
-    function loadRedirectLink() {
+    function loadRedirectLink(provider: string = 'linkvertise') {
         setIsRedirecting(true)
-        api.getLinkvertiseLink()
+        api.getLinkvertiseLink(provider)
             .then(link => {
                 router.push(link)
             })
@@ -53,7 +53,8 @@ export default function LowSupply() {
                             Linkvertise is a service we use to offer our users a way to access the Starter Premium plan for free by completing simple tasks
                             (mostly visiting websites of their partners). Instead of paying with money, you can unlock premium content by following a few steps
                             on the Linkvertise platform. This is a great way for you to enjoy additional features without any direct cost while supporting our
-                            website.
+                            website. LootLabs is an alternative provider that works the same way and grants the same reward, so you can pick whichever one you
+                            prefer.
                         </Card.Text>
                     </Card.Body>
                 </Card>
@@ -90,7 +91,12 @@ export default function LowSupply() {
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
             {isLoggedIn && (
                 <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Button onClick={loadRedirectLink}>Get redirected to Linkvertise</Button>
+                    <div style={{ display: 'flex', flexDirection: 'row', gap: 10 }}>
+                        <Button onClick={() => loadRedirectLink('linkvertise')}>Get redirected to Linkvertise</Button>
+                        <Button variant="secondary" onClick={() => loadRedirectLink('lootlabs')}>
+                            Get redirected to LootLabs
+                        </Button>
+                    </div>
                     <Form.Group>
                         <Form.Label htmlFor="autoRedirect" style={{ marginRight: 5 }}>
                             Next time automatically redirect to Linkvertise

@@ -2726,7 +2726,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getLinkvertiseLink = (): Promise<string> => {
+    let getLinkvertiseLink = (provider: string = 'linkvertise'): Promise<string> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
@@ -2737,7 +2737,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
             httpApi.sendApiRequest({
                 type: RequestType.GET_LINKVERTISE_LINK,
-                customRequestURL: `${getApiEndpoint()}/linkvertise`,
+                customRequestURL: `${getApiEndpoint()}/linkvertise?provider=${encodeURIComponent(provider)}`,
                 requestMethod: 'GET',
                 data: '',
                 requestHeader: {
