@@ -1,7 +1,7 @@
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Container } from 'react-bootstrap'
-import TradingOverview from '../../components/TradingOverview/TradingOverview'
+import LowballOverview from '../../components/LowballOverview/LowballOverview'
 
 export default async function Page() {
     return (
@@ -9,17 +9,17 @@ export default async function Page() {
             <Container>
                 <h2>
                     <NavBar />
-                    <span>Trading (WIP - Please report bugs)</span>
+                    <span>Lowball Offers</span>
                 </h2>
-                <TradingOverview />
+                <LowballOverview />
             </Container>
         </>
     )
 }
 
 export const metadata = getHeadMetadata(
-    'Trading',
-    'Create and manage Hypixel SkyBlock item trades. Connect with other players, set up wanted items, and find trading partners for efficient item exchanges in the SkyBlock community.',
+    'Lowball Offers',
+    'Browse and manage Hypixel SkyBlock lowball offers. Load your own offers after signing in, or inspect public offers by item tag.',
     undefined,
     undefined,
     undefined,

@@ -1,10 +1,11 @@
 'use client'
 import { getHeadMetadata } from '../../utils/SSRUtils'
-import { Button, Container, Modal } from 'react-bootstrap'
+import { Button, Container, Modal, Tab, Tabs } from 'react-bootstrap'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { useState } from 'react'
 import TradeCreate from '../TradeCreate/TradeCreate'
 import TradeList from '../TradeList/TradeList'
+import LowballOfferList from '../LowballOfferList/LowballOfferList'
 import api from '../../api/ApiHelper'
 import { v4 as generateUUID } from 'uuid'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
@@ -98,27 +99,34 @@ export default function TradingOverview() {
     return (
         <>
             <Container>
-                {isCreateTradeOpen && playerData && playerData.mcId ? (
-                    <TradeCreate
-                        currentUserUUID={playerData.mcId}
-                        onAfterTradeCreate={onAfterTradeCreate}
-                        onWindowClose={() => {
-                            setIsCreateTradeOpen(false)
-                        }}
-                    />
-                ) : (
-                    <div style={{ display: 'flex', flexDirection: 'row-reverse' }}>
-                        <Button
-                            onClick={() => {
-                                setIsCreateTradeOpen(true)
-                            }}
-                        >
-                            Create Trade
-                        </Button>
-                    </div>
-                )}
-                <hr />
-                <TradeList key={tradeListKey} currentUserUUID={playerData?.mcId} />
+                <Tabs defaultActiveKey="trades" id="trading-tabs" className="mb-3">
+                    <Tab eventKey="trades" title="Trades">
+                        {isCreateTradeOpen && playerData && playerData.mcId ? (
+                            <TradeCreate
+                                currentUserUUID={playerData.mcId}
+                                onAfterTradeCreate={onAfterTradeCreate}
+                                onWindowClose={() => {
+                                    setIsCreateTradeOpen(false)
+                                }}
+                            />
+                        ) : (
+                            <div style={{ display: 'flex', flexDirection: 'row-reverse' }}>
+                                <Button
+                                    onClick={() => {
+                                        setIsCreateTradeOpen(true)
+                                    }}
+                                >
+                                    Create Trade
+                                </Button>
+                            </div>
+                        )}
+                        <hr />
+                        <TradeList key={tradeListKey} currentUserUUID={playerData?.mcId} />
+                    </Tab>
+                    <Tab eventKey="lowball" title="Lowball Offers">
+                        <LowballOfferList canLoadOwnOffers={!!playerData?.mcId} showOwnOffersByDefault={!!playerData?.mcId} />
+                    </Tab>
+                </Tabs>
                 <GoogleSignIn
                     key={'googleLogin'}
                     onAfterLogin={() => {

@@ -57,6 +57,11 @@ import {
 } from '../utils/SettingsUtils'
 import { isClientSideRendering } from '../utils/SSRUtils'
 import { HttpApi, RequestType, SubscriptionType, CUSTOM_EVENTS, NotificationListener } from './ApiTypes.d'
+/**
+ * @deprecated Legacy hand-written API facade.
+ * New integrations should use Orval-generated bindings from api/_generated/skyApi.ts
+ * or thin wrappers built on top of those bindings.
+ */
 import { initHttpHelper } from './HttpHelper'
 import { websocketHelper } from './WebsocketHelper'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
@@ -67,6 +72,10 @@ function getApiEndpoint() {
     return isClientSideRendering() ? getProperty('apiEndpoint') : process.env.API_ENDPOINT || getProperty('apiEndpoint')
 }
 
+/**
+ * @deprecated Legacy hand-written API facade.
+ * Do not add new usage sites. Prefer Orval-generated bindings instead.
+ */
 export function initAPI(returnSSRResponse: boolean = false): API {
     let httpApi: HttpApi
     if (isClientSideRendering()) {
@@ -2953,6 +2962,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 }
 
+/**
+ * @deprecated Legacy default API facade.
+ * Existing callers can keep using it temporarily, but new code should not import it.
+ */
 let api = initAPI()
 
 export default api
