@@ -1948,7 +1948,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let getPremiumProducts = (): Promise<PremiumProduct[]> => {
         return new Promise((resolve, reject) => {
-            let googleId = sessionStorage.getItem('googleId')
+            let googleId = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId')
             if (!googleId) {
                 toast.error('You need to be logged in to load premium products.')
                 reject()
