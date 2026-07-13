@@ -88,7 +88,7 @@ export default function ConsentButton() {
                     </button>
                 </>
             ) : (
-                <div>You have opted out of personalized ads.</div>
+                <></>
             )}
         </div>
     )
