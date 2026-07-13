@@ -150,32 +150,30 @@ function GoogleSignIn(props: Props) {
 
     return (
         <div style={style} onClickCapture={onLoginClick}>
-            <div className={styles.googleButton} style={wasAlreadyLoggedInThisSession ? { visibility: 'hidden', height: 0, overflow: 'hidden' } : {}}>
-                {!isSSR ? (
-                    <GoogleLogin
-                        onSuccess={response => {
-                            try {
-                                let userObject = JSON.parse(atobUnicode(response.credential!.split('.')[1]))
-                                setSetting(GOOGLE_PROFILE_PICTURE_URL, userObject.picture)
-                                setSetting(GOOGLE_EMAIL, userObject.email)
-                                setSetting(GOOGLE_NAME, userObject.name)
-                            } catch {
-                                toast.warn('Parsing issue with the google token. There might be issues when displaying details on the account page!')
-                            }
-                            // a fresh credential from Google always reflects the account currently signed in in the browser,
-                            // so it must win over a cached (possibly stale/different-account) token from a previous session
-                            onLoginSucces(response.credential!)
-                        }}
-                        onError={onLoginFail}
-                        theme={'filled_blue'}
-                        size={'large'}
-                        useOneTap
-                        auto_select
-                    />
-                ) : null}
-            </div>
             {!wasAlreadyLoggedInThisSession ? (
                 <>
+                    <div className={styles.googleButton}>
+                        {!isSSR ? (
+                            <GoogleLogin
+                                onSuccess={response => {
+                                    try {
+                                        let userObject = JSON.parse(atobUnicode(response.credential!.split('.')[1]))
+                                        setSetting(GOOGLE_PROFILE_PICTURE_URL, userObject.picture)
+                                        setSetting(GOOGLE_EMAIL, userObject.email)
+                                        setSetting(GOOGLE_NAME, userObject.name)
+                                    } catch {
+                                        toast.warn('Parsing issue with the google token. There might be issues when displaying details on the account page!')
+                                    }
+                                    onLoginSucces(response.credential!)
+                                }}
+                                onError={onLoginFail}
+                                theme={'filled_blue'}
+                                size={'large'}
+                                useOneTap
+                                auto_select
+                            />
+                        ) : null}
+                    </div>
                     <p>
                         I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
                     </p>
