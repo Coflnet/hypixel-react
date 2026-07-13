@@ -20,7 +20,8 @@ import {
 } from '../../utils/GeneratedApiResponseUtils'
 import { getPublicLeaderboardProfit } from '../../api/skyApiPublic'
 
-function LeaderboardTable(props: { entries: LeaderboardEntry[] }) {
+function LeaderboardTable(props: { entries: LeaderboardEntry[]; startRank?: number }) {
+    let startRank = props.startRank || 1
     return (
         <Table striped bordered hover responsive>
             <thead>
@@ -40,7 +41,7 @@ function LeaderboardTable(props: { entries: LeaderboardEntry[] }) {
                         <Tooltip
                             content={
                                 <tr key={player.uuid}>
-                                    <td>{index + 1}</td>
+                                    <td>{startRank + index}</td>
                                     <td>
                                         {player.iconUrl && (
                                             <img
@@ -100,7 +101,7 @@ export function ProfitLeaderboardComponent() {
     const publicLeaderboardQuery = useQuery({
         queryKey: ['publicLeaderboardProfit'],
         queryFn: getPublicLeaderboardProfit,
-        enabled: isNotLoggedIn
+        enabled: isNotLoggedIn || isPremiumPlusDenied
     })
     const publicLeaderboardEntries = publicLeaderboardQuery.data?.status === 200 ? publicLeaderboardQuery.data.data : []
 
@@ -114,7 +115,7 @@ export function ProfitLeaderboardComponent() {
             most consistent earners.
             <br />
             The board resets every Monday morning and updates whenever a player&apos;s tracked flips are viewed. The current week&apos;s top 50 are displayed
-            here with Premium+.
+            here with Premium+ — without Premium+ you&apos;ll see a public sample of last week&apos;s leaderboard instead (places 100–150).
             <br />
             Want to see your own rank? Use <code>/cofl lb</code> in the{' '}
             <a href="/mod" target="_blank" rel="noopener noreferrer">
@@ -124,18 +125,28 @@ export function ProfitLeaderboardComponent() {
         </p>
     )
 
+    function publicSample(reason: string) {
+        return (
+            <>
+                <p>
+                    <i>
+                        {reason} you&apos;re seeing a public sample of last week&apos;s leaderboard (places 100–150). Sign in with Premium+ to see this
+                        week&apos;s live top 50.
+                    </i>
+                </p>
+                {publicLeaderboardQuery.isLoading && <p>Loading public leaderboard…</p>}
+                {publicLeaderboardQuery.isSuccess && publicLeaderboardEntries.length > 0 && (
+                    <LeaderboardTable entries={publicLeaderboardEntries} startRank={101} />
+                )}
+            </>
+        )
+    }
+
     if (isNotLoggedIn) {
         return (
             <>
                 {description}
-                <p>
-                    <i>
-                        You&apos;re not signed in, so you&apos;re seeing a public sample of last week&apos;s leaderboard (places 100–150). Sign in with Premium+
-                        to see this week&apos;s live top 50.
-                    </i>
-                </p>
-                {publicLeaderboardQuery.isLoading && <p>Loading public leaderboard…</p>}
-                {publicLeaderboardQuery.isSuccess && publicLeaderboardEntries.length > 0 && <LeaderboardTable entries={publicLeaderboardEntries} />}
+                {publicSample("You're not signed in, so")}
                 <h2>Premium Plus Required</h2>
                 <p>Seeing the full, up to date top 50 is exclusive to Premium Plus users.</p>
                 <Link href="/premium?tier=premium_plus" className="disableLinkStyle">
@@ -155,6 +166,7 @@ export function ProfitLeaderboardComponent() {
         return (
             <>
                 {description}
+                {publicSample("You don't have Premium+, so")}
                 <h2>Premium Plus Required</h2>
                 <p>{accessMessage || 'Seeing this list is exclusive to Premium Plus users.'}</p>
                 <Link href="/premium?tier=premium_plus" className="disableLinkStyle">
