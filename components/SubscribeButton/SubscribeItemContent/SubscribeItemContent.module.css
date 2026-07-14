@@ -26,3 +26,16 @@
     gap: 10px;
     margin-top: 4px;
 }
+
+.filterHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+}
+
+.filterHint {
+    opacity: 0.7;
+}

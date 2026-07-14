@@ -583,7 +583,7 @@ function AuctionHousePriceGraph(props: Props) {
                     </div>
 
                     <div className="d-flex align-items-center" style={{ gap: '8px', minWidth: '220px', justifyContent: 'flex-end' }}>
-                        <SubscribeButton type="item" topic={props.item.tag} currentPrice={avgPrice || undefined} />
+                        <SubscribeButton type="item" topic={props.item.tag} currentPrice={avgPrice || undefined} defaultFilter={itemFilter} />
                         <ShareButton
                             title={'Prices for ' + props.item.name}
                             text="See list, search and filter item prices from the auction house and bazar in Hypixel Skyblock"

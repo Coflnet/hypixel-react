@@ -4,10 +4,9 @@ import { Form, Spinner } from 'react-bootstrap'
 import GamepadIcon from '@mui/icons-material/SportsEsports'
 import PhoneIcon from '@mui/icons-material/PhoneIphone'
 import DiscordIcon from '@mui/icons-material/Forum'
-import api from '../../../api/ApiHelper'
 import askForNotificationPermissons from '../../../utils/NotificationPermisson'
-import { getNotificationTypeAsString } from '../../../utils/NotificationUtils'
-import { ChannelSelection, fetchWebhookName, getExtraTargets, isValidDiscordWebhookUrl } from '../../../utils/NotificationChannelUtils'
+import { getNotificationTypeAsString, isNotificationType } from '../../../utils/NotificationUtils'
+import { ChannelSelection, fetchWebhookName, getDeviceName, getExtraTargets, isValidDiscordWebhookUrl } from '../../../utils/NotificationChannelUtils'
 import { getLoadingElement } from '../../../utils/LoadingUtils'
 import styles from './ChannelPicker.module.css'
 
@@ -62,10 +61,9 @@ function ChannelPicker(props: Props) {
         }
         setPushPending(true)
         try {
-            let token = await askForNotificationPermissons()
-            // the token is now stored locally, so the channel can be selected. Registering it with the
-            // backend also happens again at submit, so don't block the checkbox on that websocket call.
-            api.setToken(token).catch(e => console.error('registering fcm token failed', e))
+            // the token is stored locally here; the FIREBASE notification target that registers it with
+            // the backend is created at submit time (see resolveChannelSelection)
+            await askForNotificationPermissons()
             props.onChange({ ...selection, push: true })
         } catch (e) {
             setPushError(e instanceof Error ? e.message : 'Could not enable push notifications.')
@@ -90,6 +88,7 @@ function ChannelPicker(props: Props) {
         return getLoadingElement(<p>Loading channels...</p>)
     }
 
+    let deviceName = getDeviceName()
     let discordChecked = selection.newDiscordUrl !== null
     let discordInvalid = discordChecked && selection.newDiscordUrl !== '' && !isValidDiscordWebhookUrl(selection.newDiscordUrl || '')
     let discordValid = discordChecked && isValidDiscordWebhookUrl(selection.newDiscordUrl || '')
@@ -121,10 +120,9 @@ function ChannelPicker(props: Props) {
                 )}
                 <PhoneIcon className={styles.icon} />
                 <span className={styles.text}>
-                    <span className={styles.title}>This device</span>
-                    <span className={styles.subtitle}>
-                        {PUSH_SUPPORTED ? 'Push notification in this browser' : 'Not supported in this browser'}
-                    </span>
+                    {/* named after the browser and OS, since a desktop and a phone are usually both registered */}
+                    <span className={styles.title}>This device ({deviceName})</span>
+                    <span className={styles.subtitle}>{PUSH_SUPPORTED ? 'Push notification' : 'Not supported in this browser'}</span>
                     {pushError ? <span className={styles.error}>{pushError}</span> : null}
                 </span>
             </label>
@@ -183,7 +181,7 @@ function ChannelPicker(props: Props) {
                 ) : null}
             </div>
 
-            {/* Other existing targets */}
+            {/* Other existing targets, e.g. the user's other devices and past webhooks */}
             {extraTargets.map(target => (
                 <label className={styles.channel} key={target.id}>
                     <Form.Check
@@ -191,7 +189,7 @@ function ChannelPicker(props: Props) {
                         checked={target.id !== undefined && selection.existingTargetIds.includes(target.id)}
                         onChange={e => target.id !== undefined && onToggleExisting(target.id, e.target.checked)}
                     />
-                    <DiscordIcon className={styles.icon} />
+                    {isNotificationType(target.type, 'FIREBASE') ? <PhoneIcon className={styles.icon} /> : <DiscordIcon className={styles.icon} />}
                     <span className={styles.text}>
                         <span className={styles.title}>{target.name || getNotificationTypeAsString(target.type)}</span>
                         <span className={styles.subtitle}>

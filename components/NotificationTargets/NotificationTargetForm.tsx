@@ -31,7 +31,6 @@ function NotificationTargetForm(props: Props) {
         if (type === 'FIREBASE') {
             if (localStorage.getItem('fcmToken') === null) {
                 let token = await askForNotificationPermissons()
-                await api.setToken(token)
                 localStorage.setItem('fcmToken', token)
                 targetToSend = token
             } else {

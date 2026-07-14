@@ -1,5 +1,5 @@
 'use client'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { Button, Modal } from 'react-bootstrap'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import { toast } from 'react-toastify'
@@ -21,6 +21,7 @@ import {
     rememberChannelSelection,
     resolveChannelSelection
 } from '../../utils/NotificationChannelUtils'
+import { wasErrorShownToUser } from '../../api/NotificationApi'
 import styles from './SubscribeButton.module.css'
 
 interface Props {
@@ -30,6 +31,8 @@ interface Props {
     type: 'player' | 'item' | 'auction' | 'bazaar'
     currentPrice?: number
     currentSellPrice?: number
+    /** the filter the user is currently searching with; copied into a new item notifier */
+    defaultFilter?: ItemFilter
     prefill?: SubscribePrefill
     popupTitle?: string
     popupButtonText?: string
@@ -38,27 +41,34 @@ interface Props {
 }
 
 const MAX_FILTERS = 5
+/** how far the suggested price sits away from the current one, so the notifier isn't triggered instantly */
+const PRICE_MARGIN = 0.01
 
-function getInitialPrice(props: Props): string {
+/**
+ * The price to prefill for the currently selected direction (and, on the bazaar, the selected price
+ * source). A bit below the current price for "drops below", a bit above it for "rises above".
+ */
+function getSuggestedPrice(props: Props, isPriceAbove: boolean, useSellPrice: boolean): string {
     if (props.prefill?.listener?.price !== undefined && props.prefill?.listener?.price !== null) {
         return props.prefill.listener.price.toString()
     }
-    if (props.type === 'item' && props.currentPrice) {
-        // start a touch below the current price so a "drops below" notifier fires on any dip
-        return Math.floor(props.currentPrice * 0.99).toString()
+    if (props.type !== 'item' && props.type !== 'bazaar') {
+        return ''
     }
-    if (props.type === 'bazaar' && props.currentPrice) {
-        return Math.floor(props.currentPrice).toString()
+    let current = props.type === 'bazaar' && useSellPrice ? props.currentSellPrice : props.currentPrice
+    if (!current) {
+        return ''
     }
-    return ''
+    return isPriceAbove ? Math.ceil(current * (1 + PRICE_MARGIN)).toString() : Math.floor(current * (1 - PRICE_MARGIN)).toString()
 }
 
 function NotifierDialog(props: Props) {
     let { trackEvent } = useMatomo()
     let router = useRouter()
     let prefillTypes = (props.prefill?.listener?.types as unknown as string[]) || []
-    let [price, setPrice] = useState(getInitialPrice(props))
-    let priceDirty = useRef(false)
+    // null until the user types a price of their own; until then the suggestion below is what's shown, so it
+    // follows the selected direction and a price that only finishes loading while the dialog is already open
+    let [typedPrice, setTypedPrice] = useState<string | null>(null)
     let [isPriceAbove, setIsPriceAbove] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.PRICE_HIGHER_THAN]))
     let [onlyInstantBuy, setOnlyInstantBuy] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.BIN]))
     let [gotOutbid, setGotOutbid] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.OUTBID]))
@@ -66,7 +76,7 @@ function NotifierDialog(props: Props) {
     let [isPlayerAuctionCreation, setIsPlayerAuctionCreation] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.PLAYER_CREATES_AUCTION]))
     let [hasPlayerBoughtAnyAuction, setHasPlayerBoughtAnyAuction] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.BOUGHT_ANY_AUCTION]))
     let [isUseBazaarSellNotBuy, setIsUseBazaarSellNotBuy] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.USE_SELL_NOT_BUY]))
-    let [itemFilter, setItemFilter] = useState<ItemFilter | undefined>(props.prefill?.listener?.filter || undefined)
+    let [itemFilter, setItemFilter] = useState<ItemFilter | undefined>(props.prefill?.listener?.filter || props.defaultFilter)
     let [isItemFilterValid, setIsItemFilterValid] = useState(true)
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [notificationTargets, setNotificationTargets] = useState<NotificationTarget[]>([])
@@ -74,6 +84,8 @@ function NotifierDialog(props: Props) {
     let [channelSelection, setChannelSelection] = useState<ChannelSelection>({ inGame: true, push: false, newDiscordUrl: null, existingTargetIds: [] })
     let [isSubmitting, setIsSubmitting] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+
+    let price = typedPrice ?? getSuggestedPrice(props, isPriceAbove, isUseBazaarSellNotBuy)
 
     function getSubscriptionTypes(): SubscriptionType[] {
         let types: SubscriptionType[] = []
@@ -119,7 +131,9 @@ function NotifierDialog(props: Props) {
             resolvedTargets = await resolveChannelSelection(channelSelection, notificationTargets)
         } catch (e) {
             setIsSubmitting(false)
-            toast.error(e instanceof Error ? e.message : 'Could not set up the selected channels. Please try again.')
+            if (!wasErrorShownToUser(e)) {
+                toast.error(e instanceof Error ? e.message : 'Could not set up the selected channels. Please try again.')
+            }
             return
         }
 
@@ -137,12 +151,8 @@ function NotifierDialog(props: Props) {
                 }
             })
             .catch(error => {
-                if (error?.message) {
-                    toast.error(error.message, {
-                        onClick: () => {
-                            router.push('/subscriptions')
-                        }
-                    })
+                if (error?.message && !wasErrorShownToUser(error)) {
+                    toast.error(error.message)
                 }
             })
             .finally(() => {
@@ -158,22 +168,6 @@ function NotifierDialog(props: Props) {
             setChannelSelection(getInitialChannelSelection(targets, props.prefill?.targetIds))
             setIsLoadingNotificationTargets(false)
         })
-    }
-
-    function onBazaarUseSellChange(useSell: boolean) {
-        setIsUseBazaarSellNotBuy(useSell)
-        // re-seed the price from the matching market average, unless the user has typed their own value
-        if (!priceDirty.current && props.prefill?.listener?.price === undefined) {
-            let source = useSell ? props.currentSellPrice : props.currentPrice
-            if (source) {
-                setPrice(Math.floor(source).toString())
-            }
-        }
-    }
-
-    function onPriceChange(value: string) {
-        priceDirty.current = true
-        setPrice(value)
     }
 
     function isNotifyDisabled(): boolean {
@@ -204,12 +198,14 @@ function NotifierDialog(props: Props) {
                         {props.type === 'item' ? (
                             <SubscribeItemContent
                                 itemTag={props.topic}
+                                priceValue={price}
+                                isPriceAbove={isPriceAbove}
                                 onFilterChange={filter => setItemFilter({ ...filter })}
                                 onIsPriceAboveChange={setIsPriceAbove}
                                 onOnlyInstantBuyChange={setOnlyInstantBuy}
-                                onPriceChange={onPriceChange}
+                                onPriceChange={setTypedPrice}
                                 prefill={props.prefill?.listener}
-                                prefillPrice={getInitialPrice(props)}
+                                defaultFilter={props.defaultFilter}
                                 onIsFilterValidChange={setIsItemFilterValid}
                             />
                         ) : null}
@@ -217,10 +213,11 @@ function NotifierDialog(props: Props) {
                             <SubscribeBazaarItemContent
                                 itemTag={props.topic}
                                 priceValue={price}
-                                onPriceChange={onPriceChange}
+                                isPriceAbove={isPriceAbove}
+                                useSellPrice={isUseBazaarSellNotBuy}
+                                onPriceChange={setTypedPrice}
                                 onIsPriceAboveChange={setIsPriceAbove}
-                                onUseSellPriceChange={onBazaarUseSellChange}
-                                prefill={props.prefill?.listener}
+                                onUseSellPriceChange={setIsUseBazaarSellNotBuy}
                             />
                         ) : null}
                         {props.type === 'player' ? (

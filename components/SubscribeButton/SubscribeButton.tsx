@@ -14,6 +14,8 @@ interface Props {
     isEditButton?: boolean
     currentPrice?: number
     currentSellPrice?: number
+    /** the filter the user is currently searching with; copied into a new item notifier */
+    defaultFilter?: ItemFilter
     onAfterSubscribe?()
     prefill?: SubscribePrefill
     popupTitle?: string
@@ -37,19 +39,24 @@ function SubscribeButton(props: Props) {
 
     return (
         <div className={styles.subscribeButton}>
-            <NotifierDialog
-                show={showDialog}
-                onHide={closeDialog}
-                topic={props.topic}
-                type={props.type}
-                currentPrice={props.currentPrice}
-                currentSellPrice={props.currentSellPrice}
-                prefill={props.prefill}
-                popupTitle={props.popupTitle}
-                popupButtonText={props.popupButtonText}
-                successMessage={props.successMessage}
-                onAfterSubscribe={props.onAfterSubscribe}
-            />
+            {/* only mounted while open, so the dialog always starts from the price and filter that are current
+                at that moment instead of the ones from when this button was first rendered */}
+            {showDialog ? (
+                <NotifierDialog
+                    show={showDialog}
+                    onHide={closeDialog}
+                    topic={props.topic}
+                    type={props.type}
+                    currentPrice={props.currentPrice}
+                    currentSellPrice={props.currentSellPrice}
+                    defaultFilter={props.defaultFilter}
+                    prefill={props.prefill}
+                    popupTitle={props.popupTitle}
+                    popupButtonText={props.popupButtonText}
+                    successMessage={props.successMessage}
+                    onAfterSubscribe={props.onAfterSubscribe}
+                />
+            ) : null}
             {props.isEditButton ? (
                 <div onClick={openDialog}>
                     <EditIcon />

@@ -215,8 +215,6 @@ interface API {
     getNotificationListener(): Promise<NotificationListener[]>
     loginWithToken(id: string): Promise<string>
     stripePurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
-    setToken(token: string): Promise<void>
-    setToken(token: string): Promise<void>
     getRecentAuctions(itemTag: string, itemFilter: ItemFilter): Promise<RecentAuction[]>
     getFlips(): Promise<FlipAuction[]>
     subscribeFlips(
@@ -283,7 +281,6 @@ interface API {
     setPrivacySettings(settings: PrivacySettings): Promise<void>
     checkRat(hash: string): Promise<RatCheckingResponse>
     getPremiumProducts(): Promise<PremiumProduct[]>
-    unsubscribeAll(): Promise<void>
     getItemNames(items: Item[]): Promise<{ [key: string]: string }>
     checkFilter(auction: AuctionDetails, filter: ItemFilter): Promise<boolean>
     refreshLoadPremiumProducts(callback: (products: PremiumProduct[]) => void, onError?: () => void)
@@ -300,7 +297,7 @@ interface API {
     getNotificationTargets(): Promise<NotificationTarget[]>
     addNotificationTarget(target: NotificationTarget): Promise<NotificationTarget>
     deleteNotificationTarget(target: NotificationTarget): Promise<void>
-    updateNotificationTarget(target: NotificationTarget): Promise<void>
+    updateNotificationTarget(target: NotificationTarget): Promise<NotificationTarget>
     sendTestNotification(target: NotificationTarget): Promise<void>
     getNotificationSubscriptions(): Promise<NotificationSubscription[]>
     createNotificationSubscription(subscription: NotificationSubscription): Promise<NotificationSubscription>

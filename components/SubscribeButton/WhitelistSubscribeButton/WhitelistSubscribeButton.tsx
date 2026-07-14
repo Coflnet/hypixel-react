@@ -21,6 +21,7 @@ import {
     rememberChannelSelection,
     resolveChannelSelection
 } from '../../../utils/NotificationChannelUtils'
+import { wasErrorShownToUser } from '../../../api/NotificationApi'
 
 interface Props {
     onAfterSubscribe?(): void
@@ -53,7 +54,9 @@ function WhitelistSubscribeButton(props: Props) {
             resolvedTargets = await resolveChannelSelection(channelSelection, notificationTargets)
         } catch (e) {
             setIsSubmitting(false)
-            toast.error(e instanceof Error ? e.message : 'Could not set up the selected channels. Please try again.')
+            if (!wasErrorShownToUser(e)) {
+                toast.error(e instanceof Error ? e.message : 'Could not set up the selected channels. Please try again.')
+            }
             return
         }
 
@@ -71,12 +74,8 @@ function WhitelistSubscribeButton(props: Props) {
                 }
             })
             .catch(error => {
-                if (error?.message) {
-                    toast.error(error.message, {
-                        onClick: () => {
-                            router.push('/subscriptions')
-                        }
-                    })
+                if (error?.message && !wasErrorShownToUser(error)) {
+                    toast.error(error.message)
                 }
             })
             .finally(() => {

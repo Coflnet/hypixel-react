@@ -229,20 +229,25 @@ function SubscriptionList() {
     }
 
     function deleteAll() {
-        api.unsubscribeAll()
+        setShowDeleteAllSubscriptionDialog(false)
+        setIsLoading(true)
+
+        Promise.all([
+            ...subscriptions.map(subscription => api.deleteNotificationSubscription({ ...subscription })),
+            ...listener.map(notificationListener => api.unsubscribe(notificationListener))
+        ])
             .then(() => {
                 setListener([])
                 setSubscriptions([])
                 toast.success('All notifiers were sucessfully removed')
             })
             .catch(() => {
-                toast.error('Could not unsubscribe, please try again in a few minutes')
+                // some might have been deleted, so reload instead of guessing what is left
+                Promise.all([loadListener(), loadSubscriptions()])
             })
-
-        subscriptions.forEach(subscription => {
-            api.deleteNotificationSubscription({ ...subscription })
-        })
-        setShowDeleteAllSubscriptionDialog(false)
+            .finally(() => {
+                setIsLoading(false)
+            })
     }
 
     async function resubscribe(listener: NotificationListener, subscription: NotificationSubscription) {
