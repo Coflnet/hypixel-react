@@ -7,8 +7,11 @@ import api from '../../api/ApiHelper'
 import NotificationTargetForm from './NotificationTargetForm'
 import DeleteIcon from '@mui/icons-material/Delete'
 import EditIcon from '@mui/icons-material/Edit'
+import CopyIcon from '@mui/icons-material/ContentCopy'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { getNotficationWhenEnumAsString, getNotificationTypeAsString } from '../../utils/NotificationUtils'
+import { getNotficationWhenEnumAsString, getNotificationTypeAsString, getShortNotificationTarget } from '../../utils/NotificationUtils'
+import { canUseClipBoard, writeToClipboard } from '../../utils/ClipboardUtils'
+import styles from './NotificationTargets.module.css'
 
 function NotificationTargets() {
     let [notificationTargets, setNotificationTargets] = useState<NotificationTarget[]>([])
@@ -50,6 +53,14 @@ function NotificationTargets() {
         api.sendTestNotification(target)
     }
 
+    function copyTarget(target: NotificationTarget) {
+        if (!target.target || !canUseClipBoard()) {
+            return
+        }
+        writeToClipboard(target.target)
+        toast.success('Copied to clipboard')
+    }
+
     return (
         <>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
@@ -78,77 +89,119 @@ function NotificationTargets() {
                     <hr />
                 </>
             )}
-            <Table>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Target</th>
-                        <th>Type</th>
-                        <th>When</th>
-                        <th>Use Count</th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {isLoading ? (
-                        <tr>
-                            <td colSpan={99}>{getLoadingElement()}</td>
-                        </tr>
-                    ) : (
-                        notificationTargets.map(target => {
-                            return (
+            {isLoading ? (
+                getLoadingElement()
+            ) : (
+                <div className={styles.targetList}>
+                    <Table className={styles.targetTable}>
+                        <thead>
+                            <tr>
+                                <th className={styles.nameCell}>Name</th>
+                                <th className={styles.targetCell}>Target</th>
+                                <th className={styles.typeCell}>Type</th>
+                                <th className={styles.whenCell}>When</th>
+                                <th className={styles.usesCell}>Uses</th>
+                                <th className={styles.actionCell}></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {notificationTargets.map(target => (
                                 <tr key={target.id ?? target.name}>
-                                    <td className="ellipse" style={{ maxWidth: '250px' }} title={target.target || ''}>
+                                    <td className="ellipse" title={target.name || ''}>
                                         {target.name}
                                     </td>
-                                    <td className="ellipse" style={{ maxWidth: '150px' }} title={target.target || ''}>
-                                        {target.target}
-                                    </td>
+                                    <td>{getTargetElement(target)}</td>
                                     <td>{getNotificationTypeAsString(target.type as number)}</td>
                                     <td>{getNotficationWhenEnumAsString(target.when as number)}</td>
                                     <td>{target.useCount || 0}</td>
-                                    <td>
-                                        <Button
-                                            variant="primary"
-                                            onClick={() => {
-                                                sendTestNotification(target)
-                                            }}
-                                        >
-                                            Test
-                                        </Button>
-                                    </td>
-                                    <td>
-                                        <Button
-                                            variant="primary"
-                                            onClick={() => {
-                                                setShowAddNotificationTarget(true)
-                                                setNotificationTargetToUpdate(target)
-                                                setNotificationTargetType('UPDATE')
-                                            }}
-                                        >
-                                            <EditIcon />
-                                        </Button>
-                                    </td>
-                                    <td>
-                                        <Button
-                                            variant="danger"
-                                            onClick={() => {
-                                                deleteNotificationTarget(target)
-                                            }}
-                                        >
-                                            <DeleteIcon />
-                                        </Button>
-                                    </td>
+                                    <td>{getActionsElement(target)}</td>
                                 </tr>
-                            )
-                        })
-                    )}
-                </tbody>
-            </Table>
+                            ))}
+                        </tbody>
+                    </Table>
+                    {/* the same rows on phones, where 6 columns don't fit: name + one line of details + the actions */}
+                    <div className={styles.cardList}>
+                        {notificationTargets.map(target => (
+                            <div className={styles.card} key={target.id ?? target.name}>
+                                <span className={`ellipse ${styles.cardName}`} title={target.name || ''}>
+                                    {target.name}
+                                </span>
+                                <div className={styles.cardDetails}>
+                                    <span>{getNotificationTypeAsString(target.type as number)}</span>
+                                    <span>·</span>
+                                    {getTargetElement(target)}
+                                    <span>·</span>
+                                    <span>used {target.useCount || 0}×</span>
+                                </div>
+                                {getActionsElement(target)}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </>
     )
+
+    function getTargetElement(target: NotificationTarget) {
+        if (!target.target) {
+            return null
+        }
+        return (
+            <span
+                className={styles.copyTarget}
+                role="button"
+                tabIndex={0}
+                title="Click to copy the full value"
+                onClick={() => copyTarget(target)}
+                onKeyDown={e => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        copyTarget(target)
+                    }
+                }}
+            >
+                <span className="ellipse">{getShortNotificationTarget(target)}</span>
+                <CopyIcon className={styles.copyIcon} />
+            </span>
+        )
+    }
+
+    function getActionsElement(target: NotificationTarget) {
+        return (
+            <div className={styles.actions}>
+                <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => {
+                        sendTestNotification(target)
+                    }}
+                >
+                    Test
+                </Button>
+                <Button
+                    variant="primary"
+                    size="sm"
+                    aria-label="Edit channel"
+                    onClick={() => {
+                        setShowAddNotificationTarget(true)
+                        setNotificationTargetToUpdate(target)
+                        setNotificationTargetType('UPDATE')
+                    }}
+                >
+                    <EditIcon fontSize="small" />
+                </Button>
+                <Button
+                    variant="danger"
+                    size="sm"
+                    aria-label="Delete channel"
+                    onClick={() => {
+                        deleteNotificationTarget(target)
+                    }}
+                >
+                    <DeleteIcon fontSize="small" />
+                </Button>
+            </div>
+        )
+    }
 }
 
 export default NotificationTargets

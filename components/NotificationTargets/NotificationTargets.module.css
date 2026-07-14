@@ -1,0 +1,95 @@
+/* the table needs ~700px, which the modal doesn't always have even on a wide screen, so the breakpoint
+   below follows the width of this container instead of the viewport */
+.targetList {
+    container-type: inline-size;
+}
+
+/* fixed layout, so a long name or webhook id can't push the buttons out of the modal */
+.targetTable {
+    table-layout: fixed;
+}
+
+.nameCell {
+    width: 24%;
+}
+
+.targetCell {
+    width: 23%;
+}
+
+.typeCell {
+    width: 15%;
+}
+
+.whenCell {
+    width: 11%;
+}
+
+.usesCell {
+    width: 8%;
+}
+
+.actionCell {
+    width: 19%;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.copyTarget {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 100%;
+    cursor: pointer;
+}
+
+.copyIcon {
+    flex-shrink: 0;
+    font-size: 1rem;
+    opacity: 0.6;
+}
+
+.cardList {
+    display: none;
+}
+
+.card {
+    border: 1px solid var(--bs-border-color, #444);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+}
+
+.cardName {
+    display: block;
+    font-weight: bold;
+}
+
+/* type, target and use count on one line, so a channel stays three lines tall on a phone */
+.cardDetails {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 4px 0 8px 0;
+    font-size: 0.85rem;
+    opacity: 0.8;
+}
+
+@container (max-width: 720px) {
+    .targetTable {
+        display: none;
+    }
+
+    .cardList {
+        display: block;
+    }
+
+    .actions > * {
+        flex: 1;
+    }
+}

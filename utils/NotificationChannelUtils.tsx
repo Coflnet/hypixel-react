@@ -51,6 +51,14 @@ export function getDeviceName(): string {
     return `${browser} on ${os}`.slice(0, MAX_TARGET_NAME_LENGTH)
 }
 
+/**
+ * Whether a device name (as built by getDeviceName, e.g. "Safari on iOS") belongs to a phone or tablet.
+ * Used to pick the icon, since a user usually has both a desktop and a mobile device registered.
+ */
+export function isMobileDeviceName(name: string | null | undefined): boolean {
+    return /android|ios|iphone|ipad|mobile/i.test(name || '')
+}
+
 /** Discord serves an unauthenticated GET on webhook URLs returning { name, ... }; used only to label the row. */
 export async function fetchWebhookName(url: string): Promise<string | null> {
     try {

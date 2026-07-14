@@ -2,10 +2,11 @@
 import { type JSX } from 'react'
 import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
 import PhoneIphoneIcon from '@mui/icons-material/PhoneIphone'
+import ComputerIcon from '@mui/icons-material/Computer'
 import ForumIcon from '@mui/icons-material/Forum'
 import NotificationsIcon from '@mui/icons-material/NotificationsOutlined'
 import { findInGameNeverTarget, isNotificationType } from '../../utils/NotificationUtils'
-import { findDeviceTarget } from '../../utils/NotificationChannelUtils'
+import { findDeviceTarget, isMobileDeviceName } from '../../utils/NotificationChannelUtils'
 import styles from './SubscriptionList.module.css'
 
 interface Props {
@@ -31,12 +32,11 @@ function ChannelChips(props: Props) {
         if (isNotificationType(target.type, 'InGame')) {
             return // in-game handled above; NEVER marker is not a real channel
         }
-        if (deviceTarget && target.id === deviceTarget.id) {
-            chips.push({ key: `t-${target.id}`, icon: <PhoneIphoneIcon fontSize="small" />, label: 'This device' })
-            return
-        }
         if (isNotificationType(target.type, 'FIREBASE')) {
-            chips.push({ key: `t-${target.id}`, icon: <PhoneIphoneIcon fontSize="small" />, label: target.name || 'Push' })
+            // a phone and a desktop are usually both registered, so the icon has to tell them apart
+            let icon = isMobileDeviceName(target.name) ? <PhoneIphoneIcon fontSize="small" /> : <ComputerIcon fontSize="small" />
+            let isThisDevice = deviceTarget && target.id === deviceTarget.id
+            chips.push({ key: `t-${target.id}`, icon, label: isThisDevice ? 'This device' : target.name || 'Push' })
             return
         }
         if (isNotificationType(target.type, 'DiscordWebhook') || isNotificationType(target.type, 'DISCORD')) {

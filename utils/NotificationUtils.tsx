@@ -61,6 +61,26 @@ export function getNotificationTypeAsString(type: NotificationType | number): st
     }
 }
 
+/**
+ * A one-line stand-in for the raw target value. Push tokens are hundreds of characters and Discord
+ * webhook urls contain a secret, so neither is useful (or safe) to print in full - only enough to tell
+ * two entries apart is shown, the full value can still be copied.
+ */
+export function getShortNotificationTarget(target: NotificationTarget): string {
+    let value = target.target || ''
+    if (!value) {
+        return ''
+    }
+    if (isNotificationType(target.type, 'FIREBASE')) {
+        return `Push token …${value.slice(-6)}`
+    }
+    if (isNotificationType(target.type, 'DiscordWebhook') || isNotificationType(target.type, 'WEBHOOK')) {
+        let webhookId = value.match(/webhooks\/(\d+)/)
+        return webhookId ? `Webhook …${webhookId[1].slice(-6)}` : 'Webhook url'
+    }
+    return value.length > 40 ? `${value.slice(0, 37)}…` : value
+}
+
 export function getNotficationWhenEnumAsString(when: NotificationWhen | number): string {
     switch (when) {
         case 0:

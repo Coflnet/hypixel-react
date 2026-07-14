@@ -3,10 +3,18 @@ import { useEffect, useRef, useState } from 'react'
 import { Form, Spinner } from 'react-bootstrap'
 import GamepadIcon from '@mui/icons-material/SportsEsports'
 import PhoneIcon from '@mui/icons-material/PhoneIphone'
+import ComputerIcon from '@mui/icons-material/Computer'
 import DiscordIcon from '@mui/icons-material/Forum'
 import askForNotificationPermissons from '../../../utils/NotificationPermisson'
 import { getNotificationTypeAsString, isNotificationType } from '../../../utils/NotificationUtils'
-import { ChannelSelection, fetchWebhookName, getDeviceName, getExtraTargets, isValidDiscordWebhookUrl } from '../../../utils/NotificationChannelUtils'
+import {
+    ChannelSelection,
+    fetchWebhookName,
+    getDeviceName,
+    getExtraTargets,
+    isMobileDeviceName,
+    isValidDiscordWebhookUrl
+} from '../../../utils/NotificationChannelUtils'
 import { getLoadingElement } from '../../../utils/LoadingUtils'
 import styles from './ChannelPicker.module.css'
 
@@ -89,6 +97,7 @@ function ChannelPicker(props: Props) {
     }
 
     let deviceName = getDeviceName()
+    let DeviceIcon = isMobileDeviceName(deviceName) ? PhoneIcon : ComputerIcon
     let discordChecked = selection.newDiscordUrl !== null
     let discordInvalid = discordChecked && selection.newDiscordUrl !== '' && !isValidDiscordWebhookUrl(selection.newDiscordUrl || '')
     let discordValid = discordChecked && isValidDiscordWebhookUrl(selection.newDiscordUrl || '')
@@ -118,7 +127,7 @@ function ChannelPicker(props: Props) {
                         onChange={e => onToggleDevice(e.target.checked)}
                     />
                 )}
-                <PhoneIcon className={styles.icon} />
+                <DeviceIcon className={styles.icon} />
                 <span className={styles.text}>
                     {/* named after the browser and OS, since a desktop and a phone are usually both registered */}
                     <span className={styles.title}>This device ({deviceName})</span>
@@ -182,23 +191,30 @@ function ChannelPicker(props: Props) {
             </div>
 
             {/* Other existing targets, e.g. the user's other devices and past webhooks */}
-            {extraTargets.map(target => (
-                <label className={styles.channel} key={target.id}>
-                    <Form.Check
-                        type="checkbox"
-                        checked={target.id !== undefined && selection.existingTargetIds.includes(target.id)}
-                        onChange={e => target.id !== undefined && onToggleExisting(target.id, e.target.checked)}
-                    />
-                    {isNotificationType(target.type, 'FIREBASE') ? <PhoneIcon className={styles.icon} /> : <DiscordIcon className={styles.icon} />}
-                    <span className={styles.text}>
-                        <span className={styles.title}>{target.name || getNotificationTypeAsString(target.type)}</span>
-                        <span className={styles.subtitle}>
-                            {getNotificationTypeAsString(target.type)}
-                            {target.useCount ? ` · used ${target.useCount}×` : ''}
+            {extraTargets.map(target => {
+                let TargetIcon = !isNotificationType(target.type, 'FIREBASE')
+                    ? DiscordIcon
+                    : isMobileDeviceName(target.name)
+                      ? PhoneIcon
+                      : ComputerIcon
+                return (
+                    <label className={styles.channel} key={target.id}>
+                        <Form.Check
+                            type="checkbox"
+                            checked={target.id !== undefined && selection.existingTargetIds.includes(target.id)}
+                            onChange={e => target.id !== undefined && onToggleExisting(target.id, e.target.checked)}
+                        />
+                        <TargetIcon className={styles.icon} />
+                        <span className={styles.text}>
+                            <span className={styles.title}>{target.name || getNotificationTypeAsString(target.type)}</span>
+                            <span className={styles.subtitle}>
+                                {getNotificationTypeAsString(target.type)}
+                                {target.useCount ? ` · used ${target.useCount}×` : ''}
+                            </span>
                         </span>
-                    </span>
-                </label>
-            ))}
+                    </label>
+                )
+            })}
         </div>
     )
 }
