@@ -6,6 +6,7 @@ import styles from './ExportArchivedData.module.css'
 import HelpIcon from '@mui/icons-material/Help'
 import Tooltip from '../../Tooltip/Tooltip'
 import NumberElement from '../../Number/Number'
+import { isValidDiscordWebhookUrl } from '../../../utils/NotificationChannelUtils'
 
 interface Props {
     itemTag: string
@@ -23,7 +24,7 @@ function ExportArchivedData(props: Props) {
     let [showConfirmDialog, setShowConfirmDialog] = useState(false)
     let [isExportRunning, setIsExportRunning] = useState(false)
 
-    let isDiscordWebhookUrlValid = discordWebhookUrl && (discordWebhookUrl.startsWith('https://discord.com/api/webhooks/') || discordWebhookUrl.startsWith('https://discordapp.com/api/webhooks/'))
+    let isDiscordWebhookUrlValid = !!discordWebhookUrl && isValidDiscordWebhookUrl(discordWebhookUrl)
 
     useEffect(() => {
         setShowModal(props.show)
@@ -80,7 +81,7 @@ function ExportArchivedData(props: Props) {
                             onChange={e => setDiscordWebhookUrl(e.target.value)}
                             placeholder="Discord Webhook Url (https://discord.com/api/... or https://discordapp.com/api/...)"
                         />
-                        {discordWebhookUrl && !discordWebhookUrl?.startsWith('https://discord.com/api/') && !discordWebhookUrl?.startsWith('https://discordapp.com/api/webhooks/') ? (
+                        {discordWebhookUrl && !isValidDiscordWebhookUrl(discordWebhookUrl) ? (
                             <div>
                                 <span style={{ color: 'red' }}>The Discord Webhook URL has to start with "https://discord.com/api/..." or "https://discordapp.com/api/webhooks/..."</span>
                             </div>

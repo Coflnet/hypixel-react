@@ -6,15 +6,21 @@ import { toast } from 'react-toastify'
 import NotificationIcon from '@mui/icons-material/NotificationsOutlined'
 import styles from '../SubscribeButton.module.css'
 import { useRouter } from 'next/navigation'
-import { Typeahead } from 'react-bootstrap-typeahead'
 import { SubscriptionType } from '../../../api/ApiTypes.d'
 import { useWasAlreadyLoggedIn } from '../../../utils/Hooks'
 import api from '../../../api/ApiHelper'
-import CreateTargetDialog from '../CreateTargetDialog/CreateTargetDialog'
 import GoogleSignIn from '../../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
 import Link from 'next/link'
+import ChannelPicker from '../ChannelPicker/ChannelPicker'
+import {
+    ChannelSelection,
+    getInitialChannelSelection,
+    isChannelSelectionValid,
+    rememberChannelSelection,
+    resolveChannelSelection
+} from '../../../utils/NotificationChannelUtils'
 
 interface Props {
     onAfterSubscribe?(): void
@@ -27,11 +33,11 @@ function WhitelistSubscribeButton(props: Props) {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let [notificationTargets, setNotificationTargets] = useState<NotificationTarget[]>([])
-    let [selectedNotificationTargets, setSelectedNotificationTargets] = useState<NotificationTarget[]>([])
+    let [channelSelection, setChannelSelection] = useState<ChannelSelection>({ inGame: true, push: false, newDiscordUrl: null, existingTargetIds: [] })
     let [isLoadingNotificationTargets, setIsLoadingNotificationTargets] = useState(false)
-    let [showCreateTargetDialog, setShowCreateTargetDialog] = useState(false)
     let [hasPremium, setHasPremium] = useState(false)
     let [isPremiumLoading, setIsPremiumLoading] = useState(false)
+    let [isSubmitting, setIsSubmitting] = useState(false)
 
     async function onSubscribe() {
         if (!hasPremium) {
@@ -40,10 +46,21 @@ function WhitelistSubscribeButton(props: Props) {
         }
 
         trackEvent({ action: 'subscribed', category: 'subscriptions' })
-        setShowDialog(false)
 
-        api.subscribe("whitelist", [SubscriptionType.WHITELIST], selectedNotificationTargets, undefined, undefined)
+        setIsSubmitting(true)
+        let resolvedTargets: NotificationTarget[]
+        try {
+            resolvedTargets = await resolveChannelSelection(channelSelection, notificationTargets)
+        } catch (e) {
+            setIsSubmitting(false)
+            toast.error(e instanceof Error ? e.message : 'Could not set up the selected channels. Please try again.')
+            return
+        }
+
+        api.subscribe('whitelist', [SubscriptionType.WHITELIST], resolvedTargets, undefined, undefined)
             .then(() => {
+                rememberChannelSelection(channelSelection, resolvedTargets)
+                setShowDialog(false)
                 toast.success('Notifier successfully created!', {
                     onClick: () => {
                         router.push('/subscriptions')
@@ -54,11 +71,16 @@ function WhitelistSubscribeButton(props: Props) {
                 }
             })
             .catch(error => {
-                toast.error(error.message, {
-                    onClick: () => {
-                        router.push('/subscriptions')
-                    }
-                })
+                if (error?.message) {
+                    toast.error(error.message, {
+                        onClick: () => {
+                            router.push('/subscriptions')
+                        }
+                    })
+                }
+            })
+            .finally(() => {
+                setIsSubmitting(false)
             })
     }
 
@@ -73,6 +95,7 @@ function WhitelistSubscribeButton(props: Props) {
             })
         ]).then(([targets]) => {
             setNotificationTargets(targets)
+            setChannelSelection(getInitialChannelSelection(targets))
             setIsLoadingNotificationTargets(false)
             setIsPremiumLoading(false)
         })
@@ -100,35 +123,22 @@ function WhitelistSubscribeButton(props: Props) {
                     ) : hasPremium ? (
                         <div>
                             <p>
-                                Creating this will send a notification to the selected target whenever a new auction matching your whitelist from <Link href="https://sky.colfnet.com/flipper">Auction flipper</Link> is created.
+                                Get notified whenever a new auction matching your whitelist from the{' '}
+                                <Link href="https://sky.coflnet.com/flipper">Auction flipper</Link> is created.
                             </p>
-                            <label htmlFor="notificationTargetsTypeahead">Targets: </label>
-                            <div style={{ display: 'flex', gap: 10 }}>
-                                <Typeahead
-                                    id="notificationTargetsTypeahead"
-                                    className={styles.multiSearch}
-                                    isLoading={isLoadingNotificationTargets}
-                                    labelKey="name"
-                                    style={{ flex: 1 }}
-                                    options={notificationTargets}
-                                    placeholder={'Select targets...'}
-                                    selected={selectedNotificationTargets}
-                                    onChange={selected => {
-                                        setSelectedNotificationTargets(selected as NotificationTarget[])
-                                    }}
-                                    multiple={true}
-                                />
-                                <Button
-                                    onClick={() => {
-                                        setShowCreateTargetDialog(true)
-                                    }}
-                                    variant='secondary'
-                                >
-                                    Create new target
-                                </Button>
-                            </div>
-                            <Button onClick={onSubscribe} className={styles.notifyButton}>
-                                Notify me
+                            <h5 className={styles.sectionHeading}>Where</h5>
+                            <ChannelPicker
+                                targets={notificationTargets}
+                                isLoading={isLoadingNotificationTargets}
+                                selection={channelSelection}
+                                onChange={setChannelSelection}
+                            />
+                            <Button
+                                onClick={onSubscribe}
+                                disabled={!isChannelSelectionValid(channelSelection) || isSubmitting}
+                                className={styles.notifyButton}
+                            >
+                                {isSubmitting ? 'Creating...' : 'Create notifier'}
                             </Button>
                         </div>
                     ) : (
@@ -136,12 +146,8 @@ function WhitelistSubscribeButton(props: Props) {
                             <div style={{ textAlign: 'center', padding: '20px' }}>
                                 <div style={{ fontSize: '48px', marginBottom: '15px' }}>🔒</div>
                                 <h5 style={{ color: 'var(--bs-warning)', marginBottom: '10px' }}>Premium Feature</h5>
-                                <p style={{  marginBottom: '15px' }}>
-                                    Whitelist notifiers require at least Premium access.
-                                </p>
-                                <p style={{  marginBottom: '15px' }}>
-                                    Click the notification icon to open this dialog again after purchasing premium.
-                                </p>
+                                <p style={{ marginBottom: '15px' }}>Whitelist notifiers require at least Premium access.</p>
+                                <p style={{ marginBottom: '15px' }}>Click the notification icon to open this dialog again after purchasing premium.</p>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '15px' }}>
                                 <Link href="/premium?tier=premium">
@@ -159,19 +165,9 @@ function WhitelistSubscribeButton(props: Props) {
         </Modal>
     )
 
-    function onTargetCreated(target: NotificationTarget) {
-        setSelectedNotificationTargets([...selectedNotificationTargets, target])
-        setNotificationTargets([...notificationTargets, target])
-    }
-
     return (
         <div className={styles.subscribeButton}>
             {dialog}
-            <CreateTargetDialog
-                show={showCreateTargetDialog}
-                onHide={() => setShowCreateTargetDialog(false)}
-                onTargetCreated={onTargetCreated}
-            />
             <Button style={{ width: 'max-content' }} onClick={openDialog}>
                 <NotificationIcon />
                 Create Whitelist Notifier

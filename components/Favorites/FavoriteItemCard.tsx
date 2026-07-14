@@ -115,6 +115,7 @@ export default function FavoriteItemCard({ favorite, movement, isMovementLoading
                 <SubscribeButton
                     topic={favorite.tag}
                     type={favorite.bazaar ? 'bazaar' : 'item'}
+                    currentPrice={currentPrice}
                     buttonContent={<span>Notify</span>}
                 />
                 <FavoriteToggle item={item} size="small" />
@@ -135,6 +136,7 @@ export default function FavoriteItemCard({ favorite, movement, isMovementLoading
                             <SubscribeButton
                                 topic={favorite.tag}
                                 type={favorite.bazaar ? 'bazaar' : 'item'}
+                                currentPrice={currentPrice}
                                 buttonContent={
                                     <span className={styles.mobileDropdownItem}>
                                         <NotificationsOutlinedIcon />

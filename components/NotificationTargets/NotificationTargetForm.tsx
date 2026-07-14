@@ -5,6 +5,7 @@ import { Button, Form } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import askForNotificationPermissons from '../../utils/NotificationPermisson'
 import { getNotficationWhenEnumAsString, getNotificationTypeAsString } from '../../utils/NotificationUtils'
+import { isValidDiscordWebhookUrl } from '../../utils/NotificationChannelUtils'
 
 const TYPE_OPTIONS: NotificationType[] = ['DiscordWebhook', 'FIREBASE', 'InGame']
 const WHEN_OPITIONS: NotificationWhen[] = ['NEVER', 'AfterFail', 'ALWAYS']
@@ -21,6 +22,8 @@ function NotificationTargetForm(props: Props) {
     let [target, setTarget] = useState<string | null>(props.defaultNotificationTarget?.target || null)
     let [when, setWhen] = useState<NotificationWhen | number>(props.defaultNotificationTarget?.when || 'ALWAYS')
     let [disabled, setDisabled] = useState(false)
+
+    let discordUrlInvalid = type === 'DiscordWebhook' && !!target && !isValidDiscordWebhookUrl(target)
 
     async function addNotificationTarget() {
         let targetToSend = target
@@ -81,9 +84,9 @@ function NotificationTargetForm(props: Props) {
                             type="text"
                             onChange={e => setTarget(e.target.value)}
                             placeholder={type === 'DiscordWebhook' ? 'Discord Webhook Url (https://discord.com/api/... or https://discordapp.com/api/...)' : 'Webhook Url'}
-                            isInvalid={(type === 'DiscordWebhook' && target && !target?.startsWith('https://discord.com/api/') && !target?.startsWith('https://discordapp.com/api/webhooks/')) === true}
+                            isInvalid={discordUrlInvalid}
                         />
-                        {type === 'DiscordWebhook' && target && !target?.startsWith('https://discord.com/api/') && !target?.startsWith('https://discordapp.com/api/webhooks/') ? (
+                        {discordUrlInvalid ? (
                             <div>
                                 <span style={{ color: 'red' }}>The Discord Webhook URL has to start with "https://discord.com/api/..." or "https://discordapp.com/api/webhooks/..."</span>
                             </div>

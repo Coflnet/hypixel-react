@@ -1,4 +1,28 @@
 .checkBox {
-    display: inline;
     margin-left: 5px;
+}
+
+.priceDirection {
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.priceDirection :global(.btn) {
+    flex: 1;
+}
+
+.priceInput {
+    margin-bottom: 10px;
+}
+
+.moreLink {
+    display: inline-block;
+    font-size: 0.9rem;
+}
+
+.moreOptions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
 }

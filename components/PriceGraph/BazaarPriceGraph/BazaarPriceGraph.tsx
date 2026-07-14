@@ -469,7 +469,12 @@ function BazaarPriceGraph(props: Props) {
                             ) : null}
                         </div>
                         <div>
-                            <SubscribeButton type="bazaar" topic={props.item.tag} />
+                            <SubscribeButton
+                                type="bazaar"
+                                topic={props.item.tag}
+                                currentPrice={avgBuyPrice || undefined}
+                                currentSellPrice={avgSellPrice || undefined}
+                            />
                         </div>
                         <div>
                             <ShareButton title={'Prices for ' + props.item.name} text="Browse the Bazaar history in Hypixel Skyblock" />

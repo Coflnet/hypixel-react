@@ -2,3 +2,16 @@
     display: inline;
     margin-left: 5px;
 }
+
+.priceDirection {
+    width: 100%;
+    margin-bottom: 12px;
+}
+
+.priceDirection :global(.btn) {
+    flex: 1;
+}
+
+.priceInput {
+    margin-bottom: 10px;
+}

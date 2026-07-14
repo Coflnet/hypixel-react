@@ -1,7 +1,9 @@
 'use client'
-import { FormControl, InputGroup } from 'react-bootstrap'
+import { useState } from 'react'
+import { FormControl, InputGroup, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import { Form } from 'react-bootstrap'
 import { NotificationListener, SubscriptionType } from '../../../api/ApiTypes.d'
+import { formatThousandsSpaced, parseFormattedNumber } from '../../../utils/Formatter'
 import styles from './SubscribeBazaarItemContent.module.css'
 
 interface Props {
@@ -10,62 +12,62 @@ interface Props {
     onUseSellPriceChange(value: boolean)
     itemTag: string
     prefill?: NotificationListener
+    priceValue?: string
 }
 
 function SubscribeBazaarItemContent(props: Props) {
+    let prefillIsAbove = props.prefill
+        ? (props.prefill.types as unknown as string[]).includes(SubscriptionType[SubscriptionType.PRICE_HIGHER_THAN])
+        : false
+    let prefillUseSell = props.prefill
+        ? (props.prefill.types as unknown as string[]).includes(SubscriptionType[SubscriptionType.USE_SELL_NOT_BUY])
+        : false
+    let [isAbove, setIsAbove] = useState(prefillIsAbove)
+    let [useSell, setUseSell] = useState(prefillUseSell)
+
     return (
         <>
             <div className="item-forms">
-                <InputGroup className="price-input">
-                    <InputGroup.Text id="inputGroup-sizing-sm">Item price</InputGroup.Text>
+                <ToggleButtonGroup
+                    type="radio"
+                    name="bazaarPriceDirection"
+                    className={styles.priceDirection}
+                    value={isAbove ? 'above' : 'below'}
+                    onChange={val => {
+                        let above = val === 'above'
+                        setIsAbove(above)
+                        props.onIsPriceAboveChange(above)
+                    }}
+                >
+                    <ToggleButton id="bazaarPriceBelowButton" value="below" variant="outline-primary" size="sm">
+                        Price drops below
+                    </ToggleButton>
+                    <ToggleButton id="bazaarPriceAboveButton" value="above" variant="outline-primary" size="sm">
+                        Price rises above
+                    </ToggleButton>
+                </ToggleButtonGroup>
+                <InputGroup className={styles.priceInput}>
+                    <InputGroup.Text id="inputGroup-sizing-sm">Price</InputGroup.Text>
                     <FormControl
-                        aria-label="Small"
+                        aria-label="Price"
                         aria-describedby="inputGroup-sizing-sm"
-                        type="number"
-                        defaultValue={props.prefill?.price}
-                        onChange={e => props.onPriceChange(e.target.value)}
+                        type="text"
+                        inputMode="numeric"
+                        value={formatThousandsSpaced(props.priceValue ?? '')}
+                        onChange={e => props.onPriceChange(parseFormattedNumber(e.target.value))}
                     />
+                    <InputGroup.Text>coins</InputGroup.Text>
                 </InputGroup>
-                <hr />
-                <h4 style={{ marginBottom: '20px' }}>Notify me...</h4>
-                <Form.Group>
-                    <Form.Label htmlFor="priceAboveCheckbox">if the price is above the selected value</Form.Label>
-                    <Form.Check
-                        type="radio"
-                        id="priceAboveCheckbox"
-                        name="priceState"
-                        defaultChecked={
-                            props.prefill && (props.prefill.types as unknown as string[]).includes(SubscriptionType[SubscriptionType.PRICE_HIGHER_THAN])
-                        }
-                        onChange={e => props.onIsPriceAboveChange(true)}
-                        className={styles.checkBox}
-                    />
-                </Form.Group>
-                <Form.Group>
-                    <Form.Label htmlFor="priceBelowCheckbox">if the price is below the selected value</Form.Label>
-                    <Form.Check
-                        type="radio"
-                        id="priceBelowCheckbox"
-                        name="priceState"
-                        defaultChecked={
-                            props.prefill && (props.prefill.types as unknown as string[]).includes(SubscriptionType[SubscriptionType.PRICE_LOWER_THAN])
-                        }
-                        onChange={e => props.onIsPriceAboveChange(false)}
-                        className={styles.checkBox}
-                    />
-                </Form.Group>
-                <Form.Group>
-                    <Form.Label htmlFor="useSellPriceCheckbox">if the sell price should be used</Form.Label>
-                    <Form.Check
-                        type="checkbox"
-                        id="useSellPriceCheckbox"
-                        defaultChecked={
-                            props.prefill && (props.prefill.types as unknown as string[]).includes(SubscriptionType[SubscriptionType.USE_SELL_NOT_BUY])
-                        }
-                        onChange={e => props.onUseSellPriceChange(e.target.checked)}
-                        className={styles.checkBox}
-                    />
-                </Form.Group>
+                <Form.Check
+                    type="switch"
+                    id="useSellPriceCheckbox"
+                    checked={useSell}
+                    label={useSell ? 'Comparing against sell price' : 'Comparing against buy price'}
+                    onChange={e => {
+                        setUseSell(e.target.checked)
+                        props.onUseSellPriceChange(e.target.checked)
+                    }}
+                />
             </div>
         </>
     )
