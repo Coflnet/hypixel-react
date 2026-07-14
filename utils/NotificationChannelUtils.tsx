@@ -177,7 +177,10 @@ export async function resolveChannelSelection(selection: ChannelSelection, targe
                 resolved.push(existing)
             }
         } else {
-            await api.setToken(token)
+            // legacy websocket registration of the token; never awaited, as the websocket helper retries
+            // forever instead of rejecting when the socket isn't ready, which would hang the whole submit.
+            // The FIREBASE target created below is what actually registers the device.
+            api.setToken(token).catch(e => console.error('registering fcm token failed', e))
             let created = await api.addNotificationTarget({
                 id: undefined,
                 type: 'FIREBASE',
