@@ -33,6 +33,16 @@
     white-space: nowrap;
 }
 
+/* marks the notifiers that block the deletion of a channel */
+.subscriptionList :global(.list-group-item).highlightedNotifier {
+    border: 2px solid var(--bs-danger);
+}
+
+.chipHighlight {
+    background-color: rgba(var(--bs-danger-rgb), 0.35);
+    font-weight: bold;
+}
+
 .noChannels {
     display: inline-block;
     margin-top: 8px;

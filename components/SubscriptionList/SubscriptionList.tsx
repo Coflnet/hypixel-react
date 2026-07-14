@@ -31,6 +31,8 @@ function SubscriptionList() {
     let [hasStarterPremium, setHasStarterPremium] = useState(false)
     let [showDeleteAllSubscriptionDialog, setShowDeleteAllSubscriptionDialog] = useState(false)
     let [showNotificationTargets, setShowNotificationTargets] = useState(false)
+    /** set when a channel couldn't be deleted, to point the user at the notifiers still using it */
+    let [highlightedTargetId, setHighlightedTargetId] = useState<number | undefined>()
     let [isLoading, setIsLoading] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
@@ -228,6 +230,35 @@ function SubscriptionList() {
         })
     }
 
+    /**
+     * The backend keeps a channel alive as long as a notifier delivers to it. Instead of only saying so,
+     * close the channel list and mark the notifiers in the way, so the user can edit them right away.
+     */
+    function onTargetInUse(target: NotificationTarget) {
+        let dependingSubscriptions = subscriptions.filter(s => s.targets.some(t => t.id === target.id))
+        setShowNotificationTargets(false)
+        setHighlightedTargetId(target.id)
+
+        let channelName = target.name || 'This channel'
+        if (dependingSubscriptions.length === 0) {
+            toast.error(`"${channelName}" is still used by a notifier and can't be deleted.`)
+            return
+        }
+        let isSingle = dependingSubscriptions.length === 1
+        toast.error(
+            `"${channelName}" is still used by ${dependingSubscriptions.length} notifier${isSingle ? '' : 's'} (highlighted below). Move ${
+                isSingle ? 'it' : 'them'
+            } to another channel or delete ${isSingle ? 'it' : 'them'}, then delete the channel.`,
+            { autoClose: 15000 }
+        )
+
+        let firstId = dependingSubscriptions[0].id
+        // the list is already rendered, the modal only needs a tick to close before scrolling
+        setTimeout(() => {
+            document.getElementById(`notifier-${firstId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }, 100)
+    }
+
     function deleteAll() {
         setShowDeleteAllSubscriptionDialog(false)
         setIsLoading(true)
@@ -342,17 +373,20 @@ function SubscriptionList() {
         if (subscription.id) {
             listener = subscriptionsToListenerMap[subscription.id?.toString()]
         }
+        let usesHighlightedTarget = highlightedTargetId !== undefined && subscription.targets.some(t => t.id === highlightedTargetId)
+        let highlightClass = usesHighlightedTarget ? styles.highlightedNotifier : undefined
+
         // Show a generic entry for subscription without a listener
         if (!listener) {
             return (
-                <ListGroup.Item key={i}>
+                <ListGroup.Item key={i} id={`notifier-${subscription.id}`} className={highlightClass}>
                     <h5>
                         <Badge style={{ marginRight: '5px' }} bg="primary">
                             {i + 1}
                         </Badge>
                         Legacy notifier
                     </h5>
-                    <ChannelChips subscription={subscription} allTargets={allTargets} />
+                    <ChannelChips subscription={subscription} allTargets={allTargets} highlightedTargetId={highlightedTargetId} />
                     <div style={{ position: 'absolute', top: '0.75rem', right: '1.25rem', cursor: 'pointer', display: 'flex', alignItems: 'end' }}>
                         <DeleteIcon
                             color="error"
@@ -372,7 +406,7 @@ function SubscriptionList() {
         // Show normal entry for subscriptions with a listener
         if (listener) {
             return (
-                <ListGroup.Item key={i}>
+                <ListGroup.Item key={i} id={`notifier-${subscription.id}`} className={highlightClass}>
                     <h5>
                         <Badge style={{ marginRight: '5px' }} bg="primary">
                             {i + 1}
@@ -382,7 +416,7 @@ function SubscriptionList() {
                     {getSubTypesAsList(listener.types, listener.price)}
                     {listener.filter ? <hr /> : null}
                     <ItemFilterPropertiesDisplay filter={listener.filter} />
-                    <ChannelChips subscription={subscription} allTargets={allTargets} />
+                    <ChannelChips subscription={subscription} allTargets={allTargets} highlightedTargetId={highlightedTargetId} />
                     <div style={{ position: 'absolute', top: '0.75rem', right: '1.25rem', cursor: 'pointer', display: 'flex', alignItems: 'end' }}>
                         {listener.type === 'whitelist' ? null : (
                             <SubscribeButton
@@ -456,7 +490,7 @@ function SubscriptionList() {
                 <Modal.Title>Channels</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <NotificationTargets />
+                <NotificationTargets onTargetInUse={onTargetInUse} />
             </Modal.Body>
         </Modal>
     )
@@ -486,6 +520,7 @@ function SubscriptionList() {
                             <Button
                                 variant="secondary"
                                 onClick={() => {
+                                    setHighlightedTargetId(undefined)
                                     setShowNotificationTargets(true)
                                 }}
                             >
@@ -538,6 +573,16 @@ function SubscriptionList() {
                 <p>
                     Use <b>New notifier</b> above to search for an item or player, or press the <b>Notify</b> button on any item, player or auction page. Choose{' '}
                     <b>where</b> you want to be notified — in-game, on this device, or a Discord server — under <b>Channels</b>.
+                </p>
+                <p>
+                    A <b>whitelist notifier</b> is not tied to a single item: it watches every new auction against the whitelist of your{' '}
+                    <Link href="/flipper">auction flipper</Link>. If you put a filter for exotic colored armor on your whitelist, for example, you get a
+                    notification as soon as any exotic piece is listed — no matter which item it is. Set the filters up on the flipper page, then create the
+                    notifier here with <b>Create Whitelist Notifier</b>.
+                </p>
+                <p>
+                    A channel can be shared by several notifiers, so it can only be deleted once no notifier uses it anymore. If a deletion is refused, the
+                    notifiers still using that channel are highlighted in the list above — edit them to another channel (or delete them) and try again.
                 </p>
             </div>
         </div>

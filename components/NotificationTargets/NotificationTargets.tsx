@@ -11,9 +11,15 @@ import CopyIcon from '@mui/icons-material/ContentCopy'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getNotficationWhenEnumAsString, getNotificationTypeAsString, getShortNotificationTarget } from '../../utils/NotificationUtils'
 import { canUseClipBoard, writeToClipboard } from '../../utils/ClipboardUtils'
+import { isTargetInUseError, wasErrorShownToUser } from '../../api/NotificationApi'
 import styles from './NotificationTargets.module.css'
 
-function NotificationTargets() {
+interface Props {
+    /** called instead of an error toast when the channel can't be deleted because a notifier still uses it */
+    onTargetInUse?(target: NotificationTarget): void
+}
+
+function NotificationTargets(props: Props) {
     let [notificationTargets, setNotificationTargets] = useState<NotificationTarget[]>([])
     let [isLoading, setIsLoading] = useState(false)
     let [showAddNotificationTarget, setShowAddNotificationTarget] = useState(false)
@@ -38,14 +44,15 @@ function NotificationTargets() {
                 setNotificationTargets(notificationTargets.filter(t => t.name !== target.name))
             })
             .catch(error => {
-                // the http layer rejects with a plain string like `HTTP 500: {"slug":"subscription_depends",...}`,
-                // so apiErrorHandler (which only handles error.message) stays silent - surface it here instead.
-                let message = typeof error === 'string' ? error : error?.message
-                if (message && message.includes('subscription_depends')) {
-                    toast.error(`"${target.name}" is still used by at least one notifier. Switch those notifiers to another channel first, then delete it.`)
-                } else {
-                    toast.error(message || 'Could not delete this channel. Please try again.')
+                if (isTargetInUseError(error) && props.onTargetInUse) {
+                    props.onTargetInUse(target)
+                    return
                 }
+                if (wasErrorShownToUser(error)) {
+                    return
+                }
+                let message = typeof error === 'string' ? error : error?.message
+                toast.error(message || 'Could not delete this channel. Please try again.')
             })
     }
 

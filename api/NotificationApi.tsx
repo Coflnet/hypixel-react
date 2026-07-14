@@ -164,11 +164,30 @@ export async function updateNotificationTarget(target: NotificationTarget): Prom
     }
 }
 
+/** The backend refuses to delete a target that a notifier still delivers to. */
+export function isTargetInUseError(error: any): boolean {
+    let message = typeof error === 'string' ? error : (error as ApiError)?.message
+    // depending on the endpoint the error arrives as a slug, as a json body or as the plain english message
+    return (
+        (error as ApiError)?.slug === 'subscription_depends' ||
+        !!message?.includes('subscription_depends') ||
+        !!message?.includes('depending on this target')
+    )
+}
+
 export async function deleteNotificationTarget(target: NotificationTarget): Promise<void> {
     try {
         let response = await deleteApiNotificationsTargets(target as any, authOptions())
         unwrap<void>(response, 'Could not delete the notification target.')
     } catch (e) {
+        if (isTargetInUseError(e)) {
+            // the caller points the user at the notifiers still using the channel, a generic error toast
+            // on top of that would just say the same thing twice
+            if (e instanceof Error) {
+                ;(e as ApiError).wasToasted = true
+            }
+            throw e
+        }
         return handleNotificationApiError(e)
     }
 }
