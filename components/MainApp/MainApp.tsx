@@ -164,7 +164,8 @@ export function MainApp(props: any) {
                 .map(nav => (nav as PerformanceNavigationTiming).type)
                 .includes('reload')
         ) {
-            let lastReloadTime = localStorage.getItem('lastReloadTime')
+            // sessionStorage is scoped per-tab, so reloads in different tabs are tracked separately
+            let lastReloadTime = sessionStorage.getItem('lastReloadTime')
             // Check if the last reload was less than 30 seconds ago
             if (lastReloadTime && 30_000 > new Date().getTime() - Number(lastReloadTime)) {
                 setTimeout(() => {
@@ -172,7 +173,7 @@ export function MainApp(props: any) {
                 }, 1000)
             } else {
                 setIsReloadTracked(true)
-                localStorage.setItem('lastReloadTime', new Date().getTime().toString())
+                sessionStorage.setItem('lastReloadTime', new Date().getTime().toString())
             }
         }
     }
