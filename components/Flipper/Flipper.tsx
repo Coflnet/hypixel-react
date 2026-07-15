@@ -18,7 +18,16 @@ import { DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSettings } from '../.
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
-import { FLIPPER_FILTER_KEY, getSetting, getSettingsObject, handleSettingsImport, RESTRICTIONS_SETTINGS_KEY, setSetting } from '../../utils/SettingsUtils'
+import {
+    FLIPPER_FILTER_KEY,
+    getCleanRestrictionsForApi,
+    getSetting,
+    getSettingsObject,
+    handleSettingsImport,
+    mapRestrictionsToApiFormat,
+    RESTRICTIONS_SETTINGS_KEY,
+    setSetting
+} from '../../utils/SettingsUtils'
 import AuctionDetails from '../AuctionDetails/AuctionDetails'
 import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
@@ -397,6 +406,40 @@ function Flipper(props: Props) {
         onFilterChange(flipperFilter)
     }
 
+    function relaxLimitingFilters() {
+        let relaxedFilter: FlipperFilter = { ...flipperFilter }
+        if ((relaxedFilter.minProfit || 0) > 3_000_000) {
+            relaxedFilter.minProfit = 3_000_000
+        }
+        if ((relaxedFilter.minProfitPercent || 0) > 0) {
+            relaxedFilter.minProfitPercent = 0
+        }
+        if ((relaxedFilter.minVolume || 0) > 5) {
+            relaxedFilter.minVolume = 5
+        }
+        if (relaxedFilter.maxCost && relaxedFilter.maxCost < 20_000_000) {
+            relaxedFilter.maxCost = 20_000_000
+        }
+
+        // push the relaxed filter values to the backend (no-op for anonymous users)
+        api.setFlipSetting('minProfit', relaxedFilter.minProfit || 0)
+        api.setFlipSetting('minProfitPercent', relaxedFilter.minProfitPercent || 0)
+        api.setFlipSetting('minVolume', relaxedFilter.minVolume || 0)
+        api.setFlipSetting('maxCost', relaxedFilter.maxCost || 0)
+
+        // drop all blacklist rules, keep whitelist entries
+        let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+        let remainingRestrictions = restrictions.filter(restriction => restriction.type !== 'blacklist')
+        setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(remainingRestrictions)))
+        api.setFlipSetting('blacklist', mapRestrictionsToApiFormat([]))
+
+        setSetting(FLIPPER_FILTER_KEY, JSON.stringify(relaxedFilter))
+
+        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, { detail: { apiUpdate: true } }))
+
+        onFilterChange(relaxedFilter)
+    }
+
     function redirectToSeller(sellerName: string) {
         router.push('/player/' + sellerName)
     }
@@ -658,9 +701,23 @@ function Flipper(props: Props) {
                         {flips.length === 0 && !isLoading ? (
                             <Alert variant="info" style={{ position: 'absolute', marginRight: 15 }}>
                                 <Alert.Heading style={{ fontSize: '1rem' }}>Waiting for new auctions</Alert.Heading>
-                                <p style={{ marginBottom: 0 }}>
+                                <p style={{ marginBottom: 10 }}>
                                     Your filter settings are limiting results. New flips probably show up soon. If they don't in 1-2 Minutes try making your settings less strict, eg reduce your minimum profit or remove blacklist filter rules.
                                 </p>
+                                <Tooltip
+                                    type="hover"
+                                    content={
+                                        <Button variant="primary" size="sm" onClick={relaxLimitingFilters}>
+                                            Loosen limiting filters
+                                        </Button>
+                                    }
+                                    tooltipContent={
+                                        <span>
+                                            Relaxes the non obvious filters that most often hide flips: caps min. profit at 3m, min. volume at 5, raises max.
+                                            cost to at least 20m and clears all blacklist rules.
+                                        </span>
+                                    }
+                                />
                             </Alert>
                         ) : null}
                         {!isSSR ? (
