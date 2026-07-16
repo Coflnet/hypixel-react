@@ -63,9 +63,14 @@ export function PremiumBazaarFlips() {
 
     const handleAfterLogin = useCallback(() => {
         const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId') ?? ''
+        // GoogleSignIn re-triggers this on every mount for an already-established session. Only refetch when the
+        // token actually changed (a genuinely new login) to avoid an invalidate -> refetch -> remount -> re-login loop.
+        if (token === googleToken) {
+            return
+        }
         setGoogleToken(token)
         queryClient.invalidateQueries({ queryKey: [...getGetApiFlipBazaarSpreadDeemandQueryKey(), token] })
-    }, [queryClient])
+    }, [queryClient, googleToken])
 
     if (!hasFlips) {
         const messageFromApi = getGeneratedApiErrorMessage(response, query.error, 'Unable to load premium bazaar flips right now')
