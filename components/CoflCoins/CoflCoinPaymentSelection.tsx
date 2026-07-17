@@ -157,7 +157,8 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
         return pricingData?.products?.[0]?.providers?.[0]?.currencyCode ?? 'EUR'
     }
 
-    const getDiscountMultiplier = (providerSlug: string, productSlug: string): number | undefined => {
+    // Creator-code-only multiplier, derived from the API's original vs. discounted price (e.g. 0.8 => 20% off)
+    const getCreatorDiscountMultiplier = (providerSlug: string, productSlug: string): number | undefined => {
         const originalPrice = getProviderOriginalPriceForComponent(providerSlug, productSlug)
         const discountedPrice = getProviderPriceForComponent(providerSlug, productSlug)
 
@@ -165,6 +166,45 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
             return discountedPrice / originalPrice
         }
         return undefined
+    }
+
+    // Multiplier for the validated discount code, applied on top of the (already creator-discounted) base price
+    const getDiscountCodeMultiplier = (basePrice: number): number => {
+        if (!validatedDiscount || !validatedDiscount.amount || basePrice <= 0) return 1
+        if (validatedDiscount.amountType === 'percent') {
+            return 1 - validatedDiscount.amount / 100
+        }
+        if (validatedDiscount.amountType === 'fixed') {
+            return Math.max(0, (basePrice - validatedDiscount.amount) / basePrice)
+        }
+        return 1
+    }
+
+    // Combined creator-code + discount-code multiplier, for providers that forward the discount code at checkout
+    const getCombinedDiscountMultiplier = (providerSlug: string, productSlug: string): number | undefined => {
+        const originalPrice = getProviderOriginalPriceForComponent(providerSlug, productSlug)
+        if (!originalPrice || originalPrice <= 0) return getCreatorDiscountMultiplier(providerSlug, productSlug)
+
+        // Discount code stacks multiplicatively on top of the creator-code-discounted price (matches checkout)
+        const creatorDiscountedPrice = getProviderPriceForComponent(providerSlug, productSlug) ?? originalPrice
+        const finalPrice = creatorDiscountedPrice * getDiscountCodeMultiplier(creatorDiscountedPrice)
+
+        if (finalPrice < originalPrice) {
+            return finalPrice / originalPrice
+        }
+        return undefined
+    }
+
+    // Append creator/discount codes as query params to a product slug so they reach the checkout endpoint
+    const buildProductIdWithCodes = (productId: string): string => {
+        const queryParams: string[] = []
+        if (appliedCreatorCode) {
+            queryParams.push(`creatorCode=${encodeURIComponent(appliedCreatorCode)}`)
+        }
+        if (validatedDiscount?.code) {
+            queryParams.push(`discountCode=${encodeURIComponent(validatedDiscount.code)}`)
+        }
+        return queryParams.length > 0 ? `${productId}?${queryParams.join('&')}` : productId
     }
 
     const discountPercent = pricingData?.discountPercent || 0
@@ -192,10 +232,11 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
     }
 
     const discountMultipliers = {
-        paypal: getDiscountMultiplier('paypal', providerProducts.paypal),
-        stripe: getDiscountMultiplier('stripe', providerProducts.stripe),
-        lemonsqueezy: getDiscountMultiplier('lemonsqueezy', providerProducts.lemonsqueezy),
-        googlepay: getDiscountMultiplier('googlepay', providerProducts.googlepay)
+        paypal: getCombinedDiscountMultiplier('paypal', providerProducts.paypal),
+        stripe: getCombinedDiscountMultiplier('stripe', providerProducts.stripe),
+        lemonsqueezy: getCombinedDiscountMultiplier('lemonsqueezy', providerProducts.lemonsqueezy),
+        // Google Play billing can't forward the discount code, so only reflect the creator-code discount here
+        googlepay: getCreatorDiscountMultiplier('googlepay', providerProducts.googlepay)
     }
 
     const dynamicGooglePlayProductId = getGooglePlayProductId()
@@ -302,9 +343,9 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                     stripePrice={dynamicPrices.stripe}
                     lemonsqueezyPrice={dynamicPrices.lemonsqueezy}
                     googlePlayPrice={dynamicPrices.googlepay}
-                    paypalProductId={selectedOption.paypalProductId}
-                    stripeProductId={selectedOption.stripeProductId}
-                    lemonsqueezyProductId={selectedOption.lemonsqueezyProductId}
+                    paypalProductId={buildProductIdWithCodes(selectedOption.paypalProductId)}
+                    stripeProductId={buildProductIdWithCodes(selectedOption.stripeProductId)}
+                    lemonsqueezyProductId={buildProductIdWithCodes(selectedOption.lemonsqueezyProductId)}
                     googlePlayProductId={dynamicGooglePlayProductId}
                     countryCode={countryCode}
                     onPayPalPay={onPayPalPay}
