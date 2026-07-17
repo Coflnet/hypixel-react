@@ -7,6 +7,7 @@ import { Button, Card, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
 import { useStateWithRef, useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { useLiveAuctionSubscription } from '../../hooks/useLiveAuctionSubscription'
 import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
@@ -68,6 +69,43 @@ function RecentAuctions(props: Props) {
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item.tag, JSON.stringify(props.itemFilter), props.yearRecentSamples, props.isYearView])
+
+    // subscribe to live sold auctions so newly sold auctions show up without a page refresh
+    function onSoldAuction(auction: RecentAuction) {
+        if (!mounted) {
+            return
+        }
+        // skip duplicates and keep the newest auction on top
+        if (recentAuctionsRef.current.some(a => a.uuid === auction.uuid)) {
+            return
+        }
+        setRecentAuctions([auction, ...recentAuctionsRef.current])
+    }
+    let resubscribeSoldAuctions = useLiveAuctionSubscription(
+        () => api.subscribeSoldAuctions(props.item.tag, getEffectiveItemFilter(), onSoldAuction),
+        [props.item.tag, JSON.stringify(props.itemFilter)],
+        !props.isYearView
+    )
+
+    // builds the filter actually used to fetch/subscribe, applying the Sold/Expired/All toggle as a HighestBid filter
+    function getEffectiveItemFilter(): ItemFilter {
+        let itemFilter = { ...itemFilterRef.current } as ItemFilter
+        if (!props.itemFilter || props.itemFilter['HighestBid'] === undefined) {
+            let fetchType = localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY)
+            switch (fetchType) {
+                case RECENT_AUCTIONS_FETCH_TYPE.UNSOLD:
+                    itemFilter['HighestBid'] = '0'
+                    break
+                case RECENT_AUCTIONS_FETCH_TYPE.ALL:
+                    break
+                case RECENT_AUCTIONS_FETCH_TYPE.SOLD:
+                default:
+                    itemFilter['HighestBid'] = '>0'
+                    break
+            }
+        }
+        return itemFilter
+    }
 
     function loadRecentAuctions(reset: boolean = false) {
         let recentAuctions = reset ? [] : recentAuctionsRef.current
@@ -156,6 +194,8 @@ function RecentAuctions(props: Props) {
         }
 
         localStorage.setItem(RECENT_AUCTIONS_FETCH_TYPE_KEY, e.target.value)
+        // re-subscribe to live sold auctions with the newly selected fetch type
+        resubscribeSoldAuctions()
         loadRecentAuctions(true)
     }
 

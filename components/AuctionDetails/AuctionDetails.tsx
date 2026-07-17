@@ -14,6 +14,7 @@ import {
     getStyleForTier
 } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
+import { useLiveAuctionSubscription } from '../../hooks/useLiveAuctionSubscription'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
@@ -55,6 +56,32 @@ function AuctionDetails(props: Props) {
         }
         loadAuctionDetails(props.auctionUUID!)
     }, [props.auctionUUID])
+
+    // subscribe to live updates so new bids show up without a page refresh
+    useLiveAuctionSubscription(() => api.subscribeAuctionUpdates(props.auctionUUID, applyAuctionUpdate), [props.auctionUUID], !!props.auctionUUID)
+
+    function applyAuctionUpdate(newAuctionDetails: AuctionDetails) {
+        newAuctionDetails.bids.sort((a, b) => b.amount - a.amount)
+        newAuctionDetails.auction.item.iconUrl = api.getItemImageUrl(newAuctionDetails.auction.item)
+        setAuctionDetails(newAuctionDetails)
+
+        let namePromises: Promise<void>[] = []
+        newAuctionDetails.bids.forEach(bid => {
+            namePromises.push(
+                api.getPlayerName(bid.bidder.uuid).then(name => {
+                    bid.bidder.name = name
+                })
+            )
+        })
+        namePromises.push(
+            api.getPlayerName(newAuctionDetails.auctioneer.uuid).then(name => {
+                newAuctionDetails.auctioneer.name = name
+            })
+        )
+        Promise.all(namePromises).then(() => {
+            forceUpdate()
+        })
+    }
 
     let tryNumber = 1
     function loadAuctionDetails(auctionUUID: string) {

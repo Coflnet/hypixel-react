@@ -238,6 +238,14 @@ interface API {
         onSubscribeSuccessCallback?: Function
     ): void
     unsubscribeFlips(): Promise<void>
+    subscribeAuctionUpdates(auctionUUID: string, onUpdate: (auctionDetails: AuctionDetails) => void, onErrorCallback?: Function): void
+    subscribeSoldAuctions(
+        itemTag: string,
+        itemFilter: ItemFilter,
+        onSold: (auction: RecentAuction) => void,
+        onErrorCallback?: Function
+    ): void
+    unsubscribeUpdates(): void
     getFilters(tag: string): Promise<FilterOptions[]>
     getNewAuctions(): Promise<Auction[]>
     getEndedAuctions(): Promise<Auction[]>
