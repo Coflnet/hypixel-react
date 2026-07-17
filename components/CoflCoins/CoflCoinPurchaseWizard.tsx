@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import CoflCoinAmountSelection from './CoflCoinAmountSelection'
-import CoflCoinPaymentSelection from './CoflCoinPaymentSelection'
+import CoflCoinPaymentSelection, { PurchaseCodes } from './CoflCoinPaymentSelection'
 
 interface CoflCoinOption {
     amount: number
@@ -18,9 +18,9 @@ interface CoflCoinOption {
 interface Props {
     coflCoins: number
     countryCode?: string
-    onPayPalPay: (productId: string, coflCoins?: number) => void
-    onStripePay: (productId: string, coflCoins?: number) => void
-    onLemonSqueezyPay: (productId: string, coflCoins?: number) => void
+    onPayPalPay: (productId: string, coflCoins?: number, codes?: PurchaseCodes) => void
+    onStripePay: (productId: string, coflCoins?: number, codes?: PurchaseCodes) => void
+    onLemonSqueezyPay: (productId: string, coflCoins?: number, codes?: PurchaseCodes) => void
     onGooglePlayPay: (productId: string, coflCoins?: number) => void
     loadingProductId: string
     isGooglePlayAvailable?: boolean

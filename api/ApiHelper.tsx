@@ -989,120 +989,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let stripePurchase = (productId: string, coinAmount?: number): Promise<PaymentResponse> => {
-        return new Promise((resolve, reject) => {
-            let googleId = sessionStorage.getItem('googleId')
-            if (!googleId) {
-                toast.error('You need to be logged in to purchase something.')
-                reject()
-                return
-            }
-
-            let data = {
-                userId: googleId,
-                productId: productId
-            }
-
-            httpApi.sendApiRequest(
-                {
-                    type: RequestType.STRIPE_PAYMENT_SESSION,
-                    requestMethod: 'POST',
-                    requestHeader: {
-                        GoogleToken: data.userId,
-                        'Content-Type': 'application/json'
-                    },
-                    data: data.productId,
-                    resolve: (data: any) => {
-                        resolve(parsePaymentResponse(data))
-                    },
-                    reject: (error: any) => {
-                        apiErrorHandler(RequestType.STRIPE_PAYMENT_SESSION, error, data)
-                        reject(error)
-                    }
-                },
-                JSON.stringify({
-                    coinAmount
-                })
-            )
-        })
-    }
-
-    let paypalPurchase = (productId: string, coinAmount?: number): Promise<PaymentResponse> => {
-        return new Promise((resolve, reject) => {
-            let googleId = sessionStorage.getItem('googleId')
-            if (!googleId) {
-                toast.error('You need to be logged in to purchase something.')
-                reject()
-                return
-            }
-
-            let data = {
-                userId: googleId,
-                productId: productId
-            }
-
-            httpApi.sendApiRequest(
-                {
-                    type: RequestType.PAYPAL_PAYMENT,
-                    requestMethod: 'POST',
-                    data: data.productId,
-                    requestHeader: {
-                        GoogleToken: data.userId,
-                        'Content-Type': 'application/json'
-                    },
-                    resolve: (response: any) => {
-                        resolve(parsePaymentResponse(response))
-                    },
-                    reject: (error: any) => {
-                        apiErrorHandler(RequestType.PAYPAL_PAYMENT, error, data)
-                        reject(error)
-                    }
-                },
-                JSON.stringify({
-                    coinAmount
-                })
-            )
-        })
-    }
-
-    let lemonsqueezyPurchase = (productId: string, coinAmount?: number): Promise<PaymentResponse> => {
-        return new Promise((resolve, reject) => {
-            let googleId = sessionStorage.getItem('googleId')
-            if (!googleId) {
-                toast.error('You need to be logged in to purchase something.')
-                reject()
-                return
-            }
-
-            let data = {
-                userId: googleId,
-                productId: productId
-            }
-
-            httpApi.sendApiRequest(
-                {
-                    type: RequestType.LEMONSQUEEZY_PAYMENT,
-                    requestMethod: 'POST',
-                    data: data.productId,
-                    requestHeader: {
-                        GoogleToken: data.userId,
-                        'Content-Type': 'application/json'
-                    },
-                    resolve: (response: any) => {
-                        resolve(parsePaymentResponse(response))
-                    },
-                    reject: (error: any) => {
-                        apiErrorHandler(RequestType.LEMONSQUEEZY_PAYMENT, error, data)
-                        reject(error)
-                    }
-                },
-                JSON.stringify({
-                    coinAmount
-                })
-            )
-        })
-    }
-
     let purchaseWithCoflcoins = (productId: string, googleToken: string, count?: number): Promise<void> => {
         return new Promise((resolve, reject) => {
             let data = {
@@ -2508,7 +2394,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         unsubscribe,
         getNotificationListener,
         loginWithToken,
-        stripePurchase,
         getRecentAuctions,
         getFlips,
         subscribeFlips,
@@ -2522,8 +2407,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getEndedAuctions,
         getNewAuctions,
         getFlipBasedAuctions,
-        paypalPurchase,
-        lemonsqueezyPurchase,
         getRefInfo,
         setRef,
         getActiveAuctions,

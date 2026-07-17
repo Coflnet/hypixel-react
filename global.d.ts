@@ -214,7 +214,6 @@ interface API {
     unsubscribe(subscription: Subscription): Promise<void>
     getNotificationListener(): Promise<NotificationListener[]>
     loginWithToken(id: string): Promise<string>
-    stripePurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     getRecentAuctions(itemTag: string, itemFilter: ItemFilter): Promise<RecentAuction[]>
     getFlips(): Promise<FlipAuction[]>
     subscribeFlips(
@@ -253,7 +252,6 @@ interface API {
     getNewItems(): Promise<Item[]>
     getNewPlayers(): Promise<Player[]>
     getFlipBasedAuctions(flipUUID: string): Promise<Auction[]>
-    paypalPurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     getRefInfo(): Promise<RefInfo>
     setRef(refId: string): Promise<void>
     getActiveAuctions(item: Item, order: string, filter?: ItemFilter): Promise<RecentAuction[]>
@@ -295,7 +293,6 @@ interface API {
     getRelatedItems(tag: string): Promise<Item[]>
     getOwnerHistory(uid: string): Promise<OwnerHistory[]>
     getMayorData(start: Date, end: Date): Promise<MayorData[]>
-    lemonsqueezyPurchase(productId: string, coinAmount?: number): Promise<PaymentResponse>
     getPlayerInventory(): Promise<InventoryData[]>
     createTradeOffer(playerUUID: string, offer?: InventoryData, wantedItems?: WantedItem[], offeredCoins?: number): Promise<void>
     getTradeOffers(onlyOwn: boolean, filter?: ItemFilter): Promise<TradeObject[]>

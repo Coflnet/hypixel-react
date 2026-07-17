@@ -19,14 +19,19 @@ interface CoflCoinOption {
     googlePlayProductId: string
 }
 
+export interface PurchaseCodes {
+    creatorCode?: string
+    discountCode?: string
+}
+
 interface Props {
     selectedOption: CoflCoinOption
     onBack: () => void
     countryCode?: string
     coflCoins: number
-    onPayPalPay: (productId: string, coflCoins?: number) => void
-    onStripePay: (productId: string, coflCoins?: number) => void
-    onLemonSqueezyPay: (productId: string, coflCoins?: number) => void
+    onPayPalPay: (productId: string, coflCoins?: number, codes?: PurchaseCodes) => void
+    onStripePay: (productId: string, coflCoins?: number, codes?: PurchaseCodes) => void
+    onLemonSqueezyPay: (productId: string, coflCoins?: number, codes?: PurchaseCodes) => void
     onGooglePlayPay: (productId: string, coflCoins?: number) => void
     loadingProductId: string
     isGooglePlayAvailable?: boolean
@@ -137,15 +142,15 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
     }
 
     const getProviderForComponent = (providerSlug: string, productSlug: string) => {
-        return getProvider(pricingData, providerSlug, productSlug)
+        return getProvider(pricingData, productSlug, providerSlug)
     }
 
     const getProviderPriceForComponent = (providerSlug: string, productSlug: string): number | null => {
-        return getProviderPrice(pricingData, providerSlug, productSlug)
+        return getProviderPrice(pricingData, productSlug, providerSlug)
     }
 
     const getProviderOriginalPriceForComponent = (providerSlug: string, productSlug: string): number | null => {
-        return getProviderOriginalPrice(pricingData, providerSlug, productSlug)
+        return getProviderOriginalPrice(pricingData, productSlug, providerSlug)
     }
 
     const getGooglePlayProductId = (): string => {
@@ -195,17 +200,11 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
         return undefined
     }
 
-    // Append creator/discount codes as query params to a product slug so they reach the checkout endpoint
-    const buildProductIdWithCodes = (productId: string): string => {
-        const queryParams: string[] = []
-        if (appliedCreatorCode) {
-            queryParams.push(`creatorCode=${encodeURIComponent(appliedCreatorCode)}`)
-        }
-        if (validatedDiscount?.code) {
-            queryParams.push(`discountCode=${encodeURIComponent(validatedDiscount.code)}`)
-        }
-        return queryParams.length > 0 ? `${productId}?${queryParams.join('&')}` : productId
-    }
+    // Codes to forward in the checkout request body (topup endpoints read them from TopUpArguments, not the URL)
+    const getPurchaseCodes = (): PurchaseCodes => ({
+        creatorCode: appliedCreatorCode || undefined,
+        discountCode: validatedDiscount?.code || undefined
+    })
 
     const discountPercent = pricingData?.discountPercent || 0
     const hasDiscount = discountPercent > 0
@@ -343,14 +342,14 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                     stripePrice={dynamicPrices.stripe}
                     lemonsqueezyPrice={dynamicPrices.lemonsqueezy}
                     googlePlayPrice={dynamicPrices.googlepay}
-                    paypalProductId={buildProductIdWithCodes(selectedOption.paypalProductId)}
-                    stripeProductId={buildProductIdWithCodes(selectedOption.stripeProductId)}
-                    lemonsqueezyProductId={buildProductIdWithCodes(selectedOption.lemonsqueezyProductId)}
+                    paypalProductId={selectedOption.paypalProductId}
+                    stripeProductId={selectedOption.stripeProductId}
+                    lemonsqueezyProductId={selectedOption.lemonsqueezyProductId}
                     googlePlayProductId={dynamicGooglePlayProductId}
                     countryCode={countryCode}
-                    onPayPalPay={onPayPalPay}
-                    onStripePay={onStripePay}
-                    onLemonSqeezyPay={onLemonSqueezyPay}
+                    onPayPalPay={(productId, coflCoins) => onPayPalPay(productId, coflCoins, getPurchaseCodes())}
+                    onStripePay={(productId, coflCoins) => onStripePay(productId, coflCoins, getPurchaseCodes())}
+                    onLemonSqeezyPay={(productId, coflCoins) => onLemonSqueezyPay(productId, coflCoins, getPurchaseCodes())}
                     onGooglePlayPay={onGooglePlayPay}
                     loadingProductId={loadingProductId}
                     disabledTooltip={undefined}

@@ -2,10 +2,16 @@
 import { useState } from 'react'
 import { Alert, Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
-import api from '../../api/ApiHelper'
-import { postApiTopupPlaystore } from '../../api/_generated/skyApi'
+import {
+    postApiTopupPlaystore,
+    postApiTopupStripeProductSlug,
+    postApiTopupPaypalProductSlug,
+    postApiTopupLemonsqueezyProductSlug
+} from '../../api/_generated/skyApi'
+import type { TopUpArguments } from '../../api/_generated/skyApi.schemas'
 import { useCoflCoins } from '../../utils/Hooks'
 import CoflCoinPurchaseWizard from './CoflCoinPurchaseWizard'
+import type { PurchaseCodes } from './CoflCoinPaymentSelection'
 import PurchaseElement from './PurchaseElement'
 import CountrySelect from '../CountrySelect/CountrySelect'
 import { useCountryDetection } from '../../hooks/useCountryDetection'
@@ -156,37 +162,52 @@ function Payment(props: Props) {
         setIsGooglePlayAvailable(available)
     }
 
-    function onPayPaypal(productId: string, coflCoins?: number) {
+    function startTopUp(
+        topUpCall: (productSlug: string, args: TopUpArguments, options?: RequestInit) => Promise<any>,
+        productId: string,
+        coflCoins?: number,
+        codes?: PurchaseCodes
+    ) {
+        const googleId = typeof window !== 'undefined' ? sessionStorage.getItem('googleId') : null
+        if (!googleId) {
+            toast.error('You need to be logged in to purchase something.')
+            return
+        }
+
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
         setCurrentRedirectLink('')
-        api.paypalPurchase(productId, coflCoins)
-            .then(data => {
-                setCurrentRedirectLink(data.directLink)
-                window.open(data.directLink, '_self')
+
+        topUpCall(
+            productId,
+            {
+                coinAmount: coflCoins ?? 0,
+                creatorCode: codes?.creatorCode ?? null,
+                discountcode: codes?.discountCode ?? null
+            },
+            { headers: { GoogleToken: googleId } }
+        )
+            .then(response => {
+                const directLink = response?.data?.directLink ?? response?.data?.dirctLink
+                if (response?.status !== 200 || !directLink) {
+                    onPaymentRedirectFail()
+                    return
+                }
+                setCurrentRedirectLink(directLink)
+                window.open(directLink, '_self')
             })
             .catch(onPaymentRedirectFail)
     }
 
-    function onPayStripe(productId: string, coflCoins?: number) {
-        setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
-        setCurrentRedirectLink('')
-        api.stripePurchase(productId, coflCoins)
-            .then(data => {
-                setCurrentRedirectLink(data.directLink)
-                window.open(data.directLink, '_self')
-            })
-            .catch(onPaymentRedirectFail)
+    function onPayPaypal(productId: string, coflCoins?: number, codes?: PurchaseCodes) {
+        startTopUp(postApiTopupPaypalProductSlug, productId, coflCoins, codes)
     }
 
-    function onPayLemonSqueezy(productId: string, coflCoins?: number) {
-        setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
-        setCurrentRedirectLink('')
-        api.lemonsqueezyPurchase(productId, coflCoins)
-            .then(data => {
-                setCurrentRedirectLink(data.directLink)
-                window.open(data.directLink, '_self')
-            })
-            .catch(onPaymentRedirectFail)
+    function onPayStripe(productId: string, coflCoins?: number, codes?: PurchaseCodes) {
+        startTopUp(postApiTopupStripeProductSlug, productId, coflCoins, codes)
+    }
+
+    function onPayLemonSqueezy(productId: string, coflCoins?: number, codes?: PurchaseCodes) {
+        startTopUp(postApiTopupLemonsqueezyProductSlug, productId, coflCoins, codes)
     }
 
     function onPayGooglePlay(productId: string, coflCoins?: number) {
