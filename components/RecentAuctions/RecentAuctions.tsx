@@ -7,6 +7,7 @@ import { Button, Card, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
 import { useStateWithRef, useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { useLiveAuctionSubscription } from '../../hooks/useLiveAuctionSubscription'
 import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
@@ -42,7 +43,6 @@ function RecentAuctions(props: Props) {
     let [premiumType, setPremiumType] = useState<PremiumType>()
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let [noResults, setNoResults] = useState(false)
-    let [fetchTypeVersion, setFetchTypeVersion] = useState(0)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let searchParams = useSearchParams()
 
@@ -71,26 +71,21 @@ function RecentAuctions(props: Props) {
     }, [props.item.tag, JSON.stringify(props.itemFilter), props.yearRecentSamples, props.isYearView])
 
     // subscribe to live sold auctions so newly sold auctions show up without a page refresh
-    useEffect(() => {
-        if (props.isYearView) {
+    function onSoldAuction(auction: RecentAuction) {
+        if (!mounted) {
             return
         }
-        let onSold = (auction: RecentAuction) => {
-            if (!mounted) {
-                return
-            }
-            // skip duplicates and keep the newest auction on top
-            if (recentAuctionsRef.current.some(a => a.uuid === auction.uuid)) {
-                return
-            }
-            setRecentAuctions([auction, ...recentAuctionsRef.current])
+        // skip duplicates and keep the newest auction on top
+        if (recentAuctionsRef.current.some(a => a.uuid === auction.uuid)) {
+            return
         }
-        api.subscribeSoldAuctions(props.item.tag, getEffectiveItemFilter(), onSold)
-        return () => {
-            api.unsubscribeUpdates()
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.item.tag, JSON.stringify(props.itemFilter), props.isYearView, fetchTypeVersion])
+        setRecentAuctions([auction, ...recentAuctionsRef.current])
+    }
+    let resubscribeSoldAuctions = useLiveAuctionSubscription(
+        () => api.subscribeSoldAuctions(props.item.tag, getEffectiveItemFilter(), onSoldAuction),
+        [props.item.tag, JSON.stringify(props.itemFilter)],
+        !props.isYearView
+    )
 
     // builds the filter actually used to fetch/subscribe, applying the Sold/Expired/All toggle as a HighestBid filter
     function getEffectiveItemFilter(): ItemFilter {
@@ -200,7 +195,7 @@ function RecentAuctions(props: Props) {
 
         localStorage.setItem(RECENT_AUCTIONS_FETCH_TYPE_KEY, e.target.value)
         // re-subscribe to live sold auctions with the newly selected fetch type
-        setFetchTypeVersion(v => v + 1)
+        resubscribeSoldAuctions()
         loadRecentAuctions(true)
     }
 

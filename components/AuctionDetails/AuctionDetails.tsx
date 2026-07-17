@@ -14,6 +14,7 @@ import {
     getStyleForTier
 } from '../../utils/Formatter'
 import { useForceUpdate } from '../../utils/Hooks'
+import { useLiveAuctionSubscription } from '../../hooks/useLiveAuctionSubscription'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { isClientSideRendering } from '../../utils/SSRUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
@@ -57,16 +58,7 @@ function AuctionDetails(props: Props) {
     }, [props.auctionUUID])
 
     // subscribe to live updates so new bids show up without a page refresh
-    useEffect(() => {
-        if (!props.auctionUUID) {
-            return
-        }
-        api.subscribeAuctionUpdates(props.auctionUUID, applyAuctionUpdate)
-        return () => {
-            api.unsubscribeUpdates()
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.auctionUUID])
+    useLiveAuctionSubscription(() => api.subscribeAuctionUpdates(props.auctionUUID, applyAuctionUpdate), [props.auctionUUID], !!props.auctionUUID)
 
     function applyAuctionUpdate(newAuctionDetails: AuctionDetails) {
         newAuctionDetails.bids.sort((a, b) => b.amount - a.amount)
