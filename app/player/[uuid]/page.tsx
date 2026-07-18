@@ -5,6 +5,7 @@ import PlayerDetails from '../../../components/PlayerDetails/PlayerDetails'
 import { parseAuction, parsePlayer } from '../../../utils/Parser/APIResponseParser'
 import { Container } from 'react-bootstrap'
 import { BottomBanner } from '../../../components/BottomBanner/BottomBanner'
+import { Metadata } from 'next'
 
 export default async function Page(props) {
     const params = await props.params
@@ -43,7 +44,7 @@ async function getPlayerInfo(uuid) {
     }
 }
 
-export async function generateMetadata(props) {
+export async function generateMetadata(props): Promise<Metadata> {
     const params = await props.params
     let api = initAPI(true)
     let player = {
@@ -59,7 +60,7 @@ export async function generateMetadata(props) {
     } catch (e) {
         console.error(`Error fetching player name ${params.uuid}. ${JSON.stringify(e)}`)
     }
-    return getHeadMetadata(
+    const metadata = getHeadMetadata(
         `${player?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`,
         `Auctions and bids for ${player?.name} in Hypixel Skyblock.`,
         player?.iconUrl?.split('?')[0],
@@ -67,6 +68,15 @@ export async function generateMetadata(props) {
         `${player?.name} Auctions and Bids | Hypixel SkyBlock AH history tracker`,
         getCanonicalUrl(`/player/${params.uuid}`)
     )
+
+    if (params.uuid === '17bdc3a6d75a44689c4fc1dbac8f09f5') {
+        metadata.robots = {
+            index: false,
+            follow: true
+        }
+    }
+
+    return metadata
 }
 
 export const revalidate = 0
