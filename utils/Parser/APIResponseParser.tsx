@@ -393,6 +393,8 @@ export function parseProfitableCrafts(crafts: any[] = []): ProfitableCraft[] {
             console.warn(`Recursive craft detected for ${result.item.tag}, stopping expansion.`)
             result.item.name = convertTagToName(result.item.tag)
             result.item.iconUrl = api.getItemImageUrl(result.item)
+            // Expansion is being stopped here, so don't claim it "should be crafted" - render as a normal leaf.
+            result.type = undefined
             return result
         }
 
@@ -404,7 +406,10 @@ export function parseProfitableCrafts(crafts: any[] = []): ProfitableCraft[] {
         if (result.type === 'craft') {
             const toCraft = crafts.find(craft => craft.itemId === result.item.tag)
             if (!toCraft) {
-                console.log(`craft not found for ${JSON.stringify(result)}`)
+                // This ingredient is flagged as 'craft' by the backend, but it isn't itself present in the
+                // flat profitable-crafts list (e.g. it's cheap enough to just buy, like GOLD_INGOT).
+                // Don't claim it "should be crafted" - render it as a normal, priced leaf instead.
+                result.type = undefined
                 return result
             }
             result.ingredients = toCraft.ingredients.map(ing => parseCraftIngredient(ing, newSeenTags))

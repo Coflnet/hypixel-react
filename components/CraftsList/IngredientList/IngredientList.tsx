@@ -35,7 +35,7 @@ export function IngredientList(props: Props) {
                             <Badge style={{ marginLeft: '5px' }} bg="secondary">
                                 <Number number={Math.round(ingredient.cost)} /> Coins
                             </Badge>
-                            {ingredient.type === 'craft' && (
+                            {ingredient.type === 'craft' && ingredient.ingredients && ingredient.ingredients.length > 0 && (
                                 <Badge style={{ marginLeft: '5px' }} bg="info">
                                     Should be crafted
                                 </Badge>
