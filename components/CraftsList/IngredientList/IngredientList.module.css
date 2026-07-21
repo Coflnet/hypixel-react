@@ -7,3 +7,15 @@
     cursor: pointer;
     width: auto;
 }
+
+.copyButtonsWrapper {
+    display: inline-flex;
+    align-items: center;
+    cursor: default;
+}
+
+.copyButton {
+    padding: 2px 6px;
+    margin-left: 5px;
+    line-height: 1;
+}

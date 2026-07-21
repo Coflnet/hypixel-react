@@ -2,11 +2,11 @@
 
 import { useMemo } from 'react'
 import Image from 'next/image'
-import { Alert } from 'react-bootstrap'
+import { Alert, Badge } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import NumberElement from '../Number/Number'
-import { convertTagToName } from '../../utils/Formatter'
+import { convertTagToName, getCraftSavings } from '../../utils/Formatter'
 import { useGetApiFlipForge } from '../../api/_generated/skyApi'
 import { ForgeFlip, ProfitableCraft } from '../../api/_generated/skyApi.schemas'
 import { getGeneratedApiErrorMessage, hasSuccessfulArrayResponse } from '../../utils/GeneratedApiResponseUtils'
@@ -108,17 +108,31 @@ function renderIngredients(craft?: ProfitableCraft | null) {
         <div style={{ marginTop: '8px' }}>
             <strong>Ingredients:</strong>
             <ul>
-                {craft.ingredients.map(ingredient => (
-                    <li key={`${ingredient.itemId}-${ingredient.type}-${ingredient.count}`}>
-                        {ingredient.count}x {ingredient.itemId ? convertTagToName(ingredient.itemId) : ingredient.type ?? 'Unknown'}
-                        {ingredient.cost ? (
-                            <span>
-                                {' '}
-                                (<NumberElement number={Math.round(ingredient.cost)} /> Coins)
-                            </span>
-                        ) : null}
-                    </li>
-                ))}
+                {craft.ingredients.map(ingredient => {
+                    const { isSubcraft, craftSavings: savings, craftSavingsPercent: savingsPercent } = getCraftSavings(ingredient)
+                    return (
+                        <li key={`${ingredient.itemId}-${ingredient.type}-${ingredient.count}`}>
+                            {ingredient.count}x {ingredient.itemId ? convertTagToName(ingredient.itemId) : ingredient.type ?? 'Unknown'}
+                            {ingredient.cost ? (
+                                <span>
+                                    {' '}
+                                    (<NumberElement number={Math.round(ingredient.cost)} /> Coins)
+                                </span>
+                            ) : null}
+                            {isSubcraft && savingsPercent > 0 ? (
+                                <Badge style={{ marginLeft: '5px' }} bg="info">
+                                    🔨 Subcraft · save ~{Math.round(savingsPercent)}%
+                                    {savings > 0 ? (
+                                        <>
+                                            {' '}
+                                            (<NumberElement number={Math.round(savings)} /> Coins)
+                                        </>
+                                    ) : null}
+                                </Badge>
+                            ) : null}
+                        </li>
+                    )
+                })}
             </ul>
         </div>
     )

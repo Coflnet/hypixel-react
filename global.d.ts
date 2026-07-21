@@ -454,6 +454,11 @@ interface CraftingIngredient {
     cost: number
     type?: 'craft'
     ingredients?: CraftingIngredient[]
+    buyOrderCost?: number
+    craftCost?: number
+    buyOrderCapacity?: number
+    buyOrderUnitPrice?: number
+    instaBuyUnitPrice?: number
 }
 
 interface CraftRequirement {

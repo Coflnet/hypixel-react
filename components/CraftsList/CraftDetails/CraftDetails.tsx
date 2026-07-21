@@ -5,6 +5,7 @@ import { CraftingRecipe } from '../CraftingRecipe/CraftingRecipe'
 import { IngredientList } from '../IngredientList/IngredientList'
 import { useEffect, useState } from 'react'
 import api from '../../../api/ApiHelper'
+import { toVariantItemTag } from '../../../utils/Formatter'
 
 interface Props {
     craft: ProfitableCraft
@@ -24,7 +25,7 @@ export function CraftDetails(props: Props) {
         if (detailsPath) {
             window.open(window.location.origin + detailsPath, '_blank')
         } else {
-            window.open(window.location.origin + '/item/' + tag + '?itemFilter=eyJCaW4iOiJ0cnVlIn0%3D', '_blank')
+            window.open(window.location.origin + '/item/' + toVariantItemTag(tag) + '?itemFilter=eyJCaW4iOiJ0cnVlIn0%3D', '_blank')
         }
     }
     return (
@@ -44,6 +45,7 @@ export function CraftDetails(props: Props) {
             <h3 style={{ marginBottom: '20px' }}>Ingredient Costs</h3>
             <IngredientList
                 ingredients={props.craft.ingredients}
+                instructions={instructions}
                 onItemClick={ingredient => {
                     onItemClick(ingredient.item.tag)
                 }}

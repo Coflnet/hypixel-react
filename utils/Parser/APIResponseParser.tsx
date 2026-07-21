@@ -384,6 +384,11 @@ export function parseProfitableCrafts(crafts: any[] = []): ProfitableCraft[] {
             cost: ingredient.cost,
             count: ingredient.count,
             type: ingredient.type,
+            buyOrderCost: ingredient.buyOrderCost,
+            craftCost: ingredient.craftCost,
+            buyOrderCapacity: ingredient.buyOrderCapacity,
+            buyOrderUnitPrice: ingredient.buyOrderUnitPrice,
+            instaBuyUnitPrice: ingredient.instaBuyUnitPrice,
             item: {
                 tag: ingredient.itemId
             }

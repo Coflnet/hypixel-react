@@ -42,6 +42,63 @@ export function parseFormattedNumber(value: string): string {
 }
 
 /**
+ * Craft ingredient data comes from the NotEnoughUpdates (NEU) dataset, which encodes legacy
+ * Minecraft "id:damage" variants (colored wool/dye, logs, stained glass/clay, carpet, ...) with a
+ * HYPHEN for filesystem-safety, e.g. "INK_SACK-4" for lapis lazuli. The real Hypixel/Coflnet tag -
+ * used for item images and item-detail links - keys these the legacy way, with a COLON:
+ * "INK_SACK:4". Without converting, these ingredients 404 on both their icon and their item page.
+ * Mirrors `CalculatorService.ToVariantMarketTag` in the SkyCrafts backend - keep both in sync.
+ * Tags that don't match the trailing-numeric-variant pattern (the vast majority - normal tags never
+ * look like this) are returned unchanged, so this is safe to apply unconditionally.
+ * @param tag An item tag, possibly in NEU hyphen-variant form
+ */
+export function toVariantItemTag(tag: string): string {
+    if (!tag) {
+        return tag
+    }
+    let match = tag.match(/^([A-Za-z0-9_]+)-(\d+)$/)
+    return match ? `${match[1]}:${match[2]}` : tag
+}
+
+/**
+ * Computes the "should be crafted" badge data for a craft ingredient client-side, from the raw
+ * cost fields the backend returns. An ingredient is a subcraft when it is itself craftable
+ * (`type === 'craft'`) and crafting it out beats buying it on the bazaar/auction house.
+ * @param ingredient The ingredient (or generated Ingredient) to evaluate
+ */
+export function getCraftSavings(ingredient: { buyOrderCost?: number | null; craftCost?: number | null; type?: string | null }) {
+    const buyOrderCost = ingredient.buyOrderCost ?? 0
+    const craftCost = ingredient.craftCost ?? 0
+    const isSubcraft = ingredient.type === 'craft'
+    const craftSavings = isSubcraft && craftCost > 0 && buyOrderCost > craftCost ? buyOrderCost - craftCost : 0
+    const craftSavingsPercent = craftSavings > 0 && buyOrderCost > 0 ? (craftSavings / buyOrderCost) * 100 : 0
+    return { isSubcraft, craftSavings, craftSavingsPercent }
+}
+
+/**
+ * Given an ingredient's cheap-channel capacity/price data and the total quantity needed,
+ * computes the optimal acquisition split between placing a bazaar buy order (cheap, capped)
+ * and insta-buying the remainder (more expensive, uncapped). Returns null when there's no
+ * usable data (backend hasn't populated these fields yet).
+ */
+export function getAcquisitionPlan(
+    ingredient: { buyOrderCapacity?: number | null; buyOrderUnitPrice?: number | null; instaBuyUnitPrice?: number | null },
+    totalCount: number
+) {
+    const capacity = ingredient.buyOrderCapacity ?? 0
+    const orderUnitPrice = ingredient.buyOrderUnitPrice ?? 0
+    const instaUnitPrice = ingredient.instaBuyUnitPrice ?? 0
+    if (capacity <= 0 && instaUnitPrice <= 0) {
+        return null // no data
+    }
+    const orderQty = Math.min(totalCount, capacity)
+    const instaQty = Math.max(0, totalCount - orderQty)
+    const orderCost = orderQty * orderUnitPrice
+    const instaCost = instaQty * instaUnitPrice
+    return { orderQty, instaQty, orderCost, instaCost, totalCost: orderCost + instaCost }
+}
+
+/**
  * Converts a tag (e.g. WOODEN_AXE) to a item name (e.g. Wooden Axe)
  * - replaces all _ with spaces
  * - lowercases the word exept first letter (with exception of the defined words)

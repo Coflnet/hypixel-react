@@ -4,7 +4,7 @@ import { v4 as generateUUID } from 'uuid'
 import { atobUnicode } from '../utils/Base64Utils'
 import cacheUtils from '../utils/CacheUtils'
 import { getFlipCustomizeSettings } from '../utils/FlipUtils'
-import { enchantmentAndReforgeCompare } from '../utils/Formatter'
+import { enchantmentAndReforgeCompare, toVariantItemTag } from '../utils/Formatter'
 import {
     parseAccountInfo,
     parseArchivedAuctions,
@@ -155,7 +155,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             }
             return iconURL
         }
-        let r = `https://sky.coflnet.com/static/icon/${item.tag}${type === 'vanilla' ? '/vanilla' : ''}`
+        let r = `https://sky.coflnet.com/static/icon/${toVariantItemTag(item.tag)}${type === 'vanilla' ? '/vanilla' : ''}`
         return r
     }
 
