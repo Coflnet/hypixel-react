@@ -1,202 +1,189 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
-import { DateRange } from '../../ItemPriceRange/ItemPriceRange'
-import { Button, Row, Col, Form } from 'react-bootstrap'
+
+import { useEffect, useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Button, Col, Form, Row } from 'react-bootstrap'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import type { CoflnetSkyMayorModelsModelElectionPeriod } from '../../../api/_generated/skyApi.schemas'
+import styles from './AuctionHousePriceGraph.module.css'
+import { type CustomDateRange, getLastCompletedMayor, getLastElectionRange, getMayorTermRange, getMonthAYearAgo } from './YearDateRangeUtils'
 
-interface Props {
-    mayorPeriods: any[]
-    itemFilter?: ItemFilter
-    customStartDate: string
-    customEndDate: string
-    showCustomDatePicker: boolean
-    setCustomStartDate: (d: string) => void
-    setCustomEndDate: (d: string) => void
-    setShowCustomDatePicker: (b: boolean) => void
-    updateChart: (range: DateRange, filter?: ItemFilter) => void
+const FIVE_MINUTES = 5 * 60 * 1000
+
+interface ElectionCandidate {
+    name: string
+    votes: number
 }
 
-export default function QuickDateSelect(props: Props) {
-    const {
-        mayorPeriods,
-        itemFilter,
-        customStartDate,
-        customEndDate,
-        showCustomDatePicker,
-        setCustomStartDate,
-        setCustomEndDate,
-        setShowCustomDatePicker,
-        updateChart
-    } = props
+interface ElectionResource {
+    success: boolean
+    current?: {
+        candidates?: ElectionCandidate[]
+    }
+}
 
-    const [refreshKey, setRefreshKey] = useState(0)
-    const prevMayorCountRef = useRef(mayorPeriods ? mayorPeriods.length : 0)
+interface Props {
+    mayorPeriods: CoflnetSkyMayorModelsModelElectionPeriod[]
+    value: CustomDateRange | null
+    onChange: (range: CustomDateRange | null) => void
+}
 
-    useEffect(() => {
-        const currentCount = mayorPeriods ? mayorPeriods.length : 0
-        if (currentCount !== prevMayorCountRef.current) {
-            prevMayorCountRef.current = currentCount
-            setRefreshKey(k => k + 1)
-        }
-    }, [mayorPeriods])
+async function getNextMayor() {
+    const response = await fetch('https://api.hypixel.net/v2/resources/skyblock/election')
+    if (!response.ok) {
+        throw new Error('Unable to load the current mayor election')
+    }
 
-    function buildCleanFilter(overrides?: { start?: string; end?: string }) {
-        const startDate = overrides?.start || customStartDate
-        const endDate = overrides?.end || customEndDate
-        const cleanFilter: ItemFilter = {}
-        Object.keys(itemFilter || {}).forEach(key => {
-            if (key !== '_hide' && typeof itemFilter![key] === 'string') {
-                cleanFilter[key] = itemFilter![key] as string
-            }
-        })
-        if (startDate) {
-            cleanFilter.EndAfter = Math.floor(new Date(startDate + 'T00:00:00Z').getTime() / 1000).toString()
-        }
-        if (endDate) {
-            cleanFilter.EndBefore = Math.floor(new Date(endDate + 'T23:59:59Z').getTime() / 1000).toString()
-        }
-        return cleanFilter
+    const election = (await response.json()) as ElectionResource
+    if (!election.success) {
+        throw new Error('Unable to load the current mayor election')
     }
 
     return (
-        <div style={{ marginTop: '20px', padding: '15px', backgroundColor: 'var(--bs-secondary)', borderRadius: '5px' }}>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h6 style={{ margin: 0 }}>📅 Custom Date Range</h6>
-                <Button variant="outline-light" size="sm" onClick={() => setShowCustomDatePicker(!showCustomDatePicker)}>
-                    {showCustomDatePicker ? 'Hide' : 'Show'} Date Picker
+        election.current?.candidates?.reduce<ElectionCandidate | null>(
+            (leader, candidate) => (!leader || candidate.votes > leader.votes ? candidate : leader),
+            null
+        )?.name ?? null
+    )
+}
+
+function parseDateInput(value?: string) {
+    if (!value) return null
+
+    const [year, month, day] = value.split('-').map(Number)
+    return new Date(year, month - 1, day)
+}
+
+function formatDateInput(date: Date) {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+}
+
+export default function QuickDateSelect({ mayorPeriods, value, onChange }: Props) {
+    const [startDate, setStartDate] = useState(value?.startDate ?? '')
+    const [endDate, setEndDate] = useState(value?.endDate ?? '')
+    const [showDatePicker, setShowDatePicker] = useState(false)
+    const nextMayorQuery = useQuery({
+        queryKey: ['hypixel', 'skyblock', 'nextMayor'],
+        queryFn: getNextMayor,
+        staleTime: FIVE_MINUTES,
+        retry: false
+    })
+
+    useEffect(() => {
+        setStartDate(value?.startDate ?? '')
+        setEndDate(value?.endDate ?? '')
+    }, [value])
+
+    const lastMayor = useMemo(() => getLastCompletedMayor(mayorPeriods), [mayorPeriods])
+    const lastMayorRange = useMemo(() => getMayorTermRange(lastMayor), [lastMayor])
+    const nextMayorRange = useMemo(
+        () => (nextMayorQuery.data ? getLastElectionRange(mayorPeriods, nextMayorQuery.data) : null),
+        [mayorPeriods, nextMayorQuery.data]
+    )
+    const invalidRange = Boolean(startDate && endDate && startDate > endDate)
+
+    function applyRange(range: CustomDateRange) {
+        setStartDate(range.startDate ?? '')
+        setEndDate(range.endDate ?? '')
+        onChange(range)
+    }
+
+    return (
+        <section className={styles.dateRangePanel} aria-labelledby="custom-date-range-heading">
+            <div className="d-flex justify-content-between align-items-center gap-2 mb-3">
+                <h6 id="custom-date-range-heading" className="m-0">
+                    📅 Custom Date Range
+                </h6>
+                <Button
+                    variant="outline-light"
+                    size="sm"
+                    aria-expanded={showDatePicker}
+                    aria-controls="custom-date-picker"
+                    onClick={() => setShowDatePicker(current => !current)}
+                >
+                    {showDatePicker ? 'Hide' : 'Show'} Date Picker
                 </Button>
             </div>
 
-            {/* Quick Select Options */}
-            <div className="mb-3" key={`quick-select-${refreshKey}`}>
-                <Form.Label className="d-block mb-2 fw-bold">🎯 Quick Select:</Form.Label>
-                <div className="d-flex flex-wrap gap-2">
-                    {/* Previous Mayor */}
-                    {mayorPeriods.length > 1 && (
-                        <Button
-                            variant="outline-warning"
-                            size="sm"
-                            onClick={() => {
-                                const prevMayor = mayorPeriods[1]
-                                const startDate = new Date(prevMayor.start || '').toISOString().split('T')[0]
-                                const endDate = new Date(prevMayor.end || '').toISOString().split('T')[0]
-                                setCustomStartDate(startDate)
-                                setCustomEndDate(endDate)
-                                updateChart(DateRange.YEAR, buildCleanFilter({ start: startDate, end: endDate }))
-                            }}
-                        >
-                            👑 Previous Mayor ({mayorPeriods[1]?.winner?.name || 'Unknown'})
-                        </Button>
-                    )}
-
-                    {/* Around Current Mayor Start */}
-                    {mayorPeriods.length > 0 && (
-                        <Button
-                            variant="outline-info"
-                            size="sm"
-                            onClick={() => {
-                                const currentMayor = mayorPeriods[0]
-                                let mayorStartDate = currentMayor && currentMayor.start ? new Date(currentMayor.start) : new Date()
-
-                                const currentName = currentMayor?.winner?.name
-                                if (currentName) {
-                                    const previousSame = mayorPeriods
-                                        .filter(
-                                            p =>
-                                                p.start &&
-                                                p.winner &&
-                                                p.winner.name === currentName &&
-                                                new Date(p.start).getTime() < new Date(currentMayor.start).getTime()
-                                        )
-                                        .sort((a: any, b: any) => new Date(b.start).getTime() - new Date(a.start).getTime())
-
-                                    if (previousSame.length > 0) {
-                                        mayorStartDate = new Date(previousSame[0].start)
-                                    }
-                                }
-
-                                const startDate = new Date(mayorStartDate.getTime() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-                                const endDate = new Date(mayorStartDate.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-                                setCustomStartDate(startDate)
-                                setCustomEndDate(endDate)
-                                updateChart(DateRange.YEAR, buildCleanFilter({ start: startDate, end: endDate }))
-                            }}
-                        >
-                            {`📅 Last time ${mayorPeriods[0]?.winner?.name || 'current mayor'} was elected (±5 days)`}
-                        </Button>
-                    )}
-
-                    {/* 1 Year Ago */}
-                    <Button
-                        variant="outline-success"
-                        size="sm"
-                        onClick={() => {
-                            const now = new Date()
-                            const yearAgoStart = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate() - 365)
-                            const yearAgoEnd = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate() - 358)
-                            const startDate = yearAgoStart.toISOString().split('T')[0]
-                            const endDate = yearAgoEnd.toISOString().split('T')[0]
-                            setCustomStartDate(startDate)
-                            setCustomEndDate(endDate)
-                            updateChart(DateRange.YEAR, buildCleanFilter({ start: startDate, end: endDate }))
-                        }}
-                    >
-                        📈 1 Year Ago (7 days period)
-                    </Button>
-                </div>
+            <Form.Label className="d-block mb-2 fw-bold">🎯 Quick Select:</Form.Label>
+            <div className="d-flex flex-wrap gap-2 mb-3">
+                <Button variant="outline-warning" size="sm" disabled={!lastMayorRange} onClick={() => lastMayorRange && applyRange(lastMayorRange)}>
+                    👑 Last Mayor{lastMayor?.winner?.name ? ` (${lastMayor.winner.name})` : ''}
+                </Button>
+                <Button variant="outline-success" size="sm" onClick={() => applyRange(getMonthAYearAgo())}>
+                    📈 Month a Year Ago
+                </Button>
+                <Button
+                    variant="outline-info"
+                    size="sm"
+                    disabled={!nextMayorRange}
+                    title={nextMayorQuery.isError ? 'The current election could not be loaded' : undefined}
+                    onClick={() => nextMayorRange && applyRange(nextMayorRange)}
+                >
+                    📅 Last Time {nextMayorQuery.data ?? 'Next Mayor'} Was Elected (±5 Days)
+                </Button>
             </div>
 
-            {/* Custom Date Inputs */}
-            {showCustomDatePicker && (
-                <Row className="align-items-end g-2">
+            {showDatePicker && (
+                <Row id="custom-date-picker" className="align-items-end g-2">
                     <Col xs={12} md={5}>
-                        <Form.Label className="d-block mb-1" style={{ fontSize: '0.9rem' }}>
-                            Start Date:
-                        </Form.Label>
+                        <Form.Label className="d-block mb-1 small">Start Date</Form.Label>
                         <DatePicker
-                            selected={customStartDate ? new Date(customStartDate + 'T00:00:00Z') : null}
-                            onChange={(d: Date | null) => setCustomStartDate(d ? d.toISOString().split('T')[0] : '')}
-                            maxDate={new Date()}
+                            selected={parseDateInput(startDate)}
+                            onChange={(date: Date | null) => setStartDate(date ? formatDateInput(date) : '')}
+                            maxDate={parseDateInput(endDate) ?? new Date()}
                             className="form-control form-control-sm"
+                            wrapperClassName="w-100"
                             dateFormat="yyyy-MM-dd"
+                            placeholderText="Select a start date"
                         />
                     </Col>
                     <Col xs={12} md={5}>
-                        <Form.Label className="d-block mb-1" style={{ fontSize: '0.9rem' }}>
-                            End Date:
-                        </Form.Label>
+                        <Form.Label className="d-block mb-1 small">End Date</Form.Label>
                         <DatePicker
-                            selected={customEndDate ? new Date(customEndDate + 'T00:00:00Z') : null}
-                            onChange={(d: Date | null) => setCustomEndDate(d ? d.toISOString().split('T')[0] : '')}
+                            selected={parseDateInput(endDate)}
+                            onChange={(date: Date | null) => setEndDate(date ? formatDateInput(date) : '')}
+                            minDate={parseDateInput(startDate) ?? undefined}
                             maxDate={new Date()}
                             className="form-control form-control-sm"
+                            wrapperClassName="w-100"
                             dateFormat="yyyy-MM-dd"
+                            placeholderText="Select an end date"
                         />
                     </Col>
                     <Col xs={12} md={2} className="d-flex gap-2">
                         <Button
                             size="sm"
                             variant="primary"
-                            onClick={() => updateChart(DateRange.YEAR, buildCleanFilter())}
-                            disabled={!customStartDate && !customEndDate}
+                            disabled={(!startDate && !endDate) || invalidRange}
+                            onClick={() => applyRange({ startDate: startDate || undefined, endDate: endDate || undefined })}
                         >
                             Apply
                         </Button>
                         <Button
                             size="sm"
-                            variant="outline-secondary"
+                            variant="outline-light"
+                            disabled={!startDate && !endDate && !value}
                             onClick={() => {
-                                setCustomStartDate('')
-                                setCustomEndDate('')
-                                updateChart(DateRange.YEAR, itemFilter)
+                                setStartDate('')
+                                setEndDate('')
+                                onChange(null)
                             }}
                         >
                             Reset
                         </Button>
                     </Col>
+                    {invalidRange && (
+                        <Col xs={12}>
+                            <Form.Text className="text-danger">The end date must be on or after the start date.</Form.Text>
+                        </Col>
+                    )}
                 </Row>
             )}
-        </div>
+        </section>
     )
 }
