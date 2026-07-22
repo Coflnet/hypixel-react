@@ -7,6 +7,7 @@ import { ChangeEvent, useEffect, useState, type JSX } from 'react'
 import { Button, Form, Modal } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
+import { websocketHelper } from '../../api/WebsocketHelper'
 import cacheUtils from '../../utils/CacheUtils'
 import { useCoflCoins } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -18,7 +19,7 @@ import Tooltip from '../Tooltip/Tooltip'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import styles from './AccountDetails.module.css'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
-import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, getSetting } from '../../utils/SettingsUtils'
+import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, getSetting, removeSettings } from '../../utils/SettingsUtils'
 import TransactionHistory from './TransactionHistory/TransactionHistory'
 
 function AccountDetails() {
@@ -85,8 +86,10 @@ function AccountDetails() {
         setIsLoggedIn(false)
         setIsLoading(false)
         googleLogout()
+        websocketHelper.disconnect()
         sessionStorage.removeItem('googleId')
         localStorage.removeItem('googleId')
+        removeSettings([GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL])
         setRerenderGoogleSignIn(rerenderGoogleSignIn + 1)
         toast.warn('Successfully logged out')
         setTimeout(() => {

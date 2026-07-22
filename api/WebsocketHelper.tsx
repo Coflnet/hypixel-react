@@ -8,6 +8,7 @@ import { atobUnicode, btoaUnicode } from '../utils/Base64Utils'
 
 let requests: ApiRequest[] = []
 let websocket: WebSocket
+let reconnectTimeout: ReturnType<typeof setTimeout> | undefined
 
 let isConnectionIdSet: boolean = false
 
@@ -16,7 +17,8 @@ let apiSubscriptions: ApiSubscription[] = []
 function initWebsocket(): void {
     let onWebsocketClose = (): void => {
         var timeout = Math.random() * (5000 - 0) + 0
-        setTimeout(() => {
+        reconnectTimeout = setTimeout(() => {
+            reconnectTimeout = undefined
             websocket = getNewWebsocket(true)
         }, timeout)
     }
@@ -213,8 +215,26 @@ function _isWebsocketReady(requestType: string, websocket: WebSocket) {
     return websocket && websocket.readyState === WebSocket.OPEN && (isConnectionIdSet || requestType === RequestType.SET_CONNECTION_ID)
 }
 
+function disconnect(): void {
+    if (reconnectTimeout !== undefined) {
+        clearTimeout(reconnectTimeout)
+        reconnectTimeout = undefined
+    }
+    if (websocket) {
+        websocket.onclose = null
+        websocket.onerror = null
+        websocket.onmessage = null
+        websocket.onopen = null
+        websocket.close()
+    }
+    isConnectionIdSet = false
+    requests = []
+    apiSubscriptions = []
+}
+
 export let websocketHelper: WebsocketHelper = {
     sendRequest: sendRequest,
     subscribe: subscribe,
-    removeOldSubscriptionByType: removeOldSubscriptionByType
+    removeOldSubscriptionByType: removeOldSubscriptionByType,
+    disconnect: disconnect
 }

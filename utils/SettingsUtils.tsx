@@ -56,6 +56,20 @@ export function setSetting(key: any, value: any) {
     localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(settings))
 }
 
+export function removeSettings(keys: string[]) {
+    keys.forEach(key => delete settings[key])
+    localStorage.setItem(LOCAL_STORAGE_SETTINGS_KEY, JSON.stringify(settings))
+
+    let backup = localStorage.getItem('backup_userSettings')
+    if (backup) {
+        try {
+            let backupSettings = JSON.parse(backup)
+            keys.forEach(key => delete backupSettings[key])
+            localStorage.setItem('backup_userSettings', JSON.stringify(backupSettings))
+        } catch {}
+    }
+}
+
 export function setSettingsFromServerSide(
     settings: any,
     updateLocalSettings = true

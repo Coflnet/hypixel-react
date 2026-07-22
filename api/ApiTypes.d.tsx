@@ -155,6 +155,7 @@ export interface Connection {
 export interface WebsocketHelper extends Connection {
     subscribe(subscription: ApiSubscription): void
     removeOldSubscriptionByType(type: RequestType): void
+    disconnect(): void
 }
 
 export interface HttpApi extends Connection {
