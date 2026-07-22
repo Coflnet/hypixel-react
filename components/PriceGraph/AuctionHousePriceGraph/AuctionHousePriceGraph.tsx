@@ -8,7 +8,7 @@ import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { AUCTION_GRAPH_LEGEND_SELECTION } from '../../../utils/SettingsUtils'
 import ActiveAuctions from '../../ActiveAuctions/ActiveAuctions'
 import ItemFilter, { getPrefillFilter } from '../../ItemFilter/ItemFilter'
-import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
+import { DateRange, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
 import { useValidRange } from '../../../hooks/useValidRange'
 import Number from '../../Number/Number'
 import GoogleSignIn from '../../GoogleSignIn/GoogleSignIn'
@@ -17,11 +17,12 @@ import RelatedItems from '../../RelatedItems/RelatedItems'
 import ShareButton from '../../ShareButton/ShareButton'
 import SubscribeButton from '../../SubscribeButton/SubscribeButton'
 import QuickDateSelect from './QuickDateSelect'
+import { buildYearHistoryFilter, type CustomDateRange } from './YearDateRangeUtils'
 import styles from './AuctionHousePriceGraph.module.css'
 import graphConfig from './PriceGraphConfig'
 import { applyMayorDataToChart } from '../../../utils/GraphUtils'
 import EChartsReact from 'echarts-for-react'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { useGetApiItemPriceItemTagHistoryYear } from '../../../api/_generated/skyApi'
 import Link from 'next/link'
 import { v4 as generateUUID } from 'uuid'
@@ -31,6 +32,16 @@ import { hasHighEnoughPremium, PREMIUM_RANK } from '../../../utils/PremiumTypeUt
 import NitroAdSlot from '../../Ads/NitroAdSlot'
 
 const HOUR_IN_MS = 60 * 60 * 1000
+const YEAR_LOADING_MESSAGES = [
+    'Loading year history data... This might take a while! 📊',
+    'Crunching numbers from the past year... Stay tuned! 🔢',
+    "Fetching auction data... It's a lot of information! 📈",
+    'Almost there! Processing historical market trends... 📋',
+    'Loading complete market analysis... Worth the wait! 🎯',
+    'Gathering seller and buyer statistics... Hang tight! 👥',
+    "Fun fact: We're processing millions of auction records! 🎪",
+    'Did you know? Year data includes every single transaction! 💰'
+]
 
 const normaliseMayorRange = (start: Date, end: Date) => {
     let from = new Date(start.getTime())
@@ -57,6 +68,12 @@ type YearStatistics = PriceStatistics & {
     recentAuctions?: AuctionPreview[]
 }
 
+interface YearRequest {
+    id: number
+    params?: ItemFilter
+    fetchOptions: RequestInit
+}
+
 // Base empty statistics object used for premium/preview placeholders.
 // Created once so identical objects are not duplicated inline.
 const EMPTY_YEAR_STATISTICS_BASE: YearStatistics = {
@@ -81,7 +98,6 @@ let currentLoadingString
 let mounted = true
 
 function AuctionHousePriceGraph(props: Props) {
-    let searchParams = useSearchParams()
     let [fetchspan, setFetchspan] = useValidRange()
     let [isLoading, setIsLoading] = useState(false)
     let [noDataFound, setNoDataFound] = useState(false)
@@ -95,28 +111,11 @@ function AuctionHousePriceGraph(props: Props) {
     let [hasPremium, setHasPremium] = useState(false)
     let [yearStatistics, setYearStatistics] = useState<YearStatistics | null>(null)
     let [yearServerError, setYearServerError] = useState<string | null>(null)
-    let [customStartDate, setCustomStartDate] = useState<string>('')
-    let [customEndDate, setCustomEndDate] = useState<string>('')
+    let [yearDateRange, setYearDateRange] = useState<CustomDateRange | null>(null)
     let [mayorPeriods, setMayorPeriods] = useState<CoflnetSkyMayorModelsModelElectionPeriod[]>([])
-    let [showCustomDatePicker, setShowCustomDatePicker] = useState(false)
-    let [isYearLoading, setIsYearLoading] = useState(false)
-    let [yearParams, setYearParams] = useState<any | undefined>(undefined)
-    let [yearFetchOptions, setYearFetchOptions] = useState<RequestInit | undefined>(undefined)
-    let loadingMessage = useRotatingMessages(
-        isYearLoading,
-        [
-            'Loading year history data... This might take a while! 📊',
-            'Crunching numbers from the past year... Stay tuned! 🔢',
-            "Fetching auction data... It's a lot of information! 📈",
-            'Almost there! Processing historical market trends... 📋',
-            'Loading complete market analysis... Worth the wait! 🎯',
-            'Gathering seller and buyer statistics... Hang tight! 👥',
-            "Fun fact: We're processing millions of auction records! 🎪",
-            'Did you know? Year data includes every single transaction! 💰'
-        ],
-        10000
-    )
+    let [yearRequest, setYearRequest] = useState<YearRequest | null>(null)
     let graphRef = useRef<EChartsReact>(null)
+    let yearRequestIdRef = useRef(0)
     let router = useRouter()
     let pathname = usePathname()
 
@@ -137,11 +136,13 @@ function AuctionHousePriceGraph(props: Props) {
 
     useEffect(() => {
         loadFilters().then(filters => {
-            fetchspan = DEFAULT_DATE_RANGE
-            setFetchspan(DEFAULT_DATE_RANGE)
             setFilters(filters)
             if (props.item) {
-                updateChart(fetchspan, getPrefillFilter(filters))
+                const prefillFilter = getPrefillFilter(filters)
+                updateChart(
+                    fetchspanRef.current,
+                    fetchspanRef.current === DateRange.YEAR ? buildYearHistoryFilter(prefillFilter, yearDateRange) : prefillFilter
+                )
             }
         })
     }, [props.item.tag])
@@ -152,10 +153,10 @@ function AuctionHousePriceGraph(props: Props) {
                 const ok = hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM)
                 setHasPremium(ok)
                 if (ok) {
-                    updateChart(DateRange.YEAR, itemFilter)
+                    updateChart(DateRange.YEAR, buildYearHistoryFilter(itemFilter, yearDateRange))
                 }
             })
-            .catch(() => { })
+            .catch(() => {})
     }
 
     const now = new Date()
@@ -165,9 +166,9 @@ function AuctionHousePriceGraph(props: Props) {
     const mayorParams =
         fetchspan === DateRange.YEAR
             ? {
-                from: currentMayorFrom.toISOString(),
-                to: currentMayorTo.toISOString()
-            }
+                  from: currentMayorFrom.toISOString(),
+                  to: currentMayorTo.toISOString()
+              }
             : undefined
 
     const mayorQuery = useGetApiMayor(mayorParams, { query: { enabled: fetchspan === DateRange.YEAR } })
@@ -175,34 +176,29 @@ function AuctionHousePriceGraph(props: Props) {
     useEffect(() => {
         if (mayorQuery.data) {
             const periods = mayorQuery.data.data || []
-            const sortedPeriods = periods.sort((a: any, b: any) => new Date(b.start).getTime() - new Date(a.start).getTime())
+            const sortedPeriods = [...periods].sort((a, b) => new Date(b.start ?? 0).getTime() - new Date(a.start ?? 0).getTime())
             setMayorPeriods(sortedPeriods)
         } else if (mayorQuery.error) {
             console.error(mayorQuery.error)
         }
     }, [mayorQuery.data, mayorQuery.error])
 
-    const authKey = yearFetchOptions?.headers ? yearFetchOptions.headers : null
-    const yearQuery = useGetApiItemPriceItemTagHistoryYear(props.item.tag, yearParams, {
+    const yearQuery = useGetApiItemPriceItemTagHistoryYear(props.item.tag, yearRequest?.params as any, {
         query: {
-            enabled: isYearLoading,
-            queryKey: ['yearHistory', props.item.tag, yearParams ?? null, authKey]
+            enabled: fetchspan === DateRange.YEAR && yearRequest !== null,
+            queryKey: ['yearHistory', props.item.tag, yearRequest?.params ?? null, yearRequest?.id ?? null],
+            retry: false
         },
-        fetch: yearFetchOptions
+        fetch: yearRequest?.fetchOptions
     })
+    const isYearLoading = fetchspan === DateRange.YEAR && yearRequest !== null && yearQuery.isFetching
+    const loadingMessage = useRotatingMessages(isYearLoading, YEAR_LOADING_MESSAGES, 10000)
 
     useEffect(() => {
-        if (!isYearLoading) return
+        if (fetchspan !== DateRange.YEAR || !yearRequest || yearQuery.isFetching) return
 
         if (yearQuery.data) {
             const response = yearQuery.data as any
-
-            if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, fetchspan, itemFilter })) {
-                setIsYearLoading(false)
-                return
-            }
-
-            setIsYearLoading(false)
             setYearServerError(null)
             const data = response.data
             const status = response.status as number | undefined
@@ -224,8 +220,11 @@ function AuctionHousePriceGraph(props: Props) {
 
             // Premium required: only when backend explicitly says so
             if (
-                (status === 401 || status === 403) ||
-                (data && typeof data === 'object' && (data.slug === 'premium_required' || data.isPremiumRequired || data.premiumRequired || data.error === 'premium_required'))
+                status === 401 ||
+                status === 403 ||
+                (data &&
+                    typeof data === 'object' &&
+                    (data.slug === 'premium_required' || data.isPremiumRequired || data.premiumRequired || data.error === 'premium_required'))
             ) {
                 setIsLoading(false)
                 setYearStatistics({ ...EMPTY_YEAR_STATISTICS_BASE, isPremiumRequired: true })
@@ -235,36 +234,27 @@ function AuctionHousePriceGraph(props: Props) {
             }
 
             if (data && typeof data === 'object' && 'prices' in data) {
-                setYearStatistics(data as any)
+                const statistics = data as YearStatistics
+                const prices = statistics.prices || []
+                const dates = prices.map(item => new Date(item.time).getTime())
 
-                let filteredPrices = data.prices || []
-
-                if (filteredPrices.length > 0) {
-                    if (customStartDate || customEndDate) {
-                        filteredPrices = filteredPrices.filter(item => {
-                            const itemDate = new Date(item.time)
-                            const startDate = customStartDate ? new Date(customStartDate) : new Date(0)
-                            const endDate = customEndDate ? new Date(customEndDate) : new Date()
-
-                            return itemDate >= startDate && itemDate <= endDate
-                        })
-                    }
-
-                    chartOptions.xAxis[0].data = filteredPrices.map(item => new Date(item.time).getTime())
-                    chartOptions.series[0].data = filteredPrices.map(item => item.avg.toFixed(2))
-                    chartOptions.series[1].data = filteredPrices.map(item => item.min.toFixed(2))
-                    chartOptions.series[2].data = filteredPrices.map(item => item.max.toFixed(2))
-                    chartOptions.series[3].data = filteredPrices.map(item => item.volume.toFixed(2))
-
-                    let priceSum = filteredPrices.reduce((sum, item) => sum + item.avg, 0)
-                    setAvgPrice(Math.round(priceSum / filteredPrices.length))
-                } else {
-                    setAvgPrice(0)
-                }
+                setYearStatistics(statistics)
+                setChartOptions(current => ({
+                    ...current,
+                    dataZoom: current.dataZoom.map(zoom => ({ ...zoom, start: 0, end: 100 })),
+                    xAxis: current.xAxis.map((axis, index) => (index === 0 ? { ...axis, data: dates } : axis)),
+                    series: current.series.map((series, index) => {
+                        if (index === 0) return { ...series, data: prices.map(item => item.avg.toFixed(2)) }
+                        if (index === 1) return { ...series, data: prices.map(item => item.min.toFixed(2)) }
+                        if (index === 2) return { ...series, data: prices.map(item => item.max.toFixed(2)) }
+                        if (index === 3) return { ...series, data: prices.map(item => item.volume.toFixed(2)) }
+                        return series
+                    })
+                }))
+                setAvgPrice(prices.length ? Math.round(prices.reduce((sum, item) => sum + item.avg, 0) / prices.length) : 0)
 
                 setIsLoading(false)
-                setNoDataFound(filteredPrices?.length === 0)
-                setChartOptions(chartOptions)
+                setNoDataFound(prices.length === 0)
             } else {
                 setIsLoading(false)
                 setNoDataFound(true)
@@ -274,7 +264,6 @@ function AuctionHousePriceGraph(props: Props) {
         } else if (yearQuery.error) {
             const e: any = yearQuery.error
             console.error(e)
-            setIsYearLoading(false)
             setIsLoading(false)
             setYearServerError(null)
 
@@ -300,9 +289,13 @@ function AuctionHousePriceGraph(props: Props) {
             }
             setAvgPrice(0)
         }
-    }, [yearQuery.data, yearQuery.error])
+    }, [fetchspan, yearQuery.data, yearQuery.error, yearQuery.isFetching, yearRequest])
 
     let updateChart = (fetchspan: DateRange, itemFilter?: ItemFilter) => {
+        if (fetchspan !== DateRange.YEAR) {
+            setYearRequest(null)
+        }
+
         if (fetchspan === DateRange.ACTIVE) {
             setIsLoading(false)
             return
@@ -327,17 +320,16 @@ function AuctionHousePriceGraph(props: Props) {
         })
 
         if (fetchspan === DateRange.YEAR) {
-            setIsYearLoading(true)
             setYearServerError(null)
 
-            let params: any = {}
+            let params: ItemFilter = {}
             if (itemFilter && Object.keys(itemFilter).length > 0) {
                 params = { ...itemFilter }
             }
 
             const requestOptions: RequestInit = {}
             if (typeof window !== 'undefined') {
-                const googleId = isSignedIn ? sessionStorage.getItem('googleId') : null
+                const googleId = sessionStorage.getItem('googleId')
                 if (googleId) {
                     requestOptions.headers = {
                         GoogleToken: googleId,
@@ -346,8 +338,12 @@ function AuctionHousePriceGraph(props: Props) {
                 }
             }
 
-            setYearParams(Object.keys(params).length > 0 ? params : undefined)
-            setYearFetchOptions(requestOptions)
+            yearRequestIdRef.current += 1
+            setYearRequest({
+                id: yearRequestIdRef.current,
+                params: Object.keys(params).length > 0 ? params : undefined,
+                fetchOptions: requestOptions
+            })
             return
         }
 
@@ -356,11 +352,11 @@ function AuctionHousePriceGraph(props: Props) {
                 if (
                     !mounted ||
                     currentLoadingString !==
-                    JSON.stringify({
-                        tag: props.item.tag,
-                        fetchspan,
-                        itemFilter
-                    })
+                        JSON.stringify({
+                            tag: props.item.tag,
+                            fetchspan,
+                            itemFilter
+                        })
                 ) {
                     return
                 }
@@ -392,7 +388,7 @@ function AuctionHousePriceGraph(props: Props) {
                     let mayorData = await api.getMayorData(minDate, maxDate)
                     setMayorData(mayorData)
                     applyMayorDataToChart(chartOptions, mayorData, 4)
-                } catch (e) { }
+                } catch (e) {}
 
                 setAvgPrice(Math.round(priceSum / prices.length))
                 setNoDataFound(prices.length === 0)
@@ -410,7 +406,7 @@ function AuctionHousePriceGraph(props: Props) {
     let onRangeChange = (timespan: DateRange) => {
         setFetchspan(timespan)
         if (timespan !== DateRange.ACTIVE) {
-            updateChart(timespan, itemFilter)
+            updateChart(timespan, timespan === DateRange.YEAR ? buildYearHistoryFilter(itemFilter, yearDateRange) : itemFilter)
         }
     }
 
@@ -418,8 +414,13 @@ function AuctionHousePriceGraph(props: Props) {
         setItemFilter({ ...filter })
         setDefaultRangeSwitch(!defaultRangeSwitch)
         if (fetchspanRef.current !== DateRange.ACTIVE) {
-            updateChart(fetchspanRef.current, filter)
+            updateChart(fetchspanRef.current, fetchspanRef.current === DateRange.YEAR ? buildYearHistoryFilter(filter, yearDateRange) : filter)
         }
+    }
+
+    function onYearDateRangeChange(range: CustomDateRange | null) {
+        setYearDateRange(range)
+        updateChart(DateRange.YEAR, buildYearHistoryFilter(itemFilter, range))
     }
 
     function loadFilters() {
@@ -476,9 +477,7 @@ function AuctionHousePriceGraph(props: Props) {
                     <div style={{ textAlign: 'center' }}>
                         <div style={{ fontSize: '42px', marginBottom: '10px' }}>⚠️</div>
                         <h5 className="text-danger mb-2">Server Error</h5>
-                        <p className="text-light mb-3">
-                            {yearServerError}
-                        </p>
+                        <p className="text-light mb-3">{yearServerError}</p>
                         <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', alignItems: 'center' }}>
                             <a href="https://discord.gg/wvKXSHt" target="_blank" rel="noopener noreferrer">
                                 <button className="btn btn-sm btn-info">Ask for Support</button>
@@ -487,7 +486,7 @@ function AuctionHousePriceGraph(props: Props) {
                                 className="btn btn-sm btn-outline-light"
                                 onClick={() => {
                                     setYearServerError(null)
-                                    updateChart(DateRange.YEAR, itemFilter)
+                                    updateChart(DateRange.YEAR, buildYearHistoryFilter(itemFilter, yearDateRange))
                                 }}
                             >
                                 Retry
@@ -516,7 +515,7 @@ function AuctionHousePriceGraph(props: Props) {
                                     <button
                                         className="btn btn-sm btn-outline-light"
                                         onClick={() => {
-                                            updateChart(DateRange.YEAR, itemFilter)
+                                            updateChart(DateRange.YEAR, buildYearHistoryFilter(itemFilter, yearDateRange))
                                         }}
                                     >
                                         Retry
@@ -547,31 +546,22 @@ function AuctionHousePriceGraph(props: Props) {
                 }
             />
 
-            {fetchspan === DateRange.YEAR && (
-                <QuickDateSelect
-                    mayorPeriods={mayorPeriods}
-                    itemFilter={itemFilter}
-                    customStartDate={customStartDate}
-                    customEndDate={customEndDate}
-                    showCustomDatePicker={showCustomDatePicker}
-                    setCustomStartDate={setCustomStartDate}
-                    setCustomEndDate={setCustomEndDate}
-                    setShowCustomDatePicker={setShowCustomDatePicker}
-                    updateChart={updateChart}
-                />
-            )}
+            {fetchspan === DateRange.YEAR && <QuickDateSelect mayorPeriods={mayorPeriods} value={yearDateRange} onChange={onYearDateRangeChange} />}
 
             <div style={fetchspan === DateRange.ACTIVE ? { display: 'none' } : {}}>
                 <div className={styles.chartWrapper}>
-                    {!isLoading && !noDataFound && !yearServerError && !(fetchspan === DateRange.YEAR && !hasPremium && (yearStatistics?.isPremiumRequired || !isSignedIn)) ? (
+                    {!isLoading &&
+                    !noDataFound &&
+                    !yearServerError &&
+                    !(fetchspan === DateRange.YEAR && !hasPremium && (yearStatistics?.isPremiumRequired || !isSignedIn)) ? (
                         <ReactECharts option={chartOptions} className={styles.chart} ref={graphRef} onEvents={onChartsEvents()} />
                     ) : (
                         graphOverlayElement
                     )}
                 </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr" }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr' }}>
                     <div />
-                    <div className='text-center'>
+                    <div className="text-center">
                         <b>Avg Price:</b>{' '}
                         {isLoading ? (
                             '-'
@@ -622,17 +612,15 @@ function AuctionHousePriceGraph(props: Props) {
                                 </div>
                                 <div style={{ marginBottom: '10px' }}>
                                     <strong>⏱️ Avg Sell Time:</strong>{' '}
-                                    {yearStatistics.averageSellTimeSeconds
-                                        ? `${Math.round(yearStatistics.averageSellTimeSeconds / 3600)} hours`
-                                        : 'N/A'}
+                                    {yearStatistics.averageSellTimeSeconds ? `${Math.round(yearStatistics.averageSellTimeSeconds / 3600)} hours` : 'N/A'}
                                 </div>
                             </div>
                         </div>
                         {(yearStatistics.totalAuctions || 0) > 399000 && (
                             <div className="row">
                                 <div className="col-12" style={{ marginTop: '12px', color: 'var(--bs-warning)' }}>
-                                    <strong>Note:</strong> Yearly queries are limited to 400k auctions to manage data size. To get more insights, please
-                                    add more filters or specify a different date range.
+                                    <strong>Note:</strong> Yearly queries are limited to 400k auctions to manage data size. To get more insights, please add
+                                    more filters or specify a different date range.
                                 </div>
                             </div>
                         )}
@@ -640,7 +628,7 @@ function AuctionHousePriceGraph(props: Props) {
                 )}
                 <NitroAdSlot
                     slotId="below-auction-graph"
-                    className='mt-2'
+                    className="mt-2"
                     config={{
                         sizes: [[970, 90]],
                         delayLoading: true,
@@ -666,12 +654,12 @@ function AuctionHousePriceGraph(props: Props) {
                         yearRecentSamples={
                             fetchspan === DateRange.YEAR && yearStatistics
                                 ? (yearStatistics.recentSamples || yearStatistics.recentAuctions || []).map(s => ({
-                                    end: s.end ? new Date(s.end) : new Date(),
-                                    price: s.price,
-                                    seller: { name: s.seller || '', uuid: '', iconUrl: undefined },
-                                    uuid: s.uuid || '',
-                                    playerName: s.playerName || ''
-                                }))
+                                      end: s.end ? new Date(s.end) : new Date(),
+                                      price: s.price,
+                                      seller: { name: s.seller || '', uuid: '', iconUrl: undefined },
+                                      uuid: s.uuid || '',
+                                      playerName: s.playerName || ''
+                                  }))
                                 : undefined
                         }
                         isYearView={fetchspan === DateRange.YEAR}
