@@ -24,7 +24,10 @@ export default async function Page() {
         <>
             <Container>
                 <Search />
-                <h1>Item Flipper</h1>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+                    <h1>Item Flipper</h1>
+                    <div id="skycofl-ai-chat-launcher" />
+                </div>
                 <hr />
                 <Flipper flips={flips} />
                 <Link href="/bazaar" style={{ marginTop: '20px', display: 'inline-block' }}>

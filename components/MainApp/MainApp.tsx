@@ -19,6 +19,7 @@ import '../../styles/globals.css'
 import TopLoadingAnimation from '../TopLoader/TopLoadingAnimation'
 import { initCoflCoinManager } from '../../utils/CoflCoinsUtils'
 import properties from '../../properties'
+import { AiChat } from '../AiChat/AiChat'
 
 interface ErrorLog {
     error: ErrorEvent
@@ -208,6 +209,7 @@ export function MainApp(props: any) {
         <>
             <OfflineBanner />
             <TopLoadingAnimation />
+            <AiChat />
             {props.children}
             {!properties.isTestRunner && !hasNitroCMP ? (
                 <CookieConsent

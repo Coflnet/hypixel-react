@@ -387,6 +387,28 @@ function PremiumFeatures() {
                         </td>
                     </tr>
                     <tr>
+                        <td className={styles.featureColumn}>
+                            AI assistant messages per day
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={<p>Signed-out visitors receive 3 messages per IP each day. A free signed-in account receives 10.</p>}
+                            />
+                        </td>
+                        <td className={styles.premiumProductColumn}>
+                            10
+                            <br />
+                            <small>3 signed out</small>
+                        </td>
+                        <td className={styles.premiumProductColumn}>20</td>
+                        <td className={styles.premiumProductColumn}>50</td>
+                        <td className={styles.premiumProductColumn}>200</td>
+                    </tr>
+                    <tr>
                         <td className={styles.featureColumn}>Refresh time of /cofl cheapmuseum </td>
                         <td className={styles.premiumProductColumn}>2 h</td>
                         <td className={styles.premiumProductColumn}>5 min</td>

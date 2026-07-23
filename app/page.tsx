@@ -9,6 +9,9 @@ export default async function Page() {
         <>
             <Container>
                 <Search />
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <div id="skycofl-ai-chat-launcher" />
+                </div>
                 <FavoriteItemsBar />
                 <StartpageComponent />
             </Container>

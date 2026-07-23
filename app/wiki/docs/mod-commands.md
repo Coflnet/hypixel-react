@@ -390,6 +390,20 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 
 
+### AutoTipCommand
+
+- **Primary syntax:** `/cofl autotip` (also `/cl autotip`)
+
+- **Summary:** Manage automatic network-booster tipping.
+
+- **Arguments & subcommands:**
+	- No argument – shows the available autotip commands.
+	- `enable` / `disable` – enables or disables automatic tipping in your account settings.
+	- `status` – shows whether autotip is currently enabled and links the opposite action.
+	- `stats` – shows how many tips the service sent for you during the last week, capped at the latest 1,000 records.
+
+
+
 ### ApiCommand
 
 - **Primary syntax:** `/cofl api` (also `/cl api`)
@@ -491,6 +505,20 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- If you previously chose an item slot, re-running the command skips straight to the breakdown.
 	- Hovering each ingredient line shows its source (Bazaar, AH price, manual estimate) so you can spot negative/unknown values quickly.
 	- Pricing uses the `/cofl` API (Median/Bazaar) at the moment you run the command.
+
+
+
+### EmblemCommand
+
+- **Primary syntax:** `/cofl emblem` (also `/cl emblem`)
+
+- **Summary:** View and equip the small emblem shown before your SkyCofl chat messages.
+
+- **Arguments & subcommands:**
+	- No argument – lists every emblem, its unlock state and description, with an equip button for unlocked entries.
+	- `set <id>` – equips an emblem you have unlocked.
+	- `clear` – removes the currently equipped emblem.
+	- Mysterious locked emblems hide their unlock condition until you discover it.
 
 
 
@@ -675,6 +703,23 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 
 
+### ProxyCommand
+
+- **Primary syntax:** `/cofl proxy` (also `/cl proxy`)
+
+- **Summary:** Opt in to proxying public web requests, inspect earned proxy points, and exchange points for CoflCoins.
+
+- **Privacy note:** Enabling this feature uses your internet connection, IP address, and language setting to fetch public pages. The status screen shows the recorded IP location and network type when available. Leave it disabled if you do not want to participate.
+
+- **Arguments & subcommands:**
+	- No argument or `status` – shows whether proxying is enabled and links the relevant action.
+	- `on` / `enable` and `off` / `disable` – changes the opt-in state. Proxying is supported only by the official mod.
+	- `list` / `points` / `balance` – shows your accrued points and the current exchange tiers.
+	- `exchange [small|medium|large|giant|best]` – converts points to CoflCoins. With no tier, `best` automatically uses the most valuable available combination.
+	- Point conversion is limited by the server's current weekly exchange rules.
+
+
+
 ### PurchaseCommand (alias `buy`)
 
 - **Primary syntax:** `/cofl purchase` (also `/cl purchase`)
@@ -697,6 +742,44 @@ By the time you read this there may be new commands available, the tab-auto comp
  **Tier requirement:** None (works for every verified user).
 
 - **In-game blurb:** /cofl report &lt;message&gt; When executed returns you a case id. Please use that id to post into the bug report channel on discord. Isses can be fixed very quickly if you include as much information as possible.
+
+
+
+### RestoreCommand
+
+- **Primary syntax:** `/cofl restore <backup name>` (also `/cl restore <backup name>`)
+
+- **Summary:** Restore flip settings from a named cloud backup.
+
+- **Arguments & subcommands:**
+	- `<backup name>` – replaces the relevant current flip settings with the saved backup of that name.
+	- Prefer the restore button in `/cofl backup list`; it fills in the exact stored name and avoids quoting mistakes.
+	- If the backup does not exist, the command points you back to `/cofl backup list`.
+
+
+
+### RustAddonCommand
+
+- **Primary syntax:** `/cofl rust` (also `/cl rust`)
+
+- **Summary:** Show the status of the retired Rust Finder add-on.
+
+- **Arguments & subcommands:**
+	- No argument or `status` – checks ownership and whether the finder is enabled.
+	- Existing owners can enable or disable Rust Finder from the returned menu.
+	- The add-on is no longer sold. Users who do not own it are directed to the AI finder instead.
+
+
+
+### SettingsCommand
+
+- **Primary syntax:** `/cofl settings` (also `/cl settings`)
+
+- **Summary:** Open the settings help menu.
+
+- **Arguments & subcommands:**
+	- Runs without arguments and links `/cofl set`, `/cofl config`, `/cofl whitelist`, and `/cofl blacklist`.
+	- It also links the [web flipper settings](/flipper), while noting that some mod-only settings are not exposed there.
 
 
 
@@ -1275,4 +1358,3 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- If your flipping is disabled or blocked (e.g., `/cofl blocked` issues) the command surfaces a helper message instead of replaying.
 
 - **Note:** Ideal for config sellers—replay a fresh dataset after tweaking filters to confirm the mod still flags the right profit windows.
-
