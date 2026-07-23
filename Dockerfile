@@ -19,7 +19,9 @@ RUN rm -rf orval.config.ts cypress.config.ts cypress/ docs/ scripts/ lighthouse-
 FROM gcr.io/distroless/nodejs24-debian13 AS runner
 
 WORKDIR /opt/app
+ARG APP_VERSION
 ENV NODE_ENV=production
+ENV APP_VERSION=${APP_VERSION}
 
 COPY --from=builder --chown=nonroot:nonroot /opt/app/next.config.js ./
 COPY --from=builder --chown=nonroot:nonroot /opt/app/public ./public
