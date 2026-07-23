@@ -70,6 +70,11 @@ export const toolLandingSeoContent = {
         ],
         relatedLinks: [
             {
+                href: '/wiki/bazaar-flips',
+                label: 'Complete Bazaar Flipping Guide',
+                description: 'Follow the website and in-game /cofl bazaar workflows step by step.'
+            },
+            {
                 href: '/guides/what-is-bazaar-flipping',
                 label: 'What is Bazaar Flipping?',
                 description: 'Learn the core mechanics, taxes, and order types before you scale up.'
@@ -312,6 +317,11 @@ export const toolLandingSeoContent = {
             }
         ],
         relatedLinks: [
+            {
+                href: '/wiki/forge-flips',
+                label: 'Complete Forge Flips Guide',
+                description: 'Learn the website workflow, /cofl forge command, requirements, timing, and risk checks.'
+            },
             {
                 href: '/crafts',
                 label: 'Craft Flips',

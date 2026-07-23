@@ -82,7 +82,7 @@ export const SITEMAP_CONFIG = {
             keywords: ['low supply items', 'high demand', 'trading opportunities', 'market analysis']
         },
         {
-            url: '/recentflips',
+            url: '/recentFlips',
             priority: 0.8,
             changefreq: 'hourly' as const,
             title: 'Recent Profitable Flips and Market Opportunities',
@@ -144,6 +144,38 @@ export const SITEMAP_CONFIG = {
             title: 'Attribute Item Upgrade Flips Profit Calculator',
             description: 'Identify profitable Hypixel SkyBlock attribute flips by comparing base auction costs, upgrade materials, and target sale prices.',
             keywords: ['attribute flips', 'item upgrades', 'attribute shards', 'hypixel attributes', 'hex upgrades']
+        },
+        {
+            url: '/forge',
+            priority: 0.8,
+            changefreq: 'hourly' as const,
+            title: 'Forge Flips - Live Profit, Duration and Requirement Analysis',
+            description: 'Find profitable Forge recipes with live material costs, output values, effective duration, volume, and Heart of the Mountain requirements.',
+            keywords: ['forge flips', 'forge profit', 'quick forge', 'heart of the mountain']
+        },
+        {
+            url: '/premiumBazaar',
+            priority: 0.8,
+            changefreq: 'hourly' as const,
+            title: 'Premium Bazaar Flips - Live Demand and Order Book Analysis',
+            description: 'Find Bazaar opportunities using real-time demand, order-book pressure, fill estimates, and net profit.',
+            keywords: ['premium bazaar flips', 'bazaar demand', 'order book', 'bazaar profit']
+        },
+        {
+            url: '/topMovers',
+            priority: 0.7,
+            changefreq: 'hourly' as const,
+            title: 'Top Market Movers - Bazaar and Auction House Price Changes',
+            description: 'Track the largest recent Hypixel SkyBlock Bazaar and Auction House price movements.',
+            keywords: ['top movers', 'price changes', 'bazaar trends', 'auction house trends']
+        },
+        {
+            url: '/profitLeaderboard',
+            priority: 0.6,
+            changefreq: 'daily' as const,
+            title: 'SkyBlock Flipping Profit Leaderboard',
+            description: 'Compare tracked SkyCofl flipping profit and long-run player performance.',
+            keywords: ['profit leaderboard', 'flipping profit', 'skycofl leaderboard']
         },
         {
             url: '/mayor',

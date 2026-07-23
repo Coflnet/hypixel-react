@@ -155,7 +155,7 @@ export async function generateWikiSitemapEntries(
     const today = new Date();
     
     return docs.map(doc => {
-        const url = doc.slug ? `/wiki/docs/${doc.slug}` : '/wiki';
+        const url = doc.slug ? `/wiki/${doc.slug}` : '/wiki';
         return {
             url,
             lastModified: today,

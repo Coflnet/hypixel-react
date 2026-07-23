@@ -19,10 +19,15 @@ Welcome to the comprehensive guide for SkyCofl's Hypixel SkyBlock tools and feat
 - [Auction House Browser](/wiki/auction-house)
 - [Item Flipper](./flipper)
 - [Flip Finders](./flip-finders)
+- [All Feature Guides](./feature-guides)
+- [Bazaar Flipping Guide](./bazaar-flips)
+- [Forge Flips Guide](./forge-flips)
 
 ## Tools & Utilities
 
 - [Minecraft Mod](./mod)
+- [Complete Mod Command Reference](./mod-commands)
+- [Mod Settings Reference](./settings)
 - [Profitable Crafts](/crafts)
 - [Kat Flips](/kat)
 - [Skyblock flipping hub](/flips)
