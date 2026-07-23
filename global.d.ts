@@ -456,6 +456,8 @@ interface CraftingIngredient {
     ingredients?: CraftingIngredient[]
     buyOrderCost?: number
     craftCost?: number
+    npcCapacity?: number
+    npcUnitPrice?: number
     buyOrderCapacity?: number
     buyOrderUnitPrice?: number
     instaBuyUnitPrice?: number

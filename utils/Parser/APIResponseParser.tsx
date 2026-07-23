@@ -386,6 +386,8 @@ export function parseProfitableCrafts(crafts: any[] = []): ProfitableCraft[] {
             type: ingredient.type,
             buyOrderCost: ingredient.buyOrderCost,
             craftCost: ingredient.craftCost,
+            npcCapacity: ingredient.npcCapacity,
+            npcUnitPrice: ingredient.npcUnitPrice,
             buyOrderCapacity: ingredient.buyOrderCapacity,
             buyOrderUnitPrice: ingredient.buyOrderUnitPrice,
             instaBuyUnitPrice: ingredient.instaBuyUnitPrice,
