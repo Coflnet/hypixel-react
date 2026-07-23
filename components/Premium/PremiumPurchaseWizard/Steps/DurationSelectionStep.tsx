@@ -48,7 +48,9 @@ export default function DurationSelectionStep({
         const prices = SUBSCRIPTION_PRICES[tierKey] || { monthly: 0, quarterly: 0, yearly: 0 }
 
         let monthlyPrice = prices.monthly
-        if (duration === Duration.QUARTER) {
+        if (selectedTier === PremiumTier.STARTER && duration === Duration.QUARTER) {
+            return getPriceWithVAT(9.69) / 6
+        } else if (duration === Duration.QUARTER) {
             monthlyPrice = prices.quarterly / 3 // 3 months
         } else if (duration === Duration.YEARLY) {
             monthlyPrice = prices.yearly / 12 // 12 months
@@ -107,7 +109,11 @@ export default function DurationSelectionStep({
                                     <small className={styles.recommendation}>Best Value</small>
                                 ) : null}
                                 <div className={styles.monthlyPrice}>
-                                    <small>~€{roundUpToCent(getMonthlyPrice(opt.value)).toFixed(2)}/month</small>
+                                    <small>
+                                        {selectedTier === PremiumTier.STARTER && opt.value === Duration.QUARTER
+                                            ? `~€${roundUpToCent(getMonthlyPrice(opt.value)).toFixed(2)}${shouldIncludeVATInPrice() ? '' : ' (+VAT)'}/month`
+                                            : `~€${roundUpToCent(getMonthlyPrice(opt.value)).toFixed(2)}/month`}
+                                    </small>
                                 </div>
                             </Card.Body>
                         </Card>
