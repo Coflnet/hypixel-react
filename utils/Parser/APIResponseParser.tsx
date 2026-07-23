@@ -378,7 +378,7 @@ export function parseDate(dateString: string) {
     return new Date(dateString + 'Z')
 }
 
-export function parseProfitableCrafts(crafts: any[] = []): ProfitableCraft[] {
+export function parseProfitableCrafts(crafts: any[] = [], craftsToParse: any[] = crafts): ProfitableCraft[] {
     const parseCraftIngredient = (ingredient: any, seenTags: Set<string>): CraftingIngredient => {
         const result = {
             cost: ingredient.cost,
@@ -424,7 +424,7 @@ export function parseProfitableCrafts(crafts: any[] = []): ProfitableCraft[] {
         return result
     }
 
-    return crafts.map(craft => {
+    return craftsToParse.map(craft => {
         let c = {
             item: {
                 tag: craft.itemId,

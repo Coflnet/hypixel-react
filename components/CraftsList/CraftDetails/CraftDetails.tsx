@@ -2,7 +2,7 @@
 import { Badge } from 'react-bootstrap'
 import Number from '../../Number/Number'
 import { CraftingRecipe } from '../CraftingRecipe/CraftingRecipe'
-import { IngredientList } from '../IngredientList/IngredientList'
+import { CostBreakdown } from '../CostBreakdown/CostBreakdown'
 import { useEffect, useState } from 'react'
 import api from '../../../api/ApiHelper'
 import { toVariantItemTag } from '../../../utils/Formatter'
@@ -20,7 +20,7 @@ export function CraftDetails(props: Props) {
         })
     }, [])
 
-    function onItemClick(tag: string) {
+    function openItem(tag: string) {
         let detailsPath = instructions?.detailsPath?.[tag]
         if (detailsPath) {
             window.open(window.location.origin + detailsPath, '_blank')
@@ -28,12 +28,20 @@ export function CraftDetails(props: Props) {
             window.open(window.location.origin + '/item/' + toVariantItemTag(tag) + '?itemFilter=eyJCaW4iOiJ0cnVlIn0%3D', '_blank')
         }
     }
+
+    function openIngredient(ingredient: CraftingIngredient) {
+        if (ingredient.type === 'craft' || ingredient.ingredients?.length) {
+            window.open(`${window.location.origin}/crafts?craft=${encodeURIComponent(ingredient.item.tag)}`, '_blank')
+            return
+        }
+        openItem(ingredient.item.tag)
+    }
     return (
         <div>
             <h3>Recipe</h3>
             <div style={{ height: '170px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <div style={{ float: 'left' }}>
-                    <CraftingRecipe itemTag={props.craft.item.tag} onIngredientClick={onItemClick} />
+                    <CraftingRecipe itemTag={props.craft.item.tag} onIngredientClick={openItem} />
                 </div>
                 <span style={{ marginLeft: '20px' }}>
                     <Badge style={{ marginLeft: '5px' }} bg="secondary">
@@ -42,14 +50,7 @@ export function CraftDetails(props: Props) {
                 </span>
             </div>
             <hr />
-            <h3 style={{ marginBottom: '20px' }}>Ingredient Costs</h3>
-            <IngredientList
-                ingredients={props.craft.ingredients}
-                instructions={instructions}
-                onItemClick={ingredient => {
-                    onItemClick(ingredient.item.tag)
-                }}
-            />
+            <CostBreakdown ingredients={props.craft.ingredients} sellPrice={props.craft.sellPrice} instructions={instructions} onItemClick={openIngredient} />
         </div>
     )
 }
