@@ -62,7 +62,7 @@ export function CostBreakdown({ ingredients, sellPrice, onItemClick, instruction
                 <Form.Check
                     type="switch"
                     id="modal-no-wait-costs"
-                    label="No-wait flips only — use NPC + insta-buy costs"
+                    label="No-wait mode — use NPC + insta-buy costs"
                     checked={noWait}
                     onChange={event => {
                         if (controlledNoWait === undefined) {

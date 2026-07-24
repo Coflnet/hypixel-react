@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useId, useState } from 'react'
 import Number from '../../Number/Number'
 import { Badge, Button, ButtonGroup, OverlayTrigger, Popover, ToggleButton, Tooltip } from 'react-bootstrap'
 import styles from './IngredientList.module.css'
@@ -74,6 +74,7 @@ function BreakdownRow({ label, qty, unitPrice, cost, emptyLabel }: { label: stri
  * (instant, pricier). When there is no market data it is just a plain badge.
  */
 function AcquisitionBadge({ ingredient, totalCount, preferredMode }: { ingredient: CraftingIngredient; totalCount: number; preferredMode: AcquisitionMode }) {
+    let id = useId()
     let [mode, setMode] = useState<AcquisitionMode>(preferredMode)
     let plan = getAcquisitionPlan(ingredient, totalCount, mode)
     let displayedCost = plan && plan.unmet === 0 ? plan.totalCost : ingredient.cost * (totalCount / Math.max(1, ingredient.count))
@@ -93,17 +94,17 @@ function AcquisitionBadge({ ingredient, totalCount, preferredMode }: { ingredien
     }
 
     let popover = (
-        <Popover id={`acquisition-plan-${ingredient.item.tag}`} style={{ maxWidth: 360 }}>
+        <Popover id={`acquisition-plan-${id}`} style={{ maxWidth: 360 }}>
             <Popover.Header>
                 Buy {numberWithThousandsSeparators(plan.totalCount)}× {ingredient.item.name}
             </Popover.Header>
             <Popover.Body onClick={e => e.stopPropagation()}>
                 <ButtonGroup size="sm" style={{ marginBottom: 10 }}>
                     <ToggleButton
-                        id={`acq-mode-order-${ingredient.item.tag}`}
+                        id={`acq-mode-order-${id}`}
                         type="radio"
                         variant={mode === 'order' ? 'primary' : 'outline-secondary'}
-                        name={`acq-mode-${ingredient.item.tag}`}
+                        name={`acq-mode-${id}`}
                         value="order"
                         checked={mode === 'order'}
                         onChange={() => setMode('order')}
@@ -111,10 +112,10 @@ function AcquisitionBadge({ ingredient, totalCount, preferredMode }: { ingredien
                         NPC + buy orders (~30 min)
                     </ToggleButton>
                     <ToggleButton
-                        id={`acq-mode-insta-${ingredient.item.tag}`}
+                        id={`acq-mode-insta-${id}`}
                         type="radio"
                         variant={mode === 'insta' ? 'primary' : 'outline-secondary'}
-                        name={`acq-mode-${ingredient.item.tag}`}
+                        name={`acq-mode-${id}`}
                         value="insta"
                         checked={mode === 'insta'}
                         onChange={() => setMode('insta')}
