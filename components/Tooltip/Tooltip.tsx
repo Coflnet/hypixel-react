@@ -19,10 +19,11 @@ interface Props {
     className?: string
     id?: any
     hoverPlacement?: any
+    initiallyOpen?: boolean
 }
 
 function Tooltip(props: Props) {
-    let [showDialog, setShowDialog] = useState(false)
+    let [showDialog, setShowDialog] = useState(props.initiallyOpen ?? false)
 
     function getHoverElement() {
         return props.tooltipContent ? (

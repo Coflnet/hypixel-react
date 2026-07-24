@@ -102,8 +102,10 @@ export interface AcquisitionPlan {
 
 /**
  * Works out how a given total amount of an ingredient would realistically be acquired on the bazaar,
- * cheapest channel first: npc stock, then either a competitive buy order ('order' mode) or straight to
- * insta-buying sell offers ('insta' mode). The unit prices/capacities come from the backend and are
+ * cheapest channel first in 'order' mode: NPC stock, then a competitive buy order, then sell offers.
+ * 'insta' mode still uses immediately available NPC stock, skips buy orders, and prices the remainder
+ * from sell offers.
+ * The unit prices/capacities come from the backend and are
  * quantity independent, so this can be recomputed for any tree-multiplied total. Returns null when there
  * is no market data at all. Costs are estimates - the insta portion in particular assumes the sell book
  * stays near its current marginal price rather than walking deeper as it is consumed.
@@ -122,8 +124,11 @@ export function getAcquisitionPlan(
     const npcCap = Math.max(0, ingredient.npcCapacity ?? 0)
     const npcUnit = ingredient.npcUnitPrice ?? 0
     const orderCap = Math.max(0, ingredient.buyOrderCapacity ?? 0)
-    const orderUnit = ingredient.buyOrderUnitPrice ?? 0
-    const instaUnit = ingredient.instaBuyUnitPrice ?? 0
+    // The backend's two historical field names are inconsistent across bazaar items. Preserve the
+    // market invariant: a patient buy order uses the lower estimate and instant execution the higher.
+    const marketPrices = [ingredient.buyOrderUnitPrice ?? 0, ingredient.instaBuyUnitPrice ?? 0].filter(price => price > 0)
+    const orderUnit = orderCap > 0 && marketPrices.length > 0 ? Math.min(...marketPrices) : 0
+    const instaUnit = marketPrices.length > 0 ? Math.max(...marketPrices) : 0
     if (npcCap <= 0 && orderCap <= 0 && instaUnit <= 0) {
         return null // no market data
     }
@@ -134,8 +139,6 @@ export function getAcquisitionPlan(
     const npcQty = Math.min(remaining, npcCap)
     remaining -= npcQty
 
-    // In 'order' mode we patiently buy-order the middle bucket; in 'insta' mode we skip it and take
-    // everything beyond npc stock straight from the sell offers.
     const orderQty = mode === 'order' ? Math.min(remaining, orderCap) : 0
     remaining -= orderQty
 

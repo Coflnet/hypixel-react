@@ -1,0 +1,55 @@
+.summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.summary > div {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(25, 135, 84, 0.16);
+}
+
+.summary span,
+.help,
+.depthControl small {
+    color: #adb5bd;
+}
+
+.summary span {
+    font-size: 0.8rem;
+}
+
+.summary strong {
+    color: #75d9a6;
+}
+
+.depthControl {
+    padding: 12px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.noWaitControl {
+    padding: 10px 12px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.noWaitControl small {
+    color: #adb5bd;
+}
+
+.depthControl label {
+    display: block;
+    font-weight: 600;
+}
+
+.loading {
+    color: #75d9a6;
+}

@@ -12,6 +12,7 @@ import { GenericFlipList, SortOption } from '../GenericFlipList'
 interface Props {
     crafts?: any[]
     bazaarTags?: string[]
+    openCraftTag?: string
 }
 
 const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
@@ -61,6 +62,13 @@ const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
 
 export function CraftsList(props: Props) {
     const crafts = useMemo(() => (props.crafts ? parseProfitableCrafts(props.crafts) : []), [props.crafts])
+    const deepLinkedRenderCount = useMemo(() => {
+        if (!props.openCraftTag) {
+            return undefined
+        }
+        const sortedCrafts = [...crafts].sort((a, b) => b.sellPrice - b.craftCost - (a.sellPrice - a.craftCost))
+        return Math.max(42, sortedCrafts.findIndex(craft => craft.item.tag === props.openCraftTag) + 1)
+    }, [crafts, props.openCraftTag])
 
     function renderFlipContent(craft: ProfitableCraft) {
         return (
@@ -170,6 +178,7 @@ export function CraftsList(props: Props) {
                     content={<>{content}</>}
                     tooltipTitle={getCraftHeader(craft)}
                     tooltipContent={<CraftDetails craft={craft} />}
+                    initiallyOpen={craft.item.tag === props.openCraftTag}
                 />
             )
         }
@@ -188,6 +197,7 @@ export function CraftsList(props: Props) {
             showColumns={true}
             sortFunctionArgs={[props.bazaarTags]}
             customItemWrapper={customItemWrapper}
+            initialRenderCount={deepLinkedRenderCount}
         />
     )
 }

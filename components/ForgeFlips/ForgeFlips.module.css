@@ -1,0 +1,72 @@
+.header {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.metricGrid,
+.detailsSummary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.metricGrid > div,
+.detailsSummary > div {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.metricGrid span,
+.detailsSummary span {
+    color: #adb5bd;
+    font-size: 0.8rem;
+}
+
+.metricGrid strong,
+.detailsSummary strong {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.metricGrid .primaryMetric {
+    background: rgba(25, 135, 84, 0.16);
+}
+
+.primaryMetric strong {
+    color: #75d9a6;
+}
+
+.hotm {
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+.requirements,
+.detailsRequirements {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.detailsSummary {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.detailsRequirements .requirements {
+    margin-top: 0;
+}
+
+.filterHelp {
+    color: #adb5bd;
+}
+
+@media (max-width: 480px) {
+    .metricGrid {
+        grid-template-columns: 1fr;
+    }
+}
