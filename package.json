@@ -83,6 +83,7 @@
     "tmp": "0.2.7",
     "esbuild": "0.28.1",
     "form-data": "4.0.6",
+    "postcss": "8.5.12",
     "sharp": "$sharp"
   }
 }
