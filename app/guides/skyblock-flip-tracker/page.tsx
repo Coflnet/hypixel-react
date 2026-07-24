@@ -241,7 +241,7 @@ export default function SkyblockFlipTrackerPage() {
                                     <section aria-labelledby="bazaar-profit" className="mt-4">
                                         <CardTitle as="h2" id="bazaar-profit">How does Bazaar profit tracking work after taxes?</CardTitle>
                                         <CardText>
-                                            The Bazaar side is about execution, not paper spreads. The important question is what you actually made after the buy order filled, after the sell order completed, and after the 1.25% Bazaar fee came out. That buy-order to sell-order workflow is what the tracker is built around, and the same stack also powers <a href="https://pro.skyblock.bz" target="_blank" rel="noopener noreferrer">pro.skyblock.bz</a>.
+                                            The Bazaar side is about execution, not paper spreads. The important question is what you actually made after the buy order filled, after the sell order completed, and after the 1.25% Bazaar fee came out. Run <code>/cofl bazaar history</code> for the tracked profit summary or <code>/cofl bazaar list</code> for recent completed flips. The base <code>/cofl bazaar</code> command only lists current opportunities. That buy-order to sell-order workflow is what the tracker is built around, and the same stack also powers <a href="https://pro.skyblock.bz" target="_blank" rel="noopener noreferrer">pro.skyblock.bz</a>.
                                         </CardText>
                                         <ul>
                                             <li>Thin spreads break fast: a 1.8% visible spread only leaves roughly 0.55% before fill risk once the 1.25% fee is removed.</li>

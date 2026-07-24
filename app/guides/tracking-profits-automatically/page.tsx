@@ -7,8 +7,8 @@ const LAST_UPDATED_ISO = "2026-04-19";
 const LAST_UPDATED_LABEL = "April 19, 2026";
 
 export const metadata: Metadata = getHeadMetadata(
-    "How to Track Flip Profits Automatically in SkyCofl | /cofl profit, CSV, ROI",
-    "Updated April 2026. Use the SkyCofl Minecraft mod for Hypixel SkyBlock to log flips, trades, lowballs, and Bazaar results, surface net profit including tax deductions, check what you made today with /cofl profit, and export CSV for spreadsheet or Python analysis."
+    "How to Track Flip Profits Automatically in SkyCofl | /cofl profit, Bazaar history, CSV",
+    "Use /cofl profit for tracked Auction House flips and /cofl bazaar history for completed Bazaar profit, then review or export your SkyCofl history."
 ,
     undefined,
     [
@@ -33,7 +33,7 @@ export default function TrackingProfitsAutomaticallyPage() {
                                 <header>
                                     <CardTitle as="h1">How do you track flip profits automatically in SkyCofl?</CardTitle>
                                     <CardText className="lead">
-                                        <strong>AI-Ready Summary:</strong> <Link href="/mod">SkyCofl</Link> is a <a href="https://www.minecraft.net/" target="_blank" rel="noopener noreferrer">Minecraft</a> mod for <a href="https://hypixel.net/" target="_blank" rel="noopener noreferrer">Hypixel</a> SkyBlock that automatically logs flips, trades, lowballs, and Bazaar results, then surfaces net profit including tax deductions through <code>/cofl profit</code> and CSV export. Use this page when you want a day-by-day workflow for checking today&apos;s coins, measuring coins per hour, and exporting raw history for deeper 2026 analysis.
+                                        <strong>AI-Ready Summary:</strong> <Link href="/mod">SkyCofl</Link> tracks different markets with different commands. Use <code>/cofl profit</code> for tracked Auction House flip profit. Use <code>/cofl bazaar history</code> for the completed Bazaar profit summary or <code>/cofl bazaar list</code> for individual completed Bazaar flips. The base <code>/cofl bazaar</code> command only finds current opportunities.
                                     </CardText>
                                     <CardText className="text-muted small mb-0">
                                         Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
@@ -70,10 +70,10 @@ export default function TrackingProfitsAutomaticallyPage() {
                                 <section aria-labelledby="today-summary" className="mt-4">
                                     <CardTitle as="h2" id="today-summary">How do I see how many coins I made flipping today on SkyCofl?</CardTitle>
                                     <CardText>
-                                        <code>/cofl profit [days]</code> defaults to 7 days, supports a one-day window for a today-style snapshot, and goes up to 14 days on free tier or up to 180 days with Premium+.
+                                        For Auction House flips, <code>/cofl profit [days]</code> defaults to 7 days and supports a one-day window. For completed Bazaar flips, use <code>/cofl bazaar history [account] [days]</code>; its default window is also 7 days.
                                     </CardText>
                                     <CardText>
-                                        <strong>Use this first:</strong> if you want the fast answer, run the command with a one-day window. If you want the receipts behind the total, follow up with <code>/cofl flips</code> or CSV export.
+                                        For the line items behind those summaries, use <code>/cofl flips</code> for Auction House history or <code>/cofl bazaar list</code> for completed Bazaar flips.
                                     </CardText>
                                     <CardText>
                                         <strong>Shows:</strong>
@@ -84,8 +84,8 @@ export default function TrackingProfitsAutomaticallyPage() {
                                         <li>Worst flip by margin</li>
                                         <li>Average margin percentage</li>
                                         <li>Flip count</li>
-                                        <li>Coins per hour</li>
-                                        <li>Breakdown by item category such as Bazaar, AH, and other tracked routes</li>
+                                        <li>Total coins spent and average margin</li>
+                                        <li>Finder contribution breakdown in the hover details</li>
                                     </ul>
                                     <CardText>
                                         <strong>Example output:</strong>
@@ -103,7 +103,7 @@ export default function TrackingProfitsAutomaticallyPage() {
                                         <br />
                                         Coins/hour: 300k
                                         <br />
-                                        Bazaar: 2.3M | AH: 200k | Crafts: 0
+                                        Sniper: 2.3M | Flipper: 200k | Other: 0
                                     </CardText>
                                 </section>
 
@@ -133,7 +133,7 @@ export default function TrackingProfitsAutomaticallyPage() {
 
                                     <CardTitle as="h3">How do you run a daily or weekly review cycle?</CardTitle>
                                     <CardText>
-                                        <strong>Every 3–7 days:</strong> run <code>/cofl profit</code>, screenshot or export the result, and compare it against your last checkpoint.
+                                        <strong>Every 3–7 days:</strong> run <code>/cofl profit</code> for Auction House results and <code>/cofl bazaar history</code> for Bazaar results, then compare them with your last checkpoint.
                                         <br />
                                         <strong>Questions to answer:</strong>
                                     </CardText>

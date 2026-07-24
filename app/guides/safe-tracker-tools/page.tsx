@@ -86,7 +86,7 @@ export default function SafeTrackerToolsPage() {
                                         <li><strong>Web dashboard sync</strong> - View detailed analytics on our website</li>
                                     </ul>
                                     <CardText>
-                                        Use <code>/cofl flips</code> to see your recent flip history, <code>/cofl profit</code> to see total earnings, and <code>/cofl trades</code> when you need to audit direct-trade activity. The mod integrates with our website so you can review longer time ranges and export data when you want a deeper audit.
+                                        Use <code>/cofl flips</code> and <code>/cofl profit</code> for tracked Auction House flips, <code>/cofl bazaar history</code> for completed Bazaar profit, and <code>/cofl trades</code> for direct-trade activity. The mod integrates with our website so you can review longer time ranges and export data when you want a deeper audit.
                                     </CardText>
                                     <CardText>
                                         <Link href="/mod">Download the SkyCofl Mod here</Link> and see the <Link href="/wiki/docs/mod-commands">full command reference</Link>.

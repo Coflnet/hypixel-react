@@ -67,7 +67,8 @@ export default function GettingStartedWithFlippingPage() {
                                     <strong>Reinvest profits daily:</strong> Compound growth is exponential. Flipping 1M → 1.05M → 1.1M daily scales much faster than hoarding profits.
                                 </li>
                                 <li>
-                                    <strong>Use the SkyCofl Mod</strong> for in-game flip alerts and order tracking (<strong>/cofl bazaar</strong> command).
+                                    <strong>Use the SkyCofl Mod:</strong> <strong>/cofl bazaar</strong> finds current Bazaar flips, while{' '}
+                                    <strong>/cofl bazaar history</strong> shows tracked profit from completed Bazaar flips.
                                 </li>
                                 <li>
                                     <strong>Account for fees:</strong> Bazaar fee is 1.25% (reducible to 1.125% when claiming). The site's profit estimates already factor this in.

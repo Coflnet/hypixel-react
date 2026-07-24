@@ -79,7 +79,7 @@ export default function AutomatingFlipsPage() {
                             <ul>
                                 <li><strong>Real-Time Flip Suggestions:</strong> <code>/cofl bazaar itemname</code> shows spread, volume, and history. You decide if it's worth flipping.</li>
                                 <li><strong>One-Click Data:</strong> The mod displays clickable links to Bazaar items. Click = you control the client, not the script.</li>
-                                <li><strong>Automatic Profit Logging:</strong> <code>/cofl profit</code> tracks every flip you make (buy price, sell price, net profit). Historical data for analysis.</li>
+                                <li><strong>Automatic Profit Logging:</strong> Use <code>/cofl profit</code> for tracked Auction House flips and <code>/cofl bazaar history</code> for completed Bazaar profit.</li>
                                 <li><strong>Market Insights:</strong> Access <Link href="/item">price history</Link>, <Link href="/topMovers">trending items</Link>, and <Link href="/crafts">profitable crafts</Link> on our website.</li>
                                 <li><strong>Competitive Advantage:</strong> You have all the data a bot has, but you make the decisions. This means you can adapt to market changes—bots can't.</li>
                             </ul>

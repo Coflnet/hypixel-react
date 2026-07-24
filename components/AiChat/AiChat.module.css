@@ -52,13 +52,15 @@
     align-items: center;
     gap: 5px;
 }
-.header button {
+.header button,
+.header a {
     border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 6px;
     padding: 4px 6px;
     color: white;
     background: rgba(0, 0, 0, 0.12);
     font-size: 11px;
+    text-decoration: none;
 }
 .header .close {
     border: 0;
@@ -297,6 +299,32 @@
     text-decoration: underline;
 }
 
+.fullPage {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    z-index: auto;
+    width: 100%;
+    height: calc(100dvh - 110px);
+    min-height: 560px;
+    border-radius: 12px;
+}
+
+.fullPage .messages {
+    padding: 20px;
+}
+
+.fullPage .message {
+    max-width: 100%;
+}
+
+.fullPage .message table {
+    display: table;
+    width: auto;
+    max-width: 100%;
+    white-space: normal;
+}
+
 @media (max-width: 600px) {
     .bubble {
         margin: 0 14px 12px auto;
@@ -307,6 +335,14 @@
         bottom: 80px;
         width: calc(100vw - 16px);
         height: min(680px, calc(100dvh - 88px));
+    }
+
+    .fullPage {
+        right: auto;
+        bottom: auto;
+        width: 100%;
+        height: calc(100dvh - 94px);
+        min-height: 480px;
     }
 }
 

@@ -38,7 +38,7 @@ const welcome: Message = {
     content: 'Ask me about SkyCofl features, filters, guides, API endpoints, or current SkyBlock item prices.'
 }
 
-export function AiChat() {
+export function AiChat({ fullPage = false }: { fullPage?: boolean }) {
     const pathname = usePathname()
     const [loaded, setLoaded] = useState(false)
     const [open, setOpen] = useState(false)
@@ -239,7 +239,7 @@ export function AiChat() {
 
     if (!loaded) return null
 
-    if (!open) {
+    if (!open && !fullPage) {
         if (!launcher) return null
         return createPortal(
             <button className={styles.bubble} onClick={() => setOpen(true)} aria-label="Open SkyCofl AI assistant">
@@ -250,22 +250,29 @@ export function AiChat() {
     }
 
     return (
-        <section className={styles.panel} aria-label="SkyCofl AI assistant">
+        <section className={`${styles.panel} ${fullPage ? styles.fullPage : ''}`} aria-label="SkyCofl AI assistant">
             <header className={styles.header}>
                 <div className={styles.title}>
                     <strong>SkyCofl Assistant</strong>
                     <span>Prices, filters, features & guides</span>
                 </div>
                 <div className={styles.actions}>
+                    {!fullPage ? (
+                        <Link href="/chat" aria-label="Expand chat to full page">
+                            Expand
+                        </Link>
+                    ) : null}
                     <button onClick={exportConversation} aria-label="Export chat report">
                         Export
                     </button>
                     <button onClick={() => void clearConversation()} aria-label="Clear chat and start a new session">
                         Clear
                     </button>
-                    <button className={styles.close} onClick={() => setOpen(false)} aria-label="Close assistant">
-                        ×
-                    </button>
+                    {!fullPage ? (
+                        <button className={styles.close} onClick={() => setOpen(false)} aria-label="Close assistant">
+                            ×
+                        </button>
+                    ) : null}
                 </div>
             </header>
             {showNotice ? (

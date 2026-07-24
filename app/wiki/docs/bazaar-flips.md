@@ -1,6 +1,6 @@
 ---
 title: "Bazaar Flipping Guide"
-description: "How to bazaar flip with SkyCofl on the website and in game using /cofl bazaar"
+description: "How to find Bazaar flips with /cofl bazaar and view tracked profit with /cofl bazaar history"
 order: 5
 ---
 
@@ -9,6 +9,14 @@ order: 5
 ## Quick answer: how do I bazaar flip?
 
 Open [SkyCofl Bazaar Flips](/bazaar), or run **`/cofl bazaar`** in Minecraft with the SkyCofl mod. `/cofl bz`, `/cl bazaar`, and `/cl bz` are shorter aliases.
+
+The commands serve different purposes:
+
+- **`/cofl bazaar` finds current Bazaar flip opportunities.**
+- **`/cofl bazaar history` shows tracked profit from completed Bazaar flips.**
+- **`/cofl bazaar list` lists recently completed tracked Bazaar flips.**
+
+The plain `/cofl bazaar` command does not show your tracked trades or profit history; use the `history` or `list` subcommand for that.
 
 For a normal order flip:
 

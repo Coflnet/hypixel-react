@@ -302,7 +302,7 @@ export default function StarterItemsUnder10MPage() {
 
                             <CardTitle as="h3">❌ Not tracking coins/hour</CardTitle>
                             <CardText>
-                                You flipped 20 Rotten Flesh (3 hour hold) + 2 Sugar Cane (2 hour hold) = 200k profit in 5 hours = 40k/hr. But Sugar Cane was only 10k/hr, Rotten Flesh was 67k/hr. Drop Sugar Cane. Track everything using <Link href="/guides/tracking-profits-automatically">/cofl profit</Link>.
+                                You flipped 20 Rotten Flesh (3 hour hold) + 2 Sugar Cane (2 hour hold) = 200k profit in 5 hours = 40k/hr. But Sugar Cane was only 10k/hr, Rotten Flesh was 67k/hr. Review completed Bazaar results with <Link href="/wiki/bazaar-flips">/cofl bazaar history</Link> and <code>/cofl bazaar list</code>.
                             </CardText>
 
                             <CardTitle as="h3">❌ Jumping to Auction House too early</CardTitle>
@@ -342,9 +342,9 @@ export default function StarterItemsUnder10MPage() {
                                 Your capital sits tied up. After 6 hours with no fill, cancel and raise the order by 10-20 coins. Flipping is about turnover, not trying to squeeze every coin from each buy.
                             </CardText>
 
-                            <CardTitle as="h3">Q: When should I start using /cofl profit to track?</CardTitle>
+                            <CardTitle as="h3">Q: When should I start reviewing Bazaar profit history?</CardTitle>
                             <CardText>
-                                Day 1. Seriously. Install the SkyCofl Mod and run /cofl profit daily. By day 7 you'll see which items are printing money (Rotten Flesh typically 65-75k/hr) and which are duds. This is how you optimize.
+                                Day 1. Install the SkyCofl Mod and run <code>/cofl bazaar history</code> for the summary and <code>/cofl bazaar list</code> for recent completed flips. Review them regularly to find slow or unprofitable items.
                             </CardText>
 
                             <CardTitle as="h3">Q: Can I start with just one item or should I diversify?</CardTitle>
@@ -357,7 +357,7 @@ export default function StarterItemsUnder10MPage() {
                                 <li><Link href="/guides/best-item-to-flip">What's the Best Item to Flip?</Link> — Item selection criteria</li>
                                 <li><Link href="/guides/how-to-flip">How to Flip Items</Link> — Step-by-step Bazaar mechanics</li>
                                 <li><Link href="/guides/how-to-start-flipping-with-no-money">How to Start with No Money</Link> — Bootstrap from 0 coins</li>
-                                <li><Link href="/guides/tracking-profits-automatically">Track Profits Automatically</Link> — /cofl profit command</li>
+                                <li><Link href="/wiki/bazaar-flips">Track Bazaar Profit</Link> — <code>/cofl bazaar history</code> and <code>/cofl bazaar list</code></li>
                                 <li><Link href="/guides/avoid-taxes-and-losses">Minimize Taxes & Losses</Link> — Fee optimization</li>
                             </ul>
 

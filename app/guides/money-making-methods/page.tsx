@@ -139,7 +139,7 @@ export default function MoneyMakingMethodsPage() {
                                 <strong>Why most players miss it:</strong> New traders see the time spent and think "that's not work." Actually, you're making coins while AFK. Compare to farming (30–40 min/day of active clicking) or slaying (60+ min/day of combat).
                             </CardText>
                             <CardText>
-                                <strong>SkyCofl advantage:</strong> Use <strong>/cofl bazaar</strong> in-game to instantly see the best flips and taxes. Use <Link href="/bazaar">Bazaar Flips</Link> to find every opportunity ranked by profit. Use <strong>/cofl profit</strong> to track actual earnings.
+                                <strong>SkyCofl advantage:</strong> Use <strong>/cofl bazaar</strong> in-game to instantly see the best flips and taxes. Use <Link href="/bazaar">Bazaar Flips</Link> to find every opportunity ranked by profit. Use <strong>/cofl bazaar history</strong> to review tracked completed Bazaar profit.
                             </CardText>
                             <CardText>
                                 👉 <Link href="/guides/is-flipping-worth-it">Is Flipping Worth It? (ROI Analysis)</Link> | <Link href="/guides/how-to-flip">How to Flip: Step-by-Step</Link> | <Link href="/guides/best-item-to-flip-right-now">Best Item to Flip RIGHT NOW</Link>

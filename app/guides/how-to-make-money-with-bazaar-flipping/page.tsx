@@ -101,7 +101,7 @@ export default function HowToMakeMoneyWithBazaarFlippingPage() {
                                 <li><strong><Link href="/bazaar">Bazaar Flips Tool</Link>:</strong> Sort by profit, volume, and spread. Compare 7-day history to spot trends. This is your primary research tool.</li>
                                 <li><strong><Link href="/topMovers">Top Movers</Link>:</strong> See which items are trending up or down in price. Spot early shifts in demand and avoid items that are crashing.</li>
                                 <li><strong><Link href="/crafts">Crafts Tool</Link>:</strong> Identify items that are inputs for recipes. Crafting demand often spikes, creating flip opportunities.</li>
-                                <li><strong>SkyCofl Mod Commands:</strong> Use <code>/cofl bazaar itemname</code> for real-time in-game spread verification. Use <code>/cofl profit</code> to track all your flips automatically.</li>
+                                <li><strong>SkyCofl Mod Commands:</strong> Use <code>/cofl bazaar itemname</code> for real-time in-game spread verification. Use <code>/cofl bazaar history</code> for tracked Bazaar profit or <code>/cofl bazaar list</code> for recent completed Bazaar flips.</li>
                                 <li><strong><Link href="/premiumBazaar">Premium Bazaar</Link>:</strong> For advanced players: demand-based flip rankings. Spot opportunities others miss.</li>
                             </ul>
 
@@ -218,7 +218,7 @@ export default function HowToMakeMoneyWithBazaarFlippingPage() {
                                 <CardBody>
                                     <CardTitle as="h5">Should I track every flip manually?</CardTitle>
                                     <CardText>
-                                        Use the SkyCofl mod's <code>/cofl profit</code> command—it logs everything automatically. But manually track weekly reviews to spot trends: which items are consistently profitable? Which waste time? Adjust strategy accordingly.
+                                        The SkyCofl mod records completed Bazaar flips automatically. Run <code>/cofl bazaar history</code> for the profit summary or <code>/cofl bazaar list</code> for the completed flips behind it. Review the results weekly to identify consistently profitable items and slow fills.
                                     </CardText>
                                 </CardBody>
                             </Card>

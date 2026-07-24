@@ -12,7 +12,7 @@ import ReloadDialog from '../ReloadDialog/ReloadDialog'
 import { startMigrations } from '../../migrations/MigrationUtils'
 import { v4 as generateUUID } from 'uuid'
 import { isClientSideRendering } from '../../utils/SSRUtils'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import '../../styles/bootstrap-react.min.css'
 import '../../styles/bootstrap-dark.min.css'
 import '../../styles/globals.css'
@@ -36,6 +36,7 @@ export function MainApp(props: any) {
     const [hasNitroCMP, setHasNitroCMP] = useState(false)
     const { trackPageView, trackEvent, pushInstruction } = useMatomo()
     const router = useRouter()
+    const pathname = usePathname()
 
     useEffect(() => {
         window.addEventListener('error', function (event) {
@@ -209,7 +210,7 @@ export function MainApp(props: any) {
         <>
             <OfflineBanner />
             <TopLoadingAnimation />
-            <AiChat />
+            {pathname === '/chat' ? null : <AiChat />}
             {props.children}
             {!properties.isTestRunner && !hasNitroCMP ? (
                 <CookieConsent
