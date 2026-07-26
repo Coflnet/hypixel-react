@@ -22,9 +22,10 @@ export function CostBreakdown({ ingredients, sellPrice, onItemClick, instruction
     const [collapsedPaths, setCollapsedPaths] = useState<Set<string>>(new Set())
     const [localNoWait, setLocalNoWait] = useState(false)
     const noWait = controlledNoWait ?? localNoWait
+    const authoritativePlan = ingredients.some(ingredient => Boolean(ingredient.acquisitionPlan))
     const maxDepth = getMaxCraftDepth(ingredients)
-    const depth = Math.min(selectedDepth ?? maxDepth, maxDepth)
-    const displayedIngredients = limitCraftDepth(ingredients, depth)
+    const depth = authoritativePlan ? maxDepth : Math.min(selectedDepth ?? maxDepth, maxDepth)
+    const displayedIngredients = authoritativePlan ? ingredients : limitCraftDepth(ingredients, depth)
     const acquisitionMode = noWait ? 'insta' : 'order'
     const shoppingList = getCombinedShoppingList(displayedIngredients, collapsedPaths, acquisitionMode)
     const inputCost = getShoppingListCost(shoppingList)
@@ -58,7 +59,7 @@ export function CostBreakdown({ ingredients, sellPrice, onItemClick, instruction
                     </strong>
                 </div>
             </div>
-            <div className={styles.noWaitControl}>
+            {!authoritativePlan ? <div className={styles.noWaitControl}>
                 <Form.Check
                     type="switch"
                     id="modal-no-wait-costs"
@@ -72,8 +73,8 @@ export function CostBreakdown({ ingredients, sellPrice, onItemClick, instruction
                     }}
                 />
                 <small>Uses immediately available NPC stock first, then sell offers for the remainder. Buy orders are skipped.</small>
-            </div>
-            {maxDepth > 1 ? (
+            </div> : null}
+            {!authoritativePlan && maxDepth > 1 ? (
                 <>
                     <div className={styles.depthControl}>
                         <Form.Label>Maximum craft depth: {depth}</Form.Label>
@@ -85,7 +86,7 @@ export function CostBreakdown({ ingredients, sellPrice, onItemClick, instruction
             ) : null}
             <h3>Combined shopping list</h3>
             <p className={styles.help}>Duplicate materials are summed so each item can be purchased in one order.</p>
-            {loading ? <p className={styles.loading}>Loading cheaper subcraft options…</p> : null}
+            {loading ? <p className={styles.loading}>Loading the live acquisition plan…</p> : null}
             {shoppingList.length ? (
                 <IngredientList ingredients={shoppingList} instructions={instructions} onItemClick={onItemClick} acquisitionMode={acquisitionMode} />
             ) : (
@@ -95,13 +96,13 @@ export function CostBreakdown({ ingredients, sellPrice, onItemClick, instruction
                 <>
                     <hr />
                     <h3>Recipe breakdown</h3>
-                    <p className={styles.help}>Collapse a craft to buy it directly, or expand it to use the cheaper subcraft ingredients.</p>
+                    <p className={styles.help}>{authoritativePlan ? 'Selected from live supply and recursive craft costs by SkyCrafts.' : 'Collapse a craft to buy it directly, or expand it to use the cheaper subcraft ingredients.'}</p>
                     <IngredientList
                         ingredients={displayedIngredients}
                         instructions={instructions}
                         onItemClick={onItemClick}
-                        collapsedPaths={collapsedPaths}
-                        onToggleIngredient={toggleIngredient}
+                        collapsedPaths={authoritativePlan ? undefined : collapsedPaths}
+                        onToggleIngredient={authoritativePlan ? undefined : toggleIngredient}
                         acquisitionMode={acquisitionMode}
                     />
                 </>

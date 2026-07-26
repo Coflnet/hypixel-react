@@ -1643,8 +1643,11 @@ export interface Ingredient {
   craftCost: number;
   /** @nullable */
   type?: string | null;
+  npcCapacity: number;
+  npcUnitPrice: number;
   buyOrderCapacity: number;
   buyOrderUnitPrice: number;
+  instaBuyCapacity: number;
   instaBuyUnitPrice: number;
 }
 

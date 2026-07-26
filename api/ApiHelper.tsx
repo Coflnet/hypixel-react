@@ -1386,6 +1386,21 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getCraftAcquisitionPlan = (itemTag: string, quantity = 1, forceCraft = true): Promise<CraftAcquisitionPlan> => {
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_CRAFT_ACQUISITION,
+                customRequestURL: `${getApiEndpoint()}/${RequestType.GET_CRAFT_ACQUISITION}/${encodeURIComponent(itemTag)}?quantity=${quantity}&forceCraft=${forceCraft}`,
+                data: '',
+                resolve,
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_CRAFT_ACQUISITION, error, itemTag)
+                    reject(error)
+                }
+            })
+        })
+    }
+
     let triggerPlayerNameCheck = (playerUUID: string): Promise<void> => {
         return new Promise((resolve, reject) => {
             httpApi.sendApiRequest({
@@ -2418,6 +2433,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getFlipUpdateTime,
         playerSearch,
         getProfitableCrafts,
+        getCraftAcquisitionPlan,
         getLowSupplyItems,
         sendFeedback,
         triggerPlayerNameCheck,

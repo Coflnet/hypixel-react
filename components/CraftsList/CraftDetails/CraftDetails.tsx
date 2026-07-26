@@ -13,12 +13,32 @@ interface Props {
 
 export function CraftDetails(props: Props) {
     let [instructions, setInstructions] = useState<CraftingInstructions>()
+    let [ingredients, setIngredients] = useState(props.craft.ingredients)
+    let [loadingPlan, setLoadingPlan] = useState(true)
+
+    function toIngredient(plan: CraftAcquisitionPlan): CraftingIngredient {
+        return {
+            item: { tag: plan.itemId, name: plan.itemId.replaceAll('_', ' ') } as Item,
+            count: plan.quantity,
+            absoluteCount: plan.quantity,
+            cost: plan.cost,
+            type: plan.craftedQuantity > 0 ? 'craft' : undefined,
+            buyOrderCost: plan.directBuyCost,
+            craftCost: plan.craftCost,
+            acquisitionPlan: plan,
+            ingredients: plan.ingredients?.map(toIngredient)
+        }
+    }
 
     useEffect(() => {
         api.getCraftInstructions(props.craft.item.tag).then(instructions => {
             setInstructions(instructions)
         })
-    }, [])
+        setLoadingPlan(true)
+        api.getCraftAcquisitionPlan(props.craft.item.tag)
+            .then(plan => setIngredients(plan.ingredients.map(toIngredient)))
+            .finally(() => setLoadingPlan(false))
+    }, [props.craft.item.tag])
 
     function openItem(tag: string) {
         let detailsPath = instructions?.detailsPath?.[tag]
@@ -50,7 +70,7 @@ export function CraftDetails(props: Props) {
                 </span>
             </div>
             <hr />
-            <CostBreakdown ingredients={props.craft.ingredients} sellPrice={props.craft.sellPrice} instructions={instructions} onItemClick={openIngredient} />
+            <CostBreakdown ingredients={ingredients} sellPrice={props.craft.sellPrice} instructions={instructions} onItemClick={openIngredient} loading={loadingPlan} />
         </div>
     )
 }

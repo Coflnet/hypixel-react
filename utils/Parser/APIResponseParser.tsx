@@ -390,6 +390,7 @@ export function parseProfitableCrafts(crafts: any[] = [], craftsToParse: any[] =
             npcUnitPrice: ingredient.npcUnitPrice,
             buyOrderCapacity: ingredient.buyOrderCapacity,
             buyOrderUnitPrice: ingredient.buyOrderUnitPrice,
+            instaBuyCapacity: ingredient.instaBuyCapacity,
             instaBuyUnitPrice: ingredient.instaBuyUnitPrice,
             item: {
                 tag: ingredient.itemId

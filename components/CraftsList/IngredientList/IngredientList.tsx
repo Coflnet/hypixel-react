@@ -76,8 +76,25 @@ function BreakdownRow({ label, qty, unitPrice, cost, emptyLabel }: { label: stri
 function AcquisitionBadge({ ingredient, totalCount, preferredMode }: { ingredient: CraftingIngredient; totalCount: number; preferredMode: AcquisitionMode }) {
     let id = useId()
     let [mode, setMode] = useState<AcquisitionMode>(preferredMode)
-    let plan = getAcquisitionPlan(ingredient, totalCount, mode)
-    let displayedCost = plan && plan.unmet === 0 ? plan.totalCost : ingredient.cost * (totalCount / Math.max(1, ingredient.count))
+    let backendPlan = ingredient.acquisitionPlan
+    let backendBucket = (source: string) => {
+        let fills = backendPlan?.purchases?.filter(fill => fill.source === source) ?? []
+        let qty = fills.reduce((total, fill) => total + fill.quantity, 0)
+        let cost = fills.reduce((total, fill) => total + fill.cost, 0)
+        return { qty, cost, unitPrice: qty > 0 ? cost / qty : 0 }
+    }
+    let plan = backendPlan
+        ? {
+              mode: 'order' as AcquisitionMode,
+              npc: backendBucket('npc'),
+              order: backendBucket('order'),
+              insta: backendBucket('insta'),
+              unmet: backendPlan.enough ? 0 : Math.max(0, backendPlan.quantity - backendPlan.purchases.reduce((total, fill) => total + fill.quantity, 0)),
+              totalCount: backendPlan.quantity,
+              totalCost: backendPlan.purchases.reduce((total, fill) => total + fill.cost, 0)
+          }
+        : getAcquisitionPlan(ingredient, totalCount, mode)
+    let displayedCost = backendPlan?.cost ?? (plan && plan.unmet === 0 ? plan.totalCost : ingredient.cost * (totalCount / Math.max(1, ingredient.count)))
 
     useEffect(() => {
         setMode(preferredMode)
@@ -99,7 +116,7 @@ function AcquisitionBadge({ ingredient, totalCount, preferredMode }: { ingredien
                 Buy {numberWithThousandsSeparators(plan.totalCount)}× {ingredient.item.name}
             </Popover.Header>
             <Popover.Body onClick={e => e.stopPropagation()}>
-                <ButtonGroup size="sm" style={{ marginBottom: 10 }}>
+                {!backendPlan ? <ButtonGroup size="sm" style={{ marginBottom: 10 }}>
                     <ToggleButton
                         id={`acq-mode-order-${id}`}
                         type="radio"
@@ -122,7 +139,7 @@ function AcquisitionBadge({ ingredient, totalCount, preferredMode }: { ingredien
                     >
                         NPC + insta-buy
                     </ToggleButton>
-                </ButtonGroup>
+                </ButtonGroup> : null}
                 <table style={{ width: '100%', marginBottom: 8 }}>
                     <tbody>
                         <BreakdownRow
@@ -140,14 +157,22 @@ function AcquisitionBadge({ ingredient, totalCount, preferredMode }: { ingredien
                             emptyLabel={mode === 'insta' ? 'Skipped' : ingredient.buyOrderCapacity ? 'Not needed' : 'Not available'}
                         />
                         <BreakdownRow label="Insta-buy (weighted)" qty={plan.insta.qty} unitPrice={plan.insta.unitPrice} cost={plan.insta.cost} />
+                        {backendPlan && backendPlan.craftedQuantity > 0 ? (
+                            <BreakdownRow
+                                label="Crafted"
+                                qty={backendPlan.craftedQuantity}
+                                unitPrice={(backendPlan.cost - plan.totalCost) / backendPlan.craftedQuantity}
+                                cost={backendPlan.cost - plan.totalCost}
+                            />
+                        ) : null}
                         <tr style={{ borderTop: '1px solid #555' }}>
                             <td style={{ paddingTop: 4 }}>Total</td>
                             <td style={{ textAlign: 'right', color: '#aaa', paddingTop: 4, fontVariantNumeric: 'tabular-nums' }}>
-                                {numberWithThousandsSeparators(plan.npc.qty + plan.order.qty + plan.insta.qty)}
+                                {numberWithThousandsSeparators(backendPlan?.quantity ?? plan.npc.qty + plan.order.qty + plan.insta.qty)}
                             </td>
                             <td></td>
                             <td style={{ textAlign: 'right', paddingTop: 4, fontWeight: 'bold', fontVariantNumeric: 'tabular-nums' }}>
-                                ~{numberWithThousandsSeparators(Math.round(plan.totalCost))}
+                                ~{numberWithThousandsSeparators(Math.round(backendPlan?.cost ?? plan.totalCost))}
                             </td>
                         </tr>
                     </tbody>
@@ -157,7 +182,7 @@ function AcquisitionBadge({ ingredient, totalCount, preferredMode }: { ingredien
                         {numberWithThousandsSeparators(plan.unmet)} units have no listed offers - likely unobtainable right now.
                     </div>
                 )}
-                <small style={{ color: '#888' }}>
+                {!backendPlan ? <small style={{ color: '#888' }}>
                     The buy-order price uses the lower competitive market estimate. The insta-buy price uses the higher volume-weighted sell-offer estimate,
                     which represents Σ(quantity × price) ÷ total quantity across the order book instead of only the cheapest visible offer.{' '}
                     {plan.order.qty > 0
@@ -168,7 +193,7 @@ function AcquisitionBadge({ ingredient, totalCount, preferredMode }: { ingredien
                     {plan.insta.qty > 0
                         ? `The weighted instant estimate is ~${formatUnitPrice(plan.insta.unitPrice)}/unit and can move as the order book changes.`
                         : ''}
-                </small>
+                </small> : null}
             </Popover.Body>
         </Popover>
     )
@@ -196,13 +221,13 @@ export function IngredientList(props: Props) {
     return (
         <div>
             {props.ingredients.map((ingredient, i) => {
-                let totalCount = ingredient.count * multiplier
+                let totalCount = ingredient.absoluteCount ?? ingredient.count * multiplier
                 let copyCommand = getCopyCommand(ingredient, props.instructions)
                 let path = getIngredientPath(props.pathPrefix ?? '', i, ingredient.item.tag)
                 let canCollapse = Boolean(ingredient.type === 'craft' && ingredient.ingredients?.length && props.onToggleIngredient)
                 let collapsed = canCollapse && props.collapsedPaths?.has(path)
                 let directBuyCost = getDirectBuyCost(ingredient, totalCount, acquisitionMode)
-                let subcraftCost = (ingredient.craftCost ?? ingredient.cost) * multiplier
+                let subcraftCost = ingredient.absoluteCount ? ingredient.cost : (ingredient.craftCost ?? ingredient.cost) * multiplier
                 let craftSavings = Math.max(0, directBuyCost - subcraftCost)
                 let craftSavingsPercent = directBuyCost > 0 ? (craftSavings / directBuyCost) * 100 : 0
 
@@ -292,7 +317,7 @@ export function IngredientList(props: Props) {
                                     ingredients={ingredient.ingredients}
                                     onItemClick={props.onItemClick}
                                     instructions={props.instructions}
-                                    multiplier={totalCount}
+                                    multiplier={ingredient.absoluteCount ? 1 : totalCount}
                                     collapsedPaths={props.collapsedPaths}
                                     onToggleIngredient={props.onToggleIngredient}
                                     pathPrefix={path}
