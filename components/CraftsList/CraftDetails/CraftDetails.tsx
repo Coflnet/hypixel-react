@@ -1,21 +1,19 @@
 'use client'
-import { Badge } from 'react-bootstrap'
+import { Alert, Badge } from 'react-bootstrap'
 import Number from '../../Number/Number'
 import { CraftingRecipe } from '../CraftingRecipe/CraftingRecipe'
 import { CostBreakdown } from '../CostBreakdown/CostBreakdown'
-import { useEffect, useState } from 'react'
-import api from '../../../api/ApiHelper'
 import { toVariantItemTag } from '../../../utils/Formatter'
 
 interface Props {
     craft: ProfitableCraft
+    instructions?: CraftingInstructions
+    plan?: CraftAcquisitionPlan
+    loading: boolean
+    planError: boolean
 }
 
 export function CraftDetails(props: Props) {
-    let [instructions, setInstructions] = useState<CraftingInstructions>()
-    let [ingredients, setIngredients] = useState(props.craft.ingredients)
-    let [loadingPlan, setLoadingPlan] = useState(true)
-
     function toIngredient(plan: CraftAcquisitionPlan): CraftingIngredient {
         return {
             item: { tag: plan.itemId, name: plan.itemId.replaceAll('_', ' ') } as Item,
@@ -29,19 +27,10 @@ export function CraftDetails(props: Props) {
             ingredients: plan.ingredients?.map(toIngredient)
         }
     }
-
-    useEffect(() => {
-        api.getCraftInstructions(props.craft.item.tag).then(instructions => {
-            setInstructions(instructions)
-        })
-        setLoadingPlan(true)
-        api.getCraftAcquisitionPlan(props.craft.item.tag)
-            .then(plan => setIngredients(plan.ingredients.map(toIngredient)))
-            .finally(() => setLoadingPlan(false))
-    }, [props.craft.item.tag])
+    const ingredients = props.plan ? props.plan.ingredients.map(toIngredient) : props.craft.ingredients
 
     function openItem(tag: string) {
-        let detailsPath = instructions?.detailsPath?.[tag]
+        let detailsPath = props.instructions?.detailsPath?.[tag]
         if (detailsPath) {
             window.open(window.location.origin + detailsPath, '_blank')
         } else {
@@ -70,7 +59,8 @@ export function CraftDetails(props: Props) {
                 </span>
             </div>
             <hr />
-            <CostBreakdown ingredients={ingredients} sellPrice={props.craft.sellPrice} instructions={instructions} onItemClick={openIngredient} loading={loadingPlan} />
+            {props.planError ? <Alert variant="warning">Live acquisition data is unavailable; showing the cached craft estimate.</Alert> : null}
+            <CostBreakdown ingredients={ingredients} sellPrice={props.craft.sellPrice} instructions={props.instructions} onItemClick={openIngredient} loading={props.loading} />
         </div>
     )
 }

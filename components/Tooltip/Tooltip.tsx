@@ -16,6 +16,7 @@ interface Props {
     tooltipTitle?: JSX.Element
     size?: 'sm' | 'lg' | 'xl'
     onClick?: Function
+    onOpen?: () => void
     className?: string
     id?: any
     hoverPlacement?: any
@@ -58,6 +59,7 @@ function Tooltip(props: Props) {
                 <Modal
                     size={props.size || 'lg'}
                     show={showDialog}
+                    onShow={props.onOpen}
                     onHide={() => {
                         setShowDialog(false)
                     }}
