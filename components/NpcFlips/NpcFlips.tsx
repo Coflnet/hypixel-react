@@ -204,7 +204,7 @@ export function NpcFlips() {
                     The displayed purchase cost is the sum of coins + item purchase cost required to get an item from the NPC.
                     <br />
                     For example <b>Wither Goggles</b> purchase cost is <b>5m</b> Skyblock Coins combined with the cost of <b>Shadow Goggles</b> both of which
-                    you hand to the <a href="https://wiki.hypixel.net/Ophelia">Ophelia NPC</a>
+                    you hand to the <a href="https://hypixelskyblock.minecraft.wiki/w/Ophelia">Ophelia NPC</a>
                 </p>
             </details>
             <details>

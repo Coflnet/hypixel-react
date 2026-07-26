@@ -69,14 +69,6 @@ function getMinecraftWikiTitle(item: Item) {
     return formatWikiPageTitle(getItemTitle(item))
 }
 
-function getHypixelWikiTitle(item: Item) {
-    if (item.tag.startsWith('ENCHANTMENT_')) {
-        return `${getEnchantmentWikiBaseTitle(item.tag)}_Enchantment`
-    }
-
-    return formatWikiPageTitle(getItemTitle(item))
-}
-
 function OptionsMenu(props: Props) {
     let available: AvailableLinks[] = []
     let [showExportModal, setShowExportModal] = useState(false)
@@ -86,8 +78,7 @@ function OptionsMenu(props: Props) {
     if (isItemPage) {
         const selectedItem = props.selected as Item
         const tag = selectedItem.tag
-        available.push({ title: 'SkyBlock Wiki', url: 'https://hypixelskyblock.minecraft.wiki/w/' + getMinecraftWikiTitle(selectedItem) })
-        available.push({ title: 'Wiki', url: 'https://wiki.hypixel.net/' + getHypixelWikiTitle(selectedItem) })
+        available.push({ title: 'Wiki', url: 'https://hypixelskyblock.minecraft.wiki/w/' + getMinecraftWikiTitle(selectedItem) })
         if ((props.selected as Item).bazaar) {
             available.push({ title: 'Bazaartracker', url: 'https://bazaartracker.com/product/' + tag.toLowerCase() })
             available.push({ title: 'BzMeta', url: 'https://skyblock.bz/product/' + tag.toLowerCase() })

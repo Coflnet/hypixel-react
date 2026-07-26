@@ -24,7 +24,7 @@ function formatMargin(margin?: number | null): string {
 function getNpcWikiUrl(npcName: string): string {
     // Convert NPC name to wiki URL format (replace spaces with underscores)
     const formattedName = npcName.replace(/\s+/g, '_')
-    return `https://wiki.hypixel.net/${formattedName}`
+    return `https://hypixelskyblock.minecraft.wiki/w/${formattedName}`
 }
 
 function isCoins(cost: Cost): boolean {
