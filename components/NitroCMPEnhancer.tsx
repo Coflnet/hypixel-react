@@ -34,7 +34,9 @@ export default function NitroCMPEnhancer() {
                         setCookie('CCPAOPTOUT', '1')
                         
                         setCookie('nonEssentialCookiesAllowed', 'false')
-                        
+
+                        try { (window as any)._paq?.push(['forgetCookieConsentGiven']) } catch (e) {}
+
                         if ((window as any).nitroAds && Array.isArray((window as any).nitroAds.queue)) {
                             ;(window as any).nitroAds.queue.push(['addUserToken', ['optout']])
                         }
@@ -82,6 +84,7 @@ export default function NitroCMPEnhancer() {
                 if (!isAccept) return
 
                 try { setCookie('nonEssentialCookiesAllowed', 'true') } catch (e) {}
+                try { (window as any)._paq?.push(['setCookieConsentGiven']) } catch (e) {}
                 try {
                     if ((window as any).nitroAds && Array.isArray((window as any).nitroAds.queue)) {
                         ;(window as any).nitroAds.queue.push(['addUserToken', ['consent']])

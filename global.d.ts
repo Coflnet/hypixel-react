@@ -317,6 +317,7 @@ interface API {
     cancelPremiumSubscription(id: string): Promise<void>
     purchasePremiumSubscription(productSlug: string, googleToken: string): Promise<PaymentResponse>
     getCraftInstructions(itemTag: string): Promise<CraftingInstructions>
+    deleteAccount(): Promise<AccountDeletionResult>
 }
 
 interface CacheUtils {
@@ -629,6 +630,13 @@ interface PrivacySettings {
     extendDescriptions: boolean
     commandPrefixes: string[]
     autoStart: boolean
+}
+
+interface AccountDeletionResult {
+    userId: string
+    message: string
+    erased: string[]
+    retained: string[]
 }
 
 interface PremiumProduct {

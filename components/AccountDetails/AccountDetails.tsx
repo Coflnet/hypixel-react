@@ -30,6 +30,9 @@ function AccountDetails() {
     let [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
     let [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
     let [hasLoadingPremiumError, setHasLoadingPremiumError] = useState(false)
+    let [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
+    let [deleteConfirmationInput, setDeleteConfirmationInput] = useState('')
+    let [isDeletingAccount, setIsDeletingAccount] = useState(false)
     let coflCoins = useCoflCoins()
     let { pushInstruction } = useMatomo()
 
@@ -155,6 +158,26 @@ function AccountDetails() {
             toast.success('Subscription cancelled')
             loadPremiumSubscriptions()
         })
+    }
+
+    function closeDeleteAccountModal() {
+        setShowDeleteAccountModal(false)
+        setDeleteConfirmationInput('')
+    }
+
+    function onDeleteAccount() {
+        setIsDeletingAccount(true)
+        api.deleteAccount()
+            .then(result => {
+                setIsDeletingAccount(false)
+                closeDeleteAccountModal()
+                toast.success(result?.message || 'Your account deletion request has been processed.')
+                onLogout()
+            })
+            .catch(() => {
+                setIsDeletingAccount(false)
+                toast.error('Failed to delete your account. Please try again or contact support.')
+            })
     }
 
     return (
@@ -288,6 +311,51 @@ function AccountDetails() {
                     tooltipTitle={<span>Are you sure?</span>}
                 />
             </div>
+            {isLoggedIn ? (
+                <div style={{ paddingBottom: '1rem' }}>
+                    <hr />
+                    <h2 style={{ marginBottom: '30px' }}>Danger Zone</h2>
+                    <span className={styles.label}>Delete account:</span>
+                    <div>
+                        <Button variant="danger" onClick={() => setShowDeleteAccountModal(true)}>
+                            Delete account
+                        </Button>
+                    </div>
+                    <Modal show={showDeleteAccountModal} onHide={closeDeleteAccountModal}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Delete account</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <p>
+                                This permanently deletes your account data (settings, connected Minecraft accounts, mod data). Purchase and
+                                transaction records are retained where legally required. <b>This cannot be undone.</b>
+                            </p>
+                            <Form.Group controlId="deleteAccountConfirmation">
+                                <Form.Label>
+                                    Type <b>DELETE</b> to confirm
+                                </Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    value={deleteConfirmationInput}
+                                    onChange={(event: ChangeEvent<HTMLInputElement>) => setDeleteConfirmationInput(event.target.value)}
+                                />
+                            </Form.Group>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={closeDeleteAccountModal}>
+                                Cancel
+                            </Button>
+                            <Button
+                                variant="danger"
+                                disabled={deleteConfirmationInput !== 'DELETE' || isDeletingAccount}
+                                onClick={onDeleteAccount}
+                            >
+                                Permanently delete my account
+                            </Button>
+                        </Modal.Footer>
+                    </Modal>
+                </div>
+            ) : null}
         </>
     )
 }

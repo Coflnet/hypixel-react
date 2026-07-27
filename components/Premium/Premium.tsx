@@ -10,7 +10,6 @@ import styles from './Premium.module.css'
 import CoflCoinsPurchase from '../CoflCoins/CoflCoinsPurchase'
 import BuyPremium from './BuyPremium/BuyPremium'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
-import { CANCELLATION_RIGHT_CONFIRMED } from '../../utils/SettingsUtils'
 import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
 import PremiumStatus from './PremiumStatus/PremiumStatus'
 import { toast } from 'react-toastify'
@@ -33,7 +32,6 @@ function Premium() {
 
     useEffect(() => {
         setIsSSR(false)
-        setCancellationRightLossConfirmed(localStorage.getItem(CANCELLATION_RIGHT_CONFIRMED) === 'true')
 
         // Check for tier parameter to show upgrade wizard
         checkForUpgradeRequest()
@@ -235,16 +233,25 @@ function Premium() {
                             <Form.Check
                                 id={'cancellationRightCheckbox'}
                                 className={styles.cancellationRightCheckbox}
-                                defaultChecked={isSSR ? false : localStorage.getItem(CANCELLATION_RIGHT_CONFIRMED) === 'true'}
+                                defaultChecked={false}
                                 onChange={e => {
-                                    localStorage.setItem(CANCELLATION_RIGHT_CONFIRMED, e.target.checked.toString())
+                                    // § 356 (5) BGB: express consent must be given for each contract —
+                                    // deliberately not persisted across sessions
                                     setCancellationRightLossConfirmed(e.target.checked)
                                 }}
                                 inline
                             />
                             <label htmlFor={'cancellationRightCheckbox'}>
                                 By buying one of the following products, you confirm the immediate execution of the contract, hereby losing your cancellation
-                                right.
+                                right (see our{' '}
+                                <a href="https://coflnet.com/withdrawal" target="_blank" rel="noopener noreferrer">
+                                    withdrawal policy
+                                </a>
+                                ). The{' '}
+                                <a href="https://coflnet.com/terms-of-service" target="_blank" rel="noopener noreferrer">
+                                    Terms of Service
+                                </a>{' '}
+                                apply.
                             </label>
                         </div>
                     ) : null}
