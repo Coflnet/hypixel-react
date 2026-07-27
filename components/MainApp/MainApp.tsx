@@ -29,10 +29,19 @@ export const errorLog: ErrorLog[] = []
 
 initCoflCoinManager()
 
+function hasGlobalPrivacyControl() {
+    if (typeof navigator === 'undefined') {
+        return false
+    }
+
+    return (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true
+}
+
 export function MainApp(props: any) {
     const [showRefreshFeedbackDialog, setShowRefreshFeedbackDialog] = useState(false)
     const [isReloadTracked, setIsReloadTracked] = useState(false)
     const [hasNitroCMP, setHasNitroCMP] = useState(false)
+    const [privacySignal, setPrivacySignal] = useState<boolean | null>(null)
     const { trackPageView, trackEvent, pushInstruction } = useMatomo()
     const router = useRouter()
 
@@ -78,10 +87,19 @@ export function MainApp(props: any) {
 
     useEffect(() => {
         pushInstruction('requireConsent')
+        const hasGpc = hasGlobalPrivacyControl()
+        setPrivacySignal(hasGpc)
+
+        if (hasGpc) {
+            pushInstruction('forgetConsentGiven')
+            pushInstruction('optUserOut')
+            Cookies.set('nonEssentialCookiesAllowed', 'false')
+            Cookies.set('CCPAOPTOUT', '1')
+        }
 
         // check for tracking of old users
         let cookie = Cookies.get('nonEssentialCookiesAllowed')
-        if (cookie === 'true') {
+        if (!hasGpc && cookie === 'true') {
             pushInstruction('rememberConsentGiven')
         }
 
@@ -98,7 +116,8 @@ export function MainApp(props: any) {
         function onNitroOptOut() {
             try {
                 pushInstruction('forgetConsentGiven')
-                Cookies.set('nonEssentialCookiesAllowed', false)
+                pushInstruction('optUserOut')
+                Cookies.set('nonEssentialCookiesAllowed', 'false')
             } catch (e) {}
         }
 
@@ -110,6 +129,16 @@ export function MainApp(props: any) {
     useEffect(() => {
         function onNitroOptIn() {
             try {
+                if (hasGlobalPrivacyControl()) {
+                    pushInstruction('forgetConsentGiven')
+                    pushInstruction('optUserOut')
+                    Cookies.set('nonEssentialCookiesAllowed', 'false')
+                    Cookies.set('CCPAOPTOUT', '1')
+                    ;(window as any).nitroAds?.queue?.push(['addUserToken', ['optout']])
+                    return
+                }
+
+                pushInstruction('forgetUserOptOut')
                 pushInstruction('rememberConsentGiven')
                 Cookies.set('nonEssentialCookiesAllowed', 'true')
             } catch (e) {}
@@ -147,9 +176,11 @@ export function MainApp(props: any) {
     }, [])
 
     useEffect(() => {
-        trackPageView({})
+        if (privacySignal === false) {
+            trackPageView({})
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isClientSideRendering() ? document.title : null])
+    }, [privacySignal, isClientSideRendering() ? document.title : null])
 
     function checkForReload() {
         let preventReloadDialog = localStorage.getItem('rememberHideReloadDialog') === 'true'
@@ -179,6 +210,10 @@ export function MainApp(props: any) {
     }
 
     function setTrackingAllowed() {
+        if (hasGlobalPrivacyControl()) {
+            return
+        }
+        pushInstruction('forgetUserOptOut')
         pushInstruction('rememberConsentGiven')
         trackPageView({})
     }
@@ -209,7 +244,7 @@ export function MainApp(props: any) {
             <OfflineBanner />
             <TopLoadingAnimation />
             {props.children}
-            {!properties.isTestRunner && !hasNitroCMP ? (
+            {!properties.isTestRunner && !hasNitroCMP && privacySignal === false ? (
                 <CookieConsent
                     enableDeclineButton
                     declineButtonStyle={{ backgroundColor: 'rgb(65, 65, 65)', borderRadius: '10px', color: 'lightgrey', fontSize: '14px' }}

@@ -8,13 +8,15 @@ import { FavoritesProvider } from '../Favorites/FavoritesContext'
 import { AdsProvider } from './AdsProvider'
 import { FlipSettingsProvider } from './FlipSettingsProvider'
 
+function hasGlobalPrivacyControl() {
+    return (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true
+}
+
 const matomoTrackingInstance = createInstance({
     urlBase: 'https://track.coflnet.com',
     siteId: 1,
     configurations: {
-        // consent mode (§ 25 TDDDG): track cookieless until the CMP signals full
-        // cookie acceptance — NitroCMPEnhancer pushes setCookieConsentGiven /
-        // forgetCookieConsentGiven; the server anonymizes IPs and honors Do Not Track
+        // Cookie tracking remains disabled until the CMP signals full consent.
         requireCookieConsent: true
     }
 })
@@ -22,6 +24,14 @@ const matomoTrackingInstance = createInstance({
 export function Providers({ children }) {
     const queryClient = getQueryClient()
     useEffect(() => {
+        if (hasGlobalPrivacyControl()) {
+            document.cookie = 'nonEssentialCookiesAllowed=false; max-age=31536000; path=/; SameSite=Lax'
+            document.cookie = 'CCPAOPTOUT=1; max-age=31536000; path=/; SameSite=Lax'
+            ;(window as any)._paq?.push(['forgetCookieConsentGiven'])
+            ;(window as any)._paq?.push(['optUserOut'])
+            return
+        }
+
         // re-apply a previously given full-cookie consent on page load
         if (document.cookie.split('; ').includes('nonEssentialCookiesAllowed=true')) {
             ;(window as any)._paq?.push(['setCookieConsentGiven'])

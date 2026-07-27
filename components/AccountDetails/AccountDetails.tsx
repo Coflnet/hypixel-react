@@ -132,16 +132,31 @@ function AccountDetails() {
 
     function setTrackingAllowed(event: ChangeEvent<HTMLInputElement>) {
         let val = event.target.checked
+        if (val && (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true) {
+            event.target.checked = false
+            pushInstruction('forgetConsentGiven')
+            pushInstruction('optUserOut')
+            Cookies.set('nonEssentialCookiesAllowed', 'false')
+            return
+        }
         if (val) {
+            pushInstruction('forgetUserOptOut')
             pushInstruction('rememberConsentGiven')
             Cookies.set('nonEssentialCookiesAllowed', 'true')
         } else {
             pushInstruction('forgetConsentGiven')
-            Cookies.set('nonEssentialCookiesAllowed', false)
+            pushInstruction('optUserOut')
+            Cookies.set('nonEssentialCookiesAllowed', 'false')
         }
     }
 
     function isTrackingAllowed() {
+        if (
+            typeof navigator !== 'undefined' &&
+            (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true
+        ) {
+            return false
+        }
         let cookie = Cookies.get('nonEssentialCookiesAllowed')
         return cookie === 'true'
     }
