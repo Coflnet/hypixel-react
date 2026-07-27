@@ -15,7 +15,10 @@ import type { PurchaseCodes } from './CoflCoinPaymentSelection'
 import PurchaseElement from './PurchaseElement'
 import CountrySelect from '../CountrySelect/CountrySelect'
 import { useCountryDetection } from '../../hooks/useCountryDetection'
+import { getGeneratedApiErrorMessage } from '../../utils/GeneratedApiResponseUtils'
 import styles from './CoflCoinsPurchase.module.css'
+
+const PAYMENT_REDIRECT_ERROR = 'Something went wrong. Please try again.'
 
 interface Props {
     cancellationRightLossConfirmed: boolean
@@ -189,13 +192,13 @@ function Payment(props: Props) {
             .then(response => {
                 const directLink = response?.data?.directLink ?? response?.data?.dirctLink
                 if (response?.status !== 200 || !directLink) {
-                    onPaymentRedirectFail()
+                    onPaymentRedirectFail(getGeneratedApiErrorMessage(response, null, PAYMENT_REDIRECT_ERROR))
                     return
                 }
                 setCurrentRedirectLink(directLink)
                 window.open(directLink, '_self')
             })
-            .catch(onPaymentRedirectFail)
+            .catch(error => onPaymentRedirectFail(getGeneratedApiErrorMessage(null, error, PAYMENT_REDIRECT_ERROR)))
     }
 
     function onPayPaypal(productId: string, coflCoins?: number, codes?: PurchaseCodes) {
@@ -256,10 +259,10 @@ function Payment(props: Props) {
         window.location.href = url
     }
 
-    function onPaymentRedirectFail() {
+    function onPaymentRedirectFail(message?: string | null) {
         setCurrentRedirectLink('')
         setLoadingId('')
-        toast.error('Something went wrong. Please try again.')
+        toast.error(message || PAYMENT_REDIRECT_ERROR)
     }
 
     function getDisabledPaymentTooltip() {
