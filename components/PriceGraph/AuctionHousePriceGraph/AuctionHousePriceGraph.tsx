@@ -91,7 +91,7 @@ function AuctionHousePriceGraph(props: Props) {
     let [defaultRangeSwitch, setDefaultRangeSwitch] = useState(true)
     let [chartOptions, setChartOptions] = useState(graphConfig)
     let [mayorData, setMayorData] = useState<MayorData[]>([])
-    let [rangeSelectKey, setRangeSelectKey] = useState(generateUUID)
+    let [rangeSelectKey, setRangeSelectKey] = useState(() => generateUUID())
     let [hasPremium, setHasPremium] = useState(false)
     let [yearStatistics, setYearStatistics] = useState<YearStatistics | null>(null)
     let [yearServerError, setYearServerError] = useState<string | null>(null)

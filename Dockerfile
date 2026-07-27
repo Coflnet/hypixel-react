@@ -12,6 +12,7 @@ WORKDIR /opt/app
 COPY . .
 COPY --from=deps /opt/app/node_modules ./node_modules
 RUN rm -rf orval.config.ts cypress.config.ts cypress/ docs/ scripts/ lighthouse-reports/ playwright-report/ && npm run build
+RUN npm prune --omit=dev
 
 # Production image — Google distroless: no shell, no package manager,
 # no npm. Ships only the Node.js runtime + minimal Debian libs.
