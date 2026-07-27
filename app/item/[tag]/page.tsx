@@ -11,6 +11,7 @@ import { ItemPageClient } from './ItemPageClient'
 import { hasFlag } from '../../../components/FilterElement/FilterType'
 import { getCachedItemInfo, ItemFlagsNumeric, hasItemFlag, parseFlags } from '../../../utils/ItemsCache'
 import { normalizeItemFilter } from '../../../utils/Parser/URLParser'
+import { getEnchantmentRename } from '../../../utils/EnchantmentRenames'
 
 const BazaarPriceGraph = dynamic(() => import('../../../components/PriceGraph/BazaarPriceGraph/BazaarPriceGraph'), {
     loading: () => <div style={{ minHeight: '300px' }}>Loading chart...</div>
@@ -44,6 +45,7 @@ export default async function Page(props) {
     let item = parseItem(data.item)
 
     const isBazaar = data.itemFlags?.isBazaar ?? false
+    const enchantmentRename = getEnchantmentRename(tag)
 
     function getItem(): Item {
         return (
@@ -60,6 +62,18 @@ export default async function Page(props) {
     return (
         <>
             <ItemPageClient item={getItem()}>
+                {enchantmentRename && (
+                    <p>
+                        <strong>
+                            {enchantmentRename.currentName} {enchantmentRename.level}
+                        </strong>{' '}
+                        uses the legacy/internal item name{' '}
+                        <strong>
+                            {enchantmentRename.previousName} {enchantmentRename.level}
+                        </strong>{' '}
+                        in Hypixel SkyBlock. This page tracks the same enchantment under both names.
+                    </p>
+                )}
                 {isBazaar ? <BazaarPriceGraph item={getItem()} /> : <AuctionHousePriceGraph item={getItem()} />}
 
                 <NitroAdSlot
@@ -123,6 +137,25 @@ export async function generateMetadata(props): Promise<Metadata> {
 
     let tag = params?.tag as string
     let { item, filter, prices, range } = await getItemData(searchParams, params)
+    const enchantmentRename = getEnchantmentRename(tag)
+    const itemName = item.name || convertTagToName(tag)
+    const metadataName = enchantmentRename
+        ? `${enchantmentRename.currentName} ${enchantmentRename.level} (legacy ${enchantmentRename.previousName} ${enchantmentRename.level})`
+        : itemName
+    const renameDescription = enchantmentRename
+        ? `${enchantmentRename.currentName} ${enchantmentRename.level} uses the legacy/internal item name ${enchantmentRename.previousName} ${enchantmentRename.level} in Hypixel SkyBlock. `
+        : ''
+    const keywords = [
+        convertTagToName(item.tag),
+        ...(enchantmentRename
+            ? [
+                  enchantmentRename.currentName,
+                  enchantmentRename.previousName,
+                  `${enchantmentRename.currentName} ${enchantmentRename.level}`,
+                  `${enchantmentRename.previousName} ${enchantmentRename.level}`
+              ]
+            : [])
+    ]
     if (hasFlag(item.flags, 1)) {
         let sellPriceSum = 0
         let buyPriceSum = 0
@@ -133,26 +166,26 @@ export async function generateMetadata(props): Promise<Metadata> {
         })
 
         return getHeadMetadata(
-            `${item.name || convertTagToName(tag)} price`,
-            `🕑 ${range ? `Range: ${range}` : null}
+            `${metadataName} price`,
+            `${renameDescription}🕑 ${range ? `Range: ${range}` : null}
             Avg Sell Price: ${sellPriceSum ? numberWithThousandsSeparators(Math.round(sellPriceSum / prices.length)) : '---'} 
             Avg Buy Price: ${buyPriceSum ? numberWithThousandsSeparators(Math.round(buyPriceSum / prices.length)) : '---'}`,
             item.iconUrl,
-            [convertTagToName(item.tag)],
-            `${item.name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`,
+            keywords,
+            `${metadataName} price | Hypixel SkyBlock AH history tracker`,
             getCanonicalUrl(`/item/${tag}`)
         )
     }
     return getHeadMetadata(
-        `${item.name || convertTagToName(tag)} price`,
-        `💰 Price: ${getAvgPrice(prices) ? numberWithThousandsSeparators(Math.round(getAvgPrice(prices))) : '---'} Coins
+        `${metadataName} price`,
+        `${renameDescription}💰 Price: ${getAvgPrice(prices) ? numberWithThousandsSeparators(Math.round(getAvgPrice(prices))) : '---'} Coins
         🕑 ${range ? `Range: ${range}` : null}
 
          ${filter ? `Filters: 
 ${getFiltersText(filter)}` : ''}`,
         item.iconUrl,
-        [convertTagToName(item.tag)],
-        `${item.name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`,
+        keywords,
+        `${metadataName} price | Hypixel SkyBlock AH history tracker`,
         getCanonicalUrl(`/item/${tag}`)
     )
 }
