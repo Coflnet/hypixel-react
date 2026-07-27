@@ -436,71 +436,224 @@ Control what data the mod **collects and uploads** for tracking/features.
 
 ## Lore Settings
 
-Customize **in-game lore overlays** (extra information added to item descriptions).
+Lore settings control the extra item information, menu panels, highlights, and price suggestions produced by SkyCofl. They do not change the item itself.
 
-### loreHighlightFilterMatch (HighlightFilterMatch)
-- **Type:** Boolean
-- **Default:** `true`
-- **Description:** **Highlight items** in AH/trade windows that match your black/whitelist filters.
-- **Visual:** Green border for matching items.
+### Command format and defaults
 
-### loreMinProfitForHighlight (MinProfitForHighlight)
-- **Type:** Long (coins)
-- **Default:** `5,000,000` (5m)
-- **Description:** Minimum profit to **highlight the best flip** on an AH page.
-- **When viewing AH:** Items with profit above this threshold get a visual indicator.
+Every supported field in the backend `DescriptionSetting` model gets the `lore` prefix:
 
-### loreDisableHighlighting (DisableHighlighting)
+```text
+/cofl set lore<FieldName> <value>
+```
+
+For example, `DisableHighlighting` becomes `/cofl set loreDisableHighlighting true`. Names are case-insensitive. A Boolean value may be omitted to toggle it, but explicit `true` or `false` is safer. The defaults below are the fresh server-side defaults; `/cofl set` shows your saved value.
+
+Some settings also have shorter aliases:
+
+| Full key | Alias |
+|---|---|
+| `loreDisableSuggestions` | `nosuggest` |
+| `loreBazaarBookmarks` | `bzBookmarks` |
+| `loreLowballMedUndercut` | `medUndercut` |
+| `loreLowballLbinUndercut` | `lbinUndercut` |
+| `lorePreferLbinInSuggestions` | `suggestLbin` |
+| `loreSuggestQuicksell` | `suggestQuicksell` |
+| `loreNoCookie` | `nocookie` |
+| `loreBuyOrderPrices` | `buyOrderPrices` |
+| `loreDisableAuctionStartedTime` | `noStartTime` |
+| `loreLowballNonExactExtraPct` | `lbNonExactPct` |
+| `loreLowballWorstCaseExtraPct` | `lbWorstCasePct` |
+| `loreLowballHideBreakdown` | `lbHideBreakdown` |
+| `loreLowballHideWorstCase` | `lbHideWorstCase` |
+
+The fields placed into each tooltip line are a separate layout, edited with [`/cofl lore`](/wiki/mod-commands#lorecommand). There is no `/cofl set loreFields` setting.
+
+### Extra lore, panels, and highlights
+
+#### loreDisabled (Disabled)
+
 - **Type:** Boolean
 - **Default:** `false`
-- **Description:** Turn off **all highlighting** (blacklist/whitelist matches, best flips, etc.).
+- **What it does:** Stops all SkyCofl description extensions for items and menus. Supported menu versions show a small “SkyCofl Lore disabled” entry that can re-enable it.
+- **Use when:** You want to temporarily remove the entire overlay. For one unwanted menu panel, use `loreDisableInfoIn` instead.
 
-### loreDisableSuggestions (DisableSuggestions)
-- **Type:** Boolean
-- **Default:** `true`
-- **Description:** Disable **sign input suggestions** (e.g., auto-fill prices when listing items).
+#### loreDisableInfoIn (DisableInfoIn)
 
-### loreDisableInfoIn (DisableInfoIn)
-- **Type:** HashSet (menu names)
-- **Default:** `null` (empty)
-- **Description:** List of **menu names** where side info display is disabled, example `Bazaar` or `Crafting` for tips/stats in inventory
-- **Commands:**
-  - Add: Automatically added when you type into the setting.
-  - Remove: Prefix with `rm ` (e.g., `/cofl set loreDisableInfoIn rm Crafting`).
-  - Clear: `/cofl set loreDisableInfoIn clear`.
-- **Example:** `/cofl set loreDisableInfoIn Crafting` to hide lore info in the crafting table.
+- **Type:** Set of info-display names
+- **Default:** Empty
+- **What it does:** Disables selected SkyCofl side panels or menu-specific information without disabling normal item price lore.
+- **Recommended method:** Click the `x` attached to a SkyCofl info panel. SkyCofl stores the correct internal display name for you.
+- **Manual examples:**
+  - `/cofl set loreDisableInfoIn Crafting`
+  - `/cofl set loreDisableInfoIn bazaar`
+  - `/cofl set loreDisableInfoIn TradeInfoDisplay`
+  - `/cofl set loreDisableInfoIn rm Crafting` to re-enable one display
+  - `/cofl set loreDisableInfoIn clear` to re-enable every display
+- **Details:** Display names are matched case-insensitively. Current named displays include `Crafting` and `bazaar`; other panels use their feature name, such as `TradeInfoDisplay`, `ListPriceRecommend`, or `FishFamilyCalculator`.
 
-### loreDisabled (Disabled)
+#### loreHighlightFilterMatch (HighlightFilterMatch)
+
 - **Type:** Boolean
 - **Default:** `false`
-- **Description:** Completely **disable extra lore** overlays.
+- **What it does:** Highlights items in Auction House and trade-related windows when they match your whitelist, normal filters, blacklist, or force-blacklist. Each match type uses a different green or red shade.
+- **Requirement:** Filter-match highlighting requires an active Premium account. Other SkyCofl highlights are controlled separately.
 
-### loreLowballMedUndercut (LowballMedUndercut)
-- **Type:** Byte (percent, 0-255)
-- **Default:** `0` (disabled)
-- **Description:** Percentage to **undercut median price** when lowballing.
-- **Calculation:** Uses the **lower** of median and lbin, then applies this undercut.
-- **Note:** Setting to `1` or higher hides the "lowball setup incomplete" notice.
+#### loreMinProfitForHighlight (MinProfitForHighlight)
 
-### loreLowballLbinUndercut (LowballLbinUndercut)
-- **Type:** Byte (percent)
+- **Type:** Whole number (coins)
+- **Default:** `0`
+- **What it does:** Sets the minimum exact median profit required before the best flip on an Auction House page receives a green highlight.
+- **Example:** `/cofl set loreMinProfitForHighlight 5m`
+- **Details:** This threshold only controls the “BEST FLIP ON PAGE” highlight. It does not filter flips or set your main `minProfit`.
+
+#### loreDisableHighlighting (DisableHighlighting)
+
+- **Type:** Boolean
+- **Default:** `false`
+- **What it does:** Removes every SkyCofl slot background or outline after the server has calculated the page. This includes filter matches, best-flip markers, Bazaar order highlights, and other SkyCofl highlights.
+- **Does not do:** It does not disable ordinary extra lore or necessarily remove text warnings associated with a highlighted item.
+
+### Sign and listing-price suggestions
+
+SkyCofl sends a special suggestion instruction with its menu information. On Fabric, the mod displays the proposed value and fills it only when the next Hypixel sign has the expected label, preventing a suggestion from being inserted into an unrelated sign.
+
+#### loreDisableSuggestions (DisableSuggestions, alias: nosuggest)
+
+- **Type:** Boolean
+- **Default:** `false`
+- **What it does:** Prevents automatic sign filling for Auction House list prices, Bazaar order prices, and lowball trade amounts.
+- **When enabled:** SkyCofl still shows the recommended number as text; you enter it yourself.
+- **Example:** `/cofl set nosuggest true`
+
+#### lorePreferLbinInSuggestions (PreferLbinInSuggestions, alias: suggestLbin)
+
+- **Type:** Boolean
+- **Default:** `false`
+- **What it does:** Starts Auction House listing recommendations from the current matching Lowest BIN minus one coin instead of the stable median.
+- **Important:** A saved recommendation for the exact flip or one of your previous listing prices can still take priority. When this setting is off, SkyCofl may still select a matching LBIN for a high-volume, low-volatility item.
+
+#### loreSuggestQuicksell (SuggestQuicksell, alias: suggestQuicksell)
+
+- **Type:** Boolean
+- **Default:** `false`
+- **What it does:** Caps an Auction House listing recommendation at SkyCofl’s estimated instant-sell price when that is lower than the normal recommendation.
+- **Trade-off:** This aims to sell faster, but usually gives up some potential profit.
+
+### Bazaar helpers and craft-cost pricing
+
+#### loreBazaarBookmarks (BazaarBookmarks, alias: bzBookmarks)
+
+- **Type:** Set of Bazaar item tags
+- **Default:** Empty
+- **What it does:** Adds bookmarked products, with current prices and clickable searches, to the main Bazaar menu.
+- **Recommended method:** Open a Bazaar product and click **add bookmark** or **remove bookmark** in the SkyCofl panel.
+- **Manual examples:**
+  - `/cofl set bzBookmarks ENCHANTED_DIAMOND`
+  - `/cofl set bzBookmarks rm ENCHANTED_DIAMOND`
+  - `/cofl set bzBookmarks clear`
+
+#### loreNoCookie (NoCookie, alias: nocookie)
+
+- **Type:** Boolean
+- **Default:** `false`
+- **What it does:** Changes clickable Bazaar flip and bookmark links from Hypixel’s `/bz <item>` shortcut to `/cofl bazaarsearch <item>`. The Fabric mod then opens the Bazaar search control, fills its sign, and submits it.
+- **Use when:** You cannot use `/bz`, normally because you do not have an active Booster Cookie.
+- **Warning:** This performs extra GUI clicks, may conflict with other mods, and is described by the backend as potentially considered macro behavior. Leave it off unless you understand and accept that risk.
+
+#### loreBuyOrderPrices (BuyOrderPrices, alias: buyOrderPrices)
+
+- **Type:** Boolean
+- **Default:** `false`
+- **What it does:** Uses top Bazaar buy-order prices and buy-order recipe costs for affected `CRAFT_COST`, `FullCraftCost`, and Bazaar-priced modifier-component calculations. The full craft-cost line is marked `{BUY_ORDER}`.
+- **When off:** Those calculations use the normal instant-buy/lowest-sell-offer based recipe and component costs.
+- **Does not change:** Raw `LBIN`, `MEDIAN`, `BazaarBuy`, or `BazaarSell` fields.
+
+### Lowball trade recommendations
+
+SkyCofl calculates adjusted median and LBIN values for every item you would receive, then uses the lower positive estimate. The base undercuts below receive automatic risk adjustments:
+
+- Value below 10m: add 2 percentage points.
+- Value above 100m: subtract 2 points; above 1b subtract another 3.
+- Volume at or below 1 sale/day: add 3 points; at or below 0.4 add another 2.
+- An inexact price match can add `loreLowballNonExactExtraPct`.
+
+These settings change recommendations only; they do not change market data.
+
+#### loreLowballMedUndercut (LowballMedUndercut, alias: medUndercut)
+
+- **Type:** Byte percentage (use `0`–`100`)
+- **Default:** `0`
+- **What it does:** Base percentage subtracted from the median estimate before automatic risk adjustments.
+- **Special values:** `0` still participates in the calculation but shows a reminder to configure lowballing. `100` disables lowball suggestions entirely.
+- **Example:** `/cofl set medUndercut 10`
+
+#### loreLowballLbinUndercut (LowballLbinUndercut, alias: lbinUndercut)
+
+- **Type:** Byte percentage (use `0`–`100`)
 - **Default:** `10`
-- **Description:** Percentage to **undercut lbin price** when lowballing.
-- **Dynamic adjustments:**
-  - Items < 10m: +2%
-  - Items > 100m: -2%
-  - Volume < 1/day: +3%
+- **What it does:** Base percentage subtracted from the matching Lowest BIN estimate before automatic risk adjustments.
+- **Example:** `/cofl set lbinUndercut 10`
 
-### lorePreferLbinInSuggestions (PreferLbinInSuggestions)
-- **Type:** Boolean
-- **Default:** `true`
-- **Description:** Use **current lbin** for price suggestions instead of stable median when listing items.
+#### loreLowballNonExactExtraPct (LowballNonExactExtraPct, alias: lbNonExactPct)
 
-### loreSuggestQuicksell (SuggestQuicksell)
+- **Type:** Byte percentage
+- **Default:** `2`
+- **Recommended range:** `0`–`10`
+- **What it does:** Adds an extra undercut when the price key does not exactly match the item’s valuable modifiers and the estimate therefore comes from similar items.
+- **Disable with:** `/cofl set lbNonExactPct 0`
+
+#### loreLowballWorstCaseExtraPct (LowballWorstCaseExtraPct, alias: lbWorstCasePct)
+
+- **Type:** Byte percentage
+- **Default:** `5`
+- **Recommended range:** `0`–`15`
+- **What it does:** Shows a second, more conservative total by adding this undercut when current volume is above `0.4`, simulating a drop into the lowest-volume band.
+- **Does not change:** The main recommended lowball total.
+- **Disable with:** `/cofl set lbWorstCasePct 0`
+
+#### loreLowballHideBreakdown (LowballHideBreakdown, alias: lbHideBreakdown)
+
 - **Type:** Boolean
 - **Default:** `false`
-- **Description:** Suggest **quick-sell prices** (lower than market) when listing auctions.
-- **Use case:** Fast liquidation at the cost of profit.
+- **What it does:** Hides the per-item median/LBIN, volume, applied-undercut, exact-match, and AI-value rows in the lowball recommendation hover.
+- **Does not change:** The recommendation itself.
+
+#### loreLowballHideWorstCase (LowballHideWorstCase, alias: lbHideWorstCase)
+
+- **Type:** Boolean
+- **Default:** `false`
+- **What it does:** Hides the worst-case lowball total and its per-item worst-case values.
+- **Does not change:** The main recommendation.
+
+### Generated-lore colors
+
+These settings replace one Minecraft color code in all **SkyCofl-generated modifications**. They do not recolor Hypixel’s original item description. Supply the single code character without `§`; for example, `c` is red, `b` is aqua, `f` is white, and `7` is gray. Run the command without a value to clear a replacement.
+
+| Setting | Default | Replaces | Example |
+|---|---|---|---|
+| `loreReplaceGrayWith` | Not set | Gray (`§7`) | `/cofl set loreReplaceGrayWith f` |
+| `loreReplaceAquaWith` | Not set | Aqua (`§b`) | `/cofl set loreReplaceAquaWith 6` |
+| `loreReplaceYellowWith` | Not set | Yellow (`§e`) | `/cofl set loreReplaceYellowWith a` |
+| `loreReplaceGoldWith` | Not set | Gold (`§6`) | `/cofl set loreReplaceGoldWith e` |
+| `loreReplaceWhiteWith` | Not set | White (`§f`) | `/cofl set loreReplaceWhiteWith 7` |
+
+The backend does not validate these strings as color codes, so use one valid Minecraft formatting character.
+
+### Auction timing and compatibility
+
+#### loreDisableAuctionStartedTime (DisableAuctionStartedTime, alias: noStartTime)
+
+- **Type:** Boolean
+- **Default:** `false`
+- **What it does:** Stops SkyCofl replacing an Auction House lore line with `Started <time> ago` when auction-history data is available, normally alongside the `PRICE_PAID` lore field.
+- **Use when:** Another mod inserts or rearranges tooltip lines and the replacement lands on the wrong seller, price, or timing line.
+
+#### loreCustomFormat (CustomFormat)
+
+- **Type:** String
+- **Default:** Not set
+- **Status:** Hidden compatibility field.
+- **Current behavior:** It is accepted and stored by the settings backend, but the inspected current SkyApi, coflskycore, and Fabric implementations do not consume it. Changing it has no supported visible effect; use `/cofl lore` to arrange fields instead.
 
 ---
 
@@ -556,7 +709,7 @@ Customize **in-game lore overlays** (extra information added to item description
 | `privacyCollectChat` | Privacy | Boolean | `true` | Track chat for events |
 | `privacyCollectInventory` | Privacy | Boolean | `true` | Upload inventory |
 | `privacyExtendDescriptions` | Privacy | Boolean | `true` | Enable lore overlay |
-| `loreHighlightFilterMatch` | Lore | Boolean | `true` | Highlight matches |
+| `loreHighlightFilterMatch` | Lore | Boolean | `false` | Highlight filter matches |
 | `loreDisabled` | Lore | Boolean | `false` | Disable all lore |
 
 ---
