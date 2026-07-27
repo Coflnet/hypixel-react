@@ -23,6 +23,7 @@ function getPriceGraphConfigSingle() {
             }
         },
         legend: {
+            top: 0,
             data: [
                 'Price (buy)',
                 'Min (buy)',

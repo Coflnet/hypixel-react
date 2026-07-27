@@ -23,6 +23,7 @@ function getPriceGraphConfigSplit() {
             }
         },
         legend: {
+            top: 0,
             data: ['Price', 'Min', 'Max', 'Volume', 'Moving', 'Mayors'],
             selected: {
                 Price: true,

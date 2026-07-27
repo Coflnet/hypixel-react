@@ -22,6 +22,7 @@ let option = {
         }
     },
     legend: {
+        top: 0,
         data: ['Price', 'Min', 'Max', 'Volume', 'Mayors'],
         selected: {
             Price: true,
