@@ -84,13 +84,10 @@
 .notice span {
     flex: 1;
 }
-.notice button {
-    border: 0;
-    padding: 0 2px;
+.notice a {
     color: #ffe6a6;
-    background: transparent;
-    font-size: 18px;
-    line-height: 1;
+    font-weight: 700;
+    text-decoration: underline;
 }
 
 .messages {

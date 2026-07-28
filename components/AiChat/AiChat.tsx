@@ -18,11 +18,11 @@ type Message = {
     rejectedContent?: string
 }
 type Quota = { limit: number; remaining: number; resetsAt: string; tier: string }
+type AiNotice = { version: string; notice: string; privacyUrl: string }
 
 const STORAGE_KEY = 'skycofl-ai-chat'
 const OPEN_KEY = 'skycofl-ai-chat-open'
 const CONVERSATION_KEY = 'skycofl-ai-conversation'
-const NOTICE_KEY = 'skycofl-ai-chat-notice'
 const QUOTA_KEY = 'skycofl-ai-chat-quota'
 const RETRY_KEY = 'skycofl-ai-chat-retry'
 const ERROR_KEY = 'skycofl-ai-chat-error'
@@ -42,7 +42,8 @@ export function AiChat({ fullPage = false }: { fullPage?: boolean }) {
     const pathname = usePathname()
     const [loaded, setLoaded] = useState(false)
     const [open, setOpen] = useState(false)
-    const [showNotice, setShowNotice] = useState(true)
+    const [notice, setNotice] = useState<AiNotice>()
+    const [noticeError, setNoticeError] = useState('')
     const [messages, setMessages] = useState<Message[]>([welcome])
     const [input, setInput] = useState('')
     const [loading, setLoading] = useState(false)
@@ -60,7 +61,6 @@ export function AiChat({ fullPage = false }: { fullPage?: boolean }) {
 
     useEffect(() => {
         setOpen(localStorage.getItem(OPEN_KEY) === 'true')
-        setShowNotice(localStorage.getItem(NOTICE_KEY) !== 'false')
         setConversationId(localStorage.getItem(CONVERSATION_KEY) || '')
         setAuthenticated(Boolean(sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId')))
         setRetryMessage(localStorage.getItem(RETRY_KEY) || '')
@@ -74,6 +74,24 @@ export function AiChat({ fullPage = false }: { fullPage?: boolean }) {
             if (storedQuota?.tier && typeof storedQuota.remaining === 'number') setQuota(storedQuota)
         } catch {}
         setLoaded(true)
+    }, [])
+
+    useEffect(() => {
+        const controller = new AbortController()
+        fetch(`${properties.apiEndpoint}/data/ai/notice`, { cache: 'no-store', signal: controller.signal })
+            .then(async response => {
+                if (!response.ok) throw new Error(`AI data notice failed (${response.status})`)
+                const data = await response.json()
+                const currentNotice = readNotice(data)
+                if (!currentNotice) throw new Error('The AI data notice is incomplete.')
+                setNotice(currentNotice)
+                setNoticeError('')
+            })
+            .catch(requestError => {
+                if (requestError instanceof DOMException && requestError.name === 'AbortError') return
+                setNoticeError('The AI chat is unavailable because its current data notice could not be loaded.')
+            })
+        return () => controller.abort()
     }, [])
 
     useEffect(() => {
@@ -121,7 +139,7 @@ export function AiChat({ fullPage = false }: { fullPage?: boolean }) {
     }
 
     async function sendMessage(content: string, append: boolean) {
-        if (loading || requiresNewConversation || (limitReached && append)) return
+        if (!notice || loading || requiresNewConversation || (limitReached && append)) return
 
         if (append) {
             setMessages(current => [...current, { role: 'user', content, createdAt: new Date().toISOString() }])
@@ -138,9 +156,23 @@ export function AiChat({ fullPage = false }: { fullPage?: boolean }) {
                     'Content-Type': 'application/json',
                     ...(token ? { Authorization: `Bearer ${token}` } : {})
                 },
-                body: JSON.stringify({ conversationId: conversationId || undefined, message: content, page: pathname })
+                body: JSON.stringify({
+                    conversationId: conversationId || undefined,
+                    message: content,
+                    page: pathname,
+                    dataNoticeVersion: notice.version
+                })
             })
             const data = await response.json().catch(() => ({}))
+            if (response.status === 428) {
+                const currentNotice = readNotice({
+                    version: data.dataNoticeVersion ?? data.DataNoticeVersion,
+                    notice: data.dataNotice ?? data.DataNotice,
+                    privacyUrl: notice.privacyUrl
+                })
+                if (currentNotice) setNotice(currentNotice)
+                throw new Error('The AI data notice changed. Please review it and send your message again.')
+            }
             const responseQuota = data.quota ?? data.Quota
             if (responseQuota) {
                 const nextQuota = {
@@ -220,7 +252,8 @@ export function AiChat({ fullPage = false }: { fullPage?: boolean }) {
             page: pathname,
             messages,
             transcriptSize: transcriptSize ?? null,
-            notice: 'This AI conversation may be reviewed to improve the system and may be processed overseas. Review it before sharing.'
+            dataNoticeVersion: notice?.version ?? null,
+            notice: notice?.notice ?? null
         }
         const url = URL.createObjectURL(new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' }))
         const link = document.createElement('a')
@@ -275,22 +308,20 @@ export function AiChat({ fullPage = false }: { fullPage?: boolean }) {
                     ) : null}
                 </div>
             </header>
-            {showNotice ? (
-                <div className={styles.notice}>
-                    <span>
-                        AI conversations may be reviewed to improve the system and may be processed overseas. Don’t share personal or sensitive information.
-                    </span>
-                    <button
-                        onClick={() => {
-                            setShowNotice(false)
-                            localStorage.setItem(NOTICE_KEY, 'false')
-                        }}
-                        aria-label="Dismiss AI data notice"
-                    >
-                        ×
-                    </button>
-                </div>
-            ) : null}
+            <div className={styles.notice} role="note">
+                <span>
+                    {notice?.notice || noticeError || 'Loading the AI data notice…'}{' '}
+                    {notice ? (
+                        <>
+                            <a href={notice.privacyUrl} target="_blank" rel="noreferrer">
+                                Privacy details
+                            </a>
+                            {' · '}
+                            <a href="mailto:support@coflnet.com">Contact human support</a>
+                        </>
+                    ) : null}
+                </span>
+            </div>
             <div className={styles.messages} aria-live="polite">
                 {messages.map((message, index) => (
                     <div key={index} className={`${styles.message} ${styles[message.role]}`}>
@@ -356,19 +387,21 @@ export function AiChat({ fullPage = false }: { fullPage?: boolean }) {
                     value={input}
                     onChange={event => setInput(event.target.value)}
                     onKeyDown={onKeyDown}
-                    disabled={requiresNewConversation || limitReached}
+                    disabled={!notice || requiresNewConversation || limitReached}
                     maxLength={6000}
                     rows={2}
                     placeholder={
-                        requiresNewConversation
-                            ? 'Export or clear this full conversation to continue.'
-                            : limitReached
-                              ? `Daily limit reached · resets in ${formatDuration(Date.parse(quota!.resetsAt) - now)}`
-                              : 'What is Hyperion worth? How do filters work?'
+                        !notice
+                            ? noticeError || 'Loading the AI data notice…'
+                            : requiresNewConversation
+                              ? 'Export or clear this full conversation to continue.'
+                              : limitReached
+                                ? `Daily limit reached · resets in ${formatDuration(Date.parse(quota!.resetsAt) - now)}`
+                                : 'What is Hyperion worth? How do filters work?'
                     }
                     aria-label="Message SkyCofl assistant"
                 />
-                <button type="submit" disabled={!input.trim() || loading || requiresNewConversation || limitReached}>
+                <button type="submit" disabled={!notice || !input.trim() || loading || requiresNewConversation || limitReached}>
                     Send
                 </button>
             </form>
@@ -379,6 +412,13 @@ export function AiChat({ fullPage = false }: { fullPage?: boolean }) {
             </footer>
         </section>
     )
+}
+
+function readNotice(data: Record<string, unknown>): AiNotice | undefined {
+    const version = data.version ?? data.Version
+    const notice = data.notice ?? data.Notice
+    const privacyUrl = data.privacyUrl ?? data.PrivacyUrl
+    return typeof version === 'string' && typeof notice === 'string' && typeof privacyUrl === 'string' ? { version, notice, privacyUrl } : undefined
 }
 
 function Markdown({ text }: { text: string }) {
