@@ -70,7 +70,6 @@ import {
     getApiItemPriceItemTagHistoryWeek,
     getApiItemPriceItemTagHistoryMonth,
     getApiItemPriceItemTagHistoryYear,
-    getApiItemPriceItemTagHistoryFull,
     getApiBazaarItemTagHistoryHour,
     getApiBazaarItemTagHistoryDay,
     getApiBazaarItemTagHistoryWeek,
@@ -296,10 +295,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             throw error
         }
 
-        // the generated client is typed against filters?: {[key:string]: string}, which doesn't
-        // line up with ItemFilter's extra non-string _hide/_sellerName keys; the runtime
-        // serialization (flattening every own key into query params) is unaffected by that.
-        let params = itemFilter && Object.keys(itemFilter).length > 0 ? ({ filters: itemFilter } as any) : undefined
+        // The generated params type nests these under `filters`, but its URL builder does not
+        // serialize nested objects. Keep the filter keys at the top level like the old request.
+        let params = itemFilter && Object.keys(itemFilter).length > 0 ? ({ ...itemFilter } as any) : undefined
 
         switch (String(fetchSpan)) {
             case 'day':
@@ -310,11 +308,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 return getApiItemPriceItemTagHistoryMonth(itemTag, params).then(r => handleData(r.data)).catch(handleError)
             case 'year':
                 return getApiItemPriceItemTagHistoryYear(itemTag, params).then(r => handleData(r.data)).catch(handleError)
-            case 'full':
-                return getApiItemPriceItemTagHistoryFull(itemTag).then(r => handleData(r.data)).catch(handleError)
             default:
-                // 'active'/'hour' (and any other legacy value) have no item-price-history
-                // route in the generated client - keep the direct-fetch path for those.
+                // The generated full-history route cannot accept filters, while active/hour
+                // have no generated route. Keep the legacy direct request for these ranges.
                 return new Promise((resolve, reject) => {
                     let urlParams = new URLSearchParams()
                     if (itemFilter && Object.keys(itemFilter).length > 0) {

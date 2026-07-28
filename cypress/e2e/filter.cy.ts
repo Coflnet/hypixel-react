@@ -14,4 +14,19 @@ describe('Item page', () => {
         cy.url().should('match', /.*\/auction\/.*/i)
         cy.contains('Sharpness 5').should('be.visible')
     })
+
+    it('sends item filters as top-level price history query parameters', () => {
+        cy.intercept('GET', '**/api/item/price/HYPERION/history/day*', request => {
+            if (new URL(request.url).searchParams.has('StartingBid')) {
+                request.alias = 'filteredPriceHistory'
+            }
+        })
+        cy.visit('/item/HYPERION?StartingBid=%3C60m')
+
+        cy.wait('@filteredPriceHistory').then(({ request }) => {
+            let params = new URL(request.url).searchParams
+            expect(params.get('StartingBid')).to.equal('<60m')
+            expect(params.has('filters')).to.equal(false)
+        })
+    })
 })
