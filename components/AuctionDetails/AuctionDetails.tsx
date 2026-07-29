@@ -340,6 +340,7 @@ function AuctionDetails(props: Props) {
                         <span className={styles.itemIcon}>
                             <Image
                                 crossOrigin="anonymous"
+                                className="playerHeadIcon"
                                 src={api.getItemImageUrl(auctionDetails.auction.item) || ''}
                                 height={48}
                                 width={48}

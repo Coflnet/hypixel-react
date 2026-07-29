@@ -114,6 +114,7 @@ function Startpage(props: Props) {
                             <div style={{ float: 'left' }}>
                                 <Image
                                     crossOrigin="anonymous"
+                                    className="playerHeadIcon"
                                     src={newItem.iconUrl || ''}
                                     height="32"
                                     width="32"
