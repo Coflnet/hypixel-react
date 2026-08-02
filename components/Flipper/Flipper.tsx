@@ -15,7 +15,7 @@ import { v4 as generateUUID } from 'uuid'
 import api from '../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils'
-import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { useReferralRewardsEligibility, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import {
@@ -84,6 +84,7 @@ function Flipper(props: Props) {
     let [isSSR, setIsSSR] = useState(true)
     let [showResetToDefaultDialog, setShowResetToDefaultDialog] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    let isReferralEligible = useReferralRewardsEligibility()
     let router = useRouter()
 
     let [flipperFilterKey, setFlipperFilterKey] = useState<string>(generateUUID())
@@ -843,7 +844,7 @@ function Flipper(props: Props) {
                                     </Card.Body>
                                 </Card>
                             ) : null}
-                            {isLoggedIn ? (
+                            {isLoggedIn && isReferralEligible ? (
                                 <Card style={{ flexGrow: 2 }} className={styles.flipperSummaryCard}>
                                     <Card.Header>
                                         {!isLoading && isLoggedIn && hasPremium ? (

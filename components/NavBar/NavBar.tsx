@@ -16,7 +16,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { Menu, MenuItem, Sidebar } from 'react-pro-sidebar'
-import { useForceUpdate } from '../../utils/Hooks'
+import { useForceUpdate, useReferralRewardsEligibility } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
 import { ShowChart } from '@mui/icons-material'
 
@@ -37,6 +37,7 @@ function NavBar(props: Props) {
         return window.innerWidth < 1500
     })
     let forceUpdate = useForceUpdate()
+    let isReferralEligible = useReferralRewardsEligibility()
 
     const collapsed = isSmall ? false : !isWideOpen && !isHovering
 
@@ -167,9 +168,11 @@ function NavBar(props: Props) {
                             <MenuItem className={styles.menuItem} component={<Link href={'/mod'} />} icon={<DownloadIcon />}>
                                 Mod
                             </MenuItem>
-                            <MenuItem className={styles.menuItem} component={<Link href={'/ref'} />} icon={<ShareIcon />}>
-                                Referral
-                            </MenuItem>
+                            {isReferralEligible ? (
+                                <MenuItem className={styles.menuItem} component={<Link href={'/ref'} />} icon={<ShareIcon />}>
+                                    Referral
+                                </MenuItem>
+                            ) : null}
                             <MenuItem className={styles.menuItem} component={<Link href={'/about'} />} icon={<PolicyIcon />}>
                                 Links / Legal
                             </MenuItem>

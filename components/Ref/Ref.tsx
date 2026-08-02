@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useState } from 'react'
-import { Button, Card } from 'react-bootstrap'
+import { Alert, Button, Card } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import Navbar from '../../components/NavBar/NavBar'
 import { getLoadingElement } from '../../utils/LoadingUtils'
@@ -13,10 +13,12 @@ import styles from './Ref.module.css'
 import Tooltip from '../Tooltip/Tooltip'
 import ClaimAccountTutorial from '../ClaimAccount/ClaimAccountTutorial'
 import { TEST_PREMIUM_DAYS } from '../../utils/PremiumTypeUtils'
+import { useReferralRewardsEligibility } from '../../utils/Hooks'
 
 function Ref() {
     let [refInfo, setRefInfo] = useState<RefInfo>()
     let [isLoggedIn, setIsLoggedIn] = useState(false)
+    let isEligible = useReferralRewardsEligibility()
 
     function onLogin() {
         let googleId = sessionStorage.getItem('googleId')
@@ -34,6 +36,23 @@ function Ref() {
 
     function getLink() {
         return getProperty('refLink') + '?refId=' + refInfo?.oldInfo.refId
+    }
+
+    if (isEligible !== true) {
+        return (
+            <div>
+                <h2>
+                    <Navbar />
+                    Referral
+                </h2>
+                <hr />
+                {isEligible === undefined ? (
+                    getLoadingElement()
+                ) : (
+                    <Alert variant="info">SkyCofl referral rewards are currently available only to users in the United States.</Alert>
+                )}
+            </div>
+        )
     }
 
     let claimAccountElement = (
