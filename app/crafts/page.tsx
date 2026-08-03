@@ -9,9 +9,10 @@ import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoConten
 
 const seoContent = toolLandingSeoContent.crafts
 
-export default async function Page() {
+export default async function Page({ searchParams }: { searchParams: Promise<{ craft?: string | string[] }> }) {
     let api = initAPI(true)
-    let [crafts, bazaarTags] = await Promise.all([api.getProfitableCrafts(), api.getBazaarTags()])
+    let [crafts, bazaarTags, params] = await Promise.all([api.getProfitableCrafts(), api.getBazaarTags(), searchParams])
+    let openCraftTag = Array.isArray(params.craft) ? params.craft[0] : params.craft
 
     return (
         <>
@@ -19,7 +20,7 @@ export default async function Page() {
                 <Search />
                 <h1>Profitable Hypixel Skyblock Craft Flips</h1>
                 <hr />
-                <CraftsList crafts={crafts} bazaarTags={bazaarTags} />
+                <CraftsList crafts={crafts} bazaarTags={bazaarTags} openCraftTag={openCraftTag} />
                 <ToolLandingSeo content={seoContent} />
             </Container>
             <BottomBanner />

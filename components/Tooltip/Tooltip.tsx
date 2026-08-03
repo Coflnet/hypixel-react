@@ -16,13 +16,15 @@ interface Props {
     tooltipTitle?: JSX.Element
     size?: 'sm' | 'lg' | 'xl'
     onClick?: Function
+    onOpen?: () => void
     className?: string
     id?: any
     hoverPlacement?: any
+    initiallyOpen?: boolean
 }
 
 function Tooltip(props: Props) {
-    let [showDialog, setShowDialog] = useState(false)
+    let [showDialog, setShowDialog] = useState(props.initiallyOpen ?? false)
 
     function getHoverElement() {
         return props.tooltipContent ? (
@@ -57,6 +59,7 @@ function Tooltip(props: Props) {
                 <Modal
                     size={props.size || 'lg'}
                     show={showDialog}
+                    onShow={props.onOpen}
                     onHide={() => {
                         setShowDialog(false)
                     }}

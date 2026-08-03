@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image'
-import React, { useMemo } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
 import Number from '../Number/Number'
@@ -12,6 +12,14 @@ import { GenericFlipList, SortOption } from '../GenericFlipList'
 interface Props {
     crafts?: any[]
     bazaarTags?: string[]
+    openCraftTag?: string
+}
+
+interface CraftDetailsData {
+    instructions?: CraftingInstructions
+    plan?: CraftAcquisitionPlan
+    loading: boolean
+    error: boolean
 }
 
 const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
@@ -61,6 +69,15 @@ const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
 
 export function CraftsList(props: Props) {
     const crafts = useMemo(() => (props.crafts ? parseProfitableCrafts(props.crafts) : []), [props.crafts])
+    const [details, setDetails] = useState<Record<string, CraftDetailsData>>({})
+    const loadingTags = useRef(new Set<string>())
+    const deepLinkedRenderCount = useMemo(() => {
+        if (!props.openCraftTag) {
+            return undefined
+        }
+        const sortedCrafts = [...crafts].sort((a, b) => b.sellPrice - b.craftCost - (a.sellPrice - a.craftCost))
+        return Math.max(42, sortedCrafts.findIndex(craft => craft.item.tag === props.openCraftTag) + 1)
+    }, [crafts, props.openCraftTag])
 
     function renderFlipContent(craft: ProfitableCraft) {
         return (
@@ -153,6 +170,31 @@ export function CraftsList(props: Props) {
         }
     }
 
+    function loadCraftDetails(craft: ProfitableCraft) {
+        const tag = craft.item.tag
+        if (loadingTags.current.has(tag)) return
+        loadingTags.current.add(tag)
+        setDetails(current => ({ ...current, [tag]: { ...current[tag], loading: true, error: false } }))
+
+        const instructions = api.getCraftInstructions(tag).catch(() => undefined)
+        const plan = api
+            .getCraftAcquisitionPlan(tag)
+            .then(value => ({ value, error: false }))
+            .catch(() => ({ value: undefined, error: true }))
+        Promise.all([instructions, plan]).then(([loadedInstructions, loadedPlan]) => {
+            loadingTags.current.delete(tag)
+            setDetails(current => ({
+                ...current,
+                [tag]: {
+                    instructions: loadedInstructions,
+                    plan: loadedPlan.value,
+                    loading: false,
+                    error: loadedPlan.error
+                }
+            }))
+        })
+    }
+
     // Wrapper function for rendering with tooltip
     function customItemWrapper(craft: ProfitableCraft, blur: boolean, key: string, content: React.ReactNode, flipCardClass: string) {
         if (blur) {
@@ -169,7 +211,17 @@ export function CraftsList(props: Props) {
                     type="click"
                     content={<>{content}</>}
                     tooltipTitle={getCraftHeader(craft)}
-                    tooltipContent={<CraftDetails craft={craft} />}
+                    tooltipContent={
+                        <CraftDetails
+                            craft={craft}
+                            instructions={details[craft.item.tag]?.instructions}
+                            plan={details[craft.item.tag]?.plan}
+                            loading={details[craft.item.tag]?.loading ?? true}
+                            planError={details[craft.item.tag]?.error ?? false}
+                        />
+                    }
+                    onOpen={() => loadCraftDetails(craft)}
+                    initiallyOpen={craft.item.tag === props.openCraftTag}
                 />
             )
         }
@@ -188,6 +240,7 @@ export function CraftsList(props: Props) {
             showColumns={true}
             sortFunctionArgs={[props.bazaarTags]}
             customItemWrapper={customItemWrapper}
+            initialRenderCount={deepLinkedRenderCount}
         />
     )
 }

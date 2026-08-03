@@ -263,6 +263,7 @@ interface API {
     playerSearch(playerName: string): Promise<Player[]>
     sendFeedback(feedbackKey: string, feedback: any): Promise<void>
     getProfitableCrafts(): Promise<ProfitableCraft[]>
+    getCraftAcquisitionPlan(itemTag: string, quantity?: number, forceCraft?: boolean): Promise<CraftAcquisitionPlan>
     getLowSupplyItems(): Promise<LowSupplyItem[]>
     sendFeedback(feedbackKey: string, feedback: any): Promise<void>
     triggerPlayerNameCheck(playerUUID: string): Promise<void>
@@ -461,7 +462,32 @@ interface CraftingIngredient {
     npcUnitPrice?: number
     buyOrderCapacity?: number
     buyOrderUnitPrice?: number
+    instaBuyCapacity?: number
     instaBuyUnitPrice?: number
+    absoluteCount?: number
+    acquisitionPlan?: CraftAcquisitionPlan
+}
+
+interface CraftAcquisitionFill {
+    source: 'npc' | 'order' | 'insta'
+    quantity: number
+    unitPrice: number
+    cost: number
+}
+
+interface CraftAcquisitionPlan {
+    itemId: string
+    quantity: number
+    cost: number
+    enough: boolean
+    method: string
+    directBuyCost: number
+    directBuyEnough: boolean
+    craftCost: number
+    craftEnough: boolean
+    craftedQuantity: number
+    purchases: CraftAcquisitionFill[]
+    ingredients: CraftAcquisitionPlan[]
 }
 
 interface CraftRequirement {

@@ -102,11 +102,13 @@ export interface AcquisitionPlan {
 
 /**
  * Works out how a given total amount of an ingredient would realistically be acquired on the bazaar,
- * cheapest channel first: npc stock, then either a competitive buy order ('order' mode) or straight to
- * insta-buying sell offers ('insta' mode). The unit prices/capacities come from the backend and are
- * quantity independent, so this can be recomputed for any tree-multiplied total. Returns null when there
- * is no market data at all. Costs are estimates - the insta portion in particular assumes the sell book
- * stays near its current marginal price rather than walking deeper as it is consumed.
+ * cheapest channel first in 'order' mode: NPC stock, then a competitive buy order, then sell offers.
+ * 'insta' mode still uses immediately available NPC stock, skips buy orders, and prices the remainder
+ * from sell offers.
+ * The capacities and capacity-weighted unit prices come from the backend, so every channel is bounded
+ * when recomputing a tree-multiplied total. Any amount beyond the summarized order-book depth remains
+ * unmet instead of being priced repeatedly at the cheapest visible offer. Returns null when there is no
+ * market data at all.
  */
 export function getAcquisitionPlan(
     ingredient: {
@@ -114,6 +116,7 @@ export function getAcquisitionPlan(
         npcUnitPrice?: number | null
         buyOrderCapacity?: number | null
         buyOrderUnitPrice?: number | null
+        instaBuyCapacity?: number | null
         instaBuyUnitPrice?: number | null
     },
     totalCount: number,
@@ -123,23 +126,22 @@ export function getAcquisitionPlan(
     const npcUnit = ingredient.npcUnitPrice ?? 0
     const orderCap = Math.max(0, ingredient.buyOrderCapacity ?? 0)
     const orderUnit = ingredient.buyOrderUnitPrice ?? 0
+    const instaCap = Math.max(0, ingredient.instaBuyCapacity ?? 0)
     const instaUnit = ingredient.instaBuyUnitPrice ?? 0
-    if (npcCap <= 0 && orderCap <= 0 && instaUnit <= 0) {
+    if ((npcCap <= 0 || npcUnit <= 0) && (orderCap <= 0 || orderUnit <= 0) && (instaCap <= 0 || instaUnit <= 0)) {
         return null // no market data
     }
 
     const total = Math.max(0, Math.round(totalCount))
     let remaining = total
 
-    const npcQty = Math.min(remaining, npcCap)
+    const npcQty = npcUnit > 0 ? Math.min(remaining, npcCap) : 0
     remaining -= npcQty
 
-    // In 'order' mode we patiently buy-order the middle bucket; in 'insta' mode we skip it and take
-    // everything beyond npc stock straight from the sell offers.
-    const orderQty = mode === 'order' ? Math.min(remaining, orderCap) : 0
+    const orderQty = mode === 'order' && orderUnit > 0 ? Math.min(remaining, orderCap) : 0
     remaining -= orderQty
 
-    const instaQty = instaUnit > 0 ? remaining : 0
+    const instaQty = instaUnit > 0 ? Math.min(remaining, instaCap) : 0
     remaining -= instaQty
 
     const npc: AcquisitionBucket = { qty: npcQty, unitPrice: npcUnit, cost: npcQty * npcUnit }
@@ -151,7 +153,7 @@ export function getAcquisitionPlan(
         npc,
         order,
         insta,
-        unmet: remaining, // >0 only when there is no insta price to cover the tail
+        unmet: remaining,
         totalCount: total,
         totalCost: npc.cost + order.cost + insta.cost
     }

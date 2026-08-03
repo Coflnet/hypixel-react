@@ -111,7 +111,7 @@ export default function DurationSelectionStep({
                                 <div className={styles.monthlyPrice}>
                                     <small>
                                         {selectedTier === PremiumTier.STARTER && opt.value === Duration.QUARTER
-                                            ? `~€${roundUpToCent(getMonthlyPrice(opt.value)).toFixed(2)}${shouldIncludeVATInPrice() ? '' : ' (+VAT)'}/month`
+                                            ? `~€${roundUpToCent(getMonthlyPrice(opt.value)).toFixed(2)}${shouldIncludeVATInPrice() ? '' : ' (+VAT)'}/month · €${roundUpToCent(getPriceWithVAT(9.69)).toFixed(2)}${shouldIncludeVATInPrice() ? '' : ' (+VAT)'} total for 1,800 CoflCoins`
                                             : `~€${roundUpToCent(getMonthlyPrice(opt.value)).toFixed(2)}/month`}
                                     </small>
                                 </div>

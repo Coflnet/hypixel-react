@@ -1,15 +1,19 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import Image from 'next/image'
-import { Alert, Badge } from 'react-bootstrap'
+import { Alert, Badge, Form } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import NumberElement from '../Number/Number'
-import { convertTagToName, getCraftSavings } from '../../utils/Formatter'
-import { useGetApiFlipForge } from '../../api/_generated/skyApi'
-import { ForgeFlip, ProfitableCraft } from '../../api/_generated/skyApi.schemas'
+import { convertTagToName, toVariantItemTag } from '../../utils/Formatter'
+import { useGetApiCraftProfit, useGetApiFlipForge } from '../../api/_generated/skyApi'
+import { ForgeFlip, ProfitableCraft as GeneratedProfitableCraft } from '../../api/_generated/skyApi.schemas'
 import { getGeneratedApiErrorMessage, hasSuccessfulArrayResponse } from '../../utils/GeneratedApiResponseUtils'
+import { parseProfitableCrafts } from '../../utils/Parser/APIResponseParser'
+import { CostBreakdown } from '../CraftsList/CostBreakdown/CostBreakdown'
+import Tooltip from '../Tooltip/Tooltip'
+import styles from './ForgeFlips.module.css'
 
 const SORT_OPTIONS: SortOption<ForgeFlip>[] = [
     {
@@ -39,7 +43,7 @@ const SORT_OPTIONS: SortOption<ForgeFlip>[] = [
     }
 ]
 
-function getCraftProfit(craft?: ProfitableCraft | null) {
+function getCraftProfit(craft?: GeneratedProfitableCraft | null) {
     if (!craft) {
         return 0
     }
@@ -87,94 +91,125 @@ function renderRequirements(requirements: ForgeFlip['requirements']) {
         return null
     }
     return (
-        <p>
-            <span style={{ width: '200px', float: 'left' }}>Requirements:</span>
-            <span>
-                {Object.entries(requirements).map(([key, value]) => (
-                    <span key={key} style={{ display: 'inline-block', marginRight: '12px' }}>
-                        {key}: {value}
-                    </span>
-                ))}
-            </span>
-        </p>
+        <div className={styles.requirements}>
+            {Object.entries(requirements).map(([key, value]) => (
+                <Badge key={key} bg="secondary">
+                    {convertTagToName(key)}: {value}
+                </Badge>
+            ))}
+        </div>
     )
 }
 
-function renderIngredients(craft?: ProfitableCraft | null) {
-    if (!craft?.ingredients || craft.ingredients.length === 0) {
-        return null
-    }
+function getForgeHeader(flip: ForgeFlip) {
+    const tag = getForgeOutputTag(flip)
+    const imageUrl = tag ? api.getItemImageUrl({ tag }) : null
     return (
-        <div style={{ marginTop: '8px' }}>
-            <strong>Ingredients:</strong>
-            <ul>
-                {craft.ingredients.map(ingredient => {
-                    const { isSubcraft, craftSavings: savings, craftSavingsPercent: savingsPercent } = getCraftSavings(ingredient)
-                    return (
-                        <li key={`${ingredient.itemId}-${ingredient.type}-${ingredient.count}`}>
-                            {ingredient.count}x {ingredient.itemId ? convertTagToName(ingredient.itemId) : ingredient.type ?? 'Unknown'}
-                            {ingredient.cost ? (
-                                <span>
-                                    {' '}
-                                    (<NumberElement number={Math.round(ingredient.cost)} /> Coins)
-                                </span>
-                            ) : null}
-                            {isSubcraft && savingsPercent > 0 ? (
-                                <Badge style={{ marginLeft: '5px' }} bg="info">
-                                    🔨 Subcraft · save ~{Math.round(savingsPercent)}%
-                                    {savings > 0 ? (
-                                        <>
-                                            {' '}
-                                            (<NumberElement number={Math.round(savings)} /> Coins)
-                                        </>
-                                    ) : null}
-                                </Badge>
-                            ) : null}
-                        </li>
-                    )
-                })}
-            </ul>
-        </div>
+        <span className={styles.header}>
+            {imageUrl ? <Image src={imageUrl} alt="" width={32} height={32} loading="lazy" crossOrigin="anonymous" /> : null}
+            {getOutputName(flip)}
+        </span>
     )
 }
 
 function renderForgeFlip(flip: ForgeFlip) {
     const craft = flip.craftData
-    const tag = getForgeOutputTag(flip)
-    const imageUrl = tag ? api.getItemImageUrl({ tag }) : null
     const profit = getCraftProfit(craft)
-    const durationText = formatDuration(flip.duration)
 
     return (
         <>
-            <h4 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                {imageUrl ? <Image src={imageUrl} alt={getOutputName(flip)} width={32} height={32} loading="lazy" crossOrigin="anonymous" /> : null}
-                <span>{getOutputName(flip)}</span>
-            </h4>
-            <p>
-                <span style={{ width: '200px', float: 'left' }}>Profit / hour:</span> <NumberElement number={Math.round(flip.profitPerHour)} /> Coins
-            </p>
-            <p>
-                <span style={{ width: '200px', float: 'left' }}>Craft profit:</span> <NumberElement number={Math.round(profit)} /> Coins
-            </p>
-            <p>
-                <span style={{ width: '200px', float: 'left' }}>Median sell price:</span> <NumberElement number={Math.round(craft?.sellPrice ?? 0)} /> Coins
-            </p>
-            <p>
-                <span style={{ width: '200px', float: 'left' }}>Craft cost:</span> <NumberElement number={Math.round(craft?.craftCost ?? 0)} /> Coins
-            </p>
-            <p>
-                <span style={{ width: '200px', float: 'left' }}>Volume:</span> <NumberElement number={Math.round(craft?.volume ?? 0)} />
-            </p>
-            <p>
-                <span style={{ width: '200px', float: 'left' }}>Duration:</span> {durationText}
-            </p>
-            <p>
-                <span style={{ width: '200px', float: 'left' }}>Required HotM level:</span> {flip.requiredHotMLevel}
-            </p>
+            <h4>{getForgeHeader(flip)}</h4>
+            <div className={styles.metricGrid}>
+                <div className={styles.primaryMetric}>
+                    <span>Profit / hour</span>
+                    <strong>
+                        <NumberElement number={Math.round(flip.profitPerHour)} /> Coins
+                    </strong>
+                </div>
+                <div className={styles.primaryMetric}>
+                    <span>Forge profit</span>
+                    <strong>
+                        <NumberElement number={Math.round(profit)} /> Coins
+                    </strong>
+                </div>
+                <div>
+                    <span>Input cost</span>
+                    <strong>
+                        <NumberElement number={Math.round(craft?.craftCost ?? 0)} /> Coins
+                    </strong>
+                </div>
+                <div>
+                    <span>Sell price</span>
+                    <strong>
+                        <NumberElement number={Math.round(craft?.sellPrice ?? 0)} /> Coins
+                    </strong>
+                </div>
+                <div>
+                    <span>Duration</span>
+                    <strong>{formatDuration(flip.duration)}</strong>
+                </div>
+                <div>
+                    <span>Volume</span>
+                    <strong>
+                        <NumberElement number={Math.round(craft?.volume ?? 0)} />
+                    </strong>
+                </div>
+            </div>
+            <div className={styles.hotm}>Heart of the Mountain {flip.requiredHotMLevel}</div>
             {renderRequirements(flip.requirements)}
-            {renderIngredients(craft)}
         </>
+    )
+}
+
+function ForgeDetails({
+    flip,
+    craft,
+    isLoadingSubcrafts,
+    noWait,
+    onNoWaitChange
+}: {
+    flip: ForgeFlip
+    craft?: ProfitableCraft
+    isLoadingSubcrafts: boolean
+    noWait: boolean
+    onNoWaitChange: (noWait: boolean) => void
+}) {
+    const openIngredient = (ingredient: CraftingIngredient) => {
+        if (ingredient.type === 'craft' || ingredient.ingredients?.length) {
+            window.open(`/crafts?craft=${encodeURIComponent(ingredient.item.tag)}`, '_blank')
+            return
+        }
+        window.open(`/item/${toVariantItemTag(ingredient.item.tag)}?itemFilter=eyJCaW4iOiJ0cnVlIn0%3D`, '_blank')
+    }
+
+    return (
+        <div className={styles.details}>
+            <div className={styles.detailsSummary}>
+                <div>
+                    <span>Median sell price</span>
+                    <strong>
+                        <NumberElement number={Math.round(flip.craftData?.sellPrice ?? 0)} /> Coins
+                    </strong>
+                </div>
+                <div>
+                    <span>Forge time</span>
+                    <strong>{formatDuration(flip.duration)}</strong>
+                </div>
+            </div>
+            <div className={styles.detailsRequirements}>
+                <Badge bg="secondary">Heart of the Mountain {flip.requiredHotMLevel}</Badge>
+                {renderRequirements(flip.requirements)}
+            </div>
+            <hr />
+            <CostBreakdown
+                ingredients={craft?.ingredients ?? []}
+                sellPrice={flip.craftData?.sellPrice ?? 0}
+                onItemClick={openIngredient}
+                loading={isLoadingSubcrafts}
+                noWait={noWait}
+                onNoWaitChange={onNoWaitChange}
+            />
+        </div>
     )
 }
 
@@ -184,12 +219,17 @@ function filterFunction(flip: ForgeFlip, nameFilter: string | null | undefined, 
     return nameMatch && profitMatch
 }
 
-function getFlipLink(flip: ForgeFlip) {
-    const tag = flip.craftData?.itemId
-    if (!tag) {
-        return undefined
-    }
-    return `https://sky.coflnet.com/item/${tag}`
+function hasNoWaitInputs(flip: ForgeFlip, forgeTags: Set<string>) {
+    return (
+        flip.craftData?.ingredients?.length &&
+        flip.craftData.ingredients.every(ingredient => {
+            const hasInstantSource =
+                (ingredient.buyOrderUnitPrice ?? 0) > 0 ||
+                (ingredient.instaBuyUnitPrice ?? 0) > 0 ||
+                ((ingredient as typeof ingredient & { npcCapacity?: number }).npcCapacity ?? 0) >= ingredient.count
+            return Boolean(hasInstantSource && ingredient.itemId && !forgeTags.has(ingredient.itemId))
+        })
+    )
 }
 
 function censoredFlip(): ForgeFlip {
@@ -210,10 +250,58 @@ function censoredFlip(): ForgeFlip {
 }
 
 export function ForgeFlips() {
+    const [loadSubcrafts, setLoadSubcrafts] = useState(false)
+    const [noWaitOnly, setNoWaitOnly] = useState(false)
     const query = useGetApiFlipForge()
+    const craftQuery = useGetApiCraftProfit(undefined, { query: { enabled: loadSubcrafts } })
     const response = query.data
     const safeFlips = useMemo(() => (hasSuccessfulArrayResponse<ForgeFlip>(response) ? response.data : []), [response])
+    const craftResponse = craftQuery.data
+    const safeCrafts = useMemo(() => (hasSuccessfulArrayResponse<GeneratedProfitableCraft>(craftResponse) ? craftResponse.data : []), [craftResponse])
+    const forgeTags = useMemo(() => new Set(safeFlips.flatMap(flip => (flip.craftData?.itemId ? [flip.craftData.itemId] : []))), [safeFlips])
+    const expandedForgeCrafts = useMemo(() => {
+        const forgeCrafts = safeFlips.flatMap(flip => (flip.craftData?.itemId && flip.craftData.ingredients ? [flip.craftData] : []))
+        const normalCrafts = safeCrafts.filter(craft => craft.type !== 'forge' && craft.itemId && craft.ingredients)
+
+        return new Map(parseProfitableCrafts(normalCrafts, forgeCrafts).map(craft => [craft.item.tag, craft]))
+    }, [safeCrafts, safeFlips])
     const errorMessage = getGeneratedApiErrorMessage(response, query.error, 'Unable to load forge flips right now')
+    const forgeFilterFunction = useCallback(
+        (flip: ForgeFlip, nameFilter: string | null | undefined, minimumProfit: number) =>
+            filterFunction(flip, nameFilter, minimumProfit) && (!noWaitOnly || Boolean(hasNoWaitInputs(flip, forgeTags))),
+        [forgeTags, noWaitOnly]
+    )
+
+    function customItemWrapper(flip: ForgeFlip, blur: boolean, key: string, content: React.ReactNode, flipCardClass: string) {
+        if (blur) {
+            return (
+                <div key={key} className={flipCardClass}>
+                    {content}
+                </div>
+            )
+        }
+
+        const tag = flip.craftData?.itemId
+        return (
+            <Tooltip
+                key={key}
+                className={flipCardClass}
+                type="click"
+                content={<>{content}</>}
+                tooltipTitle={getForgeHeader(flip)}
+                tooltipContent={
+                    <ForgeDetails
+                        flip={flip}
+                        craft={tag ? expandedForgeCrafts.get(tag) : undefined}
+                        isLoadingSubcrafts={craftQuery.isFetching}
+                        noWait={noWaitOnly}
+                        onNoWaitChange={setNoWaitOnly}
+                    />
+                }
+                onClick={() => setLoadSubcrafts(true)}
+            />
+        )
+    }
 
     return (
         <div>
@@ -256,13 +344,25 @@ export function ForgeFlips() {
                     items={safeFlips}
                     sortOptions={SORT_OPTIONS}
                     renderFlipContentAction={renderForgeFlip}
-                    filterFunction={filterFunction}
+                    filterFunction={forgeFilterFunction}
                     getItemKeyAction={flip => flip.craftData?.itemId ?? `forge-${flip.duration}-${flip.requiredHotMLevel}`}
-                    getFlipLink={getFlipLink}
                     censoredItemGenerator={censoredFlip}
                     premiumMessage="The top 3 flips can only be seen with starter premium or better"
-                    clickMessage="Click on a flip for further details"
+                    clickMessage="Select a forge flip to see its inputs and the cheapest way to source them"
                     showColumns
+                    customItemWrapper={customItemWrapper}
+                    customFilters={
+                        <div>
+                            <Form.Check
+                                type="switch"
+                                id="forge-no-wait"
+                                label="No-wait flips only"
+                                checked={noWaitOnly}
+                                onChange={event => setNoWaitOnly(event.target.checked)}
+                            />
+                            <small className={styles.filterHelp}>Inputs must be instantly purchasable and cannot require another forge output.</small>
+                        </div>
+                    }
                 />
             )}
         </div>
