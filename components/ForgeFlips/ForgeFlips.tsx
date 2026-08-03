@@ -263,7 +263,7 @@ export function ForgeFlips() {
         const forgeCrafts = safeFlips.flatMap(flip => (flip.craftData?.itemId && flip.craftData.ingredients ? [flip.craftData] : []))
         const normalCrafts = safeCrafts.filter(craft => craft.type !== 'forge' && craft.itemId && craft.ingredients)
 
-        return new Map(parseProfitableCrafts(normalCrafts, forgeCrafts).map(craft => [craft.item.tag, craft]))
+        return new Map(parseProfitableCrafts([...normalCrafts, ...forgeCrafts], forgeCrafts).map(craft => [craft.item.tag, craft]))
     }, [safeCrafts, safeFlips])
     const errorMessage = getGeneratedApiErrorMessage(response, query.error, 'Unable to load forge flips right now')
     const forgeFilterFunction = useCallback(

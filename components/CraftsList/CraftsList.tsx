@@ -1,6 +1,6 @@
 'use client'
 import Image from 'next/image'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
 import Number from '../Number/Number'
@@ -69,6 +69,7 @@ const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
 
 export function CraftsList(props: Props) {
     const crafts = useMemo(() => (props.crafts ? parseProfitableCrafts(props.crafts) : []), [props.crafts])
+    const sortFunctionArgs = useMemo(() => [props.bazaarTags], [props.bazaarTags])
     const [details, setDetails] = useState<Record<string, CraftDetailsData>>({})
     const loadingTags = useRef(new Set<string>())
     const deepLinkedRenderCount = useMemo(() => {
@@ -136,11 +137,11 @@ export function CraftsList(props: Props) {
         )
     }
 
-    function filterFunction(craft: ProfitableCraft, nameFilter: string | null | undefined, minimumProfit: number): boolean {
+    const filterFunction = useCallback((craft: ProfitableCraft, nameFilter: string | null | undefined, minimumProfit: number): boolean => {
         const nameMatch = !nameFilter || (craft.item.name?.toLowerCase().includes(nameFilter.toLowerCase()) ?? false)
         const profitMatch = craft.sellPrice - craft.craftCost >= minimumProfit
         return nameMatch && profitMatch
-    }
+    }, [])
 
     function censoredItemGenerator(craft: ProfitableCraft): ProfitableCraft {
         return {
@@ -238,7 +239,7 @@ export function CraftsList(props: Props) {
             premiumMessage="The top 3 crafts can only be seen with starter premium or better"
             clickMessage="Click on a craft for further details"
             showColumns={true}
-            sortFunctionArgs={[props.bazaarTags]}
+            sortFunctionArgs={sortFunctionArgs}
             customItemWrapper={customItemWrapper}
             initialRenderCount={deepLinkedRenderCount}
         />

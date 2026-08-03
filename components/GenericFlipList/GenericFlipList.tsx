@@ -10,8 +10,7 @@ import api from '../../api/ApiHelper'
 import styles from './GenericFlipList.module.css'
 import { useSortedAndFilteredItems } from '../../hooks/useSortedAndFilteredItems'
 import ListItemAdElement from '../ListItemAdElement/ListItemAdElement'
-import { GENRIC_FLIP_LIST_COLUMNS, getSetting, LAST_PREMIUM_PRODUCTS, setSetting } from '../../utils/SettingsUtils'
-import { parsePremiumProducts } from '../../utils/Parser/APIResponseParser'
+import { GENRIC_FLIP_LIST_COLUMNS, getSetting, setSetting } from '../../utils/SettingsUtils'
 
 export interface FlipListProps<T> {
     items: T[]
@@ -43,27 +42,7 @@ export interface SortOption<T> {
 }
 
 let observer: MutationObserver
-
-function getInitialPremiumState() {
-    if (typeof window === 'undefined') {
-        return { hasPremium: false, isKnown: false }
-    }
-
-    try {
-        const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId')
-        const lastPremiumProducts = localStorage.getItem(LAST_PREMIUM_PRODUCTS)
-        if (lastPremiumProducts) {
-            return {
-                hasPremium: hasHighEnoughPremium(parsePremiumProducts(JSON.parse(lastPremiumProducts)), PREMIUM_RANK.STARTER),
-                isKnown: true
-            }
-        }
-
-        return { hasPremium: false, isKnown: !token }
-    } catch {
-        return { hasPremium: false, isKnown: true }
-    }
-}
+const EMPTY_SORT_ARGS: any[] = []
 
 export function GenericFlipList<T>({
     items,
@@ -77,7 +56,7 @@ export function GenericFlipList<T>({
     clickMessage = 'Click on a flip for further details',
     showColumns = false,
     customFilters,
-    sortFunctionArgs = [],
+    sortFunctionArgs = EMPTY_SORT_ARGS,
     customItemWrapper,
     onAfterSignIn,
     customHeader,
@@ -90,7 +69,7 @@ export function GenericFlipList<T>({
     const [nameFilter, setNameFilter] = useState<string | null>()
     const [minimumProfit, setMinimumProfit] = useState<number>(0)
     const [orderBy, setOrderBy] = useState<SortOption<T>>(sortOptions[0])
-    const [premiumState, setPremiumState] = useState(getInitialPremiumState)
+    const [premiumState, setPremiumState] = useState({ hasPremium: false, isKnown: false })
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [showTechSavvyMessage, setShowTechSavvyMessage] = useState(false)
     const [columns, _setColumns] = useState<number>()

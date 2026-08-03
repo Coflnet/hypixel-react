@@ -29,13 +29,7 @@ interface Props {
 function NavBar(props: Props) {
     let [isWideOpen, setIsWideOpen] = useState(false)
     let [isHovering, setIsHovering] = useState(false)
-    let [isSmall, setIsSmall] = useState(() => {
-        if (typeof window === 'undefined') {
-            return false
-        }
-
-        return window.innerWidth < 1500
-    })
+    let [isSmall, setIsSmall] = useState(false)
     let forceUpdate = useForceUpdate()
     let isReferralEligible = useReferralRewardsEligibility()
 
