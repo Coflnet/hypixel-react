@@ -1066,9 +1066,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let termsRequest = async (
         locale: 'en' | 'de',
-        request?: { version: string; hash: string; source: string }
+        request?: { version: string; hash: string; source: string },
+        tokenOverride?: string
     ): Promise<TermsStatus> => {
-        const token = requireGoogleToken('manage agreement acceptance')
+        const token = tokenOverride ?? requireGoogleToken('manage agreement acceptance')
         if (!token) throw new Error('Not logged in')
         const response = request
             ? await postApiUserTerms(request, { locale }, googleTokenHeaders(token))
@@ -1078,9 +1079,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return response.data
     }
 
-    let getTermsStatus = (locale: 'en' | 'de') => termsRequest(locale)
-    let acceptTerms = (version: string, hash: string, source: string, locale: 'en' | 'de') =>
-        termsRequest(locale, { version, hash, source })
+    let getTermsStatus = (locale: 'en' | 'de', token?: string) => termsRequest(locale, undefined, token)
+    let acceptTerms = (version: string, hash: string, source: string, locale: 'en' | 'de', token?: string) =>
+        termsRequest(locale, { version, hash, source }, token)
 
     let purchaseWithCoflcoins = (
         productId: string,

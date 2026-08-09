@@ -31,6 +31,7 @@ function GoogleSignIn(props: Props) {
     let [showTermsModal, setShowTermsModal] = useState(false)
     let [termsStatus, setTermsStatus] = useState<TermsStatus>()
     let [termsLoading, setTermsLoading] = useState(false)
+    let [pendingLoginToken, setPendingLoginToken] = useState<string>()
     let completedLogin = useRef(false)
     const legalLocale = typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en'
     let { trackEvent } = useMatomo()
@@ -82,36 +83,67 @@ function GoogleSignIn(props: Props) {
         props.onAfterLogin?.()
     }
 
-    async function requestTermsAcceptance() {
+    async function finishLogin(loginToken: string) {
         setTermsLoading(true)
         try {
-            const status = await api.getTermsStatus(legalLocale)
+            const token = await api.loginWithToken(loginToken)
+            localStorage.setItem('googleId', token)
+            sessionStorage.setItem('googleId', token)
+            let refId = (window as any).refId
+            if (refId) api.setRef(refId)
+            completeLogin()
+        } catch (error: any) {
+            if (error?.slug === 'terms_acceptance_required') {
+                setTermsStatus(status => (status ? { ...status, canContinueWithoutAccepting: false } : status))
+                setShowTermsModal(true)
+                return
+            }
+            if (error?.slug !== 'invalid_token')
+                toast.error(`An error occoured while trying to sign in with Google. ${error ? error.slug || JSON.stringify(error) : null}`)
+            else console.warn('setGoogle: Invalid token error', error)
+            setIsLoggedIn(false)
+            setWasAlreadyLoggedInThisSession(false)
+            sessionStorage.removeItem('googleId')
+            localStorage.removeItem('googleId')
+        } finally {
+            setTermsLoading(false)
+        }
+    }
+
+    async function requestTermsAcceptance(loginToken: string) {
+        setPendingLoginToken(loginToken)
+        setTermsLoading(true)
+        try {
+            const status = await api.getTermsStatus(legalLocale, loginToken)
             setTermsStatus(status)
             if (status.required) setShowTermsModal(true)
-            else completeLogin()
+            else await finishLogin(loginToken)
         } catch {
             toast.error(
                 legalLocale === 'de'
-                    ? 'Die aktuellen Vertragsbedingungen konnten nicht geprüft werden. Neue Käufe bleiben deaktiviert.'
-                    : 'The current agreement could not be checked. New purchases remain disabled.'
+                    ? 'Die aktuellen Vertragsbedingungen konnten nicht geprüft werden. Bitte versuchen Sie es erneut.'
+                    : 'The current agreement could not be checked. Please try again.'
             )
-            completeLogin()
+            setIsLoggedIn(false)
+            setWasAlreadyLoggedInThisSession(false)
+            sessionStorage.removeItem('googleId')
+            localStorage.removeItem('googleId')
         } finally {
             setTermsLoading(false)
         }
     }
 
     async function acceptTerms() {
-        if (!termsStatus) return
+        if (!termsStatus || !pendingLoginToken) return
         setTermsLoading(true)
         try {
-            const status = await api.acceptTerms(termsStatus.version, termsStatus.agreementHash, `web-login-${legalLocale}`, legalLocale)
+            const status = await api.acceptTerms(termsStatus.version, termsStatus.agreementHash, `web-login-${legalLocale}`, legalLocale, pendingLoginToken)
             setTermsStatus(status)
             if (status.required) {
                 toast.error(legalLocale === 'de' ? 'Der Vertrag hat sich geändert. Bitte erneut prüfen.' : 'The agreement changed. Please review it again.')
                 return
             }
-            completeLogin()
+            await finishLogin(pendingLoginToken)
         } catch {
             toast.error(legalLocale === 'de' ? 'Die Annahme konnte nicht gespeichert werden.' : 'The acceptance could not be saved.')
         } finally {
@@ -121,31 +153,7 @@ function GoogleSignIn(props: Props) {
 
     function onLoginSucces(token: string) {
         setIsLoggedIn(true)
-        api.loginWithToken(token)
-            .then(token => {
-                localStorage.setItem('googleId', token)
-                sessionStorage.setItem('googleId', token)
-                let refId = (window as any).refId
-                if (refId) {
-                    api.setRef(refId)
-                }
-                void requestTermsAcceptance()
-            })
-            .catch(error => {
-                // dont show the error message for the invalid token error
-                // the google sign component sometimes sends an outdated token, causing this error
-                if (error.slug !== 'invalid_token') {
-                    toast.error(`An error occoured while trying to sign in with Google. ${error ? error.slug || JSON.stringify(error) : null}`)
-                } else {
-                    console.warn('setGoogle: Invalid token error', error)
-                    sessionStorage.removeItem('googleId')
-                    localStorage.removeItem('googleId')
-                }
-                setIsLoggedIn(false)
-                setWasAlreadyLoggedInThisSession(false)
-                sessionStorage.removeItem('googleId')
-                localStorage.removeItem('googleId')
-            })
+        void requestTermsAcceptance(token)
     }
 
     function onLoginFail() {
@@ -247,9 +255,13 @@ function GoogleSignIn(props: Props) {
                 </Modal.Header>
                 <Modal.Body>
                     <p>
-                        {legalLocale === 'de'
-                            ? 'Bitte prüfen Sie das vollständige Vertragspaket. Die Annahme ist freiwillig; ohne Annahme können keine neuen Käufe begonnen werden.'
-                            : 'Please review the complete agreement package. Acceptance is optional, but new purchases cannot be started without it.'}
+                        {termsStatus?.canContinueWithoutAccepting === false
+                            ? legalLocale === 'de'
+                                ? 'Bitte prüfen Sie das vollständige Vertragspaket. Die Annahme ist erforderlich, um die Registrierung abzuschließen.'
+                                : 'Please review the complete agreement package. Acceptance is required to finish creating your account.'
+                            : legalLocale === 'de'
+                              ? 'Bitte prüfen Sie das vollständige Vertragspaket. Sie können unter den zuvor angenommenen Bedingungen fortfahren; neue Käufe erfordern die aktuelle Annahme.'
+                              : 'Please review the complete agreement package. You may continue under previously accepted terms; new purchases require current acceptance.'}
                     </p>
                     <ul>
                         {termsStatus?.documents.map(document => (
@@ -267,10 +279,12 @@ function GoogleSignIn(props: Props) {
                     ) : null}
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" disabled={termsLoading} onClick={completeLogin}>
-                        {legalLocale === 'de' ? 'Ohne Annahme fortfahren' : 'Continue without accepting'}
-                    </Button>
-                    <Button variant="primary" disabled={termsLoading || !termsStatus} onClick={() => void acceptTerms()}>
+                    {termsStatus?.canContinueWithoutAccepting !== false && pendingLoginToken ? (
+                        <Button variant="secondary" disabled={termsLoading} onClick={() => void finishLogin(pendingLoginToken)}>
+                            {legalLocale === 'de' ? 'Unter bisherigen Bedingungen fortfahren' : 'Continue under previous terms'}
+                        </Button>
+                    ) : null}
+                    <Button variant="primary" disabled={termsLoading || !termsStatus || !pendingLoginToken} onClick={() => void acceptTerms()}>
                         {legalLocale === 'de' ? 'Vertragspaket annehmen' : 'Accept agreement package'}
                     </Button>
                 </Modal.Footer>

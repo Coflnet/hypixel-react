@@ -2890,6 +2890,7 @@ export interface SupplyElement {
 
 export interface TermsStatus {
   required: boolean;
+  canContinueWithoutAccepting: boolean;
   canStartNewContract: boolean;
   /** @minLength 1 */
   agreementId: string;
