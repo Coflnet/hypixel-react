@@ -75,9 +75,10 @@
     "brace-expansion@>=2 <3": "2.1.2",
     "brace-expansion@>=3 <6": "5.0.8",
     "fast-uri": "3.1.4",
-    "js-yaml@<4": "3.15.0",
-    "js-yaml@>=4 <5": "4.3.0",
+    "js-yaml@<4": "3.15.1",
+    "js-yaml@>=4 <5": "4.3.1",
     "linkify-it": "5.0.2",
+    "nanoid@<5.1.16": "5.1.16",
     "react-cookie-consent": {
       "js-cookie": "3.0.7"
     },
