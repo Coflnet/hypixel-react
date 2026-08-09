@@ -274,7 +274,9 @@ interface API {
     getBazaarTags(): Promise<string[]>
     getPreloadFlips(): Promise<FlipAuction[]>
     getItemPriceSummary(itemTag: string, filter: ItemFilter): Promise<ItemPriceSummary>
-    purchaseWithCoflcoins(productId: string, googleToken: string, count?: number): Promise<void>
+    purchaseWithCoflcoins(productId: string, googleToken: string, count?: number, declaration?: ServicePurchaseDeclaration): Promise<void>
+    getTermsStatus(locale: 'en' | 'de'): Promise<TermsStatus>
+    acceptTerms(version: string, hash: string, source: string, locale: 'en' | 'de'): Promise<TermsStatus>
     subscribeCoflCoinChange()
     getCoflcoinBalance(): Promise<number>
     setFlipSetting(identifier: string, value: any): Promise<void>
@@ -669,6 +671,9 @@ interface PremiumProduct {
     expires: Date
     productSlug: string
 }
+
+type ServicePurchaseDeclaration = import('./api/_generated/skyApi.schemas').LegalDeclaration
+type TermsStatus = import('./api/_generated/skyApi.schemas').TermsStatus
 
 interface PremiumProductWithtimeDifference extends PremiumProduct {
     timeDifference: number

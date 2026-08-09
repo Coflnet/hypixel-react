@@ -100,7 +100,9 @@ import {
     getApiFlipStatsPlayerPlayerUuid,
     getApiBazaarItemTagSnapshot,
     getApiUserPrivacy,
+    getApiUserTerms,
     postApiUserPrivacy,
+    postApiUserTerms,
     postApiPremiumUserOwns,
     postApiItemsNames,
     postApiFilter,
@@ -1062,11 +1064,50 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let purchaseWithCoflcoins = (productId: string, googleToken: string, count?: number): Promise<void> => {
-        let data = { userId: googleToken, productId: productId }
+    let termsRequest = async (
+        locale: 'en' | 'de',
+        request?: { version: string; hash: string; source: string }
+    ): Promise<TermsStatus> => {
+        const token = requireGoogleToken('manage agreement acceptance')
+        if (!token) throw new Error('Not logged in')
+        const response = request
+            ? await postApiUserTerms(request, { locale }, googleTokenHeaders(token))
+            : await getApiUserTerms({ locale }, googleTokenHeaders(token))
+        if (response.status !== 200)
+            throw new Error(typeof response.data === 'string' ? response.data : JSON.stringify(response.data) || 'Agreement request failed')
+        return response.data
+    }
 
-        return postApiServicePurchase({ count: count, slug: productId } as any, googleTokenHeaders(googleToken))
-            .then(() => {})
+    let getTermsStatus = (locale: 'en' | 'de') => termsRequest(locale)
+    let acceptTerms = (version: string, hash: string, source: string, locale: 'en' | 'de') =>
+        termsRequest(locale, { version, hash, source })
+
+    let purchaseWithCoflcoins = (
+        productId: string,
+        googleToken: string,
+        count?: number,
+        declaration?: ServicePurchaseDeclaration
+    ): Promise<void> => {
+        let data = { userId: googleToken, productId: productId }
+        const requestId = generateUUID()
+
+        return postApiServicePurchase(
+            {
+                count: count ?? 1,
+                slug: productId,
+                reference: `premium-${requestId}`,
+                immediatePerformanceRequested: declaration !== undefined,
+                withdrawalConsequenceAcknowledged: declaration !== undefined,
+                declarationVersion: declaration?.version ?? null,
+                legalLocale: declaration?.locale ?? null,
+                declarationRequestId: declaration ? requestId : null
+            },
+            googleTokenHeaders(googleToken)
+        )
+            .then(response => {
+                if (response.status < 200 || response.status >= 300)
+                    throw new Error(typeof response.data === 'string' ? response.data : JSON.stringify(response.data) || 'Purchase failed')
+            })
             .catch(error => {
                 apiErrorHandler(RequestType.PURCHASE_WITH_COFLCOiNS, error, data)
                 throw error
@@ -2232,6 +2273,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getPreloadFlips,
         getItemPriceSummary,
         purchaseWithCoflcoins,
+        getTermsStatus,
+        acceptTerms,
         subscribeCoflCoinChange,
         getCoflcoinBalance,
         setFlipSetting,

@@ -25,6 +25,7 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AcceptTermsRequest,
   AdvancedAnalysisResult,
   ArchiveResponse,
   AttributeFlip,
@@ -135,6 +136,8 @@ import type {
   GetApiTradesOwn401One,
   GetApiTradesParams,
   GetApiUserPrivacy401One,
+  GetApiUserTerms401One,
+  GetApiUserTermsParams,
   GooglePlayPurchaseRequest,
   GraphResult,
   Int32Int64ValueTuple,
@@ -200,6 +203,8 @@ import type {
   PostApiTopupStripeProductSlug401One,
   PostApiTrades401One,
   PostApiUserPrivacy401One,
+  PostApiUserTerms401One,
+  PostApiUserTermsParams,
   PremiumSubscription,
   PriceEstimate,
   PriceStatistics,
@@ -228,6 +233,7 @@ import type {
   SpreadFlip,
   StorageQuickStatus,
   SupplyElement,
+  TermsStatus,
   TopUpArguments,
   TopUpIdResponse,
   TopUpProduct,
@@ -17850,3 +17856,277 @@ export const usePostApiUserPrivacy = <TError = PostApiUserPrivacy401One | string
       return useMutation(getPostApiUserPrivacyMutationOptions(options), queryClient);
     }
 
+/**
+ * @summary Returns whether the authenticated user has accepted the current SkyCofl Agreement Root.
+ */
+export type getApiUserTermsResponse200TextPlain = {
+  data: TermsStatus
+  status: 200
+}
+
+export type getApiUserTermsResponse200ApplicationJson = {
+  data: TermsStatus
+  status: 200
+}
+
+export type getApiUserTermsResponse200TextJson = {
+  data: TermsStatus
+  status: 200
+}
+
+export type getApiUserTermsResponse401ApplicationJson = {
+  data: GetApiUserTerms401One
+  status: 401
+}
+
+export type getApiUserTermsResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiUserTermsResponse403 = {
+  data: void
+  status: 403
+}
+
+export type getApiUserTermsResponseSuccess = (getApiUserTermsResponse200TextPlain | getApiUserTermsResponse200ApplicationJson | getApiUserTermsResponse200TextJson) & {
+  headers: Headers;
+};
+export type getApiUserTermsResponseError = (getApiUserTermsResponse401ApplicationJson | getApiUserTermsResponse401TextPlain | getApiUserTermsResponse403) & {
+  headers: Headers;
+};
+
+export type getApiUserTermsResponse = (getApiUserTermsResponseSuccess | getApiUserTermsResponseError)
+
+export const getGetApiUserTermsUrl = (params?: GetApiUserTermsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/user/terms?${stringifiedParams}` : `https://sky.coflnet.com/api/user/terms`
+}
+
+export const getApiUserTerms = async (params?: GetApiUserTermsParams, options?: RequestInit): Promise<getApiUserTermsResponse> => {
+
+  const res = await fetch(getGetApiUserTermsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiUserTermsResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiUserTermsResponse
+}
+
+
+
+
+
+export const getGetApiUserTermsQueryKey = (params?: GetApiUserTermsParams,) => {
+    return [
+    `https://sky.coflnet.com/api/user/terms`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetApiUserTermsQueryOptions = <TData = Awaited<ReturnType<typeof getApiUserTerms>>, TError = GetApiUserTerms401One | string | void>(params?: GetApiUserTermsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserTerms>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiUserTermsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiUserTerms>>> = ({ signal }) => getApiUserTerms(params, { signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiUserTerms>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiUserTermsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiUserTerms>>>
+export type GetApiUserTermsQueryError = GetApiUserTerms401One | string | void
+
+
+export function useGetApiUserTerms<TData = Awaited<ReturnType<typeof getApiUserTerms>>, TError = GetApiUserTerms401One | string | void>(
+ params: undefined |  GetApiUserTermsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserTerms>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiUserTerms>>,
+          TError,
+          Awaited<ReturnType<typeof getApiUserTerms>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiUserTerms<TData = Awaited<ReturnType<typeof getApiUserTerms>>, TError = GetApiUserTerms401One | string | void>(
+ params?: GetApiUserTermsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserTerms>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiUserTerms>>,
+          TError,
+          Awaited<ReturnType<typeof getApiUserTerms>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiUserTerms<TData = Awaited<ReturnType<typeof getApiUserTerms>>, TError = GetApiUserTerms401One | string | void>(
+ params?: GetApiUserTermsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserTerms>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Returns whether the authenticated user has accepted the current SkyCofl Agreement Root.
+ */
+
+export function useGetApiUserTerms<TData = Awaited<ReturnType<typeof getApiUserTerms>>, TError = GetApiUserTerms401One | string | void>(
+ params?: GetApiUserTermsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUserTerms>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiUserTermsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+/**
+ * @summary Records an express acceptance of the exact current SkyCofl Agreement Root.
+ */
+export type postApiUserTermsResponse200TextPlain = {
+  data: TermsStatus
+  status: 200
+}
+
+export type postApiUserTermsResponse200ApplicationJson = {
+  data: TermsStatus
+  status: 200
+}
+
+export type postApiUserTermsResponse200TextJson = {
+  data: TermsStatus
+  status: 200
+}
+
+export type postApiUserTermsResponse401ApplicationJson = {
+  data: PostApiUserTerms401One
+  status: 401
+}
+
+export type postApiUserTermsResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiUserTermsResponse403 = {
+  data: void
+  status: 403
+}
+
+export type postApiUserTermsResponseSuccess = (postApiUserTermsResponse200TextPlain | postApiUserTermsResponse200ApplicationJson | postApiUserTermsResponse200TextJson) & {
+  headers: Headers;
+};
+export type postApiUserTermsResponseError = (postApiUserTermsResponse401ApplicationJson | postApiUserTermsResponse401TextPlain | postApiUserTermsResponse403) & {
+  headers: Headers;
+};
+
+export type postApiUserTermsResponse = (postApiUserTermsResponseSuccess | postApiUserTermsResponseError)
+
+export const getPostApiUserTermsUrl = (params?: PostApiUserTermsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/user/terms?${stringifiedParams}` : `https://sky.coflnet.com/api/user/terms`
+}
+
+export const postApiUserTerms = async (acceptTermsRequest: AcceptTermsRequest,
+    params?: PostApiUserTermsParams, options?: RequestInit): Promise<postApiUserTermsResponse> => {
+
+  const res = await fetch(getPostApiUserTermsUrl(params),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(
+      acceptTermsRequest,)
+  }
+)
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postApiUserTermsResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as postApiUserTermsResponse
+}
+
+
+
+
+export const getPostApiUserTermsMutationOptions = <TError = PostApiUserTerms401One | string | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiUserTerms>>, TError,{data: AcceptTermsRequest;params?: PostApiUserTermsParams}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiUserTerms>>, TError,{data: AcceptTermsRequest;params?: PostApiUserTermsParams}, TContext> => {
+
+const mutationKey = ['postApiUserTerms'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiUserTerms>>, {data: AcceptTermsRequest;params?: PostApiUserTermsParams}> = (props) => {
+          const {data,params} = props ?? {};
+
+          return  postApiUserTerms(data,params,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiUserTermsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiUserTerms>>>
+    export type PostApiUserTermsMutationBody = AcceptTermsRequest
+    export type PostApiUserTermsMutationError = PostApiUserTerms401One | string | void
+
+    /**
+ * @summary Records an express acceptance of the exact current SkyCofl Agreement Root.
+ */
+export const usePostApiUserTerms = <TError = PostApiUserTerms401One | string | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiUserTerms>>, TError,{data: AcceptTermsRequest;params?: PostApiUserTermsParams}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiUserTerms>>,
+        TError,
+        {data: AcceptTermsRequest;params?: PostApiUserTermsParams},
+        TContext
+      > => {
+      return useMutation(getPostApiUserTermsMutationOptions(options), queryClient);
+    }

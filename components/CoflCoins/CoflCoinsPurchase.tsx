@@ -20,12 +20,7 @@ import styles from './CoflCoinsPurchase.module.css'
 
 const PAYMENT_REDIRECT_ERROR = 'Something went wrong. Please try again.'
 
-interface Props {
-    cancellationRightLossConfirmed: boolean
-    userCountry?: string
-}
-
-function Payment(props: Props) {
+function Payment() {
     let [loadingId, setLoadingId] = useState('')
     let [currentRedirectLink, setCurrentRedirectLink] = useState('')
     let [showAll, setShowAll] = useState(false)
@@ -33,7 +28,7 @@ function Payment(props: Props) {
     let [useWizard, setUseWizard] = useState(true)
     let [isGooglePlayAvailable, setIsGooglePlayAvailable] = useState(false)
     let coflCoins = useCoflCoins()
-    let isDisabled = !props.cancellationRightLossConfirmed || !selectedCountry
+    let isDisabled = !selectedCountry
 
     // Initialize billing on first render
     if (typeof window !== 'undefined' && !(window as any).__billingInitialized) {
@@ -266,9 +261,6 @@ function Payment(props: Props) {
     }
 
     function getDisabledPaymentTooltip() {
-        if (!props.cancellationRightLossConfirmed) {
-            return <span>Please note the information regarding your cancellation right above.</span>
-        }
         if (!selectedCountry) {
             return <span>Please select your country. This information is necessary for tax purposes.</span>
         }
@@ -277,16 +269,10 @@ function Payment(props: Props) {
 
     let disabledTooltip = getDisabledPaymentTooltip()
 
-    if (!props.cancellationRightLossConfirmed || !selectedCountry) {
+    if (!selectedCountry) {
         return (
             <div>
                 <CountrySelect onCountryChange={handleCountryChange} />
-
-                {!props.cancellationRightLossConfirmed && (
-                    <Alert variant="warning" style={{ marginTop: '20px' }}>
-                        Please note the information regarding your cancellation right above.
-                    </Alert>
-                )}
 
                 {!selectedCountry && (
                     <Alert variant="info" style={{ marginTop: '20px' }}>

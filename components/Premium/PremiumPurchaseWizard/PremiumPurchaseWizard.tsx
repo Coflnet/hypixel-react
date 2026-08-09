@@ -14,7 +14,6 @@ interface Props {
     activePremiumProduct: PremiumProduct
     premiumSubscriptions: PremiumSubscription[]
     onNewActivePremiumProduct: () => void
-    cancellationRightLossConfirmed: boolean
 }
 
 function PremiumPurchaseWizard(props: Props) {

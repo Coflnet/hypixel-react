@@ -5,6 +5,15 @@
  * Notes: PET, RUNE and POTION item tags (somtimes called ids) are expanded to include the type, eg PET_LION.<br> All other Tags match with hypixel and can be found via the search endpoint, also see our <a href="https://sky.coflnet.com/wiki/api">api docs</a>.<br>Most of these endpoints are used for our <a href="https://sky.coflnet.com/flips">Hypixel skyblock ah and bazaar flipping service</a> and may need you to have a premium account token<br>Also if you use the api for a public project you are responsible for complying with our <a href="https://sky.coflnet.com/wiki/api#attribution">api attribution</a>.
  * OpenAPI spec version: v1
  */
+export interface AcceptTermsRequest {
+  /** @minLength 1 */
+  hash: string;
+  /** @nullable */
+  version?: string | null;
+  /** @nullable */
+  source?: string | null;
+}
+
 export interface ActivePet {
   /** @nullable */
   name?: string | null;
@@ -2118,6 +2127,30 @@ export interface LeaderboardEntry {
   timeStamp: string;
 }
 
+export interface LegalAgreementDocument {
+  /** @minLength 1 */
+  key: string;
+  /** @minLength 1 */
+  title: string;
+  /** @minLength 1 */
+  version: string;
+  /** @minLength 1 */
+  url: string;
+  /** @minLength 1 */
+  sha256: string;
+  /** @minLength 1 */
+  acceptanceHash: string;
+}
+
+export interface LegalDeclaration {
+  /** @minLength 1 */
+  version: string;
+  /** @minLength 1 */
+  locale: string;
+  /** @minLength 1 */
+  text: string;
+}
+
 export type SubType = typeof SubType[keyof typeof SubType];
 
 
@@ -2588,6 +2621,33 @@ export interface PurchaseArgs {
      * @nullable
      */
   reference: string | null;
+  /**
+     * Whether the user expressly requested early performance for this
+  order.
+     * @nullable
+     */
+  immediatePerformanceRequested?: boolean | null;
+  /**
+     * Whether the user acknowledged the consequence of complete
+  performance.
+     * @nullable
+     */
+  withdrawalConsequenceAcknowledged?: boolean | null;
+  /**
+     * Hash-verified declaration version shown to the user.
+     * @nullable
+     */
+  declarationVersion?: string | null;
+  /**
+     * Locale in which the declaration was shown.
+     * @nullable
+     */
+  legalLocale?: string | null;
+  /**
+     * Idempotency identifier for this declaration and order.
+     * @nullable
+     */
+  declarationRequestId?: string | null;
 }
 
 export interface Recipe {
@@ -2826,6 +2886,29 @@ export interface SupplyElement {
   lbinData: BinResponse;
   /** The average amount of sells in 24 hours */
   volume: number;
+}
+
+export interface TermsStatus {
+  required: boolean;
+  canStartNewContract: boolean;
+  /** @minLength 1 */
+  agreementId: string;
+  /** @minLength 1 */
+  agreementHash: string;
+  /** @minLength 1 */
+  agreementUrl: string;
+  /** @minLength 1 */
+  version: string;
+  /** @minLength 1 */
+  hash: string;
+  /** @nullable */
+  acceptedAtUtc?: string | null;
+  /** @minLength 1 */
+  englishUrl: string;
+  /** @minLength 1 */
+  germanUrl: string;
+  documents: LegalAgreementDocument[];
+  premiumPurchaseDeclaration?: LegalDeclaration;
 }
 
 /**
@@ -3529,3 +3612,18 @@ export type PostApiUserPrivacy401One = {
   message?: string;
 };
 
+export type GetApiUserTermsParams = {
+locale?: string;
+};
+
+export type GetApiUserTerms401One = {
+  message?: string;
+};
+
+export type PostApiUserTermsParams = {
+locale?: string;
+};
+
+export type PostApiUserTerms401One = {
+  message?: string;
+};

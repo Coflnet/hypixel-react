@@ -135,11 +135,11 @@ function BuyPremium(props: Props) {
         }
     }
 
-    function onPremiumBuy(googleToken: string) {
+    function onPremiumBuy(googleToken: string, declaration?: ServicePurchaseDeclaration) {
         setShowPrepaidConfirmationDialog(false)
         setIsPurchasing(true)
 
-        api.purchaseWithCoflcoins(purchasePremiumOption.productId, googleToken, purchasePremiumOption.value).then(() => {
+        api.purchaseWithCoflcoins(purchasePremiumOption.productId, googleToken, purchasePremiumOption.value, declaration).then(() => {
             document.dispatchEvent(
                 new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, {
                     detail: { coflCoins: coflCoins - getPurchasePrice() }

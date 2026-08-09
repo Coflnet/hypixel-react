@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { getLoadingElement } from '../../utils/LoadingUtils'
-import { Button, Card, Form, Modal } from 'react-bootstrap'
+import { Alert, Button, Card, Modal } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
 import api from '../../api/ApiHelper'
@@ -26,9 +26,10 @@ function Premium() {
     let [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
     let [isLoading, setIsLoading] = useState(false)
     let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
-    let [cancellationRightLossConfirmed, setCancellationRightLossConfirmed] = useState(false)
     let [isSSR, setIsSSR] = useState(true)
     let [showUpgradeWizard, setShowUpgradeWizard] = useState(false)
+    let [termsStatus, setTermsStatus] = useState<TermsStatus>()
+    const legalLocale = typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en'
 
     useEffect(() => {
         setIsSSR(false)
@@ -52,6 +53,14 @@ function Premium() {
         } else if (upgradeParam === 'true') {
             setShowUpgradeWizard(true)
         }
+    }
+
+    function returnToPremiumManagement() {
+        setShowUpgradeWizard(false)
+        const url = new URL(window.location.href)
+        url.searchParams.delete('tier')
+        url.searchParams.delete('upgrade')
+        window.history.replaceState({}, '', url.pathname)
     }
 
     function loadPremiumProducts(): Promise<void> {
@@ -79,6 +88,33 @@ function Premium() {
         })
     }
 
+    function loadTermsStatus(): Promise<void> {
+        return api
+            .getTermsStatus(legalLocale)
+            .then(setTermsStatus)
+            .catch(() => {
+                setTermsStatus(undefined)
+                toast.error(
+                    legalLocale === 'de'
+                        ? 'Das aktuelle SkyCofl-Vertragspaket konnte nicht geladen werden.'
+                        : 'The current SkyCofl agreement package could not be loaded.'
+                )
+            })
+    }
+
+    function acceptTerms() {
+        if (!termsStatus) return
+        setIsLoading(true)
+        api.acceptTerms(termsStatus.version, termsStatus.agreementHash, `web-premium-${legalLocale}`, legalLocale)
+            .then(setTermsStatus)
+            .catch(() =>
+                toast.error(
+                    legalLocale === 'de' ? 'Das SkyCofl-Vertragspaket konnte nicht angenommen werden.' : 'The SkyCofl agreement package could not be accepted.'
+                )
+            )
+            .finally(() => setIsLoading(false))
+    }
+
     function onSubscriptionCancel(subscription: PremiumSubscription) {
         api.cancelPremiumSubscription(subscription.externalId).then(() => {
             loadPremiumSubscriptions()
@@ -91,16 +127,17 @@ function Premium() {
         if (googleId) {
             setIsLoading(true)
             setIsLoggedIn(true)
-            Promise.all([loadPremiumProducts(), loadPremiumSubscriptions()]).then(() => {
-                setIsLoading(false)
-            })
+            Promise.all([loadPremiumProducts(), loadPremiumSubscriptions(), loadTermsStatus()]).finally(() => setIsLoading(false))
         }
     }
 
     function onLoginFail() {
         setIsLoggedIn(false)
         setHasPremium(false)
+        setTermsStatus(undefined)
     }
+
+    const canPurchase = termsStatus?.canStartNewContract === true
 
     return (
         <div>
@@ -124,7 +161,7 @@ function Premium() {
             )}
             {isLoggedIn && !hasPremium ? (
                 <p>
-                    <a href="#buyPremium">I want Premium!</a>
+                    <a href={canPurchase ? '#buyPremium' : '#terms-acceptance'}>I want Premium!</a>
                 </p>
             ) : null}
             <hr />
@@ -133,24 +170,46 @@ function Premium() {
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
                 <div>{isLoading ? getLoadingElement() : ''}</div>
             </div>
-            {isLoggedIn && (!hasPremium || showUpgradeWizard) ? (
+            {isLoggedIn && termsStatus?.required ? (
+                <Alert id="terms-acceptance" variant="warning">
+                    <p>
+                        {legalLocale === 'de'
+                            ? 'Bitte prüfen Sie vor einem neuen Kauf das vollständige SkyCofl-Vertragspaket:'
+                            : 'Before starting a new purchase, please review the complete SkyCofl agreement package:'}
+                    </p>
+                    <ul>
+                        {termsStatus.documents.map(document => (
+                            <li key={document.key}>
+                                <a href={document.url} target="_blank" rel="noreferrer">
+                                    {document.title} ({document.version})
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                    <p>
+                        <a href={termsStatus.agreementUrl} target="_blank" rel="noreferrer">
+                            {legalLocale === 'de' ? 'Unveränderliche Vertragsbeschreibung anzeigen' : 'View the immutable agreement descriptor'}
+                        </a>
+                    </p>
+                    <Button disabled={isLoading} onClick={acceptTerms}>
+                        {legalLocale === 'de' ? 'SkyCofl-Vertragspaket annehmen' : 'Accept the SkyCofl agreement package'}
+                    </Button>
+                </Alert>
+            ) : null}
+            {isLoggedIn && !isLoading && !termsStatus ? (
+                <Alert id="terms-acceptance" variant="danger">
+                    {legalLocale === 'de'
+                        ? 'Die Vertragsprüfung ist derzeit nicht verfügbar. Neue Käufe sind deaktiviert.'
+                        : 'The agreement check is currently unavailable. New purchases are disabled.'}
+                </Alert>
+            ) : null}
+            {isLoggedIn && canPurchase && (!hasPremium || showUpgradeWizard) ? (
                 <div id="buyPremium" style={{ marginBottom: '40px' }}>
                     <hr />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                         <h2>{hasPremium && showUpgradeWizard ? 'Upgrade Premium' : 'Get Premium'}</h2>
                         {hasPremium && showUpgradeWizard && (
-                            <Button
-                                variant="secondary"
-                                size="sm"
-                                onClick={() => {
-                                    setShowUpgradeWizard(false)
-                                    // Remove URL parameters
-                                    const url = new URL(window.location.href)
-                                    url.searchParams.delete('tier')
-                                    url.searchParams.delete('upgrade')
-                                    window.history.replaceState({}, '', url.pathname)
-                                }}
-                            >
+                            <Button variant="secondary" size="sm" onClick={returnToPremiumManagement}>
                                 ← Back to Premium Management
                             </Button>
                         )}
@@ -158,12 +217,14 @@ function Premium() {
                     <PremiumPurchaseWizard
                         activePremiumProduct={activePremiumProduct!}
                         premiumSubscriptions={premiumSubscriptions}
-                        onNewActivePremiumProduct={loadPremiumProducts}
-                        cancellationRightLossConfirmed={cancellationRightLossConfirmed}
+                        onNewActivePremiumProduct={() => {
+                            returnToPremiumManagement()
+                            void loadPremiumProducts()
+                        }}
                     />
                 </div>
             ) : null}
-            {isLoggedIn && hasPremium && !showUpgradeWizard ? (
+            {isLoggedIn && canPurchase && hasPremium && !showUpgradeWizard ? (
                 <div style={{ marginBottom: '20px' }}>
                     <hr />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
@@ -228,37 +289,12 @@ function Premium() {
                             </Modal.Body>
                         </Modal>
                     </h2>
-                    {!cancellationRightLossConfirmed ? (
-                        <div style={{ paddingBottom: '15px' }}>
-                            <Form.Check
-                                id={'cancellationRightCheckbox'}
-                                className={styles.cancellationRightCheckbox}
-                                defaultChecked={false}
-                                onChange={e => {
-                                    // § 356 (5) BGB: express consent must be given for each contract —
-                                    // deliberately not persisted across sessions
-                                    setCancellationRightLossConfirmed(e.target.checked)
-                                }}
-                                inline
-                            />
-                            <label htmlFor={'cancellationRightCheckbox'}>
-                                By buying one of the following products, you confirm the immediate execution of the contract, hereby losing your cancellation
-                                right (see our{' '}
-                                <a href="https://coflnet.com/withdrawal" target="_blank" rel="noopener noreferrer">
-                                    withdrawal policy
-                                </a>
-                                ). The{' '}
-                                <a href="https://coflnet.com/terms-of-service" target="_blank" rel="noopener noreferrer">
-                                    Terms of Service
-                                </a>{' '}
-                                apply.
-                            </label>
+                    {canPurchase ? (
+                        <div id="coflcoins-purchase">
+                            <CoinsSaleNote />
+                            <CoflCoinsPurchase />
                         </div>
                     ) : null}
-                    <div id="coflcoins-purchase">
-                        <CoinsSaleNote />
-                        <CoflCoinsPurchase cancellationRightLossConfirmed={cancellationRightLossConfirmed} />
-                    </div>
                 </div>
             ) : null}
             <hr />
