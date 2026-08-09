@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
@@ -10,7 +10,7 @@ import { GoogleLogin } from '@react-oauth/google'
 import styles from './GoogleSignIn.module.css'
 import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, setSetting } from '../../utils/SettingsUtils'
 import { atobUnicode } from '../../utils/Base64Utils'
-import { Modal } from 'react-bootstrap'
+import { Button, Modal } from 'react-bootstrap'
 
 interface Props {
     onAfterLogin?(): void
@@ -28,6 +28,11 @@ function GoogleSignIn(props: Props) {
     let [isSSR, setIsSSR] = useState(true)
     let [isLoginNotShowing, setIsLoginNotShowing] = useState(false)
     let [showButtonNotRenderingModal, setShowButtonNotRenderingModal] = useState(false)
+    let [showTermsModal, setShowTermsModal] = useState(false)
+    let [termsStatus, setTermsStatus] = useState<TermsStatus>()
+    let [termsLoading, setTermsLoading] = useState(false)
+    let completedLogin = useRef(false)
+    const legalLocale = typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en'
     let { trackEvent } = useMatomo()
     let forceUpdate = useForceUpdate()
 
@@ -69,6 +74,51 @@ function GoogleSignIn(props: Props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.rerenderFlip])
 
+    function completeLogin() {
+        if (completedLogin.current) return
+        completedLogin.current = true
+        setShowTermsModal(false)
+        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.GOOGLE_LOGIN))
+        props.onAfterLogin?.()
+    }
+
+    async function requestTermsAcceptance() {
+        setTermsLoading(true)
+        try {
+            const status = await api.getTermsStatus(legalLocale)
+            setTermsStatus(status)
+            if (status.required) setShowTermsModal(true)
+            else completeLogin()
+        } catch {
+            toast.error(
+                legalLocale === 'de'
+                    ? 'Die aktuellen Vertragsbedingungen konnten nicht geprüft werden. Neue Käufe bleiben deaktiviert.'
+                    : 'The current agreement could not be checked. New purchases remain disabled.'
+            )
+            completeLogin()
+        } finally {
+            setTermsLoading(false)
+        }
+    }
+
+    async function acceptTerms() {
+        if (!termsStatus) return
+        setTermsLoading(true)
+        try {
+            const status = await api.acceptTerms(termsStatus.version, termsStatus.agreementHash, `web-login-${legalLocale}`, legalLocale)
+            setTermsStatus(status)
+            if (status.required) {
+                toast.error(legalLocale === 'de' ? 'Der Vertrag hat sich geändert. Bitte erneut prüfen.' : 'The agreement changed. Please review it again.')
+                return
+            }
+            completeLogin()
+        } catch {
+            toast.error(legalLocale === 'de' ? 'Die Annahme konnte nicht gespeichert werden.' : 'The acceptance could not be saved.')
+        } finally {
+            setTermsLoading(false)
+        }
+    }
+
     function onLoginSucces(token: string) {
         setIsLoggedIn(true)
         api.loginWithToken(token)
@@ -79,10 +129,7 @@ function GoogleSignIn(props: Props) {
                 if (refId) {
                     api.setRef(refId)
                 }
-                document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.GOOGLE_LOGIN))
-                if (props.onAfterLogin) {
-                    props.onAfterLogin()
-                }
+                void requestTermsAcceptance()
             })
             .catch(error => {
                 // dont show the error message for the invalid token error
@@ -194,6 +241,40 @@ function GoogleSignIn(props: Props) {
                 </>
             ) : null}
             {buttonNotRenderingModal}
+            <Modal show={showTermsModal} backdrop="static" keyboard={false}>
+                <Modal.Header>
+                    <Modal.Title>{legalLocale === 'de' ? 'SkyCofl-Vertrag prüfen' : 'Review the SkyCofl agreement'}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>
+                        {legalLocale === 'de'
+                            ? 'Bitte prüfen Sie das vollständige Vertragspaket. Die Annahme ist freiwillig; ohne Annahme können keine neuen Käufe begonnen werden.'
+                            : 'Please review the complete agreement package. Acceptance is optional, but new purchases cannot be started without it.'}
+                    </p>
+                    <ul>
+                        {termsStatus?.documents.map(document => (
+                            <li key={document.key}>
+                                <a href={document.url} target="_blank" rel="noreferrer">
+                                    {document.title} ({document.version})
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                    {termsStatus ? (
+                        <a href={termsStatus.agreementUrl} target="_blank" rel="noreferrer">
+                            {legalLocale === 'de' ? 'Unveränderliche Vertragsbeschreibung' : 'Immutable agreement descriptor'}
+                        </a>
+                    ) : null}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" disabled={termsLoading} onClick={completeLogin}>
+                        {legalLocale === 'de' ? 'Ohne Annahme fortfahren' : 'Continue without accepting'}
+                    </Button>
+                    <Button variant="primary" disabled={termsLoading || !termsStatus} onClick={() => void acceptTerms()}>
+                        {legalLocale === 'de' ? 'Vertragspaket annehmen' : 'Accept agreement package'}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     )
 }
