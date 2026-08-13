@@ -57,6 +57,7 @@ export function getCombinedShoppingList(
                     const existing = combined.get(ingredient.item.tag)
                     if (existing) {
                         existing.count += purchasedCount
+                        existing.absoluteCount = existing.count
                         existing.cost += purchasedCost
                         if (existing.acquisitionPlan) {
                             existing.acquisitionPlan = {
@@ -104,6 +105,7 @@ export function getCombinedShoppingList(
             const scaledCost = getDirectBuyCost(ingredient, totalCount, mode)
             if (existing) {
                 existing.count += totalCount
+                existing.absoluteCount = existing.count
                 existing.cost += scaledCost
                 return
             }
