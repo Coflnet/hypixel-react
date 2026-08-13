@@ -108,6 +108,18 @@ export function getGeneratedApiErrorMessage(
     return null
 }
 
+export function unwrapGeneratedApiArrayResponse<T>(response: GeneratedApiResponse, fallbackMessage: string): T[] {
+    if (response?.status && response.status >= 200 && response.status < 300 && Array.isArray(response.data)) {
+        return response.data as T[]
+    }
+
+    const data = response?.data as any
+    const error = new Error(getGeneratedApiMessage(data) || fallbackMessage) as Error & { slug?: string; traceId?: string }
+    error.slug = getGeneratedApiSlug(data) ?? undefined
+    error.traceId = data?.traceId || data?.trace || undefined
+    throw error
+}
+
 export function hasSuccessfulArrayResponse<T>(response: GeneratedApiResponse<unknown> | null | undefined): response is GeneratedApiResponse<T[]> & { status: 200; data: T[] } {
     return response?.status === 200 && Array.isArray(response.data)
 }

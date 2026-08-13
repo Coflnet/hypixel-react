@@ -12,6 +12,7 @@ import { hasFlag } from '../../../components/FilterElement/FilterType'
 import { getCachedItemInfo, ItemFlagsNumeric, hasItemFlag, parseFlags } from '../../../utils/ItemsCache'
 import { normalizeItemFilter } from '../../../utils/Parser/URLParser'
 import { getEnchantmentRename } from '../../../utils/EnchantmentRenames'
+import { getCustomItemRedirectPath } from '../../../utils/ItemRedirectUtils'
 
 const BazaarPriceGraph = dynamic(() => import('../../../components/PriceGraph/BazaarPriceGraph/BazaarPriceGraph'), {
     loading: () => <div style={{ minHeight: '300px' }}>Loading chart...</div>
@@ -194,6 +195,8 @@ async function getItemData(searchParams, params) {
     let validRanges = ['active', 'hour', 'day', 'week', 'month', 'year', 'full']
     let range = validRanges.includes(searchParams.range) ? searchParams.range : 'day'
     let tag = params.tag as string
+    let customItemRedirect = getCustomItemRedirectPath(tag, searchParams)
+    if (customItemRedirect) redirect(customItemRedirect)
 
     let api = initAPI(true)
     let itemFilter = await normalizeServerItemFilter(api, tag, getItemFilterFromUrl(searchParams))

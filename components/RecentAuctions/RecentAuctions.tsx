@@ -173,18 +173,25 @@ function RecentAuctions(props: Props) {
             return
         }
 
-        api.getRecentAuctions(props.item.tag, itemFilter).then(newRecentAuctions => {
-            if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
-                return
-            }
-            if (newRecentAuctions.length === 0) {
-                setNoResults(true)
-            }
-            if (newRecentAuctions.length < FETCH_RESULT_SIZE) {
-                setAllElementsLoaded(true)
-            }
-            setRecentAuctions([...recentAuctions, ...newRecentAuctions])
-        })
+        api.getRecentAuctions(props.item.tag, itemFilter)
+            .then(newRecentAuctions => {
+                if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
+                    return
+                }
+                if (newRecentAuctions.length === 0) {
+                    setNoResults(true)
+                }
+                if (newRecentAuctions.length < FETCH_RESULT_SIZE) {
+                    setAllElementsLoaded(true)
+                }
+                setRecentAuctions([...recentAuctions, ...newRecentAuctions])
+            })
+            .catch(() => {
+                if (mounted && currentLoadingString === JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
+                    setNoResults(true)
+                    setAllElementsLoaded(true)
+                }
+            })
     }
 
     function onFetchTypeChange(e: ChangeEvent<HTMLSelectElement>) {

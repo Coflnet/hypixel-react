@@ -63,6 +63,7 @@ import { websocketHelper } from './WebsocketHelper'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
 import properties from '../properties'
 import { getCurrentCoflCoins } from '../utils/CoflCoinsUtils'
+import { unwrapGeneratedApiArrayResponse } from '../utils/GeneratedApiResponseUtils'
 import {
     getApiSearchSearchVal,
     getApiItemItemTagDetails,
@@ -282,12 +283,14 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     let getItemPrices = (itemTag: string, fetchSpan: DateRange, itemFilter?: ItemFilter): Promise<ItemPrice[]> => {
-        let handleData = (data: any) => {
+        let handleData = (data: any[]) => {
             if (returnSSRResponse) {
                 return data
             }
             return data ? data.map(parseItemPrice).sort((a: ItemPrice, b: ItemPrice) => a.time.getTime() - b.time.getTime()) : []
         }
+        let handleResponse = (response: { data?: unknown; status?: number }) =>
+            handleData(unwrapGeneratedApiArrayResponse(response, 'The item price service returned an invalid response.'))
         let handleError = (error: any) => {
             apiErrorHandler(RequestType.ITEM_PRICES, error, {
                 itemTag,
@@ -303,13 +306,13 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
         switch (String(fetchSpan)) {
             case 'day':
-                return getApiItemPriceItemTagHistoryDay(itemTag, params).then(r => handleData(r.data)).catch(handleError)
+                return getApiItemPriceItemTagHistoryDay(itemTag, params).then(handleResponse).catch(handleError)
             case 'week':
-                return getApiItemPriceItemTagHistoryWeek(itemTag, params).then(r => handleData(r.data)).catch(handleError)
+                return getApiItemPriceItemTagHistoryWeek(itemTag, params).then(handleResponse).catch(handleError)
             case 'month':
-                return getApiItemPriceItemTagHistoryMonth(itemTag, params).then(r => handleData(r.data)).catch(handleError)
+                return getApiItemPriceItemTagHistoryMonth(itemTag, params).then(handleResponse).catch(handleError)
             case 'year':
-                return getApiItemPriceItemTagHistoryYear(itemTag, params).then(r => handleData(r.data)).catch(handleError)
+                return getApiItemPriceItemTagHistoryYear(itemTag, params).then(handleResponse).catch(handleError)
             default:
                 // The generated full-history route cannot accept filters, while active/hour
                 // have no generated route. Keep the legacy direct request for these ranges.
@@ -633,8 +636,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
         return getApiAuctionsTagItemTagRecentOverview(itemTag, params)
             .then(response => {
-                let data = response.data as any
-                return data ? data.map(a => parseRecentAuction(a)) : []
+                let data = unwrapGeneratedApiArrayResponse<any>(response, 'The recent auctions service returned an invalid response.')
+                return data.map(a => parseRecentAuction(a))
             })
             .catch(error => {
                 apiErrorHandler(RequestType.RECENT_AUCTIONS, error, itemTag)
@@ -1203,7 +1206,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
         return getApiAuctionsTagItemTagActiveOverview(item.tag, params)
             .then(response => {
-                let data = response.data as any
+                let data = unwrapGeneratedApiArrayResponse<any>(response, 'The active auctions service returned an invalid response.')
                 return data.map(a => parseRecentAuction(a))
             })
             .catch(error => {
