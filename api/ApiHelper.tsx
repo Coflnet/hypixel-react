@@ -2126,10 +2126,15 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
             getApiLinkvertise({ provider }, googleTokenHeaders(googleId))
                 .then(response => {
+                    const status = response.status as number
+                    if (status < 200 || status >= 300) {
+                        const error = response.data as any
+                        reject(error)
+                        return
+                    }
                     resolve(response.data as any)
                 })
                 .catch(error => {
-                    apiErrorHandler(RequestType.GET_LINKVERTISE_LINK, error)
                     reject(error)
                 })
         })

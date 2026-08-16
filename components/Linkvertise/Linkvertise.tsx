@@ -6,12 +6,13 @@ import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { useRouter } from 'next/navigation'
 import { AUTO_REDIRECT_FROM_LINKVERTISE_EXPLANATION, getSetting, setSetting } from '../../utils/SettingsUtils'
-import { Container, Card, Form, Button } from 'react-bootstrap'
+import { Container, Card, Form, Button, Alert } from 'react-bootstrap'
 
 export default function LowSupply() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     let [isRedirecting, setIsRedirecting] = useState(false)
+    let [errorMessage, setErrorMessage] = useState<string | null>(null)
     let [autoredirect, setAutoRedirect] = useState(!!getSetting(AUTO_REDIRECT_FROM_LINKVERTISE_EXPLANATION))
     let router = useRouter()
 
@@ -28,9 +29,13 @@ export default function LowSupply() {
 
     function loadRedirectLink(provider: string = 'linkvertise') {
         setIsRedirecting(true)
+        setErrorMessage(null)
         api.getLinkvertiseLink(provider)
             .then(link => {
                 router.push(link)
+            })
+            .catch(error => {
+                setErrorMessage(error?.message || 'Could not start the task. Please try again later.')
             })
             .finally(() => {
                 setIsRedirecting(false)
@@ -87,6 +92,11 @@ export default function LowSupply() {
                 <p>Thank you for your support and enjoy your premium experience!</p>
             </Container>
             <hr />
+            {errorMessage && (
+                <Alert variant="danger" dismissible onClose={() => setErrorMessage(null)}>
+                    {errorMessage}
+                </Alert>
+            )}
             {!isLoggedIn && !wasAlreadyLoggedIn && <p>To use Linkvertise, please login with Google: </p>}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
             {isLoggedIn && (
