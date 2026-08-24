@@ -25,6 +25,58 @@ export interface ToolLandingSeoContent {
 }
 
 export const toolLandingSeoContent = {
+    minions: {
+        metadataTitle: 'Hypixel SkyBlock Minion Calculator | Best Minions for Coins and XP',
+        metadataDescription:
+            'Compare Hypixel SkyBlock minions by coins per day, XP, setup cost, storage, collection interval, budget, fuel speed, hopper, compaction, and Derpy.',
+        intro: [
+            'The best Hypixel SkyBlock minion depends on when you return. Storage can stop an otherwise excellent setup long before your next collection, so this calculator ranks each minion for your actual offline interval instead of publishing one static list.',
+            'Compare daily collections, a return during Derpy, or years away. Then adjust budget, market order type, speed, hopper, compaction, and whether coins or skill experience matter most.'
+        ],
+        sections: [
+            {
+                title: 'Why the collection interval changes the answer',
+                paragraphs: [
+                    'A fast minion can lead over one day and fall behind over a long absence when its storage fills. The Storage column tells you when production stops, while the storage-limited label explains why a row ranks lower for the selected interval.'
+                ]
+            },
+            {
+                title: 'How to compare minion setups',
+                bullets: [
+                    'Use setup cost and payback time together; daily revenue alone can hide an upgrade that takes too long to recover.',
+                    'Choose the same buy and sell methods you actually use so ingredient costs and output values match your plan.',
+                    'Check missing requirements and unpriced ingredients before treating the displayed setup cost as complete.'
+                ]
+            }
+        ],
+        faqs: [
+            {
+                question: 'Which minion is best to collect once a day?',
+                answer: 'Choose the Daily collection preset. It ranks production over 24 hours and marks any minion whose storage fills before you return.'
+            },
+            {
+                question: 'Why does the best minion change for Derpy or a long absence?',
+                answer: 'Derpy changes output and skill experience, while a longer absence gives limited storage more time to fill. Hoppers and compaction can therefore change the ranking materially.'
+            }
+        ],
+        relatedLinks: [
+            {
+                href: '/bazaar',
+                label: 'Bazaar Prices',
+                description: 'Inspect the live market behind minion output and material values.'
+            },
+            {
+                href: '/crafts',
+                label: 'Craft Flips',
+                description: 'Compare minion income with profitable item crafting.'
+            },
+            {
+                href: '/item/COBBLESTONE',
+                label: 'Cobblestone Price History',
+                description: 'See how a common minion product is priced before committing to a setup.'
+            }
+        ]
+    },
     bazaar: {
         metadataTitle: 'Hypixel SkyBlock Bazaar Flips | Live Spread, Margin and Volume Scanner',
         metadataDescription:
