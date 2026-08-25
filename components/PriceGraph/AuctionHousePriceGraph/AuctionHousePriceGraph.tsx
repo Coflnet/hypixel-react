@@ -8,8 +8,8 @@ import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { AUCTION_GRAPH_LEGEND_SELECTION } from '../../../utils/SettingsUtils'
 import ActiveAuctions from '../../ActiveAuctions/ActiveAuctions'
 import ItemFilter, { getPrefillFilter } from '../../ItemFilter/ItemFilter'
-import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
-import { useValidRange } from '../../../hooks/useValidRange'
+import { DateRange, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
+import { getValidatedRange, useValidRange } from '../../../hooks/useValidRange'
 import Number from '../../Number/Number'
 import GoogleSignIn from '../../GoogleSignIn/GoogleSignIn'
 import RecentAuctions from '../../RecentAuctions/RecentAuctions'
@@ -29,6 +29,7 @@ import { useGetApiMayor } from '../../../api/_generated/skyApi'
 import type { PriceStatistics, CoflnetSkyMayorModelsModelElectionPeriod, AuctionPreview } from '../../../api/_generated/skyApi.schemas'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
 import NitroAdSlot from '../../Ads/NitroAdSlot'
+import { getItemFilterFromUrl } from '../../../utils/Parser/URLParser'
 
 const HOUR_IN_MS = 60 * 60 * 1000
 
@@ -124,6 +125,7 @@ function AuctionHousePriceGraph(props: Props) {
 
     let fetchspanRef = useRef(fetchspan)
     fetchspanRef.current = fetchspan
+    let initialUrlFilter = useRef<string | null>(null)
 
     useEffect(() => {
         mounted = true
@@ -137,11 +139,13 @@ function AuctionHousePriceGraph(props: Props) {
 
     useEffect(() => {
         loadFilters().then(filters => {
-            fetchspan = DEFAULT_DATE_RANGE
-            setFetchspan(DEFAULT_DATE_RANGE)
+            const requestedRange = getValidatedRange(searchParams.get('range'))
+            const prefilledFilter = getPrefillFilter(filters)
+            initialUrlFilter.current = Object.keys(getItemFilterFromUrl()).length > 0 ? JSON.stringify(prefilledFilter) : null
+            setFetchspan(requestedRange)
             setFilters(filters)
             if (props.item) {
-                updateChart(fetchspan, getPrefillFilter(filters))
+                updateChart(requestedRange, prefilledFilter)
             }
         })
     }, [props.item.tag])
@@ -416,7 +420,10 @@ function AuctionHousePriceGraph(props: Props) {
 
     let onFilterChange = (filter: ItemFilter) => {
         setItemFilter({ ...filter })
-        setDefaultRangeSwitch(!defaultRangeSwitch)
+        if (initialUrlFilter.current !== JSON.stringify(filter)) {
+            initialUrlFilter.current = null
+            setDefaultRangeSwitch(value => !value)
+        }
         if (fetchspanRef.current !== DateRange.ACTIVE) {
             updateChart(fetchspanRef.current, filter)
         }
