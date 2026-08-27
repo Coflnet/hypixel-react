@@ -1,6 +1,10 @@
 {
   "name": "hypixel-next",
   "private": true,
+  "engines": {
+    "node": "^22 || ^24 || ^26"
+  },
+  "packageManager": "npm@11.5.2",
   "scripts": {
     "dev": "npx next dev --turbopack",
     "build": "next build",
