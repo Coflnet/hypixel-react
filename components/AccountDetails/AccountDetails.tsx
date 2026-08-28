@@ -29,7 +29,8 @@ function AccountDetails() {
     let [products, setProducts] = useState<PremiumProduct[]>([])
     let [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
     let [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
-    let [hasLoadingPremiumError, setHasLoadingPremiumError] = useState(false)
+    let [hasLoadingPremiumProductsError, setHasLoadingPremiumProductsError] = useState(false)
+    let [subscriptionLookupStatus, setSubscriptionLookupStatus] = useState<'loading' | 'succeeded' | 'failed'>('loading')
     let [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
     let [deleteConfirmationInput, setDeleteConfirmationInput] = useState('')
     let [isDeletingAccount, setIsDeletingAccount] = useState(false)
@@ -104,15 +105,19 @@ function AccountDetails() {
         let googleId = sessionStorage.getItem('googleId')
         setIsLoading(true)
         if (googleId) {
-            Promise.all([loadPremiumProducts(), loadPremiumSubscriptions()])
-                .then(() => {
-                    setIsLoading(false)
-                })
+            setHasLoadingPremiumProductsError(false)
+            setSubscriptionLookupStatus('loading')
+            let productsRequest = loadPremiumProducts().catch(() => {
+                setHasLoadingPremiumProductsError(true)
+                toast.error('Error loading premium products')
+            })
+            let subscriptionsRequest = loadPremiumSubscriptions()
+                .then(() => setSubscriptionLookupStatus('succeeded'))
                 .catch(() => {
-                    setIsLoading(false)
-                    setHasLoadingPremiumError(true)
-                    toast.error('Error loading premium products or subscriptionss')
+                    setSubscriptionLookupStatus('failed')
+                    toast.error('Error loading premium subscriptions')
                 })
+            Promise.all([productsRequest, subscriptionsRequest]).then(() => setIsLoading(false))
             setIsLoggedIn(true)
         }
     }
@@ -181,6 +186,10 @@ function AccountDetails() {
     }
 
     function onDeleteAccount() {
+        if (!canDeleteAccount) {
+            toast.error('Your subscription status must be loaded and have no active subscriptions before deleting your account.')
+            return
+        }
         setIsDeletingAccount(true)
         api.deleteAccount()
             .then(result => {
@@ -194,6 +203,8 @@ function AccountDetails() {
                 toast.error('Failed to delete your account. Please try again or contact support.')
             })
     }
+
+    let canDeleteAccount = subscriptionLookupStatus === 'succeeded' && premiumSubscriptions.length === 0
 
     return (
         <>
@@ -211,7 +222,8 @@ function AccountDetails() {
                         subscriptions={premiumSubscriptions}
                         onSubscriptionCancel={onSubscriptionCancel}
                         labelStyle={{ width: '300px', fontWeight: 'bold' }}
-                        hasLoadingError={hasLoadingPremiumError}
+                        hasProductLoadingError={hasLoadingPremiumProductsError}
+                        hasSubscriptionLoadingError={subscriptionLookupStatus === 'failed'}
                     />
                     <p>
                         <span className={styles.label}>CoflCoins:</span>{' '}
@@ -332,9 +344,12 @@ function AccountDetails() {
                     <h2 style={{ marginBottom: '30px' }}>Danger Zone</h2>
                     <span className={styles.label}>Delete account:</span>
                     <div>
-                        <Button variant="danger" onClick={() => setShowDeleteAccountModal(true)}>
+                        <Button variant="danger" disabled={!canDeleteAccount} onClick={() => setShowDeleteAccountModal(true)}>
                             Delete account
                         </Button>
+                        {!canDeleteAccount ? (
+                            <p>Account deletion is unavailable until subscription status loads successfully and there are no active subscriptions.</p>
+                        ) : null}
                     </div>
                     <Modal show={showDeleteAccountModal} onHide={closeDeleteAccountModal}>
                         <Modal.Header closeButton>
@@ -362,7 +377,7 @@ function AccountDetails() {
                             </Button>
                             <Button
                                 variant="danger"
-                                disabled={deleteConfirmationInput !== 'DELETE' || isDeletingAccount}
+                                disabled={deleteConfirmationInput !== 'DELETE' || isDeletingAccount || !canDeleteAccount}
                                 onClick={onDeleteAccount}
                             >
                                 Permanently delete my account
