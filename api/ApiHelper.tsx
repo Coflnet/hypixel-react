@@ -1427,6 +1427,36 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
+    let getBestMinions = (options: MinionRankingOptions): Promise<MinionRankingResponse> => {
+        let query = new URLSearchParams({
+            offlineHours: options.offlineHours.toString(),
+            sell: options.sell,
+            buy: options.buy,
+            objective: options.objective,
+            speedBoost: options.speedBoost.toString(),
+            hopper: options.hopper,
+            compaction: options.compaction.toString(),
+            derpy: options.derpy.toString(),
+            limit: options.limit.toString()
+        })
+        if (options.budget !== undefined) {
+            query.set('budget', options.budget.toString())
+        }
+
+        return new Promise((resolve, reject) => {
+            httpApi.sendApiRequest({
+                type: RequestType.GET_BEST_MINIONS,
+                customRequestURL: `${getApiEndpoint()}/${RequestType.GET_BEST_MINIONS}?${query.toString()}`,
+                data: '',
+                resolve,
+                reject: function (error) {
+                    apiErrorHandler(RequestType.GET_BEST_MINIONS, error, options)
+                    reject(error)
+                }
+            })
+        })
+    }
+
     let triggerPlayerNameCheck = (playerUUID: string): Promise<void> => {
         return postApiPlayerPlayerUuidName(playerUUID)
             .then(() => {})
@@ -2271,6 +2301,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         playerSearch,
         getProfitableCrafts,
         getCraftAcquisitionPlan,
+        getBestMinions,
         getLowSupplyItems,
         sendFeedback,
         triggerPlayerNameCheck,
