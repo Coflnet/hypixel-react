@@ -15,7 +15,8 @@ interface Props {
     subscriptions: PremiumSubscription[]
     labelStyle?: React.CSSProperties
     onSubscriptionCancel(subscription: PremiumSubscription): void
-    hasLoadingError?: boolean
+    hasProductLoadingError?: boolean
+    hasSubscriptionLoadingError?: boolean
 }
 
 function PremiumStatus(props: Props) {
@@ -111,7 +112,7 @@ function PremiumStatus(props: Props) {
 
         products = products.filter(product => product.expires > new Date())
         setProductsToShow(products)
-        setHighestPriorityProduct(getHighestPriorityPremiumProduct(props.products))
+        setHighestPriorityProduct(props.products.length > 0 ? getHighestPriorityPremiumProduct(props.products) : undefined)
     }, [props.products])
 
     function getProductListEntry(product: PremiumProductWithtimeDifference) {
@@ -138,22 +139,19 @@ function PremiumStatus(props: Props) {
         )
     }
 
-    let numberOfEntriesToShow = (productsToShow?.length || 0) + (props.subscriptions?.length || 0)
+    let numberOfEntriesToShow = (productsToShow?.length || 0) + props.subscriptions.length
 
     return (
         <>
             <div>
-                {numberOfEntriesToShow > 1 ? (
+                {props.subscriptions.length > 0 || numberOfEntriesToShow > 1 ? (
                     <div style={{ overflow: 'hidden' }}>
                         <span className={styles.premiumStatusLabel} style={props.labelStyle}>
                             Premium Status:
                         </span>
-                        {props.hasLoadingError === true ? (
-                            'Premium Status could not be loaded'
-                        ) : (
-                            <ul style={{ float: 'left' }}>
-                                {props.subscriptions.map(subscription => (
-                                    <li key={subscription.externalId}>
+                        <ul style={{ float: 'left' }}>
+                            {props.subscriptions.map(subscription => (
+                                <li key={subscription.externalId}>
                                         {' '}
                                         <Tooltip
                                             type="hover"
@@ -191,28 +189,23 @@ function PremiumStatus(props: Props) {
                                             />
                                         )}
                                         {!subscription.endsAt && (
-                                            <Tooltip
-                                                type="hover"
-                                                content={
-                                                    <span style={{ color: 'red' }}>
-                                                        <CancelOutlined
-                                                            style={{ cursor: 'pointer', color: 'red', marginLeft: 5 }}
-                                                            onClick={() => {
-                                                                setShowCancelSubscriptionDialogSubscription(subscription)
-                                                            }}
-                                                        />
-                                                    </span>
-                                                }
-                                                tooltipContent={<span>Cancel subscription</span>}
-                                            />
+                                            <button
+                                                type="button"
+                                                className="btn btn-sm btn-outline-danger"
+                                                style={{ marginLeft: 5 }}
+                                                onClick={() => setShowCancelSubscriptionDialogSubscription(subscription)}
+                                            >
+                                                <CancelOutlined fontSize="small" /> Cancel subscription
+                                            </button>
                                         )}
-                                    </li>
-                                ))}
-                                {productsToShow?.map(product => (
-                                    <li key={product.productSlug}>{getProductListEntry(product)}</li>
-                                ))}
-                            </ul>
-                        )}
+                                </li>
+                            ))}
+                            {productsToShow?.map(product => (
+                                <li key={product.productSlug}>{getProductListEntry(product)}</li>
+                            ))}
+                            {props.hasProductLoadingError ? <li>Premium products could not be loaded</li> : null}
+                            {props.hasSubscriptionLoadingError ? <li>Premium subscriptions could not be loaded</li> : null}
+                        </ul>
                     </div>
                 ) : (
                     <p>
@@ -220,8 +213,10 @@ function PremiumStatus(props: Props) {
                         <span className={styles.premiumStatusLabel} style={props.labelStyle}>
                             Premium Status:
                         </span>
-                        {props.hasLoadingError === true ? (
-                            'Premium Status could not be loaded'
+                        {props.hasSubscriptionLoadingError ? (
+                            'Premium subscriptions could not be loaded'
+                        ) : props.hasProductLoadingError ? (
+                            'Premium products could not be loaded'
                         ) : (
                             <>
                                 {highestPriorityProduct ? getProductListEntry({ ...highestPriorityProduct } as PremiumProductWithtimeDifference) : 'No Premium'}

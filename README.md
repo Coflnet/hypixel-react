@@ -6,6 +6,9 @@ This project uses Next.js (https://github.com/vercel/next.js).
 
 ## Available Scripts
 
+Development and production builds support Node.js 26. Use npm 11, matching the
+version pinned in `package.json`, to keep clean installs deterministic.
+
 In the project directory, you can run:
 
 ### `npm run dev`

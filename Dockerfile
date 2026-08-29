@@ -1,11 +1,11 @@
 # Install dependencies only when needed
-FROM node:lts-slim AS deps
+FROM node:26-slim AS deps
 
 WORKDIR /opt/app
 COPY package*.json ./
 RUN npm ci --ignore-scripts && npm cache clean --force
 
-FROM node:lts-slim AS builder
+FROM node:26-slim AS builder
 
 ENV NODE_ENV=production
 WORKDIR /opt/app
@@ -17,7 +17,7 @@ RUN npm prune --omit=dev
 # Production image — Google distroless: no shell, no package manager,
 # no npm. Ships only the Node.js runtime + minimal Debian libs.
 # https://github.com/GoogleContainerTools/distroless/blob/main/nodejs/README.md
-FROM gcr.io/distroless/nodejs24-debian13 AS runner
+FROM gcr.io/distroless/nodejs26-debian13 AS runner
 
 WORKDIR /opt/app
 ARG APP_VERSION
