@@ -255,8 +255,13 @@ function BazaarPriceGraph(props: Props) {
                     series: newChartOptions.series
                 })
 
+                let timestamps = chartOptions.xAxis[0].data
                 let midPercentage = (e.start + e.end) / 2 / 100
-                let midDate = new Date(+chartOptions.xAxis[0].data[Math.ceil(chartOptions.xAxis[0].data.length * midPercentage)])
+                let midIndex = Math.min(timestamps.length - 1, Math.ceil(timestamps.length * midPercentage))
+                let midDate = new Date(+timestamps[midIndex])
+                if (globalThis.Number.isNaN(midDate.getTime())) {
+                    return
+                }
                 setTimeout(() => {
                     document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, { detail: { timestamp: midDate } }))
                 }, 100)
