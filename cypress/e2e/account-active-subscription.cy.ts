@@ -128,12 +128,25 @@ describe('Account deletion with subscription lookup', () => {
     it('blocks an active subscription and shows a labeled cancel control without products', () => {
         stubProducts({ forceNetworkError: true })
         stubSubscriptions({ statusCode: 200, body: [activeSubscription] })
+        cy.intercept('DELETE', '**/api/premium/subscription/active-subscription', { statusCode: 200 }).as('cancelSubscription')
 
         visitAccount()
 
         cy.wait(['@products', '@subscriptions'])
         deleteAccountButton().should('be.disabled')
         cy.contains('button', 'Cancel subscription').should('be.visible')
+        cy.contains('h2', 'Danger Zone')
+            .parent()
+            .then(dangerZone => {
+                let buttons = dangerZone.find('button').toArray()
+                let cancelButtonIndex = buttons.findIndex(button => button.textContent?.includes('Cancel subscription'))
+                let deleteButtonIndex = buttons.findIndex(button => button.textContent?.trim() === 'Delete account')
+                expect(cancelButtonIndex).to.be.lessThan(deleteButtonIndex)
+                cy.wrap(buttons[cancelButtonIndex]).click()
+            })
+        cy.contains('.modal-title', 'Cancel Subscription').should('be.visible')
+        cy.contains('button', 'Confirm cancelation').click()
+        cy.wait('@cancelSubscription')
         cy.contains('Premium products could not be loaded').should('be.visible')
     })
 

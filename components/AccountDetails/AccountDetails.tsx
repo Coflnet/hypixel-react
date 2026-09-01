@@ -14,6 +14,7 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import NavBar from '../NavBar/NavBar'
 import Number from '../Number/Number'
+import CancelSubscriptionFeedbackDialog from '../Premium/CancelSubscriptionFeedbackDialog/CancelSubscriptionFeedbackDialog'
 import PremiumStatus from '../Premium/PremiumStatus/PremiumStatus'
 import Tooltip from '../Tooltip/Tooltip'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
@@ -34,6 +35,7 @@ function AccountDetails() {
     let [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
     let [deleteConfirmationInput, setDeleteConfirmationInput] = useState('')
     let [isDeletingAccount, setIsDeletingAccount] = useState(false)
+    let [subscriptionToCancel, setSubscriptionToCancel] = useState<PremiumSubscription>()
     let coflCoins = useCoflCoins()
     let { pushInstruction } = useMatomo()
 
@@ -342,6 +344,15 @@ function AccountDetails() {
                 <div style={{ paddingBottom: '1rem' }}>
                     <hr />
                     <h2 style={{ marginBottom: '30px' }}>Danger Zone</h2>
+                    {premiumSubscriptions
+                        .filter(subscription => !subscription.endsAt)
+                        .map(subscription => (
+                            <div key={subscription.externalId} style={{ paddingBottom: '1rem' }}>
+                                <Button variant="outline-danger" onClick={() => setSubscriptionToCancel(subscription)}>
+                                    Cancel subscription
+                                </Button>
+                            </div>
+                        ))}
                     <span className={styles.label}>Delete account:</span>
                     <div>
                         <Button variant="danger" disabled={!canDeleteAccount} onClick={() => setShowDeleteAccountModal(true)}>
@@ -351,6 +362,16 @@ function AccountDetails() {
                             <p>Account deletion is unavailable until subscription status loads successfully and there are no active subscriptions.</p>
                         ) : null}
                     </div>
+                    <CancelSubscriptionFeedbackDialog
+                        show={!!subscriptionToCancel}
+                        onCancel={() => {
+                            if (subscriptionToCancel) {
+                                onSubscriptionCancel(subscriptionToCancel)
+                                setSubscriptionToCancel(undefined)
+                            }
+                        }}
+                        onClose={() => setSubscriptionToCancel(undefined)}
+                    />
                     <Modal show={showDeleteAccountModal} onHide={closeDeleteAccountModal}>
                         <Modal.Header closeButton>
                             <Modal.Title>Delete account</Modal.Title>
