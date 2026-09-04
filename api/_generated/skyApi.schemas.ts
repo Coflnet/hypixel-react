@@ -2690,6 +2690,10 @@ export interface ReferralInfo {
 export interface ReferredBy {
   /** @nullable */
   refCode?: string | null;
+  /** @nullable */
+  programVersion?: string | null;
+  /** @nullable */
+  locale?: string | null;
 }
 
 export interface ReverseNpcFlip {

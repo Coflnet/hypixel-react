@@ -1181,7 +1181,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let setRef = (refId: string): Promise<void> => {
+    let setRef = (refId: string, programVersion: string, locale: string): Promise<void> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
@@ -1190,7 +1190,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 return
             }
 
-            postApiReferralReferredBy({ refCode: refId }, googleTokenHeaders(googleId))
+            postApiReferralReferredBy({ refCode: refId, programVersion, locale }, googleTokenHeaders(googleId))
                 .then(() => {
                     resolve()
                 })

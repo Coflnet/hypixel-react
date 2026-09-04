@@ -253,7 +253,7 @@ interface API {
     getNewPlayers(): Promise<Player[]>
     getFlipBasedAuctions(flipUUID: string): Promise<Auction[]>
     getRefInfo(): Promise<RefInfo>
-    setRef(refId: string): Promise<void>
+    setRef(refId: string, programVersion: string, locale: string): Promise<void>
     getActiveAuctions(item: Item, order: string, filter?: ItemFilter): Promise<RecentAuction[]>
     connectMinecraftAccount(playerUUID: string): Promise<MinecraftConnectionInfo>
     getAccountInfo(): Promise<AccountInfo>

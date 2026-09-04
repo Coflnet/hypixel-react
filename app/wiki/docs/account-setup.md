@@ -28,7 +28,7 @@ We use the Google login to avoid having security issues with custom solutions.
 Linking your Minecraft account provides additional benefits:
 
 ### Why Verify?
-- **Referral bonuses**: Only awarded after verification
+- **Free Premium trial**: Unlocked for an invited user after verification
 - **Faster flips**: Unverified accounts receive delayed flips
 - **Trading features**: Required for the trading system
 - **Profit tracking**: Track flips across all your accounts

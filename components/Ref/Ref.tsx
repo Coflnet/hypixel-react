@@ -8,7 +8,6 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getProperty } from '../../utils/PropertiesUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import Number from '../Number/Number'
 import styles from './Ref.module.css'
 import Tooltip from '../Tooltip/Tooltip'
 import ClaimAccountTutorial from '../ClaimAccount/ClaimAccountTutorial'
@@ -95,33 +94,29 @@ function Ref() {
                                 <hr />
                             </div>
                         ) : null}
-                        <p>Share your referral link with people which might find SkyCofl useful.</p>
-                        <p>Rewards per invited person:</p>
+                        <p>Share your link with someone who might find SkyCofl useful.</p>
+                        <p>What happens now:</p>
                         <ul>
                             <li>
-                                You receive <b>200 CoflCoins</b>
+                                The invited person gets <b>{TEST_PREMIUM_DAYS} days of Premium</b> after signing in and verifying a previously unlinked
+                                Minecraft account.
                             </li>
                             <li>
-                                The invited person gets <b>{TEST_PREMIUM_DAYS} days of premium</b> to test our services
-                            </li>
-                            <li>
-                                The first time an invited person buys CoflCoins, you get <b>25%</b> of the purchased amount
+                                You do not receive an automatic reward for sharing the link right now.
                             </li>
                         </ul>
                         <p>
-                            <span style={{ color: 'yellow' }}>
-                                The rewards are only given out after the invited person logged in with their Google account and verified their Minecraft
-                                account.
-                            </span>
+                            If we enable a paid referral reward later, this page will show the exact offer before someone signs up. Only the invited person's
+                            first eligible paid subscription could count. Expert Config purchases do not count, and a refunded or charged-back subscription
+                            does not earn a reward.
                         </p>
                         {claimAccountElement}
                         {isLoggedIn && refInfo ? (
                             <div>
                                 <hr />
                                 <p>
-                                    The default referral page contains some facts about this site. You are also able to share another page and still get the
-                                    Referral-Bonus. All you have to do is adding <b style={{ whiteSpace: 'nowrap' }}>?refId={refInfo?.oldInfo.refId}</b> to any
-                                    link. For example
+                                    You can also share another SkyCofl page and keep the referral tracking. Add{' '}
+                                    <b style={{ whiteSpace: 'nowrap' }}>?refId={refInfo?.oldInfo.refId}</b> to its link. For example:
                                 </p>
                                 <ul>
                                     {linkExample('https://sky.coflnet.com/item/JERRY_STAFF')}
@@ -151,24 +146,11 @@ function Ref() {
                                 <span className={styles.label}>Your Ref-Id:</span> <b>{refInfo?.oldInfo.refId}</b>
                             </p>
                             <p>
-                                <span className={styles.label}>Number of invited users (only after login):</span>
+                                <span className={styles.label}>Invited users who signed in:</span>
                                 <b>{refInfo?.referedCount}</b>
                             </p>
                             <p>
-                                <span className={styles.label}>Referred user coins purchases:</span>{' '}
-                                <b>
-                                    <Number number={refInfo?.purchasedCoins} />
-                                </b>
-                            </p>
-                            {refInfo?.referedCount > 7 && refInfo?.purchasedCoins === 0 ? (
-                                <p style={{ color: 'orange' }}>
-                                    Automatic referral grant is limited to <b>7 people per month</b>. Content creators who expect more referrals should contact
-                                    support to have their referrals audited. Sadly we saw too many people abuse the refferal system at 7 or more referrals per
-                                    month.
-                                </p>
-                            ) : null}
-                            <p>
-                                <span className={styles.label}>Number of validated MC-Accounts:</span> <b>{refInfo?.validatedMinecraft}</b>
+                                <span className={styles.label}>Invited users who verified Minecraft:</span> <b>{refInfo?.validatedMinecraft}</b>
                             </p>
                         </Card.Body>
                     </Card>

@@ -90,7 +90,8 @@ function GoogleSignIn(props: Props) {
             localStorage.setItem('googleId', token)
             sessionStorage.setItem('googleId', token)
             let refId = (window as any).refId
-            if (refId) api.setRef(refId)
+            if (refId)
+                api.setRef(refId, 'new-user-100-v1', document.documentElement.lang || navigator.language || 'en')
             completeLogin()
         } catch (error: any) {
             if (error?.slug === 'terms_acceptance_required') {
