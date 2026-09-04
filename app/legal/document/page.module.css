@@ -20,6 +20,49 @@
     border: 1px solid var(--bs-border-color);
 }
 
+.comparison {
+    display: flex;
+    flex-direction: column;
+    max-width: 900px;
+    margin: 2rem auto -1rem;
+    padding: 1rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.5rem;
+    background: var(--bs-secondary-bg);
+}
+
+.added,
+.removed {
+    display: block;
+    margin: 1rem -1rem;
+    padding: 1rem;
+    border-left: 4px solid;
+    text-decoration: none;
+}
+
+.added {
+    border-color: var(--bs-success);
+    background: rgba(var(--bs-success-rgb), 0.15);
+}
+
+.removed {
+    border-color: var(--bs-danger);
+    background: rgba(var(--bs-danger-rgb), 0.15);
+}
+
+.changeLabel {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--bs-body-color);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+.added > :last-child,
+.removed > :last-child {
+    margin-bottom: 0;
+}
+
 .source {
     margin-top: 2rem;
     color: var(--bs-secondary-color);

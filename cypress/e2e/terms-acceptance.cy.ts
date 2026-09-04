@@ -88,7 +88,7 @@ describe('Terms acceptance reminder', () => {
             .should('contain.text', 'Changed')
             .find('a')
             .should('have.attr', 'href')
-            .and('include', '/legal/document?')
+            .and('include', 'compareVersion=2026-08-08')
 
         const clickedAt = Date.now()
         cy.contains('button', 'Continue under previous terms').click()
