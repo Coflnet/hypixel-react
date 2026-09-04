@@ -11,6 +11,8 @@ import styles from './GoogleSignIn.module.css'
 import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, setSetting } from '../../utils/SettingsUtils'
 import { atobUnicode } from '../../utils/Base64Utils'
 import { Button, Modal } from 'react-bootstrap'
+import AgreementDocumentList from '../Legal/AgreementDocumentList'
+import { isTermsReminderPostponed, postponeTermsReminder } from '../../utils/TermsReminderUtils'
 
 interface Props {
     onAfterLogin?(): void
@@ -117,7 +119,7 @@ function GoogleSignIn(props: Props) {
         try {
             const status = await api.getTermsStatus(legalLocale, loginToken)
             setTermsStatus(status)
-            if (status.required) setShowTermsModal(true)
+            if (status.required && !(status.canContinueWithoutAccepting && isTermsReminderPostponed(status.agreementHash, loginToken))) setShowTermsModal(true)
             else await finishLogin(loginToken)
         } catch {
             toast.error(
@@ -147,7 +149,10 @@ function GoogleSignIn(props: Props) {
             await finishLogin(pendingLoginToken)
         } catch {
             toast.error(legalLocale === 'de' ? 'Die Annahme konnte nicht gespeichert werden.' : 'The acceptance could not be saved.')
-            if (termsStatus.canContinueWithoutAccepting) await finishLogin(pendingLoginToken)
+            if (termsStatus.canContinueWithoutAccepting) {
+                postponeTermsReminder(termsStatus.agreementHash, pendingLoginToken)
+                await finishLogin(pendingLoginToken)
+            }
         } finally {
             setTermsLoading(false)
         }
@@ -156,6 +161,12 @@ function GoogleSignIn(props: Props) {
     function onLoginSucces(token: string) {
         setIsLoggedIn(true)
         void requestTermsAcceptance(token)
+    }
+
+    function continueUnderPreviousTerms() {
+        if (!termsStatus || !pendingLoginToken) return
+        postponeTermsReminder(termsStatus.agreementHash, pendingLoginToken)
+        void finishLogin(pendingLoginToken)
     }
 
     function onLoginFail() {
@@ -265,15 +276,7 @@ function GoogleSignIn(props: Props) {
                               ? 'Bitte prüfen Sie das vollständige Vertragspaket. Sie können unter den zuvor angenommenen Bedingungen fortfahren; neue Käufe erfordern die aktuelle Annahme.'
                               : 'Please review the complete agreement package. You may continue under previously accepted terms; new purchases require current acceptance.'}
                     </p>
-                    <ul>
-                        {termsStatus?.documents.map(document => (
-                            <li key={document.key}>
-                                <a href={document.url} target="_blank" rel="noreferrer">
-                                    {document.title} ({document.version})
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
+                    {termsStatus ? <AgreementDocumentList documents={termsStatus.documents} locale={legalLocale} /> : null}
                     {termsStatus ? (
                         <a href={termsStatus.agreementUrl} target="_blank" rel="noreferrer">
                             {legalLocale === 'de' ? 'Unveränderliche Vertragsbeschreibung' : 'Immutable agreement descriptor'}
@@ -282,7 +285,7 @@ function GoogleSignIn(props: Props) {
                 </Modal.Body>
                 <Modal.Footer>
                     {termsStatus?.canContinueWithoutAccepting !== false && pendingLoginToken ? (
-                        <Button variant="secondary" disabled={termsLoading} onClick={() => void finishLogin(pendingLoginToken)}>
+                        <Button variant="secondary" disabled={termsLoading} onClick={continueUnderPreviousTerms}>
                             {legalLocale === 'de' ? 'Unter bisherigen Bedingungen fortfahren' : 'Continue under previous terms'}
                         </Button>
                     ) : null}

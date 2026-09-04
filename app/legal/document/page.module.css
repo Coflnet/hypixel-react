@@ -1,0 +1,27 @@
+.document {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.5rem;
+    background: var(--bs-dark);
+}
+
+.document :global(table) {
+    display: block;
+    width: 100%;
+    margin-bottom: 1rem;
+    overflow-x: auto;
+}
+
+.document :global(th),
+.document :global(td) {
+    padding: 0.5rem;
+    border: 1px solid var(--bs-border-color);
+}
+
+.source {
+    margin-top: 2rem;
+    color: var(--bs-secondary-color);
+    font-size: 0.9rem;
+}

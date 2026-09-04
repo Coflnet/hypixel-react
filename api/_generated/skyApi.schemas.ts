@@ -2140,6 +2140,7 @@ export interface LegalAgreementDocument {
   sha256: string;
   /** @minLength 1 */
   acceptanceHash: string;
+  changed: boolean;
 }
 
 export interface LegalDeclaration {

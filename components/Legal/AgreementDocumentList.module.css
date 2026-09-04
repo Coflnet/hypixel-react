@@ -1,0 +1,28 @@
+.documents {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.changed {
+    padding: 0.45rem 0.65rem;
+    border-left: 3px solid var(--bs-warning);
+    border-radius: 0.25rem;
+    background: rgba(var(--bs-warning-rgb), 0.14);
+}
+
+.changed a {
+    color: var(--bs-warning);
+    font-weight: 600;
+}
+
+.badge {
+    margin-right: 0.45rem;
+    padding: 0.12rem 0.4rem;
+    border-radius: 0.25rem;
+    background: var(--bs-warning);
+    color: #222;
+    font-size: 0.75em;
+    font-weight: 700;
+    text-decoration: none;
+}

@@ -17,6 +17,7 @@ import BuySubscription from './BuySubscription/BuySubscription'
 import PremiumPurchaseWizard from './PremiumPurchaseWizard/PremiumPurchaseWizard'
 import { parseTierFromUrl } from '../../utils/PremiumUpgradeUtils'
 import { CoinsSaleNote } from '../Discounts/DiscountBanners'
+import AgreementDocumentList from '../Legal/AgreementDocumentList'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -177,15 +178,7 @@ function Premium() {
                             ? 'Bitte prüfen Sie vor einem neuen Kauf das vollständige SkyCofl-Vertragspaket:'
                             : 'Before starting a new purchase, please review the complete SkyCofl agreement package:'}
                     </p>
-                    <ul>
-                        {termsStatus.documents.map(document => (
-                            <li key={document.key}>
-                                <a href={document.url} target="_blank" rel="noreferrer">
-                                    {document.title} ({document.version})
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
+                    <AgreementDocumentList documents={termsStatus.documents} locale={legalLocale} />
                     <p>
                         <a href={termsStatus.agreementUrl} target="_blank" rel="noreferrer">
                             {legalLocale === 'de' ? 'Unveränderliche Vertragsbeschreibung anzeigen' : 'View the immutable agreement descriptor'}
