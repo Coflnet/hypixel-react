@@ -58,7 +58,7 @@
     "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.0",
     "sharp": "^0.35.3",
-    "toml": "^3.0.0",
+    "toml": "^4.3.0",
     "use-query-params": "^2.2.1",
     "uuid": "^14.0.1"
   },
