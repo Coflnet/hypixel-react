@@ -147,6 +147,7 @@ function GoogleSignIn(props: Props) {
             await finishLogin(pendingLoginToken)
         } catch {
             toast.error(legalLocale === 'de' ? 'Die Annahme konnte nicht gespeichert werden.' : 'The acceptance could not be saved.')
+            if (termsStatus.canContinueWithoutAccepting) await finishLogin(pendingLoginToken)
         } finally {
             setTermsLoading(false)
         }
