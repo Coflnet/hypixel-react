@@ -416,6 +416,7 @@ function ItemFilter(props: Props) {
                                                 return <Menu {...menuProps}>
                                                     {results.map((option, index) => <MenuItem key={index} option={option} position={index}>
                                                         <Highlighter search={state.text}>{(option as FilterOptions).name}</Highlighter>
+                                                        {['Skin', 'PetSkin', 'DyeItem'].includes((option as FilterOptions).name) ? ' (applied)' : ''}
                                                     </MenuItem>
                                                     )}
                                                     <Menu.Header>You can search for filters both by their name and possible values (if available)</Menu.Header>

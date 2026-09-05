@@ -122,6 +122,11 @@ function ItemFilterPropertiesDisplay(props: Props) {
                         label += ' (applied)'
                     }
 
+                    if (key === 'DyeItem') {
+                        info = 'Matches dye applied to another item. Any matches items with any dye applied, not standalone dye items. To blacklist a standalone dye, select the dye itself as the blacklist item.'
+                        label += ' (applied)'
+                    }
+
                     if (!localFilter[key] && !display) {
                         display = '-'
                     }

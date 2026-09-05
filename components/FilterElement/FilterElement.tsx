@@ -234,7 +234,7 @@ function FilterElement(props: Props) {
                             {props.options.name[0].toLowerCase() === props.options.name[0]
                                 ? convertTagToName(props.options.name)
                                 : camelCaseToSentenceCase(props.options.name)}
-                            {props.options.name === 'Skin' || props.options.name === 'PetSkin' ? ' (applied)' : ''}
+                            {['Skin', 'PetSkin', 'DyeItem'].includes(props.options.name) ? ' (applied)' : ''}
                         </b>
                         {props.options.description ? (
                             <Tooltip
@@ -245,6 +245,12 @@ function FilterElement(props: Props) {
                         ) : null}
                     </Form.Label>
                     {getFilterElement(props.options.type, props.options)}
+                    {props.options.name === 'DyeItem' ? (
+                        <Form.Text>
+                            Matches dye applied to another item. Any matches items with any dye applied, not standalone dye items. To blacklist
+                            a standalone dye, select the dye itself as the blacklist item.
+                        </Form.Text>
+                    ) : null}
                     {!isValid ? (
                         <div>
                             <span style={{ color: 'red' }}>{errorText}</span>
