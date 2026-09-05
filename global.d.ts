@@ -275,7 +275,7 @@ interface API {
     getPreloadFlips(): Promise<FlipAuction[]>
     getItemPriceSummary(itemTag: string, filter: ItemFilter): Promise<ItemPriceSummary>
     purchaseWithCoflcoins(productId: string, googleToken: string, count?: number, declaration?: ServicePurchaseDeclaration): Promise<void>
-    getTermsStatus(locale: 'en' | 'de', token?: string): Promise<TermsStatus>
+    getTermsStatus(locale: 'en' | 'de', token?: string, forceRefresh?: boolean): Promise<TermsStatus>
     acceptTerms(version: string, hash: string, source: string, locale: 'en' | 'de', token?: string): Promise<TermsStatus>
     subscribeCoflCoinChange()
     getCoflcoinBalance(): Promise<number>

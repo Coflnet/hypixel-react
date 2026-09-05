@@ -202,20 +202,23 @@ function authenticatedCacheKey(type: string, token: string) {
     }
 }
 
-function getAuthenticatedCache<T>(key?: string): T | undefined {
+function getAuthenticatedCache<T>(key?: string, persistent = false): T | undefined {
     if (!key || !isClientSideRendering()) return undefined
     try {
-        const entry = JSON.parse(sessionStorage.getItem(key) ?? '') as { expiresAt: number; value: T }
+        const storage = persistent ? localStorage : sessionStorage
+        const entry = JSON.parse(storage.getItem(key) ?? '') as { expiresAt: number; value: T }
         if (entry.expiresAt > Date.now()) return entry.value
-        sessionStorage.removeItem(key)
+        storage.removeItem(key)
     } catch {}
     return undefined
 }
 
-function setAuthenticatedCache<T>(key: string | undefined, value: T) {
+function setAuthenticatedCache<T>(key: string | undefined, value: T, persistent = false) {
     if (!key || !isClientSideRendering()) return
     try {
-        sessionStorage.setItem(key, JSON.stringify({ expiresAt: Date.now() + AUTH_RESPONSE_CACHE_TTL_MS, value }))
+        const storage = persistent ? localStorage : sessionStorage
+        const ttl = persistent ? 60 * 60 * 1000 : AUTH_RESPONSE_CACHE_TTL_MS
+        storage.setItem(key, JSON.stringify({ expiresAt: Date.now() + ttl, value }))
     } catch {}
 }
 
@@ -1103,13 +1106,14 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     let termsRequest = async (
         locale: 'en' | 'de',
         request?: { version: string; hash: string; source: string },
-        tokenOverride?: string
+        tokenOverride?: string,
+        forceRefresh = false
     ): Promise<TermsStatus> => {
         const token = tokenOverride ?? requireGoogleToken('manage agreement acceptance')
         if (!token) throw new Error('Not logged in')
         const cacheKey = authenticatedCacheKey(`terms:${locale}`, token)
         const requestKey = cacheKey ?? `${locale}:${token}`
-        const cached = request ? undefined : getAuthenticatedCache<TermsStatus>(cacheKey)
+        const cached = request || forceRefresh ? undefined : getAuthenticatedCache<TermsStatus>(cacheKey, true)
         if (cached) return cached
 
         const send = async () => {
@@ -1118,7 +1122,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 : await getApiUserTerms({ locale }, googleTokenHeaders(token))
             if (response.status !== 200)
                 throw new Error(typeof response.data === 'string' ? response.data : JSON.stringify(response.data) || 'Agreement request failed')
-            setAuthenticatedCache(cacheKey, response.data)
+            setAuthenticatedCache(cacheKey, response.data, true)
             return response.data
         }
         if (request) return send()
@@ -1130,7 +1134,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return promise
     }
 
-    let getTermsStatus = (locale: 'en' | 'de', token?: string) => termsRequest(locale, undefined, token)
+    let getTermsStatus = (locale: 'en' | 'de', token?: string, forceRefresh = false) => termsRequest(locale, undefined, token, forceRefresh)
     let acceptTerms = (version: string, hash: string, source: string, locale: 'en' | 'de', token?: string) =>
         termsRequest(locale, { version, hash, source }, token)
 

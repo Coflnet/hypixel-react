@@ -1,5 +1,66 @@
-/* Google shows a white box if the color-scheme is black for some reason */
-.googleButton{
-    width: 250px;
+.eyebrow {
+    display: block;
+    margin-bottom: 0.65rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--bs-secondary-color);
+}
+
+/* Google shows a white box if the color-scheme is black for some reason. */
+.googleButton {
+    width: fit-content;
+    max-width: 100%;
+    margin-bottom: 1.5rem;
     color-scheme: light;
+}
+
+.legalNotice {
+    padding: 1rem;
+    border: 1px solid rgba(var(--bs-secondary-rgb), 0.5);
+    border-radius: 0.75rem;
+    background: rgba(var(--bs-secondary-rgb), 0.08);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.legalNotice a,
+.signInNotice a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.signInNotice,
+.signInHelp {
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+.signInHelp p {
+    margin: 0.5rem 0 0;
+}
+
+.progress {
+    font-size: 0.85rem;
+    color: var(--bs-secondary-color);
+}
+
+.agreementModal {
+    border-radius: 1.25rem;
+    overflow: hidden;
+}
+
+.agreementDetails {
+    color: var(--bs-body-color);
+    font-size: 0.8rem;
+}
+
+.agreementActions {
+    gap: 0.5rem;
+}
+
+.agreementActions button {
+    flex: 1 1 200px;
+    margin: 0;
 }
