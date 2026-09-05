@@ -189,6 +189,36 @@ function requireGoogleToken(actionDescription: string): string | null {
     return token
 }
 
+const AUTH_RESPONSE_CACHE_TTL_MS = 5 * 60 * 1000
+
+function authenticatedCacheKey(type: string, token: string) {
+    try {
+        const encodedClaims = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+        const claims = JSON.parse(atobUnicode(encodedClaims.padEnd(Math.ceil(encodedClaims.length / 4) * 4, '=')))
+        const user = String(claims.sub ?? claims.email ?? '').toLowerCase()
+        return user ? `skycoflApiCache:${type}:${encodeURIComponent(user)}` : undefined
+    } catch {
+        return undefined
+    }
+}
+
+function getAuthenticatedCache<T>(key?: string): T | undefined {
+    if (!key || !isClientSideRendering()) return undefined
+    try {
+        const entry = JSON.parse(sessionStorage.getItem(key) ?? '') as { expiresAt: number; value: T }
+        if (entry.expiresAt > Date.now()) return entry.value
+        sessionStorage.removeItem(key)
+    } catch {}
+    return undefined
+}
+
+function setAuthenticatedCache<T>(key: string | undefined, value: T) {
+    if (!key || !isClientSideRendering()) return
+    try {
+        sessionStorage.setItem(key, JSON.stringify({ expiresAt: Date.now() + AUTH_RESPONSE_CACHE_TTL_MS, value }))
+    } catch {}
+}
+
 export function initAPI(returnSSRResponse: boolean = false): API {
     let httpApi: HttpApi
     if (isClientSideRendering()) {
@@ -204,6 +234,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             cacheUtils.checkForCacheClear()
         }
     }, 20000)
+
+    const termsStatusRequests = new Map<string, Promise<TermsStatus>>()
+    const premiumProductsRequests = new Map<string, Promise<any>>()
 
     let apiErrorHandler = (requestType: RequestType, error: any, requestData: any = null) => {
         if (!error || !error.message) {
@@ -1074,12 +1107,27 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     ): Promise<TermsStatus> => {
         const token = tokenOverride ?? requireGoogleToken('manage agreement acceptance')
         if (!token) throw new Error('Not logged in')
-        const response = request
-            ? await postApiUserTerms(request, { locale }, googleTokenHeaders(token))
-            : await getApiUserTerms({ locale }, googleTokenHeaders(token))
-        if (response.status !== 200)
-            throw new Error(typeof response.data === 'string' ? response.data : JSON.stringify(response.data) || 'Agreement request failed')
-        return response.data
+        const cacheKey = authenticatedCacheKey(`terms:${locale}`, token)
+        const requestKey = cacheKey ?? `${locale}:${token}`
+        const cached = request ? undefined : getAuthenticatedCache<TermsStatus>(cacheKey)
+        if (cached) return cached
+
+        const send = async () => {
+            const response = request
+                ? await postApiUserTerms(request, { locale }, googleTokenHeaders(token))
+                : await getApiUserTerms({ locale }, googleTokenHeaders(token))
+            if (response.status !== 200)
+                throw new Error(typeof response.data === 'string' ? response.data : JSON.stringify(response.data) || 'Agreement request failed')
+            setAuthenticatedCache(cacheKey, response.data)
+            return response.data
+        }
+        if (request) return send()
+
+        const pending = termsStatusRequests.get(requestKey)
+        if (pending) return pending
+        const promise = send().finally(() => termsStatusRequests.delete(requestKey))
+        termsStatusRequests.set(requestKey, promise)
+        return promise
     }
 
     let getTermsStatus = (locale: 'en' | 'de', token?: string) => termsRequest(locale, undefined, token)
@@ -1697,49 +1745,44 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getPremiumProducts = (): Promise<PremiumProduct[]> => {
-        return new Promise((resolve, reject) => {
-            let googleId = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId')
-            if (!googleId) {
-                toast.error('You need to be logged in to load premium products.')
-                reject()
-                return
-            }
+    let getPremiumProducts = async (): Promise<PremiumProduct[]> => {
+        const googleId = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId')
+        if (!googleId) {
+            toast.error('You need to be logged in to load premium products.')
+            throw new Error('Not logged in')
+        }
 
-            postApiPremiumUserOwns(
+        const cacheKey = authenticatedCacheKey('premium-products', googleId)
+        const requestKey = cacheKey ?? googleId
+        const cached = getAuthenticatedCache<any>(cacheKey)
+        if (cached) return parsePremiumProducts(cached)
+
+        let pending = premiumProductsRequests.get(requestKey)
+        if (!pending) {
+            pending = postApiPremiumUserOwns(
                 PREMIUM_TYPES.map(type => type.productId),
                 googleTokenHeaders(googleId)
             )
                 .then(response => {
-                    let products = response.data as any
+                    const products = response.data as any
+                    setAuthenticatedCache(cacheKey, products)
                     localStorage.setItem(LAST_PREMIUM_PRODUCTS, JSON.stringify(products))
-                    if (typeof window !== 'undefined') {
-                        try {
-                            window.dispatchEvent(new CustomEvent('premium.products.updated'))
-                        } catch (e) { }
-                    }
-                    resolve(parsePremiumProducts(products))
+                    try {
+                        window.dispatchEvent(new CustomEvent('premium.products.updated'))
+                    } catch {}
+                    return products
                 })
                 .catch(error => {
                     apiErrorHandler(RequestType.GET_PREMIUM_PRODUCTS, error, '')
-                    reject(error)
+                    throw error
                 })
-        })
+                .finally(() => premiumProductsRequests.delete(requestKey))
+            premiumProductsRequests.set(requestKey, pending)
+        }
+        return parsePremiumProducts(await pending)
     }
 
-    /**
-     * Uses the last loaded premium products (if available) to instantly call the callback function
-     * The newest premium products are loaded after that and the callback is executed again
-     */
     let refreshLoadPremiumProducts = (callback: (products: PremiumProduct[]) => void, onError: () => void) => {
-        let lastPremiumProducts = localStorage.getItem(LAST_PREMIUM_PRODUCTS)
-        if (lastPremiumProducts) {
-            try {
-                callback(parsePremiumProducts(JSON.parse(lastPremiumProducts)))
-            } catch {
-                callback([])
-            }
-        }
         getPremiumProducts().then(prodcuts => {
             callback(prodcuts)
         }).catch(() => {
