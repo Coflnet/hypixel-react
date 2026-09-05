@@ -82,15 +82,7 @@ describe('Terms acceptance reminder', () => {
     it('highlights changed terms, uses the readable viewer, and waits twelve hours after continuing', () => {
         stubAccountRequests()
         cy.visit('/account', { onBeforeLoad: installAuthenticatedWebSocket })
-        cy.wait(['@terms', '@owns', '@subscriptions'])
-        cy.window().should(window => {
-            const cacheKeys = Object.keys(window.sessionStorage).filter(key => key.startsWith('skycoflApiCache:'))
-            expect(cacheKeys).to.have.length(2)
-            cacheKeys.forEach(key => {
-                const entry = JSON.parse(window.sessionStorage.getItem(key)!)
-                expect(entry.expiresAt).to.be.at.least(Date.now() + 5 * 60 * 1000 - 1000)
-            })
-        })
+        cy.wait('@terms')
 
         cy.contains('li', 'Commerce and Programme Terms')
             .should('contain.text', 'Changed')
@@ -100,11 +92,20 @@ describe('Terms acceptance reminder', () => {
 
         const clickedAt = Date.now()
         cy.contains('button', 'Continue under previous terms').click()
+        cy.wait(['@owns', '@subscriptions'])
         cy.window().then(window => {
             const reminder = JSON.parse(window.localStorage.getItem('skycoflTermsReminder')!)
             expect(reminder.agreementHash).to.equal('future-hash')
             expect(reminder.user).to.equal('terms@example.com')
             expect(reminder.showAfter).to.be.at.least(clickedAt + reminderDelay)
+        })
+        cy.window().should(window => {
+            const cacheKeys = Object.keys(window.sessionStorage).filter(key => key.startsWith('skycoflApiCache:'))
+            expect(cacheKeys).to.have.length(2)
+            cacheKeys.forEach(key => {
+                const entry = JSON.parse(window.sessionStorage.getItem(key)!)
+                expect(entry.expiresAt).to.be.at.least(Date.now() + 5 * 60 * 1000 - 1000)
+            })
         })
 
         cy.visit('/account', { onBeforeLoad: window => installAuthenticatedWebSocket(window, false) })
