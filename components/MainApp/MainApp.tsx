@@ -20,13 +20,6 @@ import TopLoadingAnimation from '../TopLoader/TopLoadingAnimation'
 import { initCoflCoinManager } from '../../utils/CoflCoinsUtils'
 import properties from '../../properties'
 
-interface ErrorLog {
-    error: ErrorEvent
-    timestamp: Date
-}
-
-export const errorLog: ErrorLog[] = []
-
 initCoflCoinManager()
 
 function hasGlobalPrivacyControl() {
@@ -47,11 +40,6 @@ export function MainApp(props: any) {
 
     useEffect(() => {
         window.addEventListener('error', function (event) {
-            errorLog.push({
-                error: event,
-                timestamp: new Date()
-            })
-
             // Handle hydration errors (React error #418)
             if (event.message?.includes('#418') || event.message?.includes('Hydration') || event.message?.includes('hydrat')) {
                 sessionStorage.setItem('hydrationErrorDetected', 'true')

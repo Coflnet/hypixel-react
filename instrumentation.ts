@@ -1,3 +1,25 @@
+import type { Instrumentation } from 'next'
+import { serializeError } from './utils/ErrorDiagnostics'
+
+export const onRequestError: Instrumentation.onRequestError = (error, request, context) => {
+    const details = serializeError(error)
+    const traceparent = request.headers.traceparent
+    const traceId = typeof traceparent === 'string' ? traceparent.match(/^[\da-f]{2}-([\da-f]{32})-[\da-f]{16}-[\da-f]{2}$/i)?.[1] : undefined
+    console.error(
+        JSON.stringify({
+            event: 'web.request.error',
+            timestamp: new Date().toISOString(),
+            digest: details.digest,
+            traceId: details.traceId || traceId,
+            version: process.env.APP_VERSION,
+            method: request.method,
+            path: request.path.split('?')[0],
+            ...context,
+            error: details
+        })
+    )
+}
+
 export async function register() {
     if (process.env.NEXT_RUNTIME === 'nodejs') {
         const internalApiBase = process.env.API_ENDPOINT?.replace(/\/api$/, '') || ''

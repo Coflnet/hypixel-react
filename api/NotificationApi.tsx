@@ -16,6 +16,7 @@ import { NotificationListener, SubscriptionType } from './ApiTypes.d'
 import { parseSubscription } from '../utils/Parser/APIResponseParser'
 import { isClientSideRendering } from '../utils/SSRUtils'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
+import { recordClientError } from '../utils/ClientErrorUtils'
 
 /**
  * All notifier related calls (listeners, subscriptions and targets) go through the generated
@@ -80,6 +81,7 @@ function unwrap<T>(response: { data: any; status: number }, fallbackMessage: str
 export function handleNotificationApiError(error: any): never {
     let apiError = error as ApiError
     if (isClientSideRendering() && apiError?.message && !apiError.wasToasted) {
+        recordClientError(apiError, 'api')
         apiError.wasToasted = true
         if (apiError.slug === 'subscription_limit_reached' || apiError.message.includes('subscription_limit_reached')) {
             toast.error(

@@ -98,7 +98,15 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                     if (!response.ok && response.status !== 304) {
                         let status = response.status
                         return response.text().then(text => {
-                            return Promise.reject(`HTTP ${status}: ${(text || '').substring(0, 100)}`)
+                            let data
+                            try {
+                                data = JSON.parse(text)
+                            } catch {}
+                            throw Object.assign(new Error(data?.message || `HTTP ${status}: ${text || response.statusText}`), {
+                                status,
+                                slug: data?.slug,
+                                traceId: data?.traceId || data?.trace || response.headers.get('x-trace-id') || undefined
+                            })
                         })
                     }
 

@@ -4,7 +4,6 @@ import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import Tooltip from '../Tooltip/Tooltip'
 import styles from './ReloadDialog.module.css'
-import { errorLog } from '../MainApp/MainApp'
 
 interface Props {
     onClose()
@@ -30,7 +29,6 @@ function ReloadDialog(props: Props) {
             return
         }
         let feedbackToSend: any = { ...feedback }
-        feedbackToSend.errorLog = errorLog
         feedbackToSend.href = location.href
 
         api.sendFeedback('reload', feedbackToSend)

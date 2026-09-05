@@ -4,6 +4,8 @@ import { getGoogleToken } from './NotificationApi'
 import { v4 as generateUUID } from 'uuid'
 import { atobUnicode } from '../utils/Base64Utils'
 import cacheUtils from '../utils/CacheUtils'
+import { getClientErrorLog, recordClientError } from '../utils/ClientErrorUtils'
+import { errorJsonReplacer, serializeError } from '../utils/ErrorDiagnostics'
 import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { enchantmentAndReforgeCompare, toVariantItemTag } from '../utils/Formatter'
 import {
@@ -246,6 +248,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             return
         }
         if (isClientSideRendering()) {
+            recordClientError(error, 'api', { requestType })
             toast.error(
                 <span>
                     <div>{error.message}</div>
@@ -271,11 +274,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 }
             )
         }
-        console.log('RequestType: ' + requestType)
-        console.log('ErrorMessage: ' + error.message)
-        console.log('RequestData: ')
-        console.log(requestData)
-        console.log('------------------------------\n')
+        console.error(JSON.stringify({ event: 'web.api.error', requestType, error: serializeError(error) }))
     }
 
     let search = (searchText: string): Promise<SearchResultItem[]> => {
@@ -1376,17 +1375,19 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let sendFeedback = (feedbackKey: string, feedback: any): Promise<void> => {
         return new Promise((resolve, reject) => {
-            let googleId = sessionStorage.getItem('googleId')
             let user
             let email
-            if (googleId) {
-                let parts = googleId.split('.')
-                if (parts.length > 2) {
-                    let obj = JSON.parse(atobUnicode(parts[1]))
-                    user = obj.sub
-                    email = obj.email
+            try {
+                const googleId = sessionStorage.getItem('googleId')
+                if (googleId) {
+                    let parts = googleId.split('.')
+                    if (parts.length > 2) {
+                        let obj = JSON.parse(atobUnicode(parts[1]))
+                        user = obj.sub
+                        email = obj.email
+                    }
                 }
-            }
+            } catch {}
 
             // Mask last 2 characters of email local part if user ID isn't available
             let maskedEmail = ''
@@ -1418,6 +1419,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
             let feedbackWithUserInfo = {
                 ...feedback,
+                errorLog: getClientErrorLog(),
+                userAgent: navigator.userAgent,
                 _userEmail: maskedEmail,
                 _userId: user || '',
                 _premiumTier: premiumTier
@@ -1426,7 +1429,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             let requestData = {
                 Context: 'Skyblock',
                 User: user || '',
-                Feedback: JSON.stringify(feedbackWithUserInfo),
+                Feedback: JSON.stringify(feedbackWithUserInfo, errorJsonReplacer),
                 FeedbackName: feedbackKey
             }
 
