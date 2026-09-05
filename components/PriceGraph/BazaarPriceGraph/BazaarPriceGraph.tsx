@@ -19,7 +19,7 @@ import styles from './BazaarPriceGraph.module.css'
 import BazaarSnapshot from './BazaarSnapshot/BazaarSnapshot'
 import getPriceGraphConfigSingle from './PriceGraphConfigSingle'
 import getPriceGraphConfigSplit from './PriceGraphConfigSplit'
-import { applyMayorDataToChart } from '../../../utils/GraphUtils'
+import { applyMayorDataToChart, getChartZoomTimestamp } from '../../../utils/GraphUtils'
 import SubscribeButton from '../../SubscribeButton/SubscribeButton'
 import NitroAdSlot from '../../Ads/NitroAdSlot'
 
@@ -246,17 +246,21 @@ function BazaarPriceGraph(props: Props) {
         setChartOptionsSecondary(chartOptionsSecondary)
     }
 
-    function onChartsEvents(chartOptions, localStorageKey: string, chartRef: RefObject<ReactECharts | null>): Record<string, Function> {
+    function onChartsEvents(localStorageKey: string, chartRef: RefObject<ReactECharts | null>): Record<string, Function> {
         return {
             datazoom: e => {
-                let newChartOptions = { ...chartRef.current?.getEchartsInstance().getOption() }
-                applyMayorDataToChart(newChartOptions, mayorData, graphType === GRAPH_TYPE.SINGLE ? 10 : 5, e)
-                chartRef.current?.getEchartsInstance().setOption({
+                const chart = chartRef.current?.getEchartsInstance()
+                if (!chart) return
+                const newChartOptions = { ...chart.getOption() }
+                const zoom = e.batch?.[0] ?? e
+                const timestamps = (newChartOptions.xAxis as { data: number[] }[])[0].data
+                const midDate = getChartZoomTimestamp(timestamps, zoom)
+                if (!midDate) return
+                applyMayorDataToChart(newChartOptions, mayorData, graphType === GRAPH_TYPE.SINGLE ? 10 : 5, zoom)
+                chart.setOption({
                     series: newChartOptions.series
                 })
 
-                let midPercentage = (e.start + e.end) / 2 / 100
-                let midDate = new Date(+chartOptions.xAxis[0].data[Math.ceil(chartOptions.xAxis[0].data.length * midPercentage)])
                 setTimeout(() => {
                     document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, { detail: { timestamp: midDate } }))
                 }, 100)
@@ -409,7 +413,7 @@ function BazaarPriceGraph(props: Props) {
                                         ref={primaryChartRef}
                                         option={chartOptionsPrimary}
                                         className={styles.chart}
-                                        onEvents={onChartsEvents(chartOptionsPrimary, getLegendLocalStorageKey(true), primaryChartRef)}
+                                        onEvents={onChartsEvents(getLegendLocalStorageKey(true), primaryChartRef)}
                                     />
                                 ) : (
                                     graphOverlayElement
@@ -423,7 +427,7 @@ function BazaarPriceGraph(props: Props) {
                                             ref={secondaryChartRef}
                                             option={chartOptionsSecondary}
                                             className={styles.chart}
-                                            onEvents={onChartsEvents(chartOptionsSecondary, getLegendLocalStorageKey(false), secondaryChartRef)}
+                                            onEvents={onChartsEvents(getLegendLocalStorageKey(false), secondaryChartRef)}
                                         />
                                     ) : (
                                         graphOverlayElement

@@ -1656,7 +1656,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getBazaarSnapshot = (itemTag: string, timestamp: string | number | Date): Promise<BazaarSnapshot> => {
+    let getBazaarSnapshot = async (itemTag: string, timestamp: string | number | Date): Promise<BazaarSnapshot> => {
         let isoTimestamp = new Date(Math.round(new Date(timestamp).getTime() / 1000) * 1000).toISOString()
 
         return getApiBazaarItemTagSnapshot(itemTag, isoTimestamp ? { timestamp: isoTimestamp } : undefined)

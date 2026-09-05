@@ -2,7 +2,7 @@
 import moment from 'moment'
 import { useEffect, useRef, useState, type JSX } from 'react'
 import Card from 'react-bootstrap/Card'
-import { Table } from 'react-bootstrap'
+import { Alert, Button, Table } from 'react-bootstrap'
 import api from '../../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../../api/ApiTypes.d'
 import { useDebounce } from '../../../../utils/Hooks'
@@ -16,6 +16,7 @@ interface Props {
 function BazaarSnapshot(props: Props) {
     let [timestamp, setTimestamp] = useState<Date>(new Date())
     let [bazaarSnapshot, setBazaarSnapshot] = useState<BazaarSnapshot>()
+    const [hasSnapshotError, setHasSnapshotError] = useState(false)
     const [isPageVisible, setIsPageVisible] = useState(true)
 
     let debouncedTimestamp = useDebounce(timestamp, 100)
@@ -67,23 +68,20 @@ function BazaarSnapshot(props: Props) {
     }, [debouncedTimestamp])
 
     function onTimestampChangeEvent(e) {
-        if ((e as any).detail?.timestamp) {
-            let t = (e as any).detail?.timestamp
-            setTimestamp(t)
-        }
+        const nextTimestamp = e.detail?.timestamp
+        if (nextTimestamp instanceof Date && globalThis.Number.isFinite(nextTimestamp.getTime())) setTimestamp(nextTimestamp)
     }
 
-    function loadBazaarSnapshot() {
-        bazaarSnapshotDateRef.current = typeof debouncedTimestamp?.getTime === 'function' ? (debouncedTimestamp as Date).getTime() : debouncedTimestamp
-
-        api.getBazaarSnapshot(props.item.tag, debouncedTimestamp).then(snapshot => {
-            if (
-                bazaarSnapshotDateRef.current ===
-                (typeof debouncedTimestamp?.getTime === 'function' ? (debouncedTimestamp as Date).getTime() : debouncedTimestamp)
-            ) {
-                setBazaarSnapshot(snapshot)
-            }
-        })
+    async function loadBazaarSnapshot() {
+        const requestedTime = debouncedTimestamp.getTime()
+        bazaarSnapshotDateRef.current = requestedTime
+        setHasSnapshotError(false)
+        try {
+            const snapshot = await api.getBazaarSnapshot(props.item.tag, debouncedTimestamp)
+            if (bazaarSnapshotDateRef.current === requestedTime) setBazaarSnapshot(snapshot)
+        } catch {
+            if (bazaarSnapshotDateRef.current === requestedTime) setHasSnapshotError(true)
+        }
     }
 
     function getInformationBody(data: BazaarSnapshotData, type: string): JSX.Element {
@@ -150,15 +148,23 @@ function BazaarSnapshot(props: Props) {
         )
     }
 
-    if (!bazaarSnapshot) {
-        return null
-    }
+    const errorNotice = hasSnapshotError ? (
+        <Alert variant="warning">
+            Could not update Bazaar order data.{' '}
+            <Button variant="outline-secondary" size="sm" onClick={() => void loadBazaarSnapshot()}>
+                Retry snapshot
+            </Button>
+        </Alert>
+    ) : null
+
+    if (!bazaarSnapshot) return errorNotice
 
     const allOrders = [...bazaarSnapshot.buyOrders, ...bazaarSnapshot.sellOrders]
     const maxAmount = Math.max(...allOrders.map(o => o.amount), 0)
 
     return (
         <>
+            {errorNotice}
             <h3 className={styles.headline}>
                 {bazaarSnapshot.item.name}Bazaar Snaphot ({moment(bazaarSnapshot.timeStamp).format('MMMM Do YYYY, h:mm:ss a')})
             </h3>

@@ -1,3 +1,10 @@
+export function getChartZoomTimestamp(timestamps: number[], zoom: { start: number; end: number }): Date | undefined {
+    if (!timestamps.length || !Number.isFinite(zoom.start) || !Number.isFinite(zoom.end)) return
+    const midpoint = Math.max(0, Math.min(1, (zoom.start + zoom.end) / 200))
+    const timestamp = new Date(timestamps[Math.round((timestamps.length - 1) * midpoint)])
+    return Number.isFinite(timestamp.getTime()) ? timestamp : undefined
+}
+
 export function applyMayorDataToChart(chartOptions, mayorData: MayorData[], seriesIndex: number, zoomData?: { start: number; end: number }) {
     let minDate = new Date(chartOptions.xAxis[0].data[0])
     let maxDate = new Date(chartOptions.xAxis[0].data[chartOptions.xAxis[0].data.length - 1])

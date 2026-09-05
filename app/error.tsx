@@ -5,7 +5,7 @@ import { Error } from '../components/Error/Error'
 export default function Custom500({ error }) {
     return (
         <>
-            <Error title="500 - Server-side error occurred" errorObject={error} />
+            <Error title="Unable to load this page" errorObject={error} onRetry={() => window.location.reload()} />
         </>
     )
 }
