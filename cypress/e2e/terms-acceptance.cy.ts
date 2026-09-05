@@ -74,15 +74,15 @@ function stubAccountRequests() {
         }
     }).as('terms')
     cy.intercept('POST', '**/api/premium/user/owns', { statusCode: 200, body: {} }).as('owns')
-    cy.intercept('GET', '**/api/premium/subscription', { statusCode: 200, body: [] })
-    cy.intercept('GET', '**/api/premium/transactions', { statusCode: 200, body: [] }).as('transactions')
+    cy.intercept('GET', '**/api/premium/subscription', { statusCode: 200, body: [] }).as('subscriptions')
+    cy.intercept('GET', '**/api/premium/transactions', { statusCode: 200, body: [] })
 }
 
 describe('Terms acceptance reminder', () => {
     it('highlights changed terms, uses the readable viewer, and waits twelve hours after continuing', () => {
         stubAccountRequests()
         cy.visit('/account', { onBeforeLoad: installAuthenticatedWebSocket })
-        cy.wait(['@terms', '@owns', '@transactions'])
+        cy.wait(['@terms', '@owns', '@subscriptions'])
         cy.window().should(window => {
             const cacheKeys = Object.keys(window.sessionStorage).filter(key => key.startsWith('skycoflApiCache:'))
             expect(cacheKeys).to.have.length(2)
@@ -108,7 +108,7 @@ describe('Terms acceptance reminder', () => {
         })
 
         cy.visit('/account', { onBeforeLoad: window => installAuthenticatedWebSocket(window, false) })
-        cy.wait('@transactions')
+        cy.wait('@subscriptions')
         cy.get('@terms.all').should('have.length', 1)
         cy.get('@owns.all').should('have.length', 1)
         cy.contains('Review the SkyCofl agreement').should('not.exist')
