@@ -12,6 +12,7 @@ import { SimpleEqualFilterElement } from './FilterElements/SimpleEqualFilterElem
 import { EqualFilterElement } from './FilterElements/EqualFilterElement'
 import { PlayerWithRankFilterElement } from './FilterElements/PlayerWithRankFilterElement'
 import { ColorFilterElement } from './FilterElements/ColorFilterElement'
+import { previewColorFilter } from './FilterElements/ColorFilterUtils'
 import { BooleanFilterElement } from './FilterElements/BooleanFilterElement'
 import styles from './FilterElement.module.css'
 import { NumericalFilterElement } from './FilterElements/NumericalFilterElement'
@@ -73,6 +74,7 @@ function FilterElement(props: Props) {
     }
 
     function updateValue(value: string) {
+        if (['Color', 'HexColorList'].includes(props.options?.name || '')) value = value.trim()
         if (!validate(value)) {
             return
         }
@@ -99,6 +101,12 @@ function FilterElement(props: Props) {
             setErrorText('Please fill the filter or remove it')
             setIsValid(false)
             return false
+        }
+        if (['Color', 'HexColorList'].includes(props.options?.name || '')) {
+            const error = previewColorFilter(value.toString()).error
+            setIsValid(!error)
+            setErrorText(error || '')
+            return !error
         }
         if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL) && hasFlag(props.options.type, FilterType.RANGE)) {
             let validationResult = validateFilterRange(value.toString(), props.options)
@@ -149,8 +157,8 @@ function FilterElement(props: Props) {
 
     function getFilterElement(type: FilterType, options: FilterOptions): JSX.Element {
         // Special case for the color filter, as there is no FilterType on the backend for that
-        if (options.name === 'Color') {
-            return <ColorFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
+        if (['Color', 'HexColorList'].includes(options.name)) {
+            return <ColorFilterElement key={options.name} value={String(value ?? props.defaultValue ?? '')} onChange={onFilterElementChange} />
         }
         if (
             hasFlag(type, FilterType.NUMERICAL) &&
