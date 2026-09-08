@@ -4,6 +4,16 @@ describe('Auction page', () => {
         cy.wait(10000)
     })
 
+    it('finishes rendering an unavailable auction instead of hanging on the API error', () => {
+        cy.request({
+            url: '/auction/00000000000040008000000000000000',
+            timeout: 10000
+        }).then(response => {
+            expect(response.status).to.equal(200)
+            expect(response.body).to.include('Auction Not Found')
+        })
+    })
+
     it('contains relevant information', () => {
         cy.visit('/auction/73137bc47df84d31a9d8b010078ada0f')
         cy.contains('div', 'Category:').parent().within(() => {

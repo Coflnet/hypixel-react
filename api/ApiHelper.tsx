@@ -531,41 +531,25 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getAuctionDetails = (auctionUUID: string): Promise<{ parsed: AuctionDetails; original: any }> => {
-        return new Promise((resolve, reject) => {
-            getApiAuctionAuctionUuid(auctionUUID)
-                .then(response => {
-                    let auctionDetails = response.data as any
-                    if (!auctionDetails) {
-                        reject()
-                        return
-                    }
-                    if (!auctionDetails.auctioneer) {
-                        api.getPlayerName(auctionDetails.auctioneerId)
-                            .then(name => {
-                                auctionDetails.auctioneer = {
-                                    name,
-                                    uuid: auctionDetails.auctioneerId
-                                }
-                            })
-                            .catch(e => {
-                                console.error(`Error fetching playername for ${auctionDetails.auctioneerId}. ${JSON.stringify(e)}`)
-                                auctionDetails.auctioneer = {
-                                    name: '',
-                                    uuid: auctionDetails.auctioneerId
-                                }
-                            })
-                            .finally(() => {
-                                resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
-                            })
-                    } else {
-                        resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
-                    }
-                })
-                .catch(error => {
-                    reject(error)
-                })
-        })
+    let getAuctionDetails = async (auctionUUID: string): Promise<{ parsed: AuctionDetails; original: any }> => {
+        const response = await getApiAuctionAuctionUuid(auctionUUID)
+        if (response.status < 200 || response.status >= 300) {
+            throw new Error(`Auction lookup failed: HTTP ${response.status}`)
+        }
+        const auctionDetails = response.data as any
+        if (!auctionDetails) {
+            throw new Error('Auction details not found')
+        }
+        if (!auctionDetails.auctioneer) {
+            let name = ''
+            try {
+                name = await api.getPlayerName(auctionDetails.auctioneerId)
+            } catch (e) {
+                console.error(`Error fetching playername for ${auctionDetails.auctioneerId}. ${JSON.stringify(e)}`)
+            }
+            auctionDetails.auctioneer = { name, uuid: auctionDetails.auctioneerId }
+        }
+        return { parsed: parseAuctionDetails(auctionDetails), original: auctionDetails }
     }
 
     let getPlayerName = (uuid: string): Promise<string> => {
