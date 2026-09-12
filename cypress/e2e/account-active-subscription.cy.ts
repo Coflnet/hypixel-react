@@ -42,7 +42,7 @@ function installAuthenticatedWebSocket(window: Cypress.AUTWindow) {
     window.document.cookie = 'nonEssentialCookiesAllowed=false; path=/'
 }
 
-function visitAccount() {
+function visitAuthenticatedPage(path = '/account') {
     cy.intercept('GET', '**/api/user/terms*', {
         statusCode: 200,
         body: {
@@ -60,7 +60,7 @@ function visitAccount() {
         }
     })
     cy.intercept('GET', '**/api/premium/transactions', { statusCode: 200, body: [] })
-    cy.visit('/account', { onBeforeLoad: installAuthenticatedWebSocket })
+    cy.visit(path, { onBeforeLoad: installAuthenticatedWebSocket })
 }
 
 function stubProducts(response: StubResponse = { statusCode: 200, body: {} }) {
@@ -90,7 +90,7 @@ describe('Account deletion with subscription lookup', () => {
             premium_plus: { expiresAt: '2099-02-01T00:00:00Z', ownerId: 'another-account', slotId: 42, canManage: false }
         } })
         stubSubscriptions({ statusCode: 200, body: [] })
-        visitAccount()
+        visitAuthenticatedPage()
         cy.wait(['@products', '@subscriptions'])
         cy.contains('Provided by another account. Only the purchaser can change or cancel this slot.').should('be.visible')
         cy.contains('button', 'Cancel subscription').should('not.exist')
@@ -105,7 +105,7 @@ describe('Account deletion with subscription lookup', () => {
             request.reply({ statusCode: 200, body: { message: 'Deleted' } })
         }).as('deleteAccount')
 
-        visitAccount()
+        visitAuthenticatedPage()
 
         deleteAccountButton().should('be.disabled')
         cy.wait('@subscriptions')
@@ -119,7 +119,7 @@ describe('Account deletion with subscription lookup', () => {
         stubProducts()
         stubSubscriptions({ forceNetworkError: true })
 
-        visitAccount()
+        visitAuthenticatedPage()
 
         cy.wait('@subscriptions')
         deleteAccountButton().should('be.disabled')
@@ -130,7 +130,7 @@ describe('Account deletion with subscription lookup', () => {
         stubProducts({ forceNetworkError: true })
         stubSubscriptions({ statusCode: 200, body: [] })
 
-        visitAccount()
+        visitAuthenticatedPage()
 
         cy.wait(['@products', '@subscriptions'])
         cy.contains('Premium products could not be loaded').should('be.visible')
@@ -142,7 +142,7 @@ describe('Account deletion with subscription lookup', () => {
         stubSubscriptions({ statusCode: 200, body: [activeSubscription] })
         cy.intercept('DELETE', '**/api/premium/subscription/active-subscription', { statusCode: 200 }).as('cancelSubscription')
 
-        visitAccount()
+        visitAuthenticatedPage()
 
         cy.wait(['@products', '@subscriptions'])
         deleteAccountButton().should('be.disabled')
@@ -169,7 +169,7 @@ describe('Account deletion with subscription lookup', () => {
             body: [{ ...activeSubscription, externalId: 'canceled-subscription', endsAt: '2099-01-15T00:00:00Z' }]
         })
 
-        visitAccount()
+        visitAuthenticatedPage()
 
         cy.wait('@subscriptions')
         deleteAccountButton().should('be.disabled')
@@ -187,7 +187,7 @@ describe('Subscription plan changes', () => {
         stubProducts()
         stubSubscriptions({ statusCode: 200, body: [activeSubscription] })
         cy.intercept('GET', '**/api/premium/subscription/active-subscription/plans', response).as('plans')
-        visitAccount()
+        visitAuthenticatedPage()
         cy.wait('@subscriptions')
         cy.contains('button', 'Change subscription plan').click()
         cy.wait('@plans')
@@ -231,5 +231,77 @@ describe('Subscription plan changes', () => {
         cy.contains('button', 'Upgrade and pay difference').click()
         cy.get('[role="alert"]').should('contain', 'agreement')
         cy.contains('a', 'Review agreement').should('have.attr', 'href', '/premium')
+    })
+})
+
+
+describe('Premium page upgrade button', () => {
+    const upgrade = { productSlug: 'l_prem_plus-slots-4', title: 'Four Premium+ slots', price: 99.69,
+        currencyCode: 'eur', ownershipSeconds: 2419200, slotCount: 4, isUpgrade: true }
+    const downgrade = { ...upgrade, productSlug: 'l_premium-slots-4', title: 'Four Premium slots', price: 29.69, isUpgrade: false }
+
+    function visitPremium(subscriptions: StubResponse) {
+        stubProducts({ statusCode: 200, body: { premium: { expiresAt: '2099-02-01T00:00:00Z' } } })
+        stubSubscriptions(subscriptions)
+        visitAuthenticatedPage('/premium')
+        cy.wait(['@products', '@subscriptions'])
+    }
+
+    it('upgrades the existing subscription instead of opening a purchase wizard', () => {
+        cy.intercept('GET', '**/api/premium/subscription/active-subscription/plans', { statusCode: 200, body: [downgrade, upgrade] }).as('plans')
+        cy.intercept('PUT', '**/api/premium/subscription/active-subscription/switch*', request => {
+            expect(request.headers.googletoken).to.equal(googleToken)
+            expect(request.query.targetProductSlug).to.equal(upgrade.productSlug)
+            request.reply({ statusCode: 200, body: { status: 'completed' } })
+        }).as('upgrade')
+        visitPremium({ statusCode: 200, body: [{ ...activeSubscription, productName: 'premium' }] })
+        cy.contains('button', 'Upgrade to Higher Tier').click()
+        cy.wait('@plans')
+        cy.contains('.modal-title', 'Upgrade subscription').should('be.visible')
+        cy.contains('Four Premium+ slots').should('contain', '99.69')
+        cy.get('.modal input[type="radio"]').should('have.length', 1)
+        cy.contains('The upgrade applies after payment.').should('be.visible')
+        cy.get('#buyPremium').should('not.exist')
+        cy.contains('button', 'Upgrade and pay difference').click()
+        cy.wait('@upgrade')
+        cy.contains('Your subscription plan has been updated.').should('be.visible')
+    })
+
+    it('does not offer downgrades or a new purchase when no higher tier is available', () => {
+        cy.intercept('GET', '**/api/premium/subscription/active-subscription/plans', { statusCode: 200, body: [downgrade] }).as('plans')
+        visitPremium({ statusCode: 200, body: [activeSubscription] })
+        cy.contains('button', 'Upgrade to Higher Tier').click()
+        cy.wait('@plans')
+        cy.contains('No higher-tier plan is available for this subscription.').should('be.visible')
+        cy.contains('button', 'Change next renewal').should('not.exist')
+        cy.contains('button', 'Upgrade and pay difference').should('not.exist')
+        cy.get('#buyPremium').should('not.exist')
+    })
+
+    it('keeps the purchase wizard for prepaid accounts without a subscription', () => {
+        visitPremium({ statusCode: 200, body: [] })
+        cy.contains('button', 'Upgrade to Higher Tier').click()
+        cy.get('#buyPremium').should('be.visible').and('contain', 'Upgrade Premium')
+        cy.contains('.modal-title', 'Upgrade subscription').should('not.exist')
+    })
+
+    it('disables upgrading when subscription lookup fails', () => {
+        visitPremium({ forceNetworkError: true })
+        cy.contains('Premium subscriptions could not be loaded').should('be.visible')
+        cy.contains('button', 'Upgrade to Higher Tier').should('be.disabled')
+        cy.get('#buyPremium').should('not.exist')
+    })
+
+    it('keeps each active subscription separate and excludes canceled subscriptions', () => {
+        cy.intercept('GET', '**/api/premium/subscription/active-subscription/plans', { statusCode: 200, body: [upgrade] }).as('plans')
+        visitPremium({ statusCode: 200, body: [
+            { ...activeSubscription, externalId: 'canceled-subscription', endsAt: '2099-01-15T00:00:00Z' },
+            { ...activeSubscription, externalId: 'plus-subscription', productName: 'premium_plus' },
+            { ...activeSubscription, productName: 'premium' }
+        ] })
+        cy.contains('h2', 'Extend Premium').parent().find('button').should('have.length', 2)
+        cy.contains('span', /^Premium — renews/).parent().contains('button', 'Upgrade to Higher Tier').click()
+        cy.wait('@plans')
+        cy.contains('.modal-title', 'Upgrade subscription').should('be.visible')
     })
 })

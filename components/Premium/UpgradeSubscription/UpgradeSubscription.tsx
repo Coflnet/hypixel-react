@@ -5,7 +5,7 @@ import { Button, Form, Modal, Spinner } from 'react-bootstrap'
 import { changeSubscriptionPlan, getSubscriptionPlans, SubscriptionChangeResult, SubscriptionPlan } from '../../../api/SubscriptionPlans'
 import { getLocalDateAndTime } from '../../../utils/Formatter'
 
-export default function UpgradeSubscription({ subscription }: { subscription: PremiumSubscription }) {
+export default function UpgradeSubscription({ subscription, upgradeOnly = false }: { subscription: PremiumSubscription; upgradeOnly?: boolean }) {
     const [show, setShow] = useState(false)
     const [plans, setPlans] = useState<SubscriptionPlan[]>([])
     const [selected, setSelected] = useState('')
@@ -21,7 +21,7 @@ export default function UpgradeSubscription({ subscription }: { subscription: Pr
         setPlans([])
         setSelected('')
         try {
-            const available = await getSubscriptionPlans(subscription.externalId)
+            const available = (await getSubscriptionPlans(subscription.externalId)).filter(plan => !upgradeOnly || plan.isUpgrade)
             setPlans(available)
             setSelected(available[0]?.productSlug ?? '')
         } catch (error) {
@@ -44,13 +44,15 @@ export default function UpgradeSubscription({ subscription }: { subscription: Pr
     }
 
     return <>
-        <Button size="sm" variant="outline-primary" className="ms-1" onClick={open}>Change subscription plan</Button>
+        <Button size={upgradeOnly ? undefined : "sm"} variant={upgradeOnly ? "success" : "outline-primary"} className="ms-1" onClick={open}>
+            {upgradeOnly ? '🚀 Upgrade to Higher Tier' : 'Change subscription plan'}
+        </Button>
         <Modal show={show} onHide={() => !busy && setShow(false)} backdrop={busy ? 'static' : true} keyboard={!busy}>
-            <Modal.Header closeButton={!busy}><Modal.Title>Change subscription plan</Modal.Title></Modal.Header>
+            <Modal.Header closeButton={!busy}><Modal.Title>{upgradeOnly ? 'Upgrade subscription' : 'Change subscription plan'}</Modal.Title></Modal.Header>
             <Modal.Body>
                 {busy && <Spinner size="sm" aria-label="Loading subscription plans" />}
                 {error && <p role="alert">{error} {error.includes('agreement') && <a href="/premium">Review agreement</a>}</p>}
-                {!busy && !error && !result && plans.length === 0 && <p>No plan changes are currently available for this subscription.</p>}
+                {!busy && !error && !result && plans.length === 0 && <p>{upgradeOnly ? 'No higher-tier plan is available for this subscription.' : 'No plan changes are currently available for this subscription.'}</p>}
                 {!result && plans.map(plan => <Form.Check
                     key={plan.productSlug}
                     id={`plan-${plan.productSlug}`}

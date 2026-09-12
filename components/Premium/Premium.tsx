@@ -10,7 +10,8 @@ import styles from './Premium.module.css'
 import CoflCoinsPurchase from '../CoflCoins/CoflCoinsPurchase'
 import BuyPremium from './BuyPremium/BuyPremium'
 import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
-import { getHighestPriorityPremiumProduct } from '../../utils/PremiumTypeUtils'
+import { getHighestPriorityPremiumProduct, getPremiumLabelForSubscription } from '../../utils/PremiumTypeUtils'
+import { getLocalDateAndTime } from '../../utils/Formatter'
 import PremiumStatus from './PremiumStatus/PremiumStatus'
 import { toast } from 'react-toastify'
 import BuySubscription from './BuySubscription/BuySubscription'
@@ -18,6 +19,7 @@ import PremiumPurchaseWizard from './PremiumPurchaseWizard/PremiumPurchaseWizard
 import { parseTierFromUrl } from '../../utils/PremiumUpgradeUtils'
 import { CoinsSaleNote } from '../Discounts/DiscountBanners'
 import AgreementDocumentList from '../Legal/AgreementDocumentList'
+import UpgradeSubscription from './UpgradeSubscription/UpgradeSubscription'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -25,6 +27,7 @@ function Premium() {
     let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
     let [products, setProducts] = useState<PremiumProduct[]>([])
     let [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
+    let [hasSubscriptionLoadingError, setHasSubscriptionLoadingError] = useState(false)
     let [isLoading, setIsLoading] = useState(false)
     let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
     let [isSSR, setIsSSR] = useState(true)
@@ -83,10 +86,11 @@ function Premium() {
     }
 
     function loadPremiumSubscriptions(): Promise<void> {
+        setHasSubscriptionLoadingError(false)
         return api.getPremiumSubscriptions().then(subscriptions => {
             subscriptions = subscriptions.filter(subscription => !subscription.endsAt || subscription.endsAt.getTime() > new Date().getTime())
             setPremiumSubscriptions(subscriptions)
-        })
+        }).catch(() => setHasSubscriptionLoadingError(true))
     }
 
     function loadTermsStatus(): Promise<void> {
@@ -139,6 +143,7 @@ function Premium() {
     }
 
     const canPurchase = termsStatus?.canStartNewContract === true
+    const activeSubscriptions = premiumSubscriptions.filter(subscription => !subscription.endsAt)
 
     return (
         <div>
@@ -167,7 +172,7 @@ function Premium() {
             ) : null}
             <hr />
             <div style={{ marginBottom: '20px' }}>
-                {isLoggedIn ? <PremiumStatus products={products} subscriptions={premiumSubscriptions} onSubscriptionCancel={onSubscriptionCancel} /> : null}
+                {isLoggedIn ? <PremiumStatus products={products} subscriptions={premiumSubscriptions} onSubscriptionCancel={onSubscriptionCancel} hasSubscriptionLoadingError={hasSubscriptionLoadingError} /> : null}
                 <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
                 <div>{isLoading ? getLoadingElement() : ''}</div>
             </div>
@@ -217,14 +222,25 @@ function Premium() {
                     />
                 </div>
             ) : null}
-            {isLoggedIn && canPurchase && hasPremium && !showUpgradeWizard ? (
+            {isLoggedIn && !isLoading && canPurchase && hasPremium && !showUpgradeWizard ? (
                 <div style={{ marginBottom: '20px' }}>
                     <hr />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                         <h2>Extend Premium</h2>
-                        <Button variant="success" onClick={() => setShowUpgradeWizard(true)}>
-                            🚀 Upgrade to Higher Tier
-                        </Button>
+                        {!hasSubscriptionLoadingError && activeSubscriptions.length > 0 ? (
+                            <div>
+                                {activeSubscriptions.map(subscription => (
+                                    <div key={subscription.externalId}>
+                                        {activeSubscriptions.length > 1 && <span>{getPremiumLabelForSubscription(subscription)} — renews {getLocalDateAndTime(subscription.renewsAt)} </span>}
+                                        <UpgradeSubscription subscription={subscription} upgradeOnly />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <Button variant="success" disabled={hasSubscriptionLoadingError} onClick={() => setShowUpgradeWizard(true)}>
+                                🚀 Upgrade to Higher Tier
+                            </Button>
+                        )}
                     </div>
                     <p style={{ marginBottom: '30px' }} className="text-muted">
                         Already have premium? You can extend your subscription, add more time, or upgrade to a higher tier.
