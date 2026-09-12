@@ -16,6 +16,7 @@ let apiSubscriptions: ApiSubscription[] = []
 
 function initWebsocket(): void {
     let onWebsocketClose = (): void => {
+        isConnectionIdSet = false
         var timeout = Math.random() * (5000 - 0) + 0
         reconnectTimeout = setTimeout(() => {
             reconnectTimeout = undefined
@@ -47,6 +48,8 @@ function initWebsocket(): void {
                     localStorage.setItem('googleId', token)
                     _reconnect()
                 })
+            } else if (isReconnecting) {
+                _reconnect()
             }
         })
     }

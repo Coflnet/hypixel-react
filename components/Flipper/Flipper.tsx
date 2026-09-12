@@ -279,10 +279,10 @@ function Flipper(props: Props) {
 
     function getLastFlipFetchTime() {
         setLastFlipFetchTimeLoading(true)
-        api.getFlipUpdateTime().then(date => {
-            setLastFlipFetchTimeSeconds(date.getSeconds() % 60)
-            setLastFlipFetchTimeLoading(false)
-        })
+        api.getFlipUpdateTime()
+            .then(date => setLastFlipFetchTimeSeconds(date.getSeconds() % 60))
+            .catch(() => setLastFlipFetchTimeSeconds(undefined))
+            .finally(() => setLastFlipFetchTimeLoading(false))
     }
 
     function onNextFlipNotification() {
@@ -700,10 +700,11 @@ function Flipper(props: Props) {
                         </Form>
                         <hr />
                         {flips.length === 0 && !isLoading ? (
-                            <Alert variant="info" style={{ position: 'absolute', marginRight: 15 }}>
+                            <Alert variant="info">
                                 <Alert.Heading style={{ fontSize: '1rem' }}>Waiting for new auctions</Alert.Heading>
                                 <p style={{ marginBottom: 10 }}>
-                                    Your filter settings are limiting results. New flips probably show up soon. If they don't in 1-2 Minutes try making your settings less strict, eg reduce your minimum profit or remove blacklist filter rules.
+                                    New flips may take a few minutes to arrive. If none appear, check your connection or try less strict filters, such as a
+                                    lower minimum profit or fewer blacklist rules.
                                 </p>
                                 <Tooltip
                                     type="hover"

@@ -690,6 +690,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_FLIPS, error, '')
+                    reject(error)
                 }
             })
         })
