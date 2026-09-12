@@ -85,6 +85,18 @@ const activeSubscription = {
 }
 
 describe('Account deletion with subscription lookup', () => {
+    it('shows delegated premium as owner-managed without subscription controls', () => {
+        stubProducts({ statusCode: 200, body: {
+            premium_plus: { expiresAt: '2099-02-01T00:00:00Z', ownerId: 'another-account', slotId: 42, canManage: false }
+        } })
+        stubSubscriptions({ statusCode: 200, body: [] })
+        visitAccount()
+        cy.wait(['@products', '@subscriptions'])
+        cy.contains('Provided by another account. Only the purchaser can change or cancel this slot.').should('be.visible')
+        cy.contains('button', 'Cancel subscription').should('not.exist')
+        cy.contains('Reactivate subscription').should('not.exist')
+    })
+
     it('stays disabled while subscriptions load, then preserves authenticated deletion', () => {
         stubProducts()
         stubSubscriptions({ statusCode: 200, delay: 1200, body: [] })
@@ -163,5 +175,61 @@ describe('Account deletion with subscription lookup', () => {
         deleteAccountButton().should('be.disabled')
         cy.contains('Canceled').should('be.visible')
         cy.contains('button', 'Cancel subscription').should('not.exist')
+    })
+})
+
+
+describe('Subscription plan changes', () => {
+    const plan = { productSlug: 'l_prem_plus-slots-4', title: 'Four Premium+ slots', price: 99.69,
+        currencyCode: 'eur', ownershipSeconds: 2419200, slotCount: 4, isUpgrade: true }
+
+    function openPlan(response: StubResponse = { statusCode: 200, body: [plan] }) {
+        stubProducts()
+        stubSubscriptions({ statusCode: 200, body: [activeSubscription] })
+        cy.intercept('GET', '**/api/premium/subscription/active-subscription/plans', response).as('plans')
+        visitAccount()
+        cy.wait('@subscriptions')
+        cy.contains('button', 'Change subscription plan').click()
+        cy.wait('@plans')
+    }
+
+    it('shows the price, authenticates the change, and prevents duplicate submission', () => {
+        cy.intercept('PUT', '**/api/premium/subscription/active-subscription/switch*', request => {
+            expect(request.headers.googletoken).to.equal(googleToken)
+            expect(request.query.targetProductSlug).to.equal(plan.productSlug)
+            request.reply({ statusCode: 200, delay: 700, body: { status: 'completed' } })
+        }).as('changePlan')
+        openPlan()
+        cy.contains('Four Premium+ slots').should('contain', '99.69')
+        cy.contains('button', 'Upgrade and pay difference').click().should('be.disabled')
+        cy.wait('@changePlan')
+        cy.contains('Your subscription plan has been updated.').should('be.visible')
+        cy.get('@changePlan.all').should('have.length', 1)
+    })
+
+    it('explains that downgrades preserve the paid tier until renewal', () => {
+        cy.intercept('PUT', '**/api/premium/subscription/active-subscription/switch*', { statusCode: 200, body: { status: 'completed' } }).as('changePlan')
+        openPlan({ statusCode: 200, body: [{ ...plan, productSlug: 'l_premium-slots-4', title: 'Four Premium slots', price: 29.69, isUpgrade: false }] })
+        cy.contains('Your current paid tier stays active until renewal.').should('be.visible')
+        cy.contains('Four Premium slots').should('contain', '29.69')
+        cy.contains('button', 'Change next renewal').click()
+        cy.wait('@changePlan')
+    })
+
+    it('provides the PayPal confirmation link without claiming completion', () => {
+        const portal = 'https://test.lemonsqueezy.com/billing/subscription/update'
+        cy.intercept('PUT', '**/api/premium/subscription/active-subscription/switch*', { statusCode: 200, body: { status: 'redirect', redirectUrl: portal } })
+        openPlan()
+        cy.contains('button', 'Upgrade and pay difference').click()
+        cy.contains('a', 'Continue in Lemon Squeezy').should('have.attr', 'href', portal)
+        cy.contains('Your subscription plan has been updated.').should('not.exist')
+    })
+
+    it('shows agreement errors without claiming the plan changed', () => {
+        cy.intercept('PUT', '**/api/premium/subscription/active-subscription/switch*', { statusCode: 428, body: {} })
+        openPlan()
+        cy.contains('button', 'Upgrade and pay difference').click()
+        cy.get('[role="alert"]').should('contain', 'agreement')
+        cy.contains('a', 'Review agreement').should('have.attr', 'href', '/premium')
     })
 })

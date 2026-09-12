@@ -670,6 +670,9 @@ interface AccountDeletionResult {
 interface PremiumProduct {
     expires: Date
     productSlug: string
+    ownerId?: string
+    slotId?: number
+    canManage?: boolean
 }
 
 type ServicePurchaseDeclaration = import('./api/_generated/skyApi.schemas').LegalDeclaration

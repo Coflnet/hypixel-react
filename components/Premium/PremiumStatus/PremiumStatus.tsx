@@ -9,6 +9,7 @@ import { CancelOutlined, RestartAlt } from '@mui/icons-material'
 import CancelSubscriptionFeedbackDialog from '../CancelSubscriptionFeedbackDialog/CancelSubscriptionFeedbackDialog'
 import { usePutApiPremiumSubscriptionExternalIdReactivate } from '../../../api/_generated/skyApi'
 import { toast } from 'react-toastify'
+import UpgradeSubscription from '../UpgradeSubscription/UpgradeSubscription'
 
 interface Props {
     products: PremiumProduct[]
@@ -119,6 +120,9 @@ function PremiumStatus(props: Props) {
         return (
             <>
                 <span>{getPremiumType(product)?.label}</span>
+                {product.canManage === false && (
+                    <span> — Provided by another account. Only the purchaser can change or cancel this slot.</span>
+                )}
                 <Tooltip
                     type="hover"
                     content={
@@ -187,6 +191,9 @@ function PremiumStatus(props: Props) {
                                                 }
                                                 tooltipContent={<span>Reactivate subscription</span>}
                                             />
+                                        )}
+                                        {!subscription.endsAt && (
+                                            <UpgradeSubscription subscription={subscription} />
                                         )}
                                         {!subscription.endsAt && (
                                             <button

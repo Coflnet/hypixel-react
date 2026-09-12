@@ -653,7 +653,10 @@ export function parsePremiumProducts(productsObject): PremiumProduct[] {
     Object.keys(productsObject).forEach(key => {
         products.push({
             productSlug: key,
-            expires: parseDate(productsObject[key].expiresAt)
+            expires: parseDate(productsObject[key].expiresAt),
+            ownerId: productsObject[key].ownerId,
+            slotId: productsObject[key].slotId,
+            canManage: productsObject[key].canManage ?? true
         })
     })
     return products
