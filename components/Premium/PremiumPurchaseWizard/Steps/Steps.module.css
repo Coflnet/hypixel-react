@@ -442,3 +442,13 @@
         font-size: 0.85rem;
     }
 }
+
+@media (min-width: 769px) {
+    .optionsGrid.oneOption {
+        grid-template-columns: 1fr;
+    }
+
+    .optionsGrid.twoOptions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

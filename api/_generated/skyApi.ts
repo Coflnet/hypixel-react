@@ -26,6 +26,9 @@ import type {
 
 import type {
   AcceptTermsRequest,
+  OwnedTierSlot,
+  PurchaseableProduct,
+  SlotRecipient,
   AdvancedAnalysisResult,
   ArchiveResponse,
   AttributeFlip,
@@ -253,6 +256,12 @@ const parseGeneratedResponseBody = (body: string | null): any => {
     return body
   }
 }
+
+
+
+
+
+
 
 
 
@@ -18130,3 +18139,315 @@ export const usePostApiUserTerms = <TError = PostApiUserTerms401One | string | v
       > => {
       return useMutation(getPostApiUserTermsMutationOptions(options), queryClient);
     }
+
+const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKey: K } => {
+  const result = { queryKey } as T & { queryKey: K };
+  for (const key of Object.keys(query)) {
+    // The explicit queryKey always wins, matching the previous
+    // `{ ...query, queryKey }` spread where it was set last.
+    if (key === 'queryKey') continue;
+    Object.defineProperty(result, key, {
+      enumerable: true,
+      configurable: true,
+      get: () => (query as Record<string, unknown>)[key],
+    });
+  }
+  return result;
+};
+
+export type getApiPremiumSlotsResponse200TextPlain = {
+  data: OwnedTierSlot[]
+  status: 200
+}
+
+export type getApiPremiumSlotsResponse200ApplicationJson = {
+  data: OwnedTierSlot[]
+  status: 200
+}
+
+export type getApiPremiumSlotsResponse200TextJson = {
+  data: OwnedTierSlot[]
+  status: 200
+}
+
+export type getApiPremiumSlotsResponseSuccess = (getApiPremiumSlotsResponse200TextPlain | getApiPremiumSlotsResponse200ApplicationJson | getApiPremiumSlotsResponse200TextJson) & {
+  headers: Headers;
+};
+;
+
+export type getApiPremiumSlotsResponse = (getApiPremiumSlotsResponseSuccess)
+
+export const getGetApiPremiumSlotsUrl = () => {
+
+
+
+
+  return `https://sky.coflnet.com/api/premium/slots`
+}
+
+export const getApiPremiumSlots = async ( options?: RequestInit): Promise<getApiPremiumSlotsResponse> => {
+
+  const res = await fetch(getGetApiPremiumSlotsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiPremiumSlotsResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiPremiumSlotsResponse
+}
+
+
+
+
+
+export const getGetApiPremiumSlotsQueryKey = () => {
+    return [
+    `https://sky.coflnet.com/api/premium/slots`
+    ] as const;
+    }
+
+
+export const getGetApiPremiumSlotsQueryOptions = <TData = Awaited<ReturnType<typeof getApiPremiumSlots>>, TError = unknown>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSlots>>, TError, TData>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiPremiumSlotsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPremiumSlots>>> = ({ signal }) => getApiPremiumSlots({ signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSlots>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetApiPremiumSlotsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPremiumSlots>>>
+export type GetApiPremiumSlotsQueryError = unknown
+
+
+
+export function useGetApiPremiumSlots<TData = Awaited<ReturnType<typeof getApiPremiumSlots>>, TError = unknown>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSlots>>, TError, TData>, fetch?: RequestInit}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetApiPremiumSlotsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+
+export type putApiPremiumSlotsIdAssignmentResponse204 = {
+  data: void
+  status: 204
+}
+
+export type putApiPremiumSlotsIdAssignmentResponse400TextPlain = {
+  data: string
+  status: 400
+}
+
+export type putApiPremiumSlotsIdAssignmentResponse400ApplicationJson = {
+  data: string
+  status: 400
+}
+
+export type putApiPremiumSlotsIdAssignmentResponse400TextJson = {
+  data: string
+  status: 400
+}
+
+export type putApiPremiumSlotsIdAssignmentResponseSuccess = (putApiPremiumSlotsIdAssignmentResponse204) & {
+  headers: Headers;
+};
+export type putApiPremiumSlotsIdAssignmentResponseError = (putApiPremiumSlotsIdAssignmentResponse400TextPlain | putApiPremiumSlotsIdAssignmentResponse400ApplicationJson | putApiPremiumSlotsIdAssignmentResponse400TextJson) & {
+  headers: Headers;
+};
+
+export type putApiPremiumSlotsIdAssignmentResponse = (putApiPremiumSlotsIdAssignmentResponseSuccess | putApiPremiumSlotsIdAssignmentResponseError)
+
+export const getPutApiPremiumSlotsIdAssignmentUrl = (id: string,) => {
+
+
+
+
+  return `https://sky.coflnet.com/api/premium/slots/${id}/assignment`
+}
+
+export const putApiPremiumSlotsIdAssignment = async (id: string,
+    slotRecipient?: SlotRecipient, options?: RequestInit): Promise<putApiPremiumSlotsIdAssignmentResponse> => {
+
+  const res = await fetch(getPutApiPremiumSlotsIdAssignmentUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(slotRecipient)
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: putApiPremiumSlotsIdAssignmentResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as putApiPremiumSlotsIdAssignmentResponse
+}
+
+
+
+
+
+export const getPutApiPremiumSlotsIdAssignmentMutationOptions = <TError = string,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiPremiumSlotsIdAssignment>>, TError,{id: string;data?: SlotRecipient}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof putApiPremiumSlotsIdAssignment>>, TError,{id: string;data?: SlotRecipient}, TContext> => {
+
+const mutationKey = ['putApiPremiumSlotsIdAssignment'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putApiPremiumSlotsIdAssignment>>, {id: string;data?: SlotRecipient}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  putApiPremiumSlotsIdAssignment(id,data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PutApiPremiumSlotsIdAssignmentMutationResult = NonNullable<Awaited<ReturnType<typeof putApiPremiumSlotsIdAssignment>>>
+    export type PutApiPremiumSlotsIdAssignmentMutationBody = SlotRecipient | undefined
+    export type PutApiPremiumSlotsIdAssignmentMutationError = string
+
+    export const usePutApiPremiumSlotsIdAssignment = <TError = string,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiPremiumSlotsIdAssignment>>, TError,{id: string;data?: SlotRecipient}, TContext>, fetch?: RequestInit}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof putApiPremiumSlotsIdAssignment>>,
+        TError,
+        {id: string;data?: SlotRecipient},
+        TContext
+      > => {
+      return useMutation(getPutApiPremiumSlotsIdAssignmentMutationOptions(options));
+    }
+
+export type getApiPremiumSlotsProductsResponse200TextPlain = {
+  data: PurchaseableProduct[]
+  status: 200
+}
+
+export type getApiPremiumSlotsProductsResponse200ApplicationJson = {
+  data: PurchaseableProduct[]
+  status: 200
+}
+
+export type getApiPremiumSlotsProductsResponse200TextJson = {
+  data: PurchaseableProduct[]
+  status: 200
+}
+
+export type getApiPremiumSlotsProductsResponseSuccess = (getApiPremiumSlotsProductsResponse200TextPlain | getApiPremiumSlotsProductsResponse200ApplicationJson | getApiPremiumSlotsProductsResponse200TextJson) & {
+  headers: Headers;
+};
+;
+
+export type getApiPremiumSlotsProductsResponse = (getApiPremiumSlotsProductsResponseSuccess)
+
+export const getGetApiPremiumSlotsProductsUrl = () => {
+
+
+
+
+  return `https://sky.coflnet.com/api/premium/slots/products`
+}
+
+export const getApiPremiumSlotsProducts = async ( options?: RequestInit): Promise<getApiPremiumSlotsProductsResponse> => {
+
+  const res = await fetch(getGetApiPremiumSlotsProductsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiPremiumSlotsProductsResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiPremiumSlotsProductsResponse
+}
+
+
+
+
+
+export const getGetApiPremiumSlotsProductsQueryKey = () => {
+    return [
+    `https://sky.coflnet.com/api/premium/slots/products`
+    ] as const;
+    }
+
+
+export const getGetApiPremiumSlotsProductsQueryOptions = <TData = Awaited<ReturnType<typeof getApiPremiumSlotsProducts>>, TError = unknown>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSlotsProducts>>, TError, TData>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiPremiumSlotsProductsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPremiumSlotsProducts>>> = ({ signal }) => getApiPremiumSlotsProducts({ signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSlotsProducts>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetApiPremiumSlotsProductsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPremiumSlotsProducts>>>
+export type GetApiPremiumSlotsProductsQueryError = unknown
+
+
+
+export function useGetApiPremiumSlotsProducts<TData = Awaited<ReturnType<typeof getApiPremiumSlotsProducts>>, TError = unknown>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSlotsProducts>>, TError, TData>, fetch?: RequestInit}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetApiPremiumSlotsProductsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}

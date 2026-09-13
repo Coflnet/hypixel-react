@@ -9,7 +9,8 @@ export const BASE_PRICES = {
     [PremiumTier.PREMIUM_PLUS]: 354.2 / 12 // monthly (yearly)
 }
 
-// VAT rates by country code
+// Standard VAT rates used for estimates; checkout resolves regional rates and exemptions.
+// EU rates: https://europa.eu/youreurope/business/finance-and-tax/vat/vat-rules-rates/index_en.htm
 export const VAT_RATES: { [countryCode: string]: number } = {
     DE: 0.19, // Germany 19%
     AT: 0.2, // Austria 20%
@@ -19,8 +20,8 @@ export const VAT_RATES: { [countryCode: string]: number } = {
     CY: 0.19, // Cyprus 19%
     CZ: 0.21, // Czech Republic 21%
     DK: 0.25, // Denmark 25%
-    EE: 0.2, // Estonia 20%
-    FI: 0.24, // Finland 24%
+    EE: 0.24, // Estonia 24%
+    FI: 0.255, // Finland 25.5%
     FR: 0.2, // France 20%
     GR: 0.24, // Greece 24%
     HU: 0.27, // Hungary 27%
@@ -33,28 +34,28 @@ export const VAT_RATES: { [countryCode: string]: number } = {
     NL: 0.21, // Netherlands 21%
     PL: 0.23, // Poland 23%
     PT: 0.23, // Portugal 23%
-    RO: 0.19, // Romania 19%
-    SK: 0.2, // Slovakia 20%
+    RO: 0.21, // Romania 21%
+    SK: 0.23, // Slovakia 23%
     SI: 0.22, // Slovenia 22%
     ES: 0.21, // Spain 21%
     SE: 0.25, // Sweden 25%
     GB: 0.2, // United Kingdom 20%
     NO: 0.25, // Norway 25%
-    CH: 0.077, // Switzerland 7.7%
+    CH: 0.081, // Switzerland 8.1% (estv.admin.ch/en/vat-rates-switzerland)
     CA: 0.13, // Canada (average HST/GST+PST) 13%
     AU: 0.1, // Australia 10%
     NZ: 0.15, // New Zealand 15%
     JP: 0.1, // Japan 10%
-    SG: 0.08, // Singapore 8%
+    SG: 0.09, // Singapore 9% (mof.gov.sg/policies/taxes/goods-and-services-tax/)
     IN: 0.18, // India 18%
     BR: 0.17, // Brazil (ICMS average) 17%
     MX: 0.16, // Mexico 16%
     KR: 0.1, // South Korea 10%
     ZA: 0.15, // South Africa 15%
-    TR: 0.18, // Turkey 18%
-    IL: 0.17, // Israel 17%
+    TR: 0.2, // Turkey 20%
+    IL: 0.18, // Israel 18% from 2025
     TH: 0.07, // Thailand 7%
-    MY: 0.06, // Malaysia 6%
+    MY: 0.08, // Malaysia digital services 8% (mystods.customs.gov.my)
     PH: 0.12, // Philippines 12%
     VN: 0.1, // Vietnam 10%
     ID: 0.11, // Indonesia 11%
@@ -63,7 +64,7 @@ export const VAT_RATES: { [countryCode: string]: number } = {
     CO: 0.19, // Colombia 19%
     PE: 0.18, // Peru 18%
     UY: 0.22, // Uruguay 22%
-    EC: 0.12 // Ecuador 12%
+    EC: 0.15 // Ecuador 15% (sri.gob.ec/impuesto-al-valor-agregado-iva)
 }
 
 export interface PriceInfo {
@@ -244,16 +245,14 @@ export const getFallbackSubscriptionPrice = (productId: string, isYearly: boolea
     return (isYearly as boolean) ? prices.yearly : prices.monthly
 }
 
-// Whether the price charged for this country already includes VAT (known VAT country, not US).
-// US/unknown countries are charged the base price plus VAT added later ("+VAT"), so VAT is not
-// part of the amount we display or discount here.
+// Whether a country-level tax estimate is available. US/unknown-country taxes are resolved at checkout.
 export const shouldIncludeVAT = (countryCode?: string): boolean => {
     if (!countryCode) return false
     const upperCode = countryCode.toUpperCase()
     return upperCode !== 'US' && VAT_RATES[upperCode] !== undefined
 }
 
-// Add the country's VAT to a base price when that country is charged VAT-inclusive prices.
+// Add the country's tax estimate to a before-tax price for display.
 export const getPriceWithVAT = (basePrice: number, countryCode?: string): number => {
     if (!shouldIncludeVAT(countryCode)) {
         return basePrice

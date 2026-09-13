@@ -1,3 +1,26 @@
+beforeEach(() => {
+    cy.then(() => Cypress.automation('remote:debugger:protocol', { command: 'Network.clearBrowserCache' }))
+    cy.intercept('GET', '**/api/premium/slots', { body: [] })
+    // Analytics, push notifications and remote images are outside these purchase/account scenarios.
+    cy.intercept('GET', 'https://track.coflnet.com/matomo.js*', { headers: { 'content-type': 'application/javascript' }, body: '' })
+    cy.intercept('GET', 'https://accounts.google.com/gsi/client*', {
+        headers: { 'content-type': 'application/javascript' },
+        body: `window.google = { accounts: { id: {
+            initialize(options) { this.options = options },
+            renderButton(container) {
+                const button = document.createElement('button');
+                button.textContent = 'Confirm Google identity';
+                button.onclick = () => this.options.callback({ credential: '${googleToken}' });
+                container.appendChild(button);
+            }, prompt() {}, cancel() {}
+        } } };`
+    })
+    cy.intercept('GET', '**/preScript.js', { headers: { 'content-type': 'application/javascript' }, body: '' })
+    cy.intercept({ resourceType: 'image', url: /^https:\/\// }, {
+        headers: { 'content-type': 'image/svg+xml' }, body: '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"/>'
+    })
+})
+
 const googleToken = 'eyJhbGciOiJub25lIn0.eyJleHAiOjQxMDI0NDQ4MDAsImVtYWlsIjoiY3lwcmVzc0BleGFtcGxlLmNvbSIsIm5hbWUiOiJDeXByZXNzIn0.signature'
 
 interface StubResponse {
@@ -22,7 +45,7 @@ function installAuthenticatedWebSocket(window: Cypress.AUTWindow) {
 
         send(value: string) {
             const request = JSON.parse(value)
-            const response = request.type === 'loginWithToken' ? googleToken : ''
+            const response = request.type === 'loginWithToken' ? googleToken : request.type === 'getCoflBalance' ? '30000' : ''
             window.setTimeout(() => {
                 this.onmessage?.(
                     new MessageEvent('message', {
@@ -42,7 +65,7 @@ function installAuthenticatedWebSocket(window: Cypress.AUTWindow) {
     window.document.cookie = 'nonEssentialCookiesAllowed=false; path=/'
 }
 
-function visitAuthenticatedPage(path = '/account') {
+function visitAuthenticatedPage(path = '/account', setup?: (window: Cypress.AUTWindow) => void) {
     cy.intercept('GET', '**/api/user/terms*', {
         statusCode: 200,
         body: {
@@ -56,11 +79,17 @@ function visitAuthenticatedPage(path = '/account') {
             hash: 'test-hash',
             englishUrl: '/terms/en',
             germanUrl: '/terms/de',
-            documents: []
+            documents: [],
+            premiumPurchaseDeclaration: { version: 'test-declaration', locale: 'en', text: 'Start my purchased access immediately.', sha256: 'test-hash' }
         }
     })
     cy.intercept('GET', '**/api/premium/transactions', { statusCode: 200, body: [] })
-    cy.visit(path, { onBeforeLoad: installAuthenticatedWebSocket })
+    cy.visit(path, {
+        onBeforeLoad(window) {
+            installAuthenticatedWebSocket(window)
+            setup?.(window)
+        }
+    })
 }
 
 function stubProducts(response: StubResponse = { statusCode: 200, body: {} }) {
@@ -96,6 +125,24 @@ describe('Account deletion with subscription lookup', () => {
         cy.contains('button', 'Cancel subscription').should('not.exist')
         cy.contains('Reactivate subscription').should('not.exist')
     })
+
+    for (const path of ['/account', '/premium']) {
+        it(`refreshes assigned Premium on ${path} despite a cached empty ownership response`, () => {
+            stubProducts({ body: {
+                premium: { expiresAt: '2099-02-01T00:00:00Z', ownerId: '7', slotId: 1, canManage: false },
+                starter_premium: { expiresAt: '2099-02-01T00:00:00Z', ownerId: '7', slotId: 1, canManage: false }
+            } })
+            stubSubscriptions({ body: [] })
+            visitAuthenticatedPage(path, window => {
+                window.sessionStorage.setItem('skycoflApiCache:premium-products:cypress%40example.com', JSON.stringify({
+                    expiresAt: Date.now() + 300000, value: {}
+                }))
+            })
+            cy.wait(['@products', '@subscriptions'])
+            cy.contains('Provided by another account. Only the purchaser can change or cancel this slot.').should('be.visible')
+            cy.contains('button', 'Cancel subscription').should('not.exist')
+        })
+    }
 
     it('stays disabled while subscriptions load, then preserves authenticated deletion', () => {
         stubProducts()
@@ -303,5 +350,486 @@ describe('Premium page upgrade button', () => {
         cy.contains('span', /^Premium — renews/).parent().contains('button', 'Upgrade to Higher Tier').click()
         cy.wait('@plans')
         cy.contains('.modal-title', 'Upgrade subscription').should('be.visible')
+    })
+})
+
+const purchasedSlot: {
+    id: string
+    tier: string
+    expires: string
+    version: number
+    assignedUserId: string | null
+    minecraftUuid: string | null
+    recipientEmail: string | null
+    minecraftName: string | null
+} = {
+    id: '9007199254740993',
+    tier: 'premium_plus',
+    expires: '2099-02-01T00:00:00Z',
+    version: 7,
+    assignedUserId: null,
+    minecraftUuid: null,
+    recipientEmail: null,
+    minecraftName: null
+}
+
+function visitSlots() {
+    stubProducts()
+    stubSubscriptions({ statusCode: 200, body: [] })
+    visitAuthenticatedPage()
+    cy.wait('@slots')
+}
+
+describe('Purchased slot assignments', () => {
+    it('assigns by email without rounding the slot ID and shows the saved recipient after reloading', () => {
+        let slot = { ...purchasedSlot }
+        const remaining = ['9007199254740994', '9007199254740995', '9007199254740996'].map(id => ({ ...purchasedSlot, id }))
+        cy.intercept('GET', '**/api/premium/slots', request => request.reply({ statusCode: 200, body: [slot, ...remaining] })).as('slots')
+        cy.intercept('PUT', `**/api/premium/slots/${slot.id}/assignment`, request => {
+            expect(request.headers.googletoken).to.equal(googleToken)
+            expect(request.body).to.deep.equal({ email: 'friend@example.com', version: 7 })
+            slot = { ...slot, assignedUserId: '123', recipientEmail: 'friend@example.com', version: 8 }
+            request.reply({ statusCode: 204 })
+        }).as('assignSlot')
+        visitSlots()
+        cy.get('[data-testid="tier-slot"]').should('have.length', 4).first().contains('button', 'Assign slot').click()
+        cy.get('#slot-recipient').type('friend@example.com')
+        cy.contains('button', 'Save assignment').click()
+        cy.wait('@assignSlot')
+        cy.get('[data-testid="tier-slot"]').should('contain.text', 'friend@example.com')
+        cy.get('[data-testid="tier-slot"]').filter(':contains("Unassigned")').should('have.length', 3)
+        cy.contains('button', 'Refresh slots').click()
+        cy.wait('@slots')
+        cy.get('[data-testid="tier-slot"]').should('contain.text', 'friend@example.com')
+    })
+
+    it('assigns a Minecraft name and displays the resolved name', () => {
+        let slot = { ...purchasedSlot }
+        cy.intercept('GET', '**/api/premium/slots', request => request.reply({ body: [slot] })).as('slots')
+        cy.intercept('PUT', '**/api/premium/slots/*/assignment', request => {
+            expect(request.body).to.deep.equal({ minecraftAccount: 'Notch', version: 7 })
+            slot = { ...purchasedSlot, version: 8, minecraftUuid: '069a79f444e94726a5befca90e38aaf5', minecraftName: 'Notch' }
+            request.reply({ statusCode: 204 })
+        }).as('assignSlot')
+        visitSlots()
+        cy.contains('button', 'Assign slot').click()
+        cy.get('#slot-recipient-type').select('minecraft')
+        cy.get('#slot-recipient').type('Notch')
+        cy.contains('button', 'Save assignment').click()
+        cy.wait('@assignSlot')
+        cy.get('[data-testid="tier-slot"]').should('contain.text', 'Notch')
+        cy.get('.Toastify__toast', { timeout: 15000 }).should('not.exist')
+        cy.get('#purchased-slots').screenshot('purchased-slot-management')
+    })
+
+    it('can use the current account and release an assignment without retaining either recipient field', () => {
+        let slot: typeof purchasedSlot = {
+            ...purchasedSlot,
+            assignedUserId: '123',
+            recipientEmail: 'friend@example.com',
+            minecraftUuid: '069a79f444e94726a5befca90e38aaf5',
+            minecraftName: 'Notch'
+        }
+        cy.intercept('GET', '**/api/premium/slots', request => request.reply({ body: [slot] })).as('slots')
+        cy.intercept('PUT', '**/api/premium/slots/*/assignment', request => {
+            slot = { ...purchasedSlot, version: slot.version + 1, assignedUserId: request.body.email ? '7' : null, recipientEmail: request.body.email || null }
+            request.reply({ statusCode: 204 })
+        }).as('assignSlot')
+        visitSlots()
+        cy.contains('button', 'Reassign').click()
+        cy.get('#slot-recipient-type').select('email')
+        cy.contains('button', 'Use my email').click()
+        cy.get('#slot-recipient').should('have.value', 'cypress@example.com')
+        cy.contains('button', 'Save assignment').click()
+        cy.wait('@assignSlot').its('request.body').should('deep.equal', { email: 'cypress@example.com', version: 7 })
+        cy.get('[data-testid="tier-slot"]').should('contain.text', 'cypress@example.com').and('not.contain.text', 'Notch')
+        cy.contains('button', 'Release slot').click()
+        cy.wait('@assignSlot').its('request.body').should('deep.equal', { version: 8 })
+        cy.get('[data-testid="tier-slot"]').should('contain.text', 'Unassigned')
+    })
+
+    it('refreshes a stale assignment before allowing a retry and prevents duplicate submissions', () => {
+        cy.intercept('GET', '**/api/premium/slots', { body: [purchasedSlot] }).as('slots')
+        cy.intercept('PUT', '**/api/premium/slots/*/assignment', {
+            statusCode: 400,
+            delay: 600,
+            body: { Message: 'Slot changed; review the current assignment before trying again.' }
+        }).as('conflict')
+        visitSlots()
+        cy.contains('button', 'Assign slot').click()
+        cy.get('#slot-recipient').type('friend@example.com')
+        cy.intercept('GET', '**/api/premium/slots', { body: [{ ...purchasedSlot, recipientEmail: 'new@example.com', assignedUserId: '333', version: 8 }] }).as(
+            'slots'
+        )
+        cy.contains('button', 'Save assignment').click()
+        cy.contains('button', 'Saving…').should('be.disabled')
+        cy.wait('@conflict')
+        cy.get('.modal').should('contain.text', 'Slot changed').and('contain.text', 'Currently: new@example.com')
+        cy.intercept('PUT', '**/api/premium/slots/*/assignment', { statusCode: 204 }).as('retry')
+        cy.contains('button', 'Save assignment').click()
+        cy.wait('@retry').its('request.body').should('deep.equal', { email: 'friend@example.com', version: 8 })
+    })
+
+    it('keeps the form and recipient error visible when the email has no account', () => {
+        cy.intercept('GET', '**/api/premium/slots', { body: [purchasedSlot] }).as('slots')
+        cy.intercept('PUT', '**/api/premium/slots/*/assignment', {
+            statusCode: 400,
+            body: 'The recipient must first sign in to SkyCofl with that email.',
+            headers: { 'content-type': 'text/plain' }
+        }).as('invalidRecipient')
+        visitSlots()
+        cy.contains('button', 'Assign slot').click()
+        cy.get('#slot-recipient').type('unknown@example.com')
+        cy.contains('button', 'Save assignment').click()
+        cy.wait('@invalidRecipient')
+        cy.get('.modal [role="alert"]').should('contain.text', 'must first sign in')
+        cy.get('#slot-recipient').should('have.value', 'unknown@example.com')
+    })
+
+    it('disables assignment for expired slots and shows an empty state only after a successful load', () => {
+        cy.intercept('GET', '**/api/premium/slots', { body: [{ ...purchasedSlot, expires: '2020-01-01T00:00:00Z' }] }).as('slots')
+        visitSlots()
+        cy.contains('button', 'Assign slot').should('be.disabled')
+        cy.intercept('GET', '**/api/premium/slots', { statusCode: 503, body: {} }).as('slots')
+        cy.contains('button', 'Refresh slots').click()
+        cy.wait('@slots')
+        cy.contains('Could not load purchased slots').should('be.visible')
+        cy.contains('You don’t own any slots yet').should('not.exist')
+        cy.intercept('GET', '**/api/premium/slots', { body: [] }).as('slots')
+        cy.contains('button', 'Refresh slots').click()
+        cy.wait('@slots')
+        cy.contains('You don’t own any slots yet').should('be.visible')
+    })
+})
+
+const slotCatalog = [
+    { slug: 'premium-slots', slotTier: 'premium', slotCount: 1, cost: 1800, ownershipSeconds: 2592000 },
+    { slug: 'premium-slots-4', slotTier: 'premium', slotCount: 4, cost: 6000, ownershipSeconds: 2592000 },
+    { slug: 'premium_plus-slot-weeks', slotTier: 'premium_plus', slotCount: 1, cost: 9000, ownershipSeconds: 2419200 },
+    { slug: 'premium_plus-slots-4', slotTier: 'premium_plus', slotCount: 4, cost: 27000, ownershipSeconds: 2419200 },
+    { slug: 'l_premium-slots-4', slotTier: 'premium', slotCount: 4, cost: 7200, ownershipSeconds: 2419200 },
+    { slug: 'l_prem_plus-slots-4', slotTier: 'premium_plus', slotCount: 4, cost: 27000, ownershipSeconds: 2419200 }
+]
+
+function slotPricing() {
+    return {
+        products: [['l_premium-slots-4', 29.69], ['l_prem_plus-slots-4', 99.69]].map(([slug, amount]) => ({
+            productSlug: slug, providers: [{ providerSlug: 'lemonsqueezy', currencyCode: 'EUR', originalPrice: Number(amount), discountedPrice: Number(amount) }]
+        }))
+    }
+}
+
+describe('Slot packages in the Premium wizard', () => {
+    beforeEach(() => {
+        cy.intercept('GET', 'https://api.country.is*', { body: { country: 'US' } })
+        cy.intercept('GET', '**/api/premium/slots/products', { body: slotCatalog }).as('slotProducts')
+        cy.intercept('POST', '**/api/topup/rates', request => request.reply({ body: slotPricing() })).as('slotPrices')
+        stubProducts()
+        stubSubscriptions({ body: [] })
+    })
+
+    function visitShop(path = '/premium?slots=true#buyPremium') {
+        visitAuthenticatedPage(path)
+        cy.contains('Which premium tier would you like?').should('be.visible')
+        cy.get('#buyPremium h5').should('have.length', 2)
+    }
+
+    function packageButton(count: number) {
+        return cy.get('[data-testid="premium-package"]').contains('h5', count === 0 ? 'Just for me' : count === 1 ? 'One assignable slot' : 'Package of 4')
+    }
+
+    function choosePackage(tier = 'Premium+', count = 4, payment = 'CoflCoins') {
+        cy.get('#buyPremium').contains('h5', tier === 'Premium+' ? /^Premium Plus$/ : /^Premium$/).click()
+        cy.get('#buyPremium').contains('h5', payment).click()
+        packageButton(count).click()
+    }
+
+    function confirmCoins() {
+        cy.contains('button', 'Confirm Google identity').click()
+        cy.get('#premium-early-start-declaration').check()
+        cy.contains('button', 'Buy now for').click()
+    }
+
+    it('offers all three packages between payment and duration and skips duration for assignable slots', () => {
+        cy.viewport(1280, 1300)
+        visitAuthenticatedPage('/premium')
+        cy.get('#buyPremium').contains('h5', /^Premium Plus$/).click()
+        cy.contains('Step 2 of 5').should('be.visible')
+        cy.contains('How would you like to pay?').should('be.visible')
+        cy.get('[data-testid="premium-package"]').should('not.exist')
+        cy.get('#buyPremium').contains('h5', /^CoflCoins$/).click()
+        cy.contains('Choose Your Package').should('be.visible')
+        cy.contains('Step 3 of 5').should('be.visible')
+        cy.get('[data-testid="premium-package"]').should('have.length', 3).and('be.enabled')
+        packageButton(0).should('be.visible')
+        packageButton(1).closest('button').should('contain.text', '9,000 CoflCoins per slot · 4 weeks')
+        packageButton(4).closest('button').should('contain.text', '6,750 CoflCoins per slot · 4 weeks')
+        cy.get('[data-testid="slot-offer"]').should('not.exist')
+        cy.get('#buyPremium input[placeholder="Select your country"]').should('not.exist')
+        cy.contains('#buyPremium h3', 'Choose Your Package').closest('.card').screenshot('package-before-duration')
+        packageButton(4).click()
+        cy.contains('Step 4 of 4').should('be.visible')
+        cy.contains('h3', 'Select Duration').should('not.exist')
+        cy.get('[data-testid="slot-offer"]').should('have.length', 1).and('contain.text', '27,000 CoflCoins').and('not.contain.text', 'Subscription')
+        cy.get('#buyPremium').screenshot('package-checkout')
+        cy.get('#buyPremium').contains('button', 'Back').click()
+        packageButton(1).click()
+        cy.contains('Step 4 of 4').should('be.visible')
+        cy.get('[data-testid="slot-offer"]').should('have.length', 1).and('contain.text', '9,000 CoflCoins')
+        cy.get('#buyPremium').contains('button', 'Back').click()
+        packageButton(0).click()
+        cy.contains('h3', 'Select Duration').should('be.visible')
+        cy.contains('Step 4 of 5').should('be.visible')
+        cy.get('#buyPremium').contains('h5', '4 Weeks').click()
+        cy.contains('Step 5 of 5').should('be.visible')
+        cy.contains('h3', 'Complete Purchase').should('be.visible')
+        cy.get('#buyPremium').contains('button', 'Back').click()
+        cy.contains('Step 4 of 5').should('be.visible')
+    })
+
+    it('keeps both friends choices selectable with an empty catalog', () => {
+        cy.intercept('GET', '**/api/premium/slots/products', { body: [] }).as('slotProducts')
+        visitShop()
+        cy.get('#buyPremium').contains('h5', /^Premium Plus$/).click()
+        cy.get('#buyPremium').contains('h5', /^CoflCoins$/).click()
+        cy.get('[data-testid="premium-package"]').should('have.length', 2).and('be.enabled')
+        cy.contains('No slots are currently available').should('not.exist')
+        packageButton(4).closest('button').should('contain.text', 'Price unavailable').and('be.enabled')
+        packageButton(4).click()
+        cy.contains('This package is currently unavailable').should('be.visible')
+        cy.get('[data-testid="slot-offer"]').should('not.exist')
+        cy.get('#buyPremium').contains('button', 'Back').click()
+        packageButton(0).should('not.exist')
+        packageButton(1).click()
+        cy.contains('This package is currently unavailable').should('be.visible')
+        cy.contains('h3', 'Select Duration').should('not.exist')
+    })
+
+    it('keeps Starter on its four-step personal flow and skips unsupported slot packages', () => {
+        visitAuthenticatedPage('/premium')
+        cy.get('#buyPremium').contains('h5', /^Starter$/).click()
+        cy.contains('Step 2 of 4').should('be.visible')
+        cy.contains('How would you like to pay?').should('be.visible')
+        cy.get('[data-testid="premium-package"]').should('not.exist')
+        cy.get('#buyPremium').contains('button', 'Back').click()
+        cy.contains('Choose Your Premium Tier').should('be.visible')
+        cy.contains('Step 1 of 4').should('be.visible')
+    })
+
+    it('opens payment for a preselected tier, then shows packages before duration', () => {
+        visitAuthenticatedPage('/premium?tier=premium_plus')
+        cy.contains('How would you like to pay?').should('be.visible')
+        cy.contains('Step 2 of 5').should('be.visible')
+        cy.get('#buyPremium').contains('h5', /^Subscription$/).click()
+        cy.contains('Choose Your Package').should('be.visible')
+        cy.contains('Step 3 of 5').should('be.visible')
+        packageButton(0).should('be.visible')
+        cy.get('[data-testid="premium-package"]').should('have.length', 2)
+        cy.contains('#buyPremium h5', 'One assignable slot').should('not.exist')
+        packageButton(4).closest('button').should('contain.text', '~€24.92 per slot · every 4 weeks')
+    })
+
+    it('makes bundles reachable for an existing subscriber without entering the upgrade dialog', () => {
+        stubProducts({ body: { premium_plus: { expiresAt: '2099-02-01T00:00:00Z' } } })
+        stubSubscriptions({ body: [activeSubscription] })
+        visitAuthenticatedPage('/premium')
+        cy.on('window:before:load', installAuthenticatedWebSocket)
+        cy.contains('a', 'Explore slots & bundles').click()
+        cy.location('search').should('contain', 'slots=true')
+        cy.contains('h2', 'Get slots').should('be.visible')
+        cy.get('#buyPremium h5').should('have.length', 2)
+        cy.contains('.modal-title', 'Upgrade subscription').should('not.exist')
+    })
+
+    for (const [index, slug] of [[0, 'l_premium-slots-4'], [1, 'l_prem_plus-slots-4']] as const) {
+        it(`reviews and opens the correct ${slug} checkout with assignment as the return destination`, () => {
+            cy.intercept('POST', `**/api/premium/subscription/${slug}?*`, request => {
+                expect(request.query.assignSlots).to.equal('true')
+                expect(request.headers.googletoken).to.equal(googleToken)
+                request.reply({ statusCode: 200, delay: 500, body: { directLink: 'https://test.lemonsqueezy.com/checkout/slot-bundle' } })
+            }).as('slotCheckout')
+            visitShop()
+            choosePackage(index === 0 ? 'Premium' : 'Premium+', 4, 'Subscription')
+            cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
+            cy.contains('button', 'Continue with subscription').click()
+            cy.contains('.modal-title', 'Review your slot subscription').should('be.visible')
+            cy.get('.modal').should('contain.text', 'new subscription').and('contain.text', 'assign the slots')
+            cy.contains('button', 'Continue to checkout').click()
+            cy.contains('button', 'Opening checkout…').should('be.disabled')
+            cy.get('#buyPremium').contains('button', 'Back').should('be.disabled')
+            cy.wait('@slotCheckout')
+            cy.get('@checkoutNavigation').should('have.been.calledOnceWithExactly', 'https://test.lemonsqueezy.com/checkout/slot-bundle', '_self')
+            cy.contains('Your 4 slots are ready').should('not.exist')
+        })
+    }
+
+    it('purchases one four-slot package for 27,000 coins with the existing declaration and identity confirmation', () => {
+        cy.intercept('POST', '**/api/service/purchase', request => {
+            expect(request.headers.googletoken).to.equal(googleToken)
+            expect(request.body).to.include({ slug: 'premium_plus-slots-4', count: 1, immediatePerformanceRequested: true, withdrawalConsequenceAcknowledged: true, declarationVersion: 'test-declaration', legalLocale: 'en' })
+            expect(request.body.declarationRequestId).to.be.a('string').and.not.be.empty
+            expect(request.body).not.to.have.property('slotIds')
+            request.reply({ statusCode: 200 })
+        }).as('buySlots')
+        visitShop()
+        choosePackage()
+        cy.get('[data-testid="slot-offer"]').filter(':contains("CoflCoins · pay once")').should('have.length', 1).and('contain.text', '27,000 CoflCoins').and('contain.text', 'Save 25%')
+        cy.get('#buyPremium').screenshot('four-slot-coflcoin-bundle')
+        cy.contains('button', 'Buy with CoflCoins').click()
+        cy.get('.modal').should('contain.text', '4 Premium+ slots').and('contain.text', '4 weeks').and('not.contain.text', 'cannot ordinarily be moved')
+        cy.contains('button', 'Buy now for').should('be.disabled')
+        confirmCoins()
+        cy.wait('@buySlots')
+        cy.contains('Your 4 slots are ready').should('be.visible')
+        cy.contains('a', 'Assign your slots').should('have.attr', 'href', '/account#purchased-slots')
+    })
+
+    it('offers individual slots with their actual durations and purchases the single-slot product', () => {
+        cy.intercept('POST', '**/api/service/purchase', { statusCode: 200 }).as('buySlots')
+        visitShop()
+        choosePackage('Premium', 1)
+        cy.get('[data-testid="slot-offer"]').first().should('contain.text', '1,800 CoflCoins').and('contain.text', '30 days')
+        cy.get('[data-testid="slot-offer"]').first().contains('button', 'Buy with CoflCoins').click()
+        confirmCoins()
+        cy.wait('@buySlots').its('request.body').should('include', { slug: 'premium-slots', count: 1 })
+        cy.contains('Your slot is ready').should('be.visible')
+    })
+
+    it('routes an insufficient balance to top-up instead of attempting a purchase', () => {
+        let purchaseAttempts = 0
+        cy.intercept('POST', '**/api/service/purchase', request => { purchaseAttempts++; request.reply({ statusCode: 400 }) })
+        visitShop()
+        choosePackage()
+        cy.window().then(window => window.document.dispatchEvent(new CustomEvent('coflCoinRefresh', { detail: { coflCoins: 1000 } })))
+        cy.contains('Add 26,000 CoflCoins').should('be.visible')
+        cy.contains('button', 'Top up CoflCoins').click()
+        cy.get('.modal').should('not.exist')
+        cy.then(() => expect(purchaseAttempts).to.equal(0))
+    })
+
+    it('blocks subscription checkout when prices fail and allows going back to CoflCoins', () => {
+        cy.intercept('POST', '**/api/topup/rates', { statusCode: 503, body: {} }).as('slotPrices')
+        visitShop()
+        choosePackage('Premium+', 4, 'Subscription')
+        cy.contains('Could not load subscription prices').should('be.visible')
+        cy.contains('button', 'Continue with subscription').should('be.disabled')
+        cy.get('#buyPremium').contains('button', 'Back').click()
+        cy.get('#buyPremium').contains('button', 'Back').click()
+        cy.get('#buyPremium').contains('h5', /^CoflCoins$/).click()
+        packageButton(4).click()
+        cy.contains('button', 'Buy with CoflCoins').should('be.enabled')
+        cy.contains('button', 'Continue with subscription').should('not.exist')
+    })
+
+    it('hides personal access in slot mode for subscriptions and CoflCoins', () => {
+        visitShop()
+        cy.contains('Step 1 of 4').should('be.visible')
+        cy.get('#buyPremium').contains('h5', /^Premium$/).click()
+        cy.get('#buyPremium').contains('h5', /^Subscription$/).click()
+        cy.get('[data-testid="premium-package"]').should('have.length', 1)
+        packageButton(0).should('not.exist')
+        packageButton(4).should('be.visible')
+        cy.contains('Step 3 of 4').should('be.visible')
+        cy.contains('#buyPremium h5', 'One assignable slot').should('not.exist')
+        cy.get('#buyPremium').contains('button', 'Back').click()
+        cy.get('#buyPremium').contains('h5', /^CoflCoins$/).click()
+        cy.get('[data-testid="premium-package"]').should('have.length', 2)
+        packageButton(0).should('not.exist')
+        packageButton(4).should('be.visible')
+        packageButton(1).click()
+        cy.contains('Step 4 of 4').should('be.visible')
+        cy.contains('h3', 'Select Duration').should('not.exist')
+        cy.get('[data-testid="slot-offer"]').should('contain.text', '1,800 CoflCoins')
+    })
+
+    it('preloads the catalog and quotes once and reuses them across steps', () => {
+        let catalogs = 0
+        let quotes = 0
+        cy.intercept('GET', '**/api/premium/slots/products', request => {
+            catalogs++
+            request.reply({ body: slotCatalog })
+        }).as('preloadCatalog')
+        cy.intercept('POST', '**/api/topup/rates', request => {
+            if (request.body.productSlugs.includes('l_premium-slots-4')) quotes++
+            request.reply({ body: slotPricing() })
+        }).as('preloadQuotes')
+        visitShop()
+        cy.wait('@preloadCatalog')
+        cy.wait('@preloadQuotes')
+        choosePackage('Premium', 4, 'Subscription')
+        cy.get('[data-testid="slot-offer"]').should('contain.text', '29.69')
+        cy.get('#buyPremium').contains('button', 'Back').click()
+        packageButton(4).closest('button').should('contain.text', '~€7.42 per slot')
+        cy.contains('#buyPremium h3', 'Choose Your Package').closest('.card').screenshot('subscription-package-options')
+        packageButton(4).click()
+        cy.contains('Renews automatically. Cancel anytime.').trigger('mouseover')
+        cy.get('[role="tooltip"]').should('contain.text', 'account page').and('contain.text', 'time you have already paid for')
+        cy.then(() => { expect(catalogs).to.equal(1); expect(quotes).to.equal(1) })
+    })
+
+    it('purchases four Premium slots for 6,000 CoflCoins and shows their per-slot cost', () => {
+        cy.intercept('POST', '**/api/service/purchase', { statusCode: 200 }).as('buySlots')
+        visitShop()
+        cy.get('#buyPremium').contains('h5', /^Premium$/).click()
+        cy.get('#buyPremium').contains('h5', /^CoflCoins$/).click()
+        packageButton(4).closest('button').should('contain.text', '1,500 CoflCoins per slot · 30 days')
+        packageButton(4).click()
+        cy.get('[data-testid="slot-offer"]').should('contain.text', '6,000 CoflCoins').and('contain.text', '1,500 CoflCoins')
+        cy.contains('button', 'Buy with CoflCoins').click()
+        cy.get('.modal').should('contain.text', '4 Premium slots').and('contain.text', '30 days')
+        confirmCoins()
+        cy.wait('@buySlots').its('request.body').should('include', { slug: 'premium-slots-4', count: 1 })
+        cy.contains('Your 4 slots are ready').should('be.visible')
+    })
+
+    it('recovers from catalog errors and does not show invented offers', () => {
+        cy.intercept('GET', '**/api/premium/slots/products', { statusCode: 503, body: {} }).as('slotProducts')
+        visitShop()
+        choosePackage()
+        cy.contains('Could not load slot options').should('be.visible')
+        cy.get('[data-testid="slot-offer"]').should('not.exist')
+        cy.intercept('GET', '**/api/premium/slots/products', { body: slotCatalog }).as('slotProducts')
+        cy.contains('button', 'Try again').click()
+        cy.get('[data-testid="slot-offer"]').should('have.length', 1)
+    })
+
+    it('does not keep old tax-inclusive prices available while another country is loading', () => {
+        cy.intercept('POST', '**/api/topup/rates', request => {
+            request.reply({ body: slotPricing(), delay: request.body.countryCode === 'DE' ? 1000 : 0 })
+        })
+        visitShop()
+        choosePackage('Premium', 4, 'Subscription')
+        cy.contains('button', 'Continue with subscription').should('be.enabled')
+        cy.get('#buyPremium input[placeholder="Select your country"]').click().type('Germany')
+        cy.get('.rbt-menu').contains('Germany').click()
+        cy.contains('button', 'Continue with subscription').should('be.disabled')
+        cy.get('[data-testid="slot-offer"]').should('not.contain.text', '29.69')
+        cy.get('#buyPremium input[placeholder="Select your country"]').clear().type('France')
+        cy.get('.rbt-menu').contains('France').click()
+        cy.get('[data-testid="slot-offer"]').should('contain.text', '35.63')
+        cy.contains('button', 'Continue with subscription').should('be.enabled')
+        cy.get('#buyPremium').contains('button', 'Back').click()
+        packageButton(4).closest('button').should('contain.text', '~€8.91 per slot')
+    })
+
+    it('keeps the cards usable on a phone and confirms price changes when the country changes', () => {
+        cy.viewport(390, 844)
+        visitShop()
+        choosePackage('Premium', 4, 'Subscription')
+        cy.get('[data-testid="slot-offer"]').first().should('contain.text', '29.69')
+        cy.get('#buyPremium input[placeholder="Select your country"]').click().type('Germany')
+        cy.get('.rbt-menu').contains('Germany').click()
+        cy.get('[data-testid="slot-offer"]').first().should('contain.text', '35.33')
+        cy.get('#buyPremium').contains('button', 'Back').click()
+        packageButton(4).closest('button').should('contain.text', '~€8.83 per slot · every 4 weeks')
+        cy.document().then(document => expect(document.documentElement.scrollWidth).to.be.at.most(390))
+        packageButton(4).click()
+        cy.get('[data-testid="slot-offer"]').first().should('contain.text', '35.33')
+        cy.contains('button', 'Continue with subscription').click()
+        cy.get('.modal').should('contain.text', '35.33').and('contain.text', 'Includes estimated tax')
+        cy.get('.modal').contains('button', 'Back').click()
+        cy.document().then(document => expect(document.documentElement.scrollWidth).to.be.at.most(390))
+        cy.get('[data-testid="slot-offer"]').first().scrollIntoView()
+        cy.screenshot('slot-bundles-mobile', { capture: 'viewport', blackout: ['#nprogress'] })
     })
 })

@@ -21,7 +21,10 @@ const withHelper = withoutHelper.replace(
   `} from './skyApi.schemas';\n\n\n${helperBlock}\n`
 )
 
-const replaced = withHelper.replaceAll('body ? JSON.parse(body) : {}', 'parseGeneratedResponseBody(body)')
+const replaced = withHelper
+  .replaceAll('body ? JSON.parse(body) : {}', 'parseGeneratedResponseBody(body)')
+  .replaceAll("body ? (contentType.includes('json') ? JSON.parse(body) : body) : {}", 'parseGeneratedResponseBody(body)')
+  .replaceAll("body ? (contentType.includes('json') ? JSON.parse(body) : body) : undefined", 'parseGeneratedResponseBody(body)')
 
 if (!replaced.includes(helperMarker)) {
   throw new Error('Failed to inject parseGeneratedResponseBody into generated skyApi.ts')

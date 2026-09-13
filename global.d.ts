@@ -289,7 +289,7 @@ interface API {
     getPrivacySettings(): Promise<PrivacySettings>
     setPrivacySettings(settings: PrivacySettings): Promise<void>
     checkRat(hash: string): Promise<RatCheckingResponse>
-    getPremiumProducts(): Promise<PremiumProduct[]>
+    getPremiumProducts(forceRefresh?: boolean): Promise<PremiumProduct[]>
     getItemNames(items: Item[]): Promise<{ [key: string]: string }>
     checkFilter(auction: AuctionDetails, filter: ItemFilter): Promise<boolean>
     refreshLoadPremiumProducts(callback: (products: PremiumProduct[]) => void, onError?: () => void)

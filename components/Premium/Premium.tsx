@@ -32,6 +32,7 @@ function Premium() {
     let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
     let [isSSR, setIsSSR] = useState(true)
     let [showUpgradeWizard, setShowUpgradeWizard] = useState(false)
+    const [showSlots, setShowSlots] = useState(false)
     let [termsStatus, setTermsStatus] = useState<TermsStatus>()
     const legalLocale = typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en'
 
@@ -50,25 +51,28 @@ function Premium() {
         const urlParams = new URLSearchParams(window.location.search)
         const tierParam = urlParams.get('tier')
         const upgradeParam = urlParams.get('upgrade')
+        if (urlParams.get('slots') === 'true') setShowSlots(true)
 
         // Show upgrade wizard if tier parameter is present or upgrade=true
         if (tierParam && parseTierFromUrl(tierParam)) {
             setShowUpgradeWizard(true)
-        } else if (upgradeParam === 'true') {
+        } else if (upgradeParam === 'true' || urlParams.get('slots') === 'true') {
             setShowUpgradeWizard(true)
         }
     }
 
     function returnToPremiumManagement() {
         setShowUpgradeWizard(false)
+        setShowSlots(false)
         const url = new URL(window.location.href)
         url.searchParams.delete('tier')
         url.searchParams.delete('upgrade')
+        url.searchParams.delete('slots')
         window.history.replaceState({}, '', url.pathname)
     }
 
     function loadPremiumProducts(): Promise<void> {
-        return api.refreshLoadPremiumProducts(products => {
+        return api.getPremiumProducts(true).then(products => {
             products = products.filter(product => product.expires.getTime() > new Date().getTime())
             setProducts(products)
             let activePremiumProduct = getHighestPriorityPremiumProduct(products)
@@ -205,7 +209,7 @@ function Premium() {
                 <div id="buyPremium" style={{ marginBottom: '40px' }}>
                     <hr />
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                        <h2>{hasPremium && showUpgradeWizard ? 'Upgrade Premium' : 'Get Premium'}</h2>
+                        <h2>{showSlots ? 'Get slots' : hasPremium && showUpgradeWizard ? 'Upgrade Premium' : 'Get Premium'}</h2>
                         {hasPremium && showUpgradeWizard && (
                             <Button variant="secondary" size="sm" onClick={returnToPremiumManagement}>
                                 ← Back to Premium Management
@@ -213,6 +217,7 @@ function Premium() {
                         )}
                     </div>
                     <PremiumPurchaseWizard
+                        showSlots={showSlots}
                         activePremiumProduct={activePremiumProduct!}
                         premiumSubscriptions={premiumSubscriptions}
                         onNewActivePremiumProduct={() => {
@@ -245,6 +250,13 @@ function Premium() {
                     <p style={{ marginBottom: '30px' }} className="text-muted">
                         Already have premium? You can extend your subscription, add more time, or upgrade to a higher tier.
                     </p>
+                    <Card className="mb-4">
+                        <Card.Body>
+                            <h4>Premium for friends</h4>
+                            <p>Give your friends Premium access with a single slot or a four-slot bundle.</p>
+                            <Button as="a" href="/premium?slots=true#buyPremium" variant="success">Explore slots & bundles</Button>
+                        </Card.Body>
+                    </Card>
                     <details>
                         <summary style={{ cursor: 'pointer', marginBottom: '20px' }}>
                             <strong>Advanced Options</strong>

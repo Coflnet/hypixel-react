@@ -62,6 +62,7 @@ function getTierStatus(tier: PremiumTier, currentTier?: PremiumTier | null, isUp
 
 interface Props {
     onTierSelect(tier: PremiumTier): void
+    forFriends?: boolean
     currentTier?: PremiumTier | null
     isUpgrade?: boolean
     suggestedTier?: PremiumTier | null
@@ -112,8 +113,16 @@ function DiscountedPrice({ tier, countryCode, discount }: { tier: PremiumTier; c
     )
 }
 
-export default function TierSelectionStep({ onTierSelect, currentTier, isUpgrade, suggestedTier, activePremiumProduct, selectedCountry, onCountryChange }: Props) {
-
+export default function TierSelectionStep({
+    onTierSelect,
+    forFriends,
+    currentTier,
+    isUpgrade,
+    suggestedTier,
+    activePremiumProduct,
+    selectedCountry,
+    onCountryChange
+}: Props) {
     const tierDisplayName = currentTier ? getTierDisplayName(currentTier) : ''
     const discount = getActiveSubscriptionDiscount()
 
@@ -129,6 +138,8 @@ export default function TierSelectionStep({ onTierSelect, currentTier, isUpgrade
                         When you upgrade, your existing tier will be paused and you'll get the full benefits of the higher tier. Nothing will be lost - your
                         previous tier will resume when the upgrade expires.
                     </>
+                ) : forFriends ? (
+                    'Choose the tier your friends will receive.'
                 ) : (
                     'Choose the tier that best fits your needs. Higher tiers include all features from lower tiers.'
                 )}
@@ -144,15 +155,17 @@ export default function TierSelectionStep({ onTierSelect, currentTier, isUpgrade
                 </div>
             )}
 
-            <div className={styles.countrySelection}>
-                <CountrySelect onCountryChange={onCountryChange} />
-            </div>
+            {!forFriends && (
+                <div className={styles.countrySelection}>
+                    <CountrySelect onCountryChange={onCountryChange} />
+                </div>
+            )}
 
             <div className={styles.optionsGrid}>
-                {TIER_CONFIGS.map(config => {
+                {TIER_CONFIGS.filter(config => !forFriends || config.tier !== PremiumTier.STARTER).map(config => {
                     const tier = config.tier
                     const isSuggested = suggestedTier === tier
-                    const pricing = <DiscountedPrice tier={tier} countryCode={selectedCountry?.value} discount={discount} />
+                    const pricing = forFriends ? null : <DiscountedPrice tier={tier} countryCode={selectedCountry?.value} discount={discount} />
 
                     return (
                         <TierCard
@@ -178,13 +191,18 @@ export default function TierSelectionStep({ onTierSelect, currentTier, isUpgrade
                         <strong>Upgrade Protection:</strong> Your current subscription will be paused (not cancelled) while the upgrade is active.
                     </>
                 )}
-                <br />
-                Prices include applicable VAT/sales tax for your country where available. For the US and some other countries, VAT will be added at checkout.
-                {discount && (
+                {!forFriends && (
                     <>
                         <br />
-                        ☀️ <strong>{discount.label}:</strong> Apply code <code>{discount.code}</code> at checkout for {discount.percentage}% off any
-                        subscription until {formatDiscountEndDate(discount.endsAt)}.
+                        Prices include applicable VAT/sales tax for your country where available. For the US and some other countries, VAT will be added at
+                        checkout.
+                        {discount && (
+                            <>
+                                <br />
+                                ☀️ <strong>{discount.label}:</strong> Apply code <code>{discount.code}</code> at checkout for {discount.percentage}% off any
+                                subscription until {formatDiscountEndDate(discount.endsAt)}.
+                            </>
+                        )}
                     </>
                 )}
             </div>

@@ -1737,7 +1737,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getPremiumProducts = async (): Promise<PremiumProduct[]> => {
+    let getPremiumProducts = async (forceRefresh = false): Promise<PremiumProduct[]> => {
         const googleId = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId')
         if (!googleId) {
             toast.error('You need to be logged in to load premium products.')
@@ -1746,7 +1746,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
         const cacheKey = authenticatedCacheKey('premium-products', googleId)
         const requestKey = cacheKey ?? googleId
-        const cached = getAuthenticatedCache<any>(cacheKey)
+        const cached = forceRefresh ? undefined : getAuthenticatedCache<any>(cacheKey)
         if (cached) return parsePremiumProducts(cached)
 
         let pending = premiumProductsRequests.get(requestKey)

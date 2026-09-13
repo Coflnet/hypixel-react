@@ -22,6 +22,7 @@ import styles from './AccountDetails.module.css'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
 import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, getSetting, removeSettings } from '../../utils/SettingsUtils'
 import TransactionHistory from './TransactionHistory/TransactionHistory'
+import TierSlots from './TierSlots/TierSlots'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -60,17 +61,8 @@ function AccountDetails() {
     }
 
     function loadPremiumProducts(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            api.refreshLoadPremiumProducts(
-                products => {
-                    products = products.filter(product => product.expires.getTime() > new Date().getTime())
-                    setProducts(products)
-                    resolve()
-                },
-                () => {
-                    reject()
-                }
-            )
+        return api.getPremiumProducts(true).then(products => {
+            setProducts(products.filter(product => product.expires.getTime() > Date.now()))
         })
     }
 
@@ -227,6 +219,7 @@ function AccountDetails() {
                         hasProductLoadingError={hasLoadingPremiumProductsError}
                         hasSubscriptionLoadingError={subscriptionLookupStatus === 'failed'}
                     />
+                    <TierSlots />
                     <p>
                         <span className={styles.label}>CoflCoins:</span>{' '}
                         {coflCoins === -1 ? (

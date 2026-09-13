@@ -47,7 +47,7 @@ export default function TierCard({ config, pricing, status, isSuggested, canSele
                     {status === 'current' && <span className={styles.currentBadge}>Current</span>}
                     {isSuggested && <span className={styles.suggestedBadge}>Recommended Upgrade</span>}
                 </h5>
-                <div className={styles.tierPrice}>{pricing}</div>
+                {pricing != null && <div className={styles.tierPrice}>{pricing}</div>}
                 <p className={styles.tierDescription}>{isSuggested && upgradeDescription ? upgradeDescription : description}</p>
                 {extraBadge && !isSuggested && <small className={styles.recommendation}>{extraBadge}</small>}
                 {!canSelect && (

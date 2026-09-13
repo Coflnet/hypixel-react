@@ -1,0 +1,71 @@
+.intro {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 24px;
+}
+
+.country {
+    display: flex;
+    justify-content: center;
+}
+.balance {
+    text-align: center;
+}
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+    gap: 20px;
+}
+.offer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 24px;
+}
+.offer p,
+.offer h4 {
+    margin: 0;
+}
+.offerHeading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+.price {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 700;
+    margin-top: 12px;
+}
+.period,
+.perSlot {
+    font-size: 0.9rem;
+}
+.afterPurchase {
+    margin: 24px 0 0;
+    font-size: 0.9rem;
+}
+.success {
+    text-align: center;
+    padding: 32px 0;
+}
+.successIcon {
+    color: var(--bs-success);
+    font-size: 56px !important;
+    margin-bottom: 16px;
+}
+@media (max-width: 480px) {
+    .offer {
+        padding: 20px;
+    }
+}
+
+.afterPurchase a {
+    color: var(--bs-body-color);
+    text-decoration: underline;
+}
+
+.offer > button {
+    margin-top: auto;
+}

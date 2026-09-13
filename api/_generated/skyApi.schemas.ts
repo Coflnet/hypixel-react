@@ -3437,6 +3437,7 @@ export type GetApiPremiumTransactions401One = {
 export type PostApiPremiumSubscriptionSubscriptionSlugParams = {
 creatorCode?: string;
 discountcode?: string;
+assignSlots?: boolean;
 };
 
 export type PostApiPremiumSubscriptionSubscriptionSlug401One = {
@@ -3633,3 +3634,50 @@ locale?: string;
 export type PostApiUserTerms401One = {
   message?: string;
 };
+
+export interface OwnedTierSlot {
+  /** @nullable */
+  id?: string | null;
+  /** @nullable */
+  tier?: string | null;
+  expires?: string;
+  /** @nullable */
+  assignedUserId?: string | null;
+  /** @nullable */
+  minecraftUuid?: string | null;
+  version?: number;
+  /** @nullable */
+  recipientEmail?: string | null;
+  /** @nullable */
+  minecraftName?: string | null;
+}
+
+export interface SlotRecipient {
+  /**
+     * @maxLength 254
+     * @nullable
+     */
+  email?: string | null;
+  /**
+     * @maxLength 36
+     * @nullable
+     */
+  minecraftAccount?: string | null;
+  version?: number;
+}
+
+export interface PurchaseableProduct {
+  type?: ProductType;
+  id?: number;
+  /** @nullable */
+  title?: string | null;
+  /** @nullable */
+  slug?: string | null;
+  /** @nullable */
+  description?: string | null;
+  cost?: number;
+  ownershipSeconds?: number;
+  slotCount?: number;
+  /** @nullable */
+  slotTier?: string | null;
+}

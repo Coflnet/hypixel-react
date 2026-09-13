@@ -14,7 +14,8 @@ interface Props {
     purchasePremiumOption: PremiumTypeOption
     durationString?: JSX.Element | string
     purchasePrice: JSX.Element | string
-    activePremiumProduct: PremiumProduct
+    activePremiumProduct?: PremiumProduct
+    slotCount?: number
     onHide()
     onConfirm(googleToken: string, declaration?: ServicePurchaseDeclaration)
 }
@@ -74,7 +75,9 @@ export default function BuyPremiumConfirmationDialog(props: Props) {
                 {props.type === 'prepaid' && (
                     <>
                         <p>
-                            {locale === 'de'
+                            {props.slotCount ? (locale === 'de'
+                                ? 'Deine Slots beginnen nach dem Kauf. Weise sie danach in deinem Konto deinen Freunden zu.'
+                                : 'Your slots start after purchase. Assign them from your account to your friends.') : locale === 'de'
                                 ? 'Premium-Zeit wird zum nächstmöglichen Zeitpunkt hinzugefügt und kann normalerweise nicht auf ein anderes Konto verschoben werden.'
                                 : 'Premium time is added at the next available start and cannot ordinarily be moved to another account.'}
                         </p>
@@ -111,7 +114,7 @@ export default function BuyPremiumConfirmationDialog(props: Props) {
                     </>
                 )}
                 {props.type === 'subscription' && <p>This subscription will be automatically renewed. It can be canceled at any time and will then run out.</p>}
-                {props.activePremiumProduct && getPremiumType(props.activePremiumProduct)?.productId !== props.purchasePremiumType.productId ? (
+                {!props.slotCount && props.activePremiumProduct && getPremiumType(props.activePremiumProduct)?.productId !== props.purchasePremiumType.productId ? (
                     <div>
                         <hr />
                         <p style={{ color: 'yellow' }}>
