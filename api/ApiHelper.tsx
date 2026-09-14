@@ -2215,7 +2215,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             }
 
             deleteApiPremiumSubscriptionExternalId(id, googleTokenHeaders(googleId))
-                .then(() => {
+                .then(response => {
+                    if (response.status !== 200) throw new Error('Cancellation failed. Your subscription has not been canceled. Please try again.')
                     resolve()
                 })
                 .catch(error => {

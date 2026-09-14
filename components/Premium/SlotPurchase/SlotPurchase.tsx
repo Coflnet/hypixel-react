@@ -150,6 +150,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, b
                                         {savings > 0 ? <Badge bg="success">Save {savings}%</Badge> : null}
                                     </div>
                                     <p>{slotCount === 4 ? '4 independently assignable slots' : '1 assignable slot'}</p>
+                                    {recurring && slotCount === 1 ? <p>Same price as a normal subscription. Assign to yourself or a friend.</p> : null}
                                     <div className={styles.price}>
                                         {recurring
                                             ? priceReady
@@ -160,7 +161,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, b
                                             : `${product.cost?.toLocaleString()} CoflCoins`}
                                     </div>
                                     <p className={styles.period}>
-                                        {recurring ? `Every ${duration(product)} for all ${slotCount} slots` : `One payment · ${duration(product)} of access`}
+                                        {recurring ? `Every ${duration(product)} for ${slotCount === 1 ? 'this slot' : `all ${slotCount} slots`}` : `One payment · ${duration(product)} of access`}
                                     </p>
                                     {slotCount > 1 && (!recurring || priceReady) ? (
                                         <p className={styles.perSlot}>
@@ -213,6 +214,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, b
                 {hasSubscriptions ? 'Checkout confirms the final subscription price and taxes. ' : ''}
                 After payment, assign slots to your friends by email or Minecraft name in <a href="/account#purchased-slots">Account → Purchased slots</a>. You
                 can reassign them later.
+                {hasSubscriptions ? <> To stop renewal, choose <strong>{slotCount === 1 ? 'Cancel slot subscription' : `Cancel ${slotCount}-slot subscription`}</strong> beside your slot. Releasing an assignment keeps billing active.</> : null}
             </p>
             {selected && !isSubscription(selected) ? (
                 <BuyPremiumConfirmationDialog
@@ -243,13 +245,13 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, b
                 <Modal.Body>
                     {error ? <Alert variant="danger">{error}</Alert> : null}
                     <h5>
-                        {selected?.slotCount} {selected && tierName(selected)} slots
+                        {selected?.slotCount} {selected && tierName(selected)} {selected?.slotCount === 1 ? 'slot' : 'slots'}
                     </h5>
                     <p>
                         <strong>
                             {selectedPrice && money(selectedPrice.discountedPrice ?? selectedPrice.originalPrice, selectedPrice.currencyCode || 'EUR')}
                         </strong>{' '}
-                        every {selected && duration(selected)} for the whole bundle.
+                        every {selected && duration(selected)} for {selected?.slotCount === 1 ? 'this slot' : 'the whole bundle'}.
                     </p>
                     <p>
                         This starts a new subscription for these slots. It renews automatically until canceled; cancellation keeps access through the paid
@@ -257,6 +259,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, b
                     </p>
                     <p>{taxLabel}. Checkout confirms the final price.</p>
                     <p>After payment, you’ll return to your account to assign the slots to your friends.</p>
+                    <p>Cancel from Account → Purchased slots using <strong>{selected?.slotCount === 1 ? 'Cancel slot subscription' : `Cancel ${selected?.slotCount}-slot subscription`}</strong>. {selected?.slotCount === 1 ? 'Only this slot subscription will stop renewing.' : 'All slots in this subscription stop renewing together.'}</p>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button variant="secondary" disabled={busy} onClick={() => setSelected(undefined)}>

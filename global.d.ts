@@ -815,6 +815,7 @@ interface PremiumSubscription {
     externalId: string
     endsAt?: Date
     productName: string
+    slotCount?: number
     paymentAmount: string
     renewsAt: Date
     createdAt: Date

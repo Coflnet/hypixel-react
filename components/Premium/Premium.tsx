@@ -125,9 +125,9 @@ function Premium() {
     }
 
     function onSubscriptionCancel(subscription: PremiumSubscription) {
-        api.cancelPremiumSubscription(subscription.externalId).then(() => {
-            loadPremiumSubscriptions()
+        return api.cancelPremiumSubscription(subscription.externalId).then(() => {
             toast.success('Subscription cancelled')
+            return loadPremiumSubscriptions()
         })
     }
 

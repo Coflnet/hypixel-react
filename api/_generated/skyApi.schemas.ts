@@ -2431,6 +2431,8 @@ export interface PremiumSubscription {
   endsAt?: string | null;
   /** @nullable */
   productName?: string | null;
+  /** Number of assignable slots renewed by this subscription; zero for personal access. */
+  slotCount?: number;
   /** @nullable */
   paymentAmount?: string | null;
   renewsAt: string;
@@ -3636,6 +3638,8 @@ export type PostApiUserTerms401One = {
 };
 
 export interface OwnedTierSlot {
+  /** @nullable */
+  subscriptionId?: string | null;
   /** @nullable */
   id?: string | null;
   /** @nullable */

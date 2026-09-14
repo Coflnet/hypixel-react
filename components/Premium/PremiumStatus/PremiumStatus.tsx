@@ -15,7 +15,7 @@ interface Props {
     products: PremiumProduct[]
     subscriptions: PremiumSubscription[]
     labelStyle?: React.CSSProperties
-    onSubscriptionCancel(subscription: PremiumSubscription): void
+    onSubscriptionCancel(subscription: PremiumSubscription): void | Promise<void>
     hasProductLoadingError?: boolean
     hasSubscriptionLoadingError?: boolean
 }
@@ -234,12 +234,8 @@ function PremiumStatus(props: Props) {
             </div>
             <CancelSubscriptionFeedbackDialog
                 show={!!showCancelSubscriptionDialogSubscription}
-                onCancel={() => {
-                    if (showCancelSubscriptionDialogSubscription) {
-                        props.onSubscriptionCancel(showCancelSubscriptionDialogSubscription)
-                        setShowCancelSubscriptionDialogSubscription(undefined)
-                    }
-                }}
+                subscription={showCancelSubscriptionDialogSubscription}
+                onCancel={() => showCancelSubscriptionDialogSubscription ? props.onSubscriptionCancel(showCancelSubscriptionDialogSubscription) : undefined}
                 onClose={() => {
                     setShowCancelSubscriptionDialogSubscription(undefined)
                 }}

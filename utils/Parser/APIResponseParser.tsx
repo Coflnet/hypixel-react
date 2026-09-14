@@ -751,6 +751,7 @@ export function parsePremiumSubscription(subscription: any): PremiumSubscription
         externalId: subscription.externalId,
         endsAt: subscription.endsAt ? parseDate(subscription.endsAt) : undefined,
         productName: subscription.productName,
+        slotCount: subscription.slotCount,
         paymentAmount: subscription.paymentAmount,
         renewsAt: parseDate(subscription.renewsAt),
         createdAt: parseDate(subscription.createdAt)

@@ -381,6 +381,59 @@ function visitSlots() {
 }
 
 describe('Purchased slot assignments', () => {
+    for (const slotCount of [1, 4]) {
+        it(`cancels the selected ${slotCount}-slot subscription while keeping other subscriptions and assignments`, () => {
+            const subscription = { ...activeSubscription, externalId: 'slot-subscription', productName: `Premium+ ${slotCount} slot`, slotCount }
+            let canceled = false
+            stubProducts()
+            cy.intercept('GET', '**/api/premium/subscription', request => request.reply({ body: [
+                activeSubscription, { ...subscription, endsAt: canceled ? subscription.renewsAt : null }
+            ] })).as('subscriptions')
+            cy.intercept('GET', '**/api/premium/slots', { body: [
+                { ...purchasedSlot, subscriptionId: subscription.externalId, recipientEmail: 'friend@example.com', assignedUserId: 'friend' }
+            ] }).as('slots')
+            cy.intercept('DELETE', '**/api/premium/subscription/*', request => {
+                expect(request.url).to.contain('/subscription/slot-subscription')
+                expect(request.headers.googletoken).to.equal(googleToken)
+                canceled = true
+                request.reply({ statusCode: 200 })
+            }).as('cancelSlot')
+            visitAuthenticatedPage()
+            cy.get('#purchased-slots').should('contain.text', 'keeps billing active')
+            cy.get('[data-testid="tier-slot"]').contains('button', slotCount === 1 ? 'Cancel slot subscription' : 'Cancel 4-slot subscription').click()
+            cy.get('.modal').should('contain.text', 'Subscription #slot-subscription')
+                .and('contain.text', slotCount === 1 ? 'this single slot only' : 'all 4 slots')
+                .and('contain.text', 'Access continues through the paid period')
+            cy.contains('button', 'Confirm cancelation').click()
+            cy.wait('@cancelSlot')
+            cy.get('.modal').should('not.exist')
+            cy.get('[data-testid="tier-slot"]').should('contain.text', 'Canceled · access until').and('contain.text', 'friend@example.com')
+            cy.get('[data-testid="tier-slot"]').contains('button', 'Cancel').should('not.exist')
+            cy.contains('button', 'Cancel subscription').should('be.visible')
+        })
+    }
+
+    it('keeps a failed cancellation open and allows retry without claiming success', () => {
+        const subscription = { ...activeSubscription, externalId: 'single-slot', productName: 'Premium+ single slot', slotCount: 1 }
+        stubProducts()
+        stubSubscriptions({ body: [subscription] })
+        cy.intercept('GET', '**/api/premium/slots', { body: [{ ...purchasedSlot, subscriptionId: subscription.externalId }] })
+        cy.intercept('DELETE', '**/api/premium/subscription/single-slot', { statusCode: 503, delay: 500, body: { message: 'Try again' } }).as('failedCancel')
+        visitAuthenticatedPage()
+        cy.get('[data-testid="tier-slot"]').contains('button', 'Cancel slot subscription').click()
+        cy.contains('button', 'Confirm cancelation').click()
+        cy.contains('button', 'Canceling…').should('be.disabled')
+        cy.wait('@failedCancel')
+        cy.get('.modal').should('contain.text', 'Could not confirm cancellation')
+        cy.contains('Subscription cancelled').should('not.exist')
+        stubSubscriptions({ body: [{ ...subscription, endsAt: subscription.renewsAt }] })
+        cy.intercept('DELETE', '**/api/premium/subscription/single-slot', { statusCode: 200 }).as('retryCancel')
+        cy.contains('button', 'Confirm cancelation').click()
+        cy.wait('@retryCancel')
+        cy.get('.modal').should('not.exist')
+        cy.get('[data-testid="tier-slot"]').should('contain.text', 'Canceled · access until')
+    })
+
     it('assigns by email without rounding the slot ID and shows the saved recipient after reloading', () => {
         let slot = { ...purchasedSlot }
         const remaining = ['9007199254740994', '9007199254740995', '9007199254740996'].map(id => ({ ...purchasedSlot, id }))
@@ -507,13 +560,15 @@ const slotCatalog = [
     { slug: 'premium-slots-4', slotTier: 'premium', slotCount: 4, cost: 6000, ownershipSeconds: 2592000 },
     { slug: 'premium_plus-slot-weeks', slotTier: 'premium_plus', slotCount: 1, cost: 9000, ownershipSeconds: 2419200 },
     { slug: 'premium_plus-slots-4', slotTier: 'premium_plus', slotCount: 4, cost: 27000, ownershipSeconds: 2419200 },
+    { slug: 'l_premium-slots', slotTier: 'premium', slotCount: 1, cost: 1800, ownershipSeconds: 2419200 },
+    { slug: 'l_prem_plus-slots', slotTier: 'premium_plus', slotCount: 1, cost: 8500, ownershipSeconds: 2419200 },
     { slug: 'l_premium-slots-4', slotTier: 'premium', slotCount: 4, cost: 7200, ownershipSeconds: 2419200 },
     { slug: 'l_prem_plus-slots-4', slotTier: 'premium_plus', slotCount: 4, cost: 27000, ownershipSeconds: 2419200 }
 ]
 
 function slotPricing() {
     return {
-        products: [['l_premium-slots-4', 29.69], ['l_prem_plus-slots-4', 99.69]].map(([slug, amount]) => ({
+        products: [['l_premium-slots', 9.69], ['l_prem_plus-slots', 35.69], ['l_premium-slots-4', 29.69], ['l_prem_plus-slots-4', 99.69]].map(([slug, amount]) => ({
             productSlug: slug, providers: [{ providerSlug: 'lemonsqueezy', currencyCode: 'EUR', originalPrice: Number(amount), discountedPrice: Number(amount) }]
         }))
     }
@@ -624,8 +679,8 @@ describe('Slot packages in the Premium wizard', () => {
         cy.contains('Choose Your Package').should('be.visible')
         cy.contains('Step 3 of 5').should('be.visible')
         packageButton(0).should('be.visible')
-        cy.get('[data-testid="premium-package"]').should('have.length', 2)
-        cy.contains('#buyPremium h5', 'One assignable slot').should('not.exist')
+        cy.get('[data-testid="premium-package"]').should('have.length', 3)
+        cy.contains('#buyPremium h5', 'One assignable slot').should('be.visible')
         packageButton(4).closest('button').should('contain.text', '~€24.92 per slot · every 4 weeks')
     })
 
@@ -641,7 +696,7 @@ describe('Slot packages in the Premium wizard', () => {
         cy.contains('.modal-title', 'Upgrade subscription').should('not.exist')
     })
 
-    for (const [index, slug] of [[0, 'l_premium-slots-4'], [1, 'l_prem_plus-slots-4']] as const) {
+    for (const [index, slug, count, amount] of [[0, 'l_premium-slots', 1, '9.69'], [1, 'l_prem_plus-slots', 1, '35.69'], [0, 'l_premium-slots-4', 4, '29.69'], [1, 'l_prem_plus-slots-4', 4, '99.69']] as const) {
         it(`reviews and opens the correct ${slug} checkout with assignment as the return destination`, () => {
             cy.intercept('POST', `**/api/premium/subscription/${slug}?*`, request => {
                 expect(request.query.assignSlots).to.equal('true')
@@ -649,11 +704,14 @@ describe('Slot packages in the Premium wizard', () => {
                 request.reply({ statusCode: 200, delay: 500, body: { directLink: 'https://test.lemonsqueezy.com/checkout/slot-bundle' } })
             }).as('slotCheckout')
             visitShop()
-            choosePackage(index === 0 ? 'Premium' : 'Premium+', 4, 'Subscription')
+            choosePackage(index === 0 ? 'Premium' : 'Premium+', count, 'Subscription')
+            cy.get('[data-testid="slot-offer"]').should('contain.text', amount)
+            if (count === 1) cy.contains('Same price as a normal subscription.').should('be.visible')
             cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
             cy.contains('button', 'Continue with subscription').click()
             cy.contains('.modal-title', 'Review your slot subscription').should('be.visible')
             cy.get('.modal').should('contain.text', 'new subscription').and('contain.text', 'assign the slots')
+            if (count === 1) cy.get('.modal').should('contain.text', 'Cancel slot subscription').and('contain.text', 'Only this slot subscription')
             cy.contains('button', 'Continue to checkout').click()
             cy.contains('button', 'Opening checkout…').should('be.disabled')
             cy.get('#buyPremium').contains('button', 'Back').should('be.disabled')
@@ -726,11 +784,11 @@ describe('Slot packages in the Premium wizard', () => {
         cy.contains('Step 1 of 4').should('be.visible')
         cy.get('#buyPremium').contains('h5', /^Premium$/).click()
         cy.get('#buyPremium').contains('h5', /^Subscription$/).click()
-        cy.get('[data-testid="premium-package"]').should('have.length', 1)
+        cy.get('[data-testid="premium-package"]').should('have.length', 2)
         packageButton(0).should('not.exist')
         packageButton(4).should('be.visible')
         cy.contains('Step 3 of 4').should('be.visible')
-        cy.contains('#buyPremium h5', 'One assignable slot').should('not.exist')
+        cy.contains('#buyPremium h5', 'One assignable slot').should('be.visible')
         cy.get('#buyPremium').contains('button', 'Back').click()
         cy.get('#buyPremium').contains('h5', /^CoflCoins$/).click()
         cy.get('[data-testid="premium-package"]').should('have.length', 2)

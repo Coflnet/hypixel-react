@@ -35,13 +35,13 @@ export default function PackageSelectionStep({ tier, forFriends, purchaseType, c
             !catalog.catalogError)
 
     return (
-        <div className={`${styles.optionsGrid} ${recurring && forFriends ? styles.oneOption : recurring || forFriends ? styles.twoOptions : ''}`}>
+        <div className={`${styles.optionsGrid} ${forFriends ? styles.twoOptions : ''}`}>
             {[
                 { count: 0, title: 'Just for me', icon: '👤', description: 'Premium for your account. Choose a duration next.' },
-                { count: 1, title: 'One assignable slot', icon: '🎟️', description: 'Choose a friend after payment. Includes a fixed period of access.' },
-                { count: 4, title: 'Package of 4', icon: '👥', description: 'Four slots to assign to friends. Includes a fixed period of access.' }
+                { count: 1, title: 'One assignable slot', icon: '🎟️', description: recurring ? 'Assign to yourself or a friend. Same price as a normal subscription; cancel this slot independently.' : 'Choose a friend after payment. Includes a fixed period of access.' },
+                { count: 4, title: 'Package of 4', icon: '👥', description: recurring ? 'Four slots to assign to friends. Renews and cancels as one subscription.' : 'Four slots to assign to friends. Includes a fixed period of access.' }
             ]
-                .filter(option => (!recurring || option.count !== 1) && (!forFriends || option.count !== 0))
+                .filter(option => !forFriends || option.count !== 0)
                 .map(option => (
                     <Card
                         as="button"

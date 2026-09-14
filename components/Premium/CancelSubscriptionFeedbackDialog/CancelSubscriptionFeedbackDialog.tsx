@@ -1,5 +1,5 @@
 import { useState, ChangeEvent } from 'react'
-import { Modal, Form, Button } from 'react-bootstrap'
+import { Alert, Modal, Form, Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../../api/ApiHelper'
 import Tooltip from '../../Tooltip/Tooltip'
@@ -7,7 +7,8 @@ import Tooltip from '../../Tooltip/Tooltip'
 interface Props {
     show: boolean
     onClose: () => void
-    onCancel: () => void
+    onCancel: () => void | Promise<void>
+    subscription?: PremiumSubscription
 }
 
 interface SubscriptionCancelFeedbackExtended extends SubscriptionCancelFeedback {
@@ -23,33 +24,38 @@ function CancelSubscriptionFeedbackDialog(props: Props) {
     })
     let [hasUserInput, setHasUserInput] = useState(false)
     let [showMissingAdditionalInformation, setShowMissingAdditionalInformation] = useState(false)
+    const [canceling, setCanceling] = useState(false)
+    const [error, setError] = useState('')
 
     function onAbort() {
+        if (canceling) return
+        setError('')
         props.onClose()
     }
 
-    function onCancelWithoutFeedback() {
-        props.onCancel()
-    }
-
-    function onSubmitAndCancel() {
-        if (!feedback.additionalInformation && feedback.hasComplaint) {
+    async function cancelSubscription(sendFeedback = false) {
+        if (canceling) return
+        if (sendFeedback && !feedback.additionalInformation && feedback.hasComplaint) {
             setShowMissingAdditionalInformation(true)
             return
         }
-        
-        let feedbackToSend: any = { ...feedback }
-        feedbackToSend.href = location.href
-
-        api.sendFeedback('subscription-cancel', feedbackToSend)
-            .then(() => {
-                toast.success('Thank you for your feedback!')
-                props.onCancel()
-            })
-            .catch(() => {
-                toast.error('Feedback could not be sent.')
-                props.onCancel()
-            })
+        setCanceling(true)
+        setError('')
+        try {
+            if (sendFeedback) {
+                try {
+                    await api.sendFeedback('subscription-cancel', { ...feedback, href: location.href })
+                } catch {
+                    toast.error('Feedback could not be sent. Continuing with cancellation.')
+                }
+            }
+            await props.onCancel()
+            props.onClose()
+        } catch {
+            setError('Could not confirm cancellation. Check your subscription status and try again.')
+        } finally {
+            setCanceling(false)
+        }
     }
 
     function onStoppedPlayingSkyblockChange(e: ChangeEvent<HTMLInputElement>) {
@@ -85,10 +91,24 @@ function CancelSubscriptionFeedbackDialog(props: Props) {
 
     return (
         <Modal size="lg" show={props.show} onHide={onAbort}>
-            <Modal.Header closeButton>
+            <Modal.Header closeButton={!canceling}>
                 <Modal.Title>Cancel Subscription</Modal.Title>
             </Modal.Header>
             <Modal.Body>
+                {error ? <Alert variant="danger">{error}</Alert> : null}
+                {props.subscription ? (
+                    <div>
+                        <p><strong>{props.subscription.productName}</strong> · Subscription #{props.subscription.externalId}</p>
+                        <p>
+                            {props.subscription.slotCount === 1
+                                ? 'This stops renewal for this single slot only. Your other subscriptions stay active.'
+                                : (props.subscription.slotCount || 0) > 1
+                                  ? `This stops renewal for all ${props.subscription.slotCount} slots in this subscription. A bundle cannot be canceled one slot at a time.`
+                                  : 'This stops renewal for this subscription.'}
+                            {' '}Access continues through the paid period.
+                        </p>
+                    </div>
+                ) : null}
                 <div>
                     <p>
                         We're sorry to see you go! To help us improve our service, please let us know why you're canceling:
@@ -178,18 +198,20 @@ function CancelSubscriptionFeedbackDialog(props: Props) {
                     </Form>
                     <hr />
                     <div style={{ display: 'flex', justifyContent: 'space-between', gap: '10px' }}>
-                        <Button variant="secondary" onClick={onAbort}>
+                        <Button variant="secondary" disabled={canceling} onClick={onAbort}>
                             Abort
                         </Button>
                         <div style={{ display: 'flex', gap: '10px' }}>
+                            {hasUserInput ? <Button variant="outline-danger" disabled={canceling} onClick={() => void cancelSubscription()}>Cancel without feedback</Button> : null}
                             <Tooltip
                                 type={'hover'}
                                 content={
                                     <Button
                                         variant="success"
-                                        onClick={onSubmitAndCancel}
+                                        disabled={canceling}
+                                        onClick={() => void cancelSubscription(hasUserInput)}
                                     >
-                                        {hasUserInput ? 'Submit feedback and cancel' : 'Confirm cancelation'}
+                                        {canceling ? 'Canceling…' : hasUserInput ? 'Submit feedback and cancel' : 'Confirm cancelation'}
                                     </Button>
                                 }
                                 tooltipContent={

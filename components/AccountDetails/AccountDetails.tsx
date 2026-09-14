@@ -168,9 +168,9 @@ function AccountDetails() {
     }
 
     function onSubscriptionCancel(subscription: PremiumSubscription) {
-        api.cancelPremiumSubscription(subscription.externalId).then(() => {
+        return api.cancelPremiumSubscription(subscription.externalId).then(() => {
             toast.success('Subscription cancelled')
-            loadPremiumSubscriptions()
+            return loadPremiumSubscriptions()
         })
     }
 
@@ -219,7 +219,7 @@ function AccountDetails() {
                         hasProductLoadingError={hasLoadingPremiumProductsError}
                         hasSubscriptionLoadingError={subscriptionLookupStatus === 'failed'}
                     />
-                    <TierSlots />
+                    <TierSlots subscriptions={premiumSubscriptions} onCancelSubscription={setSubscriptionToCancel} />
                     <p>
                         <span className={styles.label}>CoflCoins:</span>{' '}
                         {coflCoins === -1 ? (
@@ -341,6 +341,7 @@ function AccountDetails() {
                         .filter(subscription => !subscription.endsAt)
                         .map(subscription => (
                             <div key={subscription.externalId} style={{ paddingBottom: '1rem' }}>
+                                <p>{subscription.productName} · Subscription #{subscription.externalId}</p>
                                 <Button variant="outline-danger" onClick={() => setSubscriptionToCancel(subscription)}>
                                     Cancel subscription
                                 </Button>
@@ -357,12 +358,8 @@ function AccountDetails() {
                     </div>
                     <CancelSubscriptionFeedbackDialog
                         show={!!subscriptionToCancel}
-                        onCancel={() => {
-                            if (subscriptionToCancel) {
-                                onSubscriptionCancel(subscriptionToCancel)
-                                setSubscriptionToCancel(undefined)
-                            }
-                        }}
+                        subscription={subscriptionToCancel}
+                        onCancel={() => subscriptionToCancel ? onSubscriptionCancel(subscriptionToCancel) : undefined}
                         onClose={() => setSubscriptionToCancel(undefined)}
                     />
                     <Modal show={showDeleteAccountModal} onHide={closeDeleteAccountModal}>

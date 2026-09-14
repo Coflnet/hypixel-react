@@ -23,7 +23,12 @@ function errorMessage(data: unknown) {
     return 'Could not save the assignment. Check the current slots and try again.'
 }
 
-export default function TierSlots() {
+interface Props {
+    subscriptions: PremiumSubscription[]
+    onCancelSubscription(subscription: PremiumSubscription): void
+}
+
+export default function TierSlots({ subscriptions, onCancelSubscription }: Props) {
     const [slots, setSlots] = useState<OwnedTierSlot[]>([])
     const [loading, setLoading] = useState(true)
     const [fromCheckout, setFromCheckout] = useState(false)
@@ -102,7 +107,8 @@ export default function TierSlots() {
                 </Button>
             </div>
             {fromCheckout ? <Alert variant="info">Assign your purchased slots below. Payment confirmation can take a moment; refresh the slots if your new purchase has not appeared yet.</Alert> : null}
-            <p>Share your slots with friends. You keep control of billing and assignments.</p>
+            <p>Assign slots to yourself or friends. You keep control of billing and assignments.</p>
+            <p>Release slot removes its assignment and keeps billing active. To stop renewal, use Cancel slot subscription below.</p>
             {error && !editing ? (
                 <Alert variant="danger" role="alert">
                     {error}
@@ -114,6 +120,8 @@ export default function TierSlots() {
                 {slots.map((slot, index) => {
                     const expired = !slot.expires || new Date(slot.expires).getTime() <= Date.now()
                     const assigned = !!(slot.assignedUserId || slot.minecraftUuid)
+                    const subscription = subscriptions.find(item => item.externalId === slot.subscriptionId)
+                    const bundle = (subscription?.slotCount || 0) > 1
                     return (
                         <div key={slot.id} data-testid="tier-slot" className="border rounded p-3">
                             <strong>
@@ -123,6 +131,14 @@ export default function TierSlots() {
                                 {expired ? 'Expired' : 'Active until'} {slot.expires ? new Date(slot.expires).toLocaleString() : ''}
                             </p>
                             <p className="mb-2 text-break">{recipientName(slot)}</p>
+                            {subscription ? (
+                                <p className="mb-2">
+                                    {subscription.endsAt
+                                        ? `Canceled · access until ${subscription.endsAt.toLocaleString()}`
+                                        : `Renews ${subscription.renewsAt.toLocaleString()}`}
+                                    {bundle ? ` · Part of a ${subscription.slotCount}-slot subscription` : ' · Single-slot subscription'}
+                                </p>
+                            ) : slot.subscriptionId ? <p>Subscription details unavailable. Refresh the account page to manage billing.</p> : null}
                             <div className="d-flex flex-wrap gap-2">
                                 <Button size="sm" disabled={loading || saving || expired} onClick={() => editSlot(slot)}>
                                     {assigned ? 'Reassign' : 'Assign slot'}
@@ -130,6 +146,11 @@ export default function TierSlots() {
                                 {assigned ? (
                                     <Button size="sm" variant="secondary" disabled={loading || saving} onClick={() => void saveAssignment(slot, {})}>
                                         Release slot
+                                    </Button>
+                                ) : null}
+                                {subscription && !subscription.endsAt ? (
+                                    <Button size="sm" variant="outline-danger" onClick={() => onCancelSubscription(subscription)}>
+                                        {bundle ? `Cancel ${subscription.slotCount}-slot subscription` : 'Cancel slot subscription'}
                                     </Button>
                                 ) : null}
                             </div>
