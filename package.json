@@ -12,6 +12,7 @@
     "lint": "next lint",
     "cypress:open": "cypress open",
     "cypress:run": "cross-env TEST_RUNNER=true cypress run",
+    "cypress:verify": "node scripts/verify-cypress.mjs",
     "generate_api": "orval --config orval.config.ts && node scripts/postprocess-generated-api.mjs",
     "sitemap:generate": "node scripts/regenerate-sitemaps.mjs"
   },
