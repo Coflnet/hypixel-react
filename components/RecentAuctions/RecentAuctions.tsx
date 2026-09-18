@@ -136,16 +136,18 @@ function RecentAuctions(props: Props) {
         setIsLoading(true)
         setHasLoadError(false)
         try {
+            const itemFilter = getEffectiveItemFilter()
+            itemFilter.page = page.toString()
             const newRecentAuctions = samples
                 ? samples.slice(page * FETCH_RESULT_SIZE, (page + 1) * FETCH_RESULT_SIZE)
-                : await api.getRecentAuctions(props.item.tag, { ...getEffectiveItemFilter(), page: page.toString() })
+                : await api.getRecentAuctions(props.item.tag, itemFilter)
             if (!mounted.current || currentRequest !== requestId.current) return
 
             const current = recentAuctionsRef.current
             setNoResults(current.length === 0 && newRecentAuctions.length === 0)
             setAllElementsLoaded(newRecentAuctions.length < FETCH_RESULT_SIZE || (!!samples && (page + 1) * FETCH_RESULT_SIZE >= samples.length))
             // Live sales can arrive during a request; keep them without duplicating rows or skipping pages.
-            setRecentAuctions([...current, ...newRecentAuctions.filter(auction => !current.some(existing => existing.uuid === auction.uuid))])
+            setRecentAuctions([...current, ...newRecentAuctions.filter(auction => !auction.uuid || !current.some(existing => existing.uuid === auction.uuid))])
             nextPage.current = page + 1
         } catch {
             if (mounted.current && currentRequest === requestId.current) setHasLoadError(true)
