@@ -64,6 +64,9 @@ describe('Bazaar snapshot recovery', () => {
     })
 
     it('offers a page retry after an unexpected client error', () => {
+        cy.on('uncaught:exception', error => {
+            if (error.message.includes('Temporary chart error')) return false
+        })
         cy.intercept('GET', '**/api/bazaar/BOOSTER_COOKIE/snapshot*', snapshot).as('snapshot')
         visitItem(window => {
             const getItem = window.Storage.prototype.getItem

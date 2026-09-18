@@ -63,7 +63,7 @@ describe('DOM translation protection', () => {
         cy.location('search').should('include', 'range=hour')
         cy.get('.echarts-for-react canvas').should('be.visible')
         cy.contains('Unable to load this page').should('not.exist')
-        // The shared Cypress support ignores uncaught errors, so check diagnostics explicitly.
+        // React boundaries may catch errors before Cypress sees them; check those too.
         cy.window().then(window => {
             const errors = JSON.parse(window.sessionStorage.getItem('skycoflClientErrors') || '[]')
             expect(errors.filter(entry => entry.error.name === 'NotFoundError' || entry.source === 'react-boundary')).to.deep.equal([])

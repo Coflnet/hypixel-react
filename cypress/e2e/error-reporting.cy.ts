@@ -30,6 +30,10 @@ function visitError(digest?: string) {
 
 describe('Error diagnostics', () => {
     beforeEach(() => {
+        cy.on('uncaught:exception', error => {
+            // Cypress adds its own explanation around the original error message.
+            if (['Chart render failed', 'Uncaught test error', 'Rejected test promise'].some(message => error.message.includes(message))) return false
+        })
         cy.intercept('POST', 'https://feedback.coflnet.com/api/**', { statusCode: 200, body: {} }).as('feedback')
         cy.intercept('GET', '**/api/bazaar/BOOSTER_COOKIE/snapshot*', { body: null })
         cy.intercept('GET', '**/api/bazaar/BOOSTER_COOKIE/history/*', [])
