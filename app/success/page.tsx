@@ -3,10 +3,12 @@ import Confetti from '../../components/Confetti/Confetti'
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Button, Container } from 'react-bootstrap'
+import PaymentStatusRefresh from '../../components/Premium/PaymentStatusRefresh'
 
 export default function Page() {
     return (
         <>
+            <PaymentStatusRefresh />
             <Container>
                 <h2>
                     <NavBar />
@@ -17,7 +19,7 @@ export default function Page() {
                     Your CoflCoins will be awarded as soon as the money transfer finished. This may take a few minutes up to a few days (depending on your
                     payment method).
                 </p>
-                <Link href="/premium?tier=premium" className="disableLinkStyle">
+                <Link href="/premium" className="disableLinkStyle">
                     <Button>Return to the Premium page</Button>
                 </Link>
             </Container>

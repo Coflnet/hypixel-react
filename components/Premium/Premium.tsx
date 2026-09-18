@@ -20,6 +20,7 @@ import { parseTierFromUrl } from '../../utils/PremiumUpgradeUtils'
 import { CoinsSaleNote } from '../Discounts/DiscountBanners'
 import AgreementDocumentList from '../Legal/AgreementDocumentList'
 import UpgradeSubscription from './UpgradeSubscription/UpgradeSubscription'
+import usePremiumRefresh from '../../hooks/usePremiumRefresh'
 
 function Premium() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -35,6 +36,8 @@ function Premium() {
     const [showSlots, setShowSlots] = useState(false)
     let [termsStatus, setTermsStatus] = useState<TermsStatus>()
     const legalLocale = typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en'
+
+    usePremiumRefresh(isLoggedIn, () => Promise.allSettled([loadPremiumProducts(), loadPremiumSubscriptions()]))
 
     useEffect(() => {
         setIsSSR(false)
@@ -77,21 +80,15 @@ function Premium() {
             setProducts(products)
             let activePremiumProduct = getHighestPriorityPremiumProduct(products)
 
-            if (!activePremiumProduct) {
-                setHasPremium(false)
-            } else {
-                setHasPremium(true)
-                setActivePremiumProduct(activePremiumProduct)
-            }
-
-            // Check for upgrade request after loading premium status
-            checkForUpgradeRequest()
+            setHasPremium(!!activePremiumProduct)
+            // Keep unchanged status stable so polling does not reset the purchase wizard.
+            setActivePremiumProduct(current => (JSON.stringify(current) === JSON.stringify(activePremiumProduct) ? current : activePremiumProduct))
         })
     }
 
     function loadPremiumSubscriptions(): Promise<void> {
-        setHasSubscriptionLoadingError(false)
         return api.getPremiumSubscriptions().then(subscriptions => {
+            setHasSubscriptionLoadingError(false)
             subscriptions = subscriptions.filter(subscription => !subscription.endsAt || subscription.endsAt.getTime() > new Date().getTime())
             setPremiumSubscriptions(subscriptions)
         }).catch(() => setHasSubscriptionLoadingError(true))

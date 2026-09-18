@@ -113,6 +113,100 @@ const activeSubscription = {
     createdAt: '2026-01-01T00:00:00Z'
 }
 
+describe('Premium refresh after checkout', () => {
+    const ownership = { premium: { expiresAt: '2099-02-01T00:00:00Z' } }
+    const cacheKey = 'skycoflApiCache:premium-products:cypress%40example.com'
+
+    for (const path of ['/premium', '/account']) {
+        it(`picks up delayed payment confirmation on ${path} without reloading`, () => {
+            stubProducts()
+            stubSubscriptions({ body: [] })
+            visitAuthenticatedPage(path)
+            cy.wait(['@products', '@subscriptions'])
+            cy.contains('No Premium').should('be.visible')
+
+            stubProducts({ body: ownership })
+            stubSubscriptions({ body: [{ ...activeSubscription, productName: 'premium' }] })
+            cy.contains('Premium (Subscription)', { timeout: 12000 }).should('be.visible')
+            cy.contains('No Premium').should('not.exist')
+            if (path === '/premium') cy.contains('You have a Premium account.').should('be.visible')
+            cy.window().then(window => {
+                expect(JSON.parse(window.sessionStorage.getItem(cacheKey)!).value).to.deep.equal(ownership)
+                expect(JSON.parse(window.localStorage.getItem('lastPremiumProducts')!)).to.deep.equal(ownership)
+            })
+        })
+    }
+
+    it('refreshes immediately on returning to the tab despite a fresh empty cache', () => {
+        stubProducts()
+        stubSubscriptions({ body: [] })
+        visitAuthenticatedPage('/premium')
+        cy.wait(['@products', '@subscriptions'])
+        cy.contains('No Premium').should('be.visible')
+        stubProducts({ body: ownership })
+        cy.window().then(window => window.dispatchEvent(new window.Event('focus')))
+        cy.contains('You have a Premium account.').should('be.visible')
+    })
+
+    it('does not reset the selected purchase step when ownership is unchanged', () => {
+        stubProducts({ body: ownership })
+        stubSubscriptions({ body: [] })
+        visitAuthenticatedPage('/premium?tier=premium_plus')
+        cy.wait(['@products', '@subscriptions'])
+        cy.get('#buyPremium').contains('h5', /^CoflCoins$/).click()
+        cy.get('#buyPremium').contains('Choose Your Package').should('be.visible')
+        cy.window().then(window => window.dispatchEvent(new window.Event('focus')))
+        cy.wait('@products')
+        cy.get('#buyPremium').contains('Choose Your Package').should('be.visible')
+    })
+
+    it('refreshes checkout-return caches, pauses in the background, and backs off after two minutes', () => {
+        let fulfilled = false
+        let updates = 0
+        cy.intercept('POST', '**/api/premium/user/owns', request => request.reply({ body: fulfilled ? ownership : {} })).as('products')
+        cy.clock(Date.now(), ['Date', 'setTimeout', 'clearTimeout'])
+        visitAuthenticatedPage('/success', window => {
+            window.sessionStorage.setItem(cacheKey, JSON.stringify({ expiresAt: Date.now() + 300000, value: {} }))
+            window.addEventListener('premium.products.updated', () => { updates++ })
+        })
+        cy.wait('@products')
+        cy.tick(0)
+        cy.wrap(null).should(() => expect(updates).to.equal(1))
+        cy.contains('Return to the Premium page').closest('a').should('have.attr', 'href', '/premium')
+        cy.window().then(window => Object.defineProperty(window.document, 'visibilityState', { configurable: true, value: 'hidden' }))
+        cy.tick(15000)
+        cy.get('@products.all').should('have.length', 1)
+        cy.then(() => { fulfilled = true })
+        cy.window().then(window => {
+            Object.defineProperty(window.document, 'visibilityState', { configurable: true, value: 'visible' })
+            window.document.dispatchEvent(new window.Event('visibilitychange'))
+        })
+        cy.wait('@products')
+        cy.wrap(null).should(() => expect(updates).to.equal(2))
+        cy.window().should(window => expect(JSON.parse(window.sessionStorage.getItem(cacheKey)!).value).to.deep.equal(ownership))
+        cy.tick(5000)
+        cy.wait('@products')
+        cy.wrap(null).should(() => expect(updates).to.equal(3))
+        cy.clock().invoke('setSystemTime', Date.now() + 180000)
+        cy.tick(5000)
+        cy.wait('@products')
+        cy.wrap(null).should(() => expect(updates).to.equal(4))
+        cy.get('@products.all').then(requests => {
+            const count = requests.length
+            cy.tick(29000)
+            cy.get('@products.all').should('have.length', count)
+            cy.tick(1000)
+            cy.wait('@products')
+        })
+        cy.get('@products.all').then(requests => {
+            const count = requests.length
+            cy.visit('/about')
+            cy.tick(30000)
+            cy.get('@products.all').should('have.length', count)
+        })
+    })
+})
+
 describe('Account deletion with subscription lookup', () => {
     it('shows delegated premium as owner-managed without subscription controls', () => {
         stubProducts({ statusCode: 200, body: {
@@ -337,6 +431,19 @@ describe('Premium page upgrade button', () => {
         cy.contains('Premium subscriptions could not be loaded').should('be.visible')
         cy.contains('button', 'Upgrade to Higher Tier').should('be.disabled')
         cy.get('#buyPremium').should('not.exist')
+
+        let releaseSubscriptions: () => void
+        const pending = new Promise<void>(resolve => { releaseSubscriptions = resolve })
+        cy.intercept('GET', '**/api/premium/subscription', request =>
+            pending.then(() => request.reply({ body: [activeSubscription] }))
+        ).as('refreshedSubscriptions')
+        cy.window().then(window => window.dispatchEvent(new window.Event('focus')))
+        cy.contains('Premium subscriptions could not be loaded').should('be.visible')
+        cy.contains('button', 'Upgrade to Higher Tier').should('be.disabled')
+        cy.then(() => releaseSubscriptions())
+        cy.wait('@refreshedSubscriptions')
+        cy.contains('Premium subscriptions could not be loaded').should('not.exist')
+        cy.contains('button', 'Upgrade to Higher Tier').should('be.enabled')
     })
 
     it('keeps each active subscription separate and excludes canceled subscriptions', () => {
