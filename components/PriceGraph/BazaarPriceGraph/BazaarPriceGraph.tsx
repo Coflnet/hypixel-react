@@ -441,7 +441,7 @@ function BazaarPriceGraph(props: Props) {
                     <span className={styles.avgPrice}>
                         <b>Avg Sell Price:</b>{' '}
                         {isLoading ? (
-                            '-'
+                            <span>-</span>
                         ) : (
                             <span>
                                 <Number number={+avgSellPrice.toFixed(1)} /> Coins
@@ -451,7 +451,7 @@ function BazaarPriceGraph(props: Props) {
                     <span className={styles.avgPrice}>
                         <b>Avg Buy Price:</b>{' '}
                         {isLoading ? (
-                            '-'
+                            <span>-</span>
                         ) : (
                             <span>
                                 <Number number={+avgBuyPrice.toFixed(1)} /> Coins

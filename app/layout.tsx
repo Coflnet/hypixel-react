@@ -12,8 +12,10 @@ import properties from '../properties'
 
 function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="en">
+        <html lang="en" translate="no">
             <head>
+                {/* Translators replacing React-owned text cause removeChild/insertBefore crashes. */}
+                <meta name="google" content="notranslate" />
                 <meta name="google-adsense-account" content="ca-pub-6429823223434612" />
                 <link rel="preconnect" href="https://sky.coflnet.com" />
                 <link rel="preconnect" href="https://mc-heads.net" />
