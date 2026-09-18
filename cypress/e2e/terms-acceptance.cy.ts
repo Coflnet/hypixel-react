@@ -77,11 +77,13 @@ function stubAccountRequests(overrides: Partial<TermsStatus> = {}) {
     cy.intercept('POST', '**/api/premium/user/owns', { statusCode: 200, body: {} }).as('owns')
     cy.intercept('GET', '**/api/premium/subscription', { statusCode: 200, body: [] }).as('subscriptions')
     cy.intercept('GET', '**/api/premium/transactions', { statusCode: 200, body: [] })
+    cy.intercept('GET', '**/api/premium/slots', { statusCode: 200, body: [] })
 }
 
 describe('Terms acceptance reminder', () => {
     it('highlights changed terms, uses the readable viewer, and waits twelve hours after continuing', () => {
         stubAccountRequests()
+        const startedAt = Date.now()
         cy.visit('/account', { onBeforeLoad: installAuthenticatedWebSocket })
         cy.wait('@terms')
 
@@ -101,18 +103,15 @@ describe('Terms acceptance reminder', () => {
             expect(reminder.showAfter).to.be.at.least(clickedAt + reminderDelay)
         })
         cy.window().should(window => {
-            const cacheKeys = Object.keys(window.sessionStorage).filter(key => key.startsWith('skycoflApiCache:'))
-            expect(cacheKeys).to.have.length(1)
-            cacheKeys.forEach(key => {
-                const entry = JSON.parse(window.sessionStorage.getItem(key)!)
-                expect(entry.expiresAt).to.be.at.least(Date.now() + 5 * 60 * 1000 - 1000)
-            })
+            const entry = JSON.parse(window.localStorage.getItem('skycoflApiCache:terms:en:terms%40example.com')!)
+            expect(entry.value.agreementHash).to.equal('future-hash')
+            expect(entry.expiresAt).to.be.at.least(startedAt + 60 * 60 * 1000)
         })
 
         cy.visit('/account', { onBeforeLoad: window => installAuthenticatedWebSocket(window, false) })
-        cy.wait('@subscriptions')
+        // Terms stay cached, but ownership must refresh after a possible checkout.
+        cy.wait(['@owns', '@subscriptions'])
         cy.get('@terms.all').should('have.length', 1)
-        cy.get('@owns.all').should('have.length', 1)
         cy.contains('Review the SkyCofl agreement').should('not.exist')
     })
 
