@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { getSettingsObject, FLIPPER_FILTER_KEY, RESTRICTIONS_SETTINGS_KEY, FLIP_CUSTOMIZING_KEY } from '../../utils/SettingsUtils'
+import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { getFlipCustomizeSettings } from '../../utils/FlipUtils'
 
 interface FlipSettingsContextValue {
@@ -53,8 +54,13 @@ export function FlipSettingsProvider({ children }: { children: React.ReactNode }
             }
         }
 
+        refreshSettings()
+        document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, refreshSettings)
         window.addEventListener('storage', handleStorageChange)
-        return () => window.removeEventListener('storage', handleStorageChange)
+        return () => {
+            document.removeEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, refreshSettings)
+            window.removeEventListener('storage', handleStorageChange)
+        }
     }, [refreshSettings])
 
     return (

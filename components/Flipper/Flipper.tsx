@@ -51,8 +51,6 @@ let missedInfo: FreeFlipperMissInformation = {
     totalProfit: 0
 }
 
-let mounted = true
-
 const FLIP_CONEXT_MENU_ID = 'flip-context-menu'
 
 interface Props {
@@ -64,8 +62,8 @@ function Flipper(props: Props) {
     let [flips, setFlips] = useState<FlipAuction[]>(
         props.flips
             ? props.flips.map(parseFlipAuction).filter(flip => {
-                return flipperFilter.onlyUnsold ? !flip.sold : true
-            })
+                  return flipperFilter.onlyUnsold ? !flip.sold : true
+              })
             : []
     )
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -98,12 +96,16 @@ function Flipper(props: Props) {
     const autoscrollRef = useRef(autoscroll)
     autoscrollRef.current = autoscroll
 
-    const flipLookup = {}
+    const flipLookup = useRef(new Set(flips.map(flip => flip.uuid)))
+    const mounted = useRef(false)
+    const filterRef = useRef(flipperFilter)
+    filterRef.current = flipperFilter
+    const subscriptionTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
     useEffect(() => {
         setIsSSR(false)
 
-        mounted = true
+        mounted.current = true
         _setAutoScroll(true)
         attachScrollEvent()
         isSSR = false
@@ -117,12 +119,15 @@ function Flipper(props: Props) {
         )
         getLastFlipFetchTime()
 
-        const debounceSubFlipAnonymFunction = (function () {
-            let timerId
-
-            return () => {
-                clearTimeout(timerId)
-                timerId = setTimeout(() => {
+        let onFlipSettingsChange = e => {
+            filterRef.current = getSettingsObject(FLIPPER_FILTER_KEY, {})
+            setFlipperFilter(filterRef.current)
+            if ((e as any).detail?.apiUpdate) {
+                setFlipperFilterKey(generateUUID())
+            }
+            if (sessionStorage.getItem('googleId') === null) {
+                clearTimeout(subscriptionTimer.current)
+                subscriptionTimer.current = setTimeout(() => {
                     api.subscribeFlipsAnonym(
                         getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []) || [],
                         getSettingsObject(FLIPPER_FILTER_KEY, {}),
@@ -133,22 +138,14 @@ function Flipper(props: Props) {
                     )
                 }, 1000)
             }
-        })()
-
-        let onFlipSettingsChange = e => {
-            if ((e as any).detail?.apiUpdate) {
-                setFlipperFilterKey(generateUUID())
-            }
-            if (sessionStorage.getItem('googleId') === null) {
-                debounceSubFlipAnonymFunction()
-            }
         }
         document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, onFlipSettingsChange)
 
         setIsSmall(document.body.clientWidth < 1000)
 
         return () => {
-            mounted = false
+            mounted.current = false
+            clearTimeout(subscriptionTimer.current)
             document.removeEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, onFlipSettingsChange)
             api.unsubscribeFlips()
         }
@@ -157,7 +154,7 @@ function Flipper(props: Props) {
 
     useEffect(() => {
         if (sessionStorage.getItem('googleId') !== null && !isLoggedIn) {
-            setFlips([])
+            clearFlips()
             setIsLoading(true)
         }
     }, [wasAlreadyLoggedIn, isLoggedIn])
@@ -174,6 +171,7 @@ function Flipper(props: Props) {
 
     let loadHasPremium = () => {
         let onAfterPremiumProductsLoaded = (products: PremiumProduct[]) => {
+            if (!mounted.current) return
             setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
             setActivePremiumProduct(getHighestPriorityPremiumProduct(products))
             // subscribe to the premium flips
@@ -203,7 +201,8 @@ function Flipper(props: Props) {
     }
 
     function onLogin() {
-        setFlips([])
+        clearTimeout(subscriptionTimer.current)
+        clearFlips()
         setIsLoggedIn(true)
         setIsLoading(true)
         loadHasPremium()
@@ -218,7 +217,7 @@ function Flipper(props: Props) {
 
     function onArrowRightClick() {
         if (listRef.current) {
-            ; (listRef.current as any).scrollToItem(flips.length - 1)
+            ;(listRef.current as any).scrollToItem(flips.length - 1)
         }
     }
 
@@ -255,11 +254,12 @@ function Flipper(props: Props) {
     }
 
     function clearFlips() {
+        flipLookup.current.clear()
         setFlips([])
     }
 
     function onAuctionSold(uuid: string) {
-        if (!mounted) {
+        if (!mounted.current) {
             return
         }
         setFlips(flips => {
@@ -268,12 +268,10 @@ function Flipper(props: Props) {
                 return flips
             }
 
-            flips[index].sold = true
-            if (flips[index] && flipperFilter.onlyUnsold) {
-                flips.splice(index, 1)
-                return flips
+            if (filterRef.current.onlyUnsold) {
+                return flips.filter(flip => flip.uuid !== uuid)
             }
-            return flips
+            return flips.map(flip => (flip.uuid === uuid ? { ...flip, sold: true } : flip))
         })
     }
 
@@ -320,16 +318,15 @@ function Flipper(props: Props) {
     }
 
     function onNewFlip(newFlipAuction: FlipAuction) {
-        if (flipLookup[newFlipAuction.uuid] || !mounted) {
+        if (flipLookup.current.has(newFlipAuction.uuid) || !mounted.current) {
             return
         }
 
-        if (flipperFilter.onlyUnsold && newFlipAuction.sold) {
+        if (filterRef.current.onlyUnsold && newFlipAuction.sold) {
             return
         }
 
-        flipLookup[newFlipAuction.uuid] = newFlipAuction
-
+        flipLookup.current.add(newFlipAuction.uuid)
         newFlipAuction.item.iconUrl = api.getItemImageUrl(newFlipAuction.item)
         newFlipAuction.showLink = true
 
@@ -360,10 +357,12 @@ function Flipper(props: Props) {
     }
 
     function onFilterChange(newFilter) {
+        filterRef.current = newFilter
         setFlipperFilter(newFilter)
-        setFlips([])
+        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
+        clearFlips()
         if (listRef.current) {
-            ; (listRef.current as any)?.scrollToItem(flips.length - 1)
+            ;(listRef.current as any)?.scrollToItem(flips.length - 1)
         }
     }
 
@@ -456,7 +455,7 @@ function Flipper(props: Props) {
             () => {
                 window.location.reload()
             },
-            () => { },
+            () => {},
             true
         )
         localStorage.removeItem('userSettings')
