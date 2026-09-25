@@ -26,14 +26,14 @@ export interface Discount {
     endsAt: Date
 }
 
-/** 20% off any premium subscription, until August 8th, code SUMMER. */
-export const SUMMER_SALE: Discount = {
-    id: 'summer-sale-2026',
-    label: 'Summer Sale',
-    code: 'SUMMER',
-    percentage: 20,
+/** 30% off any premium subscription, until October 18th, code FALL. */
+export const FALL_SALE: Discount = {
+    id: 'fall-sale-2026',
+    label: 'Fall Sale',
+    code: 'FALL',
+    percentage: 30,
     target: 'subscription',
-    endsAt: new Date('2026-08-08T23:59:59.000Z')
+    endsAt: new Date('2026-10-18T23:59:59.999Z')
 }
 
 /** 10% off CoflCoins, until July 31st, code SUMMERCOINS. */
@@ -47,7 +47,7 @@ export const SUMMER_COINS_SALE: Discount = {
 }
 
 /** Every discount known to the frontend. */
-export const ALL_DISCOUNTS: Discount[] = [SUMMER_SALE, SUMMER_COINS_SALE]
+export const ALL_DISCOUNTS: Discount[] = [FALL_SALE, SUMMER_COINS_SALE]
 
 /** True while `now` is on or before the discount's end date. */
 export function isDiscountActive(discount: Discount, now: Date = new Date()): boolean {
@@ -56,7 +56,7 @@ export function isDiscountActive(discount: Discount, now: Date = new Date()): bo
 
 /** The currently running subscription discount, or null if none is active. */
 export function getActiveSubscriptionDiscount(now: Date = new Date()): Discount | null {
-    return isDiscountActive(SUMMER_SALE, now) ? SUMMER_SALE : null
+    return isDiscountActive(FALL_SALE, now) ? FALL_SALE : null
 }
 
 /** The currently running CoflCoins discount, or null if none is active. */
