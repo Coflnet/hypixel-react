@@ -37,6 +37,14 @@ interface Props {
     copyButtonValue: 'ingame' | 'web'
 }
 
+function formatAuctionStart(start: Date): string {
+    if (start.getUTCFullYear() < 2000) {
+        return 'No start available'
+    }
+
+    return start.toLocaleDateString() + ' ' + start.toLocaleTimeString()
+}
+
 function AuctionDetails(props: Props) {
     let [isNoAuctionFound, setIsNoAuctionFound] = useState(false)
     let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
@@ -481,7 +489,7 @@ function AuctionDetails(props: Props) {
                         <span className={styles.label}>
                             <Badge bg={labelBadgeVariant}>Auction Created:</Badge>
                         </span>
-                        <span className="ellipse">{auctionDetails?.start.toLocaleDateString() + ' ' + auctionDetails.start.toLocaleTimeString()}</span>
+                        <span className="ellipse">{formatAuctionStart(auctionDetails.start)}</span>
                     </div>
                     {auctionDetails?.itemCreatedAt?.getTime() > 0 ? (
                         <div className={styles.detailRow}>
