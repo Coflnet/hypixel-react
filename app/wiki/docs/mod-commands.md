@@ -1276,3 +1276,21 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **Note:** Ideal for config sellers—replay a fresh dataset after tweaking filters to confirm the mod still flags the right profit windows.
 
+
+
+## More public commands
+
+These commands also appear in the server's public help and in-game autocomplete. `/cl` works in place of `/cofl`.
+
+| Command | Use |
+| --- | --- |
+| `/cofl agreementterms` (alias `terms`) | Review the current SkyCofl agreement and accept it through the prompted flow. |
+| `/cofl autotip [enable\|disable\|status\|stats]` | Configure automatic tipping and view its status or statistics. |
+| `/cofl bestflips [days]` | Show your highest-profit flips for a period. |
+| `/cofl emblem [set <id>\|clear]` | List unlocked chat emblems, equip one, or clear your selection. |
+| `/cofl proxy [on\|off\|list\|exchange]` | Manage proxy participation, inspect points, or exchange them for CoflCoins. |
+| `/cofl restore <backup name>` | Restore settings from a saved backup; `/cofl backup list` offers clickable restore actions. |
+| `/cofl rustaddon` (alias `rust`) | Check and manage the Rust Finder add-on. |
+| `/cofl settings` | Open links to mod settings, configs, and item lists. |
+| `/cofl upgradeplan` | Review an eligible Premium-to-Premium+ upgrade and its cost before confirming. |
+| `/cofl worstflips [days]` | Show your lowest-profit flips for a period. |
