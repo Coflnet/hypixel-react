@@ -1,4 +1,5 @@
 import { toast } from 'react-toastify'
+import { postFallbackModAuth } from './modAuthFallback'
 import * as notificationApi from './NotificationApi'
 import { getGoogleToken } from './NotificationApi'
 import { v4 as generateUUID } from 'uuid'
@@ -1292,7 +1293,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 </span>
             )
         }, 10000)
-        return postApiModAuth({ newId: conId }, googleTokenHeaders(googleToken))
+        const request = (typeof window !== 'undefined' && postFallbackModAuth(window.location.origin, conId, googleTokenHeaders(googleToken)))
+            || postApiModAuth({ newId: conId }, googleTokenHeaders(googleToken))
+        return request
             .then(() => {
                 clearTimeout(timeout)
             })
