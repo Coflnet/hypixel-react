@@ -1,7 +1,7 @@
 export {}
 
 const auctionId = '00000000000040008000000000000001'
-const explanation = 'No start available. This auction was never seen active on the auction house; only its sale was recorded.'
+const explanation = 'This auction was never seen active on the auction house; only its sale was recorded. This usually means it started within one minute before it ended.'
 
 function openAuction(start: string) {
     cy.intercept('GET', `**/api/auction/${auctionId}`, {
@@ -85,13 +85,20 @@ describe('Auction creation date availability', () => {
         it(`explains the unavailable start for ${start}`, () => {
             cy.viewport(390, 844)
             openAuction(start)
-            cy.get('@created').should('contain.text', explanation)
+            cy.get('@created').should('have.text', 'Auction Created:No start available')
+            cy.get('[role="tooltip"]').should('not.exist')
+            cy.get('@created').contains('No start available').focus()
+            cy.get('[role="tooltip"]').should('be.visible').and('have.text', explanation)
+            cy.get('@created').contains('No start available').blur()
+            cy.get('[role="tooltip"]').should('not.exist')
             cy.get('@created').find('.ellipse').should('not.exist')
             cy.get('@created').scrollIntoView().should('be.visible')
             cy.screenshot(`auction-start-${start.slice(0, 4)}-mobile`, { capture: 'viewport' })
             cy.viewport(1280, 900)
             cy.get('@created').scrollIntoView().should('be.visible')
             cy.screenshot(`auction-start-${start.slice(0, 4)}-desktop`, { capture: 'viewport' })
+            cy.get('@created').contains('No start available').trigger('mouseover')
+            cy.get('[role="tooltip"]').should('be.visible').and('have.text', explanation)
         })
     }
 
