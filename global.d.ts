@@ -197,6 +197,41 @@ interface FlipperFilter {
     onlyUnsold?: boolean
 }
 
+interface MinionRankingOptions {
+    offlineHours: number
+    budget?: number
+    sell: 'offer' | 'instant' | 'npc'
+    buy: 'instant' | 'order'
+    objective: 'coins' | 'experience'
+    speedBoost: number
+    hopper: 'none' | 'budget' | 'enchanted'
+    compaction: boolean
+    derpy: boolean
+    limit: number
+}
+
+interface MinionRanking {
+    name?: string
+    tier: number
+    coinsPerDay: number
+    experiencePerDay: number
+    setupCost: number
+    paybackDays?: number | null
+    secondsBetweenHarvests: number
+    hoursToFill: number
+    storageLimited: boolean
+    compacted: boolean
+    missingRequirements?: string[] | null
+    unpricedIngredients?: string[] | null
+    productTags?: string[] | null
+    itemPages?: string[] | null
+}
+
+interface MinionRankingResponse {
+    minions?: MinionRanking[] | null
+    generatedAt: string
+}
+
 interface API {
     search(searchText: string): Promise<SearchResultItem[]>
     trackSearch(fullSearchId: string, fullSearchType: string): void
@@ -264,6 +299,7 @@ interface API {
     sendFeedback(feedbackKey: string, feedback: any): Promise<void>
     getProfitableCrafts(): Promise<ProfitableCraft[]>
     getCraftAcquisitionPlan(itemTag: string, quantity?: number, forceCraft?: boolean): Promise<CraftAcquisitionPlan>
+    getBestMinions(options: MinionRankingOptions): Promise<MinionRankingResponse>
     getLowSupplyItems(): Promise<LowSupplyItem[]>
     sendFeedback(feedbackKey: string, feedback: any): Promise<void>
     triggerPlayerNameCheck(playerUUID: string): Promise<void>
