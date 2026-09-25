@@ -1,8 +1,4 @@
 describe('Search', () => {
-    afterEach(() => {
-        // Prevents running into the rate limit
-        cy.wait(10000)
-    })
     it('search player technoblade with special player search query', () => {
         cy.intercept('GET', '**/api/search/player%20technoblade*', [{ id: 'b876ec32e396476ba1158438d83c67d4', name: 'Technoblade', type: 'player' }]).as(
             'playerSearch'

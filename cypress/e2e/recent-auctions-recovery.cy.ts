@@ -83,9 +83,11 @@ describe('Recent auction recovery', () => {
         cy.get('@sales').contains('Could not load recent auctions.').should('be.visible')
         cy.get('@sales').contains('No recent auctions found.').should('not.exist')
         cy.intercept('GET', recentUrl, request => {
+            if (request.query.Stars !== '0-0') return request.reply([])
+            request.alias = 'retriedSales'
             expect(request.query).to.include({ Stars: '0-0', HighestBid: '>0', page: '0' })
             request.reply([sale(1)])
-        }).as('retriedSales')
+        })
         cy.get('@sales').contains('button', 'Retry past sales').click()
         cy.wait('@retriedSales')
         cy.get('@sales').contains('Seller 1').should('be.visible')
