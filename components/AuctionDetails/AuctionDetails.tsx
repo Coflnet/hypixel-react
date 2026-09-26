@@ -481,7 +481,19 @@ function AuctionDetails(props: Props) {
                         <span className={styles.label}>
                             <Badge bg={labelBadgeVariant}>Auction Created:</Badge>
                         </span>
-                        <span className="ellipse">{auctionDetails?.start.toLocaleDateString() + ' ' + auctionDetails.start.toLocaleTimeString()}</span>
+                        {auctionDetails.start.getUTCFullYear() < 2000 ? (
+                            <Tooltip
+                                type="hover"
+                                content={<span tabIndex={0}>No start available</span>}
+                                tooltipContent={
+                                    <span>
+                                        This auction was never seen active on the auction house; only its sale was recorded. This usually means it started within one minute before it ended.
+                                    </span>
+                                }
+                            />
+                        ) : (
+                            <span className="ellipse">{auctionDetails.start.toLocaleDateString() + ' ' + auctionDetails.start.toLocaleTimeString()}</span>
+                        )}
                     </div>
                     {auctionDetails?.itemCreatedAt?.getTime() > 0 ? (
                         <div className={styles.detailRow}>
