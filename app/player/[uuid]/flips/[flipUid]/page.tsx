@@ -7,7 +7,7 @@ import { parseFlipTrackingFlip, parseFlipTrackingResponse, parsePlayer } from '.
 import { numberWithThousandsSeparators, removeMinecraftColorCoding } from '../../../../../utils/Formatter'
 import { FlipTracking } from '../../../../../components/FlipTracking/FlipTracking'
 import Search from '../../../../../components/Search/Search'
-import { getHeadMetadata, getCanonicalUrl } from '../../../../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl, applyPlayerRobots } from '../../../../../utils/SSRUtils'
 import { getEmbedDescription } from '../page'
 import { Container } from 'react-bootstrap'
 
@@ -86,7 +86,7 @@ export async function generateMetadata(props) {
     let flipData = await getFlipData(params.uuid, params.flipUid)
     let player = parsePlayer(flipData.player)
     let targetFlip = flipData.targetFlip ? parseFlipTrackingFlip(flipData.targetFlip) : null
-    return flipData.targetFlip
+    const metadata = flipData.targetFlip
         ? getHeadMetadata(
               `Tracked flips of ${player.name}`,
               getTargetFlipEmbedDescription(targetFlip!),
@@ -103,6 +103,7 @@ export async function generateMetadata(props) {
               `Tracked flips of ${player.name}`,
               getCanonicalUrl(`/player/${params.uuid}/flips/${params.flipUid}`)
           )
+    return applyPlayerRobots(metadata, params.uuid)
 }
 
 export const revalidate = 0
