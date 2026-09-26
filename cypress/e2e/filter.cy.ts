@@ -1,11 +1,15 @@
 // cypress/integration/item.spec.js
 describe('Item page', () => {
-    afterEach(() => {
-        // Prevents running into the rate limit
-        cy.wait(10000)
-    })
     it('opens item with sharpness 5', () => {
+        cy.intercept('GET', '**/api/auctions/tag/ASPECT_OF_THE_DRAGON/recent/overview*', [{
+            uuid: '11111111111141118111111111111111',
+            seller: 'b56f36a615e04380b042de1bf6c577d6',
+            playerName: 'Fixture seller',
+            price: 50000,
+            end: '2022-09-18T23:08:56Z'
+        }]).as('recentSales')
         cy.visit('/item/ASPECT_OF_THE_DRAGON')
+        cy.wait('@recentSales')
         cy.contains('Add Filter').click()
         cy.get('input[placeholder="Add filter"]').type('shar')
         cy.contains('a', /sharpness/i).click()

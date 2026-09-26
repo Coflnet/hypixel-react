@@ -1,8 +1,4 @@
 describe('Auction page', () => {
-    afterEach(() => {
-        // Prevents running into the rate limit
-        cy.wait(10000)
-    })
 
     it('finishes rendering an unavailable auction instead of hanging on the API error', () => {
         cy.request({

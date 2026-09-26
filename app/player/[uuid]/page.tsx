@@ -1,5 +1,5 @@
 import { initAPI } from '../../../api/ApiHelper'
-import { getHeadMetadata, getCanonicalUrl } from '../../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl, applyPlayerRobots } from '../../../utils/SSRUtils'
 import { notFound } from 'next/navigation'
 import PlayerDetails from '../../../components/PlayerDetails/PlayerDetails'
 import { parseAuction, parsePlayer } from '../../../utils/Parser/APIResponseParser'
@@ -69,14 +69,7 @@ export async function generateMetadata(props): Promise<Metadata> {
         getCanonicalUrl(`/player/${params.uuid}`)
     )
 
-    if (params.uuid === '17bdc3a6d75a44689c4fc1dbac8f09f5') {
-        metadata.robots = {
-            index: false,
-            follow: true
-        }
-    }
-
-    return metadata
+    return applyPlayerRobots(metadata, params.uuid)
 }
 
 export const revalidate = 0

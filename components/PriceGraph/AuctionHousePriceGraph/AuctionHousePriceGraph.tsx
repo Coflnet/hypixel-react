@@ -143,8 +143,8 @@ function AuctionHousePriceGraph(props: Props) {
             const prefilledFilter = getPrefillFilter(filters)
             initialUrlFilter.current = Object.keys(getItemFilterFromUrl()).length > 0 ? JSON.stringify(prefilledFilter) : null
             setFetchspan(requestedRange)
-            setFilters(filters)
             setItemFilter(prefilledFilter)
+            setFilters(filters)
             if (props.item) {
                 updateChart(requestedRange, prefilledFilter)
             }

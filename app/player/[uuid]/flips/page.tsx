@@ -6,7 +6,7 @@ import { FlipTracking } from '../../../../components/FlipTracking/FlipTracking'
 import Search from '../../../../components/Search/Search'
 import { numberWithThousandsSeparators, removeMinecraftColorCoding } from '../../../../utils/Formatter'
 import { parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser/APIResponseParser'
-import { getHeadMetadata, getCanonicalUrl } from '../../../../utils/SSRUtils'
+import { getHeadMetadata, getCanonicalUrl, applyPlayerRobots } from '../../../../utils/SSRUtils'
 import { Container } from 'react-bootstrap'
 
 export default async function Page(props) {
@@ -90,7 +90,7 @@ export async function generateMetadata(props) {
     let { flipTrackingResponse, player } = await getFlipData(params.uuid)
     let parsedPlayer = parsePlayer(player)
 
-    return getHeadMetadata(
+    const metadata = getHeadMetadata(
         `Tracked flips of ${parsedPlayer.name}`,
         getEmbedDescription(parseFlipTrackingResponse(flipTrackingResponse), parsedPlayer),
         parsedPlayer.iconUrl?.split('?')[0],
@@ -98,6 +98,7 @@ export async function generateMetadata(props) {
         `Tracked flips of ${parsedPlayer.name}`,
         getCanonicalUrl(`/player/${params.uuid}/flips`)
     )
+    return applyPlayerRobots(metadata, params.uuid)
 }
 
 export function getEmbedDescription(flipTrackingResponse: FlipTrackingResponse, player: Player) {

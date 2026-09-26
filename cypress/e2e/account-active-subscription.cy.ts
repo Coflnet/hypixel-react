@@ -1,6 +1,9 @@
 beforeEach(() => {
     cy.then(() => Cypress.automation('remote:debugger:protocol', { command: 'Network.clearBrowserCache' }))
     cy.intercept('GET', '**/api/premium/slots', { body: [] })
+    // Advancing the checkout clock also runs the background cache-version check.
+    // Stub it on both localhost (remote commands) and 127.0.0.1 (relative commands).
+    cy.intercept('GET', '**/command/version/**', { body: 'cypress-version' })
     // Analytics, push notifications and remote images are outside these purchase/account scenarios.
     cy.intercept('GET', 'https://track.coflnet.com/matomo.js*', { headers: { 'content-type': 'application/javascript' }, body: '' })
     cy.intercept('GET', 'https://accounts.google.com/gsi/client*', {
@@ -104,6 +107,14 @@ function deleteAccountButton() {
     return cy.contains('button', /^Delete account$/)
 }
 
+function waitForDialogTransition() {
+    // Cypress actionability does not wait for opacity transitions. Let the dialog
+    // finish entering before an immediate fixture response starts its exit.
+    cy.get('[role="dialog"]').should('be.visible').then(dialog =>
+        Cypress.Promise.all(dialog[0].getAnimations({ subtree: true }).map(animation => animation.finished))
+    )
+}
+
 const activeSubscription = {
     externalId: 'active-subscription',
     endsAt: null,
@@ -140,11 +151,20 @@ describe('Premium refresh after checkout', () => {
     it('refreshes immediately on returning to the tab despite a fresh empty cache', () => {
         stubProducts()
         stubSubscriptions({ body: [] })
-        visitAuthenticatedPage('/premium')
+        visitAuthenticatedPage('/premium', window => {
+            cy.spy(window, 'addEventListener').as('windowListeners')
+        })
         cy.wait(['@products', '@subscriptions'])
         cy.contains('No Premium').should('be.visible')
-        stubProducts({ body: ownership })
+        cy.get('@windowListeners').should('have.been.calledWith', 'focus')
+        // The initial empty UI can render before the first response is applied.
+        // Returning to the tab must happen after that request has filled its cache.
+        cy.window().should(window => {
+            expect(JSON.parse(window.sessionStorage.getItem(cacheKey) || 'null')?.value).to.deep.equal({})
+        })
+        cy.intercept('POST', '**/api/premium/user/owns', { body: ownership }).as('refreshedProducts')
         cy.window().then(window => window.dispatchEvent(new window.Event('focus')))
+        cy.wait('@refreshedProducts')
         cy.contains('You have a Premium account.').should('be.visible')
     })
 
@@ -511,6 +531,7 @@ describe('Purchased slot assignments', () => {
             cy.get('.modal').should('contain.text', 'Subscription #slot-subscription')
                 .and('contain.text', slotCount === 1 ? 'this single slot only' : 'all 4 slots')
                 .and('contain.text', 'Access continues through the paid period')
+            waitForDialogTransition()
             cy.contains('button', 'Confirm cancelation').click()
             cy.wait('@cancelSlot')
             cy.get('.modal').should('not.exist')
@@ -553,11 +574,13 @@ describe('Purchased slot assignments', () => {
         }).as('assignSlot')
         visitSlots()
         cy.get('[data-testid="tier-slot"]').should('have.length', 4).first().contains('button', 'Assign slot').click()
+        waitForDialogTransition()
         cy.get('#slot-recipient').type('friend@example.com')
         cy.contains('button', 'Save assignment').click()
         cy.wait('@assignSlot')
         cy.get('[data-testid="tier-slot"]').should('contain.text', 'friend@example.com')
         cy.get('[data-testid="tier-slot"]').filter(':contains("Unassigned")').should('have.length', 3)
+        cy.get('[role="dialog"]').should('not.exist')
         cy.contains('button', 'Refresh slots').click()
         cy.wait('@slots')
         cy.get('[data-testid="tier-slot"]').should('contain.text', 'friend@example.com')
@@ -597,13 +620,15 @@ describe('Purchased slot assignments', () => {
         }).as('assignSlot')
         visitSlots()
         cy.contains('button', 'Reassign').click()
+        waitForDialogTransition()
         cy.get('#slot-recipient-type').select('email')
         cy.contains('button', 'Use my email').click()
         cy.get('#slot-recipient').should('have.value', 'cypress@example.com')
         cy.contains('button', 'Save assignment').click()
         cy.wait('@assignSlot').its('request.body').should('deep.equal', { email: 'cypress@example.com', version: 7 })
         cy.get('[data-testid="tier-slot"]').should('contain.text', 'cypress@example.com').and('not.contain.text', 'Notch')
-        cy.contains('button', 'Release slot').click()
+        cy.get('[role="dialog"]').should('not.exist')
+        cy.get('[data-testid="tier-slot"]').contains('button', 'Release slot').click()
         cy.wait('@assignSlot').its('request.body').should('deep.equal', { version: 8 })
         cy.get('[data-testid="tier-slot"]').should('contain.text', 'Unassigned')
     })

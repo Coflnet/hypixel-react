@@ -2,6 +2,19 @@ import { Metadata } from 'next'
 
 export const CANONICAL_DOMAIN = 'https://sky.coflnet.com'
 
+// Players whose pages search engines should not index (e.g. on request of the player)
+const NOINDEX_PLAYER_UUIDS = new Set(['17bdc3a6d75a44689c4fc1dbac8f09f5', 'ec0aba41fa0f47aeba9c8de21d9782e7'])
+
+export function applyPlayerRobots(metadata: Metadata, uuid: string): Metadata {
+    if (NOINDEX_PLAYER_UUIDS.has(uuid?.toLowerCase().replace(/-/g, ''))) {
+        metadata.robots = {
+            index: false,
+            follow: true
+        }
+    }
+    return metadata
+}
+
 export function isClientSideRendering() {
     return typeof window !== 'undefined'
 }

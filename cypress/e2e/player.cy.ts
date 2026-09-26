@@ -1,33 +1,36 @@
+import { skyApiFixtures as data } from '../../test-fixtures/skyApi'
+
+const player = '/player/b876ec32e396476ba1158438d83c67d4'
+
 describe('Player page', () => {
-    afterEach(() => {
-        // Prevents running into the rate limit
-        cy.wait(10000)
-    })
-    it('Player auction opens', () => {
-        cy.visit('/player/b876ec32e396476ba1158438d83c67d4')
-        cy.get('.list-group>button').first().click()
-        cy.location('pathname', { timeout: 10000 }).should('eq', '/auction/73137bc47df84d31a9d8b010078ada0f')
+    beforeEach(() => {
+        cy.intercept('GET', '**/api/player/b876ec32e396476ba1158438d83c67d4/bids*', request => {
+            const page = new URL(request.url).searchParams.get('page')
+            request.reply(page === '0' ? data.playerBids : page === '1' ? data.playerOlderBids : [])
+        }).as('bids')
     })
 
-    it('Opens last bid', () => {
-        cy.visit('/player/b876ec32e396476ba1158438d83c67d4')
-        switchToBids()
-        cy.get('.list-group>button').first().click()
+    it('opens the first auction', () => {
+        cy.visit(player)
+        cy.contains('.list-group>button', '[MAYOR] Technoblade').click()
+        cy.location('pathname').should('eq', '/auction/73137bc47df84d31a9d8b010078ada0f')
+    })
+
+    it('opens the first bid', () => {
+        cy.visit(player)
+        cy.contains('Bids').click()
+        cy.wait('@bids')
+        cy.contains('Highest Own').should('be.visible')
+        cy.contains('.list-group>button', 'Jingle Bells').click()
         cy.location('pathname').should('eq', '/auction/c5ce8b40320b4b178e53cdfb746d8953')
     })
 
-    it('Scroll down to older bid', () => {
-        cy.visit('/player/b876ec32e396476ba1158438d83c67d4')
-        switchToBids()
-        for (let i = 1; i < 8; i++) {
-            cy.scrollTo(0, i * 1000)
-            cy.wait(1000)
-        }
+    it('loads an older bid on the next page', () => {
+        cy.visit(player)
+        cy.contains('Bids').click()
+        cy.wait('@bids')
+        cy.scrollTo('bottom')
+        cy.wait('@bids').its('request.url').should('include', 'page=1')
         cy.contains('Cheap Coffee').should('be.visible')
     })
 })
-
-function switchToBids() {
-    cy.contains('Bids').click()
-    cy.contains('Highest Own')
-}
