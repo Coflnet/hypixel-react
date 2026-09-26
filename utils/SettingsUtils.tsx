@@ -199,13 +199,9 @@ export function setSettingsFromServerSide(
 
             if (updateLocalSettings) {
                 let newRestrictionsString = JSON.stringify(newRestrictions)
-                let oldRestrictionsString = getSetting(RESTRICTIONS_SETTINGS_KEY, '[]')
 
-                setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(newRestrictions))
-
-                if (newRestrictionsString !== oldRestrictionsString) {
-                    document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, { detail: { apiUpdate: true } }))
-                }
+                setSetting(RESTRICTIONS_SETTINGS_KEY, newRestrictionsString)
+                document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, { detail: { apiUpdate: true } }))
             }
             resolve({
                 filter,

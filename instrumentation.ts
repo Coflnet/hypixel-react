@@ -22,12 +22,24 @@ export const onRequestError: Instrumentation.onRequestError = (error, request, c
 
 export async function register() {
     if (process.env.NEXT_RUNTIME === 'nodejs') {
+        if (process.env.CYPRESS_SSR_FIXTURES === '1' && process.env.TEST_RUNNER !== 'true') {
+            throw new Error('Cypress SSR fixtures require TEST_RUNNER=true')
+        }
+        // A dedicated server-only flag selects fixtures for the Cypress build and runtime.
+        const fixture = process.env.TEST_RUNNER === 'true' && process.env.CYPRESS_SSR_FIXTURES === '1'
+            ? (await import('./test-fixtures/ssrFetch')).getSsrFixture
+            : undefined
         const internalApiBase = process.env.API_ENDPOINT?.replace(/\/api$/, '') || ''
-        if (!internalApiBase) return
+        if (!internalApiBase && !fixture) return
 
         const originalFetch = globalThis.fetch
         const externalDomains = ['https://sky.coflnet.com', 'https://sky-commands.coflnet.com']
         globalThis.fetch = function patchedFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+            if (fixture) {
+                const response = fixture(input, init)
+                if (response) return Promise.resolve(response)
+            }
+            if (!internalApiBase) return originalFetch(input, init)
             if (typeof input === 'string') {
                 for (const domain of externalDomains) {
                     if (input.startsWith(domain)) {

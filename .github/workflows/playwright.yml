@@ -4,6 +4,7 @@ on:
     branches: [ main, master, develop ]
   pull_request:
     branches: [ main, master, develop ]
+  workflow_dispatch:
 jobs:
   cypress-run:
     timeout-minutes: 60
@@ -14,14 +15,28 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-      - uses : actions/setup-node@v6
+      - uses: actions/setup-node@v6
         with:
-          node-version: '26'
+          node-version-file: '.nvmrc'
+          cache: npm
+      - name: Use the declared npm version
+        run: npm install --global "$(node -p 'require("./package.json").packageManager')"
       - name: Install dependencies
         run: npm ci
       - name: build app
         run: npm run build
-      - name: Cypress run
+      - name: Cypress (three consecutive runs)
         uses: cypress-io/github-action@v7
         with:
+          install: false
           start: npm start
+          wait-on: 'http://localhost:3000'
+          command: npm run cypress:verify
+      - name: Upload Cypress diagnostics
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cypress-results
+          path: test-results/cypress
+          if-no-files-found: ignore
+          retention-days: 14

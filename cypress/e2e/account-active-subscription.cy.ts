@@ -1,6 +1,9 @@
 beforeEach(() => {
     cy.then(() => Cypress.automation('remote:debugger:protocol', { command: 'Network.clearBrowserCache' }))
     cy.intercept('GET', '**/api/premium/slots', { body: [] })
+    // Advancing the checkout clock also runs the background cache-version check.
+    // Stub it on both localhost (remote commands) and 127.0.0.1 (relative commands).
+    cy.intercept('GET', '**/command/version/**', { body: 'cypress-version' })
     // Analytics, push notifications and remote images are outside these purchase/account scenarios.
     cy.intercept('GET', 'https://track.coflnet.com/matomo.js*', { headers: { 'content-type': 'application/javascript' }, body: '' })
     cy.intercept('GET', 'https://accounts.google.com/gsi/client*', {
@@ -104,6 +107,14 @@ function deleteAccountButton() {
     return cy.contains('button', /^Delete account$/)
 }
 
+function waitForDialogTransition() {
+    // Cypress actionability does not wait for opacity transitions. Let the dialog
+    // finish entering before an immediate fixture response starts its exit.
+    cy.get('[role="dialog"]').should('be.visible').then(dialog =>
+        Cypress.Promise.all(dialog[0].getAnimations({ subtree: true }).map(animation => animation.finished))
+    )
+}
+
 const activeSubscription = {
     externalId: 'active-subscription',
     endsAt: null,
@@ -112,6 +123,109 @@ const activeSubscription = {
     renewsAt: '2099-02-01T00:00:00Z',
     createdAt: '2026-01-01T00:00:00Z'
 }
+
+describe('Premium refresh after checkout', () => {
+    const ownership = { premium: { expiresAt: '2099-02-01T00:00:00Z' } }
+    const cacheKey = 'skycoflApiCache:premium-products:cypress%40example.com'
+
+    for (const path of ['/premium', '/account']) {
+        it(`picks up delayed payment confirmation on ${path} without reloading`, () => {
+            stubProducts()
+            stubSubscriptions({ body: [] })
+            visitAuthenticatedPage(path)
+            cy.wait(['@products', '@subscriptions'])
+            cy.contains('No Premium').should('be.visible')
+
+            stubProducts({ body: ownership })
+            stubSubscriptions({ body: [{ ...activeSubscription, productName: 'premium' }] })
+            cy.contains('Premium (Subscription)', { timeout: 12000 }).should('be.visible')
+            cy.contains('No Premium').should('not.exist')
+            if (path === '/premium') cy.contains('You have a Premium account.').should('be.visible')
+            cy.window().then(window => {
+                expect(JSON.parse(window.sessionStorage.getItem(cacheKey)!).value).to.deep.equal(ownership)
+                expect(JSON.parse(window.localStorage.getItem('lastPremiumProducts')!)).to.deep.equal(ownership)
+            })
+        })
+    }
+
+    it('refreshes immediately on returning to the tab despite a fresh empty cache', () => {
+        stubProducts()
+        stubSubscriptions({ body: [] })
+        visitAuthenticatedPage('/premium', window => {
+            cy.spy(window, 'addEventListener').as('windowListeners')
+        })
+        cy.wait(['@products', '@subscriptions'])
+        cy.contains('No Premium').should('be.visible')
+        cy.get('@windowListeners').should('have.been.calledWith', 'focus')
+        // The initial empty UI can render before the first response is applied.
+        // Returning to the tab must happen after that request has filled its cache.
+        cy.window().should(window => {
+            expect(JSON.parse(window.sessionStorage.getItem(cacheKey) || 'null')?.value).to.deep.equal({})
+        })
+        cy.intercept('POST', '**/api/premium/user/owns', { body: ownership }).as('refreshedProducts')
+        cy.window().then(window => window.dispatchEvent(new window.Event('focus')))
+        cy.wait('@refreshedProducts')
+        cy.contains('You have a Premium account.').should('be.visible')
+    })
+
+    it('does not reset the selected purchase step when ownership is unchanged', () => {
+        stubProducts({ body: ownership })
+        stubSubscriptions({ body: [] })
+        visitAuthenticatedPage('/premium?tier=premium_plus')
+        cy.wait(['@products', '@subscriptions'])
+        cy.get('#buyPremium').contains('h5', /^CoflCoins$/).click()
+        cy.get('#buyPremium').contains('Choose Your Package').should('be.visible')
+        cy.window().then(window => window.dispatchEvent(new window.Event('focus')))
+        cy.wait('@products')
+        cy.get('#buyPremium').contains('Choose Your Package').should('be.visible')
+    })
+
+    it('refreshes checkout-return caches, pauses in the background, and backs off after two minutes', () => {
+        let fulfilled = false
+        let updates = 0
+        cy.intercept('POST', '**/api/premium/user/owns', request => request.reply({ body: fulfilled ? ownership : {} })).as('products')
+        cy.clock(Date.now(), ['Date', 'setTimeout', 'clearTimeout'])
+        visitAuthenticatedPage('/success', window => {
+            window.sessionStorage.setItem(cacheKey, JSON.stringify({ expiresAt: Date.now() + 300000, value: {} }))
+            window.addEventListener('premium.products.updated', () => { updates++ })
+        })
+        cy.wait('@products')
+        cy.tick(0)
+        cy.wrap(null).should(() => expect(updates).to.equal(1))
+        cy.contains('Return to the Premium page').closest('a').should('have.attr', 'href', '/premium')
+        cy.window().then(window => Object.defineProperty(window.document, 'visibilityState', { configurable: true, value: 'hidden' }))
+        cy.tick(15000)
+        cy.get('@products.all').should('have.length', 1)
+        cy.then(() => { fulfilled = true })
+        cy.window().then(window => {
+            Object.defineProperty(window.document, 'visibilityState', { configurable: true, value: 'visible' })
+            window.document.dispatchEvent(new window.Event('visibilitychange'))
+        })
+        cy.wait('@products')
+        cy.wrap(null).should(() => expect(updates).to.equal(2))
+        cy.window().should(window => expect(JSON.parse(window.sessionStorage.getItem(cacheKey)!).value).to.deep.equal(ownership))
+        cy.tick(5000)
+        cy.wait('@products')
+        cy.wrap(null).should(() => expect(updates).to.equal(3))
+        cy.clock().invoke('setSystemTime', Date.now() + 180000)
+        cy.tick(5000)
+        cy.wait('@products')
+        cy.wrap(null).should(() => expect(updates).to.equal(4))
+        cy.get('@products.all').then(requests => {
+            const count = requests.length
+            cy.tick(29000)
+            cy.get('@products.all').should('have.length', count)
+            cy.tick(1000)
+            cy.wait('@products')
+        })
+        cy.get('@products.all').then(requests => {
+            const count = requests.length
+            cy.visit('/about')
+            cy.tick(30000)
+            cy.get('@products.all').should('have.length', count)
+        })
+    })
+})
 
 describe('Account deletion with subscription lookup', () => {
     it('shows delegated premium as owner-managed without subscription controls', () => {
@@ -337,6 +451,19 @@ describe('Premium page upgrade button', () => {
         cy.contains('Premium subscriptions could not be loaded').should('be.visible')
         cy.contains('button', 'Upgrade to Higher Tier').should('be.disabled')
         cy.get('#buyPremium').should('not.exist')
+
+        let releaseSubscriptions: () => void
+        const pending = new Promise<void>(resolve => { releaseSubscriptions = resolve })
+        cy.intercept('GET', '**/api/premium/subscription', request =>
+            pending.then(() => request.reply({ body: [activeSubscription] }))
+        ).as('refreshedSubscriptions')
+        cy.window().then(window => window.dispatchEvent(new window.Event('focus')))
+        cy.contains('Premium subscriptions could not be loaded').should('be.visible')
+        cy.contains('button', 'Upgrade to Higher Tier').should('be.disabled')
+        cy.then(() => releaseSubscriptions())
+        cy.wait('@refreshedSubscriptions')
+        cy.contains('Premium subscriptions could not be loaded').should('not.exist')
+        cy.contains('button', 'Upgrade to Higher Tier').should('be.enabled')
     })
 
     it('keeps each active subscription separate and excludes canceled subscriptions', () => {
@@ -404,6 +531,7 @@ describe('Purchased slot assignments', () => {
             cy.get('.modal').should('contain.text', 'Subscription #slot-subscription')
                 .and('contain.text', slotCount === 1 ? 'this single slot only' : 'all 4 slots')
                 .and('contain.text', 'Access continues through the paid period')
+            waitForDialogTransition()
             cy.contains('button', 'Confirm cancelation').click()
             cy.wait('@cancelSlot')
             cy.get('.modal').should('not.exist')
@@ -446,11 +574,13 @@ describe('Purchased slot assignments', () => {
         }).as('assignSlot')
         visitSlots()
         cy.get('[data-testid="tier-slot"]').should('have.length', 4).first().contains('button', 'Assign slot').click()
+        waitForDialogTransition()
         cy.get('#slot-recipient').type('friend@example.com')
         cy.contains('button', 'Save assignment').click()
         cy.wait('@assignSlot')
         cy.get('[data-testid="tier-slot"]').should('contain.text', 'friend@example.com')
         cy.get('[data-testid="tier-slot"]').filter(':contains("Unassigned")').should('have.length', 3)
+        cy.get('[role="dialog"]').should('not.exist')
         cy.contains('button', 'Refresh slots').click()
         cy.wait('@slots')
         cy.get('[data-testid="tier-slot"]').should('contain.text', 'friend@example.com')
@@ -490,13 +620,15 @@ describe('Purchased slot assignments', () => {
         }).as('assignSlot')
         visitSlots()
         cy.contains('button', 'Reassign').click()
+        waitForDialogTransition()
         cy.get('#slot-recipient-type').select('email')
         cy.contains('button', 'Use my email').click()
         cy.get('#slot-recipient').should('have.value', 'cypress@example.com')
         cy.contains('button', 'Save assignment').click()
         cy.wait('@assignSlot').its('request.body').should('deep.equal', { email: 'cypress@example.com', version: 7 })
         cy.get('[data-testid="tier-slot"]').should('contain.text', 'cypress@example.com').and('not.contain.text', 'Notch')
-        cy.contains('button', 'Release slot').click()
+        cy.get('[role="dialog"]').should('not.exist')
+        cy.get('[data-testid="tier-slot"]').contains('button', 'Release slot').click()
         cy.wait('@assignSlot').its('request.body').should('deep.equal', { version: 8 })
         cy.get('[data-testid="tier-slot"]').should('contain.text', 'Unassigned')
     })

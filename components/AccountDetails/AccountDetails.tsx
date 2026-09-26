@@ -23,6 +23,7 @@ import PrivacySettings from './PrivacySettings/PrivacySettings'
 import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, getSetting, removeSettings } from '../../utils/SettingsUtils'
 import TransactionHistory from './TransactionHistory/TransactionHistory'
 import TierSlots from './TierSlots/TierSlots'
+import usePremiumRefresh from '../../hooks/usePremiumRefresh'
 
 function AccountDetails() {
     let [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -39,6 +40,17 @@ function AccountDetails() {
     let [subscriptionToCancel, setSubscriptionToCancel] = useState<PremiumSubscription>()
     let coflCoins = useCoflCoins()
     let { pushInstruction } = useMatomo()
+
+    usePremiumRefresh(isLoggedIn, () =>
+        Promise.all([
+            loadPremiumProducts()
+                .then(() => setHasLoadingPremiumProductsError(false))
+                .catch(() => setHasLoadingPremiumProductsError(true)),
+            loadPremiumSubscriptions()
+                .then(() => setSubscriptionLookupStatus('succeeded'))
+                .catch(() => setSubscriptionLookupStatus('failed'))
+        ])
+    )
 
     useEffect(() => {
         if (sessionStorage.getItem('googleId') === null) {

@@ -1,5 +1,24 @@
+const yearHistory = {
+    averageSellTimeSeconds: 3600,
+    totalAuctionsSold: 2,
+    totalListed: 2,
+    totalSellers: 2,
+    totalBuyers: 2,
+    totalBids: 0,
+    totalCoinsTransferred: 1200000000,
+    totalAuctions: 2,
+    totalItemsSold: 2,
+    binCount: 2,
+    prices: [
+        { min: 590000000, max: 610000000, avg: 600000000, volume: 1, time: '2026-08-01T00:00:00Z' },
+        { min: 600000000, max: 600000000, avg: 600000000, volume: 1, time: '2026-08-02T00:00:00Z' }
+    ],
+    recentSamples: []
+}
+
 describe('Item year view', () => {
     it('preserves year view while loading URL filters', () => {
+        const yearRequests: URLSearchParams[] = []
         cy.intercept('GET', '**/api/filter/options?itemTag=STING', {
             delay: 800,
             body: [
@@ -10,26 +29,11 @@ describe('Item year view', () => {
         })
         cy.intercept('GET', '**/api/item/price/STING/history/year*', request => {
             const params = new URL(request.url).searchParams
+            yearRequests.push(new URLSearchParams(params))
             if (params.has('ultimate_chimera')) {
                 request.alias = 'yearHistory'
             }
-            request.reply({
-                averageSellTimeSeconds: 3600,
-                totalAuctionsSold: 2,
-                totalListed: 2,
-                totalSellers: 2,
-                totalBuyers: 2,
-                totalBids: 0,
-                totalCoinsTransferred: 1200000000,
-                totalAuctions: 2,
-                totalItemsSold: 2,
-                binCount: 2,
-                prices: [
-                    { min: 590000000, max: 610000000, avg: 600000000, volume: 1, time: '2026-08-01T00:00:00Z' },
-                    { min: 600000000, max: 600000000, avg: 600000000, volume: 1, time: '2026-08-02T00:00:00Z' }
-                ],
-                recentSamples: []
-            })
+            request.reply(yearHistory)
         })
 
         cy.visit('/item/STING?range=year&ultimate_chimera=4-4&looting=5-5&divine_gift=3-3', {
@@ -47,5 +51,31 @@ describe('Item year view', () => {
         cy.location('search').should('include', 'range=year')
         cy.contains('Statistics Summary').should('be.visible')
         cy.contains('Avg Price:').should('be.visible')
+        cy.then(() => {
+            expect(yearRequests.length, 'all initial year-history requests').to.be.greaterThan(0)
+            for (const params of yearRequests) {
+                expect(params.get('ultimate_chimera')).to.equal('4-4')
+                expect(params.get('looting')).to.equal('5-5')
+                expect(params.get('divine_gift')).to.equal('3-3')
+            }
+        })
+    })
+    it('loads year history without filters when the URL has none', () => {
+        cy.intercept('GET', '**/api/filter/options?itemTag=STING', { body: [] })
+        cy.intercept('GET', '**/api/item/price/STING/history/year*', request => {
+            request.alias = 'unfilteredYearHistory'
+            request.reply(yearHistory)
+        })
+
+        cy.visit('/item/STING?range=year', {
+            onBeforeLoad(window) {
+                window.sessionStorage.setItem('googleId', 'cypress-year-view-user')
+            }
+        })
+
+        cy.wait('@unfilteredYearHistory').then(({ request }) => {
+            expect(new URL(request.url).searchParams.toString()).to.equal('')
+        })
+        cy.contains('Statistics Summary').should('be.visible')
     })
 })

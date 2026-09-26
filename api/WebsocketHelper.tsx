@@ -11,47 +11,55 @@ let websocket: WebSocket
 let reconnectTimeout: ReturnType<typeof setTimeout> | undefined
 
 let isConnectionIdSet: boolean = false
+let isSessionReady = false
+let connectionWatchdog: ReturnType<typeof setInterval> | undefined
 
 let apiSubscriptions: ApiSubscription[] = []
 
 function initWebsocket(): void {
+    let lastMessageAt = Date.now()
+    let connectedAt = Date.now()
+
     let onWebsocketClose = (): void => {
+        if (reconnectTimeout !== undefined) return
         isConnectionIdSet = false
-        var timeout = Math.random() * (5000 - 0) + 0
+        isSessionReady = false
+        // Retire the socket immediately, even if a half-open connection never emits close.
+        websocket.onclose = null
+        websocket.onerror = null
+        websocket.onmessage = null
+        websocket.onopen = null
+        websocket.close()
         reconnectTimeout = setTimeout(() => {
             reconnectTimeout = undefined
             websocket = getNewWebsocket(true)
-        }, timeout)
+        }, Math.random() * 5000)
+        // A lost setup reply must not leave a matching request blocking the next handshake.
+        const setupRequests = requests.filter(request => [RequestType.SET_CONNECTION_ID, RequestType.LOGIN_WITH_TOKEN].includes(request.type))
+        removeSentRequests(setupRequests)
+        setupRequests.forEach(request => request.reject({ message: 'Connection interrupted. Reconnecting.' }))
     }
 
-    // dont show a toast message on websocket errors as this gets spammed when the user for example locks their computer
-    let onWebsocketError = (e: Event): void => {
-        console.error(e)
-    }
-
-    let onOpen = (e: Event, isReconnecting: boolean): void => {
-        let _reconnect = function () {
-            let toReconnect = [...apiSubscriptions]
-            apiSubscriptions = []
-
-            toReconnect.forEach(subscription => {
-                subscription.resubscribe(subscription)
-            })
-        }
-
-        // set the connection id first
-        api.setConnectionId().then(() => {
+    let onOpen = async (socket: WebSocket, isReconnecting: boolean): Promise<void> => {
+        try {
+            await api.setConnectionId()
+            if (socket !== websocket || reconnectTimeout !== undefined) return
             isConnectionIdSet = true
             if (isReconnecting && sessionStorage.getItem('googleId') !== null) {
-                api.loginWithToken(sessionStorage.getItem('googleId')!).then(token => {
-                    sessionStorage.setItem('googleId', token)
-                    localStorage.setItem('googleId', token)
-                    _reconnect()
-                })
-            } else if (isReconnecting) {
-                _reconnect()
+                const token = await api.loginWithToken(sessionStorage.getItem('googleId')!)
+                if (socket !== websocket || reconnectTimeout !== undefined) return
+                sessionStorage.setItem('googleId', token)
+                localStorage.setItem('googleId', token)
             }
-        })
+            isSessionReady = true
+            if (isReconnecting) {
+                const toReconnect = [...apiSubscriptions]
+                apiSubscriptions = []
+                toReconnect.forEach(subscription => subscription.resubscribe(subscription))
+            }
+        } catch {
+            if (socket === websocket) onWebsocketClose()
+        }
     }
 
     let _handleRequestOnMessage = function (response: ApiResponse, request: ApiRequest) {
@@ -98,6 +106,7 @@ function initWebsocket(): void {
     }
 
     let onWebsocketMessage = (e: MessageEvent): void => {
+        lastMessageAt = Date.now()
         let response: ApiResponse = JSON.parse(e.data)
         let request: ApiRequest | undefined = requests.find(e => e.mId === response.mId)
         let subscription: ApiSubscription | undefined = apiSubscriptions.find(e => e.mId === response.mId)
@@ -115,18 +124,25 @@ function initWebsocket(): void {
     }
 
     let getNewWebsocket = (isReconnecting: boolean): WebSocket => {
+        connectedAt = lastMessageAt = Date.now()
         websocket = new WebSocket(getProperty('websocketEndpoint'))
         websocket.onclose = onWebsocketClose
-        websocket.onerror = onWebsocketError
+        websocket.onerror = onWebsocketClose
         websocket.onmessage = onWebsocketMessage
-        websocket.onopen = e => {
-            onOpen(e, isReconnecting)
+        const socket = websocket
+        websocket.onopen = () => {
+            void onOpen(socket, isReconnecting)
         }
         ;(window as any).websocket = websocket
         return websocket
     }
 
     websocket = getNewWebsocket(false)
+    connectionWatchdog = setInterval(() => {
+        // The server sends nextUpdate/ping even when filters match no flips.
+        const timedOut = isSessionReady ? Date.now() - lastMessageAt > 90_000 : Date.now() - connectedAt > 15_000
+        if (timedOut) onWebsocketClose()
+    }, 5000)
 }
 
 function sendRequest(request: ApiRequest): Promise<void> {
@@ -135,6 +151,14 @@ function sendRequest(request: ApiRequest): Promise<void> {
     }
     let requestString = JSON.stringify(request.data)
     return cacheUtils.getFromCache(request.type, requestString).then(cacheValue => {
+        // Navigation can queue an unsubscribe while offline, then start a newer feed.
+        if (
+            request.type === RequestType.UNSUBSCRIBE_FLIPS &&
+            apiSubscriptions.some(subscription => [RequestType.SUBSCRIBE_FLIPS, RequestType.SUBSCRIBE_FLIPS_ANONYM].includes(subscription.type))
+        ) {
+            request.resolve()
+            return
+        }
         if (cacheValue) {
             request.resolve(cacheValue)
             return
@@ -180,21 +204,17 @@ function subscribe(subscription: ApiSubscription): void {
     if (!websocket) {
         initWebsocket()
     }
-    let requestString = JSON.stringify(subscription.data)
-    if (_isWebsocketReady(subscription.type, websocket)) {
-        subscription.mId = getNextMessageId()
-        try {
-            subscription.data = btoaUnicode(requestString)
-        } catch (error) {
-            throw new Error('couldnt btoa this data: ' + subscription.data)
+    apiSubscriptions.push(subscription)
+    const sendWhenReady = () => {
+        if (!apiSubscriptions.includes(subscription)) return
+        if (_isWebsocketReady(subscription.type, websocket) && isSessionReady) {
+            subscription.mId = getNextMessageId()
+            websocket.send(JSON.stringify({ ...subscription, data: btoaUnicode(JSON.stringify(subscription.data)) }))
+        } else {
+            setTimeout(sendWhenReady, 500)
         }
-        apiSubscriptions.push(subscription)
-        websocket.send(JSON.stringify(subscription))
-    } else {
-        setTimeout(() => {
-            subscribe(subscription)
-        }, 500)
     }
+    sendWhenReady()
 }
 
 function findForEqualSentRequest(request: ApiRequest) {
@@ -215,10 +235,16 @@ function removeSentRequests(toDelete: ApiRequest[]) {
 }
 
 function _isWebsocketReady(requestType: string, websocket: WebSocket) {
-    return websocket && websocket.readyState === WebSocket.OPEN && (isConnectionIdSet || requestType === RequestType.SET_CONNECTION_ID)
+    return (
+        websocket &&
+        websocket.readyState === WebSocket.OPEN &&
+        (requestType === RequestType.SET_CONNECTION_ID || (isConnectionIdSet && (isSessionReady || requestType === RequestType.LOGIN_WITH_TOKEN)))
+    )
 }
 
 function disconnect(): void {
+    clearInterval(connectionWatchdog)
+    connectionWatchdog = undefined
     if (reconnectTimeout !== undefined) {
         clearTimeout(reconnectTimeout)
         reconnectTimeout = undefined
@@ -231,6 +257,8 @@ function disconnect(): void {
         websocket.close()
     }
     isConnectionIdSet = false
+    isSessionReady = false
+    websocket = undefined!
     requests = []
     apiSubscriptions = []
 }

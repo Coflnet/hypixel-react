@@ -14,6 +14,7 @@ import {
     FLIP_CUSTOMIZING_KEY,
     ITEM_FILER_SHOW_ADVANCED,
     getSetting,
+    getSettingsObject,
     mapRestrictionsToApiFormat,
     setSetting
 } from '../../../utils/SettingsUtils'
@@ -57,6 +58,8 @@ function FlipperFilter(props: Props) {
     }, [contextFlipCustomizeSettings, contextFlipperFilter])
 
     let onlyUnsoldRef = useRef(null)
+    const minProfitTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
+    useEffect(() => () => clearTimeout(minProfitTimer.current), [])
 
     function onFilterChange(filter: FlipperFilter) {
         if (props.isLoggedIn) {
@@ -76,7 +79,7 @@ function FlipperFilter(props: Props) {
     }
 
     function onSettingsChange(key: string, value: any, apiKey?: string) {
-        let filter = { ...localFlipperFilter }
+        let filter = { ...getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}) }
         filter[key] = value
         api.setFlipSetting(apiKey || key, value)
         onFilterChange(filter)
@@ -126,16 +129,12 @@ function FlipperFilter(props: Props) {
         refreshSettings()
     }
 
-    const debounceMinProfitChangeFunction = (function () {
-        let timerId
-
-        return (minProfit: number) => {
-            clearTimeout(timerId)
-            timerId = setTimeout(() => {
-                onSettingsChange('minProfit', minProfit || 0)
-            }, 3000)
-        }
-    })()
+    function debounceMinProfitChangeFunction(minProfit: number) {
+        clearTimeout(minProfitTimer.current)
+        minProfitTimer.current = setTimeout(() => {
+            onSettingsChange('minProfit', minProfit || 0)
+        }, 3000)
+    }
 
     let restrictionListDialog = (
         <Modal
@@ -237,7 +236,6 @@ function FlipperFilter(props: Props) {
                             <Form.Label
                                 htmlFor="onlyBinCheckbox"
                                 className={`${styles.flipperFilterFormfieldLabel} ${styles.checkboxLabel}`}
-                                defaultChecked={localFlipperFilter.onlyBin}
                             >
                                 Only BIN Auctions
                             </Form.Label>
@@ -255,7 +253,7 @@ function FlipperFilter(props: Props) {
                             onSettingsChange('onlyBin', e.target.checked)
                         }}
                         disabled={disabled}
-                        defaultChecked={localFlipperFilter.onlyBin}
+                        checked={!!localFlipperFilter.onlyBin}
                         className={styles.flipperFilterFormfield}
                         type="checkbox"
                     />
@@ -426,7 +424,7 @@ function FlipperFilter(props: Props) {
                                 onChange={e => {
                                     onSettingsChange('onlyUnsold', e.target.checked, 'showHideSold')
                                 }}
-                                defaultChecked={localFlipperFilter.onlyUnsold}
+                                checked={!!localFlipperFilter.onlyUnsold}
                                 className={styles.flipperFilterFormfield}
                                 type="checkbox"
                                 disabled={disabled}
