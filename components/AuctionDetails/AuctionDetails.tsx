@@ -487,7 +487,7 @@ function AuctionDetails(props: Props) {
                                 content={<span tabIndex={0}>No start available</span>}
                                 tooltipContent={
                                     <span>
-                                        This auction was never seen active on the auction house; only its sale was recorded. This usually means it started within one minute before it ended.
+                                        This auction was never seen active on the auction house; only its sale was recorded, which is also why the starting bid shows 0. This usually means it started within one minute before it ended.
                                     </span>
                                 }
                             />

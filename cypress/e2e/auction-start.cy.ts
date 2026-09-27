@@ -1,7 +1,7 @@
 export {}
 
 const auctionId = '00000000000040008000000000000001'
-const explanation = 'This auction was never seen active on the auction house; only its sale was recorded. This usually means it started within one minute before it ended.'
+const explanation = 'This auction was never seen active on the auction house; only its sale was recorded, which is also why the starting bid shows 0. This usually means it started within one minute before it ended.'
 
 function openAuction(start: string) {
     cy.intercept('GET', `**/api/auction/${auctionId}`, {
