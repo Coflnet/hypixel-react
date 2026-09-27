@@ -20,6 +20,7 @@ import { NumberRangeFilterElement } from './FilterElements/NumberRangeFilterElem
 import { validateFilterNumber, validateFilterRange } from '../../utils/NumberValidationUtils'
 import Tooltip from '../Tooltip/Tooltip'
 import HelpIcon from '@mui/icons-material/Help'
+import ItemCategoryCheck from './ItemCategoryCheck/ItemCategoryCheck'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
@@ -32,6 +33,10 @@ function FilterElement(props: Props) {
     let [value, _setValue] = useState<any>()
     let [isValid, _setIsValid] = useState(true)
     let [errorText, setErrorText] = useState('')
+    // Bumped whenever the ItemCategory checker switches the filter value programmatically, forcing the
+    // (otherwise uncontrolled) EqualFilterElement/SimpleEqualFilterElement to remount with the new value
+    // so the select visibly reflects the switch.
+    let [itemCategorySwitchCount, setItemCategorySwitchCount] = useState(0)
 
     useEffect(() => {
         if (value) {
@@ -87,6 +92,14 @@ function FilterElement(props: Props) {
 
     function setValue(value?: any) {
         _setValue(parseValue(value))
+    }
+
+    // Programmatically switches the ItemCategory filter to the given category (used by the "Switch to X" /
+    // "Use X" buttons in ItemCategoryCheck). Goes through the same onFilterElementChange path a manual
+    // selection would, and additionally forces the rendered select to remount so it visibly updates.
+    function onItemCategorySwitch(category: string) {
+        onFilterElementChange(category)
+        setItemCategorySwitchCount(count => count + 1)
     }
 
     function setIsValid(newValue: boolean) {
@@ -202,12 +215,20 @@ function FilterElement(props: Props) {
             return <BooleanFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
         }
         if (hasFlag(type, FilterType.EQUAL)) {
+            // For ItemCategory, the value can also be switched programmatically (by the item category
+            // checker below). Since these elements are otherwise uncontrolled, key on the switch count and
+            // seed the new default from `value` so the select remounts and visibly shows the switched-to
+            // category. For every other filter this is equivalent to the previous static key/defaultValue.
+            const isItemCategory = options.name === 'ItemCategory'
+            const elementKey = isItemCategory ? `${options.name}-${itemCategorySwitchCount}` : options.name
+            const elementDefaultValue = isItemCategory && itemCategorySwitchCount > 0 ? value : props.defaultValue
+
             if (hasFlag(options.type, FilterType.SIMPLE)) {
                 return (
                     <SimpleEqualFilterElement
-                        key={options.name}
+                        key={elementKey}
                         options={options.options}
-                        defaultValue={props.defaultValue}
+                        defaultValue={elementDefaultValue}
                         isValid={isValid}
                         onChange={onFilterElementChange}
                     />
@@ -215,10 +236,10 @@ function FilterElement(props: Props) {
             } else {
                 return (
                     <EqualFilterElement
-                        key={options.name}
+                        key={elementKey}
                         isValid={isValid}
                         options={options}
-                        defaultValue={props.defaultValue}
+                        defaultValue={elementDefaultValue}
                         onChange={onFilterElementChange}
                         showIcon={hasFlag(options.type, FilterType.SHOW_ICON)}
                     />
@@ -253,6 +274,9 @@ function FilterElement(props: Props) {
                         ) : null}
                     </Form.Label>
                     {getFilterElement(props.options.type, props.options)}
+                    {props.options.name === 'ItemCategory' ? (
+                        <ItemCategoryCheck selectedCategory={value} onCategorySelect={onItemCategorySwitch} />
+                    ) : null}
                     {props.options.name === 'DyeItem' ? (
                         <Form.Text>
                             Matches dye applied to another item. Any matches items with any dye applied, not standalone dye items. To blacklist
