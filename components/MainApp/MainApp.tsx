@@ -19,6 +19,7 @@ import '../../styles/globals.css'
 import TopLoadingAnimation from '../TopLoader/TopLoadingAnimation'
 import { initCoflCoinManager } from '../../utils/CoflCoinsUtils'
 import properties from '../../properties'
+import { isStaleChunkError, recoverFromStaleChunks } from '../../utils/StaleChunkUtils'
 
 initCoflCoinManager()
 
@@ -47,22 +48,10 @@ export function MainApp(props: any) {
                 return
             }
 
-            if (event.error?.name === 'ChunkLoadError') {
-                let chunkErrorLocalStorage = window.localStorage.getItem('chunkErrorReload')
-                if (chunkErrorLocalStorage && parseInt(chunkErrorLocalStorage) + 5000 > new Date().getTime()) {
+            if (isStaleChunkError(event.error)) {
+                if (!recoverFromStaleChunks()) {
                     alert('There is something wrong with the website-chunks. Please try Control + F5 to hard refresh the page.')
-                    return
                 }
-                window.localStorage.setItem('chunkErrorReload', new Date().getTime().toString())
-                caches
-                    .keys()
-                    .then(keys => {
-                        keys.forEach(key => {
-                            caches.delete(key)
-                        })
-                    })
-                    .catch(() => {})
-                location.reload()
             }
         })
     }, [])
