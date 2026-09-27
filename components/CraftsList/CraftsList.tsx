@@ -1,5 +1,6 @@
 'use client'
 import Image from 'next/image'
+import { Badge } from 'react-bootstrap'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import api from '../../api/ApiHelper'
 import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
@@ -84,6 +85,7 @@ export function CraftsList(props: Props) {
         return (
             <>
                 <h4>{getCraftHeader(craft)}</h4>
+                {craft.ingredients.some(ingredient => ingredient.type === 'craft') ? <p><Badge bg="secondary">Multi-step</Badge></p> : null}
                 <p>
                     <span style={{ width: '150px', float: 'left' }}>Crafting Cost:</span> <Number number={Math.round(craft.craftCost)} /> Coins
                 </p>
