@@ -68,20 +68,30 @@ function mockAuctionHouseItemPage(tag: string) {
     cy.intercept('GET', '**/api/filter/options*', [])
     cy.intercept('GET', `**/api/item/price/${tag}/history/day*`, [])
     cy.intercept('GET', '**/api/mayor*', [])
-    cy.intercept('GET', `**/api/auctions/tag/${tag}/recent/overview*`, [])
+    cy.intercept('GET', `**/api/auctions/tag/${tag}/recent/overview*`, []).as('recentAuctions')
     cy.intercept('GET', `**/api/item/${tag}/similar`, relatedItemFixture)
 }
 
-// Retries for the whole spec: while the item page hydrates, the price graph subtree (item filter,
-// range buttons and with them the Market analysis section) exists twice in the DOM for roughly
-// 100-200ms in a sizeable share of page loads, before settling to one copy. A click landing in that
-// window fails with "subject contained 2 elements". Any test here can hit it, so it is handled once
-// for the spec instead of per test.
-Cypress.config('retries', { runMode: 2, openMode: 0 })
+// The server streams the price graph (and with it this section) as HTML, but the browser often
+// renders it again from scratch instead of hydrating it: the server-rendered toggle is then replaced
+// by a new element, and for a few hundred milliseconds the old copy can remain in a hidden streaming
+// container next to the new one. Recent auctions are requested by an effect of that same subtree, so
+// the request is the signal that the final, interactive copy is mounted.
+function waitForInteractiveItemPage() {
+    cy.wait('@recentAuctions')
+}
+
+/** Visits an auction-house item page (after mockAuctionHouseItemPage) and waits until it is interactive. */
+function visitItemPage(tag: string, options?: Partial<Cypress.VisitOptions>) {
+    cy.visit(`/item/${tag}`, options)
+    waitForInteractiveItemPage()
+}
 
 function toggle() {
-    // Wait until the section is down to a single copy (see the retries comment above) before clicking.
-    return cy.get('[data-testid="market-analysis-toggle"]').should('have.length', 1)
+    // `:visible` leaves out a stale copy in the hidden streaming container. Keep this a bare query:
+    // an assertion between the query and `.click()` stops Cypress from looking the element up again
+    // when it is replaced.
+    return cy.get('[data-testid="market-analysis-toggle"]:visible')
 }
 
 // A syntactically valid, unexpired fake JWT: payload has `sub`, `email` and `exp` far in the future
@@ -156,7 +166,7 @@ function installAuthenticatedWebSocket(window: Cypress.AUTWindow, token: string)
 
 /** Visits the item page with `token` already present in both storages before any app code runs. */
 function visitItemPageAuthenticated(tag: string, token: string) {
-    cy.visit(`/item/${tag}`, {
+    visitItemPage(tag, {
         onBeforeLoad(window) {
             window.localStorage.setItem('googleId', token)
             window.sessionStorage.setItem('googleId', token)
@@ -166,7 +176,7 @@ function visitItemPageAuthenticated(tag: string, token: string) {
 }
 
 function visitItemPageSignedOut(tag: string) {
-    cy.visit(`/item/${tag}`, {
+    visitItemPage(tag, {
         onBeforeLoad(window) {
             window.localStorage.removeItem('googleId')
             window.sessionStorage.removeItem('googleId')
@@ -237,7 +247,7 @@ describe('Market analysis premium gating (backend-driven)', () => {
         // separate effect that sets isLoggedIn=true whenever sessionStorage alone has *any* value,
         // regardless of expiry (see the props.rerenderFlip effect in GoogleSignIn.tsx), which would
         // suppress its "Sign in" button if the token were seeded into sessionStorage too.
-        cy.visit(`/item/${itemTag}`, {
+        visitItemPage(itemTag, {
             onBeforeLoad(window) {
                 window.localStorage.setItem('googleId', expiredMarketAnalysisAuthToken)
             }
@@ -273,7 +283,7 @@ describe('Market analysis premium gating (backend-driven)', () => {
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis*`, { statusCode: 500, body: { message: 'boom' } }).as('soldAnalysis')
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis/live*`, { statusCode: 404, body: 'Not Found' })
 
-        cy.visit(`/item/${itemTag}`)
+        visitItemPage(itemTag)
         toggle().click()
         cy.wait('@soldAnalysis')
 
@@ -290,7 +300,7 @@ describe('Market analysis buyers/sellers KPI tiles', () => {
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis*`, { ...soldAnalysisFixture, uniqueBuyers: 27, uniqueSellers: 19 }).as('soldAnalysis')
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis/live*`, { statusCode: 404, body: 'Not Found' })
 
-        cy.visit(`/item/${itemTag}`)
+        visitItemPage(itemTag)
         toggle().click()
         cy.wait('@soldAnalysis')
 
@@ -303,7 +313,7 @@ describe('Market analysis buyers/sellers KPI tiles', () => {
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis*`, soldAnalysisFixture).as('soldAnalysis')
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis/live*`, { statusCode: 404, body: 'Not Found' })
 
-        cy.visit(`/item/${itemTag}`)
+        visitItemPage(itemTag)
         toggle().click()
         cy.wait('@soldAnalysis')
 
@@ -345,7 +355,7 @@ describe('Market analysis relative sell-speed rendering', () => {
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis*`, relativeSpeedFixture).as('soldAnalysis')
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis/live*`, { statusCode: 404, body: 'Not Found' })
 
-        cy.visit(`/item/${itemTag}`)
+        visitItemPage(itemTag)
         toggle().click()
         cy.wait('@soldAnalysis')
 
@@ -365,7 +375,7 @@ describe('Market analysis section', () => {
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis*`, soldAnalysisFixture).as('soldAnalysis')
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis/live*`, liveAnalysisFixture).as('liveAnalysis')
 
-        cy.visit(`/item/${itemTag}`)
+        visitItemPage(itemTag)
 
         toggle().should('be.visible').and('have.attr', 'aria-expanded', 'false').and('have.attr', 'aria-controls', 'market-analysis-body')
         cy.contains('[data-testid="market-analysis"]', 'Market analysis').should('be.visible')
@@ -382,7 +392,7 @@ describe('Market analysis section', () => {
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis*`, soldAnalysisFixture).as('soldAnalysis')
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis/live*`, liveAnalysisFixture).as('liveAnalysis')
 
-        cy.visit(`/item/${itemTag}`)
+        visitItemPage(itemTag)
         toggle().click()
 
         cy.wait(['@soldAnalysis', '@liveAnalysis'])
@@ -418,7 +428,7 @@ describe('Market analysis section', () => {
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis*`, soldAnalysisFixture).as('soldAnalysis')
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis/live*`, { statusCode: 404, body: 'Not Found' }).as('liveAnalysis')
 
-        cy.visit(`/item/${itemTag}`)
+        visitItemPage(itemTag)
         toggle().click()
         cy.wait(['@soldAnalysis', '@liveAnalysis'])
 
@@ -433,12 +443,9 @@ describe('Market analysis section', () => {
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis*`, soldAnalysisFixture).as('soldAnalysis')
         cy.intercept('GET', `**/api/item/price/${itemTag}/analysis/live*`, liveAnalysisFixture).as('liveAnalysis')
 
-        cy.visit(`/item/${itemTag}`)
+        visitItemPage(itemTag)
         toggle().click()
         cy.wait(['@soldAnalysis', '@liveAnalysis'])
-        // Let any in-flight hydration-mismatch recovery (see the retries comment at the top of this spec) settle before
-        // the next click, rather than paying that cost on every toggle() call across the whole spec.
-        cy.wait(250)
 
         toggle().click()
         cy.get('[data-testid="market-analysis-body-content"]').should('not.exist')
