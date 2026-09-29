@@ -33,7 +33,7 @@ describe('Item year view', () => {
             if (params.has('ultimate_chimera')) {
                 request.alias = 'yearHistory'
             }
-            request.reply(yearHistory)
+            request.reply({ delay: 250, body: yearHistory })
         })
 
         cy.visit('/item/STING?range=year&ultimate_chimera=4-4&looting=5-5&divine_gift=3-3', {
@@ -42,21 +42,19 @@ describe('Item year view', () => {
             }
         })
 
-        cy.wait('@yearHistory').then(({ request }) => {
-            const params = new URL(request.url).searchParams
-            expect(params.get('ultimate_chimera')).to.equal('4-4')
-            expect(params.get('looting')).to.equal('5-5')
-            expect(params.get('divine_gift')).to.equal('3-3')
-        })
+        cy.wait('@yearHistory')
+        // Include requests triggered after the range selector's 500ms initialization.
+        cy.wait(6000)
         cy.location('search').should('include', 'range=year')
         cy.contains('Statistics Summary').should('be.visible')
         cy.contains('Avg Price:').should('be.visible')
         cy.then(() => {
             expect(yearRequests.length, 'all initial year-history requests').to.be.greaterThan(0)
             for (const params of yearRequests) {
-                expect(params.get('ultimate_chimera')).to.equal('4-4')
-                expect(params.get('looting')).to.equal('5-5')
-                expect(params.get('divine_gift')).to.equal('3-3')
+                const query = params.toString()
+                expect(params.get('ultimate_chimera'), query).to.equal('4-4')
+                expect(params.get('looting'), query).to.equal('5-5')
+                expect(params.get('divine_gift'), query).to.equal('3-3')
             }
         })
     })
