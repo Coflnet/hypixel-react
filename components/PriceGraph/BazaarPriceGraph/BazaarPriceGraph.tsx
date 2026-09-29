@@ -13,7 +13,6 @@ import { isClientSideRendering } from '../../../utils/SSRUtils'
 import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
 import { getValidatedRange } from '../../../hooks/useValidRange'
 import Number from '../../Number/Number'
-import RelatedItems from '../../RelatedItems/RelatedItems'
 import ShareButton from '../../ShareButton/ShareButton'
 import styles from './BazaarPriceGraph.module.css'
 import BazaarSnapshot from './BazaarSnapshot/BazaarSnapshot'
@@ -501,7 +500,6 @@ function BazaarPriceGraph(props: Props) {
                     }}
                 />
                 <hr />
-                <RelatedItems tag={props.item.tag} isBazaarItem={true} />
                 <BazaarSnapshot item={props.item} />
             </div>
         </div>

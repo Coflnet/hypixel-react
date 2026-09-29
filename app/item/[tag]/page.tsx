@@ -30,6 +30,10 @@ const ItemFAQ = dynamic(() => import('../../../components/ItemFAQ/ItemFAQ'), {
     loading: () => <div style={{ minHeight: '200px' }}>Loading...</div>
 })
 
+const RelatedItems = dynamic(() => import('../../../components/RelatedItems/RelatedItems'), {
+    loading: () => <div style={{ minHeight: '100px' }} />
+})
+
 // Revalidate every 600 seconds (10 minutes) for price data freshness
 // Note: Shorter revalidation times can cause hydration mismatches in some cases
 export const revalidate = 600
@@ -97,6 +101,7 @@ export default async function Page(props) {
                     isBazaar={isBazaar}
                     itemFlags={data.itemFlags || null}
                 />
+                <RelatedItems tag={tag} isBazaarItem={isBazaar} />
             </ItemPageClient>
             <NitroAdSlot
                 slotId="below-faq"
