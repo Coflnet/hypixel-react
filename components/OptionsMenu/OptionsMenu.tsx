@@ -1,10 +1,13 @@
 'use client'
 import React, { useState } from 'react'
+import Link from 'next/link'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import styles from './OptionsMenu.module.css'
 import { Button, Dropdown, DropdownButton } from 'react-bootstrap'
 import BazaarExportModal from '../BazaarExportModal/BazaarExportModal'
 import { convertTagToName } from '../../utils/Formatter'
+import { buildArchiveUrl } from '../../utils/Parser/URLParser'
+import { useItemFilterFromUrl } from '../../hooks/useItemFilterFromUrl'
 
 interface Props {
     selected?: Player | Item
@@ -12,6 +15,10 @@ interface Props {
 interface AvailableLinks {
     title: string
     url: string
+    /** Tooltip/title text if it differs from the visible `title` label. */
+    tooltip?: string
+    /** Same-tab next/link navigation instead of opening an external site in a new tab. */
+    internal?: boolean
 }
 
 const minecraftWikiEnchantmentTitleOverrides: Record<string, string> = {
@@ -72,6 +79,11 @@ function getMinecraftWikiTitle(item: Item) {
 function OptionsMenu(props: Props) {
     let available: AvailableLinks[] = []
     let [showExportModal, setShowExportModal] = useState(false)
+    // Reactively tracks the URL's item filter (see hooks/useItemFilterFromUrl) so the Archive link
+    // stays in sync as the user changes filters on the page, not just what was there at mount time.
+    // SSR/first paint sees `{}` (no window yet), matching every other client-only URL read here.
+    let itemFilter = useItemFilterFromUrl()
+
     const isItemPage = (props.selected as Item)?.tag !== undefined
     const isPlayerPage = !isItemPage
     const isBazaarItem = isItemPage && (props.selected as Item).bazaar
@@ -82,6 +94,8 @@ function OptionsMenu(props: Props) {
         if ((props.selected as Item).bazaar) {
             available.push({ title: 'Bazaartracker', url: 'https://bazaartracker.com/product/' + tag.toLowerCase() })
             available.push({ title: 'BzMeta', url: 'https://skyblock.bz/product/' + tag.toLowerCase() })
+        } else {
+            available.push({ title: 'Archive', url: buildArchiveUrl(tag, itemFilter), tooltip: 'Query archived auctions', internal: true })
         }
     } else if (isPlayerPage) {
         let player = props.selected as Player
@@ -111,11 +125,17 @@ function OptionsMenu(props: Props) {
     return (
         <div className={styles.optionsMenu}>
             <div className={styles.buttonsWrapper}>
-                {available.map((result, i) => (
-                    <a key={i} href={result.url} title={result.title} target="_blank" rel="noreferrer">
-                        <Button>{result.title}</Button>
-                    </a>
-                ))}
+                {available.map((result, i) =>
+                    result.internal ? (
+                        <Link key={i} href={result.url} title={result.tooltip ?? result.title}>
+                            <Button>{result.title}</Button>
+                        </Link>
+                    ) : (
+                        <a key={i} href={result.url} title={result.tooltip ?? result.title} target="_blank" rel="noreferrer">
+                            <Button>{result.title}</Button>
+                        </a>
+                    )
+                )}
                 {isBazaarItem && (
                     <Button variant="secondary" onClick={() => setShowExportModal(true)} style={{ marginLeft: 5 }}>
                         Export
@@ -126,16 +146,23 @@ function OptionsMenu(props: Props) {
             <Dropdown className={styles.dropdown}>
                 <Dropdown.Toggle as={CustomToggle}></Dropdown.Toggle>
                 <Dropdown.Menu id="dropdownMenuButton">
-                    {available.map((result, i) => (
-                        <Dropdown.Item
-                            key={result.url}
-                            onClick={() => {
-                                navigate(result.url)
-                            }}
-                        >
-                            {result.title}
-                        </Dropdown.Item>
-                    ))}
+                    {available.map(result =>
+                        result.internal ? (
+                            <Dropdown.Item as={Link} key={result.url} href={result.url} title={result.tooltip ?? result.title}>
+                                {result.title}
+                            </Dropdown.Item>
+                        ) : (
+                            <Dropdown.Item
+                                key={result.url}
+                                title={result.tooltip ?? result.title}
+                                onClick={() => {
+                                    navigate(result.url)
+                                }}
+                            >
+                                {result.title}
+                            </Dropdown.Item>
+                        )
+                    )}
                     {isBazaarItem && (
                         <Dropdown.Item onClick={() => setShowExportModal(true)}>Export</Dropdown.Item>
                     )}

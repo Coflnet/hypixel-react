@@ -13,7 +13,7 @@ import { getValidatedRange, useValidRange } from '../../../hooks/useValidRange'
 import Number from '../../Number/Number'
 import GoogleSignIn from '../../GoogleSignIn/GoogleSignIn'
 import RecentAuctions from '../../RecentAuctions/RecentAuctions'
-import RelatedItems from '../../RelatedItems/RelatedItems'
+import MarketAnalysis from '../../MarketAnalysis/MarketAnalysis'
 import ShareButton from '../../ShareButton/ShareButton'
 import SubscribeButton from '../../SubscribeButton/SubscribeButton'
 import QuickDateSelect from './QuickDateSelect'
@@ -667,7 +667,7 @@ function AuctionHousePriceGraph(props: Props) {
                 <ActiveAuctions item={props.item} filter={itemFilter} />
             ) : (
                 <div>
-                    {fetchspan !== DateRange.YEAR && <RelatedItems tag={props.item.tag} />}
+                    <MarketAnalysis tag={props.item.tag} itemFilter={itemFilter} />
                     <RecentAuctions
                         item={props.item}
                         itemFilter={itemFilter || {}}

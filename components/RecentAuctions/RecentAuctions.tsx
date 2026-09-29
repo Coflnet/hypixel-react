@@ -12,9 +12,9 @@ import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
+import { buildArchiveUrl } from '../../utils/Parser/URLParser'
 import Number from '../Number/Number'
 import styles from './RecentAuctions.module.css'
-import { useSearchParams } from 'next/navigation'
 
 interface Props {
     item: Item
@@ -46,7 +46,6 @@ function RecentAuctions(props: Props) {
     const requestId = useRef(0)
     const nextPage = useRef(0)
     let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
-    let searchParams = useSearchParams()
 
     let itemFilterRef = useRef<ItemFilter>(props.itemFilter)
     itemFilterRef.current = props.itemFilter
@@ -299,10 +298,7 @@ function RecentAuctions(props: Props) {
                     <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                         <p style={{ textAlign: 'center' }}>No {!noResults ? 'more ' : ''} recent auctions found.</p>
                         {premiumType?.priority >= PREMIUM_RANK.PREMIUM_PLUS ? (
-                            <Link
-                                style={{ textAlign: 'center', marginBottom: '15px' }}
-                                href={`/item/${props.item.tag}/archive?${searchParams.has('itemFilter') ? `?${searchParams.get('itemFilter')}` : ''}`}
-                            >
+                            <Link style={{ textAlign: 'center', marginBottom: '15px' }} href={buildArchiveUrl(props.item.tag, props.itemFilter)}>
                                 <Button>Archived Auctions</Button>
                             </Link>
                         ) : (
