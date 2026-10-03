@@ -5,22 +5,29 @@ import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import styles from './RatChecker.module.css'
 
+/** A per-file rat-check outcome - either a real backend answer, or why we don't have one. */
+type RatCheckEntry = { status: 'success'; data: RatCheckingResponse } | { status: 'rateLimited' } | { status: 'unavailable' }
+
 function RatChecker() {
     let [isChecking, setIsChecking] = useState(false)
-    let [checkingResults, setCheckingResults] = useState<[string, RatCheckingResponse][]>()
+    let [checkingResults, setCheckingResults] = useState<[string, RatCheckEntry][]>()
     let ratFileInput = useRef<HTMLInputElement>(null)
 
     function onFileUpload(files) {
         setIsChecking(true)
-        let checkingPromises: Promise<[string, RatCheckingResponse]>[] = []
+        let checkingPromises: Promise<[string, RatCheckEntry]>[] = []
 
         for (const file of files) {
             checkingPromises.push(
-                new Promise(resolve => {
-                    generateSHA256FromFile(file).then(hash => {
-                        api.checkRat(hash).then(result => resolve([file.name, result]))
-                    })
-                })
+                generateSHA256FromFile(file).then(hash =>
+                    api
+                        .checkRat(hash)
+                        .then((data): [string, RatCheckEntry] => [file.name, { status: 'success', data }])
+                        // The scanner being down (network error, 404 while it isn't deployed yet, 429, 503, ...)
+                        // must not sink the whole batch or surface a raw fetch error - every other file in the
+                        // same batch still needs its own result, so each check resolves instead of rejecting.
+                        .catch((error): [string, RatCheckEntry] => [file.name, { status: error?.status === 429 ? 'rateLimited' : 'unavailable' }])
+                )
             )
         }
 
@@ -53,28 +60,52 @@ function RatChecker() {
         }
         return (
             <ul>
-                {checkingResults.map(checkingResult => {
-                    if (checkingResult[1].rat.includes('No matching signature')) {
+                {checkingResults.map(([fileName, result]) => {
+                    if (result.status === 'rateLimited') {
                         return (
-                            <li style={{ color: 'white', fontSize: 'large' }}>
-                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: This mod file is not known. For further information check{' '}
+                            <li key={fileName} style={{ color: 'orange', fontSize: 'large' }}>
+                                <span className={styles.checkedFileName}>{fileName}</span>: You're checking files too fast. Please wait a bit and try
+                                again, or check it yourself on{' '}
+                                <a target="_blank" rel="noopener noreferrer" href="https://isthisarat.com/">
+                                    isthisarat.com
+                                </a>
+                                .
+                            </li>
+                        )
+                    }
+                    if (result.status === 'unavailable') {
+                        return (
+                            <li key={fileName} style={{ color: 'orange', fontSize: 'large' }}>
+                                <span className={styles.checkedFileName}>{fileName}</span>: The rat scanner is currently unavailable. You can check this
+                                file yourself on{' '}
+                                <a target="_blank" rel="noopener noreferrer" href="https://isthisarat.com/">
+                                    isthisarat.com
+                                </a>
+                                .
+                            </li>
+                        )
+                    }
+                    if (result.data.rat.includes('No matching signature')) {
+                        return (
+                            <li key={fileName} style={{ color: 'white', fontSize: 'large' }}>
+                                <span className={styles.checkedFileName}>{fileName}</span>: This mod file is not known. For further information check{' '}
                                 <a target="_blank" rel="noreferrer" href="https://isthisarat.com/">
                                     https://isthisarat.com/
                                 </a>
                             </li>
                         )
                     }
-                    if (checkingResult[1].rat.includes('Yes')) {
+                    if (result.data.rat.includes('Yes')) {
                         return (
-                            <li style={{ color: 'red', fontSize: 'large' }}>
-                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: This mod is a known rat. We recommend against using it!
+                            <li key={fileName} style={{ color: 'red', fontSize: 'large' }}>
+                                <span className={styles.checkedFileName}>{fileName}</span>: This mod is a known rat. We recommend against using it!
                             </li>
                         )
                     }
-                    if (checkingResult[1].rat.includes('No')) {
+                    if (result.data.rat.includes('No')) {
                         return (
-                            <li style={{ color: 'lime', fontSize: 'large' }}>
-                                <span className={styles.checkedFileName}>{checkingResult[0]}</span>: No harmful code was found in this mod. It should be safe to
+                            <li key={fileName} style={{ color: 'lime', fontSize: 'large' }}>
+                                <span className={styles.checkedFileName}>{fileName}</span>: No harmful code was found in this mod. It should be safe to
                                 use.
                             </li>
                         )

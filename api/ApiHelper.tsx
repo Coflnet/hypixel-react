@@ -144,8 +144,11 @@ import {
  *    flipFilters). These routes aren't documented in SkyApi's OpenAPI/swagger spec, so the
  *    generated client has no matching function - only the real REST endpoints under
  *    `${apiEndpoint}` (via `httpApi.sendApiRequest`) show up there.
- * 3. Calls to services other than SkyApi: sendFeedback (feedback.coflnet.com) and checkRat
- *    (isthisarat.com).
+ * 3. sendFeedback (feedback.coflnet.com) - a real call to a different service.
+ *    checkRat goes through SkyApi's own `/mod/ratcheck/{hash}` (same-origin, via
+ *    `httpApi.sendApiRequest` + `customRequestURL`, like getItemPrices'/getBazaarPrices' fallback
+ *    branches below) because isthisarat.com can't be called cross-origin from the browser. Not yet
+ *    in the generated client - move it over once `npm run generate_api` picks up the route.
  *
  * A couple of `sendApiRequest`-based methods also stay hand-rolled for now because SkyApi's
  * generated client doesn't (yet) cover them: deleteAccount (`DELETE /user/me` isn't in the
@@ -250,30 +253,35 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         }
         if (isClientSideRendering()) {
             recordClientError(error, 'api', { requestType })
-            toast.error(
-                <span>
-                    <div>{error.message}</div>
-                    <div style={{ fontSize: '0.85em', marginTop: '4px', opacity: 0.9 }}>
-                        Request-Type: {requestType}
-                    </div>
-                </span>,
-                {
-                    onClick: () => {
-                        if (error.traceId && canUseClipBoard()) {
-                            writeToClipboard(error.traceId)
-                            toast.success(
-                                <span>
-                                    Copied the error trace to the clipboard. Please use this to ask for help on our{' '}
-                                    <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
-                                        Discord
-                                    </a>
-                                    .
-                                </span>
-                            )
+            // RatChecker already shows a per-file "scanner unavailable"/"rate limited" message inline
+            // with a link to isthisarat.com - the generic toast would just duplicate that on top of it.
+            // The error-log entry above (used for feedback diagnostics) is still recorded either way.
+            if (requestType !== RequestType.CHECK_FOR_RAT) {
+                toast.error(
+                    <span>
+                        <div>{error.message}</div>
+                        <div style={{ fontSize: '0.85em', marginTop: '4px', opacity: 0.9 }}>
+                            Request-Type: {requestType}
+                        </div>
+                    </span>,
+                    {
+                        onClick: () => {
+                            if (error.traceId && canUseClipBoard()) {
+                                writeToClipboard(error.traceId)
+                                toast.success(
+                                    <span>
+                                        Copied the error trace to the clipboard. Please use this to ask for help on our{' '}
+                                        <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
+                                            Discord
+                                        </a>
+                                        .
+                                    </span>
+                                )
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         }
         console.error(JSON.stringify({ event: 'web.api.error', requestType, error: serializeError(error) }))
     }
@@ -1624,12 +1632,25 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getBazaarSnapshot = async (itemTag: string, timestamp: string | number | Date): Promise<BazaarSnapshot> => {
+    let getBazaarSnapshot = async (
+        itemTag: string,
+        timestamp: string | number | Date,
+        shouldReportError: (error: any) => boolean = () => true
+    ): Promise<BazaarSnapshot> => {
         let isoTimestamp = new Date(Math.round(new Date(timestamp).getTime() / 1000) * 1000).toISOString()
 
         return getApiBazaarItemTagSnapshot(itemTag, isoTimestamp ? { timestamp: isoTimestamp } : undefined)
             .then(response => {
                 let data = response.data as any
+                let status = response.status as number
+                // The generated fetch wrapper only ever resolves (it never checks `res.ok`), so a 5xx
+                // from the gateway would otherwise only surface once parseBazaarSnapshot throws on the
+                // malformed body below - with no status attached. Attach it explicitly so callers
+                // (useBazaarSnapshot's quiet retry) can tell a transient 5xx/network failure apart from
+                // a real 4xx, the same way HttpHelper's sendApiRequest already does for other requests.
+                if (status >= 400) {
+                    throw Object.assign(new Error((data && data.message) || `HTTP ${status}`), { status })
+                }
                 if (!data) {
                     return {
                         item: {
@@ -1655,7 +1676,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 return parseBazaarSnapshot(data)
             })
             .catch(error => {
-                apiErrorHandler(RequestType.GET_BAZAAR_SNAPSHOT, error, { itemTag, timestamp: isoTimestamp })
+                if (shouldReportError(error)) {
+                    apiErrorHandler(RequestType.GET_BAZAAR_SNAPSHOT, error, { itemTag, timestamp: isoTimestamp })
+                }
                 throw error
             })
     }
@@ -1702,10 +1725,13 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let checkRat = (hash: string): Promise<RatCheckingResponse> => {
         return new Promise((resolve, reject) => {
+            // Same-origin proxy through SkyApi (see migration note above) - isthisarat.com can't be
+            // called cross-origin from the browser.
             httpApi.sendApiRequest({
                 type: RequestType.CHECK_FOR_RAT,
                 data: '',
-                customRequestURL: `https://isthisarat.com/api/signature/${hash}`,
+                customRequestURL: `${getApiEndpoint()}/mod/ratcheck/${hash}`,
+                requestMethod: 'GET',
                 resolve: (data: RatCheckingResponse) => {
                     resolve(data)
                 },
