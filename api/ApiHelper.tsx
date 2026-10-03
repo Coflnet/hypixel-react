@@ -66,7 +66,7 @@ import { websocketHelper } from './WebsocketHelper'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
 import properties from '../properties'
 import { getCurrentCoflCoins } from '../utils/CoflCoinsUtils'
-import { unwrapGeneratedApiArrayResponse } from '../utils/GeneratedApiResponseUtils'
+import { getGeneratedApiMessage, unwrapGeneratedApiArrayResponse } from '../utils/GeneratedApiResponseUtils'
 import {
     getApiSearchSearchVal,
     getApiItemItemTagDetails,
@@ -1601,6 +1601,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return getApiFlipStatsPlayerPlayerUuid(playerUUID, params, requestOptions)
             .then(response => {
                 let data = response.data as any
+                if (response.status < 200 || response.status >= 300 || !Array.isArray(data?.flips)) {
+                    throw new Error(getGeneratedApiMessage(data) || 'Could not load tracked flips. Please try again.')
+                }
                 return returnSSRResponse ? data : parseFlipTrackingResponse(data)
             })
             .catch(error => {

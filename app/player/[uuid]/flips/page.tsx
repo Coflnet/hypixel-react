@@ -48,7 +48,7 @@ export default async function Page(props) {
                     }
                 />
                 <Suspense>
-                    <FlipTracking totalProfit={flipTrackingResponse.totalProfit} trackedFlips={flipTrackingResponse.flips} playerUUID={params.uuid} />
+                    <FlipTracking totalProfit={flipTrackingResponse.totalProfit} trackedFlips={flipTrackingResponse.flips} playerUUID={params.uuid} loadError={flipData.loadError} />
                 </Suspense>
                 <div style={{ marginBottom: '20px', marginTop: '10px' }}>
                     <p>
@@ -81,18 +81,19 @@ async function getFlipData(uuid) {
             uuid: uuid,
             name: apiResponses[0]
         },
-        flipTrackingResponse: apiResponses[1] || { flips: [], totalProfit: 0 }
+        flipTrackingResponse: apiResponses[1] || { flips: [], totalProfit: 0 },
+        loadError: apiResponses[1] === null ? 'Could not load tracked flips. Please try again.' : undefined
     }
 }
 
 export async function generateMetadata(props) {
     const params = await props.params
-    let { flipTrackingResponse, player } = await getFlipData(params.uuid)
+    let { flipTrackingResponse, player, loadError } = await getFlipData(params.uuid)
     let parsedPlayer = parsePlayer(player)
 
     const metadata = getHeadMetadata(
         `Tracked flips of ${parsedPlayer.name}`,
-        getEmbedDescription(parseFlipTrackingResponse(flipTrackingResponse), parsedPlayer),
+        loadError || getEmbedDescription(parseFlipTrackingResponse(flipTrackingResponse), parsedPlayer),
         parsedPlayer.iconUrl?.split('?')[0],
         ['tracker'],
         `Tracked flips of ${parsedPlayer.name}`,

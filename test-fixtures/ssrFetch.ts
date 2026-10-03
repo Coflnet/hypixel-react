@@ -13,7 +13,9 @@ export function getSsrFixture(input: RequestInfo | URL, init?: RequestInit): Res
 
     const path = url.pathname.slice('/api/'.length)
     let body: unknown
-    if (path === 'flip/forge') body = forgeFlips
+    if (path === 'flip/stats/player/00000000000040008000000000000001') return Response.json({ message: 'Tracker unavailable' }, { status: 503 })
+    else if (path === 'flip/stats/player/00000000000040008000000000000002') body = { flips: [], totalProfit: 0 }
+    else if (path === 'flip/forge') body = forgeFlips
     else if (path === 'craft/profit') body = data.crafts
     else if (path === 'items/bazaar/tags') body = data.bazaarTags
     else if (path === 'items') body = Object.values(data.items)

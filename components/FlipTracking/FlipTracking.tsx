@@ -28,6 +28,7 @@ interface Props {
     trackedFlips?: FlipTrackingFlip[]
     highlightedFlipUid?: string
     playerUUID: string
+    loadError?: string
 }
 
 interface SortOption {
@@ -97,8 +98,9 @@ const MAX_RANGE_AT_ONCE = 1000 * 60 * 60 * 24 * 30 * 12 // 12 months
 export function FlipTracking(props: Props) {
     let [trackedFlips, setTrackedFlips] = useState<FlipTrackingFlip[]>(props.trackedFlips || [])
     let [ignoreProfitMap, setIgnoreProfitMap] = useState(getSettingsObject(IGNORE_FLIP_TRACKING_PROFIT, {}))
-    let [rangeStartDate, setRangeStartDate] = useState(new Date(new Date().getTime() - DEFAULT_TIME_FILTER_RANGE))
     let [rangeEndDate, setRangeEndDate] = useState(new Date())
+    let [rangeStartDate, setRangeStartDate] = useState(new Date(rangeEndDate.getTime() - DEFAULT_TIME_FILTER_RANGE))
+    let [loadError, setLoadError] = useState(props.loadError)
     let [hasPremium, setHasPremium] = useState(false)
     let [hasPremiumPlus, setHasPremiumPlus] = useState(false)
     let [isLoading, setIsLoading] = useState(false)
@@ -201,9 +203,15 @@ export function FlipTracking(props: Props) {
 
     async function loadFlipsForTimespan(from: Date, to: Date) {
         setIsLoading(true)
-        let newFlips = await api.getTrackedFlipsForPlayer(props.playerUUID, from, to)
-        setTrackedFlips(newFlips.flips)
-        setIsLoading(false)
+        setLoadError(undefined)
+        try {
+            let newFlips = await api.getTrackedFlipsForPlayer(props.playerUUID, from, to)
+            setTrackedFlips(newFlips.flips)
+        } catch (error) {
+            setLoadError(error instanceof Error ? error.message : 'Could not load tracked flips. Please try again.')
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     function onAfterLogin() {
@@ -421,11 +429,18 @@ export function FlipTracking(props: Props) {
                     )}
                 </div>
             </div>
+            {loadError && (
+                <div role="alert" className="alert alert-danger">
+                    <p>{loadError}</p>
+                    {trackedFlips.length > 0 && <p>Showing previously loaded flips.</p>}
+                    <Button onClick={() => loadFlipsForTimespan(rangeStartDate, rangeEndDate)}>Retry flips</Button>
+                </div>
+            )}
             {isLoading ? (
                 getLoadingElement()
             ) : (
                 <div>
-                    {trackedFlips.length === 0 ? (
+                    {trackedFlips.length === 0 && !loadError ? (
                         <div className={styles.noAuctionFound}>
                             <Image src="/Barrier.png" width="24" height="24" alt="not found icon" style={{ float: 'left', marginRight: '5px' }} />{' '}
                             <p>We couldn't find any flips for this player within the selected timeframe.</p>
