@@ -26,8 +26,16 @@ function willRetry(attempt: number, error: any): boolean {
     return attempt < RETRY_DELAYS_MS.length && isTransientError(error)
 }
 
+interface SnapshotRequest {
+    time: Date
+    // False when the time was picked on the chart (a historic snapshot) instead of meaning "now".
+    isLive: boolean
+}
+
 export interface UseBazaarSnapshotResult {
     snapshot?: BazaarSnapshot
+    // Whether `snapshot` was requested for "now" rather than for a time the user picked on the chart.
+    isLive: boolean
     hasError: boolean
     retry: () => void
 }
@@ -45,11 +53,12 @@ export interface UseBazaarSnapshotResult {
  * "Retry snapshot".
  */
 export function useBazaarSnapshot(itemTag: string): UseBazaarSnapshotResult {
-    const [timestamp, setTimestamp] = useState<Date>(new Date())
+    const [request, setRequest] = useState<SnapshotRequest>({ time: new Date(), isLive: true })
     const [snapshot, setSnapshot] = useState<BazaarSnapshot>()
+    const [isLive, setIsLive] = useState(false)
     const [hasError, setHasError] = useState(false)
 
-    const debouncedTimestamp = useDebounce(timestamp, 100)
+    const debouncedRequest = useDebounce(request, 100)
 
     // Guards a stale request (an older timestamp/item) from applying its result or scheduling a
     // retry/poll after a newer request has already started.
@@ -79,8 +88,11 @@ export function useBazaarSnapshot(itemTag: string): UseBazaarSnapshotResult {
 
     useEffect(() => {
         const onTimestampChangeEvent = (e: Event) => {
-            const nextTimestamp = (e as CustomEvent).detail?.timestamp
-            if (nextTimestamp instanceof Date && Number.isFinite(nextTimestamp.getTime())) setTimestamp(nextTimestamp)
+            const detail = (e as CustomEvent).detail
+            const nextTimestamp = detail?.timestamp
+            if (nextTimestamp instanceof Date && Number.isFinite(nextTimestamp.getTime())) {
+                setRequest({ time: nextTimestamp, isLive: detail.isLive === true })
+            }
         }
         document.addEventListener(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, onTimestampChangeEvent)
         return () => document.removeEventListener(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, onTimestampChangeEvent)
@@ -108,13 +120,13 @@ export function useBazaarSnapshot(itemTag: string): UseBazaarSnapshotResult {
             if (Date.now() - requestedTime > AUTO_REFRESH_MAX_AGE_MS) return
             const nextUpdate = dataTimeMs + AUTO_REFRESH_INTERVAL_MS
             const delay = Math.max(MIN_REFRESH_DELAY_MS, nextUpdate - Date.now())
-            runWhenVisible(delay, () => setTimestamp(new Date()))
+            runWhenVisible(delay, () => setRequest({ time: new Date(), isLive: true }))
         },
         [runWhenVisible]
     )
 
     const attemptLoad = useCallback(
-        (tag: string, time: Date, attempt: number) => {
+        (tag: string, { time, isLive }: SnapshotRequest, attempt: number) => {
             const requestedTime = time.getTime()
             requestedTimeRef.current = requestedTime
             // An attempt that's about to be retried reports nothing (no toast, no error log) - only
@@ -130,6 +142,7 @@ export function useBazaarSnapshot(itemTag: string): UseBazaarSnapshotResult {
                     if (requestedTimeRef.current !== requestedTime) return
                     hasReportedErrorRef.current = false
                     setSnapshot(result)
+                    setIsLive(isLive)
                     setHasError(false)
                     schedulePoll(requestedTime, new Date(result.timeStamp).getTime())
                 })
@@ -140,7 +153,7 @@ export function useBazaarSnapshot(itemTag: string): UseBazaarSnapshotResult {
                             // A newer load may have started (and cleared this timer) between scheduling
                             // and firing - guard again so a stale retry can never clobber it.
                             if (requestedTimeRef.current !== requestedTime) return
-                            attemptLoad(tag, time, attempt + 1)
+                            attemptLoad(tag, { time, isLive }, attempt + 1)
                         })
                         return
                     }
@@ -154,31 +167,31 @@ export function useBazaarSnapshot(itemTag: string): UseBazaarSnapshotResult {
     // Starts a fresh (attempt 0) load, first cancelling whatever retry/poll was pending so an old
     // request's retry can never fire after a newer one has already taken over.
     const startLoad = useCallback(
-        (tag: string, time: Date) => {
+        (tag: string, request: SnapshotRequest) => {
             clearTimeout(timerRef.current)
             pendingWhileHiddenRef.current = null
-            attemptLoad(tag, time, 0)
+            attemptLoad(tag, request, 0)
         },
         [attemptLoad]
     )
 
     useEffect(() => {
-        startLoad(itemTag, debouncedTimestamp)
-        // startLoad is stable (only depends on other stable callbacks/refs); itemTag/debouncedTimestamp
+        startLoad(itemTag, debouncedRequest)
+        // startLoad is stable (only depends on other stable callbacks/refs); itemTag/debouncedRequest
         // are the only real triggers for a fresh load. hasError is intentionally left alone here - only
         // a success or failure (or a manual retry) should change it, not an automatic poll/item/timestamp
         // change, or the error notice would flicker off and back on every retry cycle.
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [itemTag, debouncedTimestamp])
+    }, [itemTag, debouncedRequest])
 
     useEffect(() => () => clearTimeout(timerRef.current), [])
 
     const retry = useCallback(() => {
         hasReportedErrorRef.current = false
         setHasError(false)
-        startLoad(itemTag, debouncedTimestamp)
+        startLoad(itemTag, debouncedRequest)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [itemTag, debouncedTimestamp])
+    }, [itemTag, debouncedRequest])
 
-    return { snapshot, hasError, retry }
+    return { snapshot, isLive, hasError, retry }
 }

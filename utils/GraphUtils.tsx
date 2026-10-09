@@ -94,3 +94,45 @@ function calculateDatePercentage(start: Date, end: Date, dateInBetween: Date) {
         return passedMilliseconds / totalMilliseconds
     }
 }
+
+function getBestPrice(orders: BazaarOrder[], pick: (...prices: number[]) => number): number | undefined {
+    const prices = orders.map(order => order.pricePerUnit).filter(price => Number.isFinite(price) && price > 0)
+    return prices.length > 0 ? pick(...prices) : undefined
+}
+
+function getLivePricePoint(data: BazaarSnapshotData, price: number): BazaarPriceData {
+    // A single observation has no range of its own, so the min/max bands collapse onto the price
+    // instead of being widened by a value that was never aggregated.
+    return { price, min: price, max: price, volume: data.volume || 0, moving: data.moving || 0 }
+}
+
+/**
+ * Appends the live order book as the newest point of a bazaar price history, so the right edge of the
+ * graph agrees with the order book shown below it (the history itself lags by up to half an hour).
+ *
+ * Side mapping: the history's `buy` is the instant-buy price, i.e. the cheapest sell offer. Those
+ * offers are the snapshot's `buyOrders` (the panel lists them as "Sell orders"), so the buy line gets
+ * their lowest price; the sell line gets the highest price of `sellOrders` (the "Buy orders" table).
+ *
+ * The history is returned untouched when the view is not live, the snapshot is not newer than the
+ * last history point, or either side of the book is empty (there is no top-of-book price to plot).
+ */
+export function appendLiveSnapshotPoint(prices: BazaarPrice[], snapshot: BazaarSnapshot | undefined, isLiveView: boolean): BazaarPrice[] {
+    if (!isLiveView || !snapshot || prices.length === 0) return prices
+
+    const snapshotTime = new Date(snapshot.timeStamp).getTime()
+    if (!Number.isFinite(snapshotTime) || snapshotTime <= prices[prices.length - 1].timestamp.getTime()) return prices
+
+    const instantBuyPrice = getBestPrice(snapshot.buyOrders, Math.min)
+    const instantSellPrice = getBestPrice(snapshot.sellOrders, Math.max)
+    if (instantBuyPrice === undefined || instantSellPrice === undefined) return prices
+
+    return [
+        ...prices,
+        {
+            buyData: getLivePricePoint(snapshot.buyData, instantBuyPrice),
+            sellData: getLivePricePoint(snapshot.sellData, instantSellPrice),
+            timestamp: new Date(snapshotTime)
+        }
+    ]
+}
