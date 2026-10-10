@@ -1,5 +1,5 @@
 import { useRouter } from 'next/navigation'
-import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { getCurrentCoflCoins, subscribeToCoflcoinChange } from './CoflCoinsUtils'
 import { getURLSearchParam } from './Parser/URLParser'
 import { isClientSideRendering } from './SSRUtils'
@@ -12,6 +12,17 @@ export function useForceUpdate() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [update, setUpdate] = useState(0)
     return () => setUpdate(update => update + 1)
+}
+
+const subscribeNoop = () => () => {}
+
+// false during SSR and the hydration render, true afterwards (hydration-safe, no effect needed)
+export function useIsMounted(): boolean {
+    return useSyncExternalStore(
+        subscribeNoop,
+        () => true,
+        () => false
+    )
 }
 
 export function useSwipe(onSwipeUp?: Function, onSwipeRight?: Function, onSwipeDown?: Function, onSwipeLeft?: Function) {

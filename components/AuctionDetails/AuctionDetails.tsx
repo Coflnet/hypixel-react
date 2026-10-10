@@ -13,7 +13,8 @@ import {
     getMinecraftColorCodedElement,
     getStyleForTier
 } from '../../utils/Formatter'
-import { useForceUpdate } from '../../utils/Hooks'
+import { formatDateAndTime } from '../../utils/DateFormatUtils'
+import { useForceUpdate, useIsMounted } from '../../utils/Hooks'
 import { useLiveAuctionSubscription } from '../../hooks/useLiveAuctionSubscription'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { isClientSideRendering } from '../../utils/SSRUtils'
@@ -46,6 +47,7 @@ function AuctionDetails(props: Props) {
     let [showFilterChecker, setShowFilterChecker] = useState(false)
     let [showItemHistoryDialog, setShowItemHistoryDialog] = useState(false)
     let forceUpdate = useForceUpdate()
+    const isMounted = useIsMounted()
 
     useEffect(() => {
         // Dont load auction details if
@@ -271,7 +273,7 @@ function AuctionDetails(props: Props) {
 
         if (key === 'date') {
             let date = new Date(parseInt(value))
-            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+            return formatDateAndTime(date, isMounted)
         }
 
         // Don't use the number formating if it includes a 'e' as it is then treated as an exponential number resulting in displaying "∞"
@@ -378,14 +380,16 @@ function AuctionDetails(props: Props) {
                             <div>
                                 {isRunning(auctionDetails) ? (
                                     <span>
-                                        End: {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={forceUpdate} /> : '-'}
+                                        End: {auctionDetails?.auction.end && isMounted ? <Countdown date={auctionDetails.auction.end} onComplete={forceUpdate} /> : '-'}
                                     </span>
                                 ) : (
                                     <span>
                                         Auction ended{' '}
-                                        {auctionDetails.auction.bin && auctionDetails.bids.length > 0
-                                            ? moment(auctionDetails.bids[0].timestamp).fromNow()
-                                            : moment(auctionDetails.auction.end).fromNow()}
+                                        <span suppressHydrationWarning>
+                                            {auctionDetails.auction.bin && auctionDetails.bids.length > 0
+                                                ? moment(auctionDetails.bids[0].timestamp).fromNow()
+                                                : moment(auctionDetails.auction.end).fromNow()}
+                                        </span>
                                     </span>
                                 )}
                             </div>
@@ -492,7 +496,7 @@ function AuctionDetails(props: Props) {
                                 }
                             />
                         ) : (
-                            <span className="ellipse">{auctionDetails.start.toLocaleDateString() + ' ' + auctionDetails.start.toLocaleTimeString()}</span>
+                            <span className="ellipse">{formatDateAndTime(auctionDetails.start, isMounted)}</span>
                         )}
                     </div>
                     {auctionDetails?.itemCreatedAt?.getTime() > 0 ? (
@@ -501,7 +505,7 @@ function AuctionDetails(props: Props) {
                                 <Badge bg={labelBadgeVariant}>Item Created:</Badge>
                             </span>
                             <span className="ellipse">
-                                {auctionDetails?.itemCreatedAt.toLocaleDateString() + ' ' + auctionDetails.itemCreatedAt.toLocaleTimeString()}
+                                {formatDateAndTime(auctionDetails.itemCreatedAt, isMounted)}
                             </span>
                         </div>
                     ) : null}
@@ -558,7 +562,7 @@ function AuctionDetails(props: Props) {
                             </h6>
                             <span>{bid.bidder.name}</span>
                             <br />
-                            <span>{moment(bid.timestamp).fromNow()}</span>
+                            <span suppressHydrationWarning>{moment(bid.timestamp).fromNow()}</span>
                         </ListGroup.Item>
                     </Link>
                 )
