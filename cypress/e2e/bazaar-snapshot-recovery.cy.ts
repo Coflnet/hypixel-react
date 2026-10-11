@@ -9,6 +9,11 @@ const snapshot = {
     sellOrders: []
 }
 
+// The first request after a visit is only sent once the page has hydrated, which on a starved CI runner
+// takes longer than cy.wait's 5s default. These waits are readiness gates (the behaviour under test is
+// asserted after them), so they get the page-load budget instead.
+const PAGE_READY_TIMEOUT = 30000
+
 function visitItem(onBeforeLoad?: (window: Cypress.AUTWindow) => void) {
     cy.intercept('GET', '**/api/bazaar/BOOSTER_COOKIE/history/*', [
         { timestamp: '2026-09-01T12:00:00Z', buy: 12000000, sell: 11900000 },
@@ -35,7 +40,7 @@ describe('Bazaar snapshot recovery', () => {
     it('ignores invalid chart timestamps and keeps the item page usable', () => {
         cy.intercept('GET', '**/api/bazaar/BOOSTER_COOKIE/snapshot*', snapshot).as('snapshot')
         visitItem()
-        cy.wait('@snapshot')
+        cy.wait('@snapshot', { timeout: PAGE_READY_TIMEOUT })
         cy.contains('(Insta) Buy information').should('be.visible')
         cy.window().then(window => {
             window.document.dispatchEvent(new window.CustomEvent('bazaarSnapshotUpdate', { detail: { timestamp: new window.Date(NaN) } }))
@@ -54,15 +59,15 @@ describe('Bazaar snapshot recovery', () => {
         // the "a transient failure recovers quietly" end.
         cy.intercept('GET', '**/api/bazaar/BOOSTER_COOKIE/snapshot*', { statusCode: 503, body: 'Unavailable' }).as('failedSnapshot')
         visitItem()
-        cy.wait('@failedSnapshot')
-        cy.wait('@history')
+        cy.wait('@failedSnapshot', { timeout: PAGE_READY_TIMEOUT })
+        cy.wait('@history', { timeout: PAGE_READY_TIMEOUT })
         cy.get('.echarts-for-react canvas').should('be.visible')
         cy.contains('Could not update Bazaar order data.').should('not.exist')
         cy.contains('Could not update Bazaar order data.', { timeout: 15000 }).should('be.visible')
         cy.contains('h1', 'Booster Cookie').should('be.visible')
         cy.intercept('GET', '**/api/bazaar/BOOSTER_COOKIE/snapshot*', snapshot).as('snapshot')
         cy.contains('button', 'Retry snapshot').click()
-        cy.wait('@snapshot')
+        cy.wait('@snapshot', { timeout: PAGE_READY_TIMEOUT })
         cy.contains('(Insta) Buy information').should('be.visible')
         cy.contains('Could not update Bazaar order data.').should('not.exist')
     })
@@ -79,7 +84,7 @@ describe('Bazaar snapshot recovery', () => {
             request.reply(snapshot)
         })
         visitItem()
-        cy.wait('@history')
+        cy.wait('@history', { timeout: PAGE_READY_TIMEOUT })
         // Quiet means quiet: no error notice and no toast while the retry is still pending.
         cy.contains('Could not update Bazaar order data.').should('not.exist')
         cy.get('.Toastify__toast').should('not.exist')
@@ -97,7 +102,7 @@ describe('Bazaar snapshot recovery', () => {
             request.reply(snapshot)
         })
         visitItem()
-        cy.wait('@history')
+        cy.wait('@history', { timeout: PAGE_READY_TIMEOUT })
         cy.contains('Could not update Bazaar order data.', { timeout: 15000 }).should('be.visible')
         // Flip the backend healthy without the user doing anything. Auto-refresh used to depend on a
         // successful snapshot to re-arm its own timer, so a failed attempt stopped it dead until
@@ -127,7 +132,7 @@ describe('Bazaar snapshot recovery', () => {
                 originalError(...args)
             }
         })
-        cy.wait('@history')
+        cy.wait('@history', { timeout: PAGE_READY_TIMEOUT })
         cy.contains('Could not update Bazaar order data.', { timeout: 15000 }).should('be.visible')
         // The toast is visible right after the first outage is detected...
         cy.get('.Toastify__toast').should('have.length', 1)
@@ -152,9 +157,17 @@ describe('Bazaar snapshot recovery', () => {
             buyOrders: [],
             sellOrders: []
         }
+        // The page legitimately loads the "now" snapshot more than once while it starts: the hook loads
+        // once on mount, and the price range control reports its default range on mount, which
+        // dispatches a second "now" update (debounced by 100 ms). So the number of "now" requests at any
+        // moment is timing-dependent (1 or 2 depending on how loaded the machine is) and must not be
+        // asserted as an absolute. What the stale-retry guard needs is a count taken at the moment the
+        // historic view takes over: no "now" request may be issued after that point.
         let requestsForInitialTimestamp = 0
+        let requestsBeforeHistoricRequest = -1
         cy.intercept('GET', '**/api/bazaar/BOOSTER_COOKIE/snapshot*', request => {
             if (String(request.query.timestamp).startsWith('2020-06-15')) {
+                requestsBeforeHistoricRequest = requestsForInitialTimestamp
                 request.alias = 'historicSnapshot'
                 return request.reply(historicSnapshot)
             }
@@ -162,14 +175,16 @@ describe('Bazaar snapshot recovery', () => {
             return request.reply({ statusCode: 503, body: 'Unavailable' })
         })
         visitItem()
-        cy.wait('@history')
-        cy.wrap(null).should(() => expect(requestsForInitialTimestamp).to.equal(1))
+        cy.wait('@history', { timeout: PAGE_READY_TIMEOUT })
+        // The history request is sent by a timer that starts after the page's mount effects, so by now
+        // the first "now" load has been issued (and failed with a 503, which arms the 3s quiet retry).
+        cy.wrap(null).should(() => expect(requestsForInitialTimestamp).to.be.at.least(1))
         // Jump to a historic timestamp (over an hour old, so it never polls) before the original
         // request's 3s quiet retry fires - this is what used to let the stale retry win the race.
         cy.window().then(window => {
             window.document.dispatchEvent(new window.CustomEvent('bazaarSnapshotUpdate', { detail: { timestamp: new window.Date(historicTimestampIso) } }))
         })
-        cy.wait('@historicSnapshot')
+        cy.wait('@historicSnapshot', { timeout: PAGE_READY_TIMEOUT })
         cy.contains('2020').should('be.visible')
         // Wait past the whole 3s+6s retry schedule for the original (now-stale) request - if it
         // weren't cancelled, it would fire in this window and either clobber the historic view or
@@ -177,7 +192,7 @@ describe('Bazaar snapshot recovery', () => {
         cy.wait(10000)
         cy.contains('2020').should('be.visible')
         cy.contains('Could not update Bazaar order data.').should('not.exist')
-        cy.wrap(null).should(() => expect(requestsForInitialTimestamp).to.equal(1))
+        cy.wrap(null).should(() => expect(requestsForInitialTimestamp).to.equal(requestsBeforeHistoricRequest))
     })
 
     it('offers a page retry after an unexpected client error', () => {
@@ -196,7 +211,7 @@ describe('Bazaar snapshot recovery', () => {
         cy.contains('summary', 'Technical details').click()
         cy.get('pre').should('contain.text', 'Temporary chart error')
         cy.contains('button', 'Retry page').click()
-        cy.wait('@snapshot')
+        cy.wait('@snapshot', { timeout: PAGE_READY_TIMEOUT })
         cy.contains('(Insta) Buy information').should('be.visible')
         cy.contains('Unable to load this page').should('not.exist')
     })
