@@ -6,6 +6,7 @@ import { parseAuction, parsePlayer } from '../../../utils/Parser/APIResponsePars
 import { Container } from 'react-bootstrap'
 import { BottomBanner } from '../../../components/BottomBanner/BottomBanner'
 import { Metadata } from 'next'
+import { isDefinitePlayerMiss } from '../../../utils/GeneratedApiResponseUtils'
 
 export default async function Page(props) {
     const params = await props.params
@@ -25,8 +26,12 @@ async function getPlayerInfo(uuid) {
     let playerName = ''
     try {
         playerName = await api.getPlayerName(uuid)
-    } catch {
-        notFound()
+    } catch (e) {
+        // only a definite miss is a 404, backend failures must error so crawlers retry
+        if (isDefinitePlayerMiss(e)) {
+            notFound()
+        }
+        throw e
     }
     let auctions: any[] = []
     try {
@@ -39,7 +44,8 @@ async function getPlayerInfo(uuid) {
         auctions: (auctions as any[]) || [],
         player: {
             uuid: uuid,
-            name: playerName
+            // players without a known name are shown by their uuid
+            name: playerName || uuid
         }
     }
 }
@@ -55,7 +61,7 @@ export async function generateMetadata(props): Promise<Metadata> {
         let name = await api.getPlayerName(params.uuid)
         player = parsePlayer({
             uuid: params.uuid,
-            name
+            name: name || params.uuid
         })
     } catch (e) {
         console.error(`Error fetching player name ${params.uuid}. ${JSON.stringify(e)}`)

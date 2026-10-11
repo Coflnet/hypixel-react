@@ -66,7 +66,7 @@ import { websocketHelper } from './WebsocketHelper'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
 import properties from '../properties'
 import { getCurrentCoflCoins } from '../utils/CoflCoinsUtils'
-import { getGeneratedApiMessage, unwrapGeneratedApiArrayResponse } from '../utils/GeneratedApiResponseUtils'
+import { getGeneratedApiMessage, unwrapGeneratedApiArrayResponse, unwrapGeneratedApiPlayerNameResponse } from '../utils/GeneratedApiResponseUtils'
 import {
     getApiSearchSearchVal,
     getApiItemItemTagDetails,
@@ -570,7 +570,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             return Promise.resolve('')
         }
         return getApiPlayerPlayerUuidName(uuid)
-            .then(response => response.data as any)
+            .then(response => unwrapGeneratedApiPlayerNameResponse(response, 'Player name lookup failed'))
             .catch(error => {
                 apiErrorHandler(RequestType.PLAYER_NAME, error, uuid)
                 throw error

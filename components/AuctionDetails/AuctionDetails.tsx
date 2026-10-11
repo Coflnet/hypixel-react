@@ -70,13 +70,13 @@ function AuctionDetails(props: Props) {
         let namePromises: Promise<void>[] = []
         newAuctionDetails.bids.forEach(bid => {
             namePromises.push(
-                api.getPlayerName(bid.bidder.uuid).then(name => {
+                api.getPlayerName(bid.bidder.uuid).catch(() => '').then(name => {
                     bid.bidder.name = name
                 })
             )
         })
         namePromises.push(
-            api.getPlayerName(newAuctionDetails.auctioneer.uuid).then(name => {
+            api.getPlayerName(newAuctionDetails.auctioneer.uuid).catch(() => '').then(name => {
                 newAuctionDetails.auctioneer.name = name
             })
         )
@@ -108,13 +108,13 @@ function AuctionDetails(props: Props) {
 
                 let namePromises: Promise<void>[] = []
                 auctionDetails.bids.forEach(bid => {
-                    let promise = api.getPlayerName(bid.bidder.uuid).then(name => {
+                    let promise = api.getPlayerName(bid.bidder.uuid).catch(() => '').then(name => {
                         bid.bidder.name = name
                     })
                     namePromises.push(promise)
                 })
                 namePromises.push(
-                    api.getPlayerName(auctionDetails.auctioneer.uuid).then(name => {
+                    api.getPlayerName(auctionDetails.auctioneer.uuid).catch(() => '').then(name => {
                         auctionDetails.auctioneer.name = name
                     })
                 )

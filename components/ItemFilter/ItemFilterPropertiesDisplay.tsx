@@ -43,7 +43,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
             Object.keys(filter).forEach(key => {
                 if (key === SELLER_FORMAT_FILTER) {
                     filter!._hide = true
-                    api.getPlayerName(filter![key]).then(name => {
+                    api.getPlayerName(filter![key]).catch(() => '').then(name => {
                         filter!._hide = false
                         filter!._label = name || '-'
                         setLocalFilter(filter)

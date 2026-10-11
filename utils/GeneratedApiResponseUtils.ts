@@ -123,3 +123,32 @@ export function unwrapGeneratedApiArrayResponse<T>(response: GeneratedApiRespons
 export function hasSuccessfulArrayResponse<T>(response: GeneratedApiResponse<unknown> | null | undefined): response is GeneratedApiResponse<T[]> & { status: 200; data: T[] } {
     return response?.status === 200 && Array.isArray(response.data)
 }
+
+/**
+ * The name endpoint answers 200 with an empty body for uuids without a known name, which the generated client
+ * turns into `{}`. Resolve every successful response to a string ('' = no known name) and throw for failures.
+ * The client JSON-parses text first, so names like 12345 or true arrive as number/boolean and are stringified back;
+ * the literal name "null" arrives as null and cannot be told apart from an empty result.
+ */
+export function unwrapGeneratedApiPlayerNameResponse(response: GeneratedApiResponse, fallbackMessage: string): string {
+    if (response?.status && response.status >= 200 && response.status < 300) {
+        const data = response.data
+        if (typeof data === 'string') {
+            return data.trim()
+        }
+        return typeof data === 'number' || typeof data === 'boolean' ? String(data) : ''
+    }
+
+    const error = new Error(getGeneratedApiMessage(response?.data) || fallbackMessage) as Error & { slug?: string; status?: number; traceId?: string }
+    const data = response?.data as { traceId?: string; trace?: string } | null | undefined
+    error.slug = getGeneratedApiSlug(response?.data) ?? undefined
+    error.status = response?.status ?? undefined
+    error.traceId = data?.traceId || data?.trace || undefined
+    throw error
+}
+
+/** True when a failed player name lookup definitely means the uuid does not exist (as opposed to a backend failure). */
+export function isDefinitePlayerMiss(error: unknown): boolean {
+    const { status, slug } = (error || {}) as { status?: number; slug?: string }
+    return status === 400 || status === 404 || slug === 'invalid_uuid'
+}

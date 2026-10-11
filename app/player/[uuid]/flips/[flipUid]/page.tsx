@@ -64,7 +64,7 @@ async function getFlipData(uuid: string, flipUid: string) {
     return {
         player: {
             uuid: uuid,
-            name: apiResponses[0]
+            name: apiResponses[0] || uuid
         },
         flipTrackingResponse: apiResponses[1],
         targetFlip: (apiResponses[1] as FlipTrackingResponse)?.flips?.find(f => f.uId.toString(16) === flipUid) || null

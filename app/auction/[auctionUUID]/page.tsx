@@ -43,7 +43,7 @@ async function getAuctionDetails(auctionUUID: string) {
         auctionDetails = result.original
         unparsedAuctionDetails = JSON.stringify(result.original)
     } catch (e) {
-        console.log('ERROR fetching Auction Details: ' + JSON.stringify(e))
+        console.log(`ERROR fetching Auction Details (auctionUUID=${auctionUUID}): ${e instanceof Error ? e.message : JSON.stringify(e)}`)
         console.log('------------------------\n')
         return null
     }
@@ -95,7 +95,7 @@ async function getAuctionDetails(auctionUUID: string) {
                 })
                 .catch(e => {
                     auctionDetails.auctioneer = {
-                        name: name,
+                        name: '',
                         uuid: auctionDetails.auctioneerId
                     }
                     console.error(`Error fetching playername for auctioneer ${auctionDetails.auctioneerId}. ${JSON.stringify(e)}`)

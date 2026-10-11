@@ -79,7 +79,7 @@ async function getFlipData(uuid) {
     return {
         player: {
             uuid: uuid,
-            name: apiResponses[0]
+            name: apiResponses[0] || uuid
         },
         flipTrackingResponse: apiResponses[1] || { flips: [], totalProfit: 0 },
         loadError: apiResponses[1] === null ? 'Could not load tracked flips. Please try again.' : undefined
