@@ -58,7 +58,7 @@
     "rehype-autolink-headings": "^7.1.0",
     "rehype-slug": "^6.0.0",
     "remark-gfm": "^4.0.0",
-    "sharp": "^0.35.4",
+    "sharp": "^0.35.5",
     "toml": "^4.3.0",
     "use-query-params": "^2.2.1",
     "uuid": "^14.0.1"
@@ -92,7 +92,7 @@
     "tmp": "0.2.7",
     "esbuild": "0.28.1",
     "form-data": "4.0.6",
-    "postcss": "8.5.23",
+    "postcss": "8.5.29",
     "sharp": "$sharp"
   }
 }
