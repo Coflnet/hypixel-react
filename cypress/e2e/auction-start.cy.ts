@@ -26,6 +26,7 @@ function openAuction(start: string) {
     cy.intercept('GET', '**/api/item/STONE/details', { tag: 'STONE', name: 'Start date test', tier: 'COMMON' })
     cy.intercept('GET', '**/api/flip/update/when', { body: '2026-01-02T00:00:00Z' })
     cy.intercept('GET', '**/preScript.js', { body: '' })
+    cy.intercept('GET', 'https://api.country.is/**', { country: 'US' })
     visitFlipper()
     selectAuction()
     cy.wait('@auction')
@@ -65,7 +66,7 @@ function selectAuction() {
     cy.window().its('websocket.subscriptionId').should('be.a', 'number')
     cy.window().then(window => {
         const socket = (window as any).websocket
-        socket.onmessage(new MessageEvent('message', {
+        socket.onmessage(new window.MessageEvent('message', {
             data: JSON.stringify({
                 mId: socket.subscriptionId,
                 type: 'flip',
@@ -77,7 +78,17 @@ function selectAuction() {
             })
         }))
     })
-    cy.contains('Start date test').trigger('mousedown')
+    // The flipper is a virtualized horizontal list that already holds the preloaded flips, so the new flip is
+    // appended far off screen and is only mounted once the list is scrolled there. The page does that itself
+    // with a smooth scroll that can take longer than the default timeout on a slow runner, so scroll
+    // to the end directly (retried until the card is mounted) instead of waiting for the animation.
+    cy.window().should(window => {
+        const list = window.document.querySelector('#flipper-scroll-list-wrapper [class*="flipperScrollList"]')
+        expect(list, 'flip list').to.not.equal(null)
+        list!.scrollTo({ left: list!.scrollWidth, behavior: 'instant' })
+        expect(list!.textContent).to.contain('Start date test')
+    })
+    cy.contains('#flipper-scroll-list-wrapper span', 'Start date test').trigger('mousedown')
 }
 
 describe('Auction creation date availability', () => {
