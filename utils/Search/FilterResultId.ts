@@ -119,3 +119,35 @@ export function getFilterResultTitle(result: SearchResultItem): string {
     let separator = result.dataItem.name.indexOf(' · ')
     return separator === -1 ? result.dataItem.name : result.dataItem.name.substring(0, separator)
 }
+
+/**
+ * The URL a search result opens. Filter results are rebuilt from their id: a result read back from
+ * localStorage has lost its `URLSearchParams` (JSON turns it into `{}`), so `urlSearchParams` is never trusted.
+ */
+export function getResultNavigationUrl(item: Pick<SearchResultItem, 'id' | 'type' | 'route'>): string {
+    if (item.type !== 'filter') {
+        return item.route
+    }
+    let target = getFilterResultTarget(item.id)
+    let query = target.urlSearchParams.toString()
+    return query ? `${target.route}?${query}` : target.route
+}
+
+/** restores route, urlSearchParams and description of a filter result that went through JSON (e.g. localStorage) */
+export function rehydrateFilterResult<T extends SearchResultItem>(item: T): T {
+    if (item.type !== 'filter' || typeof item.id !== 'string') {
+        return item
+    }
+    return { ...item, ...getFilterResultTarget(item.id) }
+}
+
+/** the item and the filter a picked search result stands for; the filter is null for a plain item result */
+export function pickSearchResult(result: SearchResultItem): { item: { tag: string; name: string; iconUrl: string }; filter: ItemFilter | null } {
+    let { tag, filter } = splitSearchResultId(result.id)
+    return { item: { tag, name: getPickedItemName(result, filter), iconUrl: result.dataItem.iconUrl }, filter }
+}
+
+/** picked filter values override the same keys of the existing filter, other keys are kept */
+export function mergePickedFilter(existing: ItemFilter | undefined, picked: ItemFilter | null): ItemFilter | undefined {
+    return picked ? { ...existing, ...picked } : existing
+}

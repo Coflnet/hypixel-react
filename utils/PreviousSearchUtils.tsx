@@ -1,3 +1,5 @@
+import { rehydrateFilterResult } from './Search/FilterResultId'
+
 const PREVIOUS_SEARCHES_KEY = 'lastSearches'
 const MAX_PREVIOUS_SEARCHES_TO_DISPLAY = 3
 const MAX_PREVIOUS_SEARCHES_TO_STORE = 100
@@ -89,6 +91,6 @@ function getPreviousSearchesFromLocalStorage(keyForPinnedItems?: string) {
         .filter(prevSearch => prevSearch.previousSearchKey === keyForPinnedItems)
         .map(prevSearch => {
             prevSearch.isPreviousSearch = true
-            return prevSearch
+            return rehydrateFilterResult(prevSearch)
         })
 }

@@ -248,4 +248,33 @@ describe('Search', () => {
         cy.location('pathname').should('equal', '/item/HYPERION')
         cy.location('search').should('equal', '?sharpness=7')
     })
+
+    it('opens a remembered filter result from Recent with the flat filter url', () => {
+        const filterResult = {
+            name: 'Hyperion · Sharpness 7',
+            id: 'HYPERION?sharpness=7',
+            type: 'filter',
+            iconUrl: 'https://sky.coflnet.com/static/icon/HYPERION',
+            img: null,
+            tier: 'MYTHIC',
+            tag: 'HYPERION'
+        }
+        // the later (more specific) intercepts win over the generic hyperion* ones
+        cy.intercept('GET', '**/api/item/search/hyperion*', [HYPERION]).as('itemSearch')
+        cy.intercept('GET', '**/api/search/hyperion*', []).as('fullSearch')
+        cy.intercept('GET', '**/api/item/search/hyperion%20sharp%207*', [filterResult, HYPERION]).as('filterSearch')
+        cy.intercept('GET', '**/api/search/hyperion%20sharp%207*', []).as('filterFull')
+        cy.visit('/')
+        cy.get(SEARCH_INPUT).click().type('hyperion sharp 7')
+        cy.wait('@filterSearch')
+        cy.get(SEARCH_INPUT).type('{enter}')
+        cy.location('search').should('equal', '?sharpness=7')
+        cy.visit('/')
+        cy.get(SEARCH_INPUT).click().type('hyperion')
+        cy.wait('@itemSearch')
+        cy.contains('.list-group-item', 'Sharpness 7').click()
+        cy.location('pathname').should('equal', '/item/HYPERION')
+        cy.location('search').should('equal', '?sharpness=7')
+        cy.url().should('not.contain', 'object')
+    })
 })

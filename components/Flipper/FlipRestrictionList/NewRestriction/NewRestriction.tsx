@@ -6,7 +6,7 @@ import ItemFilter from '../../../ItemFilter/ItemFilter'
 import TagSelect from '../TagSelect/TagSelect'
 import styles from './NewRestriction.module.css'
 import ApiSearchField from '../../../Search/ApiSearchField'
-import { getPickedItemName, splitSearchResultId } from '../../../../utils/Search/FilterResultId'
+import { mergePickedFilter, pickSearchResult } from '../../../../utils/Search/FilterResultId'
 import { CopyButton } from '../../../CopyButton/CopyButton'
 
 interface Props {
@@ -127,16 +127,12 @@ function NewRestriction(props: Props) {
                         let mergedFilter = { ...createState.itemFilter }
                         let hasPickedFilter = false
                         let selectedItems = items.map(item => {
-                            let picked = splitSearchResultId(item.id)
+                            let picked = pickSearchResult(item)
                             if (picked.filter) {
                                 hasPickedFilter = true
-                                mergedFilter = { ...mergedFilter, ...picked.filter }
+                                mergedFilter = mergePickedFilter(mergedFilter, picked.filter)!
                             }
-                            return {
-                                tag: picked.tag,
-                                name: getPickedItemName(item, picked.filter),
-                                iconUrl: item.dataItem.iconUrl
-                            }
+                            return picked.item
                         })
                         applyPickedFilter.current = hasPickedFilter
                         setCreateState({

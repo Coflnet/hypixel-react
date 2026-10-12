@@ -21,6 +21,7 @@ import { NumericFormat } from 'react-number-format'
 import { getDecimalSeparator, getThousandSeparator } from '../../utils/Formatter'
 import ApiSearchField from '../Search/ApiSearchField'
 import Tooltip from '../Tooltip/Tooltip'
+import { splitSearchResultId } from '../../utils/Search/FilterResultId'
 import InfoIcon from '@mui/icons-material/Info'
 
 interface Props {
@@ -259,7 +260,7 @@ export function FlipTracking(props: Props) {
         flipsToDisplay = flipsToDisplay.filter(flip => flip.profit <= parseInt(maxProfit!))
     }
     if (item) {
-        flipsToDisplay = flipsToDisplay.filter(flip => flip.item.tag === item!.id)
+        flipsToDisplay = flipsToDisplay.filter(flip => flip.item.tag === splitSearchResultId(item!.id).tag)
     }
 
     let list = flipsToDisplay.map((trackedFlip, i) => {

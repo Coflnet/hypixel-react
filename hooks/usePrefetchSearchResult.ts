@@ -1,6 +1,7 @@
 'use client'
 import { useCallback, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { getResultNavigationUrl } from '../utils/Search/FilterResultId'
 
 /** prefetches the route of the selected search result (once per route) and exposes the same for hovered rows */
 export function usePrefetchSearchResult(selected: SearchResultItem | undefined) {
@@ -9,7 +10,7 @@ export function usePrefetchSearchResult(selected: SearchResultItem | undefined) 
 
     const prefetch = useCallback(
         (item: SearchResultItem | undefined) => {
-            const route = item?.route
+            const route = item ? getResultNavigationUrl(item) : undefined
             if (!route || prefetched.current.has(route)) {
                 return
             }
@@ -21,7 +22,7 @@ export function usePrefetchSearchResult(selected: SearchResultItem | undefined) 
 
     useEffect(() => {
         prefetch(selected)
-    }, [selected?.route, prefetch])
+    }, [selected ? getResultNavigationUrl(selected) : undefined, prefetch])
 
     return prefetch
 }

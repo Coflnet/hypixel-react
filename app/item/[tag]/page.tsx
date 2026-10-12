@@ -11,6 +11,8 @@ import { ItemPageClient } from './ItemPageClient'
 import { hasFlag } from '../../../components/FilterElement/FilterType'
 import { getCachedItemInfo, ItemFlagsNumeric, hasItemFlag, parseFlags } from '../../../utils/ItemsCache'
 import { normalizeItemFilter } from '../../../utils/Parser/URLParser'
+import { itemFilterFromEntries } from '../../../utils/Parser/ItemFilterParams'
+import { getResultNavigationUrl } from '../../../utils/Search/FilterResultId'
 import { getEnchantmentRename } from '../../../utils/EnchantmentRenames'
 import { getCustomItemRedirectPath } from '../../../utils/ItemRedirectUtils'
 
@@ -221,7 +223,7 @@ async function getItemData(searchParams, params) {
             if (!itemDetails || !itemDetails.name) {
                 let searchResults = await api.itemSearch(tag)
                 if (searchResults && searchResults[0] && searchResults[0].id !== tag) {
-                    redirect(`/item/${searchResults[0].id}`)
+                    redirect(getResultNavigationUrl(searchResults[0]))
                 } else {
                     return {
                         item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
@@ -247,7 +249,7 @@ async function getItemData(searchParams, params) {
         if (!itemDetails || !itemDetails.name) {
             let searchResults = await api.itemSearch(tag)
             if (searchResults && searchResults[0] && searchResults[0].id !== tag) {
-                redirect(`/item/${searchResults[0].id}`)
+                redirect(getResultNavigationUrl(searchResults[0]))
             } else {
                 return {
                     item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
@@ -397,12 +399,6 @@ function getItemFilterFromUrl(searchParams) {
         }
     }
 
-    let nonFilterParams = ['range', 'refId', 'conId']
-    let itemFilter = {}
-    for (const [key, value] of Object.entries(searchParams)) {
-        if (nonFilterParams.indexOf(key) === -1) {
-            itemFilter[key] = value
-        }
-    }
+    let itemFilter = itemFilterFromEntries(Object.entries(searchParams))
     return Object.keys(itemFilter).length > 0 ? itemFilter : null
 }
