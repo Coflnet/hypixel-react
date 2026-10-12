@@ -226,4 +226,26 @@ describe('Search', () => {
         cy.get('@updateSearch.all').should('have.length', 1)
         cy.get('@cappedSearch.all').should('have.length', 1)
     })
+    it('offers a filter result for a multi-word phrase and opens the item with the flat filter', () => {
+        cy.intercept('GET', '**/api/item/search/hyperion%20sharp%207*', [
+            {
+                name: 'Hyperion · Sharpness 7',
+                id: 'HYPERION?sharpness=7',
+                type: 'filter',
+                iconUrl: 'https://sky.coflnet.com/static/icon/HYPERION',
+                img: null,
+                tier: 'MYTHIC',
+                tag: 'HYPERION'
+            },
+            { name: 'Hyperion', id: 'HYPERION', type: 'item', iconUrl: 'https://sky.coflnet.com/static/icon/HYPERION', img: null, tier: 'MYTHIC', tag: 'HYPERION' }
+        ]).as('itemSearch')
+        cy.intercept('GET', '**/api/search/hyperion%20sharp%207*', []).as('fullSearch')
+        cy.visit('/')
+        cy.get(SEARCH_INPUT).click().type('hyperion sharp 7')
+        cy.wait('@itemSearch')
+        cy.contains('.list-group-item', 'Sharpness 7').should('contain.text', 'Hyperion').and('not.contain.text', 'Hyperion · ')
+        cy.get(SEARCH_INPUT).type('{enter}')
+        cy.location('pathname').should('equal', '/item/HYPERION')
+        cy.location('search').should('equal', '?sharpness=7')
+    })
 })

@@ -1,4 +1,5 @@
 'use client'
+import { splitSearchResultId } from '../../utils/Search/FilterResultId'
 import ArrowUpIcon from '@mui/icons-material/ArrowUpward'
 import HelpIcon from '@mui/icons-material/Help'
 import Image from 'next/image'
@@ -345,7 +346,7 @@ function PlayerDetailsList(props: Props) {
                             onSearchresultClick={item => {
                                 setFilteredItem({
                                     ...item.dataItem,
-                                    tag: item.id
+                                    tag: splitSearchResultId(item.id).tag
                                 })
                             }}
                             hideNavbar={true}

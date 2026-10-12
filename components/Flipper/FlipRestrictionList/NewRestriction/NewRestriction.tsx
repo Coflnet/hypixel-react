@@ -1,11 +1,12 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Button, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
 import api from '../../../../api/ApiHelper'
 import ItemFilter from '../../../ItemFilter/ItemFilter'
 import TagSelect from '../TagSelect/TagSelect'
 import styles from './NewRestriction.module.css'
 import ApiSearchField from '../../../Search/ApiSearchField'
+import { getPickedItemName, splitSearchResultId } from '../../../../utils/Search/FilterResultId'
 import { CopyButton } from '../../../CopyButton/CopyButton'
 
 interface Props {
@@ -28,6 +29,9 @@ function NewRestriction(props: Props) {
         selectedItems: props.prefillRestriction ? props.prefillRestriction.selectedItems : undefined
     })
     let [isFilterValid, setIsFilterValid] = useState(true)
+    // a picked filter result is applied through a remount of the ItemFilter once the filter options of the picked item are loaded
+    let applyPickedFilter = useRef(false)
+    let [filterKey, setFilterKey] = useState(0)
     let [filters, setFilters] = useState<FilterOptions[]>([])
     let [showFillLastUsedItems, setShowFillLastUsedItems] = useState(sessionStorage.getItem('lastUsedItemsForNewRestrictions') !== null)
 
@@ -43,6 +47,7 @@ function NewRestriction(props: Props) {
             ]).then(filters => {
                 let result = [...(filters[0] || []), ...(filters[1] || [])]
                 setFilters(result)
+                remountFilterForPickedFilter()
                 return result
             })
         } else {
@@ -63,9 +68,17 @@ function NewRestriction(props: Props) {
 
                 var intersecting = intersect(groupedFilters)
                 setFilters(intersecting)
+                remountFilterForPickedFilter()
 
                 return intersecting
             })
+        }
+    }
+
+    function remountFilterForPickedFilter() {
+        if (applyPickedFilter.current) {
+            applyPickedFilter.current = false
+            setFilterKey(key => key + 1)
         }
     }
 
@@ -111,15 +124,25 @@ function NewRestriction(props: Props) {
                     multiple
                     className={styles.multiSearch}
                     onChange={items => {
+                        let mergedFilter = { ...createState.itemFilter }
+                        let hasPickedFilter = false
+                        let selectedItems = items.map(item => {
+                            let picked = splitSearchResultId(item.id)
+                            if (picked.filter) {
+                                hasPickedFilter = true
+                                mergedFilter = { ...mergedFilter, ...picked.filter }
+                            }
+                            return {
+                                tag: picked.tag,
+                                name: getPickedItemName(item, picked.filter),
+                                iconUrl: item.dataItem.iconUrl
+                            }
+                        })
+                        applyPickedFilter.current = hasPickedFilter
                         setCreateState({
                             ...createState,
-                            selectedItems: items.map(item => {
-                                return {
-                                    tag: item.id,
-                                    name: item.dataItem.name,
-                                    iconUrl: item.dataItem.iconUrl
-                                }
-                            })
+                            selectedItems,
+                            itemFilter: hasPickedFilter ? mergedFilter : createState.itemFilter
                         })
                     }}
                     searchFunction={api.itemSearch}
@@ -137,6 +160,7 @@ function NewRestriction(props: Props) {
                 {showFillLastUsedItems && <Button onClick={fillLastUsedItems}>Last used Items</Button>}
             </div>
             <ItemFilter
+                key={filterKey}
                 filters={filters}
                 forceOpen={true}
                 onFilterChange={filter => {

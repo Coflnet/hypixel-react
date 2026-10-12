@@ -1,4 +1,5 @@
 'use client'
+import { getFilterResultTitle } from '../../utils/Search/FilterResultId'
 import React, { ChangeEvent, useMemo, useRef, type JSX } from 'react'
 import api from '../../api/ApiHelper'
 import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap'
@@ -137,17 +138,8 @@ function Search(props: Props) {
 
         api.trackSearch(item.id, item.type)
 
-        let searchParams = new URLSearchParams()
-        let itemFilter = item.urlSearchParams?.get('itemFilter')
-        let apply = item.urlSearchParams?.get('apply')
-        if (itemFilter) {
-            searchParams.set('itemFilter', itemFilter)
-        }
-        if (apply) {
-            searchParams.set('apply', apply)
-        }
-
-        router.push(`${item.route}?${searchParams.toString()}`)
+        let query = item.urlSearchParams?.toString()
+        router.push(query ? `${item.route}?${query}` : item.route)
     }
 
     let noResultsFoundElement = (
@@ -447,8 +439,8 @@ function Search(props: Props) {
                                       <Spinner animation="border" role="status" variant="primary" />
                                   )}
                                   {result.pinned ? <PushPinIcon style={{ marginRight: '5px' }} /> : null}
-                                  {result.dataItem.name}
-                                  {isPage && result.description ? <span className={styles.pageDescription}>{result.description}</span> : null}
+                                  {getFilterResultTitle(result)}
+                                  {(isPage || result.type === 'filter') && result.description ? <span className={styles.pageDescription}>{result.description}</span> : null}
                               </ListGroup.Item>
                           )
                       })}
