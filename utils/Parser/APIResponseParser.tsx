@@ -150,6 +150,8 @@ export function parseSearchResultItem(item: any): SearchResultItem {
                 return '/player/' + item.id
             case 'auction':
                 return '/auction/' + item.id
+            case 'page':
+                return item.id
         }
         return ''
     }

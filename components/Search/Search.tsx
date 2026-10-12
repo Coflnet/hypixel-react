@@ -1,5 +1,5 @@
 'use client'
-import React, { ChangeEvent, useEffect, useRef, useState, type JSX } from 'react'
+import React, { ChangeEvent, useMemo, useRef, type JSX } from 'react'
 import api from '../../api/ApiHelper'
 import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap'
 import { convertTagToName, getStyleForTier } from '../../utils/Formatter'
@@ -11,16 +11,21 @@ import Refresh from '@mui/icons-material/Refresh'
 import ClearIcon from '@mui/icons-material/Clear'
 import { Item, Menu, useContextMenu, Separator } from 'react-contexify'
 import { toast } from 'react-toastify'
-import { isClientSideRendering } from '../../utils/SSRUtils'
 import styles from './Search.module.css'
 import { useForceUpdate, useIsMobile } from '../../utils/Hooks'
+import { useStagedSearch } from '../../hooks/useStagedSearch'
+import { useOutsideClick } from '../../hooks/useOutsideClick'
+import { useIsSmallScreen } from '../../hooks/useIsSmallScreen'
+import { usePrefetchSearchResult } from '../../hooks/usePrefetchSearchResult'
+import { EMBEDDED_SEARCH_STAGES, GLOBAL_SEARCH_STAGES, createLegacyStage, createRecentStage } from '../../utils/Search/SearchStages'
+import PageResultIcon from './PageResultIcon'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import PushPinIcon from '@mui/icons-material/PushPin'
 import {
     addClickedSearchResultToPreviousSearches,
-    addPreviousSearchResultsToDisplay,
     getFirstPreviousSearches,
+    markPreviousSearches,
     pinSearchResult,
     unpinSearchResult
 } from '../../utils/PreviousSearchUtils'
@@ -49,16 +54,23 @@ interface Props {
 
 const PLAYER_SEARCH_CONEXT_MENU_ID = 'player-search-context-menu'
 const SEARCH_RESULT_CONTEXT_MENU_ID = 'search-result-context-menu'
-const SEARCH_DEBOUNCE_MS = 150
 
 function Search(props: Props) {
     let router = useRouter()
-    let [searchText, setSearchText] = useState('')
-    let [results, setResults] = useState<SearchResultItem[]>([])
-    let [isSearching, setIsSearching] = useState(false)
-    let [noResultsFound, setNoResultsFound] = useState(false)
-    let [isSmall, setIsSmall] = useState(false)
-    let [selectedIndex, setSelectedIndex] = useState(0)
+    const isSmall = useIsSmallScreen()
+    const stages = useMemo(() => {
+        const base = props.searchFunction ? [createLegacyStage(props.searchFunction)] : props.onSearchresultClick ? EMBEDDED_SEARCH_STAGES : GLOBAL_SEARCH_STAGES
+        return props.preventDisplayOfPreviousSearches ? base : [createRecentStage(props.keyForPinnedItems), ...base]
+    }, [props.searchFunction, props.onSearchresultClick, props.preventDisplayOfPreviousSearches, props.keyForPinnedItems])
+    const search = useStagedSearch({
+        stages,
+        resetKey: props.selected,
+        decorateItems: props.preventDisplayOfPreviousSearches
+            ? undefined
+            : items => markPreviousSearches(items, props.keyForPinnedItems)
+    })
+    const prefetchResult = usePrefetchSearchResult(search.results[search.selectedIndex])
+    const { searchText, results, rows, selectedIndex, noResultsFound } = search
     const { show: showPlayerContextMenu } = useContextMenu({
         id: PLAYER_SEARCH_CONEXT_MENU_ID
     })
@@ -73,151 +85,33 @@ function Search(props: Props) {
     // Use 'search-bar' for global search (when navbar is not hidden), unique ID for others
     const inputId = props.hideNavbar ? searchId.current : 'search-bar'
 
-    let rememberEnterPressRef = useRef(false)
-    const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-    let searchElement = useRef(null)
+    let searchElement = useRef<HTMLDivElement>(null)
     let forceUpdate = useForceUpdate()
 
-    const getCurrentSearchValue = () => {
-        if (searchElement.current === null) {
-            return searchText
-        }
-
-        const input = (searchElement.current as HTMLDivElement).querySelector(`#${inputId}`) as HTMLInputElement | null
-        return input?.value ?? searchText
-    }
-
-    useEffect(() => {
-        if (isClientSideRendering()) {
-            setIsSmall(isClientSideRendering() ? document.body.clientWidth < 1500 : false)
-        }
-        document.addEventListener('click', outsideClickHandler, true)
-        return () => {
-            document.removeEventListener('click', outsideClickHandler, true)
-            if (searchTimeoutRef.current) {
-                clearTimeout(searchTimeoutRef.current)
-            }
-        }
-    }, [])
-
-    useEffect(() => {
-        setSearchText('')
-        setResults([])
-        setIsSearching(false)
-        setNoResultsFound(false)
-        rememberEnterPressRef.current = false
-        if (searchTimeoutRef.current) {
-            clearTimeout(searchTimeoutRef.current)
-            searchTimeoutRef.current = null
-        }
-    }, [props.selected])
-
-    let search = (searchFor: string) => {
-        let searchFunction = props.searchFunction || api.search
-        searchFunction(searchFor).then(searchResults => {
-            // has the searchtext changed?
-            if (searchFor === getCurrentSearchValue()) {
-                let searchResultsToShow = [...searchResults]
-                if (!props.preventDisplayOfPreviousSearches) {
-                    searchResultsToShow = addPreviousSearchResultsToDisplay(searchFor, searchResults, props.keyForPinnedItems)
-                }
-
-                setSelectedIndex(0)
-                setNoResultsFound(searchResultsToShow.length === 0)
-                setResults(searchResultsToShow)
-                setIsSearching(false)
-
-                if (rememberEnterPressRef.current) {
-                    onItemClick(searchResultsToShow[0])
-                    rememberEnterPressRef.current = false
-                }
-            }
-        }).catch(() => {
-            if (searchFor === getCurrentSearchValue()) {
-                setResults([])
-                setIsSearching(false)
-                rememberEnterPressRef.current = false
-            }
-        })
-    }
+    useOutsideClick(searchElement, search.clearResults)
 
     let onSearchChange = (e: ChangeEvent) => {
-        let newSearchText: string = (e.target as HTMLInputElement).value
-        setSearchText(newSearchText)
-
-        if (searchTimeoutRef.current) {
-            clearTimeout(searchTimeoutRef.current)
-            searchTimeoutRef.current = null
-        }
-
-        if (newSearchText === '') {
-            setResults([])
-            setIsSearching(false)
-            setNoResultsFound(false)
-            rememberEnterPressRef.current = false
-            return
-        }
-
-        setNoResultsFound(false)
-        setIsSearching(true)
-        searchTimeoutRef.current = setTimeout(() => {
-            searchTimeoutRef.current = null
-            search(newSearchText)
-        }, SEARCH_DEBOUNCE_MS)
-    }
-
-    function outsideClickHandler(evt) {
-        const flyoutEl = searchElement.current
-        let targetEl = evt.target
-
-        do {
-            if (targetEl === flyoutEl) {
-                return
-            }
-            targetEl = (targetEl as any).parentNode
-        } while (targetEl)
-
-        setResults([])
+        search.setSearchText((e.target as HTMLInputElement).value)
     }
 
     let onKeyPress = (e: KeyboardEvent) => {
         switch (e.key) {
             case 'Enter':
                 e.preventDefault()
-                const currentSearchValue = getCurrentSearchValue().trim()
-                if (currentSearchValue.length === 0) {
+                if (searchText.trim().length === 0) {
                     return
                 }
-                if (searchTimeoutRef.current) {
-                    clearTimeout(searchTimeoutRef.current)
-                    searchTimeoutRef.current = null
-                    rememberEnterPressRef.current = true
-                    setIsSearching(true)
-                    search(currentSearchValue)
-                    return
-                }
-                if (isSearching) {
-                    rememberEnterPressRef.current = true
-                    return
-                }
-                if (!results || results.length === 0) {
-                    rememberEnterPressRef.current = true
-                    setIsSearching(true)
-                    search(currentSearchValue)
-                    return
-                }
-                onItemClick(results[selectedIndex])
+                search.onEnter().then(item => {
+                    if (item) {
+                        onItemClick(item)
+                    }
+                })
                 break
             case 'ArrowDown':
-                if (selectedIndex < results.length - 1) {
-                    setSelectedIndex(selectedIndex + 1)
-                }
+                search.moveSelection(1)
                 break
             case 'ArrowUp':
-                if (selectedIndex > 0) {
-                    setSelectedIndex(selectedIndex - 1)
-                }
+                search.moveSelection(-1)
                 break
         }
     }
@@ -228,9 +122,15 @@ function Search(props: Props) {
             return
         }
 
+        if (item.type === 'page') {
+            // pages are neither tracked nor remembered as previous searches
+            search.setSearchText('')
+            router.push(item.route)
+            return
+        }
+
         if (item.urlSearchParams && new URLSearchParams(window.location.search).toString() !== item.urlSearchParams.toString()) {
-            setSearchText('')
-            setResults([])
+            search.setSearchText('')
         }
 
         addClickedSearchResultToPreviousSearches(item, props.keyForPinnedItems)
@@ -253,7 +153,7 @@ function Search(props: Props) {
     let noResultsFoundElement = (
         <ListGroup.Item
             key={-1}
-            style={getListItemStyle(-1)}
+            style={getListItemStyle(-1, true)}
             onContextMenu={e => {
                 handleSearchContextMenuForCurrentElement(e)
             }}
@@ -337,10 +237,10 @@ function Search(props: Props) {
         padding: isSmall ? '0px' : undefined
     }
 
-    function getListItemStyle(i: number): React.CSSProperties {
+    function getListItemStyle(i: number, isLastRow: boolean): React.CSSProperties {
         let style = {
             backgroundColor: i === selectedIndex ? props.backgroundColorSelected || '#444' : props.backgroundColor,
-            borderRadius: i === results.length - 1 ? '0 0 10px 10px' : '',
+            borderRadius: isLastRow ? '0 0 10px 10px' : '',
             border: 0,
             borderTop: i === 0 ? '1px solid #444' : 0,
             borderTopWidth: i === 0 ? 0 : undefined,
@@ -415,13 +315,7 @@ function Search(props: Props) {
                     onClick={params => {
                         let item: SearchResultItem = params.props.item
                         pinSearchResult(item, props.keyForPinnedItems)
-                        let index = results.findIndex(r => r.dataItem.name === item.dataItem.name)
-                        if (index !== -1) {
-                            let newResults = [...results]
-                            newResults[index].pinned = true
-                            newResults[index].isPreviousSearch = true
-                            setResults(newResults)
-                        }
+                        search.patchResult(item.id, { pinned: true, isPreviousSearch: true })
                         hideSearchItemContextMenu()
                     }}
                     hidden={params => !!params.props.item.pinned}
@@ -434,12 +328,7 @@ function Search(props: Props) {
                     onClick={params => {
                         let item: SearchResultItem = params.props.item
                         unpinSearchResult(item, props.keyForPinnedItems)
-                        let index = results.findIndex(r => r.dataItem.name === item.dataItem.name)
-                        if (index !== -1) {
-                            let newResults = [...results]
-                            newResults[index].pinned = false
-                            setResults(newResults)
-                        }
+                        search.patchResult(item.id, { pinned: false })
                         hideSearchItemContextMenu()
                     }}
                     hidden={params => !params.props.item.pinned}
@@ -493,8 +382,7 @@ function Search(props: Props) {
                             }}
                             onClick={() => {
                                 if (!props.preventDisplayOfPreviousSearches && !noResultsFound && results.length === 0 && !searchText) {
-                                    let previousResuls = getFirstPreviousSearches(5, props.keyForPinnedItems)
-                                    setResults(previousResuls)
+                                    search.showResults(getFirstPreviousSearches(5, props.keyForPinnedItems))
                                 }
                             }}
                         />
@@ -504,44 +392,66 @@ function Search(props: Props) {
             <ListGroup className={styles.searchResutList}>
                 {noResultsFound
                     ? noResultsFoundElement
-                    : results.map((result, i) => (
-                          <ListGroup.Item
-                              key={result.id}
-                              action
-                              onClick={(e: any) => {
-                                  onItemClick(result)
-                              }}
-                              style={getListItemStyle(i)}
-                              className={result.isPreviousSearch ? styles.previousSearch : undefined}
-                              onContextMenu={event => {
-                                  handleSearchContextMenuForSearchResult(event, result)
-                              }}
-                          >
-                              {result.dataItem.iconUrl ? (
-                                  <Image
-                                      className={`${styles.searchResultIcon} playerHeadIcon`}
-                                      crossOrigin="anonymous"
-                                      width={32}
-                                      height={32}
-                                      src={
-                                          result.dataItem._imageLoaded
-                                              ? result.dataItem.iconUrl
-                                              : 'data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mPMqAcAAVUA6UpAAT4AAAAASUVORK5CYII='
+                    : rows.map((row, rowIndex) => {
+                          if (row.kind === 'header') {
+                              return (
+                                  <ListGroup.Item
+                                      as="div"
+                                      key={`header-${rowIndex}-${row.label}`}
+                                      className={styles.sectionHeader}
+                                      style={{ backgroundColor: props.backgroundColor }}
+                                  >
+                                      {row.label}
+                                      {row.pending ? <Spinner animation="border" size="sm" role="status" variant="primary" /> : null}
+                                  </ListGroup.Item>
+                              )
+                          }
+                          const result = row.result
+                          const isPage = result.type === 'page'
+                          return (
+                              <ListGroup.Item
+                                  key={result.id}
+                                  action
+                                  onClick={(e: any) => {
+                                      onItemClick(result)
+                                  }}
+                                  onMouseEnter={() => prefetchResult(result)}
+                                  style={getListItemStyle(row.index, rowIndex === rows.length - 1)}
+                                  className={result.isPreviousSearch ? styles.previousSearch : undefined}
+                                  onContextMenu={event => {
+                                      if (!isPage) {
+                                          handleSearchContextMenuForSearchResult(event, result)
                                       }
-                                      alt=""
-                                      onLoad={() => {
-                                          result.dataItem._imageLoaded = true
-                                          setResults(results)
-                                          forceUpdate()
-                                      }}
-                                  />
-                              ) : (
-                                  <Spinner animation="border" role="status" variant="primary" />
-                              )}
-                              {result.pinned ? <PushPinIcon style={{ marginRight: '5px' }} /> : null}
-                              {result.dataItem.name}
-                          </ListGroup.Item>
-                      ))}
+                                  }}
+                              >
+                                  {isPage ? (
+                                      <PageResultIcon iconKey={result.iconKey} />
+                                  ) : result.dataItem.iconUrl ? (
+                                      <Image
+                                          className={`${styles.searchResultIcon} playerHeadIcon`}
+                                          crossOrigin="anonymous"
+                                          width={32}
+                                          height={32}
+                                          src={
+                                              result.dataItem._imageLoaded
+                                                  ? result.dataItem.iconUrl
+                                                  : 'data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mPMqAcAAVUA6UpAAT4AAAAASUVORK5CYII='
+                                          }
+                                          alt=""
+                                          onLoad={() => {
+                                              result.dataItem._imageLoaded = true
+                                              forceUpdate()
+                                          }}
+                                      />
+                                  ) : (
+                                      <Spinner animation="border" role="status" variant="primary" />
+                                  )}
+                                  {result.pinned ? <PushPinIcon style={{ marginRight: '5px' }} /> : null}
+                                  {result.dataItem.name}
+                                  {isPage && result.description ? <span className={styles.pageDescription}>{result.description}</span> : null}
+                              </ListGroup.Item>
+                          )
+                      })}
             </ListGroup>
             <div className={styles.bar} style={{ marginTop: '20px' }}>
                 {getSelectedElement()}

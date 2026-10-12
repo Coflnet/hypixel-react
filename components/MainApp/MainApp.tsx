@@ -17,6 +17,7 @@ import '../../styles/bootstrap-react.min.css'
 import '../../styles/bootstrap-dark.min.css'
 import '../../styles/globals.css'
 import TopLoadingAnimation from '../TopLoader/TopLoadingAnimation'
+import GlobalSearchShortcut from '../Search/GlobalSearchShortcut'
 import { initCoflCoinManager } from '../../utils/CoflCoinsUtils'
 import properties from '../../properties'
 import { isStaleChunkError, recoverFromStaleChunks } from '../../utils/StaleChunkUtils'
@@ -220,6 +221,7 @@ export function MainApp(props: any) {
         <>
             <OfflineBanner />
             <TopLoadingAnimation />
+            <GlobalSearchShortcut />
             {props.children}
             {!properties.isTestRunner && !hasNitroCMP && privacySignal === false ? (
                 <CookieConsent

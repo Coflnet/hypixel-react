@@ -168,6 +168,10 @@ interface SearchResultItem {
     pinned?: boolean
     previousSearchKey?: string
     tier: string
+    /** only set for type 'page' results */
+    iconKey?: string
+    description?: string
+    exact?: boolean
 }
 
 interface FlipAuction {

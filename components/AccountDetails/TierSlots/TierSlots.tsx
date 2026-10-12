@@ -61,7 +61,7 @@ export default function TierSlots({ subscriptions, onCancelSubscription }: Props
         void loadSlots()
     }, [])
 
-    async function saveAssignment(slot: OwnedTierSlot, assignment: SlotRecipient) {
+    async function saveAssignment(slot: OwnedTierSlot, assignment: Omit<SlotRecipient, 'version'>) {
         setSaving(true)
         setError('')
         try {

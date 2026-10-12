@@ -205,7 +205,12 @@ export function PremiumBazaarFlips() {
                 timestamp: '',
                 buyPrice: 0,
                 sellPrice: 0,
-                medianValue: 0
+                medianValue: 0,
+                suggestedOrderVolume: 0,
+                targetHoldTimeMinutes: 0,
+                totalProfit: 0,
+                rankScore: 0,
+                capacity: 0
             }
         }
     }
