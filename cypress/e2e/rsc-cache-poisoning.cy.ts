@@ -23,6 +23,8 @@ describe('RSC cache poisoning guard', () => {
     it('never bounces the router own requests of a client-side navigation', () => {
         cy.intercept({ method: 'GET', url: '**_rsc=*' }).as('rscFetch')
         cy.visit('/')
+        // the first prefetch is issued by the hydrated router; a click before that is a plain document navigation
+        cy.wait('@rscFetch')
         cy.get('a[href="/about"]').first().click({ force: true })
         cy.location('pathname').should('eq', '/about')
         cy.title().should('contain', 'About')
