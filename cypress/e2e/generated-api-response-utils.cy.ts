@@ -1,4 +1,4 @@
-import { isDefinitePlayerMiss, unwrapGeneratedApiArrayResponse, unwrapGeneratedApiPlayerNameResponse } from '../../utils/GeneratedApiResponseUtils'
+import { getGeneratedApiErrorText, isDefinitePlayerMiss, unwrapGeneratedApiArrayResponse, unwrapGeneratedApiPlayerNameResponse } from '../../utils/GeneratedApiResponseUtils'
 
 describe('Generated API response utilities', () => {
     it('returns successful array responses', () => {
@@ -57,5 +57,44 @@ describe('Generated API response utilities', () => {
         expect(isDefinitePlayerMiss(capture({ status: 429, data: {} }))).to.equal(false)
         expect(isDefinitePlayerMiss(new TypeError('network'))).to.equal(false)
         expect(isDefinitePlayerMiss(undefined)).to.equal(false)
+    })
+
+    describe('error text of failed responses', () => {
+        const FALLBACK = 'Could not create the notification target.'
+
+        it('uses a string body as is', () => {
+            expect(getGeneratedApiErrorText('plain text failure', FALLBACK)).to.equal('plain text failure')
+        })
+
+        it('uses the message of a slug/message/traceId body', () => {
+            expect(getGeneratedApiErrorText({ slug: 'bad', message: 'target is invalid', traceId: 'abc' }, FALLBACK)).to.equal('target is invalid')
+        })
+
+        it('appends the validation message of a ProblemDetails body to the fallback', () => {
+            const body = {
+                errors: { Target: ['The Target field is required.'] },
+                type: 'https://tools.ietf.org/html/rfc9110#section-15.5.1',
+                title: 'One or more validation errors occurred.',
+                status: 400,
+                traceId: '00-1947fcae6067508fb634e1873996690c-47d63c6cfbd28724-00'
+            }
+            expect(getGeneratedApiErrorText(body, FALLBACK)).to.equal('Could not create the notification target. The Target field is required.')
+            expect(getGeneratedApiErrorText(body, FALLBACK)).not.to.contain('One or more validation errors occurred.')
+        })
+
+        it('joins several fields, de-duplicates and shortens long lists', () => {
+            const some = { errors: { Target: ['The Target field is required.'], Name: ['The Name field is required.', 'The Target field is required.'] } }
+            expect(getGeneratedApiErrorText(some, FALLBACK)).to.equal(`${FALLBACK} The Target field is required. The Name field is required.`)
+
+            const many = { errors: { A: ['a1', 'a2'], B: ['b1', 'b2'], C: ['c1'] } }
+            expect(getGeneratedApiErrorText(many, FALLBACK)).to.equal(`${FALLBACK} a1 a2 b1 (+2 more)`)
+        })
+
+        it('falls back for empty bodies and a title-only ProblemDetails', () => {
+            expect(getGeneratedApiErrorText(undefined, FALLBACK)).to.equal(FALLBACK)
+            expect(getGeneratedApiErrorText('', FALLBACK)).to.equal(FALLBACK)
+            expect(getGeneratedApiErrorText({}, FALLBACK)).to.equal(FALLBACK)
+            expect(getGeneratedApiErrorText({ title: 'One or more validation errors occurred.', errors: {} }, FALLBACK)).to.equal(FALLBACK)
+        })
     })
 })

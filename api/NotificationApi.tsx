@@ -17,6 +17,7 @@ import { parseSubscription } from '../utils/Parser/APIResponseParser'
 import { isClientSideRendering } from '../utils/SSRUtils'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
 import { recordClientError } from '../utils/ClientErrorUtils'
+import { getGeneratedApiErrorText } from '../utils/GeneratedApiResponseUtils'
 
 /**
  * All notifier related calls (listeners, subscriptions and targets) go through the generated
@@ -74,7 +75,7 @@ function unwrap<T>(response: { data: any; status: number }, fallbackMessage: str
     if (typeof data === 'string' && data) {
         throw createError(data)
     }
-    throw createError(data?.message || fallbackMessage, data?.slug, data?.traceId)
+    throw createError(getGeneratedApiErrorText(data, fallbackMessage), data?.slug, data?.traceId)
 }
 
 /** Shows the same error toast the rest of the api uses, then rethrows so callers can react. */
