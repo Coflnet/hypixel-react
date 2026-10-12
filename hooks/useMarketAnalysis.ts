@@ -10,18 +10,8 @@ import { useGoogleToken } from './useGoogleToken'
 // its callers need to hand-roll a cache/inFlight map the way an earlier version of this hook did.
 const MARKET_ANALYSIS_STALE_TIME_MS = 5 * 60 * 1000
 
-/**
- * `uniqueBuyers`/`uniqueSellers`/`topBuyers` - BEING ADDED TO THE BACKEND IN PARALLEL and not in the
- * generated client yet (the currently deployed backend doesn't send them either). Remove this type -
- * folding the three fields back into `AdvancedAnalysisResult` - once the backend ships and
- * `npm run generate_api` picks them up.
- */
-export interface SoldAnalysisResult extends AdvancedAnalysisResult {
-    uniqueBuyers?: number
-    uniqueSellers?: number
-    /** @nullable */
-    topBuyers?: AdvancedAnalysisResult['topSellers']
-}
+/** the generated `AdvancedAnalysisResult` now carries `uniqueBuyers`/`uniqueSellers`/`topBuyers` */
+export type SoldAnalysisResult = AdvancedAnalysisResult
 
 /**
  * `/item/price/{tag}/analysis/live` - live BIN-listing analysis for the Market analysis section's

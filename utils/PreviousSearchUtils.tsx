@@ -42,41 +42,29 @@ export function unpinSearchResult(item: SearchResultItem, previousSearchKey?: st
     localStorage.setItem(PREVIOUS_SEARCHES_KEY, JSON.stringify(previousSearches))
 }
 
-export function addPreviousSearchResultsToDisplay(searchText: string, searchResults: SearchResultItem[], previousSearchKey?: string) {
-    let newSearchResults = [...searchResults]
-    let previousSearches: SearchResultItem[] = getPreviousSearchesFromLocalStorage(previousSearchKey)
-    let matches: SearchResultItem[] = []
-    let matchingPreviousSearchesInResuls = 0
+const pinnedFirst = (a: SearchResultItem, b: SearchResultItem) => Number(!!b.pinned) - Number(!!a.pinned)
 
-    previousSearches.forEach(prevSearch => {
-        let alreadyFoundIndex = newSearchResults.findIndex(r => r.id === prevSearch.id)
-        if (alreadyFoundIndex !== -1) {
-            newSearchResults[alreadyFoundIndex].isPreviousSearch = true
-            newSearchResults[alreadyFoundIndex].pinned = prevSearch.pinned
-            matchingPreviousSearchesInResuls++
-        } else if (prevSearch.dataItem.name.toLowerCase().indexOf(searchText.toLowerCase()) !== -1) {
-            matches.unshift(prevSearch)
-        }
+/** previous searches whose name contains the search text, pinned first */
+export function getMatchingPreviousSearches(
+    searchText: string,
+    previousSearchKey?: string,
+    max: number = MAX_PREVIOUS_SEARCHES_TO_DISPLAY
+): SearchResultItem[] {
+    const needle = searchText.toLowerCase()
+    // the most recently used previous search is the last one stored
+    const matches = getPreviousSearchesFromLocalStorage(previousSearchKey)
+        .filter(prevSearch => (prevSearch.dataItem?.name ?? '').toLowerCase().includes(needle))
+        .reverse()
+    return matches.sort(pinnedFirst).slice(0, max)
+}
+
+/** marks results that are also previous searches (and carries over their pinned state) */
+export function markPreviousSearches(searchResults: SearchResultItem[], previousSearchKey?: string): SearchResultItem[] {
+    const previousSearches = getPreviousSearchesFromLocalStorage(previousSearchKey)
+    return searchResults.map(result => {
+        const previous = previousSearches.find(p => p.id === result.id)
+        return previous ? { ...result, isPreviousSearch: true, pinned: previous.pinned } : result
     })
-
-    let pinnedSort = (a, b) => {
-        if (a.pinned) {
-            return -1
-        }
-        if (b.pinned) {
-            return 1
-        }
-        return 0
-    }
-
-    newSearchResults.sort(pinnedSort)
-    matches.sort(pinnedSort).slice(0, MAX_PREVIOUS_SEARCHES_TO_DISPLAY - matchingPreviousSearchesInResuls)
-
-    if (MAX_PREVIOUS_SEARCHES_TO_DISPLAY <= matchingPreviousSearchesInResuls) {
-        return newSearchResults
-    }
-
-    return [...matches, ...newSearchResults]
 }
 
 export function getFirstPreviousSearches(amount: number, previousSearchKey?: string) {
