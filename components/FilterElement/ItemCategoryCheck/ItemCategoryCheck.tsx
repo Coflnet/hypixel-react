@@ -3,6 +3,7 @@ import { useRef, useState } from 'react'
 import { Alert, Badge, Button, Spinner } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
 import ApiSearchField from '../../Search/ApiSearchField'
+import { splitSearchResultId } from '../../../utils/Search/FilterResultId'
 import { convertTagToName } from '../../../utils/Formatter'
 import { compareItemCategory } from '../../../utils/ItemCategoryUtils'
 
@@ -41,7 +42,7 @@ function ItemCategoryCheck(props: Props) {
             return
         }
 
-        let tag = selected[0].id
+        let tag = splitSearchResultId(selected[0].id).tag
         let name = selected[0].dataItem.name
         let requestId = ++latestRequestId.current
 

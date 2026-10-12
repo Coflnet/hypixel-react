@@ -1,5 +1,5 @@
 'use client'
-import { splitSearchResultId } from '../../utils/Search/FilterResultId'
+import { getPickedItemName, splitSearchResultId } from '../../utils/Search/FilterResultId'
 import { getHeadMetadata } from '../../utils/SSRUtils'
 import { Button } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
@@ -32,7 +32,7 @@ export default function TradeCreateWantedItem(props: Props) {
         <>
             <Search
                 onSearchresultClick={result => {
-                    setSelectedItem({ tag: splitSearchResultId(result.id).tag, ...result.dataItem })
+                    setSelectedItem({ ...result.dataItem, tag: splitSearchResultId(result.id).tag, name: getPickedItemName(result, splitSearchResultId(result.id).filter) })
                 }}
                 placeholder="Search for an item..."
                 selected={selectedItem}

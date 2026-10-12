@@ -11,6 +11,7 @@ import DuplicateIcon from '@mui/icons-material/ControlPointDuplicate'
 import DeleteIcon from '@mui/icons-material/Delete'
 import { MouseEventHandler } from 'react'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
+import { mergePickedFilter, pickSearchResult } from '../../../../utils/Search/FilterResultId'
 import { btoaUnicode } from '../../../../utils/Base64Utils'
 
 interface Props {
@@ -85,16 +86,13 @@ export default function FlipRestrictionListEntry(props: Props) {
                                     // If the user only deletes part of the text, we don't want to remove the item (and therefore rerender the entry)
                                     if (items.length === 0 && text != '') return
 
-                                    let newItem: Item | undefined =
-                                        items && items.length > 0
-                                            ? {
-                                                  tag: items[0].id,
-                                                  name: items[0].dataItem.name,
-                                                  iconUrl: items[0].dataItem.iconUrl
-                                              }
-                                            : undefined
+                                    let picked = items && items.length > 0 ? pickSearchResult(items[0]) : undefined
+                                    let newItem: Item | undefined = picked?.item
                                     let newRestriction = { ...props.restriction }
                                     newRestriction.item = newItem
+                                    if (picked?.filter) {
+                                        newRestriction.itemFilter = mergePickedFilter(newRestriction.itemFilter, picked.filter)
+                                    }
                                     props.onRestrictionChange(newRestriction)
                                 }}
                                 searchFunction={api.itemSearch}

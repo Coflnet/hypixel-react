@@ -17,6 +17,7 @@ import { useForceUpdate, useIsMobile } from '../../utils/Hooks'
 import { useStagedSearch } from '../../hooks/useStagedSearch'
 import { useOutsideClick } from '../../hooks/useOutsideClick'
 import { useIsSmallScreen } from '../../hooks/useIsSmallScreen'
+import { getResultNavigationUrl } from '../../utils/Search/FilterResultId'
 import { usePrefetchSearchResult } from '../../hooks/usePrefetchSearchResult'
 import { EMBEDDED_SEARCH_STAGES, GLOBAL_SEARCH_STAGES, createLegacyStage, createRecentStage } from '../../utils/Search/SearchStages'
 import PageResultIcon from './PageResultIcon'
@@ -130,7 +131,9 @@ function Search(props: Props) {
             return
         }
 
-        if (item.urlSearchParams && new URLSearchParams(window.location.search).toString() !== item.urlSearchParams.toString()) {
+        let targetUrl = getResultNavigationUrl(item)
+        let targetQuery = targetUrl.split('?')[1] ?? ''
+        if (item.type === 'filter' && new URLSearchParams(window.location.search).toString() !== targetQuery) {
             search.setSearchText('')
         }
 
@@ -138,8 +141,7 @@ function Search(props: Props) {
 
         api.trackSearch(item.id, item.type)
 
-        let query = item.urlSearchParams?.toString()
-        router.push(query ? `${item.route}?${query}` : item.route)
+        router.push(targetUrl)
     }
 
     let noResultsFoundElement = (

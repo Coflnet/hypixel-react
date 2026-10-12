@@ -1,5 +1,5 @@
 'use client'
-import { splitSearchResultId } from '../../utils/Search/FilterResultId'
+import { getPickedItemName, splitSearchResultId } from '../../utils/Search/FilterResultId'
 import ArrowUpIcon from '@mui/icons-material/ArrowUpward'
 import HelpIcon from '@mui/icons-material/Help'
 import Image from 'next/image'
@@ -346,6 +346,7 @@ function PlayerDetailsList(props: Props) {
                             onSearchresultClick={item => {
                                 setFilteredItem({
                                     ...item.dataItem,
+                                    name: getPickedItemName(item, splitSearchResultId(item.id).filter),
                                     tag: splitSearchResultId(item.id).tag
                                 })
                             }}

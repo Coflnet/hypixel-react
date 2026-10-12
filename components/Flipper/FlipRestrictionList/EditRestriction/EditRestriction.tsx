@@ -7,7 +7,7 @@ import TagSelect from '../TagSelect/TagSelect'
 import api from '../../../../api/ApiHelper'
 import styles from './EditRestriction.module.css'
 import ApiSearchField from '../../../Search/ApiSearchField'
-import { getPickedItemName, splitSearchResultId } from '../../../../utils/Search/FilterResultId'
+import { mergePickedFilter, pickSearchResult } from '../../../../utils/Search/FilterResultId'
 
 interface Props {
     defaultRestriction: FlipRestriction
@@ -63,9 +63,9 @@ function EditRestriction(props: Props) {
                 multiple
                 className={styles.multiSearch}
                 onChange={items => {
-                    let picked = items[0] ? splitSearchResultId(items[0].id) : null
+                    let picked = items[0] ? pickSearchResult(items[0]) : null
                     if (picked?.filter) {
-                        if (picked.tag === filterItemTag) {
+                        if (picked.item.tag === filterItemTag) {
                             // the filter options do not reload for the same item
                             setFilterKey(key => key + 1)
                         } else {
@@ -75,14 +75,8 @@ function EditRestriction(props: Props) {
                     setUpdateState({
                         ...updateState,
                         selectedItem:
-                            items[0] && picked
-                                ? {
-                                      tag: picked.tag,
-                                      name: getPickedItemName(items[0], picked.filter),
-                                      iconUrl: items[0].dataItem.iconUrl
-                                  }
-                                : undefined,
-                        itemFilter: picked?.filter ? { ...updateState.itemFilter, ...picked.filter } : updateState.itemFilter
+                            picked ? picked.item : undefined,
+                        itemFilter: mergePickedFilter(updateState.itemFilter, picked?.filter ?? null)
                     })
                 }}
                 searchFunction={api.itemSearch}
