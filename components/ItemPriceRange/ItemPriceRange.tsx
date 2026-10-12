@@ -17,6 +17,8 @@ interface Props {
     disableYear?: boolean
     setToDefaultRangeSwitch?: boolean
     dateRangesToDisplay: DateRange[]
+    /** Ignore a range from the url that is not part of dateRangesToDisplay instead of leaving no range selected */
+    restrictToDisplayedRanges?: boolean
 }
 
 // Track URL updates to detect loops
@@ -27,10 +29,7 @@ export function ItemPriceRange(props: Props) {
     const { trackEvent } = useMatomo()
     let pathname = usePathname()
     let searchParams = useSearchParams()
-    let [selectedDateRange, _setSelectedDateRange] = useState<DateRange>(() => {
-        let urlRange = searchParams.get('range')
-        return urlRange && VALID_RANGES.includes(urlRange) ? (urlRange as DateRange) : DEFAULT_DATE_RANGE
-    })
+    let [selectedDateRange, _setSelectedDateRange] = useState<DateRange>(() => getUsableUrlRange(searchParams.get('range')) || DEFAULT_DATE_RANGE)
     let urlUpdateCountRef = useRef<number[]>([])
     let defaultRangeRef = useRef<DateRange>(DEFAULT_DATE_RANGE)
 
@@ -53,14 +52,14 @@ export function ItemPriceRange(props: Props) {
     }, [props.disableYear, selectedDateRange])
 
     useEffect(() => {
-        let range = getURLSearchParam('range')
-        if (!range || !VALID_RANGES.includes(range)) {
+        let range = getUsableUrlRange(getURLSearchParam('range'))
+        if (!range) {
             return
         }
-        defaultRangeRef.current = range as DateRange
+        defaultRangeRef.current = range
 
         setTimeout(() => {
-            setSelectedDateRange(range as DateRange)
+            setSelectedDateRange(range)
             defaultRangeRef.current = DateRange.DAY
         }, 500)
     }, [])
@@ -77,6 +76,16 @@ export function ItemPriceRange(props: Props) {
         onRangeChange(setTo)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.setToDefaultRangeSwitch])
+
+    function getUsableUrlRange(urlRange: string | null | undefined): DateRange | null {
+        if (!urlRange || !VALID_RANGES.includes(urlRange)) {
+            return null
+        }
+        if (props.restrictToDisplayedRanges && !props.dateRangesToDisplay.includes(urlRange as DateRange)) {
+            return null
+        }
+        return urlRange as DateRange
+    }
 
     function setSelectedDateRange(range: DateRange) {
         if (isClientSideRendering()) {
