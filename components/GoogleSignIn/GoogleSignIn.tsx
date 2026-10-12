@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
+import { USER_CHANGED_SLUG, websocketHelper } from '../../api/WebsocketHelper'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import { useForceUpdate } from '../../utils/Hooks'
 import { isClientSideRendering } from '../../utils/SSRUtils'
@@ -13,6 +14,8 @@ import { atobUnicode } from '../../utils/Base64Utils'
 import { Button, Modal } from 'react-bootstrap'
 import AgreementDocumentList from '../Legal/AgreementDocumentList'
 import { isTermsReminderPostponed, postponeTermsReminder } from '../../utils/TermsReminderUtils'
+
+const USER_CHANGED_RELOAD_KEY = 'userChangedReload'
 
 interface Props {
     onAfterLogin?(): void
@@ -69,16 +72,29 @@ function GoogleSignIn(props: Props) {
         props.onAfterLogin?.()
     }
 
-    async function finishLogin(loginToken: string) {
+    async function finishLogin(loginToken: string): Promise<void> {
         setTermsLoading(true)
         try {
             const token = await api.loginWithToken(loginToken)
             localStorage.setItem('googleId', token)
             sessionStorage.setItem('googleId', token)
+            sessionStorage.removeItem(USER_CHANGED_RELOAD_KEY)
             let refId = (window as any).refId
             if (refId) api.setRef(refId, 'new-user-100-v1', document.documentElement.lang || navigator.language || 'en')
             completeLogin()
         } catch (error: any) {
+            if (error?.slug === USER_CHANGED_SLUG && sessionStorage.getItem(USER_CHANGED_RELOAD_KEY) === null) {
+                // The socket is bound to the previously logged in account and components hold that account's state.
+                // Store the new token and reload (like onLogout) so the page logs in as the new account on a fresh
+                // socket. The marker allows this once; it is cleared by the next successful login.
+                sessionStorage.setItem(USER_CHANGED_RELOAD_KEY, '1')
+                sessionStorage.setItem('googleId', loginToken)
+                localStorage.setItem('googleId', loginToken)
+                websocketHelper.disconnect()
+                location.reload()
+                return
+            }
+            sessionStorage.removeItem(USER_CHANGED_RELOAD_KEY)
             if (error?.slug === 'terms_acceptance_required') {
                 setTermsStatus(status => (status ? { ...status, canContinueWithoutAccepting: false } : status))
                 setShowTermsModal(true)

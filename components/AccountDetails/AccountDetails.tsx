@@ -173,10 +173,15 @@ function AccountDetails() {
     }
 
     function deleteGoogleToken() {
+        // a socket stays bound to the account it logged in as, and components keep that account's state,
+        // so drop the socket and reload (like onLogout). Without a stored token the sign-in button shows again.
+        websocketHelper.disconnect()
         sessionStorage.removeItem('googleId')
         localStorage.removeItem('googleId')
+        removeSettings([GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL])
         setIsLoggedIn(false)
         setRerenderGoogleSignIn(rerenderGoogleSignIn + 1)
+        location.reload()
     }
 
     function onSubscriptionCancel(subscription: PremiumSubscription) {
