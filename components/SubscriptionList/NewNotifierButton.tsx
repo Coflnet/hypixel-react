@@ -1,4 +1,5 @@
 'use client'
+import { splitSearchResultId } from '../../utils/Search/FilterResultId'
 import { useState } from 'react'
 import { Button, Modal } from 'react-bootstrap'
 import AddIcon from '@mui/icons-material/Add'
@@ -28,12 +29,12 @@ function NewNotifierButton(props: Props) {
         // item result: figure out whether it trades on the bazaar to pick the right "When" section
         let type: 'item' | 'bazaar' = 'item'
         try {
-            let details = await api.getItemDetails(item.id)
+            let details = await api.getItemDetails(splitSearchResultId(item.id).tag)
             type = details.bazaar ? 'bazaar' : 'item'
         } catch {
             // default to a regular auction-house item notifier
         }
-        setPicked({ topic: item.id, type })
+        setPicked({ topic: splitSearchResultId(item.id).tag, type })
     }
 
     return (

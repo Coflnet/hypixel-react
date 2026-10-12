@@ -327,4 +327,33 @@ describe('Flipper recovery', () => {
             })
         })
     }
+
+    it('prefills the restriction filter when a filter search result is picked', () => {
+        cy.intercept('GET', '**/command/flipFilters/*', [])
+        cy.intercept('GET', '**/api/filter/options*', [
+            { name: 'sharpness', options: ['None', '1', '2', '3', '4', '5', '6', '7'], type: 16, longType: 'NUMERICAL', description: null }
+        ])
+        cy.intercept('GET', '**/api/item/search/hyperion%20sharp%207*', [
+            {
+                name: 'Hyperion · Sharpness 7',
+                id: 'HYPERION?sharpness=7',
+                type: 'filter',
+                iconUrl: 'https://sky.coflnet.com/static/icon/HYPERION',
+                img: null,
+                tier: 'MYTHIC',
+                tag: 'HYPERION'
+            }
+        ]).as('itemSearch')
+        visitFlipper({ authenticated: true, filter: {} })
+        cy.contains('Filter Rules').click()
+        cy.contains('Add new restriction').click()
+        cy.get('.rbt-input-main').first().type('hyperion sharp 7')
+        cy.wait('@itemSearch')
+        cy.contains('.dropdown-item', 'Hyperion · Sharpness 7').click()
+        // the item chip carries the plain item name, the filter is applied in the ItemFilter below
+        cy.get('.rbt-token').should('contain.text', 'Hyperion').and('not.contain.text', 'Sharpness')
+        cy.contains('form', /sharpness/i).find('input').should($inputs => {
+            expect(Array.from($inputs).map(i => (i as HTMLInputElement).value)).to.include('7')
+        })
+    })
 })

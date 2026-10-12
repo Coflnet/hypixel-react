@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Button } from 'react-bootstrap'
 import ItemFilter from '../../../ItemFilter/ItemFilter'
 import Tooltip from '../../../Tooltip/Tooltip'
@@ -7,6 +7,7 @@ import TagSelect from '../TagSelect/TagSelect'
 import api from '../../../../api/ApiHelper'
 import styles from './EditRestriction.module.css'
 import ApiSearchField from '../../../Search/ApiSearchField'
+import { getPickedItemName, splitSearchResultId } from '../../../../utils/Search/FilterResultId'
 
 interface Props {
     defaultRestriction: FlipRestriction
@@ -29,18 +30,31 @@ function EditRestriction(props: Props) {
         ...props.defaultRestriction
     })
 
+    // a picked filter result is applied through a remount of the ItemFilter once the filter options of the picked item are loaded
+    let applyPickedFilter = useRef(false)
+    let [filterKey, setFilterKey] = useState(0)
+    let filterItemTag = updateState.selectedItem?.tag || props.defaultRestriction.item?.tag || '*'
+
     useEffect(() => {
         loadFilters()
-    }, [])
+    }, [filterItemTag])
 
     function loadFilters(): Promise<FilterOptions[]> {
-        return Promise.all([api.getFilters(props.defaultRestriction.item?.tag || '*'), api.flipFilters(props.defaultRestriction.item?.tag || '*')]).then(
+        return Promise.all([api.getFilters(filterItemTag), api.flipFilters(filterItemTag)]).then(
             filters => {
                 let result = [...(filters[0] || []), ...(filters[1] || [])]
                 setFilters(result)
+                remountFilterForPickedFilter()
                 return result
             }
         )
+    }
+
+    function remountFilterForPickedFilter() {
+        if (applyPickedFilter.current) {
+            applyPickedFilter.current = false
+            setFilterKey(key => key + 1)
+        }
     }
 
     return (
@@ -49,15 +63,26 @@ function EditRestriction(props: Props) {
                 multiple
                 className={styles.multiSearch}
                 onChange={items => {
+                    let picked = items[0] ? splitSearchResultId(items[0].id) : null
+                    if (picked?.filter) {
+                        if (picked.tag === filterItemTag) {
+                            // the filter options do not reload for the same item
+                            setFilterKey(key => key + 1)
+                        } else {
+                            applyPickedFilter.current = true
+                        }
+                    }
                     setUpdateState({
                         ...updateState,
-                        selectedItem: items[0]
-                            ? {
-                                  tag: items[0].id,
-                                  name: items[0].dataItem.name,
-                                  iconUrl: items[0].dataItem.iconUrl
-                              }
-                            : undefined
+                        selectedItem:
+                            items[0] && picked
+                                ? {
+                                      tag: picked.tag,
+                                      name: getPickedItemName(items[0], picked.filter),
+                                      iconUrl: items[0].dataItem.iconUrl
+                                  }
+                                : undefined,
+                        itemFilter: picked?.filter ? { ...updateState.itemFilter, ...picked.filter } : updateState.itemFilter
                     })
                 }}
                 searchFunction={api.itemSearch}
@@ -77,7 +102,8 @@ function EditRestriction(props: Props) {
                 }
             />
             <ItemFilter
-                defaultFilter={props.defaultRestriction.itemFilter}
+                key={filterKey}
+                defaultFilter={updateState.itemFilter}
                 filters={filters}
                 forceOpen={true}
                 onFilterChange={filter => {

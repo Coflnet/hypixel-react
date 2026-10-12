@@ -1,3 +1,4 @@
+import { getFilterResultTarget } from '../Search/FilterResultId'
 import api from '../../api/ApiHelper'
 import { NotificationListener, SubscriptionType } from '../../api/ApiTypes.d'
 import { hasFlag } from '../../components/FilterElement/FilterType'
@@ -142,8 +143,6 @@ export function parseEnchantment(enchantment: any): Enchantment {
 export function parseSearchResultItem(item: any): SearchResultItem {
     let _getRoute = (): string => {
         switch (item.type) {
-            case 'filter':
-                return '/item/' + item.id.split('?')[0]
             case 'item':
                 return '/item/' + item.id
             case 'player':
@@ -156,14 +155,17 @@ export function parseSearchResultItem(item: any): SearchResultItem {
         return ''
     }
 
+    let filterTarget = item.type === 'filter' ? getFilterResultTarget(item.id) : undefined
+
     return {
         dataItem: {
             name: item.name,
             iconUrl: item.img ? 'data:image/png;base64,' + item.img : item.type === 'item' ? api.getItemImageUrl(item) : api.getItemImageUrl(item) + '?size=8'
         },
         type: item.type,
-        route: _getRoute(),
-        urlSearchParams: item.type === 'filter' ? new URLSearchParams(item.id.split('?')[1] + '&apply=true') : undefined,
+        route: filterTarget ? filterTarget.route : _getRoute(),
+        urlSearchParams: filterTarget?.urlSearchParams,
+        description: filterTarget?.description,
         id: item.id,
         tier: item.tier
     }
