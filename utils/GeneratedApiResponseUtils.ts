@@ -51,6 +51,45 @@ export function getGeneratedApiMessage(data: unknown): string | null {
     return null
 }
 
+const MAX_VALIDATION_MESSAGES = 3
+
+/** Flattens the `errors` of an ASP.NET ProblemDetails body ({ field: string[] }) into unique, trimmed messages. */
+export function getGeneratedApiValidationMessages(data: unknown): string[] {
+    const errors = data && typeof data === 'object' ? (data as { errors?: unknown }).errors : null
+    if (!errors || typeof errors !== 'object') {
+        return []
+    }
+    const messages: string[] = []
+    Object.values(errors).forEach(value => {
+        const entries = Array.isArray(value) ? value : [value]
+        entries.forEach(entry => {
+            const trimmed = typeof entry === 'string' ? entry.trim() : ''
+            if (trimmed && !messages.includes(trimmed)) {
+                messages.push(trimmed)
+            }
+        })
+    })
+    return messages
+}
+
+/**
+ * Message for a failed response body: a string body or `message` as is, validation errors appended to the fallback
+ * (ProblemDetails has no `message` and its `title` is generic), otherwise the fallback.
+ */
+export function getGeneratedApiErrorText(data: unknown, fallbackMessage: string): string {
+    const message = getGeneratedApiMessage(data)
+    if (message) {
+        return message
+    }
+    const validation = getGeneratedApiValidationMessages(data)
+    if (validation.length === 0) {
+        return fallbackMessage
+    }
+    const shown = validation.slice(0, MAX_VALIDATION_MESSAGES).join(' ')
+    const more = validation.length > MAX_VALIDATION_MESSAGES ? ` (+${validation.length - MAX_VALIDATION_MESSAGES} more)` : ''
+    return `${fallbackMessage} ${shown}${more}`
+}
+
 export function getGeneratedApiPremiumUrl(data: unknown): string | null {
     if (!data || typeof data !== 'object') {
         return null
