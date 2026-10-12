@@ -16,11 +16,17 @@ let connectionWatchdog: ReturnType<typeof setInterval> | undefined
 
 let apiSubscriptions: ApiSubscription[] = []
 
+export const USER_CHANGED_SLUG = 'user_changed'
+
+function isUserChangedClose(event?: Event): boolean {
+    return (event as CloseEvent | undefined)?.reason === USER_CHANGED_SLUG
+}
+
 function initWebsocket(): void {
     let lastMessageAt = Date.now()
     let connectedAt = Date.now()
 
-    let onWebsocketClose = (): void => {
+    let onWebsocketClose = (event?: Event): void => {
         if (reconnectTimeout !== undefined) return
         isConnectionIdSet = false
         isSessionReady = false
@@ -37,7 +43,10 @@ function initWebsocket(): void {
         // A lost setup reply must not leave a matching request blocking the next handshake.
         const setupRequests = requests.filter(request => [RequestType.SET_CONNECTION_ID, RequestType.LOGIN_WITH_TOKEN].includes(request.type))
         removeSentRequests(setupRequests)
-        setupRequests.forEach(request => request.reject({ message: 'Connection interrupted. Reconnecting.' }))
+        // The server refuses a login for a different account on a logged-in socket by closing it with this reason.
+        // No message here, so the generic error toast stays quiet; the login flow retries on a fresh socket.
+        const rejection = isUserChangedClose(event) ? { slug: USER_CHANGED_SLUG } : { message: 'Connection interrupted. Reconnecting.' }
+        setupRequests.forEach(request => request.reject(rejection))
     }
 
     let onOpen = async (socket: WebSocket, isReconnecting: boolean): Promise<void> => {

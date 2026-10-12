@@ -62,7 +62,7 @@ import {
 import { isClientSideRendering } from '../utils/SSRUtils'
 import { HttpApi, RequestType, SubscriptionType, CUSTOM_EVENTS, NotificationListener } from './ApiTypes.d'
 import { initHttpHelper } from './HttpHelper'
-import { websocketHelper } from './WebsocketHelper'
+import { USER_CHANGED_SLUG, websocketHelper } from './WebsocketHelper'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
 import properties from '../properties'
 import { getCurrentCoflCoins } from '../utils/CoflCoinsUtils'
@@ -651,7 +651,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     resolve(token)
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.LOGIN_WITH_TOKEN, error)
+                    // a server error reply for user_changed carries a message; the sign-in flow handles it, so no toast
+                    if (error?.slug !== USER_CHANGED_SLUG) apiErrorHandler(RequestType.LOGIN_WITH_TOKEN, error)
                     reject(error)
                 }
             })
