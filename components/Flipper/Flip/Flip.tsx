@@ -4,13 +4,12 @@ import HelpIcon from '@mui/icons-material/Help'
 import Image from 'next/image'
 import { type JSX } from 'react'
 import { Badge, Card } from 'react-bootstrap'
-import { toast } from 'react-toastify'
 import { getFlipFinders } from '../../../utils/FlipUtils'
 import { formatDungeonStarsInString, formatToPriceToShorten, getMinecraftColorCodedElement, getStyleForTier } from '../../../utils/Formatter'
 import { CopyButton } from '../../CopyButton/CopyButton'
 import Number from '../../Number/Number'
 import styles from './Flip.module.css'
-import { writeToClipboard } from '../../../utils/ClipboardUtils'
+import { copyAndRunInGame } from '../../../utils/InGameCommandUtils'
 import api from '../../../api/ApiHelper'
 import { useFlipSettings } from '../../Providers/FlipSettingsProvider'
 
@@ -48,21 +47,21 @@ function Flip(props: Props) {
             return
         }
 
-        writeToClipboard('/viewauction ' + props.flip.uuid)
-        if (props.onCopy) {
-            props.onCopy(props.flip)
-        }
-        if (!settings.hideCopySuccessMessage) {
-            toast.success(
+        copyAndRunInGame('/viewauction ' + props.flip.uuid, {
+            copiedMessage: (
                 <p>
                     Copied ingame link <br />
                     <i>/viewauction {props.flip.uuid}</i>
-                </p>,
-                {
-                    autoClose: 1500,
-                    pauseOnFocusLoss: false
-                }
-            )
+                </p>
+            ),
+            hideToast: settings.hideCopySuccessMessage,
+            toastOptions: {
+                autoClose: 1500,
+                pauseOnFocusLoss: false
+            }
+        })
+        if (props.onCopy) {
+            props.onCopy(props.flip)
         }
         trackEvent({
             category: 'copyButtonClick',

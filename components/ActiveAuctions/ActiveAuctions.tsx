@@ -177,6 +177,7 @@ function ActiveAuctions(props: Props) {
                                         <CopyButton
                                             buttonVariant="primary"
                                             copyValue={'/viewauction ' + activeAuction.uuid}
+                                            runInGame
                                             successMessage={
                                                 <p>
                                                     Copied ingame link <br />

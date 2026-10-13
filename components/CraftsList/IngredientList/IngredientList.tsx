@@ -295,6 +295,7 @@ export function IngredientList(props: Props) {
                                             buttonVariant="secondary"
                                             buttonClass={styles.copyButton}
                                             copyValue={copyCommand}
+                                            runInGame
                                             successMessage={<span>Copied {copyCommand}</span>}
                                         />
                                     </span>

@@ -1,0 +1,44 @@
+.goalHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.goalTitle {
+    flex: 1 1 auto;
+    font-weight: bold;
+}
+
+.focused {
+    border-color: #ffc107;
+    box-shadow: 0 0 0 1px #ffc107;
+}
+
+.steps {
+    list-style: none;
+    margin: 4px 0 0 0;
+    padding-left: 0;
+}
+
+.steps .steps {
+    padding-left: 18px;
+    border-left: 1px solid #6c757d;
+    margin-left: 6px;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 0;
+}
+
+.orange {
+    background-color: #fd7e14 !important;
+    color: #fff;
+}
+
+.toggle {
+    cursor: pointer;
+}

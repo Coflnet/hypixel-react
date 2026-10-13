@@ -4,6 +4,7 @@ import React, { useEffect, useState, type JSX } from 'react'
 import { Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import { isClientSideRendering } from '../../utils/SSRUtils'
+import { copyAndRunInGame } from '../../utils/InGameCommandUtils'
 import { canUseClipBoard, writeToClipboard } from '../../utils/ClipboardUtils'
 
 interface Props {
@@ -16,6 +17,7 @@ interface Props {
     forceIsCopied?: boolean
     buttonStyle?: React.CSSProperties
     buttonContent?: JSX.Element
+    runInGame?: boolean
 }
 
 export function CopyButton(props: Props) {
@@ -48,7 +50,11 @@ export function CopyButton(props: Props) {
     function copyClick() {
         setIsCopied(true)
         if (props.copyValue) {
-            writeToClipboard(props.copyValue)
+            if (props.runInGame) {
+                copyAndRunInGame(props.copyValue, { copiedMessage: props.successMessage })
+            } else {
+                writeToClipboard(props.copyValue)
+            }
             trackEvent({
                 category: 'copyButtonClick',
                 action: props.copyValue
@@ -57,7 +63,7 @@ export function CopyButton(props: Props) {
         if (props.onCopy) {
             props.onCopy()
         }
-        if (props.successMessage) {
+        if (props.successMessage && !(props.runInGame && props.copyValue)) {
             toast.success(props.successMessage)
         }
     }
