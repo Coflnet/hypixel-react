@@ -409,6 +409,7 @@ function AuctionDetails(props: Props) {
                     <CopyButton
                         buttonVariant="primary"
                         copyValue={getCopyButtonValue(auctionDetails)}
+                        runInGame={!!getCopyButtonValue(auctionDetails)?.startsWith('/viewauction')}
                         successMessage={
                             getCopyButtonValue(auctionDetails)?.startsWith('/viewauction') ? (
                                 <p>

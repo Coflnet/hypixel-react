@@ -4561,3 +4561,61 @@ export type DeleteApiUserMe401One = {
   message?: string;
 };
 
+
+// hand-added — regenerate with npm run generate_api once SkyApi is deployed
+export interface ModExecuteRequest {
+  command: string;
+}
+
+// hand-added — regenerate with npm run generate_api once SkyApi is deployed
+export interface ModExecuteResponse {
+  executed: boolean;
+  receivers: number;
+  command?: string | null;
+  fallback?: string | null;
+}
+
+// hand-added — regenerate with npm run generate_api once SkyApi is deployed
+export type ModGoalStepKind = 'buyOrder' | 'instaBuy' | 'npc' | 'auction' | 'craft' | 'forge' | 'sell';
+
+// hand-added — regenerate with npm run generate_api once SkyApi is deployed
+export type ModGoalStepStatus = 'todo' | 'ordered' | 'ready' | 'forging' | 'done';
+
+// hand-added — regenerate with npm run generate_api once SkyApi is deployed
+export interface ModGoalStep {
+  id: string;
+  kind: ModGoalStepKind;
+  itemTag: string;
+  itemName: string;
+  quantity: number;
+  status: ModGoalStepStatus;
+  children: ModGoalStep[];
+}
+
+// hand-added — regenerate with npm run generate_api once SkyApi is deployed
+export interface ModGoalProgress {
+  id: string;
+  title: string;
+  rootItemTag: string;
+  quantity: number;
+  createdAt: string;
+  source: string;
+  done: number;
+  total: number;
+  root: ModGoalStep;
+}
+
+// hand-added — regenerate with npm run generate_api once SkyApi is deployed
+export interface ModGoalsResponse {
+  focusId: string | null;
+  goals: ModGoalProgress[];
+}
+
+// hand-added — regenerate with npm run generate_api once SkyApi is deployed
+export interface ModGoalCreateRequest {
+  kind: 'craft' | 'forge';
+  itemTag: string;
+  quantity?: number;
+  sell?: boolean;
+}
+

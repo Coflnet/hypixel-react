@@ -12,6 +12,8 @@ import { ForgeFlip, ProfitableCraft as GeneratedProfitableCraft } from '../../ap
 import { getGeneratedApiErrorMessage, hasSuccessfulArrayResponse } from '../../utils/GeneratedApiResponseUtils'
 import { parseProfitableCrafts } from '../../utils/Parser/APIResponseParser'
 import { CostBreakdown } from '../CraftsList/CostBreakdown/CostBreakdown'
+import { GoalList } from '../Goals/GoalList'
+import { TrackGoalButton } from '../Goals/TrackGoalButton'
 import Tooltip from '../Tooltip/Tooltip'
 import styles from './ForgeFlips.module.css'
 
@@ -184,6 +186,7 @@ function ForgeDetails({
 
     return (
         <div className={styles.details}>
+            {flip.craftData?.itemId && <TrackGoalButton kind="forge" itemTag={flip.craftData.itemId} itemName={getOutputName(flip)} />}
             <div className={styles.detailsSummary}>
                 <div>
                     <span>Median sell price</span>
@@ -335,6 +338,7 @@ export function ForgeFlips() {
                 </ul>
             </details>
             <br />
+            <GoalList />
             {query.isLoading && !response ? (
                 <p>Loading forge flips…</p>
             ) : errorMessage ? (

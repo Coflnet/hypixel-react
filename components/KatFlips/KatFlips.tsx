@@ -2,12 +2,11 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useMemo } from 'react'
-import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import { convertTagToName, getStyleForTier } from '../../utils/Formatter'
 import Number from '../Number/Number'
 import { parseKatFlip } from '../../utils/Parser/APIResponseParser'
-import { writeToClipboard } from '../../utils/ClipboardUtils'
+import { copyAndRunInGame } from '../../utils/InGameCommandUtils'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 
 interface Props {
@@ -46,18 +45,18 @@ export function KatFlips(props: Props) {
         if (event.defaultPrevented || !flip.originAuctionUUID) {
             return
         }
-        writeToClipboard('/viewauction ' + flip.originAuctionUUID)
-
-        toast.success(
-            <p>
-                Copied the origin auction UUID <br />
-                <i>{flip.originAuctionUUID}</i>
-            </p>,
-            {
+        copyAndRunInGame('/viewauction ' + flip.originAuctionUUID, {
+            copiedMessage: (
+                <p>
+                    Copied the origin auction UUID <br />
+                    <i>{flip.originAuctionUUID}</i>
+                </p>
+            ),
+            toastOptions: {
                 autoClose: 1500,
                 pauseOnFocusLoss: false
             }
-        )
+        })
     }
 
     function renderFlipContent(flip: KatFlip) {

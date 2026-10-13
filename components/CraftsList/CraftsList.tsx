@@ -8,6 +8,7 @@ import Number from '../Number/Number'
 import Tooltip from '../Tooltip/Tooltip'
 import { CraftDetails } from './CraftDetails/CraftDetails'
 import { parseProfitableCrafts } from '../../utils/Parser/APIResponseParser'
+import { GoalList } from '../Goals/GoalList'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 
 interface Props {
@@ -58,8 +59,7 @@ const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
     {
         label: 'Profit x Volume',
         value: 'profitTimesVolume',
-        sortFunction: (crafts: ProfitableCraft[]) =>
-            crafts.sort((a, b) => (b.sellPrice - b.craftCost) * b.volume - (a.sellPrice - a.craftCost) * a.volume)
+        sortFunction: (crafts: ProfitableCraft[]) => crafts.sort((a, b) => (b.sellPrice - b.craftCost) * b.volume - (a.sellPrice - a.craftCost) * a.volume)
     },
     {
         label: 'Volume',
@@ -85,7 +85,11 @@ export function CraftsList(props: Props) {
         return (
             <>
                 <h4>{getCraftHeader(craft)}</h4>
-                {craft.ingredients.some(ingredient => ingredient.type === 'craft') ? <p><Badge bg="secondary">Multi-step</Badge></p> : null}
+                {craft.ingredients.some(ingredient => ingredient.type === 'craft') ? (
+                    <p>
+                        <Badge bg="secondary">Multi-step</Badge>
+                    </p>
+                ) : null}
                 <p>
                     <span style={{ width: '150px', float: 'left' }}>Crafting Cost:</span> <Number number={Math.round(craft.craftCost)} /> Coins
                 </p>
@@ -231,19 +235,22 @@ export function CraftsList(props: Props) {
     }
 
     return (
-        <GenericFlipList
-            items={crafts}
-            sortOptions={SORT_OPTIONS}
-            renderFlipContentAction={renderFlipContent}
-            filterFunction={filterFunction}
-            getItemKeyAction={craft => craft.item.tag}
-            censoredItemGenerator={censoredItemGenerator}
-            premiumMessage="The top 3 crafts can only be seen with starter premium or better"
-            clickMessage="Click on a craft for further details"
-            showColumns={true}
-            sortFunctionArgs={sortFunctionArgs}
-            customItemWrapper={customItemWrapper}
-            initialRenderCount={deepLinkedRenderCount}
-        />
+        <>
+            <GoalList />
+            <GenericFlipList
+                items={crafts}
+                sortOptions={SORT_OPTIONS}
+                renderFlipContentAction={renderFlipContent}
+                filterFunction={filterFunction}
+                getItemKeyAction={craft => craft.item.tag}
+                censoredItemGenerator={censoredItemGenerator}
+                premiumMessage="The top 3 crafts can only be seen with starter premium or better"
+                clickMessage="Click on a craft for further details"
+                showColumns={true}
+                sortFunctionArgs={sortFunctionArgs}
+                customItemWrapper={customItemWrapper}
+                initialRenderCount={deepLinkedRenderCount}
+            />
+        </>
     )
 }
