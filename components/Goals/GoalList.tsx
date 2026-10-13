@@ -17,6 +17,7 @@ import styles from './GoalList.module.css'
 
 function StepTree({ step }: { step: ModGoalStep }) {
     const variant = getStepStatusVariant(step.status)
+    const children = step.children ?? []
     return (
         <li>
             <div className={styles.step}>
@@ -27,9 +28,9 @@ function StepTree({ step }: { step: ModGoalStep }) {
                     <strong>{getStepKindLabel(step.kind)}</strong> {step.quantity}× {step.itemName}
                 </span>
             </div>
-            {step.children?.length > 0 && (
+            {children.length > 0 && (
                 <ul className={styles.steps}>
-                    {step.children.map(child => (
+                    {children.map(child => (
                         <StepTree key={child.id} step={child} />
                     ))}
                 </ul>
@@ -48,11 +49,15 @@ export function GoalList() {
     }
 
     const isOpen = open ?? !!data.focusId
+    const goals = data.goals ?? []
 
     async function run(action: (id: string, options?: RequestInit) => Promise<{ status: number; data: unknown }>, goal: ModGoalProgress) {
+        if (!goal.id) {
+            return
+        }
         try {
             const response = await action(goal.id, { headers: { GoogleToken: token! } })
-            if (response.status !== 204) {
+            if (response.status < 200 || response.status >= 300) {
                 toast.error(getGeneratedApiErrorMessage(response, null, 'Unable to update the goal'))
             }
         } catch (error) {
@@ -64,13 +69,13 @@ export function GoalList() {
     return (
         <Card className="mb-3">
             <Card.Header className={styles.toggle} onClick={() => setOpen(!isOpen)} aria-expanded={isOpen}>
-                {isOpen ? '▾' : '▸'} Your in-game goals <Badge bg="secondary">{data.goals.length}</Badge>
+                {isOpen ? '▾' : '▸'} Your in-game goals <Badge bg="secondary">{goals.length}</Badge>
             </Card.Header>
             <Collapse in={isOpen}>
                 <div>
                     <Card.Body>
-                        {data.goals.length === 0 && <p className="mb-0">No goals tracked yet. Use &quot;Track in game&quot; on a craft or forge flip.</p>}
-                        {data.goals.map(goal => {
+                        {goals.length === 0 && <p className="mb-0">No goals tracked yet. Use &quot;Track in game&quot; on a craft or forge flip.</p>}
+                        {goals.map(goal => {
                             const focused = goal.id === data.focusId
                             return (
                                 <Card key={goal.id} className={`mb-2 ${focused ? styles.focused : ''}`}>
@@ -99,7 +104,7 @@ export function GoalList() {
                                             label={`${goal.done}/${goal.total}`}
                                         />
                                         <ul className={styles.steps}>
-                                            <StepTree step={goal.root} />
+                                            {goal.root && <StepTree step={goal.root} />}
                                         </ul>
                                     </Card.Body>
                                 </Card>

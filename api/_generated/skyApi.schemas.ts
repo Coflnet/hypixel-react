@@ -2819,6 +2819,162 @@ export interface MinionRankingResponse {
 }
 
 /**
+ * Request to run a command in the mod
+ */
+export interface ModExecuteRequest {
+  /**
+     * The chat command, e.g. `/bz Enchanted Diamond`. Only a small allowlist is accepted.
+     * @nullable
+     */
+  command?: string | null;
+}
+
+/**
+ * Result of a remote command execution
+ */
+export interface ModExecuteResponse {
+  /** True if at least one mod session received the command */
+  executed: boolean;
+  /** Number of receiving servers */
+  receivers: number;
+  /**
+     * The command that was sent (may differ from the requested one, see fallback)
+     * @nullable
+     */
+  command?: string | null;
+  /**
+     * `no_cookie_pending_search` when /bz was replaced by a queued search, `not_connected` when no mod session is online
+     * @nullable
+     */
+  fallback?: string | null;
+}
+
+/**
+ * Request to create a goal
+ */
+export interface ModGoalCreateRequest {
+  /**
+     * `craft` or `forge`
+     * @nullable
+     */
+  kind?: string | null;
+  /**
+     * Tag of the item to obtain
+     * @nullable
+     */
+  itemTag?: string | null;
+  /** How many to make */
+  quantity: number;
+  /** Add a final step to sell the result */
+  sell: boolean;
+}
+
+export type StepKind = typeof StepKind[keyof typeof StepKind];
+
+
+export const StepKind = {
+  buyOrder: 'buyOrder',
+  instaBuy: 'instaBuy',
+  npc: 'npc',
+  auction: 'auction',
+  craft: 'craft',
+  forge: 'forge',
+  sell: 'sell',
+} as const;
+
+export type StepStatus = typeof StepStatus[keyof typeof StepStatus];
+
+
+export const StepStatus = {
+  todo: 'todo',
+  ordered: 'ordered',
+  ready: 'ready',
+  forging: 'forging',
+  done: 'done',
+} as const;
+
+/**
+ * One step of a goal
+ */
+export interface ModGoalStep {
+  /**
+     * Step id
+     * @nullable
+     */
+  id?: string | null;
+  kind: StepKind;
+  /**
+     * Item tag
+     * @nullable
+     */
+  itemTag?: string | null;
+  /**
+     * Item display name
+     * @nullable
+     */
+  itemName?: string | null;
+  /** Needed amount */
+  quantity: number;
+  status: StepStatus;
+  /**
+     * Sub steps
+     * @nullable
+     */
+  children?: ModGoalStep[] | null;
+}
+
+/**
+ * A goal with its progress
+ */
+export interface ModGoalProgress {
+  /**
+     * Goal id
+     * @nullable
+     */
+  id?: string | null;
+  /**
+     * Display title
+     * @nullable
+     */
+  title?: string | null;
+  /**
+     * Tag of the target item
+     * @nullable
+     */
+  rootItemTag?: string | null;
+  /** Target quantity */
+  quantity: number;
+  /** When the goal was created */
+  createdAt: string;
+  /**
+     * `website` or `mod`
+     * @nullable
+     */
+  source?: string | null;
+  /** Completed steps */
+  done: number;
+  /** Total steps */
+  total: number;
+  root?: ModGoalStep;
+}
+
+/**
+ * Goals of a user
+ */
+export interface ModGoalsResponse {
+  /**
+     * Id of the goal shown in the hud
+     * @nullable
+     */
+  focusId?: string | null;
+  /**
+     * All goals with their progress
+     * @nullable
+     */
+  goals?: ModGoalProgress[] | null;
+}
+
+/**
  * Gets or sets the member.
  * @nullable
  */
@@ -4560,62 +4716,4 @@ export type PostApiUserTerms401One = {
 export type DeleteApiUserMe401One = {
   message?: string;
 };
-
-
-// hand-added — regenerate with npm run generate_api once SkyApi is deployed
-export interface ModExecuteRequest {
-  command: string;
-}
-
-// hand-added — regenerate with npm run generate_api once SkyApi is deployed
-export interface ModExecuteResponse {
-  executed: boolean;
-  receivers: number;
-  command?: string | null;
-  fallback?: string | null;
-}
-
-// hand-added — regenerate with npm run generate_api once SkyApi is deployed
-export type ModGoalStepKind = 'buyOrder' | 'instaBuy' | 'npc' | 'auction' | 'craft' | 'forge' | 'sell';
-
-// hand-added — regenerate with npm run generate_api once SkyApi is deployed
-export type ModGoalStepStatus = 'todo' | 'ordered' | 'ready' | 'forging' | 'done';
-
-// hand-added — regenerate with npm run generate_api once SkyApi is deployed
-export interface ModGoalStep {
-  id: string;
-  kind: ModGoalStepKind;
-  itemTag: string;
-  itemName: string;
-  quantity: number;
-  status: ModGoalStepStatus;
-  children: ModGoalStep[];
-}
-
-// hand-added — regenerate with npm run generate_api once SkyApi is deployed
-export interface ModGoalProgress {
-  id: string;
-  title: string;
-  rootItemTag: string;
-  quantity: number;
-  createdAt: string;
-  source: string;
-  done: number;
-  total: number;
-  root: ModGoalStep;
-}
-
-// hand-added — regenerate with npm run generate_api once SkyApi is deployed
-export interface ModGoalsResponse {
-  focusId: string | null;
-  goals: ModGoalProgress[];
-}
-
-// hand-added — regenerate with npm run generate_api once SkyApi is deployed
-export interface ModGoalCreateRequest {
-  kind: 'craft' | 'forge';
-  itemTag: string;
-  quantity?: number;
-  sell?: boolean;
-}
 

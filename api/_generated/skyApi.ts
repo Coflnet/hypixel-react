@@ -171,6 +171,11 @@ import type {
   MayorDiffFlip,
   Member,
   MinionRankingResponse,
+  ModExecuteRequest,
+  ModExecuteResponse,
+  ModGoalCreateRequest,
+  ModGoalProgress,
+  ModGoalsResponse,
   NetworthBreakDown,
   NotificationTarget,
   NpcFlip,
@@ -191,11 +196,6 @@ import type {
   PostApiItemsNames200One,
   PostApiItemsNames200Three,
   PostApiItemsNames200Two,
-  ModExecuteRequest,
-  ModExecuteResponse,
-  ModGoalCreateRequest,
-  ModGoalProgress,
-  ModGoalsResponse,
   PostApiModAuth401One,
   PostApiModAuthParams,
   PostApiNotificationsListeners401One,
@@ -9210,351 +9210,6 @@ export function useGetApiMinionsBest<TData = Awaited<ReturnType<typeof getApiMin
 
 
 
-// hand-added — regenerate with npm run generate_api once SkyApi is deployed
-export type postApiModExecuteResponse200 = {
-  data: ModExecuteResponse
-  status: 200
-}
-
-export type postApiModExecuteResponse400 = {
-  data: { slug?: string; message?: string; trace?: string }
-  status: 400
-}
-
-export type postApiModExecuteResponse401 = {
-  data: void
-  status: 401
-}
-
-export type postApiModExecuteResponse429 = {
-  data: void
-  status: 429
-}
-
-export type postApiModExecuteResponseSuccess = (postApiModExecuteResponse200) & {
-  headers: Headers;
-};
-export type postApiModExecuteResponseError = (postApiModExecuteResponse400 | postApiModExecuteResponse401 | postApiModExecuteResponse429) & {
-  headers: Headers;
-};
-
-export type postApiModExecuteResponse = (postApiModExecuteResponseSuccess | postApiModExecuteResponseError)
-
-export const getPostApiModExecuteUrl = () => {
-
-
-  
-
-  return `https://sky.coflnet.com/api/mod/execute`
-}
-
-/**
- * @summary Run a command in the connected mod instance
- */
-export const postApiModExecute = async (modExecuteRequest?: ModExecuteRequest, options?: RequestInit): Promise<postApiModExecuteResponse> => {
-
-  const res = await fetch(getPostApiModExecuteUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
-    body: JSON.stringify(modExecuteRequest)
-  }
-)
-
-  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: postApiModExecuteResponse['data'] = parseGeneratedResponseBody(body)
-  return { data, status: res.status, headers: res.headers } as postApiModExecuteResponse
-}
-
-
-
-// hand-added — regenerate with npm run generate_api once SkyApi is deployed
-export type getApiModGoalsResponse200 = {
-  data: ModGoalsResponse
-  status: 200
-}
-
-export type getApiModGoalsResponse400 = {
-  data: { slug?: string; message?: string; trace?: string }
-  status: 400
-}
-
-export type getApiModGoalsResponse401 = {
-  data: void
-  status: 401
-}
-
-export type getApiModGoalsResponseSuccess = (getApiModGoalsResponse200) & {
-  headers: Headers;
-};
-export type getApiModGoalsResponseError = (getApiModGoalsResponse400 | getApiModGoalsResponse401) & {
-  headers: Headers;
-};
-
-export type getApiModGoalsResponse = (getApiModGoalsResponseSuccess | getApiModGoalsResponseError)
-
-export const getGetApiModGoalsUrl = () => {
-  return `https://sky.coflnet.com/api/mod/goals`
-}
-
-/**
- * @summary List the goals tracked in the connected mod
- */
-export const getApiModGoals = async (options?: RequestInit): Promise<getApiModGoalsResponse> => {
-
-  const res = await fetch(getGetApiModGoalsUrl(),
-  {
-    ...options,
-    method: 'GET'
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: getApiModGoalsResponse['data'] = parseGeneratedResponseBody(body)
-  return { data, status: res.status, headers: res.headers } as getApiModGoalsResponse
-}
-
-export const getGetApiModGoalsQueryKey = () => {
-    return [
-    `https://sky.coflnet.com/api/mod/goals`
-    ] as const;
-    }
-
-export const getGetApiModGoalsQueryOptions = <TData = Awaited<ReturnType<typeof getApiModGoals>>, TError = unknown>(options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModGoals>>, TError, TData>>, fetch?: RequestInit}
-) => {
-
-const {query: queryOptions, fetch: fetchOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getGetApiModGoalsQueryKey();
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiModGoals>>> = ({ signal }) => getApiModGoals({ signal, ...fetchOptions });
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiModGoals>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type GetApiModGoalsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiModGoals>>>
-export type GetApiModGoalsQueryError = unknown
-
-/**
- * @summary List the goals tracked in the connected mod
- */
-
-export function useGetApiModGoals<TData = Awaited<ReturnType<typeof getApiModGoals>>, TError = unknown>(
- options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModGoals>>, TError, TData>>, fetch?: RequestInit}
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getGetApiModGoalsQueryOptions(options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-// hand-added — regenerate with npm run generate_api once SkyApi is deployed
-export type postApiModGoalsResponse200 = {
-  data: ModGoalProgress
-  status: 200
-}
-
-export type postApiModGoalsResponse400 = {
-  data: { slug?: string; message?: string; trace?: string }
-  status: 400
-}
-
-export type postApiModGoalsResponse401 = {
-  data: void
-  status: 401
-}
-
-export type postApiModGoalsResponseSuccess = (postApiModGoalsResponse200) & {
-  headers: Headers;
-};
-export type postApiModGoalsResponseError = (postApiModGoalsResponse400 | postApiModGoalsResponse401) & {
-  headers: Headers;
-};
-
-export type postApiModGoalsResponse = (postApiModGoalsResponseSuccess | postApiModGoalsResponseError)
-
-export const getPostApiModGoalsUrl = () => {
-  return `https://sky.coflnet.com/api/mod/goals`
-}
-
-/**
- * @summary Track a craft or forge goal in the connected mod
- */
-export const postApiModGoals = async (modGoalCreateRequest: ModGoalCreateRequest, options?: RequestInit): Promise<postApiModGoalsResponse> => {
-
-  const res = await fetch(getPostApiModGoalsUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
-    body: JSON.stringify(modGoalCreateRequest)
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: postApiModGoalsResponse['data'] = parseGeneratedResponseBody(body)
-  return { data, status: res.status, headers: res.headers } as postApiModGoalsResponse
-}
-
-
-
-// hand-added — regenerate with npm run generate_api once SkyApi is deployed
-export type deleteApiModGoalsIdResponse204 = {
-  data: void
-  status: 204
-}
-
-export type deleteApiModGoalsIdResponse400 = {
-  data: { slug?: string; message?: string; trace?: string }
-  status: 400
-}
-
-export type deleteApiModGoalsIdResponse401 = {
-  data: void
-  status: 401
-}
-
-export type deleteApiModGoalsIdResponseSuccess = (deleteApiModGoalsIdResponse204) & {
-  headers: Headers;
-};
-export type deleteApiModGoalsIdResponseError = (deleteApiModGoalsIdResponse400 | deleteApiModGoalsIdResponse401) & {
-  headers: Headers;
-};
-
-export type deleteApiModGoalsIdResponse = (deleteApiModGoalsIdResponseSuccess | deleteApiModGoalsIdResponseError)
-
-export const getDeleteApiModGoalsIdUrl = (id: string,) => {
-  return `https://sky.coflnet.com/api/mod/goals/${id}`
-}
-
-/**
- * @summary Remove a tracked goal
- */
-export const deleteApiModGoalsId = async (id: string, options?: RequestInit): Promise<deleteApiModGoalsIdResponse> => {
-
-  const res = await fetch(getDeleteApiModGoalsIdUrl(id),
-  {
-    ...options,
-    method: 'DELETE'
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: deleteApiModGoalsIdResponse['data'] = parseGeneratedResponseBody(body)
-  return { data, status: res.status, headers: res.headers } as deleteApiModGoalsIdResponse
-}
-
-
-
-// hand-added — regenerate with npm run generate_api once SkyApi is deployed
-export type postApiModGoalsIdFocusResponse204 = {
-  data: void
-  status: 204
-}
-
-export type postApiModGoalsIdFocusResponse400 = {
-  data: { slug?: string; message?: string; trace?: string }
-  status: 400
-}
-
-export type postApiModGoalsIdFocusResponse401 = {
-  data: void
-  status: 401
-}
-
-export type postApiModGoalsIdFocusResponseSuccess = (postApiModGoalsIdFocusResponse204) & {
-  headers: Headers;
-};
-export type postApiModGoalsIdFocusResponseError = (postApiModGoalsIdFocusResponse400 | postApiModGoalsIdFocusResponse401) & {
-  headers: Headers;
-};
-
-export type postApiModGoalsIdFocusResponse = (postApiModGoalsIdFocusResponseSuccess | postApiModGoalsIdFocusResponseError)
-
-export const getPostApiModGoalsIdFocusUrl = (id: string,) => {
-  return `https://sky.coflnet.com/api/mod/goals/${id}/focus`
-}
-
-/**
- * @summary Focus a tracked goal
- */
-export const postApiModGoalsIdFocus = async (id: string, options?: RequestInit): Promise<postApiModGoalsIdFocusResponse> => {
-
-  const res = await fetch(getPostApiModGoalsIdFocusUrl(id),
-  {
-    ...options,
-    method: 'POST'
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: postApiModGoalsIdFocusResponse['data'] = parseGeneratedResponseBody(body)
-  return { data, status: res.status, headers: res.headers } as postApiModGoalsIdFocusResponse
-}
-
-
-
-// hand-added — regenerate with npm run generate_api once SkyApi is deployed
-export type postApiModGoalsIdResetResponse204 = {
-  data: void
-  status: 204
-}
-
-export type postApiModGoalsIdResetResponse400 = {
-  data: { slug?: string; message?: string; trace?: string }
-  status: 400
-}
-
-export type postApiModGoalsIdResetResponse401 = {
-  data: void
-  status: 401
-}
-
-export type postApiModGoalsIdResetResponseSuccess = (postApiModGoalsIdResetResponse204) & {
-  headers: Headers;
-};
-export type postApiModGoalsIdResetResponseError = (postApiModGoalsIdResetResponse400 | postApiModGoalsIdResetResponse401) & {
-  headers: Headers;
-};
-
-export type postApiModGoalsIdResetResponse = (postApiModGoalsIdResetResponseSuccess | postApiModGoalsIdResetResponseError)
-
-export const getPostApiModGoalsIdResetUrl = (id: string,) => {
-  return `https://sky.coflnet.com/api/mod/goals/${id}/reset`
-}
-
-/**
- * @summary Reset the progress of a tracked goal
- */
-export const postApiModGoalsIdReset = async (id: string, options?: RequestInit): Promise<postApiModGoalsIdResetResponse> => {
-
-  const res = await fetch(getPostApiModGoalsIdResetUrl(id),
-  {
-    ...options,
-    method: 'POST'
-  }
-)
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: postApiModGoalsIdResetResponse['data'] = parseGeneratedResponseBody(body)
-  return { data, status: res.status, headers: res.headers } as postApiModGoalsIdResetResponse
-}
-
-
-
 export type postApiModAuthResponse200 = {
   data: void
   status: 200
@@ -10597,6 +10252,608 @@ export function useGetApiModRatcheckHash<TData = Awaited<ReturnType<typeof getAp
 
 
 
+
+export type postApiModExecuteResponse200TextPlain = {
+  data: ModExecuteResponse
+  status: 200
+}
+
+export type postApiModExecuteResponse200ApplicationJson = {
+  data: ModExecuteResponse
+  status: 200
+}
+
+export type postApiModExecuteResponse200TextJson = {
+  data: ModExecuteResponse
+  status: 200
+}
+
+export type postApiModExecuteResponseSuccess = (postApiModExecuteResponse200TextPlain | postApiModExecuteResponse200ApplicationJson | postApiModExecuteResponse200TextJson) & {
+  headers: Headers;
+};
+;
+
+export type postApiModExecuteResponse = (postApiModExecuteResponseSuccess)
+
+export const getPostApiModExecuteUrl = () => {
+
+
+
+
+  return `https://sky.coflnet.com/api/mod/execute`
+}
+
+/**
+ * @summary Executes an allowlisted chat command in the minecraft mod of the authenticated user.
+Requires a google login or an api key. Without a booster cookie `/bz item` becomes a queued bazaar search.
+ */
+export const postApiModExecute = async (modExecuteRequest?: ModExecuteRequest, options?: RequestInit): Promise<postApiModExecuteResponse> => {
+
+  const res = await fetch(getPostApiModExecuteUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(modExecuteRequest)
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postApiModExecuteResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as postApiModExecuteResponse
+}
+
+
+
+
+
+export const getPostApiModExecuteMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModExecute>>, TError,{data?: ModExecuteRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiModExecute>>, TError,{data?: ModExecuteRequest}, TContext> => {
+
+const mutationKey = ['postApiModExecute'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiModExecute>>, {data?: ModExecuteRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiModExecute(data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiModExecuteMutationResult = NonNullable<Awaited<ReturnType<typeof postApiModExecute>>>
+    export type PostApiModExecuteMutationBody = ModExecuteRequest | undefined
+    export type PostApiModExecuteMutationError = unknown
+
+    /**
+ * @summary Executes an allowlisted chat command in the minecraft mod of the authenticated user.
+Requires a google login or an api key. Without a booster cookie `/bz item` becomes a queued bazaar search.
+ */
+export const usePostApiModExecute = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModExecute>>, TError,{data?: ModExecuteRequest}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiModExecute>>,
+        TError,
+        {data?: ModExecuteRequest},
+        TContext
+      > => {
+      return useMutation(getPostApiModExecuteMutationOptions(options), queryClient);
+    }
+
+export type getApiModGoalsResponse200TextPlain = {
+  data: ModGoalsResponse
+  status: 200
+}
+
+export type getApiModGoalsResponse200ApplicationJson = {
+  data: ModGoalsResponse
+  status: 200
+}
+
+export type getApiModGoalsResponse200TextJson = {
+  data: ModGoalsResponse
+  status: 200
+}
+
+export type getApiModGoalsResponseSuccess = (getApiModGoalsResponse200TextPlain | getApiModGoalsResponse200ApplicationJson | getApiModGoalsResponse200TextJson) & {
+  headers: Headers;
+};
+;
+
+export type getApiModGoalsResponse = (getApiModGoalsResponseSuccess)
+
+export const getGetApiModGoalsUrl = () => {
+
+
+
+
+  return `https://sky.coflnet.com/api/mod/goals`
+}
+
+/**
+ * @summary Lists the goals of the authenticated user with their current progress.
+ */
+export const getApiModGoals = async ( options?: RequestInit): Promise<getApiModGoalsResponse> => {
+
+  const res = await fetch(getGetApiModGoalsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiModGoalsResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiModGoalsResponse
+}
+
+
+
+
+
+export const getGetApiModGoalsQueryKey = () => {
+    return [
+    `https://sky.coflnet.com/api/mod/goals`
+    ] as const;
+    }
+
+
+export const getGetApiModGoalsQueryOptions = <TData = Awaited<ReturnType<typeof getApiModGoals>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModGoals>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiModGoalsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiModGoals>>> = ({ signal }) => getApiModGoals({ signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiModGoals>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiModGoalsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiModGoals>>>
+export type GetApiModGoalsQueryError = unknown
+
+
+export function useGetApiModGoals<TData = Awaited<ReturnType<typeof getApiModGoals>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModGoals>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiModGoals>>,
+          TError,
+          Awaited<ReturnType<typeof getApiModGoals>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiModGoals<TData = Awaited<ReturnType<typeof getApiModGoals>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModGoals>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiModGoals>>,
+          TError,
+          Awaited<ReturnType<typeof getApiModGoals>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiModGoals<TData = Awaited<ReturnType<typeof getApiModGoals>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModGoals>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Lists the goals of the authenticated user with their current progress.
+ */
+
+export function useGetApiModGoals<TData = Awaited<ReturnType<typeof getApiModGoals>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiModGoals>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiModGoalsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type postApiModGoalsResponse200TextPlain = {
+  data: ModGoalProgress
+  status: 200
+}
+
+export type postApiModGoalsResponse200ApplicationJson = {
+  data: ModGoalProgress
+  status: 200
+}
+
+export type postApiModGoalsResponse200TextJson = {
+  data: ModGoalProgress
+  status: 200
+}
+
+export type postApiModGoalsResponseSuccess = (postApiModGoalsResponse200TextPlain | postApiModGoalsResponse200ApplicationJson | postApiModGoalsResponse200TextJson) & {
+  headers: Headers;
+};
+;
+
+export type postApiModGoalsResponse = (postApiModGoalsResponseSuccess)
+
+export const getPostApiModGoalsUrl = () => {
+
+
+
+
+  return `https://sky.coflnet.com/api/mod/goals`
+}
+
+/**
+ * @summary Creates a goal for crafting or forging an item. The first goal becomes the focused one.
+ */
+export const postApiModGoals = async (modGoalCreateRequest?: ModGoalCreateRequest, options?: RequestInit): Promise<postApiModGoalsResponse> => {
+
+  const res = await fetch(getPostApiModGoalsUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(modGoalCreateRequest)
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postApiModGoalsResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as postApiModGoalsResponse
+}
+
+
+
+
+
+export const getPostApiModGoalsMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModGoals>>, TError,{data?: ModGoalCreateRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiModGoals>>, TError,{data?: ModGoalCreateRequest}, TContext> => {
+
+const mutationKey = ['postApiModGoals'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiModGoals>>, {data?: ModGoalCreateRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiModGoals(data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiModGoalsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiModGoals>>>
+    export type PostApiModGoalsMutationBody = ModGoalCreateRequest | undefined
+    export type PostApiModGoalsMutationError = unknown
+
+    /**
+ * @summary Creates a goal for crafting or forging an item. The first goal becomes the focused one.
+ */
+export const usePostApiModGoals = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModGoals>>, TError,{data?: ModGoalCreateRequest}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiModGoals>>,
+        TError,
+        {data?: ModGoalCreateRequest},
+        TContext
+      > => {
+      return useMutation(getPostApiModGoalsMutationOptions(options), queryClient);
+    }
+
+export type deleteApiModGoalsIdResponse200 = {
+  data: void
+  status: 200
+}
+
+export type deleteApiModGoalsIdResponseSuccess = (deleteApiModGoalsIdResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiModGoalsIdResponse = (deleteApiModGoalsIdResponseSuccess)
+
+export const getDeleteApiModGoalsIdUrl = (id: string,) => {
+
+
+
+
+  return `https://sky.coflnet.com/api/mod/goals/${id}`
+}
+
+/**
+ * @summary Deletes a goal.
+ */
+export const deleteApiModGoalsId = async (id: string, options?: RequestInit): Promise<deleteApiModGoalsIdResponse> => {
+
+  const res = await fetch(getDeleteApiModGoalsIdUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: deleteApiModGoalsIdResponse['data'] = body ? JSON.parse(body) : undefined
+  return { data, status: res.status, headers: res.headers } as deleteApiModGoalsIdResponse
+}
+
+
+
+
+
+export const getDeleteApiModGoalsIdMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiModGoalsId>>, TError,{id: string}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteApiModGoalsId>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['deleteApiModGoalsId'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiModGoalsId>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteApiModGoalsId(id,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteApiModGoalsIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiModGoalsId>>>
+
+    export type DeleteApiModGoalsIdMutationError = unknown
+
+    /**
+ * @summary Deletes a goal.
+ */
+export const useDeleteApiModGoalsId = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteApiModGoalsId>>, TError,{id: string}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteApiModGoalsId>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getDeleteApiModGoalsIdMutationOptions(options), queryClient);
+    }
+
+export type postApiModGoalsIdFocusResponse200 = {
+  data: void
+  status: 200
+}
+
+export type postApiModGoalsIdFocusResponseSuccess = (postApiModGoalsIdFocusResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiModGoalsIdFocusResponse = (postApiModGoalsIdFocusResponseSuccess)
+
+export const getPostApiModGoalsIdFocusUrl = (id: string,) => {
+
+
+
+
+  return `https://sky.coflnet.com/api/mod/goals/${id}/focus`
+}
+
+/**
+ * @summary Makes a goal the one shown in the in-game hud.
+ */
+export const postApiModGoalsIdFocus = async (id: string, options?: RequestInit): Promise<postApiModGoalsIdFocusResponse> => {
+
+  const res = await fetch(getPostApiModGoalsIdFocusUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postApiModGoalsIdFocusResponse['data'] = body ? JSON.parse(body) : undefined
+  return { data, status: res.status, headers: res.headers } as postApiModGoalsIdFocusResponse
+}
+
+
+
+
+
+export const getPostApiModGoalsIdFocusMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModGoalsIdFocus>>, TError,{id: string}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiModGoalsIdFocus>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['postApiModGoalsIdFocus'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiModGoalsIdFocus>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  postApiModGoalsIdFocus(id,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiModGoalsIdFocusMutationResult = NonNullable<Awaited<ReturnType<typeof postApiModGoalsIdFocus>>>
+
+    export type PostApiModGoalsIdFocusMutationError = unknown
+
+    /**
+ * @summary Makes a goal the one shown in the in-game hud.
+ */
+export const usePostApiModGoalsIdFocus = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModGoalsIdFocus>>, TError,{id: string}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiModGoalsIdFocus>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getPostApiModGoalsIdFocusMutationOptions(options), queryClient);
+    }
+
+export type postApiModGoalsIdResetResponse200 = {
+  data: void
+  status: 200
+}
+
+export type postApiModGoalsIdResetResponseSuccess = (postApiModGoalsIdResetResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiModGoalsIdResetResponse = (postApiModGoalsIdResetResponseSuccess)
+
+export const getPostApiModGoalsIdResetUrl = (id: string,) => {
+
+
+
+
+  return `https://sky.coflnet.com/api/mod/goals/${id}/reset`
+}
+
+/**
+ * @summary Clears the recorded progress of a goal.
+ */
+export const postApiModGoalsIdReset = async (id: string, options?: RequestInit): Promise<postApiModGoalsIdResetResponse> => {
+
+  const res = await fetch(getPostApiModGoalsIdResetUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postApiModGoalsIdResetResponse['data'] = body ? JSON.parse(body) : undefined
+  return { data, status: res.status, headers: res.headers } as postApiModGoalsIdResetResponse
+}
+
+
+
+
+
+export const getPostApiModGoalsIdResetMutationOptions = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModGoalsIdReset>>, TError,{id: string}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiModGoalsIdReset>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['postApiModGoalsIdReset'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiModGoalsIdReset>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  postApiModGoalsIdReset(id,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiModGoalsIdResetMutationResult = NonNullable<Awaited<ReturnType<typeof postApiModGoalsIdReset>>>
+
+    export type PostApiModGoalsIdResetMutationError = unknown
+
+    /**
+ * @summary Clears the recorded progress of a goal.
+ */
+export const usePostApiModGoalsIdReset = <TError = unknown,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiModGoalsIdReset>>, TError,{id: string}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiModGoalsIdReset>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getPostApiModGoalsIdResetMutationOptions(options), queryClient);
+    }
 
 export type getApiNotificationsTargetsResponse200TextPlain = {
   data: NotificationTarget[]
