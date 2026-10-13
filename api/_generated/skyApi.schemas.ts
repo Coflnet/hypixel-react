@@ -4534,6 +4534,10 @@ export type GetApiItemPriceItemTagCurrentParams = {
  * How many items to search for (and include in cost)
  */
 count?: number;
+/**
+ * Ignore auction house listings younger than this many seconds (0 to 3600, default 0), freshly listed underpriced auctions are sniped within seconds. Ignored for bazaar items
+ */
+minAgeSeconds?: number;
 };
 
 export type GetApiItemPriceItemTagHistoryDayParams = {

@@ -1177,7 +1177,7 @@ export const getApiAuctionsBatch = async (params?: GetApiAuctionsBatchParams, op
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: getApiAuctionsBatchResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: getApiAuctionsBatchResponse['data'] = parseGeneratedResponseBody(body)
   return { data, status: res.status, headers: res.headers } as getApiAuctionsBatchResponse
 }
 
@@ -3433,7 +3433,7 @@ export const getApiCraftAcquisitionItemTag = async (itemTag: string,
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: getApiCraftAcquisitionItemTagResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: getApiCraftAcquisitionItemTagResponse['data'] = parseGeneratedResponseBody(body)
   return { data, status: res.status, headers: res.headers } as getApiCraftAcquisitionItemTagResponse
 }
 
@@ -6199,7 +6199,7 @@ export const postApiFlipTrackPurchaseAuctionId = async (auctionId: string,
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: postApiFlipTrackPurchaseAuctionIdResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: postApiFlipTrackPurchaseAuctionIdResponse['data'] = parseGeneratedResponseBody(body)
   return { data, status: res.status, headers: res.headers } as postApiFlipTrackPurchaseAuctionIdResponse
 }
 
@@ -6298,7 +6298,7 @@ export const postApiFlipTrackFoundAuctionId = async (auctionId: string,
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: postApiFlipTrackFoundAuctionIdResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: postApiFlipTrackFoundAuctionIdResponse['data'] = parseGeneratedResponseBody(body)
   return { data, status: res.status, headers: res.headers } as postApiFlipTrackFoundAuctionIdResponse
 }
 
@@ -7326,7 +7326,7 @@ export const deleteApiDataAiConversationId = async (conversationId: string, opti
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: deleteApiDataAiConversationIdResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: deleteApiDataAiConversationIdResponse['data'] = parseGeneratedResponseBody(body)
   return { data, status: res.status, headers: res.headers } as deleteApiDataAiConversationIdResponse
 }
 
@@ -9491,7 +9491,7 @@ export const getApiModOpenSearch = async (search: string, options?: RequestInit)
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: getApiModOpenSearchResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: getApiModOpenSearchResponse['data'] = parseGeneratedResponseBody(body)
   return { data, status: res.status, headers: res.headers } as getApiModOpenSearchResponse
 }
 
@@ -10622,7 +10622,7 @@ export const deleteApiModGoalsId = async (id: string, options?: RequestInit): Pr
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: deleteApiModGoalsIdResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: deleteApiModGoalsIdResponse['data'] = parseGeneratedResponseBody(body)
   return { data, status: res.status, headers: res.headers } as deleteApiModGoalsIdResponse
 }
 
@@ -10712,7 +10712,7 @@ export const postApiModGoalsIdFocus = async (id: string, options?: RequestInit):
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: postApiModGoalsIdFocusResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: postApiModGoalsIdFocusResponse['data'] = parseGeneratedResponseBody(body)
   return { data, status: res.status, headers: res.headers } as postApiModGoalsIdFocusResponse
 }
 
@@ -10802,7 +10802,7 @@ export const postApiModGoalsIdReset = async (id: string, options?: RequestInit):
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: postApiModGoalsIdResetResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: postApiModGoalsIdResetResponse['data'] = parseGeneratedResponseBody(body)
   return { data, status: res.status, headers: res.headers } as postApiModGoalsIdResetResponse
 }
 
@@ -14418,16 +14418,33 @@ export const usePostApiTopupLemonsqueezyProductSlug = <TError = PostApiTopupLemo
     }
 
 export type getApiLinkvertiseResponse200 = {
-  data: void
+  data: string
   status: 200
+}
+
+export type getApiLinkvertiseResponse302 = {
+  data: void
+  status: 302
+}
+
+export type getApiLinkvertiseResponse400 = {
+  data: string
+  status: 400
+}
+
+export type getApiLinkvertiseResponse401 = {
+  data: string
+  status: 401
 }
 
 export type getApiLinkvertiseResponseSuccess = (getApiLinkvertiseResponse200) & {
   headers: Headers;
 };
-;
+export type getApiLinkvertiseResponseError = (getApiLinkvertiseResponse302 | getApiLinkvertiseResponse400 | getApiLinkvertiseResponse401) & {
+  headers: Headers;
+};
 
-export type getApiLinkvertiseResponse = (getApiLinkvertiseResponseSuccess)
+export type getApiLinkvertiseResponse = (getApiLinkvertiseResponseSuccess | getApiLinkvertiseResponseError)
 
 export const getGetApiLinkvertiseUrl = (params?: GetApiLinkvertiseParams,) => {
   const normalizedParams = new URLSearchParams();
@@ -14460,10 +14477,10 @@ export const getApiLinkvertise = async (params?: GetApiLinkvertiseParams, option
   }
 )
 
-
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: getApiLinkvertiseResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: getApiLinkvertiseResponse['data'] = parseGeneratedResponseBody(body)
   return { data, status: res.status, headers: res.headers } as getApiLinkvertiseResponse
 }
 
@@ -14478,7 +14495,7 @@ export const getGetApiLinkvertiseQueryKey = (params?: GetApiLinkvertiseParams,) 
     }
 
 
-export const getGetApiLinkvertiseQueryOptions = <TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiLinkvertiseQueryOptions = <TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = void | string>(params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
@@ -14497,10 +14514,10 @@ const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 }
 
 export type GetApiLinkvertiseQueryResult = NonNullable<Awaited<ReturnType<typeof getApiLinkvertise>>>
-export type GetApiLinkvertiseQueryError = unknown
+export type GetApiLinkvertiseQueryError = void | string
 
 
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = void | string>(
  params: undefined |  GetApiLinkvertiseParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiLinkvertise>>,
@@ -14510,7 +14527,7 @@ export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLin
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = void | string>(
  params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiLinkvertise>>,
@@ -14520,7 +14537,7 @@ export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLin
       >, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = void | string>(
  params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
@@ -14530,7 +14547,7 @@ Called twice: once without a hash to obtain the link the user has to complete an
 the provider (linkvertise or lootlabs) when the user returns after finishing the offer.
  */
 
-export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = unknown>(
+export function useGetApiLinkvertise<TData = Awaited<ReturnType<typeof getApiLinkvertise>>, TError = void | string>(
  params?: GetApiLinkvertiseParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiLinkvertise>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
@@ -15825,7 +15842,7 @@ export const getApiBlacklistStatus = async ( options?: RequestInit): Promise<get
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: getApiBlacklistStatusResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: getApiBlacklistStatusResponse['data'] = parseGeneratedResponseBody(body)
   return { data, status: res.status, headers: res.headers } as getApiBlacklistStatusResponse
 }
 
@@ -15945,7 +15962,7 @@ export const postApiBlacklistUnblock = async ( options?: RequestInit): Promise<p
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
 
-  const data: postApiBlacklistUnblockResponse['data'] = body ? JSON.parse(body) : undefined
+  const data: postApiBlacklistUnblockResponse['data'] = parseGeneratedResponseBody(body)
   return { data, status: res.status, headers: res.headers } as postApiBlacklistUnblockResponse
 }
 
