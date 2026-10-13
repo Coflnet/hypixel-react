@@ -19,7 +19,7 @@ export function TrackGoalButton({ kind, itemTag, itemName }: Props) {
     const [quantity, setQuantity] = useState(1)
     const [sell, setSell] = useState(false)
     const [busy, setBusy] = useState(false)
-    const tracked = data?.goals.find(goal => goal.rootItemTag === itemTag)
+    const tracked = data?.goals?.find(goal => goal.rootItemTag === itemTag)
 
     async function track() {
         if (!token) return
@@ -43,11 +43,12 @@ export function TrackGoalButton({ kind, itemTag, itemName }: Props) {
     }
 
     async function untrack() {
-        if (!token || !tracked) return
+        if (!token || !tracked?.id) return
         setBusy(true)
         try {
             const response = await deleteApiModGoalsId(tracked.id, { headers: { GoogleToken: token } })
-            if (response.status !== 204) {
+            const status: number = response.status
+            if (status < 200 || status >= 300) {
                 toast.error(getGeneratedApiErrorMessage(response, null, 'Unable to untrack this goal'))
             }
         } catch (error) {
