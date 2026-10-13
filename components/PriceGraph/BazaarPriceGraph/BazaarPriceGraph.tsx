@@ -397,6 +397,7 @@ function BazaarPriceGraph(props: Props) {
                     dateRangesToDisplay={[DateRange.HOUR, DateRange.DAY, DateRange.WEEK, DateRange.MONTH, DateRange.ALL]}
                     onRangeChange={onRangeChange}
                     disableAllTime={false}
+                    restrictToDisplayedRanges
                     item={props.item}
                 />
             </Suspense>
