@@ -1,11 +1,11 @@
 'use client'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
-import React, { useEffect, useState, type JSX } from 'react'
+import React, { useState, type JSX } from 'react'
 import { Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
-import { isClientSideRendering } from '../../utils/SSRUtils'
 import { copyAndRunInGame } from '../../utils/InGameCommandUtils'
 import { canUseClipBoard, writeToClipboard } from '../../utils/ClipboardUtils'
+import { useIsMounted } from '../../utils/Hooks'
 
 interface Props {
     onCopy?()
@@ -23,11 +23,7 @@ interface Props {
 export function CopyButton(props: Props) {
     let [isCopied, setIsCopied] = useState(false)
     let { trackEvent } = useMatomo()
-    let [isSSR, setIsSSR] = useState(true)
-
-    useEffect(() => {
-        setIsSSR(false)
-    })
+    const isMounted = useIsMounted()
 
     let copyIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-clipboard" viewBox="0 0 16 16">
@@ -57,7 +53,7 @@ export function CopyButton(props: Props) {
             }
             trackEvent({
                 category: 'copyButtonClick',
-                action: props.copyValue
+                action: 'copyToClipboard'
             })
         }
         if (props.onCopy) {
@@ -70,11 +66,11 @@ export function CopyButton(props: Props) {
 
     return (
         <span>
-            {!isSSR && canUseClipBoard() ? (
+            {isMounted && canUseClipBoard() ? (
                 <span className={props.buttonWrapperClass}>
                     <Button
                         style={props.buttonStyle}
-                        onMouseDown={copyClick}
+                        onClick={copyClick}
                         className={props.buttonClass}
                         aria-label="copy to clipboard"
                         variant={props.buttonVariant || 'secondary'}

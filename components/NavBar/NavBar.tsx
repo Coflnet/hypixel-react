@@ -1,22 +1,19 @@
 'use client'
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance'
 import AccountIcon from '@mui/icons-material/AccountCircle'
-import BuildIcon from '@mui/icons-material/Build'
 import ChatIcon from '@mui/icons-material/Chat'
 import DownloadIcon from '@mui/icons-material/Download'
 import HomeIcon from '@mui/icons-material/Home'
 import MenuIcon from '@mui/icons-material/Menu'
 import NotificationIcon from '@mui/icons-material/NotificationsOutlined'
-import PetsIcon from '@mui/icons-material/PetsOutlined'
 import PolicyIcon from '@mui/icons-material/Policy'
 import ShareIcon from '@mui/icons-material/ShareOutlined'
 import StorefrontIcon from '@mui/icons-material/Storefront'
-import CurrencyExchangeIcon from '@mui/icons-material/CurrencyExchange'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { Menu, MenuItem, Sidebar } from 'react-pro-sidebar'
-import { useForceUpdate, useReferralRewardsEligibility } from '../../utils/Hooks'
+import { useReferralRewardsEligibility } from '../../utils/Hooks'
 import styles from './NavBar.module.css'
 import { ShowChart } from '@mui/icons-material'
 
@@ -30,7 +27,6 @@ function NavBar(props: Props) {
     let [isWideOpen, setIsWideOpen] = useState(false)
     let [isHovering, setIsHovering] = useState(false)
     let [isSmall, setIsSmall] = useState(false)
-    let forceUpdate = useForceUpdate()
     let isReferralEligible = useReferralRewardsEligibility()
 
     const collapsed = isSmall ? false : !isWideOpen && !isHovering
@@ -48,8 +44,6 @@ function NavBar(props: Props) {
     useEffect(() => {
         if (isWideOpen) {
             document.addEventListener('click', outsideClickHandler, true)
-        } else {
-            document.removeEventListener('click', outsideClickHandler, true)
         }
 
         return () => {
@@ -100,7 +94,6 @@ function NavBar(props: Props) {
         resizePromise = setTimeout(() => {
             setIsWideOpen(false)
             setIsSmall(window.innerWidth < 1500)
-            forceUpdate()
             resizePromise = null
             let el = document.getElementById('pro-sidebar')
             if (el) {
@@ -186,9 +179,18 @@ function NavBar(props: Props) {
                 </Sidebar>
             </aside>
             {isSmall ? (
-                <span onClick={onHamburgerClick} className={styles.hamburgerIcon} id="hamburgerIcon" style={props.hamburgerIconStyle}>
+                <button
+                    type="button"
+                    aria-label="Navigation menu"
+                    aria-expanded={isWideOpen}
+                    aria-controls="pro-sidebar"
+                    onClick={onHamburgerClick}
+                    className={styles.hamburgerIcon}
+                    id="hamburgerIcon"
+                    style={props.hamburgerIconStyle}
+                >
                     <MenuIcon fontSize="large" />
-                </span>
+                </button>
             ) : (
                 ''
             )}

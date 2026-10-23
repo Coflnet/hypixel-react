@@ -1,5 +1,5 @@
 'use client'
-import { getFilterResultTitle } from '../../utils/Search/FilterResultId'
+import { getFilterResultTitle, getResultNavigationUrl } from '../../utils/Search/FilterResultId'
 import React, { ChangeEvent, useMemo, useRef, type JSX } from 'react'
 import api from '../../api/ApiHelper'
 import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap'
@@ -17,7 +17,6 @@ import { useForceUpdate, useIsMobile } from '../../utils/Hooks'
 import { useStagedSearch } from '../../hooks/useStagedSearch'
 import { useOutsideClick } from '../../hooks/useOutsideClick'
 import { useIsSmallScreen } from '../../hooks/useIsSmallScreen'
-import { getResultNavigationUrl } from '../../utils/Search/FilterResultId'
 import { usePrefetchSearchResult } from '../../hooks/usePrefetchSearchResult'
 import { EMBEDDED_SEARCH_STAGES, GLOBAL_SEARCH_STAGES, createLegacyStage, createRecentStage } from '../../utils/Search/SearchStages'
 import PageResultIcon from './PageResultIcon'
@@ -100,9 +99,6 @@ function Search(props: Props) {
         switch (e.key) {
             case 'Enter':
                 e.preventDefault()
-                if (searchText.trim().length === 0) {
-                    return
-                }
                 search.onEnter().then(item => {
                     if (item) {
                         onItemClick(item)
@@ -153,18 +149,13 @@ function Search(props: Props) {
             }}
         >
             <Image className={styles.searchResultIcon} height={32} width={32} src="/Barrier.png" alt="" />
-               <span>No results here </span>
-                <a
-                    onClick={() => {
-                        if (typeof window !== 'undefined') {
-                            const q = encodeURIComponent(searchText || '')
-                            window.location.href = `https://skysearch.app/search?q=${q}`
-                        }
-                    }}
-                    style={{ cursor: 'pointer', color: '#0d6efd', marginTop: '6px' }}
-                >
-                    Search for {searchText} on Skysearch
-                </a>
+            <span>No results here </span>
+            <a
+                href={`https://skysearch.app/search?q=${encodeURIComponent(searchText)}`}
+                style={{ cursor: 'pointer', color: '#0d6efd', marginTop: '6px' }}
+            >
+                Search for {searchText} on Skysearch
+            </a>
         </ListGroup.Item>
     )
 
@@ -291,7 +282,7 @@ function Search(props: Props) {
         <div>
             <Menu id={PLAYER_SEARCH_CONEXT_MENU_ID} theme={'dark'}>
                 <Item
-                    onClick={params => {
+                    onClick={() => {
                         checkNameChange((props.selected as Player).uuid)
                     }}
                 >
@@ -406,7 +397,7 @@ function Search(props: Props) {
                               <ListGroup.Item
                                   key={result.id}
                                   action
-                                  onClick={(e: any) => {
+                                  onClick={() => {
                                       onItemClick(result)
                                   }}
                                   onMouseEnter={() => prefetchResult(result)}

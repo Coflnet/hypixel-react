@@ -9,6 +9,10 @@
 }
 
 .hamburgerIcon {
+    background: none;
+    border: 0;
+    padding: 0;
+    color: inherit;
     display: inline;
     width: 36px;
     height: 36px;
