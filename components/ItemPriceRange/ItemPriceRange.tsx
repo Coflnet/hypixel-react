@@ -25,14 +25,14 @@ const MAX_URL_UPDATES = 3 // Max updates in the window before we stop
 
 export function ItemPriceRange(props: Props) {
     const { trackEvent } = useMatomo()
-    let pathname = usePathname()
-    let searchParams = useSearchParams()
-    let [selectedDateRange, _setSelectedDateRange] = useState<DateRange>(() => {
-        let urlRange = searchParams.get('range')
+    const pathname = usePathname()
+    const searchParams = useSearchParams()
+    const [selectedDateRange, _setSelectedDateRange] = useState<DateRange>(() => {
+        const urlRange = searchParams.get('range')
         return urlRange && VALID_RANGES.includes(urlRange) ? (urlRange as DateRange) : DEFAULT_DATE_RANGE
     })
-    let urlUpdateCountRef = useRef<number[]>([])
-    let defaultRangeRef = useRef<DateRange>(DEFAULT_DATE_RANGE)
+    const urlUpdateCountRef = useRef<number[]>([])
+    const defaultRangeRef = useRef<DateRange>(DEFAULT_DATE_RANGE)
 
     useEffect(() => {
         if (props.disableAllTime && selectedDateRange === DateRange.ALL) {
@@ -53,7 +53,7 @@ export function ItemPriceRange(props: Props) {
     }, [props.disableYear, selectedDateRange])
 
     useEffect(() => {
-        let range = getURLSearchParam('range')
+        const range = getURLSearchParam('range')
         if (!range || !VALID_RANGES.includes(range)) {
             return
         }
@@ -73,14 +73,14 @@ export function ItemPriceRange(props: Props) {
     }, [props.item.tag])
 
     useEffect(() => {
-        let setTo = selectedDateRange === DateRange.ACTIVE ? DateRange.ACTIVE : defaultRangeRef.current
+        const setTo = selectedDateRange === DateRange.ACTIVE ? DateRange.ACTIVE : defaultRangeRef.current
         onRangeChange(setTo)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.setToDefaultRangeSwitch])
 
     function setSelectedDateRange(range: DateRange) {
         if (isClientSideRendering()) {
-            let searchParams = new URLSearchParams(window.location.search)
+            const searchParams = new URLSearchParams(window.location.search)
             const currentRange = searchParams.get('range')
             const effectiveCurrentRange = currentRange && VALID_RANGES.includes(currentRange) ? (currentRange as DateRange) : DEFAULT_DATE_RANGE
             
@@ -120,7 +120,7 @@ export function ItemPriceRange(props: Props) {
         }
     }
 
-    let getButtonText = (range: DateRange): string => {
+    const getButtonText = (range: DateRange): string => {
         switch (range) {
             case DateRange.ACTIVE:
                 return 'Active'
@@ -139,18 +139,18 @@ export function ItemPriceRange(props: Props) {
         }
     }
 
-    let getButtonVariant = (range: DateRange): string => {
+    const getButtonVariant = (range: DateRange): string => {
         return range === selectedDateRange ? 'primary' : 'secondary'
     }
 
-    let onRangeChange = (newRange: DateRange) => {
+    const onRangeChange = (newRange: DateRange) => {
         setSelectedDateRange(newRange)
         if (props.onRangeChange) {
             props.onRangeChange(newRange)
         }
     }
 
-    let onRangeChangeClick = newRange => {
+    const onRangeChangeClick = newRange => {
         onRangeChange(newRange)
         trackEvent({
             category: 'changeItemPriceRange',
@@ -163,7 +163,7 @@ export function ItemPriceRange(props: Props) {
      * Here are all wrong focuses cleard
      * @param e
      */
-    let removeWrongFocus = () => {
+    const removeWrongFocus = () => {
         setTimeout(() => {
             let elements = document.querySelectorAll('.price-range-button.btn-light.focus')
             while (elements.length > 0) {
@@ -176,7 +176,7 @@ export function ItemPriceRange(props: Props) {
     return (
         <ToggleButtonGroup className={styles.itemPriceRange} type="radio" name="options" value={selectedDateRange} onChange={onRangeChangeClick}>
             {Object.keys(DateRange).map(key => {
-                let dateRange = DateRange[key]
+                const dateRange = DateRange[key]
                 if (props.dateRangesToDisplay.indexOf(dateRange) === -1) {
                     return null
                 }

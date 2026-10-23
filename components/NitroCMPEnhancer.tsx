@@ -25,7 +25,7 @@ export default function NitroCMPEnhancer() {
                 try {
                     const locale = (navigator.language || (navigator.languages && navigator.languages[0]) || 'en').toLowerCase()
                     optOut.textContent = locale.startsWith('de') ? 'Alles ablehnen' : 'Opt out of personalized ads'
-                } catch (e) {
+                } catch {
                     optOut.textContent = 'Opt out of personalized ads'
                 }
                 optOut.style.marginLeft = '8px'
@@ -35,27 +35,23 @@ export default function NitroCMPEnhancer() {
                         
                         setCookie('nonEssentialCookiesAllowed', 'false')
 
-                        try { (window as any)._paq?.push(['forgetCookieConsentGiven']) } catch (e) {}
+                        try { window._paq?.push(['forgetCookieConsentGiven']) } catch { /* The optional vendor API may not be ready. */ }
 
-                        if ((window as any).nitroAds && Array.isArray((window as any).nitroAds.queue)) {
-                            ;(window as any).nitroAds.queue.push(['addUserToken', ['optout']])
+                        if (window.nitroAds && Array.isArray(window.nitroAds.queue)) {
+                            window.nitroAds.queue.push(['addUserToken', ['optout']])
                         }
                         
-                        try {
-                            if ((window as any).__npcmp) {
-                                try { (window as any).__npcmp('reject') } catch (e) {}
-                            }
-                        } catch (e) {}
+                        try { window.__npcmp?.('reject') } catch { /* The CMP may not be ready. */ }
                         
-                        try { banner.classList.remove('ncmp__active') } catch (e) {}
-                        try { window.dispatchEvent(new CustomEvent('nitro.optout')) } catch (e) {}
+                        try { banner.classList.remove('ncmp__active') } catch { /* Consent is saved even if the banner cannot close. */ }
+                        try { window.dispatchEvent(new CustomEvent('nitro.optout')) } catch { /* Consent remains saved if notification fails. */ }
                     } catch (e) {
                         console.error('Direct opt-out failed', e)
                     }
                 }
 
                 btns.appendChild(optOut)
-            } catch (e) {
+            } catch {
                 // swallow errors
             }
         }
@@ -83,18 +79,16 @@ export default function NitroCMPEnhancer() {
                 const isAccept = acceptKeywords.some(k => txt.includes(k)) || /accept|allow|consent|agree|zustimmen|akzeptieren/.test(cls)
                 if (!isAccept) return
 
-                try { setCookie('nonEssentialCookiesAllowed', 'true') } catch (e) {}
-                try { (window as any)._paq?.push(['setCookieConsentGiven']) } catch (e) {}
+                try { setCookie('nonEssentialCookiesAllowed', 'true') } catch { /* Cookies may be blocked by the browser. */ }
+                try { window._paq?.push(['setCookieConsentGiven']) } catch { /* The optional vendor API may not be ready. */ }
                 try {
-                    if ((window as any).nitroAds && Array.isArray((window as any).nitroAds.queue)) {
-                        ;(window as any).nitroAds.queue.push(['addUserToken', ['consent']])
+                    if (window.nitroAds && Array.isArray(window.nitroAds.queue)) {
+                        window.nitroAds.queue.push(['addUserToken', ['consent']])
                     }
-                } catch (e) {}
+                } catch { /* The optional vendor API may not be ready. */ }
 
-                try { window.dispatchEvent(new CustomEvent('nitro.optin')) } catch (e) {}
-            } catch (e) {
-                
-            }
+                try { window.dispatchEvent(new CustomEvent('nitro.optin')) } catch { /* Consent remains saved if notification fails. */ }
+            } catch { /* The optional vendor API may not be ready. */ }
         }
 
         document.addEventListener('click', onDocumentClick)

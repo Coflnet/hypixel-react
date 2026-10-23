@@ -17,8 +17,8 @@ interface PickedTarget {
 }
 
 function NewNotifierButton(props: Props) {
-    let [showSearch, setShowSearch] = useState(false)
-    let [picked, setPicked] = useState<PickedTarget | null>(null)
+    const [showSearch, setShowSearch] = useState(false)
+    const [picked, setPicked] = useState<PickedTarget | null>(null)
 
     async function onSearchresultClick(item: SearchResultItem) {
         setShowSearch(false)
@@ -29,7 +29,7 @@ function NewNotifierButton(props: Props) {
         // item result: figure out whether it trades on the bazaar to pick the right "When" section
         let type: 'item' | 'bazaar' = 'item'
         try {
-            let details = await api.getItemDetails(splitSearchResultId(item.id).tag)
+            const details = await api.getItemDetails(splitSearchResultId(item.id).tag)
             type = details.bazaar ? 'bazaar' : 'item'
         } catch {
             // default to a regular auction-house item notifier

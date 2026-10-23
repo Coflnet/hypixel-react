@@ -23,17 +23,17 @@ export interface RestrictionCreateState {
 }
 
 function NewRestriction(props: Props) {
-    let [createState, setCreateState] = useState<RestrictionCreateState>({
+    const [createState, setCreateState] = useState<RestrictionCreateState>({
         type: props.prefillRestriction ? props.prefillRestriction.type : 'blacklist',
         itemFilter: props.prefillRestriction ? props.prefillRestriction.itemFilter : undefined,
         selectedItems: props.prefillRestriction ? props.prefillRestriction.selectedItems : undefined
     })
-    let [isFilterValid, setIsFilterValid] = useState(true)
+    const [isFilterValid, setIsFilterValid] = useState(true)
     // a picked filter result is applied through a remount of the ItemFilter once the filter options of the picked item are loaded
-    let applyPickedFilter = useRef(false)
-    let [filterKey, setFilterKey] = useState(0)
-    let [filters, setFilters] = useState<FilterOptions[]>([])
-    let [showFillLastUsedItems, setShowFillLastUsedItems] = useState(sessionStorage.getItem('lastUsedItemsForNewRestrictions') !== null)
+    const applyPickedFilter = useRef(false)
+    const [filterKey, setFilterKey] = useState(0)
+    const [filters, setFilters] = useState<FilterOptions[]>([])
+    const [showFillLastUsedItems] = useState(sessionStorage.getItem('lastUsedItemsForNewRestrictions') !== null)
 
     useEffect(() => {
         loadFilters()
@@ -45,19 +45,19 @@ function NewRestriction(props: Props) {
                 api.getFilters(createState.selectedItems?.length === 1 ? createState.selectedItems[0].tag : '*'),
                 api.flipFilters(createState.selectedItems?.length === 1 ? createState.selectedItems[0].tag : '*')
             ]).then(filters => {
-                let result = [...(filters[0] || []), ...(filters[1] || [])]
+                const result = [...(filters[0] || []), ...(filters[1] || [])]
                 setFilters(result)
                 remountFilterForPickedFilter()
                 return result
             })
         } else {
-            let promises: Promise<FilterOptions[]>[] = []
+            const promises: Promise<FilterOptions[]>[] = []
             createState.selectedItems.forEach(item => {
                 promises.push(api.getFilters(item.tag))
                 promises.push(api.flipFilters(item.tag))
             })
             return Promise.all(promises).then(filters => {
-                let groupedFilters: FilterOptions[][] = []
+                const groupedFilters: FilterOptions[][] = []
                 for (let i = 0; i < filters.length; i += 2) {
                     groupedFilters.push([...filters[i], ...filters[i + 1]])
                 }
@@ -66,7 +66,7 @@ function NewRestriction(props: Props) {
                 const intersect = (arrOfArrays: FilterOptions[][]) =>
                     arrOfArrays[1] === undefined ? arrOfArrays[0] : intersect([intersect2(arrOfArrays[0], arrOfArrays[1]), ...arrOfArrays.slice(2)])
 
-                var intersecting = intersect(groupedFilters)
+                const intersecting = intersect(groupedFilters)
                 setFilters(intersecting)
                 remountFilterForPickedFilter()
 
@@ -83,11 +83,11 @@ function NewRestriction(props: Props) {
     }
 
     function fillLastUsedItems() {
-        let lastUsedItems = JSON.parse(sessionStorage.getItem('lastUsedItemsForNewRestrictions') || '[]')
+        const lastUsedItems = JSON.parse(sessionStorage.getItem('lastUsedItemsForNewRestrictions') || '[]')
         setCreateState({ ...createState, selectedItems: lastUsedItems })
     }
 
-    let getButtonVariant = (range: string): string => {
+    const getButtonVariant = (range: string): string => {
         return range === createState.type ? 'primary' : 'secondary'
     }
 
@@ -126,8 +126,8 @@ function NewRestriction(props: Props) {
                     onChange={items => {
                         let mergedFilter = { ...createState.itemFilter }
                         let hasPickedFilter = false
-                        let selectedItems = items.map(item => {
-                            let picked = pickSearchResult(item)
+                        const selectedItems = items.map(item => {
+                            const picked = pickSearchResult(item)
                             if (picked.filter) {
                                 hasPickedFilter = true
                                 mergedFilter = mergePickedFilter(mergedFilter, picked.filter)!
@@ -201,7 +201,7 @@ function NewRestriction(props: Props) {
                 <div />
                 <div className={styles.copyButtonContainer}>
                     <CopyButton
-                        copyValue={true ? window.location.href.split('?')[0] + '?prefillRestriction=' + JSON.stringify(createState) : ''}
+                        copyValue={window.location.href.split('?')[0] + '?prefillRestriction=' + JSON.stringify(createState)}
                         successMessage={<span>Copied Restriction Link</span>}
                     />
                 </div>

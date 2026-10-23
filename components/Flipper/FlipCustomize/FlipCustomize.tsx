@@ -30,17 +30,17 @@ const customSelectStyle = {
 }
 
 function FlipCustomize() {
-    let [flipCustomizeSettings, setFlipCustomizeSettings] = useState<FlipCustomizeSettings>({})
-    let [isExportDisabled, setIsExportDisabled] = useState(false)
-    let { trackEvent } = useMatomo()
+    const [flipCustomizeSettings, setFlipCustomizeSettings] = useState<FlipCustomizeSettings>({})
+    const [isExportDisabled, setIsExportDisabled] = useState(false)
+    const { trackEvent } = useMatomo()
 
     useEffect(() => {
-        let settings = getFlipCustomizeSettings()
+        const settings = getFlipCustomizeSettings()
         setIsExportDisabled(settings.blockExport === true)
         setFlipCustomizeSettings({ ...settings })
     }, [])
 
-    function setFlipCustomizeSetting(key: string, value: any) {
+    function setFlipCustomizeSetting<K extends keyof FlipCustomizeSettings>(key: K, value: FlipCustomizeSettings[K]) {
         flipCustomizeSettings[key] = value
         setFlipCustomizeSettings(flipCustomizeSettings)
         setSetting(FLIP_CUSTOMIZING_KEY, JSON.stringify(flipCustomizeSettings))
@@ -85,7 +85,7 @@ function FlipCustomize() {
     }
 
     function download(filename, text) {
-        var element = document.createElement('a')
+        const element = document.createElement('a')
         element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text))
         element.setAttribute('download', filename)
 
@@ -98,7 +98,7 @@ function FlipCustomize() {
     }
 
     function exportFilter() {
-        let toExport = mapSettingsToApiFormat(
+        const toExport = mapSettingsToApiFormat(
             getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}),
             getSettingsObject<FlipCustomizeSettings>(FLIP_CUSTOMIZING_KEY, {}),
             getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
@@ -108,8 +108,8 @@ function FlipCustomize() {
     }
 
     function readImportFile(e) {
-        var output = '' //placeholder for text output
-        let reader = new FileReader()
+        let output = '' //placeholder for text output
+        const reader = new FileReader()
         if (e.target.files && e.target.files[0]) {
             reader.onload = function (e) {
                 output = e.target!.result!.toString()
@@ -121,9 +121,9 @@ function FlipCustomize() {
     }
 
     function getFlipFinderWarningElement(): JSX.Element | null {
-        let warnings: string[] = []
+        const warnings: string[] = []
 
-        let sniperFinder = FLIP_FINDERS.find(finder => finder.label === 'Sniper')
+        const sniperFinder = FLIP_FINDERS.find(finder => finder.label === 'Sniper')
         if (
             sniperFinder &&
             flipCustomizeSettings.useLowestBinForProfit &&
@@ -593,7 +593,7 @@ function FlipCustomize() {
                     <Form.Group style={{ marginTop: 15 }}>
                         <Form.Check
                             onChange={() => {
-                                let wasDisabled = localStorage.getItem('disableRiskyFinderImportProtection') === 'true'
+                                const wasDisabled = localStorage.getItem('disableRiskyFinderImportProtection') === 'true'
                                 localStorage.setItem('disableRiskyFinderImportProtection', (!wasDisabled).toString())
                             }}
                             defaultChecked={localStorage.getItem('disableRiskyFinderImportProtection') !== 'true'}
@@ -624,7 +624,7 @@ function FlipCustomize() {
     )
 
     function addWarningForFinder(name: string, warnings: string[], warning: string) {
-        let craftCostFinder = FLIP_FINDERS.find(finder => finder.label === name)
+        const craftCostFinder = FLIP_FINDERS.find(finder => finder.label === name)
         if (flipCustomizeSettings?.finders?.find(finder => finder.toString() === craftCostFinder?.value)) {
             warnings.push(warning)
         }

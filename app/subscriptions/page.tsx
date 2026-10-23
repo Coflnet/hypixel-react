@@ -1,5 +1,4 @@
 import { Container } from 'react-bootstrap'
-import NavBar from '../../components/NavBar/NavBar'
 import SubscriptionList from '../../components/SubscriptionList/SubscriptionList'
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import Search from '../../components/Search/Search'

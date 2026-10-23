@@ -14,10 +14,10 @@ interface Props {
     isValid?: boolean
 }
 
-export let PlayerFilterElement = forwardRef((props: Props, ref: Ref<Typeahead>) => {
+export const PlayerFilterElement = forwardRef((props: Props, ref: Ref<Typeahead>) => {
     // for player search
-    let [players, setPlayers] = useState<Player[]>([])
-    let [isLoading, setIsLoading] = useState(false)
+    const [players, setPlayers] = useState<Player[]>([])
+    const [isLoading, setIsLoading] = useState(false)
 
     function _onChange(selected) {
         props.onChange(selected[0] || '')

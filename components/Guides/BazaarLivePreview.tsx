@@ -1,6 +1,5 @@
 "use client"
 import React from 'react'
-import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
 import Number from '../Number/Number'
 import { useGetApiFlipBazaarSpread } from '../../api/_generated/skyApi'
@@ -11,7 +10,7 @@ export default function BazaarLivePreview() {
   if (query.isLoading) return <p>Loading live bazaar data…</p>
   if (query.isError) return <p>Unable to load live bazaar data.</p>
 
-  const flips = (query.data?.data ?? []) as any[]
+  const flips = query.data?.data ?? []
   const items = flips.slice(2, 3)
 
   return (
@@ -19,7 +18,7 @@ export default function BazaarLivePreview() {
       <h3 style={{ marginBottom: 8 }}>Live top Bazaar spreads</h3>
       {items.length === 0 && <p>No live flips found right now.</p>}
       <ul>
-        {items.map((f: any) => (
+        {items.map(f => (
           <li key={f.itemName} style={{ marginBottom: 6 }}>
             <a href={`https://sky.coflnet.com/item/${f.flip?.itemTag}`} target="_blank" rel="noreferrer">
               {f.itemName}

@@ -10,8 +10,8 @@ import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoConten
 const seoContent = toolLandingSeoContent.kat
 
 export default async function Page() {
-    let api = initAPI(true)
-    let flips = await api.getKatFlips()
+    const api = initAPI(true)
+    const flips = await api.getKatFlips()
     return (
         <>
             <Container>

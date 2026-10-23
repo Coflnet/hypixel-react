@@ -8,7 +8,7 @@ import { ClientErrorRecord, getClientErrorLog, recordClientError } from '../../u
 import { serializeError } from '../../utils/ErrorDiagnostics'
 import { writeToClipboard } from '../../utils/ClipboardUtils'
 
-export function Error({ title, errorObject, errorMessage, onRetry }: { title: string; errorObject?: any; errorMessage?: string; onRetry?(): void }) {
+export function Error({ title, errorObject, errorMessage, onRetry }: { title: string; errorObject?: unknown; errorMessage?: string; onRetry?(): void }) {
     const derivedMessage = errorMessage || getGeneratedApiMessage(errorObject) || 'Something went wrong while loading this page.'
     const details = serializeError(errorObject ?? derivedMessage)
     const [record, setRecord] = useState<ClientErrorRecord>()

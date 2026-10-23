@@ -19,8 +19,8 @@ interface Props {
 }
 
 function TransferCoflCoinsSummary(props: Props) {
-    let [reference] = useState(generateUUID())
-    let [isSending, setIsSending] = useState(false)
+    const [reference] = useState(generateUUID())
+    const [isSending, setIsSending] = useState(false)
 
     function onSend() {
         setIsSending(true)

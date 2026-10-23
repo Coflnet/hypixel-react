@@ -630,7 +630,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let subscribe = (topic: string, types: SubscriptionType[], targets: NotificationTarget[], price?: number, filter?: ItemFilter): Promise<void> => {
+    let subscribe = (topic: string, types: SubscriptionType[], targets: Pick<NotificationTarget, 'id' | 'name' | 'isDisabled'>[], price?: number, filter?: ItemFilter): Promise<void> => {
         return notificationApi.createNotifier(topic, types, targets, price, filter)
     }
 

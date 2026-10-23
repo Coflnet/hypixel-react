@@ -11,13 +11,13 @@ import { Container } from 'react-bootstrap'
 
 export default async function Page(props) {
     const params = await props.params
-    let flipData = await getFlipData(params.uuid)
+    const flipData = await getFlipData(params.uuid)
 
-    let flipTrackingResponse = parseFlipTrackingResponse(flipData.flipTrackingResponse)
-    let player = parsePlayer(flipData.player)
+    const flipTrackingResponse = parseFlipTrackingResponse(flipData.flipTrackingResponse)
+    const player = parsePlayer(flipData.player)
 
-    let sortedFlips = flipTrackingResponse.flips.sort((a, b) => b.profit - a.profit)
-    let bestFlip = sortedFlips.length > 0 ? sortedFlips[0] : null
+    const sortedFlips = flipTrackingResponse.flips.sort((a, b) => b.profit - a.profit)
+    const bestFlip = sortedFlips.length > 0 ? sortedFlips[0] : null
     
     const enchantments = ["Ultimate Chimera 5", "Sharpness 6", "Protection 7", "Growth 7", "Power 7", "Giant Killer 6", "Thunderlord 6", "Looting 4"]
     const sampleEnchantment = enchantments[(player.name?.length || 0) % enchantments.length]
@@ -73,8 +73,8 @@ export default async function Page(props) {
 }
 
 async function getFlipData(uuid) {
-    let api = initAPI(true)
-    let apiResponses = await Promise.all([api.getPlayerName(uuid), api.getTrackedFlipsForPlayer(uuid)].map(p => p.catch(e => null)))
+    const api = initAPI(true)
+    const apiResponses = await Promise.all([api.getPlayerName(uuid), api.getTrackedFlipsForPlayer(uuid)].map(p => p.catch(() => null)))
 
     return {
         player: {
@@ -88,8 +88,8 @@ async function getFlipData(uuid) {
 
 export async function generateMetadata(props) {
     const params = await props.params
-    let { flipTrackingResponse, player, loadError } = await getFlipData(params.uuid)
-    let parsedPlayer = parsePlayer(player)
+    const { flipTrackingResponse, player, loadError } = await getFlipData(params.uuid)
+    const parsedPlayer = parsePlayer(player)
 
     const metadata = getHeadMetadata(
         `Tracked flips of ${parsedPlayer.name}`,
@@ -107,7 +107,7 @@ export function getEmbedDescription(flipTrackingResponse: FlipTrackingResponse, 
         return `There were no flips found for ${player.name}`
     }
 
-    let profitByFinder = {}
+    const profitByFinder = {}
     flipTrackingResponse.flips.forEach(flip => {
         if (!flip.finder.label) {
             return
@@ -118,7 +118,7 @@ export function getEmbedDescription(flipTrackingResponse: FlipTrackingResponse, 
         profitByFinder[flip.finder.label] += flip.profit
     })
 
-    let finderByGroupArray: any[] = []
+    let finderByGroupArray: { label: string; profit: number }[] = []
     Object.keys(profitByFinder).forEach(key => {
         finderByGroupArray.push({
             label: key,
@@ -134,15 +134,15 @@ export function getEmbedDescription(flipTrackingResponse: FlipTrackingResponse, 
         }
     })
 
-    let sortedFlips = flipTrackingResponse.flips.sort((a, b) => b.profit - a.profit)
+    const sortedFlips = flipTrackingResponse.flips.sort((a, b) => b.profit - a.profit)
 
-    let highestProfitFlip = sortedFlips[0]
-    let highestProfitFlipText = `Highest Profit Flip: ${numberWithThousandsSeparators(highestProfitFlip.profit)} Coins \n ${numberWithThousandsSeparators(
+    const highestProfitFlip = sortedFlips[0]
+    const highestProfitFlipText = `Highest Profit Flip: ${numberWithThousandsSeparators(highestProfitFlip.profit)} Coins \n ${numberWithThousandsSeparators(
         highestProfitFlip.pricePaid
     )} Coins ➞ ${numberWithThousandsSeparators(highestProfitFlip.soldFor)} Coins (${removeMinecraftColorCoding(highestProfitFlip.item.name)})`
 
-    let lowestProfitFlip = sortedFlips[sortedFlips.length - 1]
-    let lowestProfitFlipText = `Lowest Profit Flip: ${numberWithThousandsSeparators(lowestProfitFlip.profit)} Coins \n ${numberWithThousandsSeparators(
+    const lowestProfitFlip = sortedFlips[sortedFlips.length - 1]
+    const lowestProfitFlipText = `Lowest Profit Flip: ${numberWithThousandsSeparators(lowestProfitFlip.profit)} Coins \n ${numberWithThousandsSeparators(
         lowestProfitFlip.pricePaid
     )} Coins ➞ ${numberWithThousandsSeparators(lowestProfitFlip.soldFor)} Coins (${removeMinecraftColorCoding(lowestProfitFlip.item.name)})`
 

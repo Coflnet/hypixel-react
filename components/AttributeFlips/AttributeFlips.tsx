@@ -2,14 +2,12 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
 import moment from 'moment'
-import { Alert, Badge, Button } from 'react-bootstrap'
+import { Alert, Badge } from 'react-bootstrap'
 import PremiumNotifier from '../Premium/PremiumNotifier'
 import { useQueryClient } from '@tanstack/react-query'
 import api from '../../api/ApiHelper'
 import Number from '../Number/Number'
-import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 import { convertTagToName, getStyleForTier } from '../../utils/Formatter'
 import {
@@ -131,7 +129,7 @@ function renderIngredient(ingredient: GeneratedAttributeFlipIngredient, index: n
             {iconTag ? (
                 <Image
                     crossOrigin="anonymous"
-                    src={api.getItemImageUrl({ tag: iconTag } as any) || ''}
+                    src={api.getItemImageUrl({ tag: iconTag }) || ''}
                     height={32}
                     width={32}
                     alt=""
@@ -157,7 +155,7 @@ function renderFlipContent(flip: GeneratedAttributeFlip) {
                 {iconTag ? (
                     <Image
                         crossOrigin="anonymous"
-                        src={api.getItemImageUrl({ tag: iconTag } as any) || ''}
+                        src={api.getItemImageUrl({ tag: iconTag }) || ''}
                         height={48}
                         width={48}
                         alt=""

@@ -9,8 +9,8 @@ import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import { TEST_PREMIUM_DAYS } from '../../utils/PremiumTypeUtils'
 
 export default function Refed() {
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     return (
         <>
             <Card>

@@ -6,7 +6,7 @@ import { useNitroAds } from '../../hooks/useNitroAds'
 
 interface NitroAdSlotProps {
     slotId: string
-    config: Record<string, any>
+    config: Record<string, unknown>
     className?: string
     style?: CSSProperties
 }

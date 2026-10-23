@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import MoreVertIcon from '@mui/icons-material/MoreVert'
 import styles from './OptionsMenu.module.css'
-import { Button, Dropdown, DropdownButton } from 'react-bootstrap'
+import { Button, Dropdown } from 'react-bootstrap'
 import BazaarExportModal from '../BazaarExportModal/BazaarExportModal'
 import { convertTagToName } from '../../utils/Formatter'
 import { buildArchiveUrl } from '../../utils/Parser/URLParser'
@@ -32,12 +32,12 @@ const minecraftWikiEnchantmentTitleOverrides: Record<string, string> = {
     Wisdom: 'Wisdom_(Enchantment)'
 }
 
-const CustomToggle = React.forwardRef(({ children, onClick }: any, ref) => (
+const CustomToggle = React.forwardRef<HTMLButtonElement, React.ComponentPropsWithoutRef<'button'>>(({ children, onClick }, ref) => (
     <button
-        ref={ref as any}
+        ref={ref}
         onClick={e => {
             e.preventDefault()
-            onClick(e)
+            onClick?.(e)
         }}
         type="button"
         aria-label="Options"
@@ -77,12 +77,12 @@ function getMinecraftWikiTitle(item: Item) {
 }
 
 function OptionsMenu(props: Props) {
-    let available: AvailableLinks[] = []
-    let [showExportModal, setShowExportModal] = useState(false)
+    const available: AvailableLinks[] = []
+    const [showExportModal, setShowExportModal] = useState(false)
     // Reactively tracks the URL's item filter (see hooks/useItemFilterFromUrl) so the Archive link
     // stays in sync as the user changes filters on the page, not just what was there at mount time.
     // SSR/first paint sees `{}` (no window yet), matching every other client-only URL read here.
-    let itemFilter = useItemFilterFromUrl()
+    const itemFilter = useItemFilterFromUrl()
 
     const isItemPage = (props.selected as Item)?.tag !== undefined
     const isPlayerPage = !isItemPage
@@ -98,7 +98,7 @@ function OptionsMenu(props: Props) {
             available.push({ title: 'Archive', url: buildArchiveUrl(tag, itemFilter), tooltip: 'Query archived auctions', internal: true })
         }
     } else if (isPlayerPage) {
-        let player = props.selected as Player
+        const player = props.selected as Player
         available.push({ title: 'SkyCrypt', url: 'https://sky.shiiyu.moe/stats/' + player?.uuid })
         available.push({ title: 'Plancke', url: 'https://plancke.io/hypixel/player/stats/' + player?.name })
     }

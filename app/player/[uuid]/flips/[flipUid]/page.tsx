@@ -13,11 +13,11 @@ import { Container } from 'react-bootstrap'
 
 export default async function Page(props) {
     const params = await props.params
-    let flipData = await getFlipData(params.uuid, params.flipUid)
+    const flipData = await getFlipData(params.uuid, params.flipUid)
 
-    let flipTrackingResponse = parseFlipTrackingResponse(flipData.flipTrackingResponse)
-    let player = parsePlayer(flipData.player)
-    let targetFlip = flipData.targetFlip ? parseFlipTrackingFlip(flipData.targetFlip) : null
+    const flipTrackingResponse = parseFlipTrackingResponse(flipData.flipTrackingResponse)
+    const player = parsePlayer(flipData.player)
+    const targetFlip = flipData.targetFlip ? parseFlipTrackingFlip(flipData.targetFlip) : null
 
     return (
         <>
@@ -58,8 +58,8 @@ export default async function Page(props) {
 }
 
 async function getFlipData(uuid: string, flipUid: string) {
-    let api = initAPI(true)
-    let apiResponses = await Promise.all([api.getPlayerName(uuid), api.getTrackedFlipsForPlayer(uuid)].map(p => p.catch(e => null)))
+    const api = initAPI(true)
+    const apiResponses = await Promise.all([api.getPlayerName(uuid), api.getTrackedFlipsForPlayer(uuid)].map(p => p.catch(() => null)))
 
     return {
         player: {
@@ -83,9 +83,9 @@ export async function generateMetadata(props) {
         ${targetFlip.profit > 0 ? '😀' : '😭'} IGN: ${player.name}`
     }
 
-    let flipData = await getFlipData(params.uuid, params.flipUid)
-    let player = parsePlayer(flipData.player)
-    let targetFlip = flipData.targetFlip ? parseFlipTrackingFlip(flipData.targetFlip) : null
+    const flipData = await getFlipData(params.uuid, params.flipUid)
+    const player = parsePlayer(flipData.player)
+    const targetFlip = flipData.targetFlip ? parseFlipTrackingFlip(flipData.targetFlip) : null
     const metadata = flipData.targetFlip
         ? getHeadMetadata(
               `Tracked flips of ${player.name}`,

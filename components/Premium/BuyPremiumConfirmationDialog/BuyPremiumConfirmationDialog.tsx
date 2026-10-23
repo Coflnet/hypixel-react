@@ -22,11 +22,11 @@ interface Props {
 
 export default function BuyPremiumConfirmationDialog(props: Props) {
     // skip the extra login confirmation for subscription purchases
-    let [hasConfirmedLogin, setHasConfirmedLogin] = useState(props.type === 'subscription')
+    const [hasConfirmedLogin, setHasConfirmedLogin] = useState(props.type === 'subscription')
     useEffect(() => {
         setHasConfirmedLogin(props.type === 'subscription')
     }, [props.type])
-    let [googleToken, setGoogleToken] = useState('')
+    const [googleToken, setGoogleToken] = useState('')
     const locale = typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en'
     const [declaration, setDeclaration] = useState<ServicePurchaseDeclaration>()
     const [declarationAccepted, setDeclarationAccepted] = useState(false)

@@ -9,11 +9,11 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import { CredentialResponse, GoogleLogin } from '@react-oauth/google'
 
 export default function AuthMod() {
-    let [conId] = useState(getURLSearchParam('conId'))
-    let [isAuthenticated, setIsAuthenticated] = useState(false)
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [hasAuthenticationFailed, setHasAuthenticationFailed] = useState(false)
-    let [isSSR, setIsSSR] = useState(true)
+    const [conId] = useState(getURLSearchParam('conId'))
+    const [isAuthenticated, setIsAuthenticated] = useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [hasAuthenticationFailed, setHasAuthenticationFailed] = useState(false)
+    const [isSSR, setIsSSR] = useState(true)
 
     useEffect(() => {
         setIsSSR(false)

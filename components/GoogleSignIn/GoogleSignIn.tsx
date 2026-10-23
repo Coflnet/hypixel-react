@@ -25,27 +25,27 @@ interface Props {
 }
 
 function GoogleSignIn(props: Props) {
-    let [wasAlreadyLoggedInThisSession, setWasAlreadyLoggedInThisSession] = useState(
+    const [wasAlreadyLoggedInThisSession, setWasAlreadyLoggedInThisSession] = useState(
         isClientSideRendering() ? isValidTokenAvailable(localStorage.getItem('googleId')) : false
     )
 
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [isSSR, setIsSSR] = useState(true)
-    let [showSignInModal, setShowSignInModal] = useState(false)
-    let [showTermsModal, setShowTermsModal] = useState(false)
-    let [termsStatus, setTermsStatus] = useState<TermsStatus>()
-    let [termsLoading, setTermsLoading] = useState(false)
-    let [pendingLoginToken, setPendingLoginToken] = useState<string>()
-    let completedLogin = useRef(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [isSSR, setIsSSR] = useState(true)
+    const [showSignInModal, setShowSignInModal] = useState(false)
+    const [showTermsModal, setShowTermsModal] = useState(false)
+    const [termsStatus, setTermsStatus] = useState<TermsStatus>()
+    const [termsLoading, setTermsLoading] = useState(false)
+    const [pendingLoginToken, setPendingLoginToken] = useState<string>()
+    const completedLogin = useRef(false)
     const legalLocale = typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en'
-    let { trackEvent } = useMatomo()
-    let forceUpdate = useForceUpdate()
+    const { trackEvent } = useMatomo()
+    const forceUpdate = useForceUpdate()
 
     useEffect(() => {
         setIsSSR(false)
         if (wasAlreadyLoggedInThisSession) {
-            let token = localStorage.getItem('googleId')!
-            let userObject = JSON.parse(atobUnicode(token.split('.')[1]))
+            const token = localStorage.getItem('googleId')!
+            const userObject = JSON.parse(atobUnicode(token.split('.')[1]))
             setSetting(GOOGLE_EMAIL, userObject.email)
             onLoginSucces(token, false)
         }
@@ -79,11 +79,12 @@ function GoogleSignIn(props: Props) {
             localStorage.setItem('googleId', token)
             sessionStorage.setItem('googleId', token)
             sessionStorage.removeItem(USER_CHANGED_RELOAD_KEY)
-            let refId = (window as any).refId
+            const refId = window.refId
             if (refId) api.setRef(refId, 'new-user-100-v1', document.documentElement.lang || navigator.language || 'en')
             completeLogin()
-        } catch (error: any) {
-            if (error?.slug === USER_CHANGED_SLUG && sessionStorage.getItem(USER_CHANGED_RELOAD_KEY) === null) {
+        } catch (error) {
+            const slug = error && typeof error === 'object' && 'slug' in error ? error.slug : undefined
+            if (slug === USER_CHANGED_SLUG && sessionStorage.getItem(USER_CHANGED_RELOAD_KEY) === null) {
                 // The socket is bound to the previously logged in account and components hold that account's state.
                 // Store the new token and reload (like onLogout) so the page logs in as the new account on a fresh
                 // socket. The marker allows this once; it is cleared by the next successful login.
@@ -95,13 +96,13 @@ function GoogleSignIn(props: Props) {
                 return
             }
             sessionStorage.removeItem(USER_CHANGED_RELOAD_KEY)
-            if (error?.slug === 'terms_acceptance_required') {
+            if (slug === 'terms_acceptance_required') {
                 setTermsStatus(status => (status ? { ...status, canContinueWithoutAccepting: false } : status))
                 setShowTermsModal(true)
                 return
             }
-            if (error?.slug !== 'invalid_token')
-                toast.error(`An error occoured while trying to sign in with Google. ${error ? error.slug || JSON.stringify(error) : null}`)
+            if (slug !== 'invalid_token')
+                toast.error(`An error occoured while trying to sign in with Google. ${error ? slug || JSON.stringify(error) : null}`)
             else console.warn('setGoogle: Invalid token error', error)
             setIsLoggedIn(false)
             setWasAlreadyLoggedInThisSession(false)
@@ -204,7 +205,7 @@ function GoogleSignIn(props: Props) {
                         <GoogleLogin
                             onSuccess={response => {
                                 try {
-                                    let userObject = JSON.parse(atobUnicode(response.credential!.split('.')[1]))
+                                    const userObject = JSON.parse(atobUnicode(response.credential!.split('.')[1]))
                                     setSetting(GOOGLE_PROFILE_PICTURE_URL, userObject.picture)
                                     setSetting(GOOGLE_EMAIL, userObject.email)
                                     setSetting(GOOGLE_NAME, userObject.name)
@@ -296,10 +297,10 @@ export function isValidTokenAvailable(token?: string | null) {
         return
     }
     try {
-        let details = JSON.parse(atobUnicode(token.split('.')[1]))
-        let expirationDate = new Date(parseInt(details.exp) * 1000)
+        const details = JSON.parse(atobUnicode(token.split('.')[1]))
+        const expirationDate = new Date(parseInt(details.exp) * 1000)
         return expirationDate.getTime() - 10000 > new Date().getTime()
-    } catch (e) {
+    } catch {
         toast.warn("Parsing issue with the google token. Can't automatically login!")
         return false
     }

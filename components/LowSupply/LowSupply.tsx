@@ -9,16 +9,16 @@ import LowSupplyList from '../LowSupplyList/LowSupplyList'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 
 interface Props {
-    lowSupplyItems: any[]
+    lowSupplyItems: Parameters<typeof parseLowSupplyItem>[0][]
 }
 
 export default function LowSupply(props: Props) {
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [hasPremium, setHasPremium] = useState(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [hasPremium, setHasPremium] = useState(false)
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     function onLogin() {
-        let googleId = sessionStorage.getItem('googleId')
+        const googleId = sessionStorage.getItem('googleId')
         if (googleId) {
             setIsLoggedIn(true)
             loadHasPremium()
@@ -29,7 +29,7 @@ export default function LowSupply(props: Props) {
         setIsLoggedIn(false)
     }
 
-    let loadHasPremium = () => {
+    const loadHasPremium = () => {
         api.refreshLoadPremiumProducts(products => {
             setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM))
         })

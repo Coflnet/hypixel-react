@@ -10,7 +10,7 @@ const Item = props => <MenuItem {...props} {...useItem(props)} />
 interface Props {
     onChange(n: string)
     options: FilterOptions
-    defaultValue?: any
+    defaultValue?: string
     isValid?: boolean
     showIcon?: boolean
 }

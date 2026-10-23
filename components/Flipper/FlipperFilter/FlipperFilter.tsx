@@ -36,20 +36,20 @@ interface Props {
 function FlipperFilter(props: Props) {
     const { flipperFilter: contextFlipperFilter, flipCustomizeSettings: contextFlipCustomizeSettings, refreshSettings } = useFlipSettings()
     
-    let [prefillRestriction] = useState<RestrictionCreateState>(
+    const [prefillRestriction] = useState<RestrictionCreateState>(
         getURLSearchParam('prefillRestriction') ? JSON.parse(getURLSearchParam('prefillRestriction')!) : undefined
     )
-    let [showRestrictionList, setShowRestrictionList] = useState(!!prefillRestriction)
-    let [isAdvanced, setIsAdvanced] = useState(getSetting(ITEM_FILER_SHOW_ADVANCED, 'false') === 'true')
-    let [localFlipCustomizeSettings, setLocalFlipCustomizeSettings] = useState<FlipCustomizeSettings>(contextFlipCustomizeSettings)
-    let [localFlipperFilter, setLocalFlipperFilter] = useState<FlipperFilter>(contextFlipperFilter)
-    let [showCustomizeFlip, setShowCustomizeFlip] = useState(false)
-    let [flipCustomizeKey, setFlipCustomizeKey] = useState<string>(generateUUID())
-    let [isSSR, setIsSSR] = useState(true)
+    const [showRestrictionList, setShowRestrictionList] = useState(!!prefillRestriction)
+    const [isAdvanced, setIsAdvanced] = useState(getSetting(ITEM_FILER_SHOW_ADVANCED, 'false') === 'true')
+    const [localFlipCustomizeSettings, setLocalFlipCustomizeSettings] = useState<FlipCustomizeSettings>(contextFlipCustomizeSettings)
+    const [localFlipperFilter, setLocalFlipperFilter] = useState<FlipperFilter>(contextFlipperFilter)
+    const [showCustomizeFlip, setShowCustomizeFlip] = useState(false)
+    const [flipCustomizeKey] = useState<string>(generateUUID())
+    const [isSSR, setIsSSR] = useState(true)
 
-    let disabled = isSSR ? true : !props.isLoggedIn && isValidTokenAvailable(localStorage.getItem('googleId'))
+    const disabled = isSSR ? true : !props.isLoggedIn && isValidTokenAvailable(localStorage.getItem('googleId'))
 
-    let { trackEvent } = useMatomo()
+    const { trackEvent } = useMatomo()
 
     useEffect(() => {
         setLocalFlipCustomizeSettings(contextFlipCustomizeSettings)
@@ -57,13 +57,13 @@ function FlipperFilter(props: Props) {
         setIsSSR(false)
     }, [contextFlipCustomizeSettings, contextFlipperFilter])
 
-    let onlyUnsoldRef = useRef(null)
+    const onlyUnsoldRef = useRef(null)
     const minProfitTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
     useEffect(() => () => clearTimeout(minProfitTimer.current), [])
 
     function onFilterChange(filter: FlipperFilter) {
         if (props.isLoggedIn) {
-            let filterToSave = JSON.parse(JSON.stringify(filter))
+            const filterToSave = JSON.parse(JSON.stringify(filter))
             if (!props.isPremium) {
                 filterToSave.onlyBin = undefined
                 filterToSave.onlyUnsold = undefined
@@ -78,14 +78,14 @@ function FlipperFilter(props: Props) {
         props.onChange(filter)
     }
 
-    function onSettingsChange(key: string, value: any, apiKey?: string) {
-        let filter = { ...getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}) }
+    function onSettingsChange<K extends keyof FlipperFilter>(key: K, value: FlipperFilter[K], apiKey?: string) {
+        const filter = { ...getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}) }
         filter[key] = value
         api.setFlipSetting(apiKey || key, value)
         onFilterChange(filter)
     }
 
-    let onRestrictionsChange = useCallback((restrictions: FlipRestriction[], type: 'blacklist' | 'whitelist') => {
+    const onRestrictionsChange = useCallback((restrictions: FlipRestriction[], type: 'blacklist' | 'whitelist') => {
         api.setFlipSetting(type, mapRestrictionsToApiFormat(restrictions.filter(restriction => restriction.type === type)))
     }, [])
 
@@ -94,8 +94,8 @@ function FlipperFilter(props: Props) {
     }
 
     function onProfitCalculationButtonClick() {
-        let flipPriceCalculationState = getCurrentProfitCalculationState(localFlipCustomizeSettings)
-        let newSettings = { ...localFlipCustomizeSettings }
+        const flipPriceCalculationState = getCurrentProfitCalculationState(localFlipCustomizeSettings)
+        const newSettings = { ...localFlipCustomizeSettings }
 
         if (flipPriceCalculationState === 'lbin' || flipPriceCalculationState === 'custom') {
             newSettings.finders = [1, 4]
@@ -136,7 +136,7 @@ function FlipperFilter(props: Props) {
         }, 3000)
     }
 
-    let restrictionListDialog = (
+    const restrictionListDialog = (
         <Modal
             size={'xl'}
             show={showRestrictionList && !disabled}
@@ -155,7 +155,7 @@ function FlipperFilter(props: Props) {
         </Modal>
     )
 
-    let customizeFlipDialog = (
+    const customizeFlipDialog = (
         <Modal
             size={'xl'}
             show={showCustomizeFlip && !disabled}
@@ -172,7 +172,7 @@ function FlipperFilter(props: Props) {
         </Modal>
     )
 
-    let flipPriceCalculationState = getCurrentProfitCalculationState(localFlipCustomizeSettings)
+    const flipPriceCalculationState = getCurrentProfitCalculationState(localFlipCustomizeSettings)
 
     return (
         <div className={styles.localFlipperFilter}>

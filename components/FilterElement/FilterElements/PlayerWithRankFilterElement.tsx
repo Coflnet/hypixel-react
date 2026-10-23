@@ -1,11 +1,12 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import { Form } from 'react-bootstrap'
+import Typeahead from 'react-bootstrap-typeahead/types/core/Typeahead'
 import { PlayerFilterElement } from '../FilterElements/PlayerFilterElement'
 
 interface Props {
     onChange(n: string)
-    defaultValue: any
+    defaultValue: string
 }
 
 const RANKS = [
@@ -82,15 +83,17 @@ const RANKS = [
 ]
 
 export function PlayerWithRankFilterElement(props: Props) {
-    let [rank, setRank] = useState<string>(getDefaultValues()[0])
-    let [player, setPlayer] = useState<string>(getDefaultValues()[1])
+    const [currentRank, setRank] = useState<string>(getDefaultValues()[0])
+    let rank = currentRank
+    const [currentPlayer, setPlayer] = useState<string>(getDefaultValues()[1])
+    let player = currentPlayer
 
-    let playerRef = useRef(null)
+    const playerRef = useRef<Typeahead>(null)
 
     function getDefaultValues() {
         let splits: string[] = []
         if (props.defaultValue) {
-            let s = props.defaultValue.trim().split(']')
+            const s = props.defaultValue.trim().split(']')
             if (s.length === 1) {
                 if (props.defaultValue.indexOf(']') !== -1) {
                     splits = [props.defaultValue, '']
@@ -118,8 +121,8 @@ export function PlayerWithRankFilterElement(props: Props) {
     }, [])
 
     function _onChange() {
-        let rankObject = RANKS.find(r => r.tag === rank)!
-        let rankValue = rankObject.value !== undefined ? rankObject.value : rankObject.tag
+        const rankObject = RANKS.find(r => r.tag === rank)!
+        const rankValue = rankObject.value !== undefined ? rankObject.value : rankObject.tag
         props.onChange(rankValue + ' ' + player)
     }
 
@@ -130,15 +133,15 @@ export function PlayerWithRankFilterElement(props: Props) {
     }
 
     function _onRankChange(event) {
-        let selectedIndex = event.target.options.selectedIndex
-        let _rank = event.target.options[selectedIndex].value
+        const selectedIndex = event.target.options.selectedIndex
+        const _rank = event.target.options[selectedIndex].value
         rank = _rank
 
         if (RANKS[0].tag === rank) {
             setPlayer('')
             player = ''
             if (playerRef && playerRef.current) {
-                ;(playerRef.current as any).clear()
+                ;playerRef.current.clear()
             }
         }
 

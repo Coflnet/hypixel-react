@@ -9,7 +9,6 @@ import { formatToPriceToShorten, getStyleForTier, getMinecraftColorCodedElement,
 import { Error } from '../Error/Error'
 import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import { set } from 'cypress/types/lodash'
 import Link from 'next/link'
 import { Button } from 'react-bootstrap'
 import { type GeneratedApiResponse, getGeneratedApiErrorMessage, hasSuccessfulArrayResponse, isGeneratedPremiumPlusRequired } from '../../utils/GeneratedApiResponseUtils'
@@ -48,8 +47,8 @@ const SORT_OPTIONS: SortOption<FlipDetails>[] = [
 ]
 
 export function RecentFlips() {
-    let [googleId, setGoogleId] = useState<string>()
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const [googleId, setGoogleId] = useState<string>()
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     const query = useGetApiFlipUnknown(undefined, {
         fetch: {
             headers: {
@@ -73,7 +72,7 @@ export function RecentFlips() {
         setGoogleId(sessionStorage.getItem('googleId') || '')
     }
 
-    let explanation = (
+    const explanation = (
         <>
             <p>
                 These are flips we tracked but could not determine automatically why they sold for so much.
@@ -123,7 +122,7 @@ export function RecentFlips() {
                 <h4>
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
                         <img
-                            src={api.getItemImageUrl({ tag: flip.itemTag } as any) || ''}
+                            src={api.getItemImageUrl({ tag: flip.itemTag ?? '' }) || ''}
                             alt="item icon"
                             style={{ width: 32, height: 32, verticalAlign: 'middle' }}
                         />
@@ -159,7 +158,7 @@ export function RecentFlips() {
         if (!d) return undefined
         if (d instanceof Date) return d
         try {
-            let s = d as string
+            const s = d as string
             // Treat timestamps as UTC. If missing Z, append it.
             if (s.slice(-1) === 'Z') {
                 const parsed = new Date(s)

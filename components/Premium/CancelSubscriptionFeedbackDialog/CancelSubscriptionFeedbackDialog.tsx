@@ -16,14 +16,14 @@ interface SubscriptionCancelFeedbackExtended extends SubscriptionCancelFeedback 
 }
 
 function CancelSubscriptionFeedbackDialog(props: Props) {
-    let [feedback, setFeedback] = useState<SubscriptionCancelFeedbackExtended>({
+    const [feedback, setFeedback] = useState<SubscriptionCancelFeedbackExtended>({
         stoppedPlayingSkyblock: false,
         hasComplaint: false,
         cantAffordAnymore: false,
         additionalInformation: ''
     })
-    let [hasUserInput, setHasUserInput] = useState(false)
-    let [showMissingAdditionalInformation, setShowMissingAdditionalInformation] = useState(false)
+    const [hasUserInput, setHasUserInput] = useState(false)
+    const [showMissingAdditionalInformation, setShowMissingAdditionalInformation] = useState(false)
     const [canceling, setCanceling] = useState(false)
     const [error, setError] = useState('')
 
@@ -59,28 +59,28 @@ function CancelSubscriptionFeedbackDialog(props: Props) {
     }
 
     function onStoppedPlayingSkyblockChange(e: ChangeEvent<HTMLInputElement>) {
-        let newFeedback = { ...feedback }
+        const newFeedback = { ...feedback }
         newFeedback.stoppedPlayingSkyblock = e.target.checked
         setFeedback(newFeedback)
         setHasUserInput(true)
     }
 
     function onHasComplaintChange(e: ChangeEvent<HTMLInputElement>) {
-        let newFeedback = { ...feedback }
+        const newFeedback = { ...feedback }
         newFeedback.hasComplaint = e.target.checked
         setFeedback(newFeedback)
         setHasUserInput(true)
     }
 
     function onCantAffordAnymoreChange(e: ChangeEvent<HTMLInputElement>) {
-        let newFeedback = { ...feedback }
+        const newFeedback = { ...feedback }
         newFeedback.cantAffordAnymore = e.target.checked
         setFeedback(newFeedback)
         setHasUserInput(true)
     }
 
     function onAdditionalInformationChange(e: ChangeEvent<HTMLTextAreaElement>) {
-        let newFeedback = { ...feedback }
+        const newFeedback = { ...feedback }
         newFeedback.additionalInformation = e.target.value
         if (newFeedback.additionalInformation) {
             setShowMissingAdditionalInformation(false)

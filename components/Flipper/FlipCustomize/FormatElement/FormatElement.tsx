@@ -6,7 +6,6 @@ import { DEFAULT_MOD_FORMAT } from '../../../../utils/FlipUtils'
 import Tooltip from '../../../Tooltip/Tooltip'
 import HelpIcon from '@mui/icons-material/Help'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import { useForceUpdate } from '../../../../utils/Hooks'
 import styles from './FormatElement.module.css'
 import { getMinecraftColorCodedElement } from '../../../../utils/Formatter'
 
@@ -17,10 +16,10 @@ interface Props {
 }
 
 function FormatElement(props: Props) {
-    let formatInputRef = useRef(null)
-    let [isChecked, setIsChecked] = useState<boolean>(!!props.settings.modFormat)
+    const formatInputRef = useRef(null)
+    const [isChecked, setIsChecked] = useState<boolean>(!!props.settings.modFormat)
 
-    let { trackEvent } = useMatomo()
+    const { trackEvent } = useMatomo()
 
     function onChange(value: string) {
         props.onChange(value)
@@ -52,12 +51,12 @@ function FormatElement(props: Props) {
     }
 
     function getFormatExampleText() {
-        let settings = props.settings
+        const settings = props.settings
         if (!settings.modFormat) {
             return ''
         }
 
-        var values = {
+        const values = {
             '{0}': 'FLIP',
             '{1}': '§2',
             '{2}': 'Armadillo',

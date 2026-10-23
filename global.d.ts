@@ -1,29 +1,35 @@
 // declaration.d.ts
 declare module '*.scss'
 
-declare global {
-    interface Window {
-        __cmp?: any;
-        __tcfapi?: any;
-        nitroAds?: any;
-        __npcmp?: any;
-        __billingInitialized?: boolean;
-        AndroidBilling?: {
-            isAvailable(): boolean;
-            purchaseProduct(productId: string): void;
-        };
-    }
+interface Window {
+    __cmp?: (command: string, parameters?: unknown) => void;
+    __tcfapi?: unknown;
+    nitroAds?: {
+        loaded?: boolean;
+        addUserToken?: (token: string) => void;
+        createAd?: (slotId: string, config: Record<string, unknown>) => void;
+        removeAd?: (slotId: string) => void;
+        queue?: [string, unknown[]][];
+    };
+    __npcmp?: (command: string) => void;
+    _paq?: { push(command: unknown[]): unknown };
+    refId?: string;
+    __billingInitialized?: boolean;
+    AndroidBilling?: {
+        isAvailable(): boolean;
+        purchaseProduct(productId: string): void;
+    };
+}
 
-    interface WindowEventMap {
-        androidBillingReady: Event;
-        androidBillingSuccess: CustomEvent<{
-            productId: string;
-            purchaseToken: string;
-        }>;
-        androidBillingError: CustomEvent<{
-            error: string;
-        }>;
-    }
+interface WindowEventMap {
+    androidBillingReady: Event;
+    androidBillingSuccess: CustomEvent<{
+        productId: string;
+        purchaseToken: string;
+    }>;
+    androidBillingError: CustomEvent<{
+        error: string;
+    }>;
 }
 
 interface Player {
@@ -214,7 +220,7 @@ interface API {
     getPlayerName(uuid: string): Promise<string>
     setConnectionId(): Promise<void>
     getVersion(): Promise<string>
-    subscribe(topic: string, type: SubscriptionType[], targets: NotificationTarget[], price?: number, itemFilter?: ItemFilter): Promise<void>
+    subscribe(topic: string, type: SubscriptionType[], targets: Pick<NotificationTarget, 'id' | 'name' | 'isDisabled'>[], price?: number, itemFilter?: ItemFilter): Promise<void>
     unsubscribe(subscription: Subscription): Promise<void>
     getNotificationListener(): Promise<NotificationListener[]>
     loginWithToken(id: string): Promise<string>

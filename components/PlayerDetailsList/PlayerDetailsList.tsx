@@ -42,21 +42,25 @@ interface ListState {
 let mounted = true
 
 // States, to remember the positions in the list, after coming back
-let listStates: ListState[] = []
+const listStates: ListState[] = []
 
 const FETCH_RESULT_SIZE = 10
 
 function PlayerDetailsList(props: Props) {
-    let [listElements, setListElements] = useState<(Auction | BidForList)[]>(props.auctions || [])
-    let [allElementsLoaded, setAllElementsLoaded] = useState(props.auctions ? props.auctions.length < FETCH_RESULT_SIZE : false)
-    let [filteredItem, _setFilteredItem] = useState<Item>()
-    let [filters, setFilters] = useState<FilterOptions[]>()
-    let [itemFilter, setItemFilter] = useState<ItemFilter>()
-    let [premiumRank, setPremiumRank] = useState<PremiumType>()
-    let isLoadingElements = useRef(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const [listElementsState, setListElements] = useState<(Auction | BidForList)[]>(props.auctions || [])
+    let listElements = listElementsState
+    const [allElementsLoadedState, setAllElementsLoaded] = useState(props.auctions ? props.auctions.length < FETCH_RESULT_SIZE : false)
+    let allElementsLoaded = allElementsLoadedState
+    const [filteredItem, _setFilteredItem] = useState<Item>()
+    const [filters, setFilters] = useState<FilterOptions[]>()
+    const [itemFilterState, setItemFilter] = useState<ItemFilter>()
+    let itemFilter = itemFilterState
+    const [premiumRankState, setPremiumRank] = useState<PremiumType>()
+    let premiumRank = premiumRankState
+    const isLoadingElements = useRef(false)
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
-    let filteredItemRef = useRef(filteredItem)
+    const filteredItemRef = useRef(filteredItem)
     filteredItemRef.current = filteredItem
 
     useEffect(() => {
@@ -66,7 +70,7 @@ function PlayerDetailsList(props: Props) {
     useEffect(() => {
         mounted = true
 
-        let listState = getListState()
+        const listState = getListState()
         if (listState !== undefined) {
             setListElements(listState.listElements)
             setAllElementsLoaded(listState.allElementsLoaded)
@@ -96,9 +100,9 @@ function PlayerDetailsList(props: Props) {
 
     function onAfterLogin() {
         api.refreshLoadPremiumProducts(products => {
-            let highestPremium = getHighestPriorityPremiumProduct(products)
+            const highestPremium = getHighestPriorityPremiumProduct(products)
             if (highestPremium) {
-                let highestPremiumType = getPremiumType(highestPremium)
+                const highestPremiumType = getPremiumType(highestPremium)
                 premiumRank = highestPremiumType
                 setPremiumRank(highestPremiumType)
             }
@@ -128,19 +132,19 @@ function PlayerDetailsList(props: Props) {
             (premiumRank && premiumRank.priority >= PREMIUM_RANK.STARTER)) as boolean
     }
 
-    let onListElementClick = () => {
-        let listState = getListState()
+    const onListElementClick = () => {
+        const listState = getListState()
         if (listState) {
             listState.yOffset = window.pageYOffset
         }
     }
 
-    let loadNewElements = (reset?: boolean): void => {
+    const loadNewElements = (reset?: boolean): void => {
         if (isLoadingElements.current && !reset) {
             return
         }
 
-        let filter = { ...itemFilter }
+        const filter = { ...itemFilter }
         if (filteredItemRef.current) {
             filter['tag'] = filteredItemRef.current.tag
         }
@@ -176,11 +180,11 @@ function PlayerDetailsList(props: Props) {
             })
     }
 
-    let getCoinImage = () => {
+    const getCoinImage = () => {
         return <Image src="/Coin.png" height={35} width={35} alt="auction house logo" loading="lazy" />
     }
 
-    let getItemImageElement = (listElement: Auction | BidForList) => {
+    const getItemImageElement = (listElement: Auction | BidForList) => {
         return listElement.item.tag ? (
             <Image
                 crossOrigin="anonymous"
@@ -195,8 +199,8 @@ function PlayerDetailsList(props: Props) {
         ) : undefined
     }
 
-    let updateListState = () => {
-        let listState = getListState()
+    const updateListState = () => {
+        const listState = getListState()
         if (listState) {
             listState.allElementsLoaded = allElementsLoaded
             listState.listElements = listElements
@@ -211,13 +215,13 @@ function PlayerDetailsList(props: Props) {
         }
     }
 
-    let getListState = (): ListState | undefined => {
+    const getListState = (): ListState | undefined => {
         return listStates.find(state => {
             return state.playerUUID === props.player.uuid && state.type === props.type
         })
     }
 
-    let bottomElements = (
+    const bottomElements = (
         <div className={styles.fixedBottom}>
             {props.type === 'auctions' ? (
                 <>
@@ -267,7 +271,7 @@ function PlayerDetailsList(props: Props) {
         </div>
     )
 
-    let list = listElements.map((listElement, i) => {
+    const list = listElements.map((listElement, i) => {
         return (
             <ListGroup.Item action className={styles.listGroupItem} key={'listItem-' + i} onClick={onListElementClick}>
                 <span key={listElement.uuid} className={`${styles.disableLinkStyle} ${styles.listItemLink}`}>

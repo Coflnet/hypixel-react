@@ -21,7 +21,7 @@ import {
 import { getPublicLeaderboardProfit } from '../../api/skyApiPublic'
 
 function LeaderboardTable(props: { entries: LeaderboardEntry[]; startRank?: number }) {
-    let startRank = props.startRank || 1
+    const startRank = props.startRank || 1
     return (
         <Table striped bordered hover responsive>
             <thead>
@@ -33,7 +33,7 @@ function LeaderboardTable(props: { entries: LeaderboardEntry[]; startRank?: numb
             </thead>
             <tbody>
                 {props.entries.map((entry: LeaderboardEntry, index: number) => {
-                    let player = parsePlayer({
+                    const player = parsePlayer({
                         uuid: entry.playerUuid,
                         name: entry.playerName
                     })
@@ -77,7 +77,7 @@ function LeaderboardTable(props: { entries: LeaderboardEntry[]; startRank?: numb
 }
 
 export function ProfitLeaderboardComponent() {
-    let [googleId, setGoogleId] = useState<string>()
+    const [googleId, setGoogleId] = useState<string>()
     const query = useGetApiLeaderboardProfit(undefined, {
         fetch: {
             headers: {
@@ -97,7 +97,7 @@ export function ProfitLeaderboardComponent() {
         ? getGeneratedApiErrorMessage(apiResponse, query.error, 'Seeing this list is exclusive to Premium Plus users.')
         : null
 
-    let isNotLoggedIn = !googleId
+    const isNotLoggedIn = !googleId
     const publicLeaderboardQuery = useQuery({
         queryKey: ['publicLeaderboardProfit'],
         queryFn: getPublicLeaderboardProfit,
@@ -109,7 +109,7 @@ export function ProfitLeaderboardComponent() {
         setGoogleId(sessionStorage.getItem('googleId') || '')
     }
 
-    let description = (
+    const description = (
         <p>
             Compare your weekly trading profit against the top Hypixel SkyBlock flippers. Discover the best traders, study their strategies, and copy trade the
             most consistent earners.

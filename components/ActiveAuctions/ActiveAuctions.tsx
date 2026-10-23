@@ -26,26 +26,27 @@ const ORDERS = [
     { label: 'Ending soon', value: 'ENDING_SOON' }
 ]
 
-let FETCH_RESULT_SIZE = 12
+const FETCH_RESULT_SIZE = 12
 
 let currentLoad
 
 function ActiveAuctions(props: Props) {
-    let [activeAuctions, setActiveAuctions, activeAuctionsRef] = useStateWithRef<RecentAuction[]>([])
-    let [order, setOrder] = useState<string>(ORDERS[0].value)
-    let [allElementsLoaded, setAllElementsLoaded] = useState(false)
-    let [premiumType, setPremiumType] = useState<PremiumType>()
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
-    let isLoadingElements = useRef(false)
+    const [activeAuctions, setActiveAuctions, activeAuctionsRef] = useStateWithRef<RecentAuction[]>([])
+    const [order, setOrder] = useState<string>(ORDERS[0].value)
+    const [allElementsLoaded, setAllElementsLoaded] = useState(false)
+    const [currentPremiumType, setPremiumType] = useState<PremiumType>()
+    let premiumType = currentPremiumType
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const isLoadingElements = useRef(false)
 
-    let filterRef = useRef(props.filter)
+    const filterRef = useRef(props.filter)
     filterRef.current = props.filter
 
-    let orderRef = useRef(order)
+    const orderRef = useRef(order)
     orderRef.current = order
 
-    let itemRef = useRef(props.item)
+    const itemRef = useRef(props.item)
     itemRef.current = props.item
 
     useEffect(() => {
@@ -59,7 +60,7 @@ function ActiveAuctions(props: Props) {
             setAllElementsLoaded(false)
         }
 
-        var filterString = JSON.stringify({
+        const filterString = JSON.stringify({
             item: itemRef.current,
             filter: filterRef.current
         })
@@ -69,7 +70,7 @@ function ActiveAuctions(props: Props) {
         isLoadingElements.current = true
         currentLoad = filterString
 
-        let page = reset ? 0 : Math.ceil(activeAuctionsRef.current.length / FETCH_RESULT_SIZE)
+        const page = reset ? 0 : Math.ceil(activeAuctionsRef.current.length / FETCH_RESULT_SIZE)
         let maxPages = 10
         switch (premiumType?.priority) {
             case PREMIUM_RANK.STARTER:
@@ -84,7 +85,7 @@ function ActiveAuctions(props: Props) {
                 break
         }
 
-        let filter = { ...filterRef.current }
+        const filter = { ...filterRef.current }
 
         if (page >= maxPages) {
             setAllElementsLoaded(true)
@@ -116,9 +117,9 @@ function ActiveAuctions(props: Props) {
             })
     }
 
-    let onOrderChange = (event: ChangeEvent<HTMLSelectElement>) => {
-        let selectedIndex = event.target.options.selectedIndex
-        let order = event.target.options[selectedIndex].getAttribute('data-id')!
+    const onOrderChange = (event: ChangeEvent<HTMLSelectElement>) => {
+        const selectedIndex = event.target.options.selectedIndex
+        const order = event.target.options[selectedIndex].getAttribute('data-id')!
 
         setOrder(order)
     }
@@ -128,11 +129,11 @@ function ActiveAuctions(props: Props) {
         api.getPremiumProducts()
             .then(products => {
                 setIsLoggedIn(true)
-                let activePremium = getHighestPriorityPremiumProduct(products)
+                const activePremium = getHighestPriorityPremiumProduct(products)
                 if (!activePremium) {
                     return
                 }
-                let highestPremium = getPremiumType(activePremium)
+                const highestPremium = getPremiumType(activePremium)
                 premiumType = highestPremium
                 setPremiumType(() => {
                     setAllElementsLoaded(() => {
@@ -152,7 +153,7 @@ function ActiveAuctions(props: Props) {
             })
     }
 
-    let activeAuctionList = activeAuctions.map((activeAuction, i) => {
+    const activeAuctionList = activeAuctions.map(activeAuction => {
         return (
             <div className={styles.cardWrapper} key={activeAuction.uuid}>
                 <Card>
@@ -210,7 +211,7 @@ function ActiveAuctions(props: Props) {
         )
     })
 
-    let orderListElement = ORDERS.map(order => {
+    const orderListElement = ORDERS.map(order => {
         return (
             <option key={order.value} value={order.value} data-id={order.value}>
                 {order.label}

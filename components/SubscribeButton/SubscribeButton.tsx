@@ -24,8 +24,8 @@ interface Props {
 }
 
 function SubscribeButton(props: Props) {
-    let { trackEvent } = useMatomo()
-    let [showDialog, setShowDialog] = useState(false)
+    const { trackEvent } = useMatomo()
+    const [showDialog, setShowDialog] = useState(false)
 
     function openDialog() {
         trackEvent({ action: 'subscription dialog opened', category: 'subscriptions' })

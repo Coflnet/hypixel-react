@@ -1,7 +1,7 @@
 'use client'
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
-import { getSettingsObject, FLIPPER_FILTER_KEY, RESTRICTIONS_SETTINGS_KEY, FLIP_CUSTOMIZING_KEY } from '../../utils/SettingsUtils'
+import { getSettingsObject, FLIPPER_FILTER_KEY, RESTRICTIONS_SETTINGS_KEY } from '../../utils/SettingsUtils'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { getFlipCustomizeSettings } from '../../utils/FlipUtils'
 

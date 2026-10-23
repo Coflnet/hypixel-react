@@ -26,20 +26,20 @@ import TierSlots from './TierSlots/TierSlots'
 import usePremiumRefresh from '../../hooks/usePremiumRefresh'
 
 function AccountDetails() {
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [isLoading, setIsLoading] = useState(true)
-    let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(0)
-    let [products, setProducts] = useState<PremiumProduct[]>([])
-    let [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
-    let [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
-    let [hasLoadingPremiumProductsError, setHasLoadingPremiumProductsError] = useState(false)
-    let [subscriptionLookupStatus, setSubscriptionLookupStatus] = useState<'loading' | 'succeeded' | 'failed'>('loading')
-    let [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
-    let [deleteConfirmationInput, setDeleteConfirmationInput] = useState('')
-    let [isDeletingAccount, setIsDeletingAccount] = useState(false)
-    let [subscriptionToCancel, setSubscriptionToCancel] = useState<PremiumSubscription>()
-    let coflCoins = useCoflCoins()
-    let { pushInstruction } = useMatomo()
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
+    const [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(0)
+    const [products, setProducts] = useState<PremiumProduct[]>([])
+    const [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
+    const [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
+    const [hasLoadingPremiumProductsError, setHasLoadingPremiumProductsError] = useState(false)
+    const [subscriptionLookupStatus, setSubscriptionLookupStatus] = useState<'loading' | 'succeeded' | 'failed'>('loading')
+    const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
+    const [deleteConfirmationInput, setDeleteConfirmationInput] = useState('')
+    const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+    const [subscriptionToCancel, setSubscriptionToCancel] = useState<PremiumSubscription>()
+    const coflCoins = useCoflCoins()
+    const { pushInstruction } = useMatomo()
 
     usePremiumRefresh(isLoggedIn, () =>
         Promise.all([
@@ -60,11 +60,11 @@ function AccountDetails() {
     }, [])
 
     function getAccountElement(): JSX.Element {
-        let picture = getSetting(GOOGLE_PROFILE_PICTURE_URL)
-        let email = getSetting(GOOGLE_EMAIL)
-        let name = getSetting(GOOGLE_NAME)
+        const picture = getSetting(GOOGLE_PROFILE_PICTURE_URL)
+        const email = getSetting(GOOGLE_EMAIL)
+        const name = getSetting(GOOGLE_NAME)
 
-        let imageElement = picture ? <Image src={picture} height={24} width={24} alt="" /> : <span />
+        const imageElement = picture ? <Image src={picture} height={24} width={24} alt="" /> : <span />
         return (
             <span>
                 {imageElement} {`${name} (${email})`}
@@ -108,16 +108,16 @@ function AccountDetails() {
     }
 
     function onLogin() {
-        let googleId = sessionStorage.getItem('googleId')
+        const googleId = sessionStorage.getItem('googleId')
         setIsLoading(true)
         if (googleId) {
             setHasLoadingPremiumProductsError(false)
             setSubscriptionLookupStatus('loading')
-            let productsRequest = loadPremiumProducts().catch(() => {
+            const productsRequest = loadPremiumProducts().catch(() => {
                 setHasLoadingPremiumProductsError(true)
                 toast.error('Error loading premium products')
             })
-            let subscriptionsRequest = loadPremiumSubscriptions()
+            const subscriptionsRequest = loadPremiumSubscriptions()
                 .then(() => setSubscriptionLookupStatus('succeeded'))
                 .catch(() => {
                     setSubscriptionLookupStatus('failed')
@@ -142,7 +142,7 @@ function AccountDetails() {
     }
 
     function setTrackingAllowed(event: ChangeEvent<HTMLInputElement>) {
-        let val = event.target.checked
+        const val = event.target.checked
         if (val && (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true) {
             event.target.checked = false
             pushInstruction('forgetConsentGiven')
@@ -168,7 +168,7 @@ function AccountDetails() {
         ) {
             return false
         }
-        let cookie = Cookies.get('nonEssentialCookiesAllowed')
+        const cookie = Cookies.get('nonEssentialCookiesAllowed')
         return cookie === 'true'
     }
 
@@ -215,7 +215,7 @@ function AccountDetails() {
             })
     }
 
-    let canDeleteAccount = subscriptionLookupStatus === 'succeeded' && premiumSubscriptions.length === 0
+    const canDeleteAccount = subscriptionLookupStatus === 'succeeded' && premiumSubscriptions.length === 0
 
     return (
         <>
@@ -273,11 +273,7 @@ function AccountDetails() {
                                 <Modal.Title>Send CoflCoins</Modal.Title>
                             </Modal.Header>
                             <Modal.Body>
-                                <TransferCoflCoins
-                                    onFinish={() => {
-                                        setShowSendCoflcoins(false)
-                                    }}
-                                />
+                                <TransferCoflCoins />
                             </Modal.Body>
                         </Modal>
                     </p>

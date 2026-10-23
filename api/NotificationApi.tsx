@@ -249,7 +249,7 @@ export async function getNotificationListeners(): Promise<NotificationListener[]
 export async function createNotifier(
     topic: string,
     types: SubscriptionType[],
-    targets: NotificationTarget[],
+    targets: Pick<NotificationTarget, 'id' | 'name' | 'isDisabled'>[],
     price?: number,
     filter?: ItemFilter
 ): Promise<void> {

@@ -20,7 +20,7 @@ const PublishedConfigs = () => {
         try {
             await api.updateConfig(configName, updateNotes)
             toast.success(`Updated config`)
-        } catch (e) {
+        } catch {
             toast.error(`Failed to update config`)
         }
     }
@@ -29,7 +29,7 @@ const PublishedConfigs = () => {
         try {
             await api.loadConfig(configName)
             window.location.reload()
-        } catch (e) {
+        } catch {
             toast.error(`Failed to load config`)
         }
     }
@@ -50,8 +50,8 @@ const PublishedConfigs = () => {
                             type="text"
                             placeholder="Change notes"
                             onChange={event => {
-                                let newChangeNotes = [...changeNotes]
-                                let index = newChangeNotes.findIndex(changeNote => changeNote.config === configName)
+                                const newChangeNotes = [...changeNotes]
+                                const index = newChangeNotes.findIndex(changeNote => changeNote.config === configName)
 
                                 if (index === -1) {
                                     newChangeNotes.push({ config: configName, changeNotes: event.target.value })

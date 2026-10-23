@@ -12,7 +12,7 @@ interface Props {
 }
 
 export function CraftingRecipe(props: Props) {
-    let [recipe, setRecipe] = useState<CraftingRecipe>()
+    const [recipe, setRecipe] = useState<CraftingRecipe>()
 
     useEffect(() => {
         api.getCraftingRecipe(props.itemTag).then(recipe => {
@@ -26,7 +26,7 @@ export function CraftingRecipe(props: Props) {
         }
     }
 
-    let style = {
+    const style = {
         cursor: props.onIngredientClick ? 'pointer' : 'default'
     } as React.CSSProperties
 

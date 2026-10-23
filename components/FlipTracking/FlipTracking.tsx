@@ -97,39 +97,39 @@ const PREMIUM_PLUS_TIME_FILTER_RANGE = 1000 * 60 * 60 * 24 * 365 * 2 // 2 years 
 const MAX_RANGE_AT_ONCE = 1000 * 60 * 60 * 24 * 30 * 12 // 12 months
 
 export function FlipTracking(props: Props) {
-    let [trackedFlips, setTrackedFlips] = useState<FlipTrackingFlip[]>(props.trackedFlips || [])
-    let [ignoreProfitMap, setIgnoreProfitMap] = useState(getSettingsObject(IGNORE_FLIP_TRACKING_PROFIT, {}))
-    let [rangeEndDate, setRangeEndDate] = useState(new Date())
-    let [rangeStartDate, setRangeStartDate] = useState(new Date(rangeEndDate.getTime() - DEFAULT_TIME_FILTER_RANGE))
-    let [loadError, setLoadError] = useState(props.loadError)
-    let [hasPremium, setHasPremium] = useState(false)
-    let [hasPremiumPlus, setHasPremiumPlus] = useState(false)
-    let [isLoading, setIsLoading] = useState(false)
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [wasManualLoginClick, setWasManualLoginClick] = useState(false)
-    let [showRangeWarning, setShowRangeWarning] = useState(false)
-    let [showPremiumPlusWarning, setShowPremiumPlusWarning] = useState(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
-    let forceUpdate = useForceUpdate()
+    const [trackedFlips, setTrackedFlips] = useState<FlipTrackingFlip[]>(props.trackedFlips || [])
+    const [ignoreProfitMap, setIgnoreProfitMap] = useState(getSettingsObject(IGNORE_FLIP_TRACKING_PROFIT, {}))
+    const [rangeEndDate, setRangeEndDate] = useState(new Date())
+    const [rangeStartDate, setRangeStartDate] = useState(new Date(rangeEndDate.getTime() - DEFAULT_TIME_FILTER_RANGE))
+    const [loadError, setLoadError] = useState(props.loadError)
+    const [hasPremium, setHasPremium] = useState(false)
+    const [hasPremiumPlus, setHasPremiumPlus] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [wasManualLoginClick, setWasManualLoginClick] = useState(false)
+    const [showRangeWarning, setShowRangeWarning] = useState(false)
+    const [showPremiumPlusWarning, setShowPremiumPlusWarning] = useState(false)
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const forceUpdate = useForceUpdate()
 
     // Filters
-    let [_orderBy, _setOrderBy] = useQueryParamState<string>('order', SORT_OPTIONS[0].value)
-    let [_filterBy, _setFilterBy] = useQueryParamState<string>('filter', FILTER_OPTIONS[0].value)
-    let [minProfit, setMinProfit] = useQueryParamState<string | undefined>('minProfit', undefined)
-    let [maxProfit, setMaxProfit] = useQueryParamState<string | undefined>('maxProfit', undefined)
-    let [_item, _setItem] = useQueryParamState<string | undefined>('item', undefined)
+    const [_orderBy, _setOrderBy] = useQueryParamState<string>('order', SORT_OPTIONS[0].value)
+    const [_filterBy, _setFilterBy] = useQueryParamState<string>('filter', FILTER_OPTIONS[0].value)
+    const [minProfit, setMinProfit] = useQueryParamState<string | undefined>('minProfit', undefined)
+    const [maxProfit, setMaxProfit] = useQueryParamState<string | undefined>('maxProfit', undefined)
+    const [_item, _setItem] = useQueryParamState<string | undefined>('item', undefined)
 
-    let orderBy = SORT_OPTIONS.find(o => o.value === _orderBy)!
-    let filterBy = FILTER_OPTIONS.find(f => f.value === _filterBy)!
-    let item = _item ? (JSON.parse(_item) as SearchResultItem) : undefined
+    const orderBy = SORT_OPTIONS.find(o => o.value === _orderBy)!
+    const filterBy = FILTER_OPTIONS.find(f => f.value === _filterBy)!
+    const item = _item ? (JSON.parse(_item) as SearchResultItem) : undefined
 
-    let setOrderBy = (newValue: SortOption) => {
+    const setOrderBy = (newValue: SortOption) => {
         _setOrderBy(newValue.value)
     }
-    let setFilterBy = (newValue: FilterOption) => {
+    const setFilterBy = (newValue: FilterOption) => {
         _setFilterBy(newValue.value)
     }
-    let setItem = (newValue: SearchResultItem | undefined) => {
+    const setItem = (newValue: SearchResultItem | undefined) => {
         if (!newValue) {
             _setItem(undefined)
         } else {
@@ -143,7 +143,7 @@ export function FlipTracking(props: Props) {
 
     useEffect(() => {
         if (props.highlightedFlipUid && isClientSideRendering()) {
-            let element = document.getElementById(props.highlightedFlipUid) as HTMLElement
+            const element = document.getElementById(props.highlightedFlipUid) as HTMLElement
             window.scrollTo({
                 top: element.offsetTop
             })
@@ -155,7 +155,7 @@ export function FlipTracking(props: Props) {
      * Checks if flips are marked to be ignored for this player, but aren't there anymore, they are removed from the localStorage
      */
     function refreshIgnoredFlipsInLocalstorage() {
-        let newIgnoreMap = {}
+        const newIgnoreMap = {}
         trackedFlips.forEach(flip => {
             if (ignoreProfitMap[flip.uId.toString(16)]) {
                 newIgnoreMap[flip.uId.toString(16)] = true
@@ -166,9 +166,9 @@ export function FlipTracking(props: Props) {
     }
 
     function updateOrderBy(event: ChangeEvent<HTMLSelectElement>) {
-        let selectedIndex = event.target.options.selectedIndex
-        let value = event.target.options[selectedIndex].getAttribute('value')!
-        let sortOption = SORT_OPTIONS.find(option => option.value === value)
+        const selectedIndex = event.target.options.selectedIndex
+        const value = event.target.options[selectedIndex].getAttribute('value')!
+        const sortOption = SORT_OPTIONS.find(option => option.value === value)
         if (sortOption) {
             setOrderBy(sortOption)
         }
@@ -206,7 +206,7 @@ export function FlipTracking(props: Props) {
         setIsLoading(true)
         setLoadError(undefined)
         try {
-            let newFlips = await api.getTrackedFlipsForPlayer(props.playerUUID, from, to)
+            const newFlips = await api.getTrackedFlipsForPlayer(props.playerUUID, from, to)
             setTrackedFlips(newFlips.flips)
         } catch (error) {
             setLoadError(error instanceof Error ? error.message : 'Could not load tracked flips. Please try again.')
@@ -218,7 +218,7 @@ export function FlipTracking(props: Props) {
     function onAfterLogin() {
         setIsLoggedIn(true)
         api.refreshLoadPremiumProducts(products => {
-            let hasPremium = hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM)
+            const hasPremium = hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM)
             setHasPremium(hasPremium)
             setHasPremiumPlus(hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM_PLUS))
 
@@ -230,11 +230,11 @@ export function FlipTracking(props: Props) {
 
     let flipsToDisplay = [...trackedFlips]
     if (orderBy) {
-        let sortOption = SORT_OPTIONS.find(option => option.value === orderBy.value)
+        const sortOption = SORT_OPTIONS.find(option => option.value === orderBy.value)
         flipsToDisplay = sortOption?.sortFunction(trackedFlips)
     }
 
-    let currentItemContextMenuElement = (
+    const currentItemContextMenuElement = (
         <div>
             <Menu id={TRACKED_FLIP_CONTEXT_MENU_ID} theme={'dark'}>
                 <Item
@@ -263,7 +263,7 @@ export function FlipTracking(props: Props) {
         flipsToDisplay = flipsToDisplay.filter(flip => flip.item.tag === splitSearchResultId(item!.id).tag)
     }
 
-    let list = flipsToDisplay.map((trackedFlip, i) => {
+    const list = flipsToDisplay.map(trackedFlip => {
         return (
             <FlipTrackingListItem
                 key={trackedFlip.uId + ' - ' + trackedFlip.sellTime.getTime() + '-' + (ignoreProfitMap[trackedFlip.uId.toString(16)] || '')}
@@ -272,7 +272,7 @@ export function FlipTracking(props: Props) {
                 onContextMenu={handleContextMenuForTrackedFlip}
                 ignoreProfit={ignoreProfitMap[trackedFlip.uId.toString(16)] || false}
                 onRemoveFlipFromIgnoreMap={() => {
-                    let newIgnoreMap = { ...ignoreProfitMap }
+                    const newIgnoreMap = { ...ignoreProfitMap }
                     delete newIgnoreMap[trackedFlip.uId.toString(16)]
                     setSetting(IGNORE_FLIP_TRACKING_PROFIT, JSON.stringify(newIgnoreMap))
                     setIgnoreProfitMap(newIgnoreMap)

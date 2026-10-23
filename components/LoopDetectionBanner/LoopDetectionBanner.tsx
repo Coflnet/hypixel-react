@@ -53,7 +53,7 @@ function LoopDetectionBanner() {
                 if (stored) {
                     loadRecords = JSON.parse(stored)
                 }
-            } catch (e) {
+            } catch {
                 loadRecords = []
             }
 
@@ -126,7 +126,7 @@ function LoopDetectionBanner() {
             window.location.reload()
         }
     }
-    let isOnDragonPage = window.location.pathname.includes('DRAGON') // issue only occures on dragon page
+    const isOnDragonPage = window.location.pathname.includes('DRAGON') // issue only occures on dragon page
     if (!showBanner || dismissed || !isOnDragonPage) {
         return null
     }

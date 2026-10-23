@@ -2,8 +2,8 @@
 import { useEffect, useState } from 'react'
 import styles from './OfflineBanner.module.css'
 
-export function OfflineBanner(props: any) {
-    let [isOnline, setIsOnline] = useState(true)
+export function OfflineBanner() {
+    const [isOnline, setIsOnline] = useState(true)
 
     useEffect(() => {
         window.addEventListener('online', setOnlineState)

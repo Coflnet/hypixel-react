@@ -31,7 +31,7 @@ export function CraftDetails(props: Props) {
     const ingredients = props.plan ? props.plan.ingredients.map(toIngredient) : props.craft.ingredients
 
     function openItem(tag: string) {
-        let detailsPath = props.instructions?.detailsPath?.[tag]
+        const detailsPath = props.instructions?.detailsPath?.[tag]
         if (detailsPath) {
             window.open(window.location.origin + detailsPath, '_blank')
         } else {

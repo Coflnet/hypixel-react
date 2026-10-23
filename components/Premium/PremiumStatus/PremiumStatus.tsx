@@ -21,10 +21,9 @@ interface Props {
 }
 
 function PremiumStatus(props: Props) {
-    let [highestPriorityProduct, setHighestPriorityProduct] = useState<PremiumProduct>()
-    let [productsToShow, setProductsToShow] = useState<PremiumProductWithtimeDifference[]>()
-    let [showCancelSubscriptionDialogSubscription, setShowCancelSubscriptionDialogSubscription] = useState<PremiumSubscription>()
-    let [reactivatingExternalId, setReactivatingExternalId] = useState<string | null>(null)
+    const [highestPriorityProduct, setHighestPriorityProduct] = useState<PremiumProduct>()
+    const [productsToShow, setProductsToShow] = useState<PremiumProductWithtimeDifference[]>()
+    const [showCancelSubscriptionDialogSubscription, setShowCancelSubscriptionDialogSubscription] = useState<PremiumSubscription>()
 
     // Get Google token for authentication
     const googleToken = typeof window !== 'undefined' 
@@ -43,8 +42,8 @@ function PremiumStatus(props: Props) {
                     if (!response) {
                         toast.error('Resuming failed. Please try again later.')
                     } else {
-                        const status = (response as any).status
-                        const data = (response as any).data
+                        const status: number = response.status
+                        const data: unknown = response.data
 
                         const paypalMessage = 'Updating PayPal subscriptions via API is not currently supporte'
 
@@ -55,7 +54,7 @@ function PremiumStatus(props: Props) {
                             try {
                                 const serialized = JSON.stringify(data)
                                 containsPaypal = serialized.includes(paypalMessage)
-                            } catch (e) {
+                            } catch {
                                 containsPaypal = false
                             }
                         }
@@ -72,16 +71,14 @@ function PremiumStatus(props: Props) {
                             window.location.reload()
                         }
                     }
-                } catch (e) {
+                } catch {
                     toast.error('Failed to reactivate subscription. Please try again.')
                 }
 
-                setReactivatingExternalId(null)
             },
-            onError: (err) => {
+            onError: () => {
                 // Fallback for network/throw errors
                 toast.error('Failed to reactivate subscription. Please try again.')
-                setReactivatingExternalId(null)
             }
         }
     })
@@ -143,7 +140,7 @@ function PremiumStatus(props: Props) {
         )
     }
 
-    let numberOfEntriesToShow = (productsToShow?.length || 0) + props.subscriptions.length
+    const numberOfEntriesToShow = (productsToShow?.length || 0) + props.subscriptions.length
 
     return (
         <>
@@ -183,7 +180,6 @@ function PremiumStatus(props: Props) {
                                                         <RestartAlt
                                                             style={{ cursor: 'pointer', color: 'green', marginLeft: 5 }}
                                                             onClick={() => {
-                                                                setReactivatingExternalId(subscription.externalId)
                                                                 reactivateMutation.mutate({ externalId: subscription.externalId })
                                                             }}
                                                         />

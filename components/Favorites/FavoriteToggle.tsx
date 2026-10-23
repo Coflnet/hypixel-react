@@ -16,7 +16,7 @@ interface Props {
 
 function FavoriteToggle({ item, className, showLabel = false, size = 'medium' }: Props) {
     const { toggle } = useFavorites()
-    let [isFavorite, setIsFavorite] = useState(false)
+    const [isFavorite, setIsFavorite] = useState(false)
 
     useEffect(() => {
         if (!item?.tag) {
@@ -31,7 +31,7 @@ function FavoriteToggle({ item, className, showLabel = false, size = 'medium' }:
             return
         }
 
-        let entry: FavoriteItemEntry = {
+        const entry: FavoriteItemEntry = {
             tag: item.tag,
             name: item.name,
             iconUrl: item.iconUrl,
@@ -42,7 +42,7 @@ function FavoriteToggle({ item, className, showLabel = false, size = 'medium' }:
         setIsFavorite(isFav)
     }
 
-    let classNames = [styles.button]
+    const classNames = [styles.button]
     if (isFavorite) {
         classNames.push(styles.active)
     }

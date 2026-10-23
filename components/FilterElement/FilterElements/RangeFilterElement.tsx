@@ -5,7 +5,7 @@ import { Form } from 'react-bootstrap'
 interface Props {
     onChange(n: string)
     isValid: boolean
-    defaultValue: any
+    defaultValue: string
 }
 
 export function RangeFilterElement(props: Props) {

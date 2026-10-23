@@ -24,10 +24,10 @@ interface Props {
 }
 
 function NavBar(props: Props) {
-    let [isWideOpen, setIsWideOpen] = useState(false)
-    let [isHovering, setIsHovering] = useState(false)
-    let [isSmall, setIsSmall] = useState(false)
-    let isReferralEligible = useReferralRewardsEligibility()
+    const [isWideOpen, setIsWideOpen] = useState(false)
+    const [isHovering, setIsHovering] = useState(false)
+    const [isSmall, setIsSmall] = useState(false)
+    const isReferralEligible = useReferralRewardsEligibility()
 
     const collapsed = isSmall ? false : !isWideOpen && !isHovering
 
@@ -52,21 +52,17 @@ function NavBar(props: Props) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isWideOpen])
 
-    function outsideClickHandler(evt) {
+    function outsideClickHandler(evt: MouseEvent) {
         const flyoutEl = document.getElementById('navBar')
         const hamburgerEl = document.getElementById('hamburgerIcon')
-        let targetEl = evt.target
-
-        do {
-            if (targetEl === flyoutEl || targetEl === hamburgerEl) {
-                return
-            }
-            targetEl = (targetEl as any).parentNode
-        } while (targetEl)
+        const targetEl = evt.target
+        if (targetEl instanceof Node && (flyoutEl?.contains(targetEl) || hamburgerEl?.contains(targetEl))) {
+            return
+        }
 
         if (isWideOpen) {
             if (isSmall) {
-                let el = document.getElementById('pro-sidebar')
+                const el = document.getElementById('pro-sidebar')
                 el?.classList.add(styles.navClosing)
                 el?.classList.remove(styles.navOpen)
                 setTimeout(() => {
@@ -95,7 +91,7 @@ function NavBar(props: Props) {
             setIsWideOpen(false)
             setIsSmall(window.innerWidth < 1500)
             resizePromise = null
-            let el = document.getElementById('pro-sidebar')
+            const el = document.getElementById('pro-sidebar')
             if (el) {
                 el.style.left = '0px'
             }
@@ -104,7 +100,7 @@ function NavBar(props: Props) {
 
     function onHamburgerClick() {
         if (isSmall && !isWideOpen) {
-            let el = document.getElementById('pro-sidebar')
+            const el = document.getElementById('pro-sidebar')
             if (el) {
                 el.hidden = false
                 el.style.left = '-270px'

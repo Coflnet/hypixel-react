@@ -23,25 +23,22 @@ import UpgradeSubscription from './UpgradeSubscription/UpgradeSubscription'
 import usePremiumRefresh from '../../hooks/usePremiumRefresh'
 
 function Premium() {
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [hasPremium, setHasPremium] = useState<boolean>()
-    let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
-    let [products, setProducts] = useState<PremiumProduct[]>([])
-    let [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
-    let [hasSubscriptionLoadingError, setHasSubscriptionLoadingError] = useState(false)
-    let [isLoading, setIsLoading] = useState(false)
-    let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
-    let [isSSR, setIsSSR] = useState(true)
-    let [showUpgradeWizard, setShowUpgradeWizard] = useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [hasPremium, setHasPremium] = useState<boolean>()
+    const [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
+    const [products, setProducts] = useState<PremiumProduct[]>([])
+    const [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
+    const [hasSubscriptionLoadingError, setHasSubscriptionLoadingError] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
+    const [showUpgradeWizard, setShowUpgradeWizard] = useState(false)
     const [showSlots, setShowSlots] = useState(false)
-    let [termsStatus, setTermsStatus] = useState<TermsStatus>()
+    const [termsStatus, setTermsStatus] = useState<TermsStatus>()
     const legalLocale = typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en'
 
     usePremiumRefresh(isLoggedIn, () => Promise.allSettled([loadPremiumProducts(), loadPremiumSubscriptions()]))
 
     useEffect(() => {
-        setIsSSR(false)
-
         // Check for tier parameter to show upgrade wizard
         checkForUpgradeRequest()
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -78,7 +75,7 @@ function Premium() {
         return api.getPremiumProducts(true).then(products => {
             products = products.filter(product => product.expires.getTime() > new Date().getTime())
             setProducts(products)
-            let activePremiumProduct = getHighestPriorityPremiumProduct(products)
+            const activePremiumProduct = getHighestPriorityPremiumProduct(products)
 
             setHasPremium(!!activePremiumProduct)
             // Keep unchanged status stable so polling does not reset the purchase wizard.
@@ -129,7 +126,7 @@ function Premium() {
     }
 
     function onLogin() {
-        let googleId = sessionStorage.getItem('googleId')
+        const googleId = sessionStorage.getItem('googleId')
         if (googleId) {
             setIsLoading(true)
             setIsLoggedIn(true)
@@ -299,11 +296,7 @@ function Premium() {
                                 <Modal.Title>Send CoflCoins</Modal.Title>
                             </Modal.Header>
                             <Modal.Body>
-                                <TransferCoflCoins
-                                    onFinish={() => {
-                                        setShowSendCoflCoins(false)
-                                    }}
-                                />
+                                <TransferCoflCoins />
                             </Modal.Body>
                         </Modal>
                     </h2>

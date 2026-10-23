@@ -27,14 +27,14 @@ function hasFilters(filter?: ItemFilter): boolean {
 }
 
 function SubscribeItemContent(props: Props) {
-    let [filterOptions, setFilterOptions] = useState<FilterOptions[]>()
-    let prefillIsBin = props.prefill ? (props.prefill.types as unknown as string[]).includes(SubscriptionType[SubscriptionType.BIN]) : false
-    let initialFilter = props.prefill?.filter || props.defaultFilter
+    const [filterOptions, setFilterOptions] = useState<FilterOptions[]>()
+    const prefillIsBin = props.prefill ? (props.prefill.types as unknown as string[]).includes(SubscriptionType[SubscriptionType.BIN]) : false
+    const initialFilter = props.prefill?.filter || props.defaultFilter
     // the filter the ItemFilter is (re-)initialized with; cleared (and remounted) by "Clear filters"
-    let [startFilter, setStartFilter] = useState<ItemFilter | undefined>(hasFilters(initialFilter) ? initialFilter : undefined)
-    let [filterKey, setFilterKey] = useState(0)
-    let [currentFilterCount, setCurrentFilterCount] = useState(Object.keys(initialFilter || {}).length)
-    let [showMore, setShowMore] = useState(hasFilters(initialFilter) || prefillIsBin)
+    const [startFilter, setStartFilter] = useState<ItemFilter | undefined>(hasFilters(initialFilter) ? initialFilter : undefined)
+    const [filterKey, setFilterKey] = useState(0)
+    const [currentFilterCount, setCurrentFilterCount] = useState(Object.keys(initialFilter || {}).length)
+    const [showMore, setShowMore] = useState(hasFilters(initialFilter) || prefillIsBin)
 
     useEffect(() => {
         api.getFilters(props.itemTag).then(options => {

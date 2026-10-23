@@ -35,11 +35,11 @@ async function getAuctionDetails(auctionUUID: string) {
         return null
     }
 
-    let api = initAPI(true)
-    let auctionDetails: any
-    let unparsedAuctionDetails: any
+    const api = initAPI(true)
+    let auctionDetails: Awaited<ReturnType<API['getAuctionDetails']>>['original']
+    let unparsedAuctionDetails = ''
     try {
-        let result = await api.getAuctionDetails(auctionUUID)
+        const result = await api.getAuctionDetails(auctionUUID)
         auctionDetails = result.original
         unparsedAuctionDetails = JSON.stringify(result.original)
     } catch (e) {
@@ -56,7 +56,7 @@ async function getAuctionDetails(auctionUUID: string) {
 
     auctionDetails.bids.sort((a, b) => b.amount - a.amount)
 
-    let namePromises: Promise<void>[] = []
+    const namePromises: Promise<void>[] = []
     try {
         auctionDetails.iconUrl = api.getItemImageUrl(auctionDetails)
         if (!auctionDetails.name) {
@@ -64,17 +64,17 @@ async function getAuctionDetails(auctionUUID: string) {
         }
 
         auctionDetails.bids.forEach(bid => {
-            let promise = api
+            const promise = api
                 .getPlayerName(bid.bidder)
                 .then(name => {
-                    let newBidder = {
+                    const newBidder = {
                         name: name,
                         uuid: bid.bidder
                     }
                     bid.bidder = newBidder
                 })
                 .catch(e => {
-                    let newBidder = {
+                    const newBidder = {
                         name: '',
                         uuid: bid.bidder
                     }
@@ -117,9 +117,9 @@ async function getAuctionDetails(auctionUUID: string) {
 
 export default async function Page(props) {
     const params = await props.params
-    let auctionUUID = params.auctionUUID
-    let auctionDetailsResult = await getAuctionDetails(auctionUUID)
-    let auctionDetails = auctionDetailsResult?.auctionDetails
+    const auctionUUID = params.auctionUUID
+    const auctionDetailsResult = await getAuctionDetails(auctionUUID)
+    const auctionDetails = auctionDetailsResult?.auctionDetails
 
     if (!auctionDetails) {
         const isValidFormat = isValidAuctionIdFormat(auctionUUID)
@@ -193,8 +193,10 @@ export default async function Page(props) {
 
     function getOriginalAuctionDetails() {
         try {
-            return JSON.parse(auctionDetailsResult?.unparsedAuctionDetails)
-        } catch (e) {}
+            return JSON.parse(auctionDetailsResult?.unparsedAuctionDetails || '')
+        } catch {
+            // Invalid original data has no details to display.
+        }
         return null
     }
 
@@ -238,7 +240,7 @@ export async function generateMetadata(props) {
         return (description += ` | Category: ${auctionDetails.auction.item.category} | Rarity: ${auctionDetails.auction.item.tier}`)
     }
 
-    let auctionUUID = params.auctionUUID as string
+    const auctionUUID = params.auctionUUID as string
     let auctionDetails = (await getAuctionDetails(auctionUUID))?.auctionDetails
 
     if (!auctionDetails) {

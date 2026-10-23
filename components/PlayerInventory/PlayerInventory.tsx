@@ -1,5 +1,5 @@
 import { Card } from 'react-bootstrap'
-import { convertTagToName, getMinecraftColorCodedElement, numberWithThousandsSeparators, removeMinecraftColorCoding } from '../../utils/Formatter'
+import { convertTagToName, getMinecraftColorCodedElement, removeMinecraftColorCoding } from '../../utils/Formatter'
 import styles from './PlayerInventory.module.css'
 import { useEffect, useState } from 'react'
 import api from '../../api/ApiHelper'
@@ -11,8 +11,8 @@ interface Props {
 }
 
 export default function PlayerInventory(props: Props) {
-    let [inventoryEntires, setInventoryEntries] = useState<InventoryData[]>([])
-    let [isLoading, setIsLoading] = useState(true)
+    const [inventoryEntires, setInventoryEntries] = useState<InventoryData[]>([])
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         api.getPlayerInventory()
@@ -33,8 +33,8 @@ export default function PlayerInventory(props: Props) {
             return <div className={styles.gridCell}></div>
         }
 
-        let isSouldbound = isItemSouldbound(item)
-        let isTradeable = !isSouldbound && item.tag !== 'SKYBLOCK_MENU'
+        const isSouldbound = isItemSouldbound(item)
+        const isTradeable = !isSouldbound && item.tag !== 'SKYBLOCK_MENU'
         return (
             <div className={styles.gridCell}>
                 <div style={{ position: 'relative', height: '100%' }}>

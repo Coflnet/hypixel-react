@@ -9,7 +9,7 @@ interface Props {
 }
 
 export default function FlipTrackingCopyButton({ trackedFlip }: Props) {
-    let params = useParams()
+    const params = useParams()
 
     return (
         <CopyButton

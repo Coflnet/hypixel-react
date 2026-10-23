@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import CookieConsent from 'react-cookie-consent'
 import { ToastContainer } from 'react-toastify'
@@ -32,12 +32,12 @@ function hasGlobalPrivacyControl() {
     return (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true
 }
 
-export function MainApp(props: any) {
+export function MainApp(props: { children: ReactNode }) {
     const [showRefreshFeedbackDialog, setShowRefreshFeedbackDialog] = useState(false)
     const [isReloadTracked, setIsReloadTracked] = useState(false)
     const [hasNitroCMP, setHasNitroCMP] = useState(false)
     const [privacySignal, setPrivacySignal] = useState<boolean | null>(null)
-    const { trackPageView, trackEvent, pushInstruction } = useMatomo()
+    const { trackPageView, pushInstruction } = useMatomo()
     const router = useRouter()
 
     useEffect(() => {
@@ -76,14 +76,14 @@ export function MainApp(props: any) {
         }
 
         // check for tracking of old users
-        let cookie = Cookies.get('nonEssentialCookiesAllowed')
+        const cookie = Cookies.get('nonEssentialCookiesAllowed')
         if (!hasGpc && cookie === 'true') {
             pushInstruction('rememberConsentGiven')
         }
 
-        let refId = getURLSearchParam('refId')
+        const refId = getURLSearchParam('refId')
         if (refId) {
-            ;(window as any).refId = refId
+            window.refId = refId
         }
 
         registerNotificationCallback(router)
@@ -96,7 +96,7 @@ export function MainApp(props: any) {
                 pushInstruction('forgetConsentGiven')
                 pushInstruction('optUserOut')
                 Cookies.set('nonEssentialCookiesAllowed', 'false')
-            } catch (e) {}
+            } catch { /* Optional consent integrations must not interrupt the app. */ }
         }
 
         window.addEventListener('nitro.optout', onNitroOptOut as EventListener)
@@ -112,14 +112,14 @@ export function MainApp(props: any) {
                     pushInstruction('optUserOut')
                     Cookies.set('nonEssentialCookiesAllowed', 'false')
                     Cookies.set('CCPAOPTOUT', '1')
-                    ;(window as any).nitroAds?.queue?.push(['addUserToken', ['optout']])
+                    window.nitroAds?.queue?.push(['addUserToken', ['optout']])
                     return
                 }
 
                 pushInstruction('forgetUserOptOut')
                 pushInstruction('rememberConsentGiven')
                 Cookies.set('nonEssentialCookiesAllowed', 'true')
-            } catch (e) {}
+            } catch { /* Optional consent integrations must not interrupt the app. */ }
         }
 
         window.addEventListener('nitro.optin', onNitroOptIn as EventListener)
@@ -132,9 +132,8 @@ export function MainApp(props: any) {
             try {
                 const banner = document.querySelector('#ncmp__tool .ncmp__banner')
                 
-                const present = !!banner && (banner.classList.contains('ncmp__active') || true)
-                setHasNitroCMP(present)
-            } catch (e) {
+                setHasNitroCMP(!!banner)
+            } catch {
                 setHasNitroCMP(false)
             }
         }
@@ -161,7 +160,7 @@ export function MainApp(props: any) {
     }, [privacySignal, isClientSideRendering() ? document.title : null])
 
     function checkForReload() {
-        let preventReloadDialog = localStorage.getItem('rememberHideReloadDialog') === 'true'
+        const preventReloadDialog = localStorage.getItem('rememberHideReloadDialog') === 'true'
         if (preventReloadDialog || isReloadTracked) {
             return
         }
@@ -174,7 +173,7 @@ export function MainApp(props: any) {
                 .includes('reload')
         ) {
             // sessionStorage is scoped per-tab, so reloads in different tabs are tracked separately
-            let lastReloadTime = sessionStorage.getItem('lastReloadTime')
+            const lastReloadTime = sessionStorage.getItem('lastReloadTime')
             // Check if the last reload was less than 30 seconds ago
             if (lastReloadTime && 30_000 > new Date().getTime() - Number(lastReloadTime)) {
                 setTimeout(() => {
@@ -196,7 +195,7 @@ export function MainApp(props: any) {
         trackPageView({})
     }
 
-    let refreshFeedbackDialog = (
+    const refreshFeedbackDialog = (
         <Modal
             size={'lg'}
             show={showRefreshFeedbackDialog}

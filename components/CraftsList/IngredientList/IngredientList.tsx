@@ -74,16 +74,16 @@ function BreakdownRow({ label, qty, unitPrice, cost, emptyLabel }: { label: stri
  * (instant, pricier). When there is no market data it is just a plain badge.
  */
 function AcquisitionBadge({ ingredient, totalCount, preferredMode }: { ingredient: CraftingIngredient; totalCount: number; preferredMode: AcquisitionMode }) {
-    let id = useId()
-    let [mode, setMode] = useState<AcquisitionMode>(preferredMode)
-    let backendPlan = ingredient.acquisitionPlan
-    let backendBucket = (source: string) => {
-        let fills = backendPlan?.purchases?.filter(fill => fill.source === source) ?? []
-        let qty = fills.reduce((total, fill) => total + fill.quantity, 0)
-        let cost = fills.reduce((total, fill) => total + fill.cost, 0)
+    const id = useId()
+    const [mode, setMode] = useState<AcquisitionMode>(preferredMode)
+    const backendPlan = ingredient.acquisitionPlan
+    const backendBucket = (source: string) => {
+        const fills = backendPlan?.purchases?.filter(fill => fill.source === source) ?? []
+        const qty = fills.reduce((total, fill) => total + fill.quantity, 0)
+        const cost = fills.reduce((total, fill) => total + fill.cost, 0)
         return { qty, cost, unitPrice: qty > 0 ? cost / qty : 0 }
     }
-    let plan = backendPlan
+    const plan = backendPlan
         ? {
               mode: 'order' as AcquisitionMode,
               npc: backendBucket('npc'),
@@ -94,13 +94,13 @@ function AcquisitionBadge({ ingredient, totalCount, preferredMode }: { ingredien
               totalCost: backendPlan.purchases.reduce((total, fill) => total + fill.cost, 0)
           }
         : getAcquisitionPlan(ingredient, totalCount, mode)
-    let displayedCost = backendPlan?.cost ?? (plan && plan.unmet === 0 ? plan.totalCost : ingredient.cost * (totalCount / Math.max(1, ingredient.count)))
+    const displayedCost = backendPlan?.cost ?? (plan && plan.unmet === 0 ? plan.totalCost : ingredient.cost * (totalCount / Math.max(1, ingredient.count)))
 
     useEffect(() => {
         setMode(preferredMode)
     }, [preferredMode])
 
-    let coinsBadge = (
+    const coinsBadge = (
         <Badge style={{ marginLeft: '5px' }} bg="secondary">
             <Number number={Math.round(displayedCost)} /> Coins
         </Badge>
@@ -110,7 +110,7 @@ function AcquisitionBadge({ ingredient, totalCount, preferredMode }: { ingredien
         return coinsBadge
     }
 
-    let popover = (
+    const popover = (
         <Popover id={`acquisition-plan-${id}`} style={{ maxWidth: 360 }}>
             <Popover.Header>
                 Buy {numberWithThousandsSeparators(plan.totalCount)}× {ingredient.item.name}
@@ -215,21 +215,21 @@ function AcquisitionBadge({ ingredient, totalCount, preferredMode }: { ingredien
 }
 
 export function IngredientList(props: Props) {
-    let multiplier = props.multiplier || 1
-    let acquisitionMode = props.acquisitionMode ?? 'order'
+    const multiplier = props.multiplier || 1
+    const acquisitionMode = props.acquisitionMode ?? 'order'
 
     return (
         <div>
             {props.ingredients.map((ingredient, i) => {
-                let totalCount = ingredient.absoluteCount ?? ingredient.count * multiplier
-                let copyCommand = getCopyCommand(ingredient, props.instructions)
-                let path = getIngredientPath(props.pathPrefix ?? '', i, ingredient.item.tag)
-                let canCollapse = Boolean(ingredient.type === 'craft' && ingredient.ingredients?.length && props.onToggleIngredient)
-                let collapsed = canCollapse && props.collapsedPaths?.has(path)
-                let directBuyCost = getDirectBuyCost(ingredient, totalCount, acquisitionMode)
-                let subcraftCost = ingredient.absoluteCount ? ingredient.cost : (ingredient.craftCost ?? ingredient.cost) * multiplier
-                let craftSavings = Math.max(0, directBuyCost - subcraftCost)
-                let craftSavingsPercent = directBuyCost > 0 ? (craftSavings / directBuyCost) * 100 : 0
+                const totalCount = ingredient.absoluteCount ?? ingredient.count * multiplier
+                const copyCommand = getCopyCommand(ingredient, props.instructions)
+                const path = getIngredientPath(props.pathPrefix ?? '', i, ingredient.item.tag)
+                const canCollapse = Boolean(ingredient.type === 'craft' && ingredient.ingredients?.length && props.onToggleIngredient)
+                const collapsed = canCollapse && props.collapsedPaths?.has(path)
+                const directBuyCost = getDirectBuyCost(ingredient, totalCount, acquisitionMode)
+                const subcraftCost = ingredient.absoluteCount ? ingredient.cost : (ingredient.craftCost ?? ingredient.cost) * multiplier
+                const craftSavings = Math.max(0, directBuyCost - subcraftCost)
+                const craftSavingsPercent = directBuyCost > 0 ? (craftSavings / directBuyCost) * 100 : 0
 
                 return (
                     <Fragment key={path}>

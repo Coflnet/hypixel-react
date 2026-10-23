@@ -13,10 +13,10 @@ interface Props {
 }
 
 function ShareButton(props: Props) {
-    let { trackEvent } = useMatomo()
+    const { trackEvent } = useMatomo()
 
-    let [canUseShareAPI, setCanUseShareAPI] = useState(checkShareAPI())
-    let [showOverlayTrigger, setShowOverlayTrigger] = useState(false)
+    const [canUseShareAPI] = useState(checkShareAPI())
+    const [showOverlayTrigger, setShowOverlayTrigger] = useState(false)
 
     function checkShareAPI(): boolean {
         return typeof navigator !== 'undefined' && typeof navigator.share !== 'undefined'

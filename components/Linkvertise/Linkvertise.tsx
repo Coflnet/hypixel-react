@@ -9,15 +9,15 @@ import { AUTO_REDIRECT_FROM_LINKVERTISE_EXPLANATION, getSetting, setSetting } fr
 import { Container, Card, Form, Button, Alert } from 'react-bootstrap'
 
 export default function LowSupply() {
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
-    let [isRedirecting, setIsRedirecting] = useState(false)
-    let [errorMessage, setErrorMessage] = useState<string | null>(null)
-    let [autoredirect, setAutoRedirect] = useState(!!getSetting(AUTO_REDIRECT_FROM_LINKVERTISE_EXPLANATION))
-    let router = useRouter()
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const [isRedirecting, setIsRedirecting] = useState(false)
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
+    const [autoredirect, setAutoRedirect] = useState(!!getSetting(AUTO_REDIRECT_FROM_LINKVERTISE_EXPLANATION))
+    const router = useRouter()
 
     function onLogin() {
-        let googleId = sessionStorage.getItem('googleId')
+        const googleId = sessionStorage.getItem('googleId')
         if (googleId) {
             setIsLoggedIn(true)
 
@@ -114,7 +114,7 @@ export default function LowSupply() {
                         <Form.Check
                             id="autoRedirect"
                             inline
-                            onChange={e => {
+                            onChange={() => {
                                 setSetting(AUTO_REDIRECT_FROM_LINKVERTISE_EXPLANATION, !autoredirect)
                                 setAutoRedirect(!autoredirect)
                             }}

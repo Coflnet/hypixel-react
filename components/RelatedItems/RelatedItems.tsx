@@ -15,8 +15,8 @@ interface Props {
 }
 
 function RelatedItems(props: Props) {
-    let [relatedItems, setRelatedItems] = useState<Item[]>([])
-    let [hide, setHide] = useState<boolean>(getSetting(HIDE_RELATED_ITEMS, 'false') === 'true')
+    const [relatedItems, setRelatedItems] = useState<Item[]>([])
+    const [hide, setHide] = useState<boolean>(getSetting(HIDE_RELATED_ITEMS, 'false') === 'true')
 
     useEffect(() => {
         api.getRelatedItems(props.tag).then(items => {
@@ -25,7 +25,7 @@ function RelatedItems(props: Props) {
     }, [props.tag])
 
     function toggleHide() {
-        let newHide = !hide
+        const newHide = !hide
         setHide(newHide)
         setSetting(HIDE_RELATED_ITEMS, newHide.toString())
     }

@@ -2,7 +2,6 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
-import BazaarLivePreview from "../../../components/Guides/BazaarLivePreview";
 
 const LAST_UPDATED_ISO = "2026-04-19";
 const LAST_UPDATED_LABEL = "April 19, 2026";

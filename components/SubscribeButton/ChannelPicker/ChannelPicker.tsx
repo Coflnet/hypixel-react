@@ -28,19 +28,19 @@ interface Props {
 const PUSH_SUPPORTED = typeof window !== 'undefined' && 'Notification' in window
 
 function ChannelPicker(props: Props) {
-    let [pushPending, setPushPending] = useState(false)
-    let [pushError, setPushError] = useState<string | null>(null)
+    const [pushPending, setPushPending] = useState(false)
+    const [pushError, setPushError] = useState<string | null>(null)
     // once the user edits the name themselves, stop auto-filling it from the fetched webhook name
-    let nameTouchedRef = useRef(false)
-    let selectionRef = useRef(props.selection)
+    const nameTouchedRef = useRef(false)
+    const selectionRef = useRef(props.selection)
     selectionRef.current = props.selection
 
-    let { selection } = props
+    const { selection } = props
 
     // when a valid webhook URL is entered, prefill the name field with the webhook's own name (Discord's
     // API doesn't expose the channel name, only its id), unless the user has already typed their own label
     useEffect(() => {
-        let url = selection.newDiscordUrl
+        const url = selection.newDiscordUrl
         if (url === null || !isValidDiscordWebhookUrl(url) || nameTouchedRef.current) {
             return
         }
@@ -49,7 +49,7 @@ function ChannelPicker(props: Props) {
             if (cancelled || !name || nameTouchedRef.current) {
                 return
             }
-            let current = selectionRef.current
+            const current = selectionRef.current
             if (current.newDiscordUrl !== url) {
                 return // the url changed while fetching, don't clobber
             }
@@ -86,7 +86,7 @@ function ChannelPicker(props: Props) {
     }
 
     function onToggleExisting(id: number, checked: boolean) {
-        let existingTargetIds = checked
+        const existingTargetIds = checked
             ? [...selection.existingTargetIds, id]
             : selection.existingTargetIds.filter(existingId => existingId !== id)
         props.onChange({ ...selection, existingTargetIds })
@@ -96,12 +96,12 @@ function ChannelPicker(props: Props) {
         return getLoadingElement(<p>Loading channels...</p>)
     }
 
-    let deviceName = getDeviceName()
-    let DeviceIcon = isMobileDeviceName(deviceName) ? PhoneIcon : ComputerIcon
-    let discordChecked = selection.newDiscordUrl !== null
-    let discordInvalid = discordChecked && selection.newDiscordUrl !== '' && !isValidDiscordWebhookUrl(selection.newDiscordUrl || '')
-    let discordValid = discordChecked && isValidDiscordWebhookUrl(selection.newDiscordUrl || '')
-    let extraTargets = getExtraTargets(props.targets)
+    const deviceName = getDeviceName()
+    const DeviceIcon = isMobileDeviceName(deviceName) ? PhoneIcon : ComputerIcon
+    const discordChecked = selection.newDiscordUrl !== null
+    const discordInvalid = discordChecked && selection.newDiscordUrl !== '' && !isValidDiscordWebhookUrl(selection.newDiscordUrl || '')
+    const discordValid = discordChecked && isValidDiscordWebhookUrl(selection.newDiscordUrl || '')
+    const extraTargets = getExtraTargets(props.targets)
 
     return (
         <div className={styles.channelPicker}>
@@ -192,7 +192,7 @@ function ChannelPicker(props: Props) {
 
             {/* Other existing targets, e.g. the user's other devices and past webhooks */}
             {extraTargets.map(target => {
-                let TargetIcon = !isNotificationType(target.type, 'FIREBASE')
+                const TargetIcon = !isNotificationType(target.type, 'FIREBASE')
                     ? DiscordIcon
                     : isMobileDeviceName(target.name)
                       ? PhoneIcon

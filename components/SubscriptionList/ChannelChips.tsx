@@ -18,13 +18,13 @@ interface Props {
 
 /** Renders the notifier's delivery channels as compact chips (in-game shown unless disabled). */
 function ChannelChips(props: Props) {
-    let attachedIds = props.subscription.targets.map(t => t.id)
-    let attachedTargets = props.allTargets.filter(t => t.id !== undefined && attachedIds.includes(t.id))
+    const attachedIds = props.subscription.targets.map(t => t.id)
+    const attachedTargets = props.allTargets.filter(t => t.id !== undefined && attachedIds.includes(t.id))
 
-    let inGameDisabled = findInGameNeverTarget(attachedTargets) !== undefined
-    let deviceTarget = findDeviceTarget(props.allTargets)
+    const inGameDisabled = findInGameNeverTarget(attachedTargets) !== undefined
+    const deviceTarget = findDeviceTarget(props.allTargets)
 
-    let chips: { key: string; icon: JSX.Element; label: string; highlighted?: boolean }[] = []
+    const chips: { key: string; icon: JSX.Element; label: string; highlighted?: boolean }[] = []
 
     if (!inGameDisabled) {
         chips.push({ key: 'ingame', icon: <SportsEsportsIcon fontSize="small" />, label: 'In-game' })
@@ -34,11 +34,11 @@ function ChannelChips(props: Props) {
         if (isNotificationType(target.type, 'InGame')) {
             return // in-game handled above; NEVER marker is not a real channel
         }
-        let highlighted = target.id !== undefined && target.id === props.highlightedTargetId
+        const highlighted = target.id !== undefined && target.id === props.highlightedTargetId
         if (isNotificationType(target.type, 'FIREBASE')) {
             // a phone and a desktop are usually both registered, so the icon has to tell them apart
-            let icon = isMobileDeviceName(target.name) ? <PhoneIphoneIcon fontSize="small" /> : <ComputerIcon fontSize="small" />
-            let isThisDevice = deviceTarget && target.id === deviceTarget.id
+            const icon = isMobileDeviceName(target.name) ? <PhoneIphoneIcon fontSize="small" /> : <ComputerIcon fontSize="small" />
+            const isThisDevice = deviceTarget && target.id === deviceTarget.id
             chips.push({ key: `t-${target.id}`, icon, label: isThisDevice ? 'This device' : target.name || 'Push', highlighted })
             return
         }

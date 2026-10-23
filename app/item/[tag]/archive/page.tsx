@@ -9,9 +9,9 @@ import { atobUnicode } from '../../../../utils/Base64Utils'
 
 export default async function Page(props) {
     const params = await props.params
-    let tag = params.tag as string
+    const tag = params.tag as string
 
-    let item = parseItem({
+    const item = parseItem({
         tag: tag,
         name: convertTagToName(tag),
         iconUrl: api.getItemImageUrl({ tag })
@@ -41,11 +41,11 @@ export async function generateMetadata(props) {
             .join('\n')}`
     }
 
-    let tag = params?.tag as string
-    let api = initAPI(true)
-    let itemFilter = searchParams.filter ? JSON.parse(atobUnicode(searchParams.filter)) : null
+    const tag = params?.tag as string
+    const api = initAPI(true)
+    const itemFilter = searchParams.filter ? JSON.parse(atobUnicode(searchParams.filter)) : null
 
-    let item = await api.getItemDetails(tag)
+    const item = await api.getItemDetails(tag)
 
     const searchString = searchParams.filter ? `?filter=${searchParams.filter}` : ''
 
