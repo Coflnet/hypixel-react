@@ -74,6 +74,14 @@ export const SITEMAP_CONFIG = {
             keywords: ['crafting calculator', 'recipe profits', 'crafting guide', 'item crafting']
         },
         {
+            url: '/minions',
+            priority: 0.8,
+            changefreq: 'daily' as const,
+            title: 'Hypixel SkyBlock Minion Profit and XP Calculator',
+            description: 'Rank minions by collection interval, storage, budget, coins per day, experience, and setup cost.',
+            keywords: ['minion calculator', 'best skyblock minion', 'minion profit', 'minion experience']
+        },
+        {
             url: '/lowSupply',
             priority: 0.8,
             changefreq: 'hourly' as const,
