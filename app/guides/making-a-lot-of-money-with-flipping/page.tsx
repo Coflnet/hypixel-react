@@ -141,7 +141,7 @@ export default function MakingMoneyWithFlippingPage() {
 
                             <CardTitle as="h3">5. Use premium tools for edge</CardTitle>
                             <CardText>
-                                <strong><Link href="/premiumBazaar">Premium Bazaar Flips</Link></strong> shows demand-based flips + real-time alerts.
+                                <strong><Link href="/bazaarPlan">Premium Bazaar Flips</Link></strong> shows demand-based flips + real-time alerts.
                                 <br />
                                 <strong>Cost:</strong> Premium subscription (varies)
                                 <br />

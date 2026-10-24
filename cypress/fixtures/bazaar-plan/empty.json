@@ -1,0 +1,81 @@
+{
+  "quote": {
+    "quoteId": "00000000-0000-0000-0000-0000000000a4",
+    "requestId": "11111111-1111-1111-1111-111111111111",
+    "marketFrameId": "2026-10-24T12:00:00.0000000Z|inv-0",
+    "generatedAt": "2026-10-24T12:00:00Z",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "policyId": "fixed-price-no-reprice",
+    "policyVersion": 1,
+    "modelVersion": null,
+    "engineVersion": "fixture",
+    "admissionRule": null
+  },
+  "status": "Ok",
+  "investingStatus": "EmptyQualified",
+  "investingReasonCodes": [
+    "NoQualifiedCandidates"
+  ],
+  "portfolio": {
+    "budgetCoins": 4000000,
+    "spentCoins": 0,
+    "remainingBudgetCoins": 4000000,
+    "reserveCoins": null,
+    "reserveOwner": "Caller",
+    "freeSlotsBefore": 18,
+    "freeSlotsAfter": 15,
+    "freeInventorySlotsBefore": null,
+    "freeInventorySlotsAfter": null,
+    "heldExposureCoins": 0,
+    "suppressedItemTags": []
+  },
+  "orders": [],
+  "unqualifiedInvestingCandidates": [
+    {
+      "itemTag": "ENCHANTED_QUARTZ",
+      "itemName": "Enchanted Quartz",
+      "isSell": false,
+      "pricePerUnit": 500,
+      "amount": 70,
+      "mode": "Investing",
+      "originalQuantity": 70,
+      "entryPrice": 500,
+      "exitPrice": 640,
+      "sellTaxRate": 0.01125,
+      "taxSource": "Assumption",
+      "estimatedNetProfit": 4100,
+      "capitalLockHorizonHours": 24,
+      "deadlineSemantics": "FixedFromFirstAcceptedBuy",
+      "confidence": {
+        "eventId": "full_buy_sell_original_quantity_by_deadline_v1",
+        "probability": null,
+        "lowerBound": null,
+        "confidenceLevel": 0.95,
+        "supportDomainId": null,
+        "modelId": null,
+        "calibrationId": null,
+        "status": "InsufficientEvidence",
+        "reasonCodes": [
+          "NoProspectiveEvidence"
+        ]
+      }
+    }
+  ],
+  "modes": [
+    "Investing"
+  ],
+  "investingHorizonHours": 24,
+  "budgetCoins": 4000000,
+  "budgetSource": "purse-estimate",
+  "accountState": {
+    "openOrdersEstimated": false,
+    "openBuyItemTags": [],
+    "heldItemTags": [],
+    "freeOrderSlots": 18,
+    "revision": null
+  },
+  "tier": "premium",
+  "hiddenCount": 0,
+  "premiumUrl": null,
+  "warnings": []
+}

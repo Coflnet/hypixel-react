@@ -7,7 +7,7 @@ import { PremiumBazaarFlips } from '../../components/PremiumBazaarFlips/PremiumB
 import { ToolLandingSeo } from '../../components/Seo/ToolLandingSeo'
 import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoContent'
 
-const seoContent = toolLandingSeoContent.premiumBazaar
+const seoContent = toolLandingSeoContent.bazaarPlan
 
 export default async function Page() {
     const faqStructuredData = {
@@ -16,26 +16,26 @@ export default async function Page() {
         mainEntity: [
             {
                 '@type': 'Question',
-                name: 'What are Premium Bazaar Flips?',
+                name: 'What is the Bazaar Plan?',
                 acceptedAnswer: {
                     '@type': 'Answer',
-                    text: 'Premium Bazaar Flips use real-time bazaar order-book and demand analysis to estimate profit per hour and turnover. They are more accurate during market fluctuations compared to weekly-average spread flips.'
+                    text: 'The Bazaar Plan builds bazaar orders for your own budget, open orders and free slots from the live order book: quick Active flips, Investing orders held for up to 48 hours, or both, with entry and exit prices and the net profit after tax.'
                 }
             },
             {
                 '@type': 'Question',
-                name: 'Why do I need premium?',
+                name: 'What do free accounts get?',
                 acceptedAnswer: {
                     '@type': 'Answer',
-                    text: 'Premium access funds our real-time tracking infrastructure and grants access to live demand data, which is required to compute these flips.'
+                    text: 'Free accounts see a sample of three orders from their plan plus the number of hidden orders. Starter Premium unlocks the complete ranked plan.'
                 }
             },
             {
                 '@type': 'Question',
-                name: 'How do I use premium hypixel skyblock bazaar flips?',
+                name: 'How do I use the Bazaar Plan?',
                 acceptedAnswer: {
                     '@type': 'Answer',
-                    text: 'Log in with Google, navigate to the item in the list, place a competitive buy order and monitor fills. Use /cofl bazaar in-game for faster workflow.'
+                    text: 'Log in with Google and verify your Minecraft account with our mod, choose Active, Investing or Both, then press Track in game on an order and follow the steps in Skyblock.'
                 }
             }
         ]
@@ -45,13 +45,11 @@ export default async function Page() {
         <>
             <Container>
                 <NavBar />
-                <h1>Premium Bazaar Flips</h1>
+                <h1>Bazaar Plan (Active / Investing)</h1>
                 <hr />
 
                 <p className="lead">
-                    Real-time Hypixel SkyBlock bazaar flips powered by live order-book demand and trade velocity analysis. These premium flips provide
-                    more accurate profit estimates, suggested buy and sell actions, and volume forecasts compared to traditional weekly-average bazaar
-                    spread listings.
+                    Your personal Hypixel SkyBlock bazaar plan: orders sized for your budget, open orders and free order slots, built from the live order book. Choose quick Active flips, longer Investing orders or both, and see entry and exit prices, net profit after tax and an honest confidence badge for every order.
                 </p>
 
                 <PremiumBazaarFlips />
@@ -73,7 +71,8 @@ export const metadata: Metadata = getHeadMetadata(
     seoContent.metadataDescription,
     'https://sky.coflnet.com/logo192.png',
     [
-        'premium bazaar',
+        'bazaar plan',
+        'bazaar investing',
         'bazaar flips',
         'real-time bazaar',
         'hypixel bazaar',
@@ -83,5 +82,5 @@ export const metadata: Metadata = getHeadMetadata(
         'marketplace'
     ],
     undefined,
-    getCanonicalUrl('/premiumBazaar')
+    getCanonicalUrl('/bazaarPlan')
 )

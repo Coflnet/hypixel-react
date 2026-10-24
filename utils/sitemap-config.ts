@@ -154,12 +154,12 @@ export const SITEMAP_CONFIG = {
             keywords: ['forge flips', 'forge profit', 'quick forge', 'heart of the mountain']
         },
         {
-            url: '/premiumBazaar',
+            url: '/bazaarPlan',
             priority: 0.8,
             changefreq: 'hourly' as const,
-            title: 'Premium Bazaar Flips - Live Demand and Order Book Analysis',
-            description: 'Find Bazaar opportunities using real-time demand, order-book pressure, fill estimates, and net profit.',
-            keywords: ['premium bazaar flips', 'bazaar demand', 'order book', 'bazaar profit']
+            title: 'Bazaar Plan (Active / Investing) - Personal Bazaar Orders for Your Budget',
+            description: 'A personal bazaar plan for your budget with Active and Investing orders, entry and exit prices, net profit after tax, and honest confidence.',
+            keywords: ['bazaar plan', 'bazaar investing', 'premium bazaar flips', 'bazaar profit']
         },
         {
             url: '/topMovers',

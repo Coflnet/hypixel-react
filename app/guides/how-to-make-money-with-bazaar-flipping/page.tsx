@@ -101,7 +101,7 @@ export default function HowToMakeMoneyWithBazaarFlippingPage() {
                                 <li><strong><Link href="/topMovers">Top Movers</Link>:</strong> See which items are trending up or down in price. Spot early shifts in demand and avoid items that are crashing.</li>
                                 <li><strong><Link href="/crafts">Crafts Tool</Link>:</strong> Identify items that are inputs for recipes. Crafting demand often spikes, creating flip opportunities.</li>
                                 <li><strong>SkyCofl Mod Commands:</strong> Use <code>/cofl bazaar itemname</code> for real-time in-game spread verification. Use <code>/cofl profit</code> to track all your flips automatically.</li>
-                                <li><strong><Link href="/premiumBazaar">Premium Bazaar</Link>:</strong> For advanced players: demand-based flip rankings. Spot opportunities others miss.</li>
+                                <li><strong><Link href="/bazaarPlan">Premium Bazaar</Link>:</strong> For advanced players: demand-based flip rankings. Spot opportunities others miss.</li>
                             </ul>
 
                             <CardTitle as="h2" className="mt-4">Step 6: Risk Management — Protecting Your Capital</CardTitle>
@@ -229,7 +229,7 @@ export default function HowToMakeMoneyWithBazaarFlippingPage() {
                                 <li><Link href="/bazaar">Bazaar Flips</Link> — real-time spreads sorted by profitability</li>
                                 <li><Link href="/topMovers">Top Movers</Link> — trending items for event flipping</li>
                                 <li><Link href="/flipper">Flipper Tool</Link> — advanced profit analysis</li>
-                                <li><Link href="/premiumBazaar">Premium Bazaar</Link> — demand-based flip rankings</li>
+                                <li><Link href="/bazaarPlan">Premium Bazaar</Link> — demand-based flip rankings</li>
                                 <li><Link href="/guides/what-is-bazaar-flipping">What is Bazaar Flipping</Link> — fundamentals</li>
                                 <li><Link href="/guides/best-item-to-flip-right-now">Best Item to Flip Right Now</Link> — real-time picks</li>
                                 <li><Link href="/guides/automating-flips">Automating Flips (Risks & Alternatives)</Link> — why not to use bots</li>

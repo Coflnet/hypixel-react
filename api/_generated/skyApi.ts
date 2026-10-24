@@ -36,6 +36,9 @@ import type {
   AuctionResult,
   AveragePrice,
   BatchProductPricingResponse,
+  BazaarPlanRequest,
+  BazaarPlanResponse,
+  BazaarPlanTrackRequest,
   BazaarPlayerOrder,
   BidResult,
   BinResponse,
@@ -21079,5 +21082,306 @@ export const useDeleteApiUserMe = <TError = DeleteApiUserMe401One | string | voi
         TContext
       > => {
       return useMutation(getDeleteApiUserMeMutationOptions(options), queryClient);
+    }
+
+export type postApiFlipBazaarPlanResponse200TextPlain = {
+  data: BazaarPlanResponse
+  status: 200
+}
+
+export type postApiFlipBazaarPlanResponse200ApplicationJson = {
+  data: BazaarPlanResponse
+  status: 200
+}
+
+export type postApiFlipBazaarPlanResponse200TextJson = {
+  data: BazaarPlanResponse
+  status: 200
+}
+
+export type postApiFlipBazaarPlanResponse400TextPlain = {
+  data: ProblemDetails
+  status: 400
+}
+
+export type postApiFlipBazaarPlanResponse400ApplicationJson = {
+  data: ProblemDetails
+  status: 400
+}
+
+export type postApiFlipBazaarPlanResponse400TextJson = {
+  data: ProblemDetails
+  status: 400
+}
+
+export type postApiFlipBazaarPlanResponse401TextPlain = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type postApiFlipBazaarPlanResponse401ApplicationJson = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type postApiFlipBazaarPlanResponse401TextJson = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type postApiFlipBazaarPlanResponse403 = {
+  data: void
+  status: 403
+}
+
+export type postApiFlipBazaarPlanResponse503 = {
+  data: void
+  status: 503
+}
+
+export type postApiFlipBazaarPlanResponseSuccess = (postApiFlipBazaarPlanResponse200TextPlain | postApiFlipBazaarPlanResponse200ApplicationJson | postApiFlipBazaarPlanResponse200TextJson) & {
+  headers: Headers;
+};
+export type postApiFlipBazaarPlanResponseError = (postApiFlipBazaarPlanResponse400TextPlain | postApiFlipBazaarPlanResponse400ApplicationJson | postApiFlipBazaarPlanResponse400TextJson | postApiFlipBazaarPlanResponse401TextPlain | postApiFlipBazaarPlanResponse401ApplicationJson | postApiFlipBazaarPlanResponse401TextJson | postApiFlipBazaarPlanResponse403 | postApiFlipBazaarPlanResponse503) & {
+  headers: Headers;
+};
+
+export type postApiFlipBazaarPlanResponse = (postApiFlipBazaarPlanResponseSuccess | postApiFlipBazaarPlanResponseError)
+
+export const getPostApiFlipBazaarPlanUrl = () => {
+
+
+
+
+  return `https://sky.coflnet.com/api/flip/bazaar/plan`
+}
+
+/**
+ * @summary Personal bazaar plan for the verified account of the caller: Active, Investing or both from one budget.
+Free users get three sampled rows and the number of hidden ones.
+ */
+export const postApiFlipBazaarPlan = async (bazaarPlanRequest?: BazaarPlanRequest, options?: RequestInit): Promise<postApiFlipBazaarPlanResponse> => {
+
+  const res = await fetch(getPostApiFlipBazaarPlanUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(bazaarPlanRequest)
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postApiFlipBazaarPlanResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as postApiFlipBazaarPlanResponse
+}
+
+
+
+
+
+export const getPostApiFlipBazaarPlanMutationOptions = <TError = ProblemDetails | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlan>>, TError,{data?: BazaarPlanRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlan>>, TError,{data?: BazaarPlanRequest}, TContext> => {
+
+const mutationKey = ['postApiFlipBazaarPlan'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiFlipBazaarPlan>>, {data?: BazaarPlanRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiFlipBazaarPlan(data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiFlipBazaarPlanMutationResult = NonNullable<Awaited<ReturnType<typeof postApiFlipBazaarPlan>>>
+    export type PostApiFlipBazaarPlanMutationBody = BazaarPlanRequest | undefined
+    export type PostApiFlipBazaarPlanMutationError = ProblemDetails | void
+
+    /**
+ * @summary Personal bazaar plan for the verified account of the caller: Active, Investing or both from one budget.
+Free users get three sampled rows and the number of hidden ones.
+ */
+export const usePostApiFlipBazaarPlan = <TError = ProblemDetails | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlan>>, TError,{data?: BazaarPlanRequest}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiFlipBazaarPlan>>,
+        TError,
+        {data?: BazaarPlanRequest},
+        TContext
+      > => {
+      return useMutation(getPostApiFlipBazaarPlanMutationOptions(options), queryClient);
+    }
+
+export type postApiFlipBazaarPlanTrackResponse204 = {
+  data: void
+  status: 204
+}
+
+export type postApiFlipBazaarPlanTrackResponse400TextPlain = {
+  data: ProblemDetails
+  status: 400
+}
+
+export type postApiFlipBazaarPlanTrackResponse400ApplicationJson = {
+  data: ProblemDetails
+  status: 400
+}
+
+export type postApiFlipBazaarPlanTrackResponse400TextJson = {
+  data: ProblemDetails
+  status: 400
+}
+
+export type postApiFlipBazaarPlanTrackResponse401TextPlain = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type postApiFlipBazaarPlanTrackResponse401ApplicationJson = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type postApiFlipBazaarPlanTrackResponse401TextJson = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type postApiFlipBazaarPlanTrackResponse403 = {
+  data: void
+  status: 403
+}
+
+export type postApiFlipBazaarPlanTrackResponse404TextPlain = {
+  data: ProblemDetails
+  status: 404
+}
+
+export type postApiFlipBazaarPlanTrackResponse404ApplicationJson = {
+  data: ProblemDetails
+  status: 404
+}
+
+export type postApiFlipBazaarPlanTrackResponse404TextJson = {
+  data: ProblemDetails
+  status: 404
+}
+
+export type postApiFlipBazaarPlanTrackResponse409TextPlain = {
+  data: ProblemDetails
+  status: 409
+}
+
+export type postApiFlipBazaarPlanTrackResponse409ApplicationJson = {
+  data: ProblemDetails
+  status: 409
+}
+
+export type postApiFlipBazaarPlanTrackResponse409TextJson = {
+  data: ProblemDetails
+  status: 409
+}
+
+export type postApiFlipBazaarPlanTrackResponseSuccess = (postApiFlipBazaarPlanTrackResponse204) & {
+  headers: Headers;
+};
+export type postApiFlipBazaarPlanTrackResponseError = (postApiFlipBazaarPlanTrackResponse400TextPlain | postApiFlipBazaarPlanTrackResponse400ApplicationJson | postApiFlipBazaarPlanTrackResponse400TextJson | postApiFlipBazaarPlanTrackResponse401TextPlain | postApiFlipBazaarPlanTrackResponse401ApplicationJson | postApiFlipBazaarPlanTrackResponse401TextJson | postApiFlipBazaarPlanTrackResponse403 | postApiFlipBazaarPlanTrackResponse404TextPlain | postApiFlipBazaarPlanTrackResponse404ApplicationJson | postApiFlipBazaarPlanTrackResponse404TextJson | postApiFlipBazaarPlanTrackResponse409TextPlain | postApiFlipBazaarPlanTrackResponse409ApplicationJson | postApiFlipBazaarPlanTrackResponse409TextJson) & {
+  headers: Headers;
+};
+
+export type postApiFlipBazaarPlanTrackResponse = (postApiFlipBazaarPlanTrackResponseSuccess | postApiFlipBazaarPlanTrackResponseError)
+
+export const getPostApiFlipBazaarPlanTrackUrl = () => {
+
+
+
+
+  return `https://sky.coflnet.com/api/flip/bazaar/plan/track`
+}
+
+/**
+ * @summary Tracks one order of a returned plan in game as a guided bazaar flip goal.
+ */
+export const postApiFlipBazaarPlanTrack = async (bazaarPlanTrackRequest?: BazaarPlanTrackRequest, options?: RequestInit): Promise<postApiFlipBazaarPlanTrackResponse> => {
+
+  const res = await fetch(getPostApiFlipBazaarPlanTrackUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(bazaarPlanTrackRequest)
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postApiFlipBazaarPlanTrackResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as postApiFlipBazaarPlanTrackResponse
+}
+
+
+
+
+
+export const getPostApiFlipBazaarPlanTrackMutationOptions = <TError = ProblemDetails | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>, TError,{data?: BazaarPlanTrackRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>, TError,{data?: BazaarPlanTrackRequest}, TContext> => {
+
+const mutationKey = ['postApiFlipBazaarPlanTrack'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>, {data?: BazaarPlanTrackRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiFlipBazaarPlanTrack(data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiFlipBazaarPlanTrackMutationResult = NonNullable<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>>
+    export type PostApiFlipBazaarPlanTrackMutationBody = BazaarPlanTrackRequest | undefined
+    export type PostApiFlipBazaarPlanTrackMutationError = ProblemDetails | void
+
+    /**
+ * @summary Tracks one order of a returned plan in game as a guided bazaar flip goal.
+ */
+export const usePostApiFlipBazaarPlanTrack = <TError = ProblemDetails | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>, TError,{data?: BazaarPlanTrackRequest}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>,
+        TError,
+        {data?: BazaarPlanTrackRequest},
+        TContext
+      > => {
+      return useMutation(getPostApiFlipBazaarPlanTrackMutationOptions(options), queryClient);
     }
 

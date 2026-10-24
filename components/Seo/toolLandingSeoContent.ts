@@ -85,9 +85,9 @@ export const toolLandingSeoContent = {
                 description: 'See how to turn live data into actual item selection.'
             },
             {
-                href: '/premiumBazaar',
-                label: 'Premium Bazaar Flips',
-                description: 'Upgrade to demand-based analysis when you need faster reads on live order books.'
+                href: '/bazaarPlan',
+                label: 'Bazaar Plan (Active / Investing)',
+                description: 'Get orders sized for your own budget, with entry and exit prices and net profit after tax.'
             },
             {
                 href: '/topMovers',
@@ -162,25 +162,25 @@ export const toolLandingSeoContent = {
             }
         ]
     },
-    premiumBazaar: {
-        metadataTitle: 'Premium Bazaar Flips | Real-Time Demand and Order Book Signals',
+    bazaarPlan: {
+        metadataTitle: 'Bazaar Plan (Active / Investing) | Personal Bazaar Orders for Your Budget',
         metadataDescription:
-            'Use Premium Bazaar Flips to read live Hypixel SkyBlock demand, order-book pressure, turnover, and profit potential. Find premium-grade bazaar opportunities before they flatten out.',
+            'Get a personal Hypixel SkyBlock bazaar plan for your budget: quick Active flips, longer Investing orders or both, with entry and exit prices, net profit after tax and honest confidence.',
         intro: [
-            'Premium Bazaar Flips goes beyond basic spread tracking by weighing live demand and order-book pressure. It is built for traders who want faster reads on which margins are still healthy right now, not just on average.',
-            'That matters most when markets move quickly around events, patches, and mayor perks. In those windows, a normal spread list can lag behind reality while demand-based analysis still highlights where buyers are active.'
+            'The Bazaar Plan turns the live order book into orders that fit your own budget, open orders and free order slots. Pick Active for quick flips, Investing to hold for up to 48 hours, or Both from one shared budget.',
+            'Every order shows quantity, entry and exit price, the profit after sell tax and an honest confidence badge. Investing orders are only recommended when the odds of completing the full cycle by the deadline are proven, otherwise you see why none qualifies.'
         ],
         sections: [
             {
-                title: 'Why premium data changes the decision',
+                title: 'Why a personal plan beats a global list',
                 bullets: [
-                    'It helps separate real buyer demand from spreads that only look good on paper.',
-                    'It highlights turnover quality, which matters when you are deploying larger amounts of capital.',
-                    'It reacts better to fast-moving market conditions and temporary spikes.'
+                    'It uses your budget, your open buy orders and the items you already hold, so you are not shown orders you cannot place.',
+                    'It states the net profit after sell tax and where the tax rate comes from.',
+                    'It says clearly when the confidence is unknown instead of showing a made-up percentage.'
                 ]
             },
             {
-                title: 'Who benefits most from Premium Bazaar Flips',
+                title: 'Who benefits most from the Bazaar Plan',
                 bullets: [
                     'Active traders who flip throughout the day and need more confidence in entry timing.',
                     'Players working with enough capital that missed fills and slow exits become expensive.',
@@ -190,29 +190,29 @@ export const toolLandingSeoContent = {
         ],
         faqs: [
             {
-                question: 'When is premium worth it over the free bazaar list?',
-                answer: 'Premium becomes more valuable as your trading volume rises. The more often you flip and the more capital you place, the more helpful live demand signals become.'
+                question: 'What do free accounts get?',
+                answer: 'Free accounts get a sample of three orders from the ranked plan and the number of orders that are hidden. Starter Premium unlocks the complete plan.'
             },
             {
-                question: 'Does premium replace normal bazaar discipline?',
-                answer: 'No. You still need to respect fees, volume, and exit risk. Premium improves the quality of the signal, but it does not remove market risk.'
+                question: 'Does a high-confidence badge remove the risk?',
+                answer: 'No. The badge only says the full cycle is expected to complete by the deadline with more than 95% odds, and only appears with proof. You still need to respect fees, volume and market risk.'
             }
         ],
         relatedLinks: [
             {
                 href: '/bazaar',
                 label: 'Bazaar Flips',
-                description: 'Compare the free spread list with the premium demand-focused view.'
+                description: 'Compare the free spread list with your personal plan.'
             },
             {
                 href: '/guides/tracking-profits-automatically',
                 label: 'Tracking Profits Automatically',
-                description: 'Measure whether premium signals are improving your real net profit.'
+                description: 'Measure whether the plan is improving your real net profit.'
             },
             {
                 href: '/guides/best-item-to-flip-right-now',
                 label: 'Best Item to Flip Right Now',
-                description: 'Pair premium demand data with a live item-selection workflow.'
+                description: 'Pair your plan with a live item-selection workflow.'
             },
             {
                 href: '/premium',
@@ -397,9 +397,9 @@ export const toolLandingSeoContent = {
                 description: 'See when forge profit beats active gameplay methods.'
             },
             {
-                href: '/premiumBazaar',
-                label: 'Premium Bazaar Flips',
-                description: 'Use premium market reads when forge ingredient costs move quickly.'
+                href: '/bazaarPlan',
+                label: 'Bazaar Plan (Active / Investing)',
+                description: 'Plan bazaar orders for your budget when forge ingredient costs move quickly.'
             }
         ]
     },

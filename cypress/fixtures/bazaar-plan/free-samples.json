@@ -1,0 +1,137 @@
+{
+  "quote": {
+    "quoteId": "00000000-0000-0000-0000-0000000000a5",
+    "requestId": "11111111-1111-1111-1111-111111111111",
+    "marketFrameId": "2026-10-24T12:00:00.0000000Z|inv-0",
+    "generatedAt": "2026-10-24T12:00:00Z",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "policyId": "fixed-price-no-reprice",
+    "policyVersion": 1,
+    "modelVersion": null,
+    "engineVersion": "fixture",
+    "admissionRule": null
+  },
+  "status": "Ok",
+  "investingStatus": null,
+  "investingReasonCodes": [],
+  "portfolio": {
+    "budgetCoins": 4000000,
+    "spentCoins": 34146,
+    "remainingBudgetCoins": 3965854,
+    "reserveCoins": null,
+    "reserveOwner": "Caller",
+    "freeSlotsBefore": 18,
+    "freeSlotsAfter": 15,
+    "freeInventorySlotsBefore": null,
+    "freeInventorySlotsAfter": null,
+    "heldExposureCoins": 0,
+    "suppressedItemTags": []
+  },
+  "orders": [
+    {
+      "itemTag": "FREE_ITEM_4",
+      "itemName": "Free Item 4",
+      "isSell": false,
+      "pricePerUnit": 104,
+      "amount": 104,
+      "mode": "Active",
+      "originalQuantity": 104,
+      "entryPrice": 104,
+      "exitPrice": 154,
+      "sellTaxRate": 0.01125,
+      "taxSource": "Assumption",
+      "estimatedNetProfit": 4000,
+      "capitalLockHorizonHours": 1,
+      "deadlineSemantics": "FixedFromFirstAcceptedBuy",
+      "confidence": {
+        "eventId": "full_buy_sell_original_quantity_by_deadline_v1",
+        "probability": null,
+        "lowerBound": null,
+        "confidenceLevel": 0.95,
+        "supportDomainId": null,
+        "modelId": null,
+        "calibrationId": null,
+        "status": "NotApplicable",
+        "reasonCodes": [
+          "NotApplicableToActive"
+        ]
+      }
+    },
+    {
+      "itemTag": "FREE_ITEM_7",
+      "itemName": "Free Item 7",
+      "isSell": false,
+      "pricePerUnit": 107,
+      "amount": 107,
+      "mode": "Active",
+      "originalQuantity": 107,
+      "entryPrice": 107,
+      "exitPrice": 157,
+      "sellTaxRate": 0.01125,
+      "taxSource": "Assumption",
+      "estimatedNetProfit": 7000,
+      "capitalLockHorizonHours": 1,
+      "deadlineSemantics": "FixedFromFirstAcceptedBuy",
+      "confidence": {
+        "eventId": "full_buy_sell_original_quantity_by_deadline_v1",
+        "probability": null,
+        "lowerBound": null,
+        "confidenceLevel": 0.95,
+        "supportDomainId": null,
+        "modelId": null,
+        "calibrationId": null,
+        "status": "NotApplicable",
+        "reasonCodes": [
+          "NotApplicableToActive"
+        ]
+      }
+    },
+    {
+      "itemTag": "FREE_ITEM_9",
+      "itemName": "Free Item 9",
+      "isSell": false,
+      "pricePerUnit": 109,
+      "amount": 109,
+      "mode": "Active",
+      "originalQuantity": 109,
+      "entryPrice": 109,
+      "exitPrice": 159,
+      "sellTaxRate": 0.01125,
+      "taxSource": "Assumption",
+      "estimatedNetProfit": 9000,
+      "capitalLockHorizonHours": 1,
+      "deadlineSemantics": "FixedFromFirstAcceptedBuy",
+      "confidence": {
+        "eventId": "full_buy_sell_original_quantity_by_deadline_v1",
+        "probability": null,
+        "lowerBound": null,
+        "confidenceLevel": 0.95,
+        "supportDomainId": null,
+        "modelId": null,
+        "calibrationId": null,
+        "status": "NotApplicable",
+        "reasonCodes": [
+          "NotApplicableToActive"
+        ]
+      }
+    }
+  ],
+  "unqualifiedInvestingCandidates": [],
+  "modes": [
+    "Active"
+  ],
+  "investingHorizonHours": null,
+  "budgetCoins": 4000000,
+  "budgetSource": "purse-estimate",
+  "accountState": {
+    "openOrdersEstimated": false,
+    "openBuyItemTags": [],
+    "heldItemTags": [],
+    "freeOrderSlots": 18,
+    "revision": null
+  },
+  "tier": "logged_in",
+  "hiddenCount": 9,
+  "premiumUrl": "https://sky.coflnet.com/premium",
+  "warnings": []
+}

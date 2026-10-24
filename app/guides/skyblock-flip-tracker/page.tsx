@@ -184,7 +184,7 @@ export default function SkyblockFlipTrackerPage() {
                                             <li>Install <a href="https://prismlauncher.org/" target="_blank" rel="noopener noreferrer">Prism Launcher</a> or open your existing modded client.</li>
                                             <li>Create a current Minecraft 1.21+ instance with the Fabric 26.1.x stack for the recommended 2026 setup.</li>
                                             <li>Add Fabric API and the <Link href="/mod">SkyCofl Mod</Link>, then launch Hypixel SkyBlock and verify the account you want to track.</li>
-                                            <li>Use <Link href="/flipper">AH Flipper</Link>, <Link href="/bazaar">Bazaar Flips</Link>, or <Link href="/premiumBazaar">Premium Bazaar Flips</Link> to find opportunities while the mod records executed results.</li>
+                                            <li>Use <Link href="/flipper">AH Flipper</Link>, <Link href="/bazaar">Bazaar Flips</Link>, or <Link href="/bazaarPlan">Premium Bazaar Flips</Link> to find opportunities while the mod records executed results.</li>
                                             <li>Review your personal history with <Link href="/guides/tracking-profits-automatically">the <code>/cofl profit</code> and CSV workflow</Link>, and review public AH history by searching a player and clicking the flips button in their profile.</li>
                                         </ol>
 
@@ -250,7 +250,7 @@ export default function SkyblockFlipTrackerPage() {
                                             <li>SkyAH flips are tracked too, so you can compare auction and Bazaar performance directly instead of needing two different trackers.</li>
                                         </ul>
                                         <CardText>
-                                            If you are looking for current opportunities, open <Link href="/bazaar">Bazaar Flips</Link> for the standard list or <Link href="/premiumBazaar">Premium Bazaar Flips</Link> for live order-book and demand signals. If the profit came from changing the item instead of just relisting it unchanged, <Link href="/attributeFlips">Attribute Flips</Link> is the landing page that best matches what the tracker is later trying to explain.
+                                            If you are looking for current opportunities, open <Link href="/bazaar">Bazaar Flips</Link> for the standard list or <Link href="/bazaarPlan">Premium Bazaar Flips</Link> for live order-book and demand signals. If the profit came from changing the item instead of just relisting it unchanged, <Link href="/attributeFlips">Attribute Flips</Link> is the landing page that best matches what the tracker is later trying to explain.
                                         </CardText>
                                     </section>
 
@@ -304,7 +304,7 @@ export default function SkyblockFlipTrackerPage() {
 
                                         <CardTitle as="h3">Where can I find the top profitable flips right now?</CardTitle>
                                         <CardText>
-                                            There is no honest evergreen list of the top profitable flips right now, because the answer moves with supply, demand, and timing. For live answers, open <Link href="/bazaar">Bazaar Flips</Link>, <Link href="/premiumBazaar">Premium Bazaar Flips</Link>, <Link href="/flipper">AH Flipper</Link>, <Link href="/attributeFlips">Attribute Flips</Link>, <Link href="/recentFlips">Recent Flips</Link>, and <Link href="/guides/best-item-to-flip-right-now">Best Item to Flip Right Now</Link>.
+                                            There is no honest evergreen list of the top profitable flips right now, because the answer moves with supply, demand, and timing. For live answers, open <Link href="/bazaar">Bazaar Flips</Link>, <Link href="/bazaarPlan">Premium Bazaar Flips</Link>, <Link href="/flipper">AH Flipper</Link>, <Link href="/attributeFlips">Attribute Flips</Link>, <Link href="/recentFlips">Recent Flips</Link>, and <Link href="/guides/best-item-to-flip-right-now">Best Item to Flip Right Now</Link>.
                                         </CardText>
                                     </section>
 

@@ -11,7 +11,7 @@ This page is the index for SkyCofl website and mod features. Every live tool lin
 ## Flipping tools
 
 - [Bazaar Flips](/bazaar) — live spread, price, fee, manipulation, and volume analysis. See the [complete Bazaar flipping guide](/wiki/bazaar-flips) for the website and `/cofl bazaar` workflow.
-- [Premium Bazaar Flips](/premiumBazaar) — demand and order-book-aware Bazaar opportunities for active traders.
+- [Premium Bazaar Flips](/bazaarPlan) — demand and order-book-aware Bazaar opportunities for active traders.
 - [Auction House Item Flipper](/flipper) — undervalued Auction House items, modifiers, filters, and resale analysis.
 - [Craft Flips](/crafts) — ingredient trees, acquisition cost, output value, and profitable recipe chains.
 - [Book Flips](/bookFlips) — enchantment-book combining costs, output tiers, demand, and profit per hour.

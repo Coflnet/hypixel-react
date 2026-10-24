@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Container } from 'react-bootstrap'
@@ -20,6 +21,11 @@ export default async function Page() {
                 <NavBar />
                 <h1>Bazaar Flips</h1>
                 <hr />
+                <p>
+                    <Link href="/bazaarPlan" className="btn btn-primary" data-cy="personal-plan-link">
+                        Personal plan: orders for your budget (Active / Investing)
+                    </Link>
+                </p>
                 <HydrationBoundary state={dehydrate(queryClient)}>
                     <BazaarFlips />
                 </HydrationBoundary>

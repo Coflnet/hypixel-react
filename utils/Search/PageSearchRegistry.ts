@@ -58,7 +58,7 @@ function tool(route: string, title: string, icon: PageIconKey, aliases: string[]
 const CORE_PAGES: PageSearchEntry[] = [
     tool('/', 'Home', 'home', ['home', 'start'], ['main', 'frontpage']),
     tool('/bazaar', 'Bazaar Flips', 'bazaar', ['bz', 'bazaar', 'bazaar flips', 'bazaar flipper'], ['bazaar', 'flip', 'flips', 'orders'], 'Profitable bazaar orders'),
-    tool('/premiumBazaar', 'Premium Bazaar Flips', 'premiumBazaar', ['pbz', 'premium bazaar'], ['bazaar', 'premium'], 'Bazaar flips with more data'),
+    tool('/bazaarPlan', 'Bazaar Plan (Active / Investing)', 'premiumBazaar', ['pbz', 'premium bazaar', 'bazaar plan'], ['bazaar', 'premium', 'plan', 'investing'], 'Personal bazaar orders for your budget'),
     tool('/flipper', 'AH Flipper', 'flipper', ['ah', 'flipper', 'ah flipper', 'auction flipper'], ['auction', 'flip', 'flips', 'house'], 'Live auction house flips'),
     tool('/flips', 'Flipping Hub', 'hub', ['flips', 'hub'], ['flip', 'flipping', 'overview'], 'All flip types in one place'),
     tool('/crafts', 'Craft Flips', 'crafts', ['crafts', 'crafting'], ['craft', 'flip', 'flips']),

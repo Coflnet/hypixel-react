@@ -43,6 +43,11 @@ const nextConfig = {
                 permanent: true
             },
             {
+                source: '/premiumBazaar',
+                destination: '/bazaarPlan',
+                permanent: true
+            },
+            {
                 source: '/a/:auctionUUID*',
                 destination: '/auction/:auctionUUID*',
                 permanent: true

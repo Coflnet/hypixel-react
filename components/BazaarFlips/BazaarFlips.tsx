@@ -151,9 +151,9 @@ export function BazaarFlips() {
                     We enhanced this by marking items that are probably manipulated to protect you from losing coins.
                 </p>
                 <p>
-                    <strong>Want more accurate flips?</strong> Check out our{' '}
-                    <Link href="/premiumBazaar">Premium Bazaar Flips</Link> that use real-time market data and demand analysis
-                    instead of weekly averages for more accurate profit estimates. Premium subscription required.
+                    <strong>Want orders sized for your own budget?</strong> Check out your{' '}
+                    <Link href="/bazaarPlan">personal Bazaar Plan</Link> with Active and Investing orders based on the live order book
+                    instead of weekly averages.
                 </p>
             </details>
             <details>

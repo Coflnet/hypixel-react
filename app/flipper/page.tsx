@@ -31,8 +31,8 @@ export default async function Page() {
                     Go to Bazaar Flips
                 </Link>
                 <span style={{ marginLeft: '12px' }} />
-                <Link href="/premiumBazaar" style={{ marginTop: '20px', display: 'inline-block' }}>
-                    Premium Bazaar Flips (premium required)
+                <Link href="/bazaarPlan" style={{ marginTop: '20px', display: 'inline-block' }}>
+                    Bazaar Plan (Active / Investing)
                 </Link>
                 <span style={{ marginLeft: '12px' }} />
                 <Link href="https://donut.coflnet.com" style={{ marginTop: '20px', display: 'inline-block' }}>

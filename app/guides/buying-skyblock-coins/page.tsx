@@ -79,7 +79,7 @@ export default function BuyingCoinsGuidePage() {
                                 The fastest, safest path is <strong>Premium-assisted manual flipping</strong>. It’s cheaper than buying coins and scales into <strong>millions → billions</strong> over time. SkyCofl has already helped users earn <strong>over 1 trillion coins</strong>, and <strong>80% of active flippers use our service</strong>.
                             </CardText>
                             <ul>
-                                <li><strong>Bazaar Flipping (Beginner → Advanced):</strong> Start with <Link href="/bazaar">Bazaar Flips</Link>, then upgrade to <Link href="/premiumBazaar">Premium Bazaar</Link> for demand-spread flips. In-game, use <Link href="/wiki/docs/mod-commands#bazaarcommand-alias-bz">/cofl bazaar</Link>.</li>
+                                <li><strong>Bazaar Flipping (Beginner → Advanced):</strong> Start with <Link href="/bazaar">Bazaar Flips</Link>, then upgrade to <Link href="/bazaarPlan">Premium Bazaar</Link> for demand-spread flips. In-game, use <Link href="/wiki/docs/mod-commands#bazaarcommand-alias-bz">/cofl bazaar</Link>.</li>
                                 <li><strong>AH Flipping (Intermediate):</strong> Use <Link href="/flipper">AH Flipper</Link> and <Link href="/wiki/docs/mod-commands#ahflipscommand">/cofl ahflips</Link> to find undervalued listings and relist for profit.</li>
                                 <li><strong>Craft & Forge Flips:</strong> Check <Link href="/crafts">Craft Flips</Link> and the <Link href="/wiki/docs/mod-commands#forgecommand">/cofl forge</Link> command to turn ingredients into profit.</li>
                                 <li><strong>Data-Driven Decisions:</strong> Track earnings with <Link href="/wiki/docs/mod-commands#profitcommand">/cofl profit</Link> and review history with <Link href="/wiki/docs/mod-commands#flipscommand">/cofl flips</Link>.</li>
@@ -126,7 +126,7 @@ export default function BuyingCoinsGuidePage() {
 
                             <hr />
                             <CardText>
-                                <strong>Bottom line:</strong> Buying coins is a fast track to a ban. <strong>Premium-assisted manual flipping</strong> with SkyCofl is safer, cheaper, and proven—our users have already earned <strong>1,000,000,000,000+</strong> coins, and <strong>80% of flippers</strong> rely on our tools. Get started with <Link href="/premiumBazaar">Premium Bazaar</Link>, <Link href="/bazaar">Bazaar Flips</Link>, and <Link href="/flipper">AH Flipper</Link>—then track your success with <Link href="/wiki/docs/mod-commands#profitcommand">/cofl profit</Link>.
+                                <strong>Bottom line:</strong> Buying coins is a fast track to a ban. <strong>Premium-assisted manual flipping</strong> with SkyCofl is safer, cheaper, and proven—our users have already earned <strong>1,000,000,000,000+</strong> coins, and <strong>80% of flippers</strong> rely on our tools. Get started with <Link href="/bazaarPlan">Premium Bazaar</Link>, <Link href="/bazaar">Bazaar Flips</Link>, and <Link href="/flipper">AH Flipper</Link>—then track your success with <Link href="/wiki/docs/mod-commands#profitcommand">/cofl profit</Link>.
                             </CardText>
                             <Link href="/guides" passHref>
                                 Back to Guides

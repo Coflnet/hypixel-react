@@ -4038,6 +4038,340 @@ export interface ValidatedDiscount {
   durationInMonths: number;
 }
 
+/**
+ * Account state the plan was computed with.
+ */
+export interface BazaarPlanAccountState {
+  /** True when open orders could not be read or only estimates are known. */
+  openOrdersEstimated: boolean;
+  /**
+     * Items with an open buy order.
+     * @nullable
+     */
+  openBuyItemTags?: string[] | null;
+  /**
+     * Items held through sell orders or unclaimed buys.
+     * @nullable
+     */
+  heldItemTags?: string[] | null;
+  /**
+     * Free bazaar order slots.
+     * @nullable
+     */
+  freeOrderSlots?: number | null;
+  /**
+     * Revision of the account state.
+     * @nullable
+     */
+  revision?: string | null;
+}
+
+/**
+ * Confidence that the full original quantity is bought and sold by the deadline.
+ */
+export interface BazaarPlanConfidence {
+  /**
+     * Identifier of the evaluated event.
+     * @nullable
+     */
+  eventId?: string | null;
+  /**
+     * Fraction between 0 and 1; null means unknown and is never a sentinel for 0 or 1.
+     * @nullable
+     */
+  probability?: number | null;
+  /**
+     * Lower confidence bound of the probability as fraction; null when unknown.
+     * @nullable
+     */
+  lowerBound?: number | null;
+  /** Confidence level the bound refers to. */
+  confidenceLevel: number;
+  /**
+     * Domain the evidence covers.
+     * @nullable
+     */
+  supportDomainId?: string | null;
+  /**
+     * Identifier of the model.
+     * @nullable
+     */
+  modelId?: string | null;
+  /**
+     * Identifier of the calibration.
+     * @nullable
+     */
+  calibrationId?: string | null;
+  /**
+     * Qualified, NotQualified, SimulationOnly, InsufficientEvidence, UnsupportedDomain, StaleInputs, Unavailable or NotApplicable.
+     * @nullable
+     */
+  status?: string | null;
+  /**
+     * Machine readable reasons for the status.
+     * @nullable
+     */
+  reasonCodes?: string[] | null;
+}
+
+/**
+ * One planned order, mapped one to one from the engine recommendation.
+ */
+export interface BazaarPlanOrder {
+  /**
+     * Tag of the item.
+     * @nullable
+     */
+  itemTag?: string | null;
+  /**
+     * Display name of the item.
+     * @nullable
+     */
+  itemName?: string | null;
+  /** True for a sell offer. */
+  isSell: boolean;
+  /** Price per unit of this order. */
+  pricePerUnit: number;
+  /** Amount of this order. */
+  amount: number;
+  /**
+     * Active or Investing.
+     * @nullable
+     */
+  mode?: string | null;
+  /** Quantity of the complete buy and sell cycle. */
+  originalQuantity: number;
+  /** Planned buy price per unit. */
+  entryPrice: number;
+  /**
+     * Planned sell price per unit.
+     * @nullable
+     */
+  exitPrice?: number | null;
+  /** Sell tax fraction used for the profit. */
+  sellTaxRate: number;
+  /**
+     * Where the tax rate comes from, AccountAttested or Assumption.
+     * @nullable
+     */
+  taxSource?: string | null;
+  /** Estimated profit after tax in coins. */
+  estimatedNetProfit: number;
+  /** Hours the capital stays locked at most. */
+  capitalLockHorizonHours: number;
+  /**
+     * Rule that fixes the deadline.
+     * @nullable
+     */
+  deadlineSemantics?: string | null;
+  confidence?: BazaarPlanConfidence;
+}
+
+/**
+ * Budget and slot accounting of a plan.
+ */
+export interface BazaarPlanPortfolio {
+  /** Budget the engine planned with, after open buy orders were deducted. */
+  budgetCoins: number;
+  /** Coins committed by the planned orders. */
+  spentCoins: number;
+  /** Budget that stays unspent. */
+  remainingBudgetCoins: number;
+  /**
+     * Coins held back by the caller.
+     * @nullable
+     */
+  reserveCoins?: number | null;
+  /**
+     * Who owns the reserve.
+     * @nullable
+     */
+  reserveOwner?: string | null;
+  /** Free order slots before the plan. */
+  freeSlotsBefore: number;
+  /** Free order slots after the plan. */
+  freeSlotsAfter: number;
+  /**
+     * Free inventory slots before the plan, null when unknown.
+     * @nullable
+     */
+  freeInventorySlotsBefore?: number | null;
+  /**
+     * Free inventory slots after the plan, null when unknown.
+     * @nullable
+     */
+  freeInventorySlotsAfter?: number | null;
+  /** Coins already bound in held items. */
+  heldExposureCoins: number;
+  /**
+     * Items left out because they are already held, ordered or pending.
+     * @nullable
+     */
+  suppressedItemTags?: string[] | null;
+}
+
+/**
+ * Identity and validity of the quote an allocation was computed from.
+ */
+export interface BazaarPlanQuote {
+  /**
+     * Identifier of the quote.
+     * @nullable
+     */
+  quoteId?: string | null;
+  /**
+     * Identifier of the request the quote answers.
+     * @nullable
+     */
+  requestId?: string | null;
+  /**
+     * Identifier of the market snapshot the plan was computed from.
+     * @nullable
+     */
+  marketFrameId?: string | null;
+  /** When the plan was computed. */
+  generatedAt: string;
+  /** Until when the plan may be acted on. */
+  expiresAt: string;
+  /**
+     * Identifier of the allocation policy.
+     * @nullable
+     */
+  policyId?: string | null;
+  /** Version of the allocation policy. */
+  policyVersion: number;
+  /**
+     * Version of the fill model, null when none was used.
+     * @nullable
+     */
+  modelVersion?: string | null;
+  /**
+     * Version of the planning engine.
+     * @nullable
+     */
+  engineVersion?: string | null;
+  /**
+     * Rule that decided which orders were admitted.
+     * @nullable
+     */
+  admissionRule?: string | null;
+}
+
+/**
+ * Optional overrides of the personal bazaar plan; every field has a smart default.
+ */
+export interface BazaarPlanRequest {
+  /**
+     * Requested modes "active" and/or "investing" (case-insensitive); defaults to active only.
+     * @nullable
+     */
+  modes?: string[] | null;
+  /**
+     * Hold horizon for investing in hours, required when investing is requested, greater than 0 and at most 48. Never clamped.
+     * @nullable
+     */
+  investingHorizonHours?: number | null;
+  /**
+     * Hold horizon of active orders in hours, defaults to 1.
+     * @nullable
+     */
+  activeHorizonHours?: number | null;
+  /**
+     * Coins to plan with; defaults to two thirds of the purse of the verified account.
+     * @nullable
+     */
+  budgetCoins?: number | null;
+  /**
+     * Attested sell tax as fraction (for example 0.0125); the engine assumes a rate when omitted.
+     * @nullable
+     */
+  sellTaxRate?: number | null;
+}
+
+/**
+ * A personal bazaar plan.
+ */
+export interface BazaarPlanResponse {
+  quote?: BazaarPlanQuote;
+  /**
+     * Overall engine status.
+     * @nullable
+     */
+  status?: string | null;
+  /**
+     * Investing status, for example EmptyQualified or Unavailable; null when investing was not requested.
+     * @nullable
+     */
+  investingStatus?: string | null;
+  /**
+     * Reasons for the investing status.
+     * @nullable
+     */
+  investingReasonCodes?: string[] | null;
+  portfolio?: BazaarPlanPortfolio;
+  /**
+     * Planned orders.
+     * @nullable
+     */
+  orders?: BazaarPlanOrder[] | null;
+  /**
+     * Advisory investing candidates that are not part of the plan; empty for free users.
+     * @nullable
+     */
+  unqualifiedInvestingCandidates?: BazaarPlanOrder[] | null;
+  /**
+     * Canonical modes that were planned.
+     * @nullable
+     */
+  modes?: string[] | null;
+  /**
+     * Investing horizon that was used.
+     * @nullable
+     */
+  investingHorizonHours?: number | null;
+  /** Budget before open buy orders were deducted. */
+  budgetCoins: number;
+  /**
+     * "request" or "purse-estimate".
+     * @nullable
+     */
+  budgetSource?: string | null;
+  accountState?: BazaarPlanAccountState;
+  /**
+     * Tier of the user.
+     * @nullable
+     */
+  tier?: string | null;
+  /** Number of orders only visible with Starter Premium. */
+  hiddenCount: number;
+  /**
+     * Where to get Starter Premium, set when orders are hidden.
+     * @nullable
+     */
+  premiumUrl?: string | null;
+  /**
+     * Non fatal problems such as orders_unavailable.
+     * @nullable
+     */
+  warnings?: string[] | null;
+}
+
+/**
+ * Request to track one order of a previously returned plan in game.
+ */
+export interface BazaarPlanTrackRequest {
+  /**
+     * Identifier of the quote the order was returned with.
+     * @nullable
+     */
+  quoteId?: string | null;
+  /**
+     * Tag of the planned order to track.
+     * @nullable
+     */
+  itemTag?: string | null;
+}
+
 export type GetApiAuctionRandomParams = {
 token?: string;
 };

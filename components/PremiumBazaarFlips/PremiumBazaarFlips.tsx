@@ -1,64 +1,131 @@
 'use client'
 import Image from 'next/image'
 import React, { useCallback, useEffect, useState } from 'react'
-import { Alert, Badge } from 'react-bootstrap'
+import { Alert, Badge, Button, ButtonGroup, Form, ListGroup } from 'react-bootstrap'
+import { keepPreviousData, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import Number from '../Number/Number'
-import { DemandSpreadFlip } from '../../api/_generated/skyApi.schemas'
-import { useQueryClient } from '@tanstack/react-query'
-import { getGetApiFlipBazaarSpreadDeemandQueryKey, useGetApiFlipBazaarSpreadDeemand } from '../../api/_generated/skyApi'
+import type { BazaarPlanOrder, BazaarPlanResponse } from '../../api/_generated/skyApi.schemas'
+import { getGetApiModGoalsQueryKey, postApiFlipBazaarPlan, postApiFlipBazaarPlanTrack } from '../../api/_generated/skyApi'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
-import { formatToPriceToShorten } from '../../utils/Formatter'
 import PremiumNotifier from '../Premium/PremiumNotifier'
 import styles from './PremiumBazaarFlips.module.css'
-import { getGeneratedApiErrorMessage, hasSuccessfulArrayResponse, isGeneratedPremiumRequired } from '../../utils/GeneratedApiResponseUtils'
+import { getGeneratedApiErrorMessage, getGeneratedApiSlug } from '../../utils/GeneratedApiResponseUtils'
+import {
+    BAZAAR_PLAN_BUDGET_KEY,
+    BAZAAR_PLAN_HORIZON_KEY,
+    BAZAAR_PLAN_MODE_KEY,
+    BAZAAR_PLAN_SELL_TAX_KEY,
+    getSetting,
+    setSetting
+} from '../../utils/SettingsUtils'
+import {
+    BAZAAR_PLAN_DEFAULT_HORIZON_HOURS,
+    BAZAAR_PLAN_MODES,
+    BazaarPlanModeChoice,
+    buildBazaarPlanRequest,
+    getConfidenceBadge,
+    getDeadlineText,
+    getTaxText,
+    includesInvesting,
+    parseBazaarPlanMode,
+    validateBudget,
+    validateHorizon,
+    validateTax
+} from '../../utils/BazaarPlanUtils'
 
-const SORT_OPTIONS: SortOption<DemandSpreadFlip>[] = [
+const SORT_OPTIONS: SortOption<BazaarPlanOrder>[] = [
     {
-        label: 'Profit/Hour',
-        value: 'profitPerHour',
-        sortFunction: flips => flips.sort((a, b) => (b.flip?.currentProfitPerHour || 0) - (a.flip?.currentProfitPerHour || 0))
+        label: 'Net profit ⇩',
+        value: 'netProfit',
+        sortFunction: orders => orders.sort((a, b) => (b.estimatedNetProfit || 0) - (a.estimatedNetProfit || 0))
     },
     {
-        label: 'Profit ⇧',
-        value: 'profitAsc',
-        sortFunction: flips => flips.sort((a, b) => (b.flip?.currentProfitPerHour || 0) - (a.flip?.currentProfitPerHour || 0))
+        label: 'Shortest lock',
+        value: 'lock',
+        sortFunction: orders => orders.sort((a, b) => (a.capitalLockHorizonHours || 0) - (b.capitalLockHorizonHours || 0))
     },
     {
-        label: 'Profit ⇩',
-        value: 'profitDesc',
-        sortFunction: flips => flips.sort((a, b) => (a.flip?.currentProfitPerHour || 0) - (b.flip?.currentProfitPerHour || 0))
-    },
-    {
-        label: 'Volume ⇩',
-        value: 'volumeAsc',
-        sortFunction: flips => flips.sort((a, b) => (b.flip?.volume || 0) - (a.flip?.volume || 0))
+        label: 'Plan order',
+        value: 'rank',
+        sortFunction: orders => orders
     }
 ]
+
+const BUDGET_SOURCE_LABELS: Record<string, string> = {
+    'purse-estimate': 'estimated as two thirds of your purse',
+    request: 'your input'
+}
+
+function formatPrice(value?: number | null): string {
+    return (value ?? 0).toLocaleString('en-US', { maximumFractionDigits: 1 })
+}
 
 export function PremiumBazaarFlips() {
     const queryClient = useQueryClient()
     const [googleToken, setGoogleToken] = useState('')
+    const [prefsLoaded, setPrefsLoaded] = useState(false)
+    const [mode, setMode] = useState<BazaarPlanModeChoice>('Active')
+    const [horizon, setHorizon] = useState(String(BAZAAR_PLAN_DEFAULT_HORIZON_HOURS))
+    // empty means "use the server's default", the input then shows the server's value
+    const [budget, setBudget] = useState('')
+    const [budgetEdited, setBudgetEdited] = useState(false)
+    const [tax, setTax] = useState('')
+    // what the query uses: text inputs settle for a moment so that typing "5000000" is one request, not seven
+    const [applied, setApplied] = useState({ horizon: String(BAZAAR_PLAN_DEFAULT_HORIZON_HOURS), budget: '', tax: '' })
+    const [now, setNow] = useState(0)
+    const [tracking, setTracking] = useState<string | null>(null)
 
     useEffect(() => {
-        if (typeof window === 'undefined') {
-            return
-        }
         const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId') ?? ''
         setGoogleToken(token)
+        setMode(parseBazaarPlanMode(getSetting(BAZAAR_PLAN_MODE_KEY, 'Active')))
+        const saved = {
+            horizon: String(getSetting(BAZAAR_PLAN_HORIZON_KEY, BAZAAR_PLAN_DEFAULT_HORIZON_HOURS)),
+            budget: String(getSetting(BAZAAR_PLAN_BUDGET_KEY, '')),
+            tax: String(getSetting(BAZAAR_PLAN_SELL_TAX_KEY, ''))
+        }
+        setHorizon(saved.horizon)
+        setBudget(saved.budget)
+        setBudgetEdited(!!saved.budget)
+        setTax(saved.tax)
+        setApplied(saved)
+        setNow(Date.now())
+        setPrefsLoaded(true)
+        const timer = setInterval(() => setNow(Date.now()), 5000)
+        return () => clearInterval(timer)
     }, [])
 
-    const query = useGetApiFlipBazaarSpreadDeemand({
-        fetch: googleToken ? { headers: { GoogleToken: googleToken } } : undefined,
-        query: {
-            queryKey: [...getGetApiFlipBazaarSpreadDeemandQueryKey(), googleToken],
-            retry: false
-        }
+    useEffect(() => {
+        const timer = setTimeout(() => setApplied({ horizon, budget, tax }), 400)
+        return () => clearTimeout(timer)
+    }, [horizon, budget, tax])
+
+    const horizonError = includesInvesting(mode) ? validateHorizon(horizon) : null
+    const budgetError = validateBudget(budget)
+    const taxError = validateTax(tax)
+    const valid = !horizonError && !budgetError && !taxError
+    const appliedValid =
+        !(includesInvesting(mode) && validateHorizon(applied.horizon)) && !validateBudget(applied.budget) && !validateTax(applied.tax)
+
+    const query = useQuery({
+        queryKey: ['bazaarPlan', googleToken, mode, includesInvesting(mode) ? applied.horizon : null, applied.budget, applied.tax],
+        queryFn: () => postApiFlipBazaarPlan(buildBazaarPlanRequest(mode, applied.horizon, applied.budget, applied.tax), { headers: { GoogleToken: googleToken } }),
+        // only settled, valid inputs are ever sent; a half typed value must not flip the query on and off
+        enabled: !!googleToken && prefsLoaded && appliedValid,
+        retry: false,
+        staleTime: 0,
+        placeholderData: keepPreviousData
     })
     const response = query.data
     const isFetching = query.isFetching
-    const isAccessError = response?.status === 401 || response?.status === 403 || isGeneratedPremiumRequired(response?.data)
-    const hasFlips = hasSuccessfulArrayResponse<DemandSpreadFlip>(response)
+    const plan: BazaarPlanResponse | null = response?.status === 200 ? (response.data as BazaarPlanResponse) : null
+    const isAccessError = response?.status === 401 || response?.status === 403
+    const errorMessage =
+        query.isError || (response && response.status !== 200 && !isAccessError)
+            ? getGeneratedApiErrorMessage(response, query.error, 'Unable to load your bazaar plan right now') || 'Unable to load your bazaar plan right now'
+            : null
 
     const handleAfterLogin = useCallback(() => {
         const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId') ?? ''
@@ -68,206 +135,413 @@ export function PremiumBazaarFlips() {
             return
         }
         setGoogleToken(token)
-        queryClient.invalidateQueries({ queryKey: [...getGetApiFlipBazaarSpreadDeemandQueryKey(), token] })
-    }, [queryClient, googleToken])
+    }, [googleToken])
 
-    if (!hasFlips) {
-        const messageFromApi = getGeneratedApiErrorMessage(response, query.error, 'Unable to load premium bazaar flips right now')
-        const explanatorySection = (
-            <div>
-                <p>
-                    Premium bazaar flips use real-time market data and demand analysis to provide more accurate profit estimates than traditional spread-based flips.
-                </p>
-                <p>
-                    Unlike the regular bazaar flips that use weekly averages, premium bazaar flips analyze the <strong>current state of the market</strong> including:
-                </p>
-                <ul>
-                    <li>Real-time buy and sell order volumes</li>
-                    <li>Current demand trends and market momentum</li>
-                    <li>Instant profit calculations based on actual market conditions</li>
-                    <li>More accurate volume and turnover predictions</li>
-                </ul>
-                <p>
-                    This data-intensive analysis requires premium access to our real-time bazaar tracking infrastructure.
-                </p>
-                <details>
-                    <summary>Why are premium bazaar flips more accurate?</summary>
-                    <p>
-                        Traditional bazaar flips calculate profit using the spread between buy and sell orders multiplied by historical weekly sales.
-                        This works well for stable items but can be misleading during market fluctuations.
-                    </p>
-                    <p>
-                        Premium bazaar flips analyze current order book depth, recent trade velocity, and demand patterns to estimate profit
-                        based on what the market is doing <em>right now</em>, not what it did last week.
-                    </p>
-                </details>
-                <details>
-                    <summary>How to perform premium bazaar flips</summary>
-                    <ol>
-                        <li>Pick a flip with positive current profit per hour and healthy volume</li>
-                        <li>Go to the skyblock bazaar and search up the item (use /cofl bazaar in-game for faster access)</li>
-                        <li>Place a top buy order (should match or be slightly above the current buy price)</li>
-                        <li>Monitor the order - premium flips react to current demand, so fill times may vary</li>
-                        <li>Once filled, place the lowest sell order at or slightly below the suggested sell price</li>
-                    </ol>
-                </details>
-            </div>
-        )
-
-        return (
-            <div className={styles.alertWrapper}>
-                {explanatorySection}
-                {!isFetching ? (
-                    isAccessError ? (
-                        <PremiumNotifier messageFromApi={messageFromApi} onAfterLogin={handleAfterLogin} />
-                    ) : messageFromApi ? (
-                        <Alert variant="danger">{messageFromApi}</Alert>
-                    ) : null
-                ) : null}
-            </div>
-        )
+    function changeMode(value: BazaarPlanModeChoice) {
+        setMode(value)
+        setSetting(BAZAAR_PLAN_MODE_KEY, value)
     }
 
-    const flips = response.data
-
-    function renderFlipContent(flip: DemandSpreadFlip) {
-        return (
-            <>
-                <h4>{getFlipHeader(flip)}</h4>
-                <p>
-                    <span style={{ width: '180px', float: 'left' }}>Current Profit/Hour:</span> 
-                    <Number number={Math.round(flip.flip?.currentProfitPerHour || 0)} /> Coins
-                </p>
-                <p>
-                    <span style={{ width: '180px', float: 'left' }}>Buy Price:</span>
-                    {formatToPriceToShorten(flip.flip?.buyPrice || 0)} Coins
-                </p>
-                <p>
-                    <span style={{ width: '180px', float: 'left' }}>Sell Price:</span>
-                    {formatToPriceToShorten(flip.flip?.sellPrice || 0)} Coins
-                </p>
-                <p>
-                    <span style={{ width: '180px', float: 'left' }}>Median:</span>
-                    {formatToPriceToShorten(flip.flip?.medianValue || 0)} Coins
-                </p>
-                <p>
-                    <span style={{ width: '180px', float: 'left' }}>Est. Sales/hour:</span>
-                    <Number number={Math.round((flip.flip?.volume || 0) /24)} />
-                </p>
-                <p>
-                    <span style={{ width: '180px', float: 'left' }}>Last Updated:</span>
-                    {new Date(flip.flip?.timestamp || '').toLocaleString()}
-                </p>
-                <Badge bg="success" style={{ marginTop: '10px' }}>
-                    Real-time Data
-                </Badge>
-            </>
-        )
-    }
-
-    function onFlipClick(flip: DemandSpreadFlip) {
-        const url = `https://sky.coflnet.com/item/${flip.flip?.itemTag}`
-        window.open(url, '_blank')
-    }
-
-    function getFlipHeader(flip: DemandSpreadFlip) {
-        return (
-            <span>
-                <Image
-                    crossOrigin="anonymous"
-                    src={api.getItemImageUrl({ tag: flip.flip?.itemTag || '' }) || ''}
-                    height="32"
-                    width="32"
-                    alt=""
-                    style={{ marginRight: '5px' }}
-                    loading="lazy"
-                />
-                {flip.itemName}
-            </span>
-        )
-    }
-
-    function filterFunction(flip: DemandSpreadFlip, nameFilter: string | null | undefined, minimumProfit: number): boolean {
-        const nameMatch = !nameFilter || (flip.itemName?.toLowerCase().includes(nameFilter.toLowerCase()) ?? false)
-        const profitMatch = (flip.flip?.currentProfitPerHour || 0) >= minimumProfit
-        return nameMatch && profitMatch
-    }
-
-    function censoredItemGenerator(flip: DemandSpreadFlip): DemandSpreadFlip {
-        return {
-            ...flip,
-            itemName: 'Premium Required ☺',
-            flip: {
-                currentProfitPerHour: -100000,
-                volume: -1,
-                itemTag: 'BARRIER',
-                timestamp: '',
-                buyPrice: 0,
-                sellPrice: 0,
-                medianValue: 0,
-                suggestedOrderVolume: 0,
-                targetHoldTimeMinutes: 0,
-                totalProfit: 0,
-                rankScore: 0,
-                capacity: 0
-            }
+    function changeHorizon(value: string) {
+        setHorizon(value)
+        if (!validateHorizon(value)) {
+            setSetting(BAZAAR_PLAN_HORIZON_KEY, value)
         }
+    }
+
+    function changeBudget(value: string) {
+        setBudgetEdited(true)
+        setBudget(value)
+        if (!validateBudget(value)) {
+            setSetting(BAZAAR_PLAN_BUDGET_KEY, value)
+        }
+    }
+
+    function changeTax(value: string) {
+        setTax(value)
+        if (!validateTax(value)) {
+            setSetting(BAZAAR_PLAN_SELL_TAX_KEY, value)
+        }
+    }
+
+    async function track(order: BazaarPlanOrder) {
+        if (!googleToken || !plan?.quote?.quoteId || !order.itemTag) {
+            return
+        }
+        setTracking(order.itemTag)
+        try {
+            const result = await postApiFlipBazaarPlanTrack({ quoteId: plan.quote.quoteId, itemTag: order.itemTag }, { headers: { GoogleToken: googleToken } })
+            const status: number = result.status
+            if (status >= 200 && status < 300) {
+                toast.success(
+                    <span>
+                        Tracking <i>{order.itemName}</i> in game — open your inventory to see the steps
+                    </span>
+                )
+            } else if (getGeneratedApiSlug(result.data) === 'quote_expired') {
+                toast.warn('This plan expired, it was refreshed. Please check the new prices.')
+                query.refetch()
+            } else {
+                toast.error(getGeneratedApiErrorMessage(result, null, 'Unable to track this in game'))
+            }
+        } catch (error) {
+            toast.error(getGeneratedApiErrorMessage(null, error, 'Unable to track this in game'))
+        }
+        setTracking(null)
+        queryClient.invalidateQueries({ queryKey: getGetApiModGoalsQueryKey() })
     }
 
     const explanatorySection = (
         <div>
             <p>
-                Premium bazaar flips leverage real-time market analysis and demand tracking to provide more accurate profit estimates.
-                Unlike regular bazaar flips that rely on weekly averages, these flips use the <strong>current state of the market</strong> to calculate profits.
+                Your personal bazaar plan tells you what to order with your own budget: <strong>Active</strong> flips that complete within about an hour,{' '}
+                <strong>Investing</strong> orders that you hold for up to the horizon you choose, or <strong>Both</strong> from one shared budget and one set
+                of order slots. It is computed from the live order book, your open orders and the items you already hold.
             </p>
             <details>
-                <summary>How premium bazaar flips work</summary>
+                <summary>How should I read the confidence badge?</summary>
                 <p>
-                    These flips analyze real-time buy and sell order volumes, current demand trends, and market momentum to calculate
-                    profit based on what's happening in the bazaar right now. This provides more accurate estimates than traditional
-                    spread-based calculations, especially during market fluctuations.
+                    The badge is about the whole cycle (buying everything and selling everything by the deadline). A green badge appears only when the
+                    odds are proven to be above 95%. <em>unknown</em> means we have no proof, it does not mean the odds are bad or good. Active orders
+                    carry no badge, they are short and judged by their live order book.
                 </p>
             </details>
             <details>
-                <summary>Difference from regular bazaar flips</summary>
-                <p>
-                    Regular bazaar flips use: <code>{'({sell price}-{buy price})*{sales per week}/{hours per week}'}</code>
-                </p>
-                <p>
-                    Premium bazaar flips use real-time demand data, order book depth analysis, and current trade velocity
-                    to calculate profit based on actual market conditions instead of historical averages.
-                </p>
-            </details>
-            <details>
-                <summary>How to perform these flips</summary>
+                <summary>How to place a planned order</summary>
                 <ol>
-                    <li>Select a flip with positive current profit per hour and good volume</li>
-                    <li>Go to the bazaar in-game (or use /cofl bazaar for quick access)</li>
-                    <li>Place a competitive buy order based on current prices</li>
-                    <li>Monitor order fill times - they vary based on real-time demand</li>
-                    <li>Once filled, place a sell order at the suggested price</li>
+                    <li>Press &quot;Track in game&quot; on an order and open your inventory in Skyblock</li>
+                    <li>The mod guides you: place the buy order at the entry price, claim, then list the sell offer at the exit price</li>
+                    <li>The deadline starts with your first accepted buy order, replacement orders do not extend it</li>
                 </ol>
             </details>
-            <p style={{ marginTop: '15px' }}>
-                <Badge bg="info">Premium Feature</Badge> Premium bazaar flips require an active premium subscription to access our real-time market data infrastructure.
-            </p>
         </div>
     )
 
+    const controls = (
+        <div className={styles.controls} data-cy="plan-controls">
+            <div className={styles.controlGroup}>
+                <Form.Label className={styles.controlLabel}>Mode</Form.Label>
+                <ButtonGroup aria-label="Plan mode">
+                    {BAZAAR_PLAN_MODES.map(choice => (
+                        <Button
+                            key={choice}
+                            variant={choice === mode ? 'primary' : 'outline-primary'}
+                            aria-pressed={choice === mode}
+                            data-cy={`plan-mode-${choice.toLowerCase()}`}
+                            onClick={() => changeMode(choice)}
+                        >
+                            {choice}
+                        </Button>
+                    ))}
+                </ButtonGroup>
+            </div>
+            {includesInvesting(mode) ? (
+                <div className={styles.controlGroup}>
+                    <Form.Label htmlFor="plan-horizon" className={styles.controlLabel}>
+                        Investing horizon (hours)
+                    </Form.Label>
+                    <Form.Control
+                        id="plan-horizon"
+                        data-cy="plan-horizon"
+                        type="number"
+                        min={1}
+                        max={48}
+                        step="any"
+                        value={horizon}
+                        isInvalid={!!horizonError}
+                        onChange={e => changeHorizon(e.target.value)}
+                    />
+                    <Form.Control.Feedback type="invalid" data-cy="plan-horizon-error">
+                        {horizonError}
+                    </Form.Control.Feedback>
+                </div>
+            ) : null}
+            <div className={styles.controlGroup}>
+                <Form.Label htmlFor="plan-budget" className={styles.controlLabel}>
+                    Budget (coins)
+                </Form.Label>
+                <Form.Control
+                    id="plan-budget"
+                    data-cy="plan-budget"
+                    type="text"
+                    inputMode="decimal"
+                    placeholder="two thirds of your purse"
+                    // prefilled with what the server planned with until the user overrides it
+                    value={budgetEdited || plan?.budgetCoins == null ? budget : String(plan.budgetCoins)}
+                    onFocus={e => e.target.select()}
+                    onBlur={() => {
+                        if (!budget.trim()) {
+                            setBudgetEdited(false)
+                        }
+                    }}
+                    isInvalid={!!budgetError}
+                    onChange={e => changeBudget(e.target.value)}
+                />
+                <Form.Control.Feedback type="invalid">{budgetError}</Form.Control.Feedback>
+                {plan ? (
+                    <Form.Text data-cy="plan-budget-source">
+                        {`Planning with ${formatPrice(plan.budgetCoins)} coins, ${BUDGET_SOURCE_LABELS[plan.budgetSource ?? ''] ?? plan.budgetSource}`}
+                        {budget.trim() ? (
+                            <Button
+                                variant="link"
+                                size="sm"
+                                onClick={() => {
+                                    changeBudget('')
+                                    setBudgetEdited(false)
+                                }}
+                            >
+                                use the default
+                            </Button>
+                        ) : null}
+                    </Form.Text>
+                ) : null}
+            </div>
+            <div className={styles.controlGroup}>
+                <Form.Label htmlFor="plan-tax" className={styles.controlLabel}>
+                    Sell tax % (optional)
+                </Form.Label>
+                <Form.Control
+                    id="plan-tax"
+                    data-cy="plan-tax"
+                    type="number"
+                    min={0}
+                    max={99}
+                    step="any"
+                    placeholder="assumed"
+                    value={tax}
+                    isInvalid={!!taxError}
+                    onChange={e => changeTax(e.target.value)}
+                />
+                <Form.Control.Feedback type="invalid">{taxError}</Form.Control.Feedback>
+            </div>
+        </div>
+    )
+
+    if (!googleToken) {
+        return (
+            <div className={styles.alertWrapper}>
+                {explanatorySection}
+                {prefsLoaded ? (
+                    <PremiumNotifier title="Log in to get your personal plan" showCta onAfterLogin={handleAfterLogin}>
+                        <p>Your plan uses your verified Minecraft account, your purse and your open bazaar orders. Free accounts get a sample of the plan.</p>
+                    </PremiumNotifier>
+                ) : null}
+            </div>
+        )
+    }
+
+    const expiresAt = plan?.quote?.expiresAt ? new Date(plan.quote.expiresAt).getTime() : 0
+    const isStale = !!plan && now > 0 && expiresAt > 0 && now > expiresAt
+
+    function renderQuoteHeader() {
+        if (!plan?.quote) {
+            return null
+        }
+        return (
+            <div className={styles.quoteHeader} data-cy="plan-quote">
+                <span>
+                    Generated {new Date(plan.quote.generatedAt).toLocaleTimeString()} · valid until {new Date(plan.quote.expiresAt).toLocaleTimeString()}
+                </span>
+                {isStale ? (
+                    <Badge bg="warning" text="dark" data-cy="plan-stale">
+                        stale — refresh
+                    </Badge>
+                ) : null}
+                <Button size="sm" variant="outline-secondary" disabled={isFetching} onClick={() => query.refetch()} data-cy="plan-refresh">
+                    Refresh
+                </Button>
+                {isFetching ? <span className={styles.updating}>updating…</span> : null}
+            </div>
+        )
+    }
+
+    function renderNotices() {
+        if (!plan) {
+            return null
+        }
+        return (
+            <>
+                {plan.warnings?.includes('orders_unavailable') ? (
+                    <Alert variant="warning" data-cy="plan-orders-unavailable">
+                        We could not read your open bazaar orders, so the plan may overlap with orders you already placed.
+                    </Alert>
+                ) : plan.accountState?.openOrdersEstimated ? (
+                    <Alert variant="info" data-cy="plan-orders-estimated">
+                        Some of your open order fills are estimates, the budget and slots below may be slightly off.
+                    </Alert>
+                ) : null}
+                {plan.investingStatus === 'EmptyQualified' ? (
+                    <Alert variant="info" data-cy="plan-empty-investing">
+                        <strong>No Investing order qualifies right now.</strong> Investing orders are only recommended when the odds of buying and selling
+                        everything by the deadline are proven to be above 95%, and no candidate has that proof at the moment. This is not an error.
+                        <div className={styles.alternatives}>
+                            {mode !== 'Active' ? (
+                                <Button size="sm" variant="outline-primary" onClick={() => changeMode('Active')} data-cy="plan-alt-active">
+                                    Show Active flips instead
+                                </Button>
+                            ) : null}
+                            {mode === 'Investing' ? (
+                                <Button size="sm" variant="outline-primary" onClick={() => changeMode('Both')} data-cy="plan-alt-both">
+                                    Show Both
+                                </Button>
+                            ) : null}
+                        </div>
+                    </Alert>
+                ) : null}
+                {plan.investingStatus === 'Unavailable' ? (
+                    <Alert variant="warning" data-cy="plan-unavailable-investing">
+                        Investing data is not available yet, please try again in a few minutes.
+                        <div className={styles.alternatives}>
+                            <Button size="sm" variant="outline-secondary" onClick={() => query.refetch()}>
+                                Retry
+                            </Button>
+                            {mode === 'Investing' ? (
+                                <Button size="sm" variant="outline-primary" onClick={() => changeMode('Active')}>
+                                    Show Active flips instead
+                                </Button>
+                            ) : null}
+                        </div>
+                    </Alert>
+                ) : null}
+            </>
+        )
+    }
+
+    function renderRow(order: BazaarPlanOrder) {
+        const badge = getConfidenceBadge(order.confidence)
+        return (
+            <div data-cy="plan-row" data-item-tag={order.itemTag}>
+                <h4>
+                    <Image
+                        crossOrigin="anonymous"
+                        src={api.getItemImageUrl({ tag: order.itemTag || '' }) || ''}
+                        height="32"
+                        width="32"
+                        alt=""
+                        style={{ marginRight: '5px' }}
+                        loading="lazy"
+                    />
+                    {order.itemName}
+                </h4>
+                <p>
+                    <span className={styles.rowLabel}>Mode:</span>
+                    <Badge bg={order.mode === 'Investing' ? 'info' : 'secondary'}>{order.mode}</Badge>
+                </p>
+                <p>
+                    <span className={styles.rowLabel}>Quantity:</span>
+                    <Number number={order.originalQuantity} />x
+                </p>
+                <p>
+                    <span className={styles.rowLabel}>Buy → sell:</span>
+                    <span data-cy="plan-prices">
+                        {formatPrice(order.entryPrice)} → {order.exitPrice == null ? 'n/a' : formatPrice(order.exitPrice)}
+                    </span>{' '}
+                    Coins
+                </p>
+                <p>
+                    <span className={styles.rowLabel}>Net after tax:</span>
+                    <span data-cy="plan-net">
+                        <Number number={Math.round(order.estimatedNetProfit || 0)} /> Coins
+                    </span>{' '}
+                    <small className="text-muted">({getTaxText(order.sellTaxRate, order.taxSource)})</small>
+                </p>
+                <p data-cy="plan-lock">
+                    <span className={styles.rowLabel}>Lock:</span>≤ {order.capitalLockHorizonHours} h
+                </p>
+                <small className="text-muted d-block mb-2">{getDeadlineText(order.deadlineSemantics, order.capitalLockHorizonHours)}</small>
+                {badge ? (
+                    <Badge bg={badge.variant} text={badge.variant === 'warning' ? 'dark' : undefined} data-cy="plan-badge" title={order.confidence?.reasonCodes?.join(', ')}>
+                        {badge.text}
+                    </Badge>
+                ) : null}
+                <div className="mt-2">
+                    <Button size="sm" disabled={tracking === order.itemTag || isStale} onClick={() => track(order)} data-cy="plan-track">
+                        Track in game
+                    </Button>
+                </div>
+            </div>
+        )
+    }
+
+    function filterFunction(order: BazaarPlanOrder, nameFilter: string | null | undefined, minimumProfit: number): boolean {
+        const nameMatch = !nameFilter || (order.itemName?.toLowerCase().includes(nameFilter.toLowerCase()) ?? false)
+        return nameMatch && (order.estimatedNetProfit || 0) >= minimumProfit
+    }
+
+    // The free sample is chosen by the server, so every row that arrives is shown as is (no blurred placeholders)
+    function wrapRow(order: BazaarPlanOrder, _blur: boolean, key: string, _content: React.ReactNode, flipCardClass: string) {
+        return (
+            <div className={flipCardClass} key={key}>
+                <ListGroup.Item style={{ height: '100%', padding: '15px' }}>{renderRow(order)}</ListGroup.Item>
+            </div>
+        )
+    }
+
+    const orders = plan?.orders ?? []
+    const candidates = plan?.unqualifiedInvestingCandidates ?? []
+
     return (
-        <>
+        <div className={styles.alertWrapper}>
             {explanatorySection}
-            <GenericFlipList
-                items={flips}
-                sortOptions={SORT_OPTIONS}
-                onFlipClick={onFlipClick}
-                getFlipLink={flip => `https://sky.coflnet.com/item/${flip.flip?.itemTag}`}
-                renderFlipContentAction={renderFlipContent}
-                filterFunction={filterFunction}
-                getItemKeyAction={flip => flip.itemName || ''}
-                censoredItemGenerator={censoredItemGenerator}
-                clickMessage="Click on a flip for detailed item information"
-            />
-        </>
+            {controls}
+            {isAccessError ? <PremiumNotifier title="Log in to get your personal plan" messageFromApi={getGeneratedApiErrorMessage(response, null, '')} onAfterLogin={handleAfterLogin} /> : null}
+            {errorMessage ? (
+                <Alert variant="danger" data-cy="plan-error">
+                    <p>{errorMessage}</p>
+                    <Button variant="outline-danger" size="sm" onClick={() => query.refetch()} disabled={isFetching || !valid} data-cy="plan-retry">
+                        Retry
+                    </Button>
+                </Alert>
+            ) : null}
+            {!valid ? <Alert variant="warning">Fix the highlighted inputs to load your plan.</Alert> : null}
+            {!plan && isFetching && valid && !errorMessage ? <p data-cy="plan-loading">Computing your plan…</p> : null}
+            {plan && !errorMessage ? (
+                <>
+                    {renderQuoteHeader()}
+                    {renderNotices()}
+                    {orders.length > 0 ? (
+                        <GenericFlipList
+                            items={orders}
+                            sortOptions={SORT_OPTIONS}
+                            renderFlipContentAction={renderRow}
+                            filterFunction={filterFunction}
+                            getItemKeyAction={order => `${order.mode}-${order.itemTag}`}
+                            customItemWrapper={wrapRow}
+                            clickMessage="Press Track in game on an order to follow it in Skyblock"
+                            minimumPlaceholder="Minimum net profit"
+                            emptyState={<p>No orders match your filter.</p>}
+                        />
+                    ) : plan.investingStatus !== 'EmptyQualified' && plan.investingStatus !== 'Unavailable' ? (
+                        <Alert variant="info" data-cy="plan-empty">
+                            No order fits your budget and free order slots right now. Try a larger budget or check again in a minute.
+                        </Alert>
+                    ) : null}
+                    {(plan.hiddenCount ?? 0) > 0 ? (
+                        <div data-cy="plan-premium-prompt">
+                            <PremiumNotifier title={`+${plan.hiddenCount} more with Starter Premium`} onAfterLogin={handleAfterLogin}>
+                                <p>You are seeing a sample of your plan. Starter Premium unlocks the complete ranked plan.</p>
+                            </PremiumNotifier>
+                        </div>
+                    ) : null}
+                    {candidates.length > 0 ? (
+                        <details className={styles.candidates} data-cy="plan-candidates">
+                            <summary>Unqualified investing candidates ({candidates.length}), not recommended</summary>
+                            <p className="text-muted">
+                                These are sized by a backward-looking heuristic and have <strong>no proven odds</strong>. They are shown for information only and are
+                                not part of your plan or budget.
+                            </p>
+                            <ul>
+                                {candidates.map(candidate => (
+                                    <li key={candidate.itemTag}>
+                                        {candidate.itemName}: {formatPrice(candidate.entryPrice)} → {candidate.exitPrice == null ? 'n/a' : formatPrice(candidate.exitPrice)},{' '}
+                                        {candidate.originalQuantity}x, ≤ {candidate.capitalLockHorizonHours} h
+                                    </li>
+                                ))}
+                            </ul>
+                        </details>
+                    ) : null}
+                </>
+            ) : null}
+        </div>
     )
 }
