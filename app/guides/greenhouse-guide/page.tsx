@@ -389,7 +389,7 @@ export default function GreenhouseGuide() {
           </p>
         </div>
         <p>
-          The best way to profit off of the Hypixel Skyblock Garden v2 Update is to bazaar flip its mutations. See <Link href="/bazaarPlan">Top realtime Bazaar Flips</Link> to find the most profitable mutations to buy and sell. 
+          The best way to profit off of the Hypixel Skyblock Garden v2 Update is to bazaar flip its mutations. See <Link href="/premiumBazaar">Top realtime Bazaar Flips</Link> to find the most profitable mutations to buy and sell. 
         </p>
         <h2>Quick Reference Checklist</h2>
 

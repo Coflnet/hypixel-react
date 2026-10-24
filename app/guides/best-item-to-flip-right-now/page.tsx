@@ -68,7 +68,7 @@ export default function BestItemToFlipRightNowPage() {
 
                             <CardTitle as="h4">3. Premium Bazaar Flips (Demand-Based Analysis)</CardTitle>
                             <CardText>
-                                For serious flippers with capital, <Link href="/bazaarPlan">Premium Bazaar</Link> reveals <strong>demand-based flips</strong> that are invisible to casual traders. These are items where the spread is unusually high because real player demand exceeds buy orders—a goldmine for high-margin flipping.
+                                For serious flippers with capital, <Link href="/premiumBazaar">Premium Bazaar</Link> reveals <strong>demand-based flips</strong> that are invisible to casual traders. These are items where the spread is unusually high because real player demand exceeds buy orders—a goldmine for high-margin flipping.
                             </CardText>
                             <CardText>
                                 <strong>Key advantage:</strong> Premium flips often have margins of 3–8%+ with decent volume, and less competition because most traders don't see them.

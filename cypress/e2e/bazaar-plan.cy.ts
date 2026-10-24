@@ -214,18 +214,15 @@ describe('Bazaar plan', () => {
         cy.contains('Tracking').should('be.visible')
     })
 
-    it('redirects the old premium bazaar address to the bazaar plan', () => {
+    it('keeps the old premium bazaar page unchanged while the plan is unlisted', () => {
         cy.request({ url: '/premiumBazaar', followRedirect: false }).then(response => {
-            expect(response.status).to.equal(308)
-            expect(response.headers.location).to.match(/\/bazaarPlan$/)
+            expect(response.status).to.equal(200)
         })
-        stubAccount()
-        cy.visit('/premiumBazaar')
-        cy.location('pathname').should('eq', '/bazaarPlan')
     })
 
-    it('links to the personal plan from the bazaar flips page', () => {
+    it('is reachable by direct link only and not indexed', () => {
         cy.visit('/bazaar')
-        cy.get('[data-cy=personal-plan-link]').should('have.attr', 'href', '/bazaarPlan')
+        cy.get('[data-cy=personal-plan-link]').should('not.exist')
+        cy.request('/bazaarPlan').its('body').should('match', /<meta name="robots" content="noindex, nofollow"/)
     })
 })

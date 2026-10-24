@@ -66,7 +66,7 @@ export default async function Page() {
     )
 }
 
-export const metadata: Metadata = getHeadMetadata(
+const headMetadata: Metadata = getHeadMetadata(
     seoContent.metadataTitle,
     seoContent.metadataDescription,
     'https://sky.coflnet.com/logo192.png',
@@ -84,3 +84,6 @@ export const metadata: Metadata = getHeadMetadata(
     undefined,
     getCanonicalUrl('/bazaarPlan')
 )
+
+// Unlisted until the plan has been tested manually: reachable by its direct link only, not indexed.
+export const metadata: Metadata = { ...headMetadata, robots: { index: false, follow: false } }

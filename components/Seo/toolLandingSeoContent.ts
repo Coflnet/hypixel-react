@@ -85,9 +85,9 @@ export const toolLandingSeoContent = {
                 description: 'See how to turn live data into actual item selection.'
             },
             {
-                href: '/bazaarPlan',
-                label: 'Bazaar Plan (Active / Investing)',
-                description: 'Get orders sized for your own budget, with entry and exit prices and net profit after tax.'
+                href: '/premiumBazaar',
+                label: 'Premium Bazaar Flips',
+                description: 'Upgrade to demand-based analysis when you need faster reads on live order books.'
             },
             {
                 href: '/topMovers',
@@ -159,6 +159,65 @@ export const toolLandingSeoContent = {
                 href: '/profitLeaderboard',
                 label: 'Profit Leaderboard',
                 description: 'Benchmark what strong flippers are achieving over time.'
+            }
+        ]
+    },
+    premiumBazaar: {
+        metadataTitle: 'Premium Bazaar Flips | Real-Time Demand and Order Book Signals',
+        metadataDescription:
+            'Use Premium Bazaar Flips to read live Hypixel SkyBlock demand, order-book pressure, turnover, and profit potential. Find premium-grade bazaar opportunities before they flatten out.',
+        intro: [
+            'Premium Bazaar Flips goes beyond basic spread tracking by weighing live demand and order-book pressure. It is built for traders who want faster reads on which margins are still healthy right now, not just on average.',
+            'That matters most when markets move quickly around events, patches, and mayor perks. In those windows, a normal spread list can lag behind reality while demand-based analysis still highlights where buyers are active.'
+        ],
+        sections: [
+            {
+                title: 'Why premium data changes the decision',
+                bullets: [
+                    'It helps separate real buyer demand from spreads that only look good on paper.',
+                    'It highlights turnover quality, which matters when you are deploying larger amounts of capital.',
+                    'It reacts better to fast-moving market conditions and temporary spikes.'
+                ]
+            },
+            {
+                title: 'Who benefits most from Premium Bazaar Flips',
+                bullets: [
+                    'Active traders who flip throughout the day and need more confidence in entry timing.',
+                    'Players working with enough capital that missed fills and slow exits become expensive.',
+                    'Anyone using SkyCofl as a daily workflow rather than as an occasional market checker.'
+                ]
+            }
+        ],
+        faqs: [
+            {
+                question: 'When is premium worth it over the free bazaar list?',
+                answer: 'Premium becomes more valuable as your trading volume rises. The more often you flip and the more capital you place, the more helpful live demand signals become.'
+            },
+            {
+                question: 'Does premium replace normal bazaar discipline?',
+                answer: 'No. You still need to respect fees, volume, and exit risk. Premium improves the quality of the signal, but it does not remove market risk.'
+            }
+        ],
+        relatedLinks: [
+            {
+                href: '/bazaar',
+                label: 'Bazaar Flips',
+                description: 'Compare the free spread list with the premium demand-focused view.'
+            },
+            {
+                href: '/guides/tracking-profits-automatically',
+                label: 'Tracking Profits Automatically',
+                description: 'Measure whether premium signals are improving your real net profit.'
+            },
+            {
+                href: '/guides/best-item-to-flip-right-now',
+                label: 'Best Item to Flip Right Now',
+                description: 'Pair premium demand data with a live item-selection workflow.'
+            },
+            {
+                href: '/premium',
+                label: 'Premium',
+                description: 'See the full premium feature set and when it fits your trading style.'
             }
         ]
     },
@@ -397,9 +456,9 @@ export const toolLandingSeoContent = {
                 description: 'See when forge profit beats active gameplay methods.'
             },
             {
-                href: '/bazaarPlan',
-                label: 'Bazaar Plan (Active / Investing)',
-                description: 'Plan bazaar orders for your budget when forge ingredient costs move quickly.'
+                href: '/premiumBazaar',
+                label: 'Premium Bazaar Flips',
+                description: 'Use premium market reads when forge ingredient costs move quickly.'
             }
         ]
     },

@@ -69,12 +69,12 @@ const flipKinds = [
         icon: <ShowChart fontSize="large" />
     },
     {
-        name: 'Bazaar Plan (Active / Investing)',
-        path: '/bazaarPlan',
+        name: 'Premium Bazaar Flips',
+        path: '/premiumBazaar',
         description: (
             <span>
-                A personal bazaar plan for your budget: quick Active flips, longer Investing orders or both, with entry and exit prices, net profit after
-                tax and an honest confidence badge. Free accounts see a sample, Starter Premium unlocks the whole plan.
+                Premium bazaar flips use real-time market demand and order-book analysis to provide more accurate profit estimates than spread-based
+                flips. Requires a premium subscription to access our real-time tracking infrastructure.
             </span>
         ),
         icon: <LocalOffer fontSize="large" />

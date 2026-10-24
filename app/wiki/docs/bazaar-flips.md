@@ -45,7 +45,7 @@ You can sort by profit per hour, profit, volume, price, or price multiplied by v
 
 ### Free spread flips versus Premium Bazaar Flips
 
-The free [Bazaar Flips page](/bazaar) is spread based and uses broadly available market statistics. [Premium Bazaar Flips](/bazaarPlan) uses more detailed real-time demand and order-book analysis.
+The free [Bazaar Flips page](/bazaar) is spread based and uses broadly available market statistics. [Premium Bazaar Flips](/premiumBazaar) uses more detailed real-time demand and order-book analysis.
 
 Use the free page to learn the workflow and scan stable, liquid markets. Demand-based results are more useful when fill speed, order-book pressure, and fast market changes matter.
 
@@ -180,7 +180,7 @@ See the [complete mod command reference](/wiki/mod-commands) and [settings refer
 ## Related pages
 
 - [Live Bazaar Flips](/bazaar)
-- [Premium Bazaar Flips](/bazaarPlan)
+- [Premium Bazaar Flips](/premiumBazaar)
 - [What is Bazaar Flipping?](/guides/what-is-bazaar-flipping)
 - [How to Make Money with Bazaar Flipping](/guides/how-to-make-money-with-bazaar-flipping)
 - [Complete mod command reference](/wiki/mod-commands)
