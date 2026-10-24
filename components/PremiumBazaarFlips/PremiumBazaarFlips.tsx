@@ -37,6 +37,11 @@ import {
 
 const SORT_OPTIONS: SortOption<BazaarPlanOrder>[] = [
     {
+        label: 'Plan order',
+        value: 'rank',
+        sortFunction: orders => orders
+    },
+    {
         label: 'Net profit ⇩',
         value: 'netProfit',
         sortFunction: orders => orders.sort((a, b) => (b.estimatedNetProfit || 0) - (a.estimatedNetProfit || 0))
@@ -45,11 +50,6 @@ const SORT_OPTIONS: SortOption<BazaarPlanOrder>[] = [
         label: 'Shortest lock',
         value: 'lock',
         sortFunction: orders => orders.sort((a, b) => (a.capitalLockHorizonHours || 0) - (b.capitalLockHorizonHours || 0))
-    },
-    {
-        label: 'Plan order',
-        value: 'rank',
-        sortFunction: orders => orders
     }
 ]
 
@@ -280,7 +280,9 @@ export function PremiumBazaarFlips() {
                 <Form.Control.Feedback type="invalid">{budgetError}</Form.Control.Feedback>
                 {plan ? (
                     <Form.Text data-cy="plan-budget-source">
-                        {`Planning with ${formatPrice(plan.budgetCoins)} coins, ${BUDGET_SOURCE_LABELS[plan.budgetSource ?? ''] ?? plan.budgetSource}`}
+                        {plan.portfolio?.budgetCoins != null && plan.portfolio.budgetCoins !== plan.budgetCoins
+                            ? `Budget ${formatPrice(plan.budgetCoins)} coins, planning with ${formatPrice(plan.portfolio.budgetCoins)} after open buy orders, ${BUDGET_SOURCE_LABELS[plan.budgetSource ?? ''] ?? plan.budgetSource}`
+                            : `Planning with ${formatPrice(plan.budgetCoins)} coins, ${BUDGET_SOURCE_LABELS[plan.budgetSource ?? ''] ?? plan.budgetSource}`}
                         {budget.trim() ? (
                             <Button
                                 variant="link"

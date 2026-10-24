@@ -117,11 +117,11 @@ export function getConfidenceBadge(confidence?: BazaarPlanConfidence | null): Ba
 }
 
 export function getDeadlineText(semantics?: string | null, lockHours?: number): string {
-    const lock = lockHours === undefined ? '' : `Capital locked for at most ${lockHours} h`
+    const lock = lockHours == null ? '' : `Capital locked for at most ${lockHours} h`
     if (semantics === 'FixedFromFirstAcceptedBuy') {
-        return `${lock}. The deadline starts with your first accepted buy order and is not extended by replacement orders.`
+        return `${lock ? `${lock}. ` : ''}The deadline starts with your first accepted buy order and is not extended by replacement orders.`
     }
-    return semantics ? `${lock} (${semantics})` : lock
+    return semantics ? (lock ? `${lock} (${semantics})` : `(${semantics})`) : lock
 }
 
 export function getTaxText(rate: number, source?: string | null): string {
