@@ -452,7 +452,7 @@ export function PremiumBazaarFlips() {
                 </p>
                 <small className="text-muted d-block mb-2">{getDeadlineText(order.deadlineSemantics, order.capitalLockHorizonHours)}</small>
                 {badge ? (
-                    <Badge bg={badge.variant} text={badge.variant === 'warning' ? 'dark' : undefined} data-cy="plan-badge" title={order.confidence?.reasonCodes?.join(', ')}>
+                    <Badge bg={badge.variant} text={badge.variant === 'warning' ? 'dark' : undefined} data-cy="plan-badge" title={badge.tooltip ?? order.confidence?.reasonCodes?.join(', ')}>
                         {badge.text}
                     </Badge>
                 ) : null}

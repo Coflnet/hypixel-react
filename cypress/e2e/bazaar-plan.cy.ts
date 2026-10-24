@@ -74,7 +74,7 @@ describe('Bazaar plan', () => {
         // the budget is prefilled with what the server planned with and says where it comes from
         cy.get('[data-cy=plan-budget]').should('have.value', '4000000')
         cy.get('[data-cy=plan-budget-source]').should('contain.text', 'two thirds of your purse')
-        cy.get('[data-cy=plan-row]').should('have.length', 2)
+        cy.get('[data-cy=plan-row]').should('have.length', 3)
         cy.get('[data-cy=plan-quote]').should('contain.text', 'valid until')
         cy.get('[data-cy=plan-stale]').should('not.exist')
         cy.get('[data-cy=plan-row][data-item-tag=ENCHANTED_DIAMOND]').within(() => {
@@ -90,6 +90,11 @@ describe('Bazaar plan', () => {
         cy.get('[data-cy=plan-row][data-item-tag=ENCHANTED_GOLD] [data-cy=plan-badge]')
             .should('have.class', 'bg-success')
             .and('contain.text', '>95% full cycle (lb 96.2%)')
+        cy.get('[data-cy=plan-row][data-item-tag=ENCHANTED_LAPIS_LAZULI] [data-cy=plan-badge]')
+            .should('have.class', 'bg-success')
+            .and('contain.text', '>90% full cycle (simulated) (lb 90.5%)')
+            .and('have.attr', 'title', 'Estimated from historical market replay, not yet confirmed by tracked trades.')
+        cy.get('[data-cy=plan-row][data-item-tag=ENCHANTED_GOLD] [data-cy=plan-badge]').should('not.have.attr', 'title', 'Estimated from historical market replay, not yet confirmed by tracked trades.')
         cy.get('[data-cy=plan-row][data-item-tag=ENCHANTED_DIAMOND] [data-cy=plan-badge]').should('not.exist')
 
         visitPlan('unknown')
@@ -133,7 +138,7 @@ describe('Bazaar plan', () => {
         }).as('plan')
         cy.visit('/bazaarPlan', { onBeforeLoad: window => installLogin(window) })
         cy.wait('@plan', { timeout: PAGE_READY_TIMEOUT })
-        cy.get('[data-cy=plan-row]').should('have.length', 2)
+        cy.get('[data-cy=plan-row]').should('have.length', 3)
 
         cy.then(() => {
             unavailable = true
@@ -152,7 +157,7 @@ describe('Bazaar plan', () => {
         cy.wait('@plan').then(interception => {
             expect(requestBody(interception as never)).to.deep.equal({ modes: ['active'], budgetCoins: 2000000, sellTaxRate: 0.0125 })
         })
-        cy.get('[data-cy=plan-row]').should('have.length', 2)
+        cy.get('[data-cy=plan-row]').should('have.length', 3)
         cy.get('[data-cy=plan-error]').should('not.exist')
         cy.get('[data-cy=plan-budget]').should('have.value', '2m')
         cy.get('[data-cy=plan-tax]').should('have.value', '1.25')

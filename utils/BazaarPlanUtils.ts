@@ -11,7 +11,21 @@ export const BAZAAR_PLAN_MAX_HORIZON_HOURS = 48
 export interface BazaarPlanBadge {
     variant: 'success' | 'warning' | 'secondary'
     text: string
+    tooltip?: string
 }
+
+/**
+ * Fields the engine sends on the confidence object that the generated SkyApi types do not carry yet.
+ * Intersected with the generated type so regeneration does not break it.
+ */
+export type BazaarPlanConfidenceExt = BazaarPlanConfidence & {
+    /** Probability needed for Qualified, null from older engines means 0.95 */
+    qualifyThreshold?: number | null
+    /** "simulation" or "prospective" */
+    evidenceSource?: string | null
+}
+
+export const BAZAAR_PLAN_SIMULATED_TOOLTIP = 'Estimated from historical market replay, not yet confirmed by tracked trades.'
 
 export function parseBazaarPlanMode(value: unknown): BazaarPlanModeChoice {
     return BAZAAR_PLAN_MODES.find(mode => mode === value) ?? 'Active'
@@ -95,7 +109,7 @@ function percent(fraction: number): string {
  * The badge of the full cycle confidence. A missing probability is unknown and never rendered as a
  * percentage, the lower bound is only shown for qualified entries.
  */
-export function getConfidenceBadge(confidence?: BazaarPlanConfidence | null): BazaarPlanBadge | null {
+export function getConfidenceBadge(confidence?: BazaarPlanConfidenceExt | null): BazaarPlanBadge | null {
     switch (confidence?.status) {
         case 'NotApplicable':
             return null
@@ -103,9 +117,13 @@ export function getConfidenceBadge(confidence?: BazaarPlanConfidence | null): Ba
             if (confidence.probability == null) {
                 return { variant: 'secondary', text: 'unknown' }
             }
+            const threshold = typeof confidence.qualifyThreshold === 'number' && Number.isFinite(confidence.qualifyThreshold) ? confidence.qualifyThreshold : 0.95
+            const simulated = confidence.evidenceSource === 'simulation'
+            const base = `>${percent(threshold)} full cycle${simulated ? ' (simulated)' : ''}`
             return {
                 variant: 'success',
-                text: confidence.lowerBound == null ? '>95% full cycle' : `>95% full cycle (lb ${percent(confidence.lowerBound)})`
+                text: confidence.lowerBound == null ? base : `${base} (lb ${percent(confidence.lowerBound)})`,
+                ...(simulated ? { tooltip: BAZAAR_PLAN_SIMULATED_TOOLTIP } : {})
             }
         case 'SimulationOnly':
             return { variant: 'warning', text: 'simulation only, not proven' }

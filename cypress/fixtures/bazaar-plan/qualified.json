@@ -85,6 +85,37 @@
           "ProspectiveCohorts"
         ]
       }
+    },
+    {
+      "itemTag": "ENCHANTED_LAPIS_LAZULI",
+      "itemName": "Enchanted Lapis Lazuli",
+      "isSell": false,
+      "pricePerUnit": 4000.1,
+      "amount": 64,
+      "mode": "Investing",
+      "originalQuantity": 64,
+      "entryPrice": 4000.1,
+      "exitPrice": 5199.9,
+      "sellTaxRate": 0.0125,
+      "taxSource": "AccountAttested",
+      "estimatedNetProfit": 61000.5,
+      "capitalLockHorizonHours": 24,
+      "deadlineSemantics": "FixedFromFirstAcceptedBuy",
+      "confidence": {
+        "eventId": "full_buy_sell_original_quantity_by_deadline_v1",
+        "probability": 0.93,
+        "lowerBound": 0.905,
+        "confidenceLevel": 0.95,
+        "supportDomainId": null,
+        "modelId": null,
+        "calibrationId": null,
+        "status": "Qualified",
+        "reasonCodes": [
+          "SimulationReplay"
+        ],
+        "qualifyThreshold": 0.9,
+        "evidenceSource": "simulation"
+      }
     }
   ],
   "unqualifiedInvestingCandidates": [],
