@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { MatomoProvider, createInstance } from '@jonkoops/matomo-tracker-react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -21,7 +21,7 @@ const matomoTrackingInstance = createInstance({
     }
 })
 
-export function Providers({ children }) {
+export function Providers({ children, adsEnabled }: { children: ReactNode; adsEnabled: boolean }) {
     const queryClient = getQueryClient()
     useEffect(() => {
         if (hasGlobalPrivacyControl()) {
@@ -42,7 +42,7 @@ export function Providers({ children }) {
             <QueryClientProvider client={queryClient}>
                 <GoogleOAuthProvider clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com">
                     <FavoritesProvider>
-                        <AdsProvider>
+                        <AdsProvider enabled={adsEnabled}>
                             <FlipSettingsProvider>{children}</FlipSettingsProvider>
                         </AdsProvider>
                     </FavoritesProvider>

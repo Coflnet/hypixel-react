@@ -14,7 +14,7 @@ export default async function Page(props) {
     return (
         <>
             <Container>
-                <PlayerDetails player={parsePlayer(playerInfo.player)} auctions={playerInfo.auctions.map(parseAuction)} />
+                <PlayerDetails player={parsePlayer(playerInfo.player)} auctions={playerInfo.auctions.map(parseAuction)} renderedAt={Date.now()} />
             </Container>
             <BottomBanner />
         </>
