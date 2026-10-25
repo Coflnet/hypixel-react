@@ -162,16 +162,25 @@ export interface QueryChip {
     label: string
 }
 
-export function chipsFromState(state: ActiveAuctionQueryState, tagLabel: (tag: string) => string = t => t): QueryChip[] {
+export function chipsFromState(
+    state: ActiveAuctionQueryState,
+    tagLabel: (tag: string) => string = t => t,
+    armorSetLabel: (armorSet: string) => string = a => `${a} set`
+): QueryChip[] {
     const chips: QueryChip[] = []
-    state.tags.forEach(tag => chips.push({ kind: 'tag', key: tag, label: tagLabel(tag) }))
-    if (state.armorSet) chips.push({ kind: 'armorSet', key: state.armorSet, label: `Set: ${state.armorSet}` })
+    // the pieces of an armor set are collapsed into the single set chip
+    if (state.armorSet) {
+        chips.push({ kind: 'armorSet', key: state.armorSet, label: armorSetLabel(state.armorSet) })
+    } else {
+        state.tags.forEach(tag => chips.push({ kind: 'tag', key: tag, label: tagLabel(tag) }))
+    }
     state.categories.forEach(c => chips.push({ kind: 'category', key: c, label: c }))
     Object.entries(cleanFilters(state.filters)).forEach(([key, value]) => chips.push({ kind: 'filter', key, label: `${key}: ${value}` }))
-    if (state.itemNameContains) chips.push({ kind: 'name', key: state.itemNameContains, label: `Name contains "${state.itemNameContains}"` })
+    if (state.itemNameContains) chips.push({ kind: 'name', key: state.itemNameContains, label: `name contains: ${state.itemNameContains}` })
     return chips
 }
 
+/** removes one chip; losing the last narrowing chip falls back to a name search for the typed text, removing the name chip clears the text */
 export function removeChip(state: ActiveAuctionQueryState, chip: QueryChip): ActiveAuctionQueryState {
     const next: ActiveAuctionQueryState = { ...state, filters: { ...state.filters } }
     switch (chip.kind) {
@@ -180,18 +189,29 @@ export function removeChip(state: ActiveAuctionQueryState, chip: QueryChip): Act
             break
         case 'armorSet':
             next.armorSet = null
+            next.tags = []
             break
         case 'category':
             next.categories = state.categories.filter(c => c !== chip.key)
             break
         case 'filter':
             delete next.filters[chip.key]
-            break
+            return next
         case 'name':
             next.itemNameContains = null
-            break
+            next.q = ''
+            return next
+    }
+    const text = state.q.trim()
+    if (text && !next.itemNameContains && next.tags.length === 0 && !next.armorSet && next.categories.length === 0) {
+        next.itemNameContains = text
     }
     return next
+}
+
+/** seller to show: the server resolved name, otherwise the start of the uuid (never an extra request) */
+export function getSellerLabel(a: { playerName?: string | null; auctioneerId?: string }): string {
+    return a.playerName || (a.auctioneerId || '').slice(0, 8)
 }
 
 /** replaces the resolvable part of the state with what the free text resolved to; an unresolvable text falls back to a name search */

@@ -29,7 +29,7 @@ import {
 import { convertTagToName, numberWithThousandsSeparators } from '../../utils/Formatter'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import ItemFilter from '../ItemFilter/ItemFilter'
-import ActiveAuctionRow from './ActiveAuctionRow'
+import ActiveAuctionCard from './ActiveAuctionCard'
 import styles from './ActiveAuctionExplorer.module.css'
 import ResolvedQueryChips from './ResolvedQueryChips'
 
@@ -310,7 +310,13 @@ export default function ActiveAuctionExplorer() {
     }
 
     function onChipRemove(chip: QueryChip) {
-        setQuery(q => removeChip(q, chip))
+        const next = removeChip(queryRef.current, chip)
+        setQuery(next)
+        // the typed text stays in the box, except when its name chip is removed
+        setInputText(next.q)
+        if (chip.kind === 'name') {
+            setResolveDescription('')
+        }
         if (chip.kind === 'filter') {
             setFilterKey(k => k + 1)
         }
@@ -328,7 +334,7 @@ export default function ActiveAuctionExplorer() {
         loadPage(0, true)
     }
 
-    const chips = chipsFromState(query, convertTagToName)
+    const chips = chipsFromState(query, convertTagToName, set => resolveDescription || `${convertTagToName(set)} set`)
     const grouped = query.perTagLimit > 0
 
     const groups = useMemo(() => {
@@ -342,8 +348,8 @@ export default function ActiveAuctionExplorer() {
         return Array.from(byTag.entries())
     }, [items, grouped])
 
-    function renderRow(item: ActiveAuctionPreview) {
-        return <ActiveAuctionRow key={item.uuid} auction={item} flash={!!flashing[item.uuid]} gone={!!goneUuids[item.uuid]} />
+    function renderCard(item: ActiveAuctionPreview) {
+        return <ActiveAuctionCard key={item.uuid} auction={item} flash={!!flashing[item.uuid]} gone={!!goneUuids[item.uuid]} />
     }
 
     function renderError() {
@@ -400,7 +406,7 @@ export default function ActiveAuctionExplorer() {
                         onChange={e => updateQuery({ perTagLimit: e.target.checked ? GROUPED_PER_TAG_LIMIT : 0 })}
                     />
                 </div>
-                <ResolvedQueryChips chips={chips} description={resolveDescription} onRemove={onChipRemove} onClear={clearAll} />
+                <ResolvedQueryChips chips={chips} description={query.armorSet ? '' : resolveDescription} onRemove={onChipRemove} onClear={clearAll} />
                 {resolveFailed ? <div className={styles.hint}>Could not interpret the search, searching item names instead.</div> : null}
             </div>
 
@@ -455,10 +461,10 @@ export default function ActiveAuctionExplorer() {
                                       <span>{convertTagToName(tag)}</span>
                                       <span className={styles.groupCount}>{numberWithThousandsSeparators(tagCounts[tag] ?? list.length)}</span>
                                   </h2>
-                                  {list.map(renderRow)}
+                                  <div className={styles.grid}>{list.map(renderCard)}</div>
                               </section>
                           ))
-                        : items.map(renderRow)}
+                        : <div className={styles.grid}>{items.map(renderCard)}</div>}
                 </InfiniteScroll>
             ) : null}
         </div>

@@ -126,25 +126,36 @@
     color: var(--bs-secondary-color, var(--bs-secondary));
 }
 
-.row {
-    border-bottom: 1px solid var(--bs-border-color);
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.cardWrapper {
+    min-width: 0;
+    border-radius: 6px;
     transition: opacity 1.2s ease, background-color 1.2s ease;
 }
 
-.rowMain {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 4px;
-    cursor: pointer;
+.auctionCard {
+    height: 100%;
 }
 
-.rowTitle {
+.cardHeader {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    align-items: center;
     min-width: 0;
-    flex: 1;
+}
+
+.cardPrice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 6px;
+    font-weight: bold;
 }
 
 .itemName {
@@ -164,6 +175,7 @@
     display: flex;
     flex-wrap: wrap;
     gap: 4px;
+    margin-top: 8px;
 }
 
 .highlight {
@@ -171,28 +183,6 @@
     border: 1px solid var(--bs-border-color);
     border-radius: 4px;
     font-size: 0.75rem;
-}
-
-.price {
-    font-weight: bold;
-    white-space: nowrap;
-    text-align: right;
-}
-
-.details {
-    padding: 4px 8px 12px 48px;
-}
-
-.detailList {
-    margin: 0 0 8px;
-    padding-left: 18px;
-}
-
-.detailActions {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 12px;
 }
 
 .flash {
@@ -205,17 +195,7 @@
 }
 
 @media (max-width: 576px) {
-    .rowMain {
-        flex-wrap: wrap;
-    }
-
-    .price {
-        flex-basis: 100%;
-        text-align: left;
-        padding-left: 44px;
-    }
-
-    .details {
-        padding-left: 8px;
+    .grid {
+        grid-template-columns: 1fr;
     }
 }

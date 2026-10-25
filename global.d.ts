@@ -121,7 +121,7 @@ interface ActiveAuctionPreview {
     count: number
     auctioneerId: string
     highlights: { [key: string]: string }
-    /** only set on live pushes */
+    /** resolved server side; absent for unknown sellers */
     playerName?: string
 }
 

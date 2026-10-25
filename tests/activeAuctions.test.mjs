@@ -116,10 +116,11 @@ test('chips are derived from a resolved query and can be removed', () => {
         'fd'
     )
     const chips = utils.chipsFromState(state)
-    assert.deepEqual(Array.from(chips.map(c => c.kind)), ['tag', 'armorSet', 'filter', 'name'])
-    const without = utils.removeChip(state, chips[2])
+    assert.deepEqual(Array.from(chips.map(c => c.kind)), ['armorSet', 'filter', 'name'])
+    const without = utils.removeChip(state, chips[1])
     assert.deepEqual({ ...without.filters }, {})
-    assert.equal(utils.removeChip(state, chips[1]).armorSet, null)
+    assert.equal(utils.removeChip(state, chips[0]).armorSet, null)
+    assert.equal(chips[0].kind, 'armorSet', 'piece tags are collapsed under the set chip')
     assert.equal(state.filters.Sharpness, '7', 'original state must not be mutated')
 })
 
@@ -164,4 +165,57 @@ test('formatTimeLeft', () => {
     assert.equal(utils.formatTimeLeft(new Date(now - 1), now), 'ended')
     assert.equal(utils.formatTimeLeft(new Date(now + 90_000), now), '1m 30s')
     assert.equal(utils.formatTimeLeft(new Date(now + 2 * 86400_000 + 3 * 3600_000), now), '2d 3h')
+})
+
+test('removing the last narrowing chip falls back to a name search for the typed text', () => {
+    const resolved = { tags: ['LAPIS_CHEST'], armorSet: null, filters: {}, itemNameContains: null, description: '' }
+    const state = utils.applyResolvedQuery(utils.createEmptyQueryState(), resolved, 'lapis')
+    const next = utils.removeChip(state, utils.chipsFromState(state)[0])
+    assert.equal(next.q, 'lapis')
+    assert.deepEqual(Array.from(next.tags), [])
+    assert.equal(next.itemNameContains, 'lapis')
+    const chips = utils.chipsFromState(next)
+    assert.deepEqual(Array.from(chips.map(c => c.label)), ['name contains: lapis'])
+    const cleared = utils.removeChip(next, chips[0])
+    assert.equal(cleared.q, '')
+    assert.equal(cleared.itemNameContains, null)
+})
+
+test('removing one of several tags or a filter keeps the rest and no name fallback', () => {
+    const base = { ...utils.createEmptyQueryState(), q: 'lapis', tags: ['A', 'B'], filters: { Sharpness: '7' } }
+    const one = utils.removeChip(base, { kind: 'tag', key: 'A', label: 'A' })
+    assert.deepEqual(Array.from(one.tags), ['B'])
+    assert.equal(one.itemNameContains, null)
+    const f = utils.removeChip(base, { kind: 'filter', key: 'Sharpness', label: '' })
+    assert.deepEqual(Array.from(f.tags), ['A', 'B'])
+    assert.equal(f.itemNameContains, null)
+})
+
+test('armor set chip uses the description and removing it removes its tags', () => {
+    const state = utils.applyResolvedQuery(
+        utils.createEmptyQueryState(),
+        { tags: ['H', 'C', 'L', 'B'], armorSet: 'LAPIS_ARMOR', filters: {}, itemNameContains: null, description: 'Lapis Armor set' },
+        'lapis armor'
+    )
+    const chips = utils.chipsFromState(state, t => t, () => 'Lapis Armor set')
+    assert.deepEqual(Array.from(chips.map(c => c.label)), ['Lapis Armor set'])
+    const next = utils.removeChip(state, chips[0])
+    assert.equal(next.tags.length, 0)
+    assert.equal(next.armorSet, null)
+    assert.equal(next.itemNameContains, 'lapis armor')
+})
+
+test('a name-only resolve shows just the name chip', () => {
+    const state = utils.applyResolvedQuery(utils.createEmptyQueryState(), { tags: [], armorSet: null, filters: {}, itemNameContains: 'lapis', description: '' }, 'lapis')
+    assert.deepEqual(Array.from(utils.chipsFromState(state).map(c => c.kind)), ['name'])
+})
+
+test('seller label prefers the server resolved name and falls back to the uuid start', () => {
+    assert.equal(utils.getSellerLabel({ playerName: 'N_J0', auctioneerId: 'abcdef0123456789' }), 'N_J0')
+    assert.equal(utils.getSellerLabel({ auctioneerId: 'abcdef0123456789' }), 'abcdef01')
+})
+
+test('parseActiveAuctionPreview keeps playerName and leaves null names undefined', () => {
+    assert.equal(parser.parseActiveAuctionPreview({ uuid: 'u', tag: 'X', end: '2030-01-01T00:00:00Z', playerName: 'N_J0' }).playerName, 'N_J0')
+    assert.equal(parser.parseActiveAuctionPreview({ uuid: 'u', tag: 'X', end: '2030-01-01T00:00:00Z', playerName: null }).playerName, undefined)
 })
