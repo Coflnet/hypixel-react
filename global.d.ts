@@ -108,6 +108,47 @@ interface Auction {
     bin: boolean
 }
 
+interface ActiveAuctionPreview {
+    uuid: string
+    tag: string
+    itemName: string
+    tier?: string
+    bin: boolean
+    startingBid: number
+    highestBidAmount: number
+    start: Date
+    end: Date
+    count: number
+    auctioneerId: string
+    highlights: { [key: string]: string }
+    /** only set on live pushes */
+    playerName?: string
+}
+
+interface ActiveAuctionQueryResult {
+    items: ActiveAuctionPreview[]
+    totalCount: number
+    tagCounts: { [tag: string]: number }
+    /** effective tag set after armorSet/categories expansion, empty = all items */
+    resolvedTags: string[]
+    fromStore: boolean
+    snapshotAt?: Date
+}
+
+interface ResolvedActiveQuery {
+    tags: string[]
+    armorSet: string | null
+    filters: { [key: string]: string }
+    itemNameContains: string | null
+    description: string
+}
+
+interface ActiveAuctionCount {
+    count: number
+    ready: boolean
+    snapshotAt?: Date
+}
+
 interface RecentAuction {
     end: Date
     price: number
@@ -214,6 +255,17 @@ interface API {
     getItemDetails(itemTag: string): Promise<Item>
     getItemPrices(itemTagOrName: string, fetchSpan: DateRange, itemFilter?: ItemFilter): Promise<ItemPrice[]>
     getAuctions(uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<Auction[]>
+    searchActiveAuctions(params: { [key: string]: string | number | undefined }): Promise<ActiveAuctionQueryResult>
+    getActiveAuctionCount(): Promise<ActiveAuctionCount>
+    resolveActiveQuery(q: string): Promise<ResolvedActiveQuery>
+    subscribeActiveAuctions(
+        tags: string[],
+        filter: { [key: string]: string },
+        knownUuids: string[],
+        onAuction: (auction: ActiveAuctionPreview) => void,
+        onGone: (gone: { uuid: string; reason: string }) => void,
+        onErrorCallback?: Function
+    ): void
     getBids(uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<BidForList[]>
     getEnchantments(): Promise<Enchantment[]>
     getAuctionDetails(auctionUUID: string): Promise<{ parsed: AuctionDetails; original: any }>

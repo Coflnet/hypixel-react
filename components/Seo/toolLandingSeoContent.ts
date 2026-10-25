@@ -814,6 +814,44 @@ export const toolLandingSeoContent = {
             }
         ]
     },
+    activeAuctions: {
+        metadataTitle: 'Active Auction Explorer | Search Every Live Hypixel SkyBlock Auction',
+        metadataDescription:
+            'Filter all currently active Hypixel SkyBlock auctions across items by name, armor set, attributes, enchantments and price, with live updates when auctions appear, change or end.',
+        intro: [
+            'The Active Auction Explorer lets you search every auction that is running on the Hypixel Auction House right now, across all items, instead of one item at a time.',
+            'Type a plain description such as "final destination 7 sharpness" and the explorer resolves it into item tags, armor sets and filters you can edit, sort by price or ending time, and follow live as auctions are listed, outbid or sold.'
+        ],
+        sections: [
+            {
+                title: 'What you can do with it',
+                bullets: [
+                    'Search by free text and refine the result with removable tag, armor set and filter chips.',
+                    'Sort by lowest price, highest price, ending soon or newest listings.',
+                    'Group results by item to compare the cheapest listings of several related items side by side.',
+                    'Share the exact search with a link, the filters are stored in the URL.'
+                ]
+            }
+        ],
+        faqs: [
+            {
+                question: 'How fresh is the data?',
+                answer: 'The list is served from a snapshot of all active auctions that is refreshed continuously, and new listings, price changes and ended auctions are pushed live while the page is open.'
+            }
+        ],
+        relatedLinks: [
+            {
+                href: '/flipper',
+                label: 'Item Flipper',
+                description: 'Let the flipper find underpriced auctions for you instead of searching manually.'
+            },
+            {
+                href: '/lowSupply',
+                label: 'Low Supply Items',
+                description: 'Find items with few active listings.'
+            }
+        ]
+    },
     recentFlips: {
         metadataTitle: 'Recent Flips | Latest Hypixel SkyBlock Flip Activity and Market Validation',
         metadataDescription:
