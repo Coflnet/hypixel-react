@@ -214,7 +214,11 @@ export function getSellerLabel(a: { playerName?: string | null; auctioneerId?: s
     return a.playerName || (a.auctioneerId || '').slice(0, 8)
 }
 
-/** replaces the resolvable part of the state with what the free text resolved to; an unresolvable text falls back to a name search */
+/**
+ * Replaces only the item narrowing (tags, armorSet, categories, itemNameContains) with what the free text resolved to and
+ * overlays the filters the resolution itself contains; all other existing filters, the order and the grouping are kept.
+ * An unresolvable text falls back to a name search.
+ */
 export function applyResolvedQuery(state: ActiveAuctionQueryState, resolved: ResolvedActiveQuery, q: string): ActiveAuctionQueryState {
     const filters = cleanFilters(resolved.filters)
     const nothingResolved = resolved.tags.length === 0 && !resolved.armorSet && !resolved.itemNameContains && Object.keys(filters).length === 0
@@ -223,7 +227,8 @@ export function applyResolvedQuery(state: ActiveAuctionQueryState, resolved: Res
         q,
         tags: [...resolved.tags],
         armorSet: resolved.armorSet || null,
-        filters,
+        categories: [],
+        filters: { ...cleanFilters(state.filters), ...filters },
         itemNameContains: nothingResolved && q.trim() ? q.trim() : resolved.itemNameContains || null
     }
 }

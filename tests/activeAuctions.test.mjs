@@ -219,3 +219,24 @@ test('parseActiveAuctionPreview keeps playerName and leaves null names undefined
     assert.equal(parser.parseActiveAuctionPreview({ uuid: 'u', tag: 'X', end: '2030-01-01T00:00:00Z', playerName: 'N_J0' }).playerName, 'N_J0')
     assert.equal(parser.parseActiveAuctionPreview({ uuid: 'u', tag: 'X', end: '2030-01-01T00:00:00Z', playerName: null }).playerName, undefined)
 })
+
+test('a new resolution keeps existing filters, order and grouping (Bin survives)', () => {
+    const before = { ...utils.createEmptyQueryState(), q: 'lapis', tags: ['LAPIS_CHEST'], filters: { Bin: 'true' }, orderBy: 'ENDING_SOON', perTagLimit: 5 }
+    const state = utils.applyResolvedQuery(before, { tags: ['DIVAN_HELMET'], armorSet: null, filters: {}, itemNameContains: null, description: '' }, 'divan')
+    assert.deepEqual({ ...state.filters }, { Bin: 'true' })
+    assert.deepEqual(Array.from(state.tags), ['DIVAN_HELMET'])
+    assert.equal(state.orderBy, 'ENDING_SOON')
+    assert.equal(state.perTagLimit, 5)
+    assert.equal(utils.stateToParams(state).Bin, 'true', 'URL mirroring writes the merged state')
+    assert.equal(before.filters.Bin, 'true')
+})
+
+test('resolved filters override same-key filters but keep the others; narrowing is replaced', () => {
+    const before = { ...utils.createEmptyQueryState(), tags: ['A'], armorSet: 'X', categories: ['c'], itemNameContains: 'old', filters: { Bin: 'true', sharpness: '5' } }
+    const state = utils.applyResolvedQuery(before, { tags: ['B'], armorSet: null, filters: { sharpness: '7' }, itemNameContains: 'divan', description: '' }, 'divan sharpness 7')
+    assert.deepEqual({ ...state.filters }, { Bin: 'true', sharpness: '7' })
+    assert.deepEqual(Array.from(state.tags), ['B'])
+    assert.equal(state.armorSet, null)
+    assert.deepEqual(Array.from(state.categories), [])
+    assert.equal(state.itemNameContains, 'divan')
+})
