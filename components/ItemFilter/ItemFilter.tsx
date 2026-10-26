@@ -37,15 +37,17 @@ const groupedFilter = [
 ]
 
 function ItemFilter(props: Props) {
-    let router = useRouter()
-    let pathname = usePathname()
-    let [itemFilter, _setItemFilter] = useState<ItemFilter>({})
-    let [expanded, setExpanded] = useState(props.forceOpen || false)
-    let [selectedFilters, setSelectedFilters] = useState<string[]>([])
-    let [showInfoDialog, setShowInfoDialog] = useState(false)
-    let [invalidFilters, _setInvalidFilters] = useState(new Set<string>())
+    const router = useRouter()
+    const pathname = usePathname()
+    const [itemFilterState, _setItemFilter] = useState<ItemFilter>({})
+    let itemFilter = itemFilterState
+    const [expanded, setExpanded] = useState(props.forceOpen || false)
+    const [selectedFiltersState, setSelectedFilters] = useState<string[]>([])
+    let selectedFilters = selectedFiltersState
+    const [showInfoDialog, setShowInfoDialog] = useState(false)
+    const [invalidFilters, _setInvalidFilters] = useState(new Set<string>())
 
-    let typeaheadRef = useRef<TypeaheadRef>(null)
+    const typeaheadRef = useRef<TypeaheadRef>(null)
 
     useEffect(() => {
         if (props.filters && props.filters.length > 0) {
@@ -53,15 +55,15 @@ function ItemFilter(props: Props) {
         }
     }, [JSON.stringify(props.filters)])
 
-    let sortedFilterOptions = useMemo(() => {
+    const sortedFilterOptions = useMemo(() => {
         if (!props.filters) {
             return undefined
         }
-        let sorting = getSettingsObject<{ [key: string]: number }>(ITEM_FILTER_USE_COUNT, {})
+        const sorting = getSettingsObject<{ [key: string]: number }>(ITEM_FILTER_USE_COUNT, {})
 
-        let sorted = props.filters.sort((a, b) => {
-            let aCount = sorting[a.name] || 0
-            let bCount = sorting[b.name] || 0
+        const sorted = props.filters.sort((a, b) => {
+            const aCount = sorting[a.name] || 0
+            const bCount = sorting[b.name] || 0
             return bCount - aCount
         })
 
@@ -92,17 +94,17 @@ function ItemFilter(props: Props) {
     }
 
     function getGroupedFilter(filterName: string): string[] {
-        let result: string[] = []
+        const result: string[] = []
 
-        let index = groupedFilter.findIndex(group => {
-            let groupIndex = group.findIndex(element => {
+        const index = groupedFilter.findIndex(group => {
+            const groupIndex = group.findIndex(element => {
                 return filterName === element
             })
             return groupIndex !== -1
         })
 
         if (index !== -1) {
-            let groupToEnable = groupedFilter[index]
+            const groupToEnable = groupedFilter[index]
             groupToEnable.forEach(filter => {
                 if (filter !== filterName) {
                     result.push(filter)
@@ -113,7 +115,7 @@ function ItemFilter(props: Props) {
         return result
     }
 
-    let enableFilter = (filterName: string, filterValue?: string) => {
+    const enableFilter = (filterName: string, filterValue?: string) => {
         if (selectedFilters.some(n => n === filterName)) {
             return
         }
@@ -132,12 +134,12 @@ function ItemFilter(props: Props) {
         setItemFilter(itemFilter)
     }
 
-    let addFilter = ([selectedFilter]: FilterOptions[]) => {
+    const addFilter = ([selectedFilter]: FilterOptions[]) => {
         if (!selectedFilter) {
             return
         }
 
-        let sortingByUsedMost = getSettingsObject<{ [key: string]: number }>(ITEM_FILTER_USE_COUNT, {})
+        const sortingByUsedMost = getSettingsObject<{ [key: string]: number }>(ITEM_FILTER_USE_COUNT, {})
         if (sortingByUsedMost[selectedFilter.name] !== undefined) {
             sortingByUsedMost[selectedFilter.name] = sortingByUsedMost[selectedFilter.name] + 1
         } else {
@@ -145,8 +147,8 @@ function ItemFilter(props: Props) {
         }
         setSetting(ITEM_FILTER_USE_COUNT, JSON.stringify(sortingByUsedMost))
 
-        let currentText = typeaheadRef?.current?.state.text
-        let match = currentText?.match(/\((\w+)\)$/)
+        const currentText = typeaheadRef?.current?.state.text
+        const match = currentText?.match(/\((\w+)\)$/)
         let prefillValue: string | undefined = undefined
         if (match) {
             prefillValue = selectedFilter.options.find(option => option.toLowerCase() === match![1].toLowerCase())
@@ -159,7 +161,7 @@ function ItemFilter(props: Props) {
         getGroupedFilter(selectedFilter.name).forEach(filter => enableFilter(filter))
     }
 
-    let onFilterClose = () => {
+    const onFilterClose = () => {
         setSelectedFilters([])
         setExpanded(false)
         setItemFilter({})
@@ -168,7 +170,7 @@ function ItemFilter(props: Props) {
 
     function onFilterRemoveClick(filterName: string) {
         if (invalidFilters.has(filterName)) {
-            let newInvalidFilters = new Set(invalidFilters)
+            const newInvalidFilters = new Set(invalidFilters)
             newInvalidFilters.delete(filterName)
             setInvalidFilters(newInvalidFilters)
         }
@@ -183,12 +185,12 @@ function ItemFilter(props: Props) {
             updateURLQuery(itemFilter)
             onFilterChange(itemFilter)
         }
-        let newSelectedFilters = selectedFilters.filter(f => f !== filterName)
+        const newSelectedFilters = selectedFilters.filter(f => f !== filterName)
         selectedFilters = newSelectedFilters
         setSelectedFilters(newSelectedFilters)
     }
 
-    let onEnable = () => {
+    const onEnable = () => {
         setExpanded(true)
         if (!itemFilter) {
             itemFilter = {}
@@ -197,12 +199,12 @@ function ItemFilter(props: Props) {
         updateURLQuery(itemFilter)
     }
 
-    let setItemFilter = (itemFilter: ItemFilter) => {
+    const setItemFilter = (itemFilter: ItemFilter) => {
         _setItemFilter({ ...itemFilter })
         updateURLQuery(itemFilter)
     }
 
-    let updateURLQuery = (filter?: ItemFilter) => {
+    const updateURLQuery = (filter?: ItemFilter) => {
         if (props.ignoreURL) {
             return
         }
@@ -211,7 +213,7 @@ function ItemFilter(props: Props) {
     }
 
     function onFilterChange(filter: ItemFilter) {
-        let filterCopy = { ...filter }
+        const filterCopy = { ...filter }
 
         let valid = true
         Object.keys(filterCopy).forEach(key => {
@@ -240,7 +242,7 @@ function ItemFilter(props: Props) {
     }
 
     function checkForValidGroupedFilter(filterName: string, filter: ItemFilter): boolean {
-        let groupFilters = getGroupedFilter(filterName)
+        const groupFilters = getGroupedFilter(filterName)
 
         let invalid = false
         groupFilters.forEach(name => {
@@ -253,10 +255,10 @@ function ItemFilter(props: Props) {
     }
 
     function onFilterElementChange(filter?: ItemFilter) {
-        let newFilter = itemFilter
-        var keys = Object.keys(filter as object)
+        const newFilter = itemFilter
+        const keys = Object.keys(filter as object)
         if (keys.length > 0) {
-            var key = keys[0]
+            const key = keys[0]
             newFilter![key] = filter![key]
         }
 
@@ -268,7 +270,7 @@ function ItemFilter(props: Props) {
     }
 
     function onIsValidChange(filterName: string, newIsValid: boolean) {
-        let newInvalidFilters = new Set(invalidFilters)
+        const newInvalidFilters = new Set(invalidFilters)
         if (newIsValid) {
             newInvalidFilters.delete(filterName)
         } else {
@@ -285,8 +287,8 @@ function ItemFilter(props: Props) {
     }
 
     function getDefaultValue(filterName: string): string {
-        let options = props.filters?.find(f => f.name === filterName)
-        let defaultValue: any = ''
+        const options = props.filters?.find(f => f.name === filterName)
+        let defaultValue = ''
         if (options && options.options[0] !== null && options.options[0] !== undefined) {
             // dont set the first option for search-selects
             if ((hasFlag(options.type, FilterType.EQUAL) && hasFlag(options.type, FilterType.SIMPLE)) || hasFlag(options.type, FilterType.BOOLEAN)) {
@@ -302,8 +304,8 @@ function ItemFilter(props: Props) {
         return defaultValue
     }
 
-    let filterList = selectedFilters.map(filterName => {
-        let options = props.filters?.find(f => f.name === filterName)
+    const filterList = selectedFilters.map(filterName => {
+        const options = props.filters?.find(f => f.name === filterName)
         if (!options) {
             return null
         }
@@ -327,7 +329,7 @@ function ItemFilter(props: Props) {
         )
     })
 
-    let infoIconElement = (
+    const infoIconElement = (
         <div>
             <span
                 style={{ cursor: 'pointer', position: 'absolute', top: '10px', right: '10px', color: '#007bff' }}
@@ -427,16 +429,16 @@ function ItemFilter(props: Props) {
                                             onChange={addFilter}
                                             options={sortedFilterOptions || []}
                                             labelKey={(options: FilterOptions) => {
-                                                let text = typeaheadRef.current?.state.text
+                                                const text = typeaheadRef.current?.state.text
                                                 let optionsString = ''
-                                                let name = options.name
-                                                let searchString = name?.replace(/\s/g, '').toLowerCase()
-                                                let description = options.description ? options.description.replace(/\s/g, '').toLowerCase() : ''
+                                                const name = options.name
+                                                const searchString = name?.replace(/\s/g, '').toLowerCase()
+                                                const description = options.description ? options.description.replace(/\s/g, '').toLowerCase() : ''
 
                                                 // If the restult was found because of the options, show the options at the end of the string
                                                 if (text && !searchString?.includes(text) && !description.includes(text)) {
-                                                    let searchString = text.replace(/\s/g, '').toLowerCase()
-                                                    let matchingOptions = options.options.filter(option => option.toLowerCase().includes(searchString))
+                                                    const searchString = text.replace(/\s/g, '').toLowerCase()
+                                                    const matchingOptions = options.options.filter(option => option.toLowerCase().includes(searchString))
 
                                                     if (matchingOptions.length > 0) {
                                                         optionsString = matchingOptions
@@ -460,12 +462,12 @@ function ItemFilter(props: Props) {
                                                 return `${camelCaseToSentenceCase(name)} ${optionsString ? `(${optionsString})` : ''}`
                                             }}
                                             filterBy={(options: FilterOptions, props) => {
-                                                let searchString = props.text.replace(/\s/g, '').toLowerCase()
-                                                let name = (props.labelKey as Function)(options).toLowerCase()
-                                                let initials = name.match(/\b\w/g).join('')
-                                                let description = options.description ? options.description.replace(/\s/g, '').toLowerCase() : ''
+                                                const searchString = props.text.replace(/\s/g, '').toLowerCase()
+                                                const name = (props.labelKey as (option: FilterOptions) => string)(options).toLowerCase()
+                                                const initials = name.match(/\b\w/g)?.join('') ?? ''
+                                                const description = options.description ? options.description.replace(/\s/g, '').toLowerCase() : ''
 
-                                                let matchingOptions = options.options.filter(option => option.toLowerCase().includes(searchString))
+                                                const matchingOptions = options.options.filter(option => option.toLowerCase().includes(searchString))
 
                                                 return (
                                                     name.replace(/\s/g, '').includes(searchString) ||
@@ -511,11 +513,11 @@ export function getPrefillFilter(filterOptions: FilterOptions[] = [], ignoreURL:
  * @returns the filter or null if no last used filter is found
  */
 function getFilterFromLocalStorage(filterOptions: FilterOptions[] = []): ItemFilter | null {
-    let localStorageLastFilter = localStorage.getItem(LAST_USED_FILTER)
+    const localStorageLastFilter = localStorage.getItem(LAST_USED_FILTER)
     if (localStorageLastFilter === null) {
         return null
     }
-    let filter: ItemFilter = JSON.parse(localStorageLastFilter)
+    const filter: ItemFilter = JSON.parse(localStorageLastFilter)
     Object.keys(filter).forEach(key => {
         if (filterOptions.findIndex(f => f.name === key) === -1) {
             delete filter[key]

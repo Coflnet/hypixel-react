@@ -60,6 +60,13 @@ function visitFlipper() {
             window.WebSocket = Socket as unknown as typeof WebSocket
         }
     })
+    // The headless runner sometimes stops advancing CSS transitions for seconds after a visit, which leaves the
+    // fading tooltip at opacity 0 past the retry timeout. The fade is not under test, so show its end state directly.
+    cy.document().then(document => {
+        const style = document.createElement('style')
+        style.textContent = '*, *::before, *::after { transition: none !important; }'
+        document.head.appendChild(style)
+    })
 }
 
 function selectAuction() {

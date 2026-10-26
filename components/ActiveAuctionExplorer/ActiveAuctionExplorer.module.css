@@ -1,0 +1,231 @@
+.explorer {
+    padding: 0 16px 32px;
+}
+
+.stickyBar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding: 12px 0 8px;
+    background: var(--bs-body-bg);
+    border-bottom: 1px solid var(--bs-border-color);
+}
+
+.searchInput {
+    width: 100%;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+    margin-top: 8px;
+}
+
+.sortSelect {
+    width: auto;
+    min-width: 150px;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 4px 2px 10px;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 999px;
+    background: var(--bs-tertiary-bg, var(--bs-body-bg));
+    color: var(--bs-body-color);
+    font-size: 0.85rem;
+}
+
+.suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    min-height: 28px;
+}
+
+.suggestionsLabel {
+    color: var(--bs-secondary-color, var(--bs-secondary));
+    font-size: 0.8rem;
+}
+
+.suggestion {
+    padding: 1px 10px;
+    border: 1px dashed var(--bs-border-color);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--bs-secondary-color, var(--bs-body-color));
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.suggestion:hover,
+.suggestion:focus-visible {
+    border-style: solid;
+    color: var(--bs-body-color);
+}
+
+.chipRemove {
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font-size: 1.1rem;
+    line-height: 1;
+    padding: 0 6px;
+    cursor: pointer;
+}
+
+.chipDescription,
+.hint {
+    color: var(--bs-secondary-color, var(--bs-secondary));
+    font-size: 0.8rem;
+}
+
+.linkButton {
+    border: 0;
+    background: transparent;
+    color: var(--bs-link-color, var(--bs-primary));
+    padding: 0 4px;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.filterWrapper {
+    margin: 12px 0;
+}
+
+.summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 8px 0;
+    color: var(--bs-secondary-color, var(--bs-secondary));
+}
+
+.notice {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 12px;
+    margin: 8px 0;
+    border: 1px solid var(--bs-info);
+    border-radius: 6px;
+}
+
+.noticeError {
+    border-color: var(--bs-danger);
+}
+
+.empty {
+    text-align: center;
+    padding: 24px 0;
+}
+
+.group {
+    margin-bottom: 20px;
+}
+
+.groupHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+    margin: 12px 0 6px;
+}
+
+.groupCount {
+    margin-left: auto;
+    font-size: 0.85rem;
+    color: var(--bs-secondary-color, var(--bs-secondary));
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.cardWrapper {
+    min-width: 0;
+    border-radius: 6px;
+    transition: opacity 1.2s ease, background-color 1.2s ease;
+}
+
+.auctionCard {
+    height: 100%;
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+.cardPrice {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-top: 6px;
+    font-weight: bold;
+}
+
+.itemName {
+    overflow-wrap: anywhere;
+}
+
+.rowMeta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--bs-secondary-color, var(--bs-secondary));
+}
+
+.highlights {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+}
+
+.highlight {
+    padding: 0 8px;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 4px;
+    font-size: 0.75rem;
+}
+
+.flash {
+    background-color: rgba(var(--bs-success-rgb), 0.25);
+}
+
+.gone {
+    opacity: 0.35;
+    text-decoration: line-through;
+}
+
+@media (max-width: 576px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}

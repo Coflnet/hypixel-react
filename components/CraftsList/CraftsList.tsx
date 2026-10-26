@@ -12,7 +12,7 @@ import { GoalList } from '../Goals/GoalList'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 
 interface Props {
-    crafts?: any[]
+    crafts?: Parameters<typeof parseProfitableCrafts>[0]
     bazaarTags?: string[]
     openCraftTag?: string
 }
@@ -47,7 +47,7 @@ const SORT_OPTIONS: SortOption<ProfitableCraft>[] = [
             crafts
                 .sort((a, b) => b.sellPrice - b.craftCost - (a.sellPrice - a.craftCost))
                 .filter(craft => {
-                    let searchFor = [...craft.ingredients.map(ingredients => ingredients.item.tag), craft.item.tag]
+                    const searchFor = [...craft.ingredients.map(ingredients => ingredients.item.tag), craft.item.tag]
                     for (let i = 0; i < searchFor.length; i++) {
                         if (bazaarTags.indexOf(searchFor[i]) === -1) {
                             return false

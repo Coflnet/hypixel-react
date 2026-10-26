@@ -16,7 +16,7 @@ async function getIndexDoc() {
         const fileContent = await fs.readFile(filePath, 'utf8')
         const { content, data } = matter(fileContent)
         return { content, data }
-    } catch (error) {
+    } catch {
         // It's okay if the index page doesn't exist
         return null
     }

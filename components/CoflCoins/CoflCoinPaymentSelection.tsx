@@ -127,9 +127,9 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
             } else {
                 setDiscountError('Could not validate discount code')
             }
-        } catch (error: any) {
+        } catch (error) {
             console.error('Error validating discount code:', error)
-            setDiscountError(error?.message || 'Failed to validate discount code')
+            setDiscountError(error instanceof Error && error.message ? error.message : 'Failed to validate discount code')
         } finally {
             setIsValidatingDiscount(false)
         }
@@ -209,7 +209,6 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
     const discountPercent = pricingData?.discountPercent || 0
     const hasDiscount = discountPercent > 0
 
-    const providers = ['paypal', 'stripe', 'lemonsqueezy', 'googlepay'] as const
     const providerProducts = {
         paypal: selectedOption.paypalProductId,
         stripe: selectedOption.stripeProductId,

@@ -20,11 +20,10 @@ interface Props {
 }
 
 function NotificationTargets(props: Props) {
-    let [notificationTargets, setNotificationTargets] = useState<NotificationTarget[]>([])
-    let [isLoading, setIsLoading] = useState(false)
-    let [showAddNotificationTarget, setShowAddNotificationTarget] = useState(false)
-    let [notificationTargetToUpdate, setNotificationTargetToUpdate] = useState<NotificationTarget | null>(null)
-    let [notificationTargetFormType, setNotificationTargetType] = useState<'CREATE' | 'UPDATE'>('CREATE')
+    const [notificationTargets, setNotificationTargets] = useState<NotificationTarget[]>([])
+    const [isLoading, setIsLoading] = useState(false)
+    const [showAddNotificationTarget, setShowAddNotificationTarget] = useState(false)
+    const [notificationTargetToUpdate, setNotificationTargetToUpdate] = useState<NotificationTarget | null>(null)
 
     useEffect(() => {
         loadNotificatinoTargets()
@@ -51,7 +50,7 @@ function NotificationTargets(props: Props) {
                 if (wasErrorShownToUser(error)) {
                     return
                 }
-                let message = typeof error === 'string' ? error : error?.message
+                const message = typeof error === 'string' ? error : error?.message
                 toast.error(message || 'Could not delete this channel. Please try again.')
             })
     }
@@ -72,7 +71,14 @@ function NotificationTargets(props: Props) {
         <>
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                 {!showAddNotificationTarget ? (
-                    <Button onClick={() => setShowAddNotificationTarget(true)}>Add channel</Button>
+                    <Button
+                        onClick={() => {
+                            setNotificationTargetToUpdate(null)
+                            setShowAddNotificationTarget(true)
+                        }}
+                    >
+                        Add channel
+                    </Button>
                 ) : (
                     <Button
                         onClick={() => {
@@ -86,8 +92,9 @@ function NotificationTargets(props: Props) {
             {showAddNotificationTarget && (
                 <>
                     <NotificationTargetForm
-                        type={notificationTargetFormType}
-                        defaultNotificationTarget={notificationTargetFormType === 'UPDATE' ? notificationTargetToUpdate : null}
+                        key={notificationTargetToUpdate?.id ?? 'new'}
+                        type={notificationTargetToUpdate ? 'UPDATE' : 'CREATE'}
+                        defaultNotificationTarget={notificationTargetToUpdate}
                         onSubmit={() => {
                             setShowAddNotificationTarget(false)
                             loadNotificatinoTargets()
@@ -191,7 +198,6 @@ function NotificationTargets(props: Props) {
                     onClick={() => {
                         setShowAddNotificationTarget(true)
                         setNotificationTargetToUpdate(target)
-                        setNotificationTargetType('UPDATE')
                     }}
                 >
                     <EditIcon fontSize="small" />

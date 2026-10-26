@@ -6,7 +6,7 @@ import { getLoadingElement } from '../../../utils/LoadingUtils'
 import styles from './PrivacySettings.module.css'
 
 function PrivacySettings() {
-    let [privacySettings, setPrivacySettings] = useState<PrivacySettings | null>(null)
+    const [privacySettings, setPrivacySettings] = useState<PrivacySettings | null>(null)
 
     useEffect(() => {
         loadPrivacySettings()
@@ -18,7 +18,7 @@ function PrivacySettings() {
         })
     }
 
-    function onSettingChange(key: string, value: any) {
+    function onSettingChange(key: string, value: boolean) {
         if (!privacySettings) {
             return
         }

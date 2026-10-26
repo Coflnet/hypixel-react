@@ -11,7 +11,7 @@ export default function TimezoneDetect() {
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || null
       setTzName(tz)
-    } catch (e) {
+    } catch {
       setTzName(null)
     }
 
@@ -28,7 +28,6 @@ export default function TimezoneDetect() {
   const sign = preciseOffsetMinutes >= 0 ? "+" : "-"
   const preciseLabel = `UTC${sign}${hh}${mm ? `:${mm.toString().padStart(2, "0")}` : ""}`
 
-  const roundedLabel = roundedHour! >= 0 ? `UTC+${roundedHour}` : `UTC${roundedHour}`
 
   const command = `/cofl settimezone ${roundedHour}`
 
@@ -37,7 +36,7 @@ export default function TimezoneDetect() {
       await navigator.clipboard.writeText(command)
       setCopied(true)
       window.setTimeout(() => setCopied(false), 2000)
-    } catch (e) {
+    } catch {
       // ignore
     }
   }
@@ -50,7 +49,7 @@ export default function TimezoneDetect() {
     if (tzPart && tzPart.value) {
       shortName = tzPart.value
     }
-  } catch (e) {
+  } catch {
     shortName = null
   }
 

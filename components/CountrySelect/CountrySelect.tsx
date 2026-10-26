@@ -1,7 +1,7 @@
 'use client'
 import { useId, useRef, type JSX } from 'react'
 import { Menu, MenuItem, Typeahead } from 'react-bootstrap-typeahead'
-import { Form, InputGroup } from 'react-bootstrap'
+import { Form, InputGroup, type FormControlProps } from 'react-bootstrap'
 import { Country, getCountries } from '../../utils/CountryUtils'
 import { default as TypeaheadType } from 'react-bootstrap-typeahead/types/core/Typeahead'
 import { useCountryDetection } from '../../hooks/useCountryDetection'
@@ -13,8 +13,8 @@ interface Props {
 export default function CountrySelect(props: Props) {
     const key = useId()
     const countryOptions = getCountries()
-    let { selectedCountry, handleCountryChange } = useCountryDetection();
-    let ref = useRef<TypeaheadType>(null)
+    const { selectedCountry, handleCountryChange } = useCountryDetection();
+    const ref = useRef<TypeaheadType>(null)
 
     function getCountryImage(countryCode: string): JSX.Element {
         return (
@@ -50,9 +50,9 @@ export default function CountrySelect(props: Props) {
                     }
                 }}
                 labelKey={option => {
-                    return option ? (option as any).label : ''
+                    return option ? (option as Country).label : ''
                 }}
-                onFocus={e => {
+                onFocus={() => {
                     if (ref.current) {
                         ref.current.clear()
                     }
@@ -66,7 +66,7 @@ export default function CountrySelect(props: Props) {
                         <InputGroup>
                             <InputGroup.Text>{selectedCountry ? getCountryImage(selectedCountry.value) : <div style={{ minWidth: 16 }} />}</InputGroup.Text>
                             <Form.Control
-                                {...(inputProps as any)}
+                                {...(inputProps as FormControlProps)}
                                 ref={input => {
                                     inputRef(input)
                                     referenceElementRef(input)
@@ -78,7 +78,7 @@ export default function CountrySelect(props: Props) {
                 renderMenu={(results, menuProps) => (
                     <Menu {...menuProps}>
                         {results.map((result, index) => {
-                            let element = result as { label: string; value: string; paginationOption?: boolean }
+                            const element = result as { label: string; value: string; paginationOption?: boolean }
                             if (element.paginationOption) {
                                 return (
                                     <MenuItem option={element} position={index}>

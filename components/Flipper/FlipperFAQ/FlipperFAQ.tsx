@@ -7,7 +7,7 @@ function FlipperFAQ() {
         if (!location.hash) {
             return
         }
-        let element = document.getElementById(location.hash.replace('#', ''))
+        const element = document.getElementById(location.hash.replace('#', ''))
         if (element) {
             setTimeout(() => {
                 window.scrollTo({

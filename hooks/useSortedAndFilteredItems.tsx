@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 export interface SortOption<T> {
     label: string
     value: string
-    sortFunction(items: T[], ...args: any[]): T[]
+    sortFunction(items: T[], ...args: unknown[]): T[]
 }
 
 // Utility function to process items in chunks to avoid blocking the main thread
@@ -30,7 +30,7 @@ export function useSortedAndFilteredItems<T>(
     nameFilter: string | null | undefined,
     minimumProfit: number,
     filterFunction?: (item: T, nameFilter: string | null | undefined, minimumProfit: number) => boolean,
-    sortFunctionArgs: any[] = [],
+    sortFunctionArgs: unknown[] = [],
     debounceMs: number = 300
 ) {
     const initialItems: T[] = Array.isArray(items) ? items : []
@@ -67,7 +67,7 @@ export function useSortedAndFilteredItems<T>(
             currentNameFilter: string | null | undefined,
             currentMinimumProfit: number,
             currentFilterFunction?: (item: T, nameFilter: string | null | undefined, minimumProfit: number) => boolean,
-            currentSortFunctionArgs: any[] = []
+            currentSortFunctionArgs: unknown[] = []
         ) => {
             const processingId = ++processingIdRef.current
 

@@ -16,22 +16,22 @@ interface Props {
 }
 
 function ExportArchivedData(props: Props) {
-    let [showModal, setShowModal] = useState(props.show)
-    let [discordWebhookUrl, setDiscordWebhookUrl] = useState<string>('')
-    let [includeSocialInformation, setIncludeSocialInformation] = useState<boolean>(false)
-    let [includeInventoryCheck, setIncludeInventoryCheck] = useState<boolean>(false)
-    let [uniqueItems, setUniqueItems] = useState<boolean>(true)
-    let [showConfirmDialog, setShowConfirmDialog] = useState(false)
-    let [isExportRunning, setIsExportRunning] = useState(false)
+    const [showModal, setShowModal] = useState(props.show)
+    const [discordWebhookUrl, setDiscordWebhookUrl] = useState<string>('')
+    const [includeSocialInformation, setIncludeSocialInformation] = useState<boolean>(false)
+    const [includeInventoryCheck, setIncludeInventoryCheck] = useState<boolean>(false)
+    const [uniqueItems, setUniqueItems] = useState<boolean>(true)
+    const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+    const [isExportRunning, setIsExportRunning] = useState(false)
 
-    let isDiscordWebhookUrlValid = !!discordWebhookUrl && isValidDiscordWebhookUrl(discordWebhookUrl)
+    const isDiscordWebhookUrlValid = !!discordWebhookUrl && isValidDiscordWebhookUrl(discordWebhookUrl)
 
     useEffect(() => {
         setShowModal(props.show)
     }, [props.show])
 
     function startExport() {
-        let flags: string[] = []
+        const flags: string[] = []
         if (includeSocialInformation) {
             flags.push('IncludeSocial')
         }

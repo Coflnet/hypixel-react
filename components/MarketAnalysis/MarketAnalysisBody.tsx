@@ -59,7 +59,7 @@ function buildBarOption(opts: {
             trigger: 'axis',
             axisPointer: { type: 'shadow' },
             extraCssText: TOOLTIP_CSS,
-            formatter: (params: any) => opts.tooltipFormatter(params[0]?.dataIndex ?? 0)
+            formatter: (params: { dataIndex?: number }[]) => opts.tooltipFormatter(params[0]?.dataIndex ?? 0)
         },
         xAxis: {
             type: 'category',

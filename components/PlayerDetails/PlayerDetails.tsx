@@ -27,9 +27,9 @@ interface Props {
 }
 
 export default function PlayerDetails(props: Props) {
-    let [detailType, setDetailType_] = useState<DetailType>(prevDetailType || DetailType.AUCTIONS)
-    let [accountInfo, setAccountInfo] = useState<AccountInfo>()
-    let removeSwipeListeners = useSwipe(undefined, onSwipeRight, undefined, onSwipeLeft)
+    const [detailType, setDetailType_] = useState<DetailType>(prevDetailType || DetailType.AUCTIONS)
+    const [accountInfo, setAccountInfo] = useState<AccountInfo>()
+    const removeSwipeListeners = useSwipe(undefined, onSwipeRight, undefined, onSwipeLeft)
 
     useEffect(() => {
         return () => {
@@ -46,15 +46,15 @@ export default function PlayerDetails(props: Props) {
         setDetailType(DetailType.BIDS)
     }
 
-    let onDetailTypeChange = (newType: DetailType) => {
+    const onDetailTypeChange = (newType: DetailType) => {
         setDetailType(newType)
     }
 
-    let getButtonVariant = (type: DetailType): string => {
+    const getButtonVariant = (type: DetailType): string => {
         return type === detailType ? 'primary' : 'secondary'
     }
 
-    let setDetailType = (type: DetailType) => {
+    const setDetailType = (type: DetailType) => {
         prevDetailType = type
         setDetailType_(type)
     }
@@ -65,7 +65,7 @@ export default function PlayerDetails(props: Props) {
         })
     }
 
-    let claimAccountElement =
+    const claimAccountElement =
         props.player.uuid !== accountInfo?.mcId ? (
             <span style={{ marginLeft: '25px', userSelect: 'none' }}>
                 <Tooltip

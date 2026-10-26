@@ -40,6 +40,10 @@ import {
     parsePrivacySettings,
     parseProfitableCrafts,
     parseRecentAuction,
+    parseActiveAuctionPreview,
+    parseDate,
+    parseActiveAuctionQueryResult,
+    parseResolvedActiveQuery,
     parseRefInfo,
     parseSearchResultItem,
     parseSkyblockProfile,
@@ -630,7 +634,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let subscribe = (topic: string, types: SubscriptionType[], targets: NotificationTarget[], price?: number, filter?: ItemFilter): Promise<void> => {
+    let subscribe = (topic: string, types: SubscriptionType[], targets: Pick<NotificationTarget, 'id' | 'name' | 'isDisabled'>[], price?: number, filter?: ItemFilter): Promise<void> => {
         return notificationApi.createNotifier(topic, types, targets, price, filter)
     }
 
@@ -1240,6 +1244,86 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 })
                 throw error
             })
+    }
+
+    /** GET against the sky-api with flat query params; errors carry the http `status` so pages can show "not ready" states */
+    let fetchActiveAuctionEndpoint = async (path: string, params: { [key: string]: string | number | undefined } = {}): Promise<any> => {
+        const query = new URLSearchParams()
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+                query.append(key, String(value))
+            }
+        })
+        const queryString = query.toString()
+        const response = await fetch(`${getApiEndpoint()}${path}${queryString ? '?' + queryString : ''}`, { method: 'GET' })
+        if (!response.ok) {
+            let message = ''
+            try {
+                message = (await response.text()).slice(0, 300)
+            } catch {}
+            const error = new Error(message || `HTTP ${response.status}`) as Error & { status?: number }
+            error.status = response.status
+            throw error
+        }
+        return response.json()
+    }
+
+    let searchActiveAuctions = (params: { [key: string]: string | number | undefined }): Promise<ActiveAuctionQueryResult> => {
+        return fetchActiveAuctionEndpoint('/auctions/active/filter', params).then(parseActiveAuctionQueryResult)
+    }
+
+    let getActiveAuctionCount = (): Promise<ActiveAuctionCount> => {
+        return fetchActiveAuctionEndpoint('/auctions/active/count').then(data => ({
+            count: Number(data?.count) || 0,
+            ready: !!data?.ready,
+            snapshotAt: data?.snapshotAt ? parseDate(data.snapshotAt) : undefined
+        }))
+    }
+
+    let resolveActiveQuery = (q: string): Promise<ResolvedActiveQuery> => {
+        return fetchActiveAuctionEndpoint('/auctions/active/resolve', { q }).then(parseResolvedActiveQuery)
+    }
+
+    /**
+     * Subscribes to live pushes of active auctions matching the given tags/filter. `onAuction` receives new matching auctions
+     * and price updates of already known ones, `onGone` auctions that were sold, ended or cancelled.
+     * Only one live-update subscription can be active per connection; this replaces any previous one.
+     */
+    let subscribeActiveAuctions = (
+        tags: string[],
+        filter: { [key: string]: string },
+        knownUuids: string[],
+        onAuction: (auction: ActiveAuctionPreview) => void,
+        onGone: (gone: { uuid: string; reason: string }) => void,
+        onErrorCallback?: Function
+    ): void => {
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_UPDATES)
+        const cleanFilter = { ...(filter || {}) } as { [key: string]: any }
+        delete cleanFilter._hide
+        delete cleanFilter._sellerName
+        websocketHelper.subscribe({
+            type: RequestType.SUBSCRIBE_UPDATES,
+            data: {
+                topic: tags.length > 0 ? `active/${tags.join(',')}` : 'active/*',
+                filter: cleanFilter,
+                knownUuids: knownUuids.slice(0, 200)
+            },
+            callback: function (response) {
+                if (response.type === 'activeAuction') {
+                    onAuction(parseActiveAuctionPreview(response.data))
+                } else if (response.type === 'auctionGone') {
+                    onGone(response.data)
+                }
+            },
+            resubscribe: function () {
+                subscribeActiveAuctions(tags, filter, knownUuids, onAuction, onGone, onErrorCallback)
+            },
+            onError: function (message) {
+                if (onErrorCallback) {
+                    onErrorCallback(message)
+                }
+            }
+        })
     }
 
     let connectMinecraftAccount = (playerUUID: string): Promise<MinecraftConnectionInfo> => {
@@ -2280,6 +2364,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getItemDetails,
         getItemPrices,
         getAuctions,
+        searchActiveAuctions,
+        getActiveAuctionCount,
+        resolveActiveQuery,
+        subscribeActiveAuctions,
         getBids,
         getEnchantments,
         getAuctionDetails,

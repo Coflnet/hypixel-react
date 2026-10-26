@@ -284,6 +284,55 @@ export function parseProducts(products: any): Product[] {
     })
 }
 
+export function parseActiveAuctionPreview(a: any): ActiveAuctionPreview {
+    return {
+        uuid: a.uuid,
+        tag: a.tag,
+        itemName: a.itemName,
+        tier: a.tier ?? undefined,
+        bin: !!a.bin,
+        startingBid: Number(a.startingBid) || 0,
+        highestBidAmount: Number(a.highestBidAmount) || 0,
+        // parseDate treats values without a trailing Z (unspecified kind) as UTC
+        start: a.start ? parseDate(a.start) : parseDate(a.end),
+        end: parseDate(a.end),
+        count: a.count ?? 1,
+        auctioneerId: a.auctioneerId,
+        highlights: a.highlights && typeof a.highlights === 'object' ? a.highlights : {},
+        playerName: a.playerName || undefined
+    }
+}
+
+export function parseActiveQuerySuggestions(raw: any): ActiveQuerySuggestion[] {
+    if (!Array.isArray(raw)) return []
+    return raw
+        .filter(s => s && (s.kind === 'armorSet' || s.kind === 'item') && typeof s.key === 'string' && s.key)
+        .map(s => ({ kind: s.kind, key: s.key, label: typeof s.label === 'string' && s.label ? s.label : s.key }))
+}
+
+export function parseActiveAuctionQueryResult(r: any): ActiveAuctionQueryResult {
+    return {
+        items: (r?.items || []).map(parseActiveAuctionPreview),
+        totalCount: Number(r?.totalCount) || 0,
+        tagCounts: r?.tagCounts || {},
+        resolvedTags: Array.isArray(r?.resolvedTags) ? r.resolvedTags : [],
+        fromStore: !!r?.fromStore,
+        snapshotAt: r?.snapshotAt ? parseDate(r.snapshotAt) : undefined,
+        suggestions: parseActiveQuerySuggestions(r?.suggestions)
+    }
+}
+
+export function parseResolvedActiveQuery(r: any): ResolvedActiveQuery {
+    return {
+        tags: Array.isArray(r?.tags) ? r.tags : [],
+        armorSet: r?.armorSet || null,
+        filters: r?.filters && typeof r.filters === 'object' ? r.filters : {},
+        itemNameContains: r?.itemNameContains || null,
+        description: r?.description || '',
+        suggestions: parseActiveQuerySuggestions(r?.suggestions)
+    }
+}
+
 export function parseRecentAuction(auction): RecentAuction {
     return {
         end: parseDate(auction.end),

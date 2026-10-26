@@ -24,17 +24,19 @@ import WhitelistSubscribeButton from '../SubscribeButton/WhitelistSubscribeButto
 let mounted = true
 
 function SubscriptionList() {
-    let [listener, setListener] = useState<NotificationListener[]>([])
-    let [subscriptions, setSubscriptions] = useState<NotificationSubscription[]>([])
-    let [allTargets, setAllTargets] = useState<NotificationTarget[]>([])
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [hasStarterPremium, setHasStarterPremium] = useState(false)
-    let [showDeleteAllSubscriptionDialog, setShowDeleteAllSubscriptionDialog] = useState(false)
-    let [showNotificationTargets, setShowNotificationTargets] = useState(false)
+    const [listenerState, setListener] = useState<NotificationListener[]>([])
+    let listener = listenerState
+    const [subscriptionsState, setSubscriptions] = useState<NotificationSubscription[]>([])
+    let subscriptions = subscriptionsState
+    const [allTargets, setAllTargets] = useState<NotificationTarget[]>([])
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [hasStarterPremium, setHasStarterPremium] = useState(false)
+    const [showDeleteAllSubscriptionDialog, setShowDeleteAllSubscriptionDialog] = useState(false)
+    const [showNotificationTargets, setShowNotificationTargets] = useState(false)
     /** set when a channel couldn't be deleted, to point the user at the notifiers still using it */
-    let [highlightedTargetId, setHighlightedTargetId] = useState<number | undefined>()
-    let [isLoading, setIsLoading] = useState(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const [highlightedTargetId, setHighlightedTargetId] = useState<number | undefined>()
+    const [isLoading, setIsLoading] = useState(false)
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     useEffect(() => {
         mounted = true
@@ -46,13 +48,13 @@ function SubscriptionList() {
         }
     }, [])
 
-    let subscriptionsToListenerMap = getListenerToTargetsMap()
+    const subscriptionsToListenerMap = getListenerToTargetsMap()
 
     function getListenerToTargetsMap() {
         if (!listener) {
             return {}
         }
-        let map: {
+        const map: {
             [key: number]: NotificationListener | undefined
         } = {}
 
@@ -72,11 +74,11 @@ function SubscriptionList() {
                     return
                 }
 
-                let newListeners = [...listeners]
+                const newListeners = [...listeners]
 
-                let promises: Promise<void>[] = []
+                const promises: Promise<void>[] = []
                 newListeners.forEach((listener, i) => {
-                    let p = getSubscriptionTitle(listener).then(title => {
+                    const p = getSubscriptionTitle(listener).then(title => {
                         newListeners[i].title = title
                     })
                     promises.push(p)
@@ -112,7 +114,7 @@ function SubscriptionList() {
     }
 
     function onLogin() {
-        let googleId = sessionStorage.getItem('googleId')
+        const googleId = sessionStorage.getItem('googleId')
         if (googleId) {
             setIsLoggedIn(true)
             setIsLoading(true)
@@ -196,18 +198,18 @@ function SubscriptionList() {
             return
         }
 
-        let subscriptionToDelete = subscriptions.find(s => s.sourceSubIdRegex === notificationListener.id!.toString())
+        const subscriptionToDelete = subscriptions.find(s => s.sourceSubIdRegex === notificationListener.id!.toString())
 
         Promise.all([
             subscriptionToDelete ? api.deleteNotificationSubscription(subscriptionToDelete) : Promise.resolve(),
             api.unsubscribe(notificationListener)
         ]).then(() => {
-            let newListeners = listener.filter(s => s !== notificationListener)
+            const newListeners = listener.filter(s => s !== notificationListener)
             listener = newListeners
             setListener(newListeners)
 
             if (subscriptionToDelete) {
-                let newSubscriptions = subscriptions.filter(s => s.id !== subscriptionToDelete?.id)
+                const newSubscriptions = subscriptions.filter(s => s.id !== subscriptionToDelete?.id)
                 subscriptions = newSubscriptions
                 setSubscriptions(newSubscriptions)
             }
@@ -235,16 +237,16 @@ function SubscriptionList() {
      * close the channel list and mark the notifiers in the way, so the user can edit them right away.
      */
     function onTargetInUse(target: NotificationTarget) {
-        let dependingSubscriptions = subscriptions.filter(s => s.targets.some(t => t.id === target.id))
+        const dependingSubscriptions = subscriptions.filter(s => s.targets.some(t => t.id === target.id))
         setShowNotificationTargets(false)
         setHighlightedTargetId(target.id)
 
-        let channelName = target.name || 'This channel'
+        const channelName = target.name || 'This channel'
         if (dependingSubscriptions.length === 0) {
             toast.error(`"${channelName}" is still used by a notifier and can't be deleted.`)
             return
         }
-        let isSingle = dependingSubscriptions.length === 1
+        const isSingle = dependingSubscriptions.length === 1
         toast.error(
             `"${channelName}" is still used by ${dependingSubscriptions.length} notifier${isSingle ? '' : 's'} (highlighted below). Move ${
                 isSingle ? 'it' : 'them'
@@ -252,7 +254,7 @@ function SubscriptionList() {
             { autoClose: 15000 }
         )
 
-        let firstId = dependingSubscriptions[0].id
+        const firstId = dependingSubscriptions[0].id
         // the list is already rendered, the modal only needs a tick to close before scrolling
         setTimeout(() => {
             document.getElementById(`notifier-${firstId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
@@ -283,14 +285,14 @@ function SubscriptionList() {
 
     async function resubscribe(listener: NotificationListener, subscription: NotificationSubscription) {
         setIsLoading(true)
-        await api.subscribe(listener.topicId, listener.types, subscription.targets as any, listener.price, listener.filter)
+        await api.subscribe(listener.topicId, listener.types, subscription.targets, listener.price, listener.filter)
 
         await Promise.all([loadListener(), loadSubscriptions()])
         setIsLoading(false)
     }
 
     function onAfterSubscribeEdit(oldSubscription: NotificationListener) {
-        let subscriptionToDelete = subscriptions.find(s => s.sourceSubIdRegex === oldSubscription.id!.toString())
+        const subscriptionToDelete = subscriptions.find(s => s.sourceSubIdRegex === oldSubscription.id!.toString())
 
         Promise.all([
             subscriptionToDelete ? api.deleteNotificationSubscription(subscriptionToDelete) : Promise.resolve(),
@@ -307,7 +309,7 @@ function SubscriptionList() {
     }
 
     function getSubscriptionTitle(subscription: NotificationListener): Promise<string> {
-        return new Promise((resolve, reject) => {
+        return new Promise(resolve => {
             switch (subscription.type) {
                 case 'whitelist':
                     resolve('Whitelist Notification')
@@ -328,7 +330,7 @@ function SubscriptionList() {
                 case 'auction':
                     api.getAuctionDetails(subscription.topicId)
                         .then(result => {
-                            let auctionDetails = result.parsed
+                            const auctionDetails = result.parsed
                             resolve(auctionDetails.auction.item.name || auctionDetails.auction.item.tag)
                         })
                         .catch(() => {
@@ -368,13 +370,13 @@ function SubscriptionList() {
         }
     }
 
-    let subscriptionsTableBody = subscriptions.map((subscription, i) => {
+    const subscriptionsTableBody = subscriptions.map((subscription, i) => {
         let listener
         if (subscription.id) {
             listener = subscriptionsToListenerMap[subscription.id?.toString()]
         }
-        let usesHighlightedTarget = highlightedTargetId !== undefined && subscription.targets.some(t => t.id === highlightedTargetId)
-        let highlightClass = usesHighlightedTarget ? styles.highlightedNotifier : undefined
+        const usesHighlightedTarget = highlightedTargetId !== undefined && subscription.targets.some(t => t.id === highlightedTargetId)
+        const highlightClass = usesHighlightedTarget ? styles.highlightedNotifier : undefined
 
         // Show a generic entry for subscription without a listener
         if (!listener) {
@@ -446,7 +448,7 @@ function SubscriptionList() {
         }
     })
 
-    let resetSettingsElement = (
+    const resetSettingsElement = (
         <Modal
             show={showDeleteAllSubscriptionDialog}
             onHide={() => {
@@ -478,7 +480,7 @@ function SubscriptionList() {
         </Modal>
     )
 
-    let notificationTargetsElement = (
+    const notificationTargetsElement = (
         <Modal
             show={showNotificationTargets}
             size="lg"

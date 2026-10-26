@@ -8,12 +8,12 @@ export default function NcmpConsentLink() {
     let nitroListener: (() => void) | null = null;
 
     const tryAdd = () => {
-      const cmp = (window as any)['__cmp'];
+      const cmp = window['__cmp'];
       if (typeof cmp === 'function') {
         try {
           // ask the CMP to add the consent link
           cmp('addConsentLink');
-        } catch (e) {
+        } catch {
           // ignore any runtime errors from the CMP
         }
         if (interval) {
@@ -28,7 +28,7 @@ export default function NcmpConsentLink() {
       const box = document.getElementById('consent-box');
       if (!box) return;
       // show if __tcfapi exists, otherwise hide
-      const hasTcfapi = typeof (window as any)['__tcfapi'] === 'function' || typeof (window as any)['__tcfapi'] === 'object';
+      const hasTcfapi = typeof window['__tcfapi'] === 'function' || typeof window['__tcfapi'] === 'object';
       box.style.display = hasTcfapi ? '' : 'none';
     };
 
@@ -41,7 +41,7 @@ export default function NcmpConsentLink() {
       const added = tryAdd();
 
       // also ensure visibility is updated either now or once nitroAds loads
-      if ((window as any)['nitroAds'] && (window as any)['nitroAds'].loaded) {
+      if (window['nitroAds'] && window['nitroAds'].loaded) {
         updateVisibility();
       } else {
         nitroListener = onNitroLoaded;
@@ -79,8 +79,8 @@ export default function NcmpConsentLink() {
   // Button calls CMP showModal when clicked
   const openModal = () => {
     try {
-      (window as any)['__cmp'] && (window as any)['__cmp']('showModal');
-    } catch (e) {
+      window.__cmp?.('showModal');
+    } catch {
       // ignore
     }
   };

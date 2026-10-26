@@ -2,7 +2,7 @@ import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeparators } fro
 
 const ANIMATION_THRESHOLD = 200
 
-let option = {
+const option = {
     tooltip: {
         trigger: 'axis',
         className: 'priceGraphTooltip',
@@ -50,7 +50,7 @@ let option = {
     xAxis: [
         {
             type: 'category',
-            data: [] as any[],
+            data: [] as (number | string)[],
             axisPointer: {
                 type: 'shadow'
             },
@@ -94,7 +94,7 @@ let option = {
             tooltip: {
                 valueFormatter: formatAsCoins
             },
-            data: [] as any[]
+            data: [] as (number | string)[]
         },
         {
             name: 'Min',
@@ -107,7 +107,7 @@ let option = {
             tooltip: {
                 valueFormatter: formatAsCoins
             },
-            data: [] as any[]
+            data: [] as (number | string)[]
         },
         {
             name: 'Max',
@@ -120,7 +120,7 @@ let option = {
             tooltip: {
                 valueFormatter: formatAsCoins
             },
-            data: [] as any[]
+            data: [] as (number | string)[]
         },
         {
             name: 'Volume',
@@ -133,7 +133,7 @@ let option = {
             tooltip: {
                 valueFormatter: numberWithThousandsSeparators
             },
-            data: [] as any[]
+            data: [] as (number | string)[]
         },
         {
             name: 'Mayors',
@@ -146,7 +146,7 @@ let option = {
             yAxisIndex: 0,
             smooth: true,
             animationThreshold: ANIMATION_THRESHOLD,
-            data: [] as any[]
+            data: [] as (number | string)[]
         }
     ]
 }

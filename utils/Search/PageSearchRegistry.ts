@@ -71,6 +71,7 @@ const CORE_PAGES: PageSearchEntry[] = [
     tool('/reverseNpc', 'Reverse NPC Flips', 'npc', ['reverse npc'], ['flip', 'flips', 'shop']),
     tool('/mayor', 'Mayor Flips', 'mayor', ['mayor', 'election'], ['flip', 'flips', 'prediction']),
     tool('/lowSupply', 'Low Supply Items', 'supply', ['low supply', 'lowsupply'], ['supply', 'rare', 'items']),
+    tool('/auctions', 'Active Auction Explorer', 'flipper', ['auctions', 'active auctions', 'auction explorer', 'ah search'], ['auction', 'active', 'search', 'filter', 'live'], 'Filter all live auctions'),
     tool('/recentFlips', 'Recent Flips', 'recent', ['recent flips'], ['flip', 'flips', 'history']),
     tool('/topMovers', 'Top Movers', 'movers', ['top movers', 'movers'], ['market', 'price', 'change']),
     tool('/profitLeaderboard', 'Profit Leaderboard', 'leaderboard', ['leaderboard', 'lb'], ['profit', 'ranking', 'top']),

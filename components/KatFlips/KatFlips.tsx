@@ -10,7 +10,7 @@ import { copyAndRunInGame } from '../../utils/InGameCommandUtils'
 import { GenericFlipList, SortOption } from '../GenericFlipList'
 
 interface Props {
-    flips: any[]
+    flips: Parameters<typeof parseKatFlip>[0][]
 }
 
 const SORT_OPTIONS: SortOption<KatFlip>[] = [

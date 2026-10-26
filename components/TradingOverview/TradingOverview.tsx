@@ -12,12 +12,12 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import ClaimAccountTutorial from '../ClaimAccount/ClaimAccountTutorial'
 
 export default function TradingOverview() {
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [isCreateTradeOpen, setIsCreateTradeOpen] = useState(false)
-    let [playerData, setPlayerData] = useState<AccountInfo>()
-    let [tradeListKey, setTradeListKey] = useState(generateUUID())
-    let [showClaimAccountTutorial, setShowClaimAccountTutorial] = useState(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [isCreateTradeOpen, setIsCreateTradeOpen] = useState(false)
+    const [playerData, setPlayerData] = useState<AccountInfo>()
+    const [tradeListKey, setTradeListKey] = useState(generateUUID())
+    const [showClaimAccountTutorial, setShowClaimAccountTutorial] = useState(false)
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
     if (!isLoggedIn) {
         if (wasAlreadyLoggedIn) {
@@ -50,7 +50,7 @@ export default function TradingOverview() {
         )
     }
 
-    let claimAccountElement = (
+    const claimAccountElement = (
         <Modal
             size={'lg'}
             show={showClaimAccountTutorial}

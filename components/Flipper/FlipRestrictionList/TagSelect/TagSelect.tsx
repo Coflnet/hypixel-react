@@ -30,7 +30,7 @@ const MultiValueContainer = props => {
 }
 
 function TagSelect(props: Props) {
-    let [tagOptions, setTagOptions] = useState(
+    const [tagOptions, setTagOptions] = useState(
         props.defaultTags
             ? props.defaultTags.slice().map(value => {
                   return { value, label: value }
@@ -44,8 +44,8 @@ function TagSelect(props: Props) {
             label: string
         }>
     ) {
-        let newTags = value.map(option => option.value)
-        let newTagOptions = [...value]
+        const newTags = value.map(option => option.value)
+        const newTagOptions = [...value]
         setTagOptions(newTagOptions)
         props.onTagsChange(newTags)
     }
@@ -54,7 +54,7 @@ function TagSelect(props: Props) {
         value: string
         label: string
     }> {
-        let items = localStorage.getItem(CURRENTLY_USED_TAGS)
+        const items = localStorage.getItem(CURRENTLY_USED_TAGS)
         if (!items) {
             return []
         }

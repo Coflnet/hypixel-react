@@ -24,16 +24,16 @@ export interface UpdateState {
 }
 
 function EditRestriction(props: Props) {
-    let [isFilterValid, setIsFilterValid] = useState(true)
-    let [filters, setFilters] = useState<FilterOptions[]>([])
-    let [updateState, setUpdateState] = useState<UpdateState>({
+    const [isFilterValid, setIsFilterValid] = useState(true)
+    const [filters, setFilters] = useState<FilterOptions[]>([])
+    const [updateState, setUpdateState] = useState<UpdateState>({
         ...props.defaultRestriction
     })
 
     // a picked filter result is applied through a remount of the ItemFilter once the filter options of the picked item are loaded
-    let applyPickedFilter = useRef(false)
-    let [filterKey, setFilterKey] = useState(0)
-    let filterItemTag = updateState.selectedItem?.tag || props.defaultRestriction.item?.tag || '*'
+    const applyPickedFilter = useRef(false)
+    const [filterKey, setFilterKey] = useState(0)
+    const filterItemTag = updateState.selectedItem?.tag || props.defaultRestriction.item?.tag || '*'
 
     useEffect(() => {
         loadFilters()
@@ -42,7 +42,7 @@ function EditRestriction(props: Props) {
     function loadFilters(): Promise<FilterOptions[]> {
         return Promise.all([api.getFilters(filterItemTag), api.flipFilters(filterItemTag)]).then(
             filters => {
-                let result = [...(filters[0] || []), ...(filters[1] || [])]
+                const result = [...(filters[0] || []), ...(filters[1] || [])]
                 setFilters(result)
                 remountFilterForPickedFilter()
                 return result
@@ -63,7 +63,7 @@ function EditRestriction(props: Props) {
                 multiple
                 className={styles.multiSearch}
                 onChange={items => {
-                    let picked = items[0] ? pickSearchResult(items[0]) : null
+                    const picked = items[0] ? pickSearchResult(items[0]) : null
                     if (picked?.filter) {
                         if (picked.item.tag === filterItemTag) {
                             // the filter options do not reload for the same item

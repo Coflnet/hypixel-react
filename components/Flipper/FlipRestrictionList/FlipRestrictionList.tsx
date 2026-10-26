@@ -30,15 +30,15 @@ const RESTRICTION_CONTEXT_MENU_ID = 'restriction-entry-context-menu'
 const RESTRICTION_CONTEXT_CURRENT_SHOING_MENU_ID = 'restriction-entry-context-menu-current-showing'
 
 function FlipRestrictionList(props: Props) {
-    let [isAddNewFlipperExtended, setIsNewFlipperExtended] = useState(props.prefillRestriction !== undefined)
-    let [restrictions, setRestrictions] = useState<FlipRestriction[]>(() => getInitialFlipRestrictions())
-    let [restrictionInEditMode, setRestrictionsInEditMode] = useState<FlipRestriction[]>([])
-    let [showDeleteRestrictionsDialog, setShowDeleteRestrictionsDialog] = useState(false)
-    let [searchText, setSearchText] = useState('')
-    let [sortByName, setSortByName] = useState(false)
-    let [isSSR, setIsSSR] = useState(true)
-    let searchFieldRef = useRef<HTMLInputElement>(null)
-    let listRef = useRef(null)
+    const [isAddNewFlipperExtended, setIsNewFlipperExtended] = useState(props.prefillRestriction !== undefined)
+    const [restrictions, setRestrictions] = useState<FlipRestriction[]>(() => getInitialFlipRestrictions())
+    const [restrictionInEditMode, setRestrictionsInEditMode] = useState<FlipRestriction[]>([])
+    const [showDeleteRestrictionsDialog, setShowDeleteRestrictionsDialog] = useState(false)
+    const [searchText, setSearchText] = useState('')
+    const [sortByName, setSortByName] = useState(false)
+    const [isSSR, setIsSSR] = useState(true)
+    const searchFieldRef = useRef<HTMLInputElement>(null)
+    const listRef = useRef<Grid>(null)
 
     const { show } = useContextMenu({
         id: RESTRICTION_CONTEXT_MENU_ID
@@ -65,7 +65,7 @@ function FlipRestrictionList(props: Props) {
     }, [])
 
     function getInitialFlipRestrictions() {
-        let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+        const restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
         restrictions.forEach(restriction => {
             if (restriction.item && restriction.item.tag) {
                 restriction.item.iconUrl = api.getItemImageUrl(restriction.item)
@@ -76,7 +76,7 @@ function FlipRestrictionList(props: Props) {
     }
 
     function addNewRestriction(newRestrictions: FlipRestriction[] = []) {
-        let restrictionCopies = [...restrictions]
+        const restrictionCopies = [...restrictions]
 
         // Placing the new restrictions at the positions they will be after a reload
         // => first whitelist entries, then blacklist entries. From oldest to newest
@@ -87,7 +87,7 @@ function FlipRestrictionList(props: Props) {
                 return
             }
             if (newRestriction.type === 'whitelist') {
-                let firstBlacklist = restrictionCopies.findIndex(element => element.type === 'blacklist')
+                const firstBlacklist = restrictionCopies.findIndex(element => element.type === 'blacklist')
                 if (firstBlacklist === -1) {
                     restrictionCopies.push(newRestriction)
                 } else {
@@ -116,7 +116,7 @@ function FlipRestrictionList(props: Props) {
     }
 
     function onEditRestrictionCancel() {
-        let newRestrictions = [...restrictions]
+        const newRestrictions = [...restrictions]
         restrictionInEditMode.forEach(restriction => {
             newRestrictions[restriction.originalIndex!].isEdited = false
         })
@@ -125,9 +125,9 @@ function FlipRestrictionList(props: Props) {
     }
 
     function addEditedFilter(updateState: UpdateState) {
-        let newRestrictions = [...restrictions]
+        const newRestrictions = [...restrictions]
         restrictionInEditMode.forEach(restriction => {
-            let toUpdate = newRestrictions[restriction.originalIndex!]
+            const toUpdate = newRestrictions[restriction.originalIndex!]
             Object.keys(updateState.itemFilter || {}).forEach(key => {
                 if (toUpdate.itemFilter && updateState.itemFilter && toUpdate.itemFilter[key] === undefined) {
                     toUpdate.itemFilter[key] = updateState.itemFilter[key]
@@ -153,9 +153,9 @@ function FlipRestrictionList(props: Props) {
     }
 
     function overrideEditedFilter(updateState: UpdateState) {
-        let newRestrictions = [...restrictions]
+        const newRestrictions = [...restrictions]
         restrictionInEditMode.forEach(restriction => {
-            let index = restriction.originalIndex!
+            const index = restriction.originalIndex!
             newRestrictions[index].itemFilter = { ...updateState.itemFilter }
             newRestrictions[index].tags = updateState.tags
             newRestrictions[index].isEdited = false
@@ -175,8 +175,8 @@ function FlipRestrictionList(props: Props) {
     }
 
     function removeRestrictionByIndex(restrictions: FlipRestriction[], index: number) {
-        let newRestrictions = [...restrictions]
-        let deletedRestriction = newRestrictions.splice(index, 1)
+        const newRestrictions = [...restrictions]
+        const deletedRestriction = newRestrictions.splice(index, 1)
 
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
 
@@ -191,8 +191,8 @@ function FlipRestrictionList(props: Props) {
     }
 
     function createDuplicate(restrictions: FlipRestriction[], index: number) {
-        let duplicate = { ...restrictions[index] }
-        let newRestrictions = [...restrictions]
+        const duplicate = { ...restrictions[index] }
+        const newRestrictions = [...restrictions]
         newRestrictions.splice(index + 1, 0, duplicate)
 
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(newRestrictions)))
@@ -205,8 +205,8 @@ function FlipRestrictionList(props: Props) {
     }
 
     function saveRestrictionEdit(newRestriction: FlipRestriction) {
-        let newRestrictions = [...restrictions]
-        let newIndexArray = [...restrictionInEditMode]
+        const newRestrictions = [...restrictions]
+        const newIndexArray = [...restrictionInEditMode]
 
         newRestrictions[newRestriction.originalIndex!] = { ...newRestriction }
         newRestrictions[newRestriction.originalIndex!].isEdited = false
@@ -224,13 +224,13 @@ function FlipRestrictionList(props: Props) {
     }
 
     function editRestriction(restrictions: FlipRestriction[], index: number) {
-        let newRestrictions = [...restrictions]
-        let restrictionToEdit = newRestrictions[index]
-        let newRestrictionsInEditMode = [...restrictionInEditMode]
+        const newRestrictions = [...restrictions]
+        const restrictionToEdit = newRestrictions[index]
+        const newRestrictionsInEditMode = [...restrictionInEditMode]
 
         newRestrictionsInEditMode.push(restrictionToEdit)
 
-        let restrictionsInEditMode: FlipRestriction[] = []
+        const restrictionsInEditMode: FlipRestriction[] = []
         newRestrictionsInEditMode.forEach(r => {
             restrictionsInEditMode.push(r)
         })
@@ -241,7 +241,7 @@ function FlipRestrictionList(props: Props) {
     }
 
     function clearRestrictions() {
-        let newRestrictions = getRestrictionsFilteredBySearch(restrictions, true)
+        const newRestrictions = getRestrictionsFilteredBySearch(restrictions, true)
         setRestrictions(newRestrictions)
         setShowDeleteRestrictionsDialog(false)
 
@@ -268,8 +268,8 @@ function FlipRestrictionList(props: Props) {
     })()
 
     function refreshItemNames() {
-        let newRestrictions = [...restrictions]
-        let items: Item[] = []
+        const newRestrictions = [...restrictions]
+        const items: Item[] = []
         newRestrictions.forEach(restriction => {
             if (restriction.item && restriction.item.tag) {
                 items.push(restriction.item)
@@ -296,7 +296,7 @@ function FlipRestrictionList(props: Props) {
     }
 
     function recalculateListHeight() {
-        ;(listRef.current as any).resetAfterRowIndex(0, false)
+        ;listRef.current!.resetAfterRowIndex(0, false)
     }
 
     function handleContextMenuForRestriction(event) {
@@ -323,7 +323,7 @@ function FlipRestrictionList(props: Props) {
                 return invert ? true : false
             }
             if (filterKind && !searchText) {
-                let valid = restriction.type === filterKind
+                const valid = restriction.type === filterKind
                 return invert ? !valid : valid
             }
 
@@ -336,9 +336,9 @@ function FlipRestrictionList(props: Props) {
                     if (isValid) {
                         return
                     }
-                    let keyWithColon = `${key}:`
-                    let keyWithoutUnderscore = keyWithColon.replace(/_/g, ' ').replace(/'/g, '')
-                    let valueWithoutUnderScore = restriction.itemFilter![key].toString().replace(/_/g, ' ').replace(/'/g, '')
+                    const keyWithColon = `${key}:`
+                    const keyWithoutUnderscore = keyWithColon.replace(/_/g, ' ').replace(/'/g, '')
+                    const valueWithoutUnderScore = restriction.itemFilter![key].toString().replace(/_/g, ' ').replace(/'/g, '')
                     if (
                         restriction.itemFilter![key].toString().toLowerCase().includes(lowerCaseSearchText) ||
                         valueWithoutUnderScore.toLowerCase().includes(lowerCaseSearchText) ||
@@ -360,9 +360,9 @@ function FlipRestrictionList(props: Props) {
     }
 
     function changeRestrictionDisableState(itemKey: string, newValue: boolean) {
-        let index = restrictions.findIndex(r => r.itemKey === itemKey)
+        const index = restrictions.findIndex(r => r.itemKey === itemKey)
         if (index === -1) return
-        let newRestrictions = [...restrictions]
+        const newRestrictions = [...restrictions]
         newRestrictions[index] = { ...newRestrictions[index], disabled: newValue }
         setRestrictions(newRestrictions)
 
@@ -374,8 +374,8 @@ function FlipRestrictionList(props: Props) {
     }
 
     function changeRestrictionDisableStateForAllCurrentShowing(newValue: boolean) {
-        let newRestrictions = [...restrictions]
-        let shownRestrictions = getRestrictionsFilteredBySearch(restrictions)
+        const newRestrictions = [...restrictions]
+        const shownRestrictions = getRestrictionsFilteredBySearch(restrictions)
         newRestrictions.forEach(r => {
             if (r.itemKey && shownRestrictions.find(sr => sr.itemKey === r.itemKey)) {
                 r.disabled = newValue
@@ -390,7 +390,7 @@ function FlipRestrictionList(props: Props) {
         }
     }
 
-    let clearListDialog = (
+    const clearListDialog = (
         <Modal
             show={showDeleteRestrictionsDialog}
             onHide={() => {
@@ -422,7 +422,7 @@ function FlipRestrictionList(props: Props) {
         </Modal>
     )
 
-    let currentItemContextMenuElement = (
+    const currentItemContextMenuElement = (
         <div>
             <Menu id={RESTRICTION_CONTEXT_MENU_ID} theme={'dark'}>
                 <Item
@@ -430,7 +430,7 @@ function FlipRestrictionList(props: Props) {
                         changeRestrictionDisableState(params.props.itemKey, true)
                     }}
                     hidden={params => {
-                        let index = restrictions.findIndex(r => r.itemKey === params.props.itemKey)
+                        const index = restrictions.findIndex(r => r.itemKey === params.props.itemKey)
                         if (index === -1) return true
                         return restrictions[index].disabled === true
                     }}
@@ -442,7 +442,7 @@ function FlipRestrictionList(props: Props) {
                         changeRestrictionDisableState(params.props.itemKey, false)
                     }}
                     hidden={params => {
-                        let index = restrictions.findIndex(r => r.itemKey === params.props.itemKey)
+                        const index = restrictions.findIndex(r => r.itemKey === params.props.itemKey)
                         if (index === -1) return true
                         return restrictions[index].disabled === false || restrictions[index].disabled === undefined
                     }}
@@ -454,7 +454,7 @@ function FlipRestrictionList(props: Props) {
         </div>
     )
 
-    let currentShowingItemOptionsContextMenuElement = (
+    const currentShowingItemOptionsContextMenuElement = (
         <div>
             <Menu id={RESTRICTION_CONTEXT_CURRENT_SHOING_MENU_ID} theme={'dark'}>
                 <Item
@@ -489,10 +489,10 @@ function FlipRestrictionList(props: Props) {
         </div>
     )
 
-    let windowWidth = isSSR ? 1920 : window.innerWidth
-    let singleColumn = windowWidth < 1024
+    const windowWidth = isSSR ? 1920 : window.innerWidth
+    const singleColumn = windowWidth < 1024
 
-    let addIcon = (
+    const addIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" className="bi bi-plus-circle" viewBox="0 0 16 16">
             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
             <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
@@ -603,8 +603,8 @@ function FlipRestrictionList(props: Props) {
                             {({ height, width }) => (
                                 <Grid
                                     ref={listRef}
-                                    itemKey={({ columnIndex, rowIndex, data }) => {
-                                        let r = restrictionsToDisplay[singleColumn ? rowIndex : rowIndex * 2 + columnIndex]
+                                    itemKey={({ columnIndex, rowIndex }) => {
+                                        const r = restrictionsToDisplay[singleColumn ? rowIndex : rowIndex * 2 + columnIndex]
                                         if (!r) {
                                             return null
                                         }
@@ -616,13 +616,13 @@ function FlipRestrictionList(props: Props) {
                                     rowCount={singleColumn ? restrictionsToDisplay.length : Math.ceil(restrictionsToDisplay.length / 2)}
                                     rowHeight={index => {
                                         function getCellHeight(index) {
-                                            let defaultHeight = 81.5
-                                            let margin = 16
-                                            let restriction = restrictionsToDisplay[index]
+                                            const defaultHeight = 81.5
+                                            const margin = 16
+                                            const restriction = restrictionsToDisplay[index]
                                             if (!restriction) {
                                                 return 0
                                             }
-                                            let tags = restriction.tags && restriction.tags.length > 0 ? 24 : 0
+                                            const tags = restriction.tags && restriction.tags.length > 0 ? 24 : 0
                                             let filterCount = 0
                                             if (restriction.itemFilter) {
                                                 filterCount = Object.keys(restriction.itemFilter).length
@@ -664,8 +664,8 @@ function FlipRestrictionList(props: Props) {
                                                     recalculateListHeight()
                                                 }}
                                                 onRestrictionChange={newRestriction => {
-                                                    let newRestrictionsInEditMode = [...restrictionInEditMode]
-                                                    let index = newRestrictionsInEditMode.findIndex(r => r.itemKey === newRestriction.itemKey)
+                                                    const newRestrictionsInEditMode = [...restrictionInEditMode]
+                                                    const index = newRestrictionsInEditMode.findIndex(r => r.itemKey === newRestriction.itemKey)
                                                     newRestrictionsInEditMode[index] = { ...newRestriction }
                                                     setRestrictionsInEditMode(newRestrictionsInEditMode)
                                                     recalculateListHeight()

@@ -2,7 +2,6 @@ import { ApiRequest, HttpApi } from './ApiTypes.d'
 import cacheUtils from '../utils/CacheUtils'
 import { getProperty } from '../utils/PropertiesUtils'
 import { getNextMessageId } from '../utils/MessageIdUtils'
-import { isClientSideRendering } from '../utils/SSRUtils'
 import { atobUnicode, btoaUnicode } from '../utils/Base64Utils'
 
 export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint?: string): HttpApi {
@@ -87,7 +86,6 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
     }
 
     function handleServerRequest(request: ApiRequest, url: string, body?: any): Promise<void> {
-        let parsedResponse
         try {
             return fetch(url, {
                 body: body,
@@ -113,16 +111,15 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                     return response.text()
                 })
                 .then(responseText => {
-                    parsedResponse = parseResponseText(responseText)
-                    if ((!parsedResponse && parsedResponse !== false) || parsedResponse.slug !== undefined) {
-                        request.resolve()
-                        return
-                    }
-                    request.resolve(parsedResponse)
+                    let parsedResponse = parseResponseText(responseText)
                     let equals = findForEqualSentRequest(request)
+                    removeSentRequests([...equals, request])
+                    let hasData = (parsedResponse || parsedResponse === false) && parsedResponse.slug === undefined
+                    request.resolve(hasData ? parsedResponse : undefined)
                     equals.forEach(equal => {
                         equal.resolve(parsedResponse)
                     })
+                    if (!hasData) return
                     // all http answers are valid for 60 sec
                     let maxAge = 60
 
@@ -131,18 +128,13 @@ export function initHttpHelper(customCommandEndpoint?: string, customApiEndpoint
                         data = atobUnicode(request.data)
                     } catch {}
                     cacheUtils.setIntoCache(request.customRequestURL || request.type, data, parsedResponse, maxAge)
-                    removeSentRequests([...equals, request])
                 })
                 .catch(errorInfo => {
-                    request.reject(errorInfo || 'request failed with no error info')
-                })
-                .finally(() => {
-                    // when there are still matching request remove them
-                    let equals = findForEqualSentRequest(request)
-                    equals.forEach(equal => {
-                        equal.resolve(parsedResponse)
+                    let failedRequests = [request, ...findForEqualSentRequest(request)]
+                    removeSentRequests(failedRequests)
+                    failedRequests.forEach(failedRequest => {
+                        failedRequest.reject(errorInfo || 'request failed with no error info')
                     })
-                    removeSentRequests([...equals, request])
                 })
         } catch (e) {
             console.log('Fetch threw exception...')

@@ -4,9 +4,10 @@ import { DateRange } from '../../ItemPriceRange/ItemPriceRange'
 import { Button, Row, Col, Form } from 'react-bootstrap'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import type { CoflnetSkyMayorModelsModelElectionPeriod } from '../../../api/_generated/skyApi.schemas'
 
 interface Props {
-    mayorPeriods: any[]
+    mayorPeriods: CoflnetSkyMayorModelsModelElectionPeriod[]
     itemFilter?: ItemFilter
     customStartDate: string
     customEndDate: string
@@ -97,7 +98,7 @@ export default function QuickDateSelect(props: Props) {
                             size="sm"
                             onClick={() => {
                                 const currentMayor = mayorPeriods[0]
-                                let mayorStartDate = currentMayor && currentMayor.start ? new Date(currentMayor.start) : new Date()
+                                let mayorStartDate = currentMayor && currentMayor.start ? new Date(currentMayor.start as string) : new Date()
 
                                 const currentName = currentMayor?.winner?.name
                                 if (currentName) {
@@ -107,12 +108,12 @@ export default function QuickDateSelect(props: Props) {
                                                 p.start &&
                                                 p.winner &&
                                                 p.winner.name === currentName &&
-                                                new Date(p.start).getTime() < new Date(currentMayor.start).getTime()
+                                                new Date(p.start).getTime() < new Date(currentMayor.start as string).getTime()
                                         )
-                                        .sort((a: any, b: any) => new Date(b.start).getTime() - new Date(a.start).getTime())
+                                        .sort((a, b) => new Date(b.start as string).getTime() - new Date(a.start as string).getTime())
 
                                     if (previousSame.length > 0) {
-                                        mayorStartDate = new Date(previousSame[0].start)
+                                        mayorStartDate = new Date(previousSame[0].start as string)
                                     }
                                 }
 

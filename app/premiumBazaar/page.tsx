@@ -3,7 +3,7 @@ import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Container } from 'react-bootstrap'
 import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
-import { PremiumBazaarFlips } from '../../components/PremiumBazaarFlips/PremiumBazaarFlips'
+import { PremiumBazaarFlips } from '../../components/PremiumBazaarFlips/PremiumBazaarFlipsLegacy'
 import { ToolLandingSeo } from '../../components/Seo/ToolLandingSeo'
 import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoContent'
 

@@ -262,7 +262,7 @@ export function useStagedSearch(options: StagedSearchOptions): StagedSearch {
     const onEnter = useCallback((): Promise<SearchResultItem | undefined> => {
         const text = textRef.current
         if (text.trim() === '') {
-            return Promise.resolve(undefined)
+            return Promise.resolve(deriveView(runRef.current).results[selectedRef.current])
         }
         const current = runRef.current
         const phase = getPhase(current)

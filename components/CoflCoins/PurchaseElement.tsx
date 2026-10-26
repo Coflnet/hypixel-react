@@ -37,10 +37,10 @@ interface Props {
 
 // prettier-ignore
 const EU_Countries = ["AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"]
-let PAYPAL_STRIPE_ALLOWED = [...EU_Countries, 'GB', 'US']
+const PAYPAL_STRIPE_ALLOWED = [...EU_Countries, 'GB', 'US']
 
 export default function PurchaseElement(props: Props) {
-    let isDisabled = props.isDisabled || !props.countryCode
+    const isDisabled = props.isDisabled || !props.countryCode
 
     const standardAmounts = [1800, 5400, 10800, 36000, 90000]
     const isCustomAmount = !standardAmounts.includes(props.coflCoinsToBuy)

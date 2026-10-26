@@ -82,6 +82,14 @@ export const SITEMAP_CONFIG = {
             keywords: ['low supply items', 'high demand', 'trading opportunities', 'market analysis']
         },
         {
+            url: '/auctions',
+            priority: 0.8,
+            changefreq: 'hourly' as const,
+            title: 'Active Auction Explorer - Search All Live SkyBlock Auctions',
+            description: 'Filter all currently active Hypixel SkyBlock auctions across items with live updates.',
+            keywords: ['active auctions', 'auction search', 'auction explorer', 'skyblock auction house']
+        },
+        {
             url: '/recentFlips',
             priority: 0.8,
             changefreq: 'hourly' as const,

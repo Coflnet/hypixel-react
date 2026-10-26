@@ -2,27 +2,28 @@
 import React, { useEffect, useState } from 'react'
 import { Button } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
+import { parseAuctionDetails } from '../../utils/Parser/APIResponseParser'
 import ItemFilter from '../ItemFilter/ItemFilter'
 import { ArrowRightAlt } from '@mui/icons-material'
 
 interface Props {
-    auctionToCheck: any
+    auctionToCheck: Parameters<typeof parseAuctionDetails>[0]
 }
 
 export function FilterChecker(props: Props) {
-    let [filter, setFilter] = useState<ItemFilter>({})
-    let [filterOptions, setFilterOptions] = useState<FilterOptions[]>([])
-    let [hasFilterApplied, setHasFilterApplied] = useState<boolean | null>(null)
-    let [disabled, setDisabled] = useState(true)
-    let [isLoading, setIsLoading] = useState(false)
-    let [isFilterValid, setIsFilterValid] = useState(true)
+    const [filter, setFilter] = useState<ItemFilter>({})
+    const [filterOptions, setFilterOptions] = useState<FilterOptions[]>([])
+    const [hasFilterApplied, setHasFilterApplied] = useState<boolean | null>(null)
+    const [disabled, setDisabled] = useState(true)
+    const [isLoading, setIsLoading] = useState(false)
+    const [isFilterValid, setIsFilterValid] = useState(true)
 
     useEffect(() => {
         api.getFilters(props.auctionToCheck.tag).then(setFilterOptions)
     }, [])
 
     function onFilterChange(newFilter: ItemFilter) {
-        let toBeDisabled = !newFilter || Object.keys(newFilter).length === 0
+        const toBeDisabled = !newFilter || Object.keys(newFilter).length === 0
         if (toBeDisabled) {
             setHasFilterApplied(null)
         }

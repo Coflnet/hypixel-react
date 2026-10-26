@@ -58,13 +58,11 @@ export function FusionFlips() {
         ? getGeneratedApiErrorMessage(multiStepResponse, multiStepQuery.error, 'Unable to load multi-step fusion flips right now')
         : getGeneratedApiErrorMessage(baseResponse, baseQuery.error, 'Unable to load fusion flips right now')
     const [hasPremium, setHasPremium] = useState(false)
-    const [isLoggedIn, setIsLoggedIn] = useState(false)
 
     useEffect(() => {
         if (typeof window === 'undefined') return
         const token = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId') ?? ''
         setGoogleToken(token)
-        setIsLoggedIn(!!token)
         if (token) {
             api.refreshLoadPremiumProducts(
                 products => {
@@ -190,8 +188,8 @@ export function FusionFlips() {
 
     function filterFunction(flip: FuseFlip, nameFilter: string | null | undefined, minimumProfit: number): boolean {
         let nameMatch = true
-        let inputs = flip.inputs ? Object.keys(flip.inputs).map(input => convertTagToName(input).toLowerCase()) : []
-        let outputMatch = flip.output && nameFilter ? convertTagToName(flip.output).toLowerCase().includes(nameFilter.toLowerCase()) : false
+        const inputs = flip.inputs ? Object.keys(flip.inputs).map(input => convertTagToName(input).toLowerCase()) : []
+        const outputMatch = flip.output && nameFilter ? convertTagToName(flip.output).toLowerCase().includes(nameFilter.toLowerCase()) : false
         if (nameFilter && !inputs.find(input => nameFilter && input.includes(nameFilter.toLowerCase())) && !outputMatch) {
             nameMatch = false
         }

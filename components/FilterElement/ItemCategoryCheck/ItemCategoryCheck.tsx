@@ -18,12 +18,12 @@ interface CheckedItem {
 }
 
 function ItemCategoryCheck(props: Props) {
-    let [isLoading, setIsLoading] = useState(false)
-    let [error, setError] = useState<string>()
-    let [checkedItem, setCheckedItem] = useState<CheckedItem>()
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState<string>()
+    const [checkedItem, setCheckedItem] = useState<CheckedItem>()
 
     // Guards against an older, still-pending lookup overwriting a newer one
-    let latestRequestId = useRef(0)
+    const latestRequestId = useRef(0)
 
     function reset() {
         latestRequestId.current++
@@ -42,9 +42,9 @@ function ItemCategoryCheck(props: Props) {
             return
         }
 
-        let tag = splitSearchResultId(selected[0].id).tag
-        let name = selected[0].dataItem.name
-        let requestId = ++latestRequestId.current
+        const tag = splitSearchResultId(selected[0].id).tag
+        const name = selected[0].dataItem.name
+        const requestId = ++latestRequestId.current
 
         setIsLoading(true)
         setError(undefined)
@@ -72,8 +72,8 @@ function ItemCategoryCheck(props: Props) {
             return null
         }
 
-        let matchState = compareItemCategory(props.selectedCategory, checkedItem.category)
-        let actualCategoryName = convertTagToName(checkedItem.category || '')
+        const matchState = compareItemCategory(props.selectedCategory, checkedItem.category)
+        const actualCategoryName = convertTagToName(checkedItem.category || '')
 
         if (matchState === 'unknown') {
             return <Alert variant="secondary">Category of {checkedItem.name} is unknown</Alert>
@@ -101,7 +101,7 @@ function ItemCategoryCheck(props: Props) {
         }
 
         // excluded
-        let selectedCategoryName = convertTagToName(props.selectedCategory || '')
+        const selectedCategoryName = convertTagToName(props.selectedCategory || '')
         return (
             <Alert variant="warning" className="d-flex align-items-center flex-wrap" style={{ gap: 8 }}>
                 <span>

@@ -1,5 +1,5 @@
 'use client'
-import { getFilterResultTitle } from '../../utils/Search/FilterResultId'
+import { getFilterResultTitle, getResultNavigationUrl } from '../../utils/Search/FilterResultId'
 import React, { ChangeEvent, useMemo, useRef, type JSX } from 'react'
 import api from '../../api/ApiHelper'
 import { Form, InputGroup, ListGroup, Spinner } from 'react-bootstrap'
@@ -17,7 +17,6 @@ import { useForceUpdate, useIsMobile } from '../../utils/Hooks'
 import { useStagedSearch } from '../../hooks/useStagedSearch'
 import { useOutsideClick } from '../../hooks/useOutsideClick'
 import { useIsSmallScreen } from '../../hooks/useIsSmallScreen'
-import { getResultNavigationUrl } from '../../utils/Search/FilterResultId'
 import { usePrefetchSearchResult } from '../../hooks/usePrefetchSearchResult'
 import { EMBEDDED_SEARCH_STAGES, GLOBAL_SEARCH_STAGES, createLegacyStage, createRecentStage } from '../../utils/Search/SearchStages'
 import PageResultIcon from './PageResultIcon'
@@ -58,7 +57,7 @@ const PLAYER_SEARCH_CONEXT_MENU_ID = 'player-search-context-menu'
 const SEARCH_RESULT_CONTEXT_MENU_ID = 'search-result-context-menu'
 
 function Search(props: Props) {
-    let router = useRouter()
+    const router = useRouter()
     const isSmall = useIsSmallScreen()
     const stages = useMemo(() => {
         const base = props.searchFunction ? [createLegacyStage(props.searchFunction)] : props.onSearchresultClick ? EMBEDDED_SEARCH_STAGES : GLOBAL_SEARCH_STAGES
@@ -87,22 +86,19 @@ function Search(props: Props) {
     // Use 'search-bar' for global search (when navbar is not hidden), unique ID for others
     const inputId = props.hideNavbar ? searchId.current : 'search-bar'
 
-    let searchElement = useRef<HTMLDivElement>(null)
-    let forceUpdate = useForceUpdate()
+    const searchElement = useRef<HTMLDivElement>(null)
+    const forceUpdate = useForceUpdate()
 
     useOutsideClick(searchElement, search.clearResults)
 
-    let onSearchChange = (e: ChangeEvent) => {
+    const onSearchChange = (e: ChangeEvent) => {
         search.setSearchText((e.target as HTMLInputElement).value)
     }
 
-    let onKeyPress = (e: KeyboardEvent) => {
+    const onKeyPress = (e: React.KeyboardEvent) => {
         switch (e.key) {
             case 'Enter':
                 e.preventDefault()
-                if (searchText.trim().length === 0) {
-                    return
-                }
                 search.onEnter().then(item => {
                     if (item) {
                         onItemClick(item)
@@ -118,7 +114,7 @@ function Search(props: Props) {
         }
     }
 
-    let onItemClick = (item: SearchResultItem) => {
+    const onItemClick = (item: SearchResultItem) => {
         if (props.onSearchresultClick) {
             props.onSearchresultClick(item)
             return
@@ -131,8 +127,8 @@ function Search(props: Props) {
             return
         }
 
-        let targetUrl = getResultNavigationUrl(item)
-        let targetQuery = targetUrl.split('?')[1] ?? ''
+        const targetUrl = getResultNavigationUrl(item)
+        const targetQuery = targetUrl.split('?')[1] ?? ''
         if (item.type === 'filter' && new URLSearchParams(window.location.search).toString() !== targetQuery) {
             search.setSearchText('')
         }
@@ -144,7 +140,7 @@ function Search(props: Props) {
         router.push(targetUrl)
     }
 
-    let noResultsFoundElement = (
+    const noResultsFoundElement = (
         <ListGroup.Item
             key={-1}
             style={getListItemStyle(-1, true)}
@@ -153,22 +149,17 @@ function Search(props: Props) {
             }}
         >
             <Image className={styles.searchResultIcon} height={32} width={32} src="/Barrier.png" alt="" />
-               <span>No results here </span>
-                <a
-                    onClick={() => {
-                        if (typeof window !== 'undefined') {
-                            const q = encodeURIComponent(searchText || '')
-                            window.location.href = `https://skysearch.app/search?q=${q}`
-                        }
-                    }}
-                    style={{ cursor: 'pointer', color: '#0d6efd', marginTop: '6px' }}
-                >
-                    Search for {searchText} on Skysearch
-                </a>
+            <span>No results here </span>
+            <a
+                href={`https://skysearch.app/search?q=${encodeURIComponent(searchText)}`}
+                style={{ cursor: 'pointer', color: '#0d6efd', marginTop: '6px' }}
+            >
+                Search for {searchText} on Skysearch
+            </a>
         </ListGroup.Item>
     )
 
-    let getSelectedElement = (): JSX.Element => {
+    const getSelectedElement = (): JSX.Element => {
         if (props.currentElement) {
             return (
                 <h1 onContextMenu={e => handleSearchContextMenuForCurrentElement(e)} className={styles.current}>
@@ -191,7 +182,7 @@ function Search(props: Props) {
                         alt=""
                         style={{ marginRight: '10px', cursor: 'pointer' }}
                         onClick={() => {
-                            let type = getSetting(ITEM_ICON_TYPE, 'default')
+                            const type = getSetting(ITEM_ICON_TYPE, 'default')
                             if (type === 'default') {
                                 setSetting(ITEM_ICON_TYPE, 'vanilla')
                             } else {
@@ -216,14 +207,14 @@ function Search(props: Props) {
         )
     }
 
-    let searchStyle: React.CSSProperties = {
+    const searchStyle: React.CSSProperties = {
         backgroundColor: props.backgroundColor,
         borderRadius: results.length > 0 || noResultsFound ? '0px 10px 0 0' : '0px 10px 10px 0px',
         borderLeftWidth: 0,
         borderBottomColor: results.length > 0 || noResultsFound ? '#444' : undefined
     }
 
-    let searchIconStyle: React.CSSProperties = {
+    const searchIconStyle: React.CSSProperties = {
         width: isSmall ? 'auto' : '58px',
         borderRadius: results.length > 0 || noResultsFound ? '10px 0 0 0' : '10px 0px 0px 10px',
         backgroundColor: props.backgroundColor || '#303030',
@@ -232,7 +223,7 @@ function Search(props: Props) {
     }
 
     function getListItemStyle(i: number, isLastRow: boolean): React.CSSProperties {
-        let style = {
+        const style = {
             backgroundColor: i === selectedIndex ? props.backgroundColorSelected || '#444' : props.backgroundColor,
             borderRadius: isLastRow ? '0 0 10px 10px' : '',
             border: 0,
@@ -242,7 +233,7 @@ function Search(props: Props) {
             fontFamily: 'inherit'
         }
         if (results[i]) {
-            let isDuplicate = results.findIndex((element, index) => element.dataItem.name === results[i].dataItem.name && index !== i) !== -1
+            const isDuplicate = results.findIndex((element, index) => element.dataItem.name === results[i].dataItem.name && index !== i) !== -1
             if (isDuplicate) {
                 return {
                     ...getStyleForTier(results[i]?.tier),
@@ -287,11 +278,11 @@ function Search(props: Props) {
         return false
     }
 
-    let currentItemContextMenuElement = (
+    const currentItemContextMenuElement = (
         <div>
             <Menu id={PLAYER_SEARCH_CONEXT_MENU_ID} theme={'dark'}>
                 <Item
-                    onClick={params => {
+                    onClick={() => {
                         checkNameChange((props.selected as Player).uuid)
                     }}
                 >
@@ -302,12 +293,12 @@ function Search(props: Props) {
         </div>
     )
 
-    let searchItemContextMenuElement = (
+    const searchItemContextMenuElement = (
         <div>
             <Menu id={SEARCH_RESULT_CONTEXT_MENU_ID} theme={'dark'}>
                 <Item
                     onClick={params => {
-                        let item: SearchResultItem = params.props.item
+                        const item: SearchResultItem = params.props.item
                         pinSearchResult(item, props.keyForPinnedItems)
                         search.patchResult(item.id, { pinned: true, isPreviousSearch: true })
                         hideSearchItemContextMenu()
@@ -320,7 +311,7 @@ function Search(props: Props) {
                 </Item>
                 <Item
                     onClick={params => {
-                        let item: SearchResultItem = params.props.item
+                        const item: SearchResultItem = params.props.item
                         unpinSearchResult(item, props.keyForPinnedItems)
                         search.patchResult(item.id, { pinned: false })
                         hideSearchItemContextMenu()
@@ -371,9 +362,7 @@ function Search(props: Props) {
                             className="searchBar"
                             value={searchText}
                             onChange={onSearchChange}
-                            onKeyDown={(e: any) => {
-                                onKeyPress(e)
-                            }}
+                            onKeyDown={onKeyPress}
                             onClick={() => {
                                 if (!props.preventDisplayOfPreviousSearches && !noResultsFound && results.length === 0 && !searchText) {
                                     search.showResults(getFirstPreviousSearches(5, props.keyForPinnedItems))
@@ -406,7 +395,7 @@ function Search(props: Props) {
                               <ListGroup.Item
                                   key={result.id}
                                   action
-                                  onClick={(e: any) => {
+                                  onClick={() => {
                                       onItemClick(result)
                                   }}
                                   onMouseEnter={() => prefetchResult(result)}

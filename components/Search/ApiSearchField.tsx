@@ -22,10 +22,10 @@ interface Props {
 }
 
 export default (props: Props) => {
-    let [uuid] = useState(generateUUID())
-    let [results, setResults] = useState<SearchResultItem[]>([])
-    let [isLoading, setIsLoading] = useState(false)
-    let ref = useRef<Typeahead>(null)
+    const [uuid] = useState(generateUUID())
+    const [results, setResults] = useState<SearchResultItem[]>([])
+    const [isLoading, setIsLoading] = useState(false)
+    const ref = useRef<Typeahead>(null)
 
     function _onChange(selected: Option[]) {
         props.onChange(selected as SearchResultItem[], ref?.current?.getInput()?.value)
@@ -34,7 +34,7 @@ export default (props: Props) => {
     function handleSearch(query) {
         setIsLoading(true)
 
-        let searchFunction = props.searchFunction || api.search
+        const searchFunction = props.searchFunction || api.search
 
         searchFunction(query).then(results => {
             setResults(
@@ -59,9 +59,9 @@ export default (props: Props) => {
             isLoading={isLoading}
             key={uuid}
             labelKey="label"
-            renderMenuItemChildren={(option, { text }) => {
-                let o: any = option
-                let isDuplicate = results.filter((element, index) => element.dataItem.name === o.dataItem.name).length > 1
+            renderMenuItemChildren={option => {
+                const o = option as SearchResultItem & { label: string }
+                const isDuplicate = results.filter(element => element.dataItem.name === o.dataItem.name).length > 1
                 return (
                     <>
                         <Image

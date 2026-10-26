@@ -45,7 +45,7 @@ export default function FlipRestrictionListEntry(props: Props) {
                             name="options"
                             value={props.restriction.type}
                             onChange={newValue => {
-                                let newRestriction = { ...props.restriction }
+                                const newRestriction = { ...props.restriction }
                                 newRestriction.type = newValue as 'blacklist' | 'whitelist'
                                 props.onRestrictionChange(newRestriction)
                             }}
@@ -86,9 +86,9 @@ export default function FlipRestrictionListEntry(props: Props) {
                                     // If the user only deletes part of the text, we don't want to remove the item (and therefore rerender the entry)
                                     if (items.length === 0 && text != '') return
 
-                                    let picked = items && items.length > 0 ? pickSearchResult(items[0]) : undefined
-                                    let newItem: Item | undefined = picked?.item
-                                    let newRestriction = { ...props.restriction }
+                                    const picked = items && items.length > 0 ? pickSearchResult(items[0]) : undefined
+                                    const newItem: Item | undefined = picked?.item
+                                    const newRestriction = { ...props.restriction }
                                     newRestriction.item = newItem
                                     if (picked?.filter) {
                                         newRestriction.itemFilter = mergePickedFilter(newRestriction.itemFilter, picked.filter)
@@ -188,7 +188,7 @@ export default function FlipRestrictionListEntry(props: Props) {
                             filter={props.restriction.itemFilter}
                             isEditable={props.restriction.isEdited}
                             onAfterEdit={filter => {
-                                let newRestriction = { ...props.restriction }
+                                const newRestriction = { ...props.restriction }
                                 newRestriction.itemFilter = filter
                                 props.onRestrictionChange(newRestriction)
                             }}

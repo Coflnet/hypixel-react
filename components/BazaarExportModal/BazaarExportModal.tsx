@@ -14,16 +14,16 @@ interface Props {
 }
 
 function BazaarExportModal(props: Props) {
-    let [fullOrderBook, setFullOrderBook] = useState(false)
-    let [startDate, setStartDate] = useState('')
-    let [endDate, setEndDate] = useState('')
-    let [hasPremium, setHasPremium] = useState(false)
-    let [hasPremiumPlus, setHasPremiumPlus] = useState(false)
-    let [isExporting, setIsExporting] = useState(false)
+    const [fullOrderBook, setFullOrderBook] = useState(false)
+    const [startDate, setStartDate] = useState('')
+    const [endDate, setEndDate] = useState('')
+    const [hasPremium, setHasPremium] = useState(false)
+    const [hasPremiumPlus, setHasPremiumPlus] = useState(false)
+    const [isExporting, setIsExporting] = useState(false)
 
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [hasLoadedPremium, setHasLoadedPremium] = useState(false)
-    let [premiumLoadError, setPremiumLoadError] = useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [hasLoadedPremium, setHasLoadedPremium] = useState(false)
+    const [premiumLoadError, setPremiumLoadError] = useState(false)
 
     function loadPremiumProducts() {
         setPremiumLoadError(false)
@@ -47,7 +47,7 @@ function BazaarExportModal(props: Props) {
     }
 
     function onModalEntered() {
-        let loggedIn = !!(typeof window !== 'undefined' && (sessionStorage.getItem('googleId') || localStorage.getItem('googleId')))
+        const loggedIn = !!(typeof window !== 'undefined' && (sessionStorage.getItem('googleId') || localStorage.getItem('googleId')))
         setIsLoggedIn(loggedIn)
 
         if (!loggedIn) {

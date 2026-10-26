@@ -10,7 +10,7 @@ import { isDefinitePlayerMiss } from '../../../utils/GeneratedApiResponseUtils'
 
 export default async function Page(props) {
     const params = await props.params
-    let playerInfo = await getPlayerInfo(params.uuid)
+    const playerInfo = await getPlayerInfo(params.uuid)
     return (
         <>
             <Container>
@@ -22,7 +22,7 @@ export default async function Page(props) {
 }
 
 async function getPlayerInfo(uuid) {
-    let api = initAPI(true)
+    const api = initAPI(true)
     let playerName = ''
     try {
         playerName = await api.getPlayerName(uuid)
@@ -33,7 +33,7 @@ async function getPlayerInfo(uuid) {
         }
         throw e
     }
-    let auctions: any[] = []
+    let auctions: Auction[] = []
     try {
         auctions = await api.getAuctions(uuid, 0)
     } catch (e) {
@@ -41,7 +41,7 @@ async function getPlayerInfo(uuid) {
     }
 
     return {
-        auctions: (auctions as any[]) || [],
+        auctions: auctions || [],
         player: {
             uuid: uuid,
             // players without a known name are shown by their uuid
@@ -52,13 +52,13 @@ async function getPlayerInfo(uuid) {
 
 export async function generateMetadata(props): Promise<Metadata> {
     const params = await props.params
-    let api = initAPI(true)
-    let player = {
+    const api = initAPI(true)
+    let player: Pick<Player, 'name' | 'iconUrl'> = {
         name: '',
         iconUrl: ''
-    } as any
+    }
     try {
-        let name = await api.getPlayerName(params.uuid)
+        const name = await api.getPlayerName(params.uuid)
         player = parsePlayer({
             uuid: params.uuid,
             name: name || params.uuid

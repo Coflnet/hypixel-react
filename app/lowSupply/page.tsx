@@ -9,8 +9,8 @@ import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoConten
 const seoContent = toolLandingSeoContent.lowSupply
 
 export default async function Page() {
-    let api = initAPI(true)
-    let lowSupplyItems = await api.getLowSupplyItems()
+    const api = initAPI(true)
+    const lowSupplyItems = await api.getLowSupplyItems()
 
     return (
         <>

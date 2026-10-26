@@ -9,13 +9,13 @@ import styles from './RatChecker.module.css'
 type RatCheckEntry = { status: 'success'; data: RatCheckingResponse } | { status: 'rateLimited' } | { status: 'unavailable' }
 
 function RatChecker() {
-    let [isChecking, setIsChecking] = useState(false)
-    let [checkingResults, setCheckingResults] = useState<[string, RatCheckEntry][]>()
-    let ratFileInput = useRef<HTMLInputElement>(null)
+    const [isChecking, setIsChecking] = useState(false)
+    const [checkingResults, setCheckingResults] = useState<[string, RatCheckEntry][]>()
+    const ratFileInput = useRef<HTMLInputElement>(null)
 
     function onFileUpload(files) {
         setIsChecking(true)
-        let checkingPromises: Promise<[string, RatCheckEntry]>[] = []
+        const checkingPromises: Promise<[string, RatCheckEntry]>[] = []
 
         for (const file of files) {
             checkingPromises.push(
@@ -140,7 +140,7 @@ function RatChecker() {
                             />
                             <div
                                 className={styles.dNd}
-                                onClick={e => ratFileInput.current?.click()}
+                                onClick={() => ratFileInput.current?.click()}
                                 onDrop={e => {
                                     onFileUpload(e.dataTransfer.files)
                                     e.preventDefault()

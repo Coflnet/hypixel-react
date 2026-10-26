@@ -1,29 +1,35 @@
 // declaration.d.ts
 declare module '*.scss'
 
-declare global {
-    interface Window {
-        __cmp?: any;
-        __tcfapi?: any;
-        nitroAds?: any;
-        __npcmp?: any;
-        __billingInitialized?: boolean;
-        AndroidBilling?: {
-            isAvailable(): boolean;
-            purchaseProduct(productId: string): void;
-        };
-    }
+interface Window {
+    __cmp?: (command: string, parameters?: unknown) => void;
+    __tcfapi?: unknown;
+    nitroAds?: {
+        loaded?: boolean;
+        addUserToken?: (token: string) => void;
+        createAd?: (slotId: string, config: Record<string, unknown>) => void;
+        removeAd?: (slotId: string) => void;
+        queue?: [string, unknown[]][];
+    };
+    __npcmp?: (command: string) => void;
+    _paq?: { push(command: unknown[]): unknown };
+    refId?: string;
+    __billingInitialized?: boolean;
+    AndroidBilling?: {
+        isAvailable(): boolean;
+        purchaseProduct(productId: string): void;
+    };
+}
 
-    interface WindowEventMap {
-        androidBillingReady: Event;
-        androidBillingSuccess: CustomEvent<{
-            productId: string;
-            purchaseToken: string;
-        }>;
-        androidBillingError: CustomEvent<{
-            error: string;
-        }>;
-    }
+interface WindowEventMap {
+    androidBillingReady: Event;
+    androidBillingSuccess: CustomEvent<{
+        productId: string;
+        purchaseToken: string;
+    }>;
+    androidBillingError: CustomEvent<{
+        error: string;
+    }>;
 }
 
 interface Player {
@@ -100,6 +106,56 @@ interface Auction {
     item: Item
     end: Date
     bin: boolean
+}
+
+interface ActiveAuctionPreview {
+    uuid: string
+    tag: string
+    itemName: string
+    tier?: string
+    bin: boolean
+    startingBid: number
+    highestBidAmount: number
+    start: Date
+    end: Date
+    count: number
+    auctioneerId: string
+    highlights: { [key: string]: string }
+    /** resolved server side; absent for unknown sellers */
+    playerName?: string
+}
+
+interface ActiveQuerySuggestion {
+    kind: 'armorSet' | 'item'
+    key: string
+    label: string
+}
+
+interface ActiveAuctionQueryResult {
+    items: ActiveAuctionPreview[]
+    totalCount: number
+    tagCounts: { [tag: string]: number }
+    /** effective tag set after armorSet/categories expansion, empty = all items */
+    resolvedTags: string[]
+    fromStore: boolean
+    snapshotAt?: Date
+    /** optional narrowing the user may pick, empty when none */
+    suggestions: ActiveQuerySuggestion[]
+}
+
+interface ResolvedActiveQuery {
+    tags: string[]
+    armorSet: string | null
+    filters: { [key: string]: string }
+    itemNameContains: string | null
+    description: string
+    suggestions: ActiveQuerySuggestion[]
+}
+
+interface ActiveAuctionCount {
+    count: number
+    ready: boolean
+    snapshotAt?: Date
 }
 
 interface RecentAuction {
@@ -208,13 +264,24 @@ interface API {
     getItemDetails(itemTag: string): Promise<Item>
     getItemPrices(itemTagOrName: string, fetchSpan: DateRange, itemFilter?: ItemFilter): Promise<ItemPrice[]>
     getAuctions(uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<Auction[]>
+    searchActiveAuctions(params: { [key: string]: string | number | undefined }): Promise<ActiveAuctionQueryResult>
+    getActiveAuctionCount(): Promise<ActiveAuctionCount>
+    resolveActiveQuery(q: string): Promise<ResolvedActiveQuery>
+    subscribeActiveAuctions(
+        tags: string[],
+        filter: { [key: string]: string },
+        knownUuids: string[],
+        onAuction: (auction: ActiveAuctionPreview) => void,
+        onGone: (gone: { uuid: string; reason: string }) => void,
+        onErrorCallback?: Function
+    ): void
     getBids(uuid: string, page: number = 0, itemFilter?: ItemFilter): Promise<BidForList[]>
     getEnchantments(): Promise<Enchantment[]>
     getAuctionDetails(auctionUUID: string): Promise<{ parsed: AuctionDetails; original: any }>
     getPlayerName(uuid: string): Promise<string>
     setConnectionId(): Promise<void>
     getVersion(): Promise<string>
-    subscribe(topic: string, type: SubscriptionType[], targets: NotificationTarget[], price?: number, itemFilter?: ItemFilter): Promise<void>
+    subscribe(topic: string, type: SubscriptionType[], targets: Pick<NotificationTarget, 'id' | 'name' | 'isDisabled'>[], price?: number, itemFilter?: ItemFilter): Promise<void>
     unsubscribe(subscription: Subscription): Promise<void>
     getNotificationListener(): Promise<NotificationListener[]>
     loginWithToken(id: string): Promise<string>

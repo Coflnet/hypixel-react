@@ -10,9 +10,9 @@ import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoConten
 const seoContent = toolLandingSeoContent.crafts
 
 export default async function Page({ searchParams }: { searchParams: Promise<{ craft?: string | string[] }> }) {
-    let api = initAPI(true)
-    let [crafts, bazaarTags, params] = await Promise.all([api.getProfitableCrafts(), api.getBazaarTags(), searchParams])
-    let openCraftTag = Array.isArray(params.craft) ? params.craft[0] : params.craft
+    const api = initAPI(true)
+    const [crafts, bazaarTags, params] = await Promise.all([api.getProfitableCrafts(), api.getBazaarTags(), searchParams])
+    const openCraftTag = Array.isArray(params.craft) ? params.craft[0] : params.craft
 
     return (
         <>

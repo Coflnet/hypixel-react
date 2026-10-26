@@ -3,6 +3,19 @@ import { numberWithThousandsSeparators, convertTagToName } from '../../utils/For
 import type { Item } from '../../api/_generated/skyApi.schemas'
 import type { CachedItemInfo } from '../../utils/ItemsCache'
 
+type PriceValue = number | string | boolean | null
+
+interface FAQPrice {
+    avg?: PriceValue
+    price?: PriceValue
+    sellPrice?: PriceValue
+    buyPrice?: PriceValue
+    bin?: PriceValue
+    startingBid?: PriceValue
+    sellData?: { price?: number | null } | null
+    buyData?: { price?: number | null } | null
+}
+
 type Trend = 'increasing' | 'decreasing' | 'stable'
 
 interface FAQPair {
@@ -14,7 +27,7 @@ export interface ItemFAQProps {
     item: Item
     tag: string
     range: string | null
-    prices: any[]
+    prices: (FAQPrice | null)[]
     isBazaar: boolean
     itemFlags?: CachedItemInfo | null
 }
@@ -37,7 +50,7 @@ function rangeToHuman(range: string | null): string {
     }
 }
 
-function extractPriceValues(prices: any[], isBazaar: boolean): number[] {
+function extractPriceValues(prices: (FAQPrice | null)[], isBazaar: boolean): number[] {
     if (!Array.isArray(prices) || prices.length === 0) return []
 
     const vals: Array<number | null> = prices.map(p => {
