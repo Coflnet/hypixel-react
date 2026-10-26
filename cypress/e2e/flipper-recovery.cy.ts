@@ -1,4 +1,4 @@
-export {}
+import { recordHydrationErrors } from '../support/hydrationErrors'
 
 function visitFlipper(
     options: {
@@ -7,6 +7,7 @@ function visitFlipper(
         authenticated?: boolean
         dropReconnectLogin?: boolean
         failCountdown?: boolean
+        settings?: Record<string, string>
     } = {}
 ) {
     const token = 'eyJhbGciOiJub25lIn0.eyJleHAiOjQxNDI0NDQ4MDAsImVtYWlsIjoidGVybXNAZXhhbXBsZS5jb20ifQ.signature'
@@ -14,6 +15,8 @@ function visitFlipper(
     cy.intercept('POST', '**/api/premium/user/owns', { premium: { expiresAt: new Date(Date.now() + 86400000).toISOString() } })
     cy.intercept('GET', '**/api/referral/info*', { oldInfo: {} })
     cy.intercept('GET', '**/api/flip/update/when', options.failCountdown ? { forceNetworkError: true } : { body: new Date().toISOString() }).as('updateTime')
+    // Prevent the Nitro ad-consent banner from loading and covering the controls under test.
+    cy.intercept('GET', '**/s.nitropay.com/**', '')
     cy.visit('/flipper', {
         onBeforeLoad(window) {
             window.localStorage.clear()
@@ -22,7 +25,8 @@ function visitFlipper(
             window.localStorage.setItem(
                 'userSettings',
                 JSON.stringify({
-                    flipperFilters: JSON.stringify(options.filter ?? { minProfit: 10_000_000 })
+                    flipperFilters: JSON.stringify(options.filter ?? { minProfit: 10_000_000 }),
+                    ...options.settings
                 })
             )
 
@@ -122,6 +126,32 @@ function expectSubscriptionCount(count: number, type = 'subFlipAnonym') {
 }
 
 describe('Flipper recovery', () => {
+    it('hydrates with the stored profit calculation and advanced filter settings', () => {
+        const hydrationErrors = recordHydrationErrors()
+        visitFlipper({ settings: { flipCustomizing: JSON.stringify({ finders: [1] }), itemFilterShowAdvanced: 'true' } })
+        cy.contains('button', 'Median').should('be.visible')
+        cy.wrap(hydrationErrors).should('be.empty')
+    })
+
+    it('does not request published configs for a visitor who is not logged in', () => {
+        visitFlipper()
+        cy.contains('span', /^Settings$/).click()
+        // the customize dialog is a lazily loaded chunk, a freshly started server needs a moment to serve it
+        cy.contains('.modal-title', 'Customize the style of flips', { timeout: 15000 }).should('be.visible')
+        expectSubscriptionCount(0, 'publishedConfigs')
+    })
+
+    it('requests published configs once the login is done', () => {
+        visitFlipper({ authenticated: true })
+        cy.contains('span', /^Settings$/).click()
+        cy.contains('.modal-title', 'Customize the style of flips', { timeout: 15000 }).should('be.visible')
+        cy.window().should(window => {
+            const types = (window as any).websocket.sent.map(request => request.type)
+            expect(types).to.include('publishedConfigs')
+            expect(types.indexOf('loginWithToken')).to.be.at.least(0).and.lessThan(types.indexOf('publishedConfigs'))
+        })
+    })
+
     it('receives anonymous flips after reconnecting even when the countdown request fails', () => {
         visitFlipper({ failCountdown: true })
         cy.window().its('websocket.subscriptionId').should('be.a', 'number')

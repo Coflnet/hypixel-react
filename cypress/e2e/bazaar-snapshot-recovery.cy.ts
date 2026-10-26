@@ -53,6 +53,15 @@ describe('Bazaar snapshot recovery', () => {
         cy.location('search').should('include', 'range=hour')
     })
 
+    it('shows the prices of a snapshot that has no order lists', () => {
+        // undefined fields are left out of the stubbed JSON body
+        cy.intercept('GET', '**/api/bazaar/BOOSTER_COOKIE/snapshot*', { ...snapshot, buyOrders: undefined, sellOrders: undefined }).as('snapshot')
+        visitItem()
+        cy.wait('@snapshot', { timeout: PAGE_READY_TIMEOUT })
+        cy.contains('(Insta) Buy information').should('be.visible')
+        cy.contains('Could not update Bazaar order data.').should('not.exist')
+    })
+
     it('lets users retry failed order data without leaving the item page', () => {
         // A persistent 503 burns through the quiet retry schedule (3s, then 6s) before the panel
         // finally shows the error - this is the "give up" end of that schedule, test below covers

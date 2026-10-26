@@ -25,7 +25,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
             <Script async={true} src={'/preScript.js'} strategy="afterInteractive" />
             <body>
                 <div className="page">
-                    <Providers>
+                    <Providers adsEnabled={!properties.isTestRunner}>
                         <MainApp>{children}</MainApp>
                         <AdScriptLoader />
                     </Providers>

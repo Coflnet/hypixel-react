@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { getSettingsObject, FLIPPER_FILTER_KEY, RESTRICTIONS_SETTINGS_KEY } from '../../utils/SettingsUtils'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
-import { getFlipCustomizeSettings } from '../../utils/FlipUtils'
+import { DEFAULT_FLIP_SETTINGS, getFlipCustomizeSettings } from '../../utils/FlipUtils'
 
 interface FlipSettingsContextValue {
     flipperFilter: FlipperFilter
@@ -18,15 +18,11 @@ interface FlipSettingsContextValue {
 const FlipSettingsContext = createContext<FlipSettingsContextValue | undefined>(undefined)
 
 export function FlipSettingsProvider({ children }: { children: React.ReactNode }) {
-    const [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(() => 
-        getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
-    )
-    const [restrictions, setRestrictions] = useState<FlipRestriction[]>(() => 
-        getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
-    )
-    const [flipCustomizeSettings, setFlipCustomizeSettings] = useState<FlipCustomizeSettings>(() => 
-        getFlipCustomizeSettings()
-    )
+    // Start with the values the server renders with (it has no localStorage), so hydration matches.
+    // The stored settings are loaded by refreshSettings in the mount effect below.
+    const [flipperFilter, setFlipperFilter] = useState<FlipperFilter>({})
+    const [restrictions, setRestrictions] = useState<FlipRestriction[]>([])
+    const [flipCustomizeSettings, setFlipCustomizeSettings] = useState<FlipCustomizeSettings>(DEFAULT_FLIP_SETTINGS.FLIP_CUSTOMIZE)
 
     const refreshSettings = useCallback(() => {
         setFlipperFilter(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))

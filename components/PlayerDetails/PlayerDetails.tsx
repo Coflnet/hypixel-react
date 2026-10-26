@@ -23,6 +23,7 @@ let prevDetailType: DetailType
 interface Props {
     player: Player
     auctions: Auction[]
+    renderedAt: number
 }
 
 export default function PlayerDetails(props: Props) {
@@ -122,6 +123,7 @@ export default function PlayerDetails(props: Props) {
                     type="auctions"
                     accountInfo={accountInfo}
                     auctions={props.auctions}
+                    renderedAt={props.renderedAt}
                     loadingDataFunction={api.getAuctions}
                     player={props.player}
                     onAfterLogin={onAfterLogin}
@@ -134,6 +136,7 @@ export default function PlayerDetails(props: Props) {
                     loadingDataFunction={api.getBids}
                     player={props.player}
                     accountInfo={accountInfo}
+                    renderedAt={props.renderedAt}
                     onAfterLogin={onAfterLogin}
                 />
             ) : undefined}

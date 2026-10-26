@@ -9,7 +9,8 @@ import { Badge, Button, ListGroup } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
 import { convertTagToName, getMinecraftColorCodedElement, getStyleForTier } from '../../utils/Formatter'
-import { useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { formatDateAndTime } from '../../utils/DateFormatUtils'
+import { useIsMounted, useWasAlreadyLoggedIn } from '../../utils/Hooks'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
@@ -27,6 +28,8 @@ interface Props {
     type: 'auctions' | 'bids'
     auctions?: Auction[]
     accountInfo?: AccountInfo
+    // time of the server render, used until hydration so both renders agree on which auctions ended
+    renderedAt: number
     onAfterLogin?()
 }
 
@@ -59,6 +62,8 @@ function PlayerDetailsList(props: Props) {
     let premiumRank = premiumRankState
     const isLoadingElements = useRef(false)
     const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const isMounted = useIsMounted()
+    const now = isMounted ? Date.now() : props.renderedAt
 
     const filteredItemRef = useRef(filteredItem)
     filteredItemRef.current = filteredItem
@@ -122,9 +127,13 @@ function PlayerDetailsList(props: Props) {
     }
 
     function loadFilters() {
-        return api.getFilters(filteredItemRef.current ? filteredItemRef.current.tag : '*').then(filters => {
-            setFilters(filters)
-        })
+        return api
+            .getFilters(filteredItemRef.current ? filteredItemRef.current.tag : '*')
+            .then(filters => {
+                setFilters(filters)
+            })
+            // the api helper already reported the error, the list works without filter options
+            .catch(() => {})
     }
 
     function showFilter(): boolean {
@@ -280,7 +289,7 @@ function PlayerDetailsList(props: Props) {
                             <h4 style={{ ...getStyleForTier(listElement.item.tag) }}>
                                 {getItemImageElement(listElement)}
                                 {getMinecraftColorCodedElement(listElement.item.name || convertTagToName(listElement.item.tag))}
-                                {listElement.end.getTime() < Date.now() || (listElement.bin && listElement.highestBid > 0) ? (
+                                {listElement.end.getTime() < now || (listElement.bin && listElement.highestBid > 0) ? (
                                     <Badge bg="danger" style={{ marginLeft: '10px' }}>
                                         Ended
                                     </Badge>
@@ -309,7 +318,7 @@ function PlayerDetailsList(props: Props) {
                                     Highest Own: <Number number={(listElement as BidForList).highestOwn} /> {getCoinImage()}
                                 </p>
                             )}
-                            <p>End of Auction: {listElement.end.toLocaleTimeString() + ' ' + listElement.end.toLocaleDateString()}</p>
+                            <p>End of Auction: {formatDateAndTime(listElement.end, isMounted)}</p>
                         </div>
                     </Link>
                 </span>

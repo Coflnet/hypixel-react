@@ -651,8 +651,8 @@ export function parseBazaarSnapshot(snapshot): BazaarSnapshot {
             moving: snapshot.sellMovingWeek
         },
         timeStamp: parseDate(snapshot.timeStamp),
-        buyOrders: snapshot.buyOrders.map(parseBazaarOrder),
-        sellOrders: snapshot.sellOrders.map(parseBazaarOrder)
+        buyOrders: (snapshot.buyOrders || []).map(parseBazaarOrder),
+        sellOrders: (snapshot.sellOrders || []).map(parseBazaarOrder)
     }
 }
 

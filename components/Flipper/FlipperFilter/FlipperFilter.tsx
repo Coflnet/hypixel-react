@@ -40,7 +40,8 @@ function FlipperFilter(props: Props) {
         getURLSearchParam('prefillRestriction') ? JSON.parse(getURLSearchParam('prefillRestriction')!) : undefined
     )
     const [showRestrictionList, setShowRestrictionList] = useState(!!prefillRestriction)
-    const [isAdvanced, setIsAdvanced] = useState(getSetting(ITEM_FILER_SHOW_ADVANCED, 'false') === 'true')
+    // the stored setting is only available in the browser, it is read after hydration
+    const [isAdvanced, setIsAdvanced] = useState(false)
     const [localFlipCustomizeSettings, setLocalFlipCustomizeSettings] = useState<FlipCustomizeSettings>(contextFlipCustomizeSettings)
     const [localFlipperFilter, setLocalFlipperFilter] = useState<FlipperFilter>(contextFlipperFilter)
     const [showCustomizeFlip, setShowCustomizeFlip] = useState(false)
@@ -56,6 +57,10 @@ function FlipperFilter(props: Props) {
         setLocalFlipperFilter(contextFlipperFilter)
         setIsSSR(false)
     }, [contextFlipCustomizeSettings, contextFlipperFilter])
+
+    useEffect(() => {
+        setIsAdvanced(getSetting(ITEM_FILER_SHOW_ADVANCED, 'false') === 'true')
+    }, [])
 
     const onlyUnsoldRef = useRef(null)
     const minProfitTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
