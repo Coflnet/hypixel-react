@@ -48,6 +48,36 @@
     font-size: 0.85rem;
 }
 
+.suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    min-height: 28px;
+}
+
+.suggestionsLabel {
+    color: var(--bs-secondary-color, var(--bs-secondary));
+    font-size: 0.8rem;
+}
+
+.suggestion {
+    padding: 1px 10px;
+    border: 1px dashed var(--bs-border-color);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--bs-secondary-color, var(--bs-body-color));
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.suggestion:hover,
+.suggestion:focus-visible {
+    border-style: solid;
+    color: var(--bs-body-color);
+}
+
 .chipRemove {
     border: 0;
     background: transparent;

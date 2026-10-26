@@ -240,3 +240,65 @@ test('resolved filters override same-key filters but keep the others; narrowing 
     assert.deepEqual(Array.from(state.categories), [])
     assert.equal(state.itemNameContains, 'divan')
 })
+
+const SET_SUGGESTION = { kind: 'armorSet', key: 'ENDER', label: 'Ender Armor set' }
+const ITEM_SUGGESTION = { kind: 'item', key: 'HYPERION', label: 'Hyperion' }
+const broadSearch = () =>
+    utils.applyResolvedQuery(
+        utils.createEmptyQueryState(),
+        { tags: [], armorSet: null, filters: {}, itemNameContains: 'ender', description: '', suggestions: [SET_SUGGESTION, ITEM_SUGGESTION] },
+        'ender'
+    )
+
+test('parsers read suggestions defensively', () => {
+    assert.equal(parser.parseActiveAuctionQueryResult({}).suggestions.length, 0)
+    assert.equal(parser.parseResolvedActiveQuery({}).suggestions.length, 0)
+    assert.equal(parser.parseResolvedActiveQuery({ suggestions: 'x' }).suggestions.length, 0)
+    const parsed = parser.parseResolvedActiveQuery({ suggestions: [SET_SUGGESTION, { kind: 'bogus', key: 'A' }, null, { kind: 'item', key: 'B', tags: ['B'] }] })
+    assert.deepEqual(JSON.parse(JSON.stringify(parsed.suggestions)), [SET_SUGGESTION, { kind: 'item', key: 'B', label: 'B' }])
+    assert.equal(parser.parseActiveAuctionQueryResult({ suggestions: [ITEM_SUGGESTION] }).suggestions.length, 1)
+})
+
+test('applySuggestion narrows by set or item and keeps text and name search', () => {
+    const state = broadSearch()
+    const set = utils.applySuggestion(state, SET_SUGGESTION)
+    assert.equal(set.armorSet, 'ENDER')
+    assert.equal(set.tags.length, 0)
+    assert.equal(set.q, 'ender')
+    assert.equal(set.itemNameContains, 'ender')
+    const item = utils.applySuggestion(set, ITEM_SUGGESTION)
+    assert.equal(item.armorSet, null)
+    assert.deepEqual(Array.from(item.tags), ['HYPERION'])
+    assert.equal(item.itemNameContains, 'ender')
+})
+
+test('visibleSuggestions hides the row once one is applied and without text', () => {
+    const state = broadSearch()
+    assert.equal(utils.visibleSuggestions([SET_SUGGESTION, ITEM_SUGGESTION], state).length, 2)
+    assert.equal(utils.visibleSuggestions([SET_SUGGESTION, ITEM_SUGGESTION], utils.applySuggestion(state, SET_SUGGESTION)).length, 0)
+    assert.equal(utils.visibleSuggestions([SET_SUGGESTION, ITEM_SUGGESTION], utils.applySuggestion(state, ITEM_SUGGESTION)).length, 0)
+    assert.equal(utils.visibleSuggestions([SET_SUGGESTION], { ...state, q: '' }).length, 0)
+})
+
+test('removing the suggestion chip returns to the broad search and the suggestions reappear', () => {
+    const state = broadSearch()
+    for (const suggestion of [SET_SUGGESTION, ITEM_SUGGESTION]) {
+        const applied = utils.applySuggestion(state, suggestion)
+        const chips = utils.chipsFromState(applied)
+        assert.equal(chips[0].kind, suggestion.kind === 'armorSet' ? 'armorSet' : 'tag')
+        const back = utils.removeChip(applied, chips[0])
+        assert.equal(back.armorSet, null)
+        assert.equal(back.tags.length, 0)
+        assert.equal(back.q, 'ender')
+        assert.equal(back.itemNameContains, 'ender')
+        assert.equal(utils.visibleSuggestions([SET_SUGGESTION, ITEM_SUGGESTION], back).length, 2)
+    }
+})
+
+test('a new search replaces the narrowing but keeps filters', () => {
+    const picked = utils.applySuggestion({ ...broadSearch(), filters: { Sharpness: '7' } }, SET_SUGGESTION)
+    const next = utils.applyResolvedQuery(picked, { tags: [], armorSet: null, filters: {}, itemNameContains: 'divan', description: '', suggestions: [] }, 'divan')
+    assert.equal(next.armorSet, null)
+    assert.equal(next.itemNameContains, 'divan')
+    assert.deepEqual({ ...next.filters }, { Sharpness: '7' })
+})

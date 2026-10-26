@@ -303,6 +303,13 @@ export function parseActiveAuctionPreview(a: any): ActiveAuctionPreview {
     }
 }
 
+export function parseActiveQuerySuggestions(raw: any): ActiveQuerySuggestion[] {
+    if (!Array.isArray(raw)) return []
+    return raw
+        .filter(s => s && (s.kind === 'armorSet' || s.kind === 'item') && typeof s.key === 'string' && s.key)
+        .map(s => ({ kind: s.kind, key: s.key, label: typeof s.label === 'string' && s.label ? s.label : s.key }))
+}
+
 export function parseActiveAuctionQueryResult(r: any): ActiveAuctionQueryResult {
     return {
         items: (r?.items || []).map(parseActiveAuctionPreview),
@@ -310,7 +317,8 @@ export function parseActiveAuctionQueryResult(r: any): ActiveAuctionQueryResult 
         tagCounts: r?.tagCounts || {},
         resolvedTags: Array.isArray(r?.resolvedTags) ? r.resolvedTags : [],
         fromStore: !!r?.fromStore,
-        snapshotAt: r?.snapshotAt ? parseDate(r.snapshotAt) : undefined
+        snapshotAt: r?.snapshotAt ? parseDate(r.snapshotAt) : undefined,
+        suggestions: parseActiveQuerySuggestions(r?.suggestions)
     }
 }
 
@@ -320,7 +328,8 @@ export function parseResolvedActiveQuery(r: any): ResolvedActiveQuery {
         armorSet: r?.armorSet || null,
         filters: r?.filters && typeof r.filters === 'object' ? r.filters : {},
         itemNameContains: r?.itemNameContains || null,
-        description: r?.description || ''
+        description: r?.description || '',
+        suggestions: parseActiveQuerySuggestions(r?.suggestions)
     }
 }
 

@@ -125,6 +125,12 @@ interface ActiveAuctionPreview {
     playerName?: string
 }
 
+interface ActiveQuerySuggestion {
+    kind: 'armorSet' | 'item'
+    key: string
+    label: string
+}
+
 interface ActiveAuctionQueryResult {
     items: ActiveAuctionPreview[]
     totalCount: number
@@ -133,6 +139,8 @@ interface ActiveAuctionQueryResult {
     resolvedTags: string[]
     fromStore: boolean
     snapshotAt?: Date
+    /** optional narrowing the user may pick, empty when none */
+    suggestions: ActiveQuerySuggestion[]
 }
 
 interface ResolvedActiveQuery {
@@ -141,6 +149,7 @@ interface ResolvedActiveQuery {
     filters: { [key: string]: string }
     itemNameContains: string | null
     description: string
+    suggestions: ActiveQuerySuggestion[]
 }
 
 interface ActiveAuctionCount {

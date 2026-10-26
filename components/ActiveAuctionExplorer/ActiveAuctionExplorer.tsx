@@ -19,6 +19,8 @@ import {
     findInsertIndex,
     getSubscriptionTags,
     hasAnyNarrowing,
+    applySuggestion,
+    visibleSuggestions,
     shouldSubscribeLive,
     removeChip,
     stateFromSearchParams,
@@ -52,6 +54,7 @@ export default function ActiveAuctionExplorer() {
     const [totalCount, setTotalCount] = useState(0)
     const [tagCounts, setTagCounts] = useState<{ [tag: string]: number }>({})
     const [resolvedTags, setResolvedTags] = useState<string[]>([])
+    const [suggestions, setSuggestions] = useState<ActiveQuerySuggestion[]>([])
     const [isLoading, setIsLoading] = useState(false)
     const [hasMore, setHasMore] = useState(false)
     const [error, setError] = useState<LoadError | null>(null)
@@ -92,13 +95,14 @@ export default function ActiveAuctionExplorer() {
                 .then(resolved => {
                     if (id !== resolveIdRef.current) return
                     setResolveDescription(resolved.description)
+                    setSuggestions(resolved.suggestions || [])
                     setQuery(applyResolvedQuery(fromUrl, resolved, fromUrl.q))
                     setFilterKey(k => k + 1)
                     setInitialized(true)
                 })
                 .catch(() => {
                     setResolveFailed(true)
-                    setQuery(applyResolvedQuery(fromUrl, { tags: [], armorSet: null, filters: {}, itemNameContains: null, description: '' }, fromUrl.q))
+                    setQuery(applyResolvedQuery(fromUrl, { tags: [], armorSet: null, filters: {}, itemNameContains: null, description: '', suggestions: [] }, fromUrl.q))
                     setInitialized(true)
                 })
         } else {
@@ -143,6 +147,8 @@ export default function ActiveAuctionExplorer() {
                     setTotalCount(result.totalCount)
                     setTagCounts(result.tagCounts)
                     setResolvedTags(result.resolvedTags)
+                    // the request carries no free text, so an empty list here is not authoritative: only refresh with real ones
+                    if (result.suggestions && result.suggestions.length > 0) setSuggestions(result.suggestions)
                     hasMoreRef.current = result.items.length >= ACTIVE_AUCTION_PAGE_SIZE
                     setHasMore(hasMoreRef.current)
                     setError(null)
@@ -202,6 +208,7 @@ export default function ActiveAuctionExplorer() {
             if (!text) {
                 setQuery(q => ({ ...q, q: '' }))
                 setResolveDescription('')
+                setSuggestions([])
                 return
             }
             const id = ++resolveIdRef.current
@@ -210,6 +217,7 @@ export default function ActiveAuctionExplorer() {
                     if (id !== resolveIdRef.current) return
                     setResolveFailed(false)
                     setResolveDescription(resolved.description)
+                    setSuggestions(resolved.suggestions || [])
                     setQuery(q => applyResolvedQuery(q, resolved, text))
                     setFilterKey(k => k + 1)
                 })
@@ -217,7 +225,8 @@ export default function ActiveAuctionExplorer() {
                     if (id !== resolveIdRef.current) return
                     setResolveFailed(true)
                     setResolveDescription('')
-                    setQuery(q => applyResolvedQuery(q, { tags: [], armorSet: null, filters: {}, itemNameContains: null, description: '' }, text))
+                    setSuggestions([])
+                    setQuery(q => applyResolvedQuery(q, { tags: [], armorSet: null, filters: {}, itemNameContains: null, description: '', suggestions: [] }, text))
                     setFilterKey(k => k + 1)
                 })
         }, SEARCH_DEBOUNCE_MS)
@@ -316,16 +325,22 @@ export default function ActiveAuctionExplorer() {
         setInputText(next.q)
         if (chip.kind === 'name') {
             setResolveDescription('')
+            setSuggestions([])
         }
         if (chip.kind === 'filter') {
             setFilterKey(k => k + 1)
         }
     }
 
+    function onSuggestionPick(suggestion: ActiveQuerySuggestion) {
+        setQuery(applySuggestion(queryRef.current, suggestion))
+    }
+
     function clearAll() {
         setQuery(q => ({ ...createEmptyQueryState(), orderBy: q.orderBy, perTagLimit: q.perTagLimit }))
         setInputText('')
         setResolveDescription('')
+        setSuggestions([])
         setFilterKey(k => k + 1)
     }
 
@@ -336,6 +351,7 @@ export default function ActiveAuctionExplorer() {
 
     const chips = chipsFromState(query, convertTagToName, set => resolveDescription || `${convertTagToName(set)} set`)
     const grouped = query.perTagLimit > 0
+    const shownSuggestions = visibleSuggestions(suggestions, query)
 
     const groups = useMemo(() => {
         if (!grouped) return []
@@ -407,6 +423,16 @@ export default function ActiveAuctionExplorer() {
                     />
                 </div>
                 <ResolvedQueryChips chips={chips} description={query.armorSet ? '' : resolveDescription} onRemove={onChipRemove} onClear={clearAll} />
+                {shownSuggestions.length > 0 ? (
+                    <div className={styles.suggestions} aria-label="Narrowing suggestions">
+                        <span className={styles.suggestionsLabel}>Narrow to:</span>
+                        {shownSuggestions.map(s => (
+                            <button key={`${s.kind}:${s.key}`} type="button" className={styles.suggestion} onClick={() => onSuggestionPick(s)}>
+                                {s.label}
+                            </button>
+                        ))}
+                    </div>
+                ) : null}
                 {resolveFailed ? <div className={styles.hint}>Could not interpret the search, searching item names instead.</div> : null}
             </div>
 

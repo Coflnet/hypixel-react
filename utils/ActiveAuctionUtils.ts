@@ -233,6 +233,24 @@ export function applyResolvedQuery(state: ActiveAuctionQueryState, resolved: Res
     }
 }
 
+/** narrowing by a suggestion; the typed text and itemNameContains stay so the search remains a broad name search underneath */
+export function applySuggestion(state: ActiveAuctionQueryState, suggestion: ActiveQuerySuggestion): ActiveAuctionQueryState {
+    if (suggestion.kind === 'armorSet') {
+        return { ...state, filters: { ...state.filters }, armorSet: suggestion.key, tags: [] }
+    }
+    return { ...state, filters: { ...state.filters }, armorSet: null, tags: [suggestion.key] }
+}
+
+export function isSuggestionApplied(state: ActiveAuctionQueryState, suggestion: ActiveQuerySuggestion): boolean {
+    return suggestion.kind === 'armorSet' ? state.armorSet === suggestion.key : state.tags.includes(suggestion.key)
+}
+
+/** the "Narrow to:" options; hidden as soon as one of them is applied (removing its chip brings them back) */
+export function visibleSuggestions(suggestions: ActiveQuerySuggestion[], state: ActiveAuctionQueryState): ActiveQuerySuggestion[] {
+    if (!state.q.trim() || suggestions.some(s => isSuggestionApplied(state, s))) return []
+    return suggestions
+}
+
 export function getAuctionPrice(a: { highestBidAmount: number; startingBid: number }): number {
     return a.highestBidAmount > 0 ? a.highestBidAmount : a.startingBid
 }
