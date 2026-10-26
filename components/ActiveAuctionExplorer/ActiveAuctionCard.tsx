@@ -71,7 +71,9 @@ export default function ActiveAuctionCard(props: Props) {
                     </Card.Header>
                     <Card.Body style={{ padding: '10px' }}>
                         <div className={styles.rowMeta}>
-                            {auction.bin ? <Badge bg="success">BIN</Badge> : <Badge bg="secondary">bid</Badge>}
+                            {auction.bin ? <Badge bg="success">BIN</Badge> : <Badge bg="secondary" className={styles.bidBadge}>
+                                    bid
+                                </Badge>}
                             <span>{formatTimeLeft(auction.end, now)}</span>
                             <span>by {getSellerLabel(auction)}</span>
                         </div>

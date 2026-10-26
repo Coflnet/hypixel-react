@@ -302,3 +302,89 @@ test('a new search replaces the narrowing but keeps filters', () => {
     assert.equal(next.itemNameContains, 'divan')
     assert.deepEqual({ ...next.filters }, { Sharpness: '7' })
 })
+
+const emptyState = (extra = {}) => ({ ...utils.createEmptyQueryState(), ...extra })
+
+test('armor set chip uses the learnt set label, not the name-search description', () => {
+    const suggestions = [{ kind: 'armorSet', key: 'END', label: 'Ender set' }]
+    const labels = utils.rememberArmorSetLabels({}, suggestions, { armorSet: null, description: "Name contains 'end'" })
+    const picked = utils.applySuggestion(emptyState({ q: 'end', itemNameContains: 'end' }), suggestions[0])
+    const chips = utils.chipsFromState(picked, t => t, set => utils.armorSetChipLabel(set, labels, s => `${s} set`))
+    assert.equal(chips.find(c => c.kind === 'armorSet').label, 'Ender set')
+    assert.ok(!chips.some(c => c.kind === 'armorSet' && c.label === "Name contains 'end'"))
+})
+
+test('armorSetChipLabel falls back for unknown sets', () => {
+    assert.equal(utils.armorSetChipLabel('XYZ', { END: 'Ender set' }, s => `${s} set`), 'XYZ set')
+})
+
+test('rememberArmorSetLabels keeps resolver labels, ignores non-set suggestions and does not mutate', () => {
+    const old = { END: 'Ender set' }
+    const next = utils.rememberArmorSetLabels(old, [{ kind: 'tag', key: 'T', label: 'Tag' }], { armorSet: 'SUPERIOR', description: 'Superior Dragon set' })
+    assert.deepEqual({ ...next }, { END: 'Ender set', SUPERIOR: 'Superior Dragon set' })
+    assert.deepEqual({ ...old }, { END: 'Ender set' })
+})
+
+test('bin mode maps onto the Bin filter and keeps other filters', () => {
+    const base = emptyState({ filters: { Sharpness: '7' } })
+    assert.equal(utils.binModeFromState(base), 'all')
+    const bin = utils.withBinMode(base, 'bin')
+    assert.deepEqual({ ...bin.filters }, { Sharpness: '7', Bin: 'true' })
+    assert.equal(utils.binModeFromState(bin), 'bin')
+    const auction = utils.withBinMode(bin, 'auction')
+    assert.equal(auction.filters.Bin, 'false')
+    assert.equal(utils.binModeFromState(auction), 'auction')
+    const all = utils.withBinMode(auction, 'all')
+    assert.deepEqual({ ...all.filters }, { Sharpness: '7' })
+    assert.deepEqual({ ...base.filters }, { Sharpness: '7' })
+})
+
+test('Bin=false in the URL is the auction mode and changes the request', () => {
+    const state = utils.stateFromSearchParams('?Bin=false&Sharpness=7')
+    assert.equal(utils.binModeFromState(state), 'auction')
+    const all = utils.withBinMode(state, 'all')
+    assert.notEqual(JSON.stringify(utils.stateToRequestParams(state, 0)), JSON.stringify(utils.stateToRequestParams(all, 0)))
+    assert.equal(utils.stateToSearchString(state).includes('Bin=false'), true)
+})
+
+test('the Bin filter has no chip, other filters keep theirs', () => {
+    const chips = utils.chipsFromState(emptyState({ filters: { Bin: 'true', Sharpness: '7' } }))
+    assert.deepEqual([...chips.filter(c => c.kind === 'filter').map(c => c.key)], ['Sharpness'])
+    assert.ok(utils.CHIP_HIDDEN_FILTER_KEYS.includes('Bin'))
+})
+
+const fakeStorage = (initial = {}) => {
+    const data = { ...initial }
+    return { data, getItem: k => (k in data ? data[k] : null), setItem: (k, v) => void (data[k] = String(v)) }
+}
+
+test('stored bin mode is applied when the URL has no Bin param', () => {
+    const state = utils.applyStoredBinMode(utils.stateFromSearchParams('tags=A'), 'bin')
+    assert.equal(utils.binModeFromState(state), 'bin')
+    assert.equal(state.tags.join(','), 'A')
+})
+
+test('URL Bin param beats the stored bin mode', () => {
+    const state = utils.applyStoredBinMode(utils.stateFromSearchParams('Bin=false'), 'bin')
+    assert.equal(utils.binModeFromState(state), 'auction')
+})
+
+test('stored bin mode round-trips and invalid values map to all', () => {
+    const storage = fakeStorage()
+    assert.equal(utils.readStoredBinMode(storage), 'all')
+    utils.storeBinMode(storage, 'auction')
+    assert.equal(storage.data[utils.BIN_MODE_STORAGE_KEY], 'auction')
+    assert.equal(utils.readStoredBinMode(storage), 'auction')
+    assert.equal(utils.readStoredBinMode(fakeStorage({ [utils.BIN_MODE_STORAGE_KEY]: 'weird' })), 'all')
+    assert.equal(utils.readStoredBinMode(null), 'all')
+    assert.equal(utils.readStoredBinMode({ getItem: () => { throw new Error('blocked') } }), 'all')
+    utils.storeBinMode({ setItem: () => { throw new Error('blocked') } }, 'bin')
+})
+
+test('clear all keeps the bin mode', () => {
+    const before = utils.withBinMode({ ...utils.createEmptyQueryState(), tags: ['A'], q: 'x' }, 'bin')
+    const cleared = utils.withBinMode(utils.createEmptyQueryState(), utils.binModeFromState(before))
+    assert.equal(utils.binModeFromState(cleared), 'bin')
+    assert.equal(cleared.tags.length, 0)
+    assert.equal(cleared.q, '')
+})

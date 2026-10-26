@@ -1,7 +1,7 @@
 'use client'
 import Image from 'next/image'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Button, Form } from 'react-bootstrap'
+import { Button, ButtonGroup, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
 import { useActiveAuctionSubscription } from '../../hooks/useActiveAuctionSubscription'
@@ -10,6 +10,7 @@ import {
     ACTIVE_AUCTION_PAGE_SIZE,
     ActiveAuctionOrder,
     ActiveAuctionQueryState,
+    BinMode,
     GROUPED_PER_TAG_LIMIT,
     QueryChip,
     applyResolvedQuery,
@@ -20,6 +21,13 @@ import {
     getSubscriptionTags,
     hasAnyNarrowing,
     applySuggestion,
+    armorSetChipLabel,
+    binModeFromState,
+    rememberArmorSetLabels,
+    withBinMode,
+    applyStoredBinMode,
+    readStoredBinMode,
+    storeBinMode,
     visibleSuggestions,
     shouldSubscribeLive,
     removeChip,
@@ -40,6 +48,20 @@ const SAFETY_REFRESH_MS = 30_000
 const NOT_READY_RETRY_MS = 30_000
 const GONE_REMOVE_DELAY_MS = 1500
 const FLASH_DURATION_MS = 1500
+
+function getBinModeStorage(): Storage | null {
+    try {
+        return typeof window === 'undefined' ? null : window.localStorage
+    } catch {
+        return null
+    }
+}
+
+const BIN_MODES: { label: string; value: BinMode }[] = [
+    { label: 'All', value: 'all' },
+    { label: 'BIN', value: 'bin' },
+    { label: 'Auction', value: 'auction' }
+]
 
 interface LoadError {
     status?: number
@@ -63,6 +85,7 @@ export default function ActiveAuctionExplorer() {
     const [filterOptions, setFilterOptions] = useState<FilterOptions[]>([])
     const [filterKey, setFilterKey] = useState(0)
     const [resolveDescription, setResolveDescription] = useState('')
+    const [armorSetLabels, setArmorSetLabels] = useState<{ [key: string]: string }>({})
     const [resolveFailed, setResolveFailed] = useState(false)
     const [flashing, setFlashing] = useState<{ [uuid: string]: boolean }>({})
     const [goneUuids, setGoneUuids] = useState<{ [uuid: string]: boolean }>({})
@@ -87,15 +110,24 @@ export default function ActiveAuctionExplorer() {
 
     // read the shareable URL once; a bare free text is resolved, explicit params are used as given
     useEffect(() => {
-        const fromUrl = stateFromSearchParams(window.location.search)
+        const urlState = stateFromSearchParams(window.location.search)
+        const storage = getBinModeStorage()
+        // an explicit Bin param wins and is remembered, otherwise the remembered mode applies
+        const hasUrlBin = Object.prototype.hasOwnProperty.call(urlState.filters, 'Bin')
+        if (hasUrlBin) {
+            storeBinMode(storage, binModeFromState(urlState))
+        }
+        const fromUrl = applyStoredBinMode(urlState, readStoredBinMode(storage))
         setInputText(fromUrl.q)
-        if (fromUrl.q && !hasAnyNarrowing(fromUrl)) {
+        // the stored mode alone is a view preference and must not count as narrowing
+        if (fromUrl.q && !hasAnyNarrowing(urlState)) {
             const id = ++resolveIdRef.current
             api.resolveActiveQuery(fromUrl.q)
                 .then(resolved => {
                     if (id !== resolveIdRef.current) return
                     setResolveDescription(resolved.description)
                     setSuggestions(resolved.suggestions || [])
+                    setArmorSetLabels(l => rememberArmorSetLabels(l, resolved.suggestions, resolved))
                     setQuery(applyResolvedQuery(fromUrl, resolved, fromUrl.q))
                     setFilterKey(k => k + 1)
                     setInitialized(true)
@@ -148,7 +180,10 @@ export default function ActiveAuctionExplorer() {
                     setTagCounts(result.tagCounts)
                     setResolvedTags(result.resolvedTags)
                     // the request carries no free text, so an empty list here is not authoritative: only refresh with real ones
-                    if (result.suggestions && result.suggestions.length > 0) setSuggestions(result.suggestions)
+                    if (result.suggestions && result.suggestions.length > 0) {
+                        setSuggestions(result.suggestions)
+                        setArmorSetLabels(l => rememberArmorSetLabels(l, result.suggestions))
+                    }
                     hasMoreRef.current = result.items.length >= ACTIVE_AUCTION_PAGE_SIZE
                     setHasMore(hasMoreRef.current)
                     setError(null)
@@ -218,6 +253,7 @@ export default function ActiveAuctionExplorer() {
                     setResolveFailed(false)
                     setResolveDescription(resolved.description)
                     setSuggestions(resolved.suggestions || [])
+                    setArmorSetLabels(l => rememberArmorSetLabels(l, resolved.suggestions, resolved))
                     setQuery(q => applyResolvedQuery(q, resolved, text))
                     setFilterKey(k => k + 1)
                 })
@@ -334,10 +370,18 @@ export default function ActiveAuctionExplorer() {
 
     function onSuggestionPick(suggestion: ActiveQuerySuggestion) {
         setQuery(applySuggestion(queryRef.current, suggestion))
+        // the chips now fully describe the state
+        setResolveDescription('')
+    }
+
+    function onBinModeChange(mode: BinMode) {
+        storeBinMode(getBinModeStorage(), mode)
+        setQuery(q => withBinMode(q, mode))
+        setFilterKey(k => k + 1)
     }
 
     function clearAll() {
-        setQuery(q => ({ ...createEmptyQueryState(), orderBy: q.orderBy, perTagLimit: q.perTagLimit }))
+        setQuery(q => withBinMode({ ...createEmptyQueryState(), orderBy: q.orderBy, perTagLimit: q.perTagLimit }, binModeFromState(q)))
         setInputText('')
         setResolveDescription('')
         setSuggestions([])
@@ -349,7 +393,8 @@ export default function ActiveAuctionExplorer() {
         loadPage(0, true)
     }
 
-    const chips = chipsFromState(query, convertTagToName, set => resolveDescription || `${convertTagToName(set)} set`)
+    const chips = chipsFromState(query, convertTagToName, set => armorSetChipLabel(set, armorSetLabels, s => `${convertTagToName(s)} set`))
+    const binMode = binModeFromState(query)
     const grouped = query.perTagLimit > 0
     const shownSuggestions = visibleSuggestions(suggestions, query)
 
@@ -414,6 +459,19 @@ export default function ActiveAuctionExplorer() {
                             </option>
                         ))}
                     </Form.Select>
+                    <ButtonGroup size="sm" aria-label="Auction type" className={styles.binToggle}>
+                        {BIN_MODES.map(m => (
+                            <Button
+                                key={m.value}
+                                variant={binMode === m.value ? 'primary' : 'outline-secondary'}
+                                className={binMode === m.value ? undefined : styles.binToggleIdle}
+                                aria-pressed={binMode === m.value}
+                                onClick={() => onBinModeChange(m.value)}
+                            >
+                                {m.label}
+                            </Button>
+                        ))}
+                    </ButtonGroup>
                     <Form.Check
                         type="switch"
                         id="active-auction-group"
@@ -444,7 +502,11 @@ export default function ActiveAuctionExplorer() {
                         ignoreURL
                         disableLastUsedFilter
                         defaultFilter={query.filters}
-                        onFilterChange={f => updateQuery({ filters: cleanFilters(f) })}
+                        onFilterChange={f => {
+                            const filters = cleanFilters(f)
+                            storeBinMode(getBinModeStorage(), binModeFromState({ ...queryRef.current, filters }))
+                            updateQuery({ filters })
+                        }}
                     />
                 </div>
             ) : null}

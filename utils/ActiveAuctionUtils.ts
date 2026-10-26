@@ -45,6 +45,60 @@ export const RESERVED_QUERY_KEYS = ['q', 'tags', 'armorSet', 'categories', 'item
 
 const FILTER_UI_KEYS = ['_hide', '_sellerName']
 
+/** item filter keys that have a dedicated control and therefore get no chip */
+export const CHIP_HIDDEN_FILTER_KEYS = ['Bin']
+
+export type BinMode = 'all' | 'bin' | 'auction'
+
+/** BIN / auction toggle on top of the `Bin` item filter ("true"/"false"); no key means both */
+export function binModeFromState(state: ActiveAuctionQueryState): BinMode {
+    const value = (state.filters?.Bin ?? '').toLowerCase()
+    return value === 'true' ? 'bin' : value === 'false' ? 'auction' : 'all'
+}
+
+export function withBinMode(state: ActiveAuctionQueryState, mode: BinMode): ActiveAuctionQueryState {
+    const filters = { ...state.filters }
+    if (mode === 'all') {
+        delete filters.Bin
+    } else {
+        filters.Bin = mode === 'bin' ? 'true' : 'false'
+    }
+    return { ...state, filters }
+}
+
+export const BIN_MODE_STORAGE_KEY = 'activeAuctionExplorer.binMode'
+
+export type BinModeStorage = Pick<Storage, 'getItem' | 'setItem'>
+
+function parseBinMode(value: unknown): BinMode {
+    return value === 'bin' || value === 'auction' ? value : 'all'
+}
+
+/** remembered BIN / auction preference; anything missing, invalid or unreadable means 'all' */
+export function readStoredBinMode(storage: BinModeStorage | null | undefined): BinMode {
+    try {
+        return parseBinMode(storage?.getItem(BIN_MODE_STORAGE_KEY))
+    } catch {
+        return 'all'
+    }
+}
+
+export function storeBinMode(storage: BinModeStorage | null | undefined, mode: BinMode): void {
+    try {
+        storage?.setItem(BIN_MODE_STORAGE_KEY, parseBinMode(mode))
+    } catch {
+        // storage can be blocked, the preference is then just not remembered
+    }
+}
+
+/** applies the remembered mode unless the URL already carries an explicit `Bin` param */
+export function applyStoredBinMode(state: ActiveAuctionQueryState, mode: BinMode): ActiveAuctionQueryState {
+    if (state.filters && Object.prototype.hasOwnProperty.call(state.filters, 'Bin')) {
+        return state
+    }
+    return withBinMode(state, mode)
+}
+
 function splitList(value: string | null | undefined): string[] {
     return (value || '')
         .split(',')
@@ -175,7 +229,9 @@ export function chipsFromState(
         state.tags.forEach(tag => chips.push({ kind: 'tag', key: tag, label: tagLabel(tag) }))
     }
     state.categories.forEach(c => chips.push({ kind: 'category', key: c, label: c }))
-    Object.entries(cleanFilters(state.filters)).forEach(([key, value]) => chips.push({ kind: 'filter', key, label: `${key}: ${value}` }))
+    Object.entries(cleanFilters(state.filters))
+        .filter(([key]) => !CHIP_HIDDEN_FILTER_KEYS.includes(key))
+        .forEach(([key, value]) => chips.push({ kind: 'filter', key, label: `${key}: ${value}` }))
     if (state.itemNameContains) chips.push({ kind: 'name', key: state.itemNameContains, label: `name contains: ${state.itemNameContains}` })
     return chips
 }
@@ -239,6 +295,24 @@ export function applySuggestion(state: ActiveAuctionQueryState, suggestion: Acti
         return { ...state, filters: { ...state.filters }, armorSet: suggestion.key, tags: [] }
     }
     return { ...state, filters: { ...state.filters }, armorSet: null, tags: [suggestion.key] }
+}
+
+/** remembers `armorSet key -> display label` from suggestions and from a resolver result that itself resolved to a set; returns a new map */
+export function rememberArmorSetLabels(
+    labels: { [key: string]: string },
+    suggestions: ActiveQuerySuggestion[] | undefined | null,
+    resolved?: { armorSet?: string | null; description?: string } | null
+): { [key: string]: string } {
+    const next = { ...labels }
+    ;(suggestions || []).forEach(s => {
+        if (s.kind === 'armorSet' && s.key && s.label) next[s.key] = s.label
+    })
+    if (resolved?.armorSet && resolved.description) next[resolved.armorSet] = resolved.description
+    return next
+}
+
+export function armorSetChipLabel(set: string, labels: { [key: string]: string }, fallback: (set: string) => string): string {
+    return labels[set] || fallback(set)
 }
 
 export function isSuggestionApplied(state: ActiveAuctionQueryState, suggestion: ActiveQuerySuggestion): boolean {

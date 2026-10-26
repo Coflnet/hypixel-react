@@ -1,5 +1,36 @@
+/*
+ * Muted text. Bootstrap 5.2 (used here) has no --bs-secondary-color and --bs-secondary is #444 in the dark theme,
+ * i.e. 1.4:1 on the #303030 card. Contrast (WCAG): dark #b4bcc4 on #303030 6.9:1, on #222 8.3:1;
+ * light #565e66 on #fff 6.6:1. The badge keeps white text (>= 5.4:1).
+ */
 .explorer {
+    --explorer-muted: #b4bcc4;
+    --explorer-badge-bg: #5f6b76;
     padding: 0 16px 32px;
+}
+
+:global([data-bs-theme='light']) .explorer {
+    --explorer-muted: #565e66;
+    --explorer-badge-bg: #5c636a;
+}
+
+.binToggle {
+    flex: none;
+}
+
+.binToggleIdle {
+    color: var(--explorer-muted);
+    border-color: var(--bs-border-color);
+}
+
+.binToggleIdle:hover,
+.binToggleIdle:focus-visible {
+    color: #fff;
+}
+
+.bidBadge {
+    background-color: var(--explorer-badge-bg) !important;
+    color: #fff;
 }
 
 .stickyBar {
@@ -58,7 +89,7 @@
 }
 
 .suggestionsLabel {
-    color: var(--bs-secondary-color, var(--bs-secondary));
+    color: var(--explorer-muted);
     font-size: 0.8rem;
 }
 
@@ -67,7 +98,7 @@
     border: 1px dashed var(--bs-border-color);
     border-radius: 999px;
     background: transparent;
-    color: var(--bs-secondary-color, var(--bs-body-color));
+    color: var(--explorer-muted);
     font-size: 0.8rem;
     cursor: pointer;
 }
@@ -90,7 +121,7 @@
 
 .chipDescription,
 .hint {
-    color: var(--bs-secondary-color, var(--bs-secondary));
+    color: var(--explorer-muted);
     font-size: 0.8rem;
 }
 
@@ -114,7 +145,7 @@
     justify-content: space-between;
     gap: 8px;
     margin: 8px 0;
-    color: var(--bs-secondary-color, var(--bs-secondary));
+    color: var(--explorer-muted);
 }
 
 .notice {
@@ -153,7 +184,7 @@
 .groupCount {
     margin-left: auto;
     font-size: 0.85rem;
-    color: var(--bs-secondary-color, var(--bs-secondary));
+    color: var(--explorer-muted);
 }
 
 .grid {
@@ -198,7 +229,7 @@
     align-items: center;
     gap: 8px;
     font-size: 0.85rem;
-    color: var(--bs-secondary-color, var(--bs-secondary));
+    color: var(--explorer-muted);
 }
 
 .highlights {
