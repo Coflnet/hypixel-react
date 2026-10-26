@@ -357,6 +357,58 @@ export function findInsertIndex(list: Sortable[], item: Sortable, order: ActiveA
     return hasMore ? -1 : list.length
 }
 
+export const LIVE_TRACK_MAX_AGE_MS = 10 * 60 * 1000
+
+export type LiveAddedMap = Map<string, { item: ActiveAuctionPreview; at: number }>
+export type LiveGoneMap = Map<string, number>
+
+/** drops live bookkeeping entries older than `maxAge` */
+export function pruneLive(liveAdded: LiveAddedMap, liveGone: LiveGoneMap, now: number = Date.now(), maxAge: number = LIVE_TRACK_MAX_AGE_MS): void {
+    liveAdded.forEach((v, k) => {
+        if (now - v.at > maxAge) liveAdded.delete(k)
+    })
+    liveGone.forEach((at, k) => {
+        if (now - at > maxAge) liveGone.delete(k)
+    })
+}
+
+/** removes auctions the socket reported gone after the snapshot the list was built from; never duplicates a uuid */
+export function filterGoneAfter(items: ActiveAuctionPreview[], snapshotAt: number, liveGone: LiveGoneMap): ActiveAuctionPreview[] {
+    const seen = new Set<string>()
+    return items.filter(i => {
+        const goneAt = liveGone.get(i.uuid)
+        if ((goneAt !== undefined && goneAt > snapshotAt) || seen.has(i.uuid)) return false
+        seen.add(i.uuid)
+        return true
+    })
+}
+
+/**
+ * Makes a (possibly stale) response never override fresher socket knowledge: drops auctions reported gone after the
+ * snapshot and re-inserts auctions added live after the snapshot that the response lacks, in sort position.
+ */
+export function reconcileWithLive(
+    items: ActiveAuctionPreview[],
+    snapshotAt: number,
+    liveAdded: LiveAddedMap,
+    liveGone: LiveGoneMap,
+    orderBy: ActiveAuctionOrder,
+    hasMore: boolean = false
+): ActiveAuctionPreview[] {
+    const result = filterGoneAfter(items, snapshotAt, liveGone)
+    const present = new Set(result.map(i => i.uuid))
+    const missing = Array.from(liveAdded.entries())
+        .filter(([uuid, v]) => v.at > snapshotAt && !present.has(uuid) && !((liveGone.get(uuid) ?? -Infinity) > v.at))
+        .sort((a, b) => a[1].at - b[1].at)
+    for (const [uuid, v] of missing) {
+        const index = findInsertIndex(result, v.item, orderBy, hasMore)
+        if (index < 0) continue
+        result.splice(index, 0, v.item)
+        present.add(uuid)
+    }
+    return result
+}
+
 /** short text for the time left, e.g. `2d 3h`, `5m 12s`, `ended` */
 export function formatTimeLeft(end: Date, now: number = Date.now()): string {
     const seconds = Math.floor((end.getTime() - now) / 1000)

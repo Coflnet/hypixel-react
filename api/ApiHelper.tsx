@@ -1247,7 +1247,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     /** GET against the sky-api with flat query params; errors carry the http `status` so pages can show "not ready" states */
-    let fetchActiveAuctionEndpoint = async (path: string, params: { [key: string]: string | number | undefined } = {}): Promise<any> => {
+    let fetchActiveAuctionEndpoint = async (path: string, params: { [key: string]: string | number | undefined } = {}, noStore: boolean = false): Promise<any> => {
         const query = new URLSearchParams()
         Object.entries(params).forEach(([key, value]) => {
             if (value !== undefined && value !== null && value !== '') {
@@ -1255,7 +1255,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             }
         })
         const queryString = query.toString()
-        const response = await fetch(`${getApiEndpoint()}${path}${queryString ? '?' + queryString : ''}`, { method: 'GET' })
+        const response = await fetch(`${getApiEndpoint()}${path}${queryString ? '?' + queryString : ''}`, noStore ? { method: 'GET', cache: 'no-store' } : { method: 'GET' })
         if (!response.ok) {
             let message = ''
             try {
@@ -1269,11 +1269,11 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     }
 
     let searchActiveAuctions = (params: { [key: string]: string | number | undefined }): Promise<ActiveAuctionQueryResult> => {
-        return fetchActiveAuctionEndpoint('/auctions/active/filter', params).then(parseActiveAuctionQueryResult)
+        return fetchActiveAuctionEndpoint('/auctions/active/filter', params, true).then(parseActiveAuctionQueryResult)
     }
 
     let getActiveAuctionCount = (): Promise<ActiveAuctionCount> => {
-        return fetchActiveAuctionEndpoint('/auctions/active/count').then(data => ({
+        return fetchActiveAuctionEndpoint('/auctions/active/count', {}, true).then(data => ({
             count: Number(data?.count) || 0,
             ready: !!data?.ready,
             snapshotAt: data?.snapshotAt ? parseDate(data.snapshotAt) : undefined

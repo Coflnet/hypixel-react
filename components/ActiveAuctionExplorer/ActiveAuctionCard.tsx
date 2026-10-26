@@ -6,6 +6,7 @@ import { Badge, Card } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { formatTimeLeft, getAuctionPrice, getSellerLabel } from '../../utils/ActiveAuctionUtils'
 import { convertTagToName, getMinecraftColorCodedElement, getStyleForTier } from '../../utils/Formatter'
+import { useHoverPrefetch } from '../../hooks/useHoverPrefetch'
 import { CopyButton } from '../CopyButton/CopyButton'
 import Number from '../Number/Number'
 import styles from './ActiveAuctionExplorer.module.css'
@@ -19,6 +20,7 @@ interface Props {
 /** same look as the cards of ActiveAuctions/RecentAuctions; a click opens the auction page */
 export default function ActiveAuctionCard(props: Props) {
     const { auction } = props
+    const { bind } = useHoverPrefetch()
     const [now, setNow] = useState(() => Date.now())
 
     useEffect(() => {
@@ -32,7 +34,7 @@ export default function ActiveAuctionCard(props: Props) {
     return (
         <div className={`${styles.cardWrapper} ${props.flash ? styles.flash : ''} ${props.gone ? styles.gone : ''}`} data-uuid={auction.uuid}>
             <Card className={styles.auctionCard}>
-                <Link href={`/auction/${auction.uuid}`} className="disableLinkStyle">
+                <Link href={`/auction/${auction.uuid}`} className="disableLinkStyle" {...bind(`/auction/${auction.uuid}`)}>
                     <Card.Header style={{ padding: '10px' }}>
                         <div className={styles.cardHeader}>
                             <Image

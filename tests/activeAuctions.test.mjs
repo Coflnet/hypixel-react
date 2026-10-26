@@ -388,3 +388,30 @@ test('clear all keeps the bin mode', () => {
     assert.equal(cleared.tags.length, 0)
     assert.equal(cleared.q, '')
 })
+
+test('reconcileWithLive keeps a live add newer than the snapshot at the sorted position', () => {
+    const live = auction('live', 150, '2030-01-01T00:00:00Z', { start: new Date('2029-12-31T00:00:00Z') })
+    const added = new Map([['live', { item: live, at: 2000 }]])
+    const base = [auction('a', 100, '2030-01-01T00:00:00Z', { start: new Date('2029-12-30T00:00:00Z') }), auction('b', 200, '2030-01-01T00:00:00Z', { start: new Date('2029-12-29T00:00:00Z') })]
+    assert.deepEqual(utils.reconcileWithLive(base, 1000, added, new Map(), 'LOWEST_PRICE').map(i => i.uuid), ['a', 'live', 'b'])
+    assert.deepEqual(utils.reconcileWithLive(base, 1000, added, new Map(), 'NEWEST').map(i => i.uuid), ['live', 'a', 'b'])
+})
+
+test('reconcileWithLive does not re-insert a live add older than the snapshot', () => {
+    const added = new Map([['live', { item: auction('live', 150, '2030-01-01T00:00:00Z'), at: 500 }]])
+    assert.deepEqual(utils.reconcileWithLive([auction('a', 100, '2030-01-01T00:00:00Z')], 1000, added, new Map(), 'LOWEST_PRICE').map(i => i.uuid), ['a'])
+})
+
+test('reconcileWithLive removes uuids gone after the snapshot and keeps those gone before', () => {
+    const items = [auction('a', 100, '2030-01-01T00:00:00Z'), auction('b', 200, '2030-01-01T00:00:00Z')]
+    assert.deepEqual(utils.reconcileWithLive(items, 1000, new Map(), new Map([['a', 2000]]), 'LOWEST_PRICE').map(i => i.uuid), ['b'])
+    assert.deepEqual(utils.reconcileWithLive(items, 1000, new Map(), new Map([['a', 500]]), 'LOWEST_PRICE').map(i => i.uuid), ['a', 'b'])
+})
+
+test('reconcileWithLive never yields duplicate uuids', () => {
+    const dup = auction('a', 100, '2030-01-01T00:00:00Z')
+    const added = new Map([['a', { item: dup, at: 2000 }], ['n', { item: auction('n', 50, '2030-01-01T00:00:00Z'), at: 2000 }]])
+    const out = utils.reconcileWithLive([dup, dup], 1000, added, new Map(), 'LOWEST_PRICE').map(i => i.uuid)
+    assert.deepEqual(out, ['n', 'a'])
+    assert.deepEqual(utils.filterGoneAfter([dup, dup], 1000, new Map()).map(i => i.uuid), ['a'])
+})

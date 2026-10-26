@@ -18,6 +18,11 @@ import {
     cleanFilters,
     createEmptyQueryState,
     findInsertIndex,
+    filterGoneAfter,
+    reconcileWithLive,
+    pruneLive,
+    LiveAddedMap,
+    LiveGoneMap,
     getSubscriptionTags,
     hasAnyNarrowing,
     applySuggestion,
@@ -99,6 +104,8 @@ export default function ActiveAuctionExplorer() {
     const resolveIdRef = useRef(0)
     const isLoadingMoreRef = useRef(false)
     const pendingUuidsRef = useRef<Set<string>>(new Set())
+    const liveAddedRef = useRef<LiveAddedMap>(new Map())
+    const liveGoneRef = useRef<LiveGoneMap>(new Map())
     const timersRef = useRef<ReturnType<typeof setTimeout>[]>([])
 
     const setItemsBoth = useCallback((next: ActiveAuctionPreview[]) => {
@@ -167,13 +174,22 @@ export default function ActiveAuctionExplorer() {
                 setError(null)
             }
             isLoadingMoreRef.current = true
+            const startedAt = Date.now()
             return api
                 .searchActiveAuctions(stateToRequestParams(queryRef.current, page))
                 .then(result => {
                     if (requestId !== requestIdRef.current) return
+                    // a response can be older than socket updates (cached/in flight): live knowledge newer than its snapshot wins
+                    const snapshotAt = result.snapshotAt ? result.snapshotAt.getTime() : startedAt
+                    pruneLive(liveAddedRef.current, liveGoneRef.current)
+                    const hasMoreAfter = result.items.length >= ACTIVE_AUCTION_PAGE_SIZE
                     const merged = reset
-                        ? result.items
-                        : [...itemsRef.current, ...result.items.filter(n => !itemsRef.current.some(o => o.uuid === n.uuid))]
+                        ? reconcileWithLive(result.items, snapshotAt, liveAddedRef.current, liveGoneRef.current, queryRef.current.orderBy, hasMoreAfter)
+                        : filterGoneAfter(
+                              [...itemsRef.current, ...result.items.filter(n => !itemsRef.current.some(o => o.uuid === n.uuid))],
+                              snapshotAt,
+                              liveGoneRef.current
+                          )
                     setItemsBoth(merged)
                     pageRef.current = page
                     setTotalCount(result.totalCount)
@@ -213,6 +229,9 @@ export default function ActiveAuctionExplorer() {
     // (re)load from the start whenever the request changes
     useEffect(() => {
         if (!initialized) return
+        // new subscription scope: earlier live events belong to another query
+        liveAddedRef.current.clear()
+        liveGoneRef.current.clear()
         loadPage(0, true)
     }, [requestKey, initialized, loadPage])
 
@@ -284,6 +303,8 @@ export default function ActiveAuctionExplorer() {
 
     const onLiveAuction = useCallback(
         (auction: ActiveAuctionPreview) => {
+            liveGoneRef.current.delete(auction.uuid)
+            liveAddedRef.current.set(auction.uuid, { item: auction, at: Date.now() })
             const current = itemsRef.current
             const existingIndex = current.findIndex(i => i.uuid === auction.uuid)
             if (existingIndex >= 0) {
@@ -319,6 +340,8 @@ export default function ActiveAuctionExplorer() {
 
     const onLiveGone = useCallback(
         (gone: { uuid: string; reason: string }) => {
+            liveAddedRef.current.delete(gone.uuid)
+            liveGoneRef.current.set(gone.uuid, Date.now())
             if (pendingUuidsRef.current.delete(gone.uuid)) {
                 setPendingNew(pendingUuidsRef.current.size)
             }
