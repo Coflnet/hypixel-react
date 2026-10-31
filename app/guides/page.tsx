@@ -113,7 +113,7 @@ export default function GuidesPage() {
                                     <Link href="/guides/skyblock-flip-tracker">Skyblock Flip Tracker</Link> - Public AH history, trade and lowball tracking, Bazaar profit tracking, and multi-year review workflow
                                 </li>
                                 <li>
-                                    <Link href="/guides/tracking-profits-automatically">How to Track Your Profits Automatically</Link> - Use tools to monitor your flip performance
+                                    <Link href="/guides/tracking-profits-automatically">Hypixel SkyBlock Profit Tracker</Link> - Use tools to monitor your flip performance
                                 </li>
                                 <li>
                                     <Link href="/guides/safe-tracker-tools">Safe and Reliable Third-Party Tracker Tools</Link> - Approved tools that won't get you banned

@@ -17,6 +17,10 @@ The flipper analyzes every new auction and compares it to:
 
 When an auction is significantly underpriced, it appears as a "flip" with estimated profit.
 
+## Track completed trades
+
+A flip suggestion is an opportunity estimate, not money earned. After selling, use the [Hypixel SkyBlock profit tracker guide](/guides/tracking-profits-automatically) to check completed purchases and sales, tax and item costs.
+
 ## Getting Started
 
 1. Visit the [Flipper page](/flipper)

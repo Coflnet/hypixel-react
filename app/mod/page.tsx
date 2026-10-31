@@ -17,8 +17,8 @@ export default function Mod() {
 }
 
 export const metadata = getHeadMetadata(
-    'Mod',
-    'The SkyCofl Minecraft Mod',
+    'Hypixel SkyBlock Flipping Mod for Beginners | SkyCofl',
+    'Download SkyCofl through Modrinth, set up your first manual auction flip, compare free and paid access, and track completed flips.',
     undefined,
     undefined,
     undefined,

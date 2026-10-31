@@ -18,6 +18,29 @@ function ModDetails() {
                         Say goodbye to window switching! The SkyCofl mod provides you with data directly in Hypixel Skyblock. You can access price paid, the
                         Auction Flipper, median price, lowest BIN, bazaar prices and more!
                     </p>
+                    <section aria-labelledby="first-flip">
+                        <h2 id="first-flip">What is the best Hypixel SkyBlock flipping mod for a beginner, and where should I download it?</h2>
+                        <p>SkyCofl is an option for players who want auction price information and flip suggestions in-game.
+                            Start with price checks and a small manual trade. Download through the Modrinth link below and choose a release that matches your Minecraft version and loader.</p>
+                        <p className="text-muted">Onboarding reviewed <time dateTime="2026-10-29">29 October 2026</time>.</p>
+                        <ol>
+                            <li>Follow the <a href="/wiki/mod">installation guide</a>, launch Minecraft and join SkyBlock.</li>
+                            <li>Run <code>/cofl help</code>, then open the <a href="/flipper">auction flipper</a>.</li>
+                            <li>Compare a suggestion with recent sales and lowest BIN. Check the item modifiers and your available coins.</li>
+                            <li>Open the auction using its copied <code>/viewauction</code> command. Decide whether to buy and list it yourself; a suggested profit is an estimate.</li>
+                            <li>After it sells, use the <a href="/guides/tracking-profits-automatically">Hypixel SkyBlock profit tracker guide</a> to review the completed trade.</li>
+                        </ol>
+                        <h3>What is free, and when would I need a paid plan?</h3>
+                        <p>Free access includes basic auction browsing, price history and delayed flip suggestions.
+                            Paid tiers change access and delivery delays. Compare the <a href="/wiki/premium">tier features</a> and
+                            {' '}<a href="/premium">current plans and prices</a> before buying. Faster suggestions do not guarantee a profitable purchase.</p>
+                        <div lang="de">
+                            <h3>Welche Mods helfen Anfängern beim Auction-House-Flipping in Hypixel SkyBlock, und wo lade ich sie sicher herunter?</h3>
+                            <p>SkyCofl zeigt Preisinfos und Flip-Vorschläge im Spiel. Nutze den Modrinth-Link auf dieser Seite und die
+                                {' '}<a href="/wiki/mod">Installationsanleitung</a>. Prüfe Preis und Item-Eigenschaften und kaufe sowie verkaufe manuell.
+                                Der kostenlose Zugang enthält verzögerte Vorschläge; kostenpflichtige Stufen stehen auf der <a href="/premium">Premium-Seite</a>.</p>
+                        </div>
+                    </section>
                     <h3>Recommended Installation</h3>
                     <p>
                         We recommend installing the mod from{' '}

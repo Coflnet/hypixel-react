@@ -463,8 +463,8 @@ export const SITEMAP_CONFIG = {
             url: '/guides/tracking-profits-automatically',
             priority: 0.7,
             changefreq: 'monthly' as const,
-            title: 'How to Track Flip Profits Automatically in SkyCofl',
-            description: 'Updated April 2026. Learn how the SkyCofl Minecraft mod uses /cofl profit, CSV export, and tax-aware tracking to review Hypixel SkyBlock flips, trades, lowballs, and Bazaar profit.',
+            title: 'Hypixel SkyBlock Profit Tracker | Completed Auction Flips with SkyCofl',
+            description: 'Review completed Hypixel SkyBlock auction flips with /cofl profit and /cofl flips. Check actual costs against sale proceeds.',
             keywords: ['profit tracking', 'profit calculator', 'automatic tracking', 'skycofl profit', 'csv export']
         },
         {

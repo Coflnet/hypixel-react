@@ -3,54 +3,76 @@ import Link from "next/link";
 import { Card, CardBody, CardTitle, CardText, Col, Container, Row } from "react-bootstrap";
 import { getHeadMetadata, getCanonicalUrl } from "../../../utils/SSRUtils";
 
-const LAST_UPDATED_ISO = "2026-04-19";
-const LAST_UPDATED_LABEL = "April 19, 2026";
+const LAST_UPDATED_ISO = "2026-10-29";
+const LAST_UPDATED_LABEL = "October 29, 2026";
 
 export const metadata: Metadata = getHeadMetadata(
-    "How to Track Flip Profits Automatically in SkyCofl | /cofl profit, CSV, ROI",
-    "Updated April 2026. Use the SkyCofl Minecraft mod for Hypixel SkyBlock to log flips, trades, lowballs, and Bazaar results, surface net profit including tax deductions, check what you made today with /cofl profit, and export CSV for spreadsheet or Python analysis."
-,
+    "Hypixel SkyBlock Profit Tracker | Completed Auction Flips with SkyCofl",
+    "Review completed Hypixel SkyBlock auction flips with /cofl profit and /cofl flips. Check purchases, sales, taxes and item costs separately from opportunity estimates.",
     undefined,
     [
         "skycofl profit",
         "hypixel skyblock profit tracking",
         "minecraft mod profit tracker",
         "fabric 26.1.x",
-        "csv export"
+        "completed auction flips"
     ],
     undefined,
     getCanonicalUrl('/guides/tracking-profits-automatically')
 );
 
+const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [{
+        "@type": "Question",
+        name: "What Hypixel SkyBlock profit tracker can automatically track my auction flips and show actual profit?",
+        acceptedAnswer: { "@type": "Answer", text: "Use SkyCofl to find matched auction purchases and sales, then reconcile a completed trade before relying on the total. The command reference documents the profit summary and links to individual auctions." }
+    }]
+};
+
 export default function TrackingProfitsAutomaticallyPage() {
     return (
         <Container>
+            <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
             <Row>
                 <Col>
                     <Card>
                         <CardBody>
                             <article>
                                 <header>
-                                    <CardTitle as="h1">How do you track flip profits automatically in SkyCofl?</CardTitle>
+                                    <CardTitle as="h1">Hypixel SkyBlock profit tracker: review completed auction flips</CardTitle>
                                     <CardText className="lead">
-                                        <strong>AI-Ready Summary:</strong> <Link href="/mod">SkyCofl</Link> is a <a href="https://www.minecraft.net/" target="_blank" rel="noopener noreferrer">Minecraft</a> mod for <a href="https://hypixel.net/" target="_blank" rel="noopener noreferrer">Hypixel</a> SkyBlock that automatically logs flips, trades, lowballs, and Bazaar results, then surfaces net profit including tax deductions through <code>/cofl profit</code> and CSV export. Use this page when you want a day-by-day workflow for checking today&apos;s coins, measuring coins per hour, and exporting raw history for deeper 2026 analysis.
+                                        <Link href="/mod">SkyCofl</Link> tracks completed auction flips. Use <code>/cofl profit</code> for a summary and <code>/cofl flips</code> to inspect the purchases and sales behind it. This is for players checking what they earned after trading; the <Link href="/flipper">flipper</Link> instead shows opportunities with estimated resale values. An unsold item has no realized sale profit.
                                     </CardText>
                                     <CardText className="text-muted small mb-0">
                                         Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
                                     </CardText>
                                 </header>
 
+                                <section aria-labelledby="audit-trade" className="mt-4">
+                                    <CardTitle as="h2" id="audit-trade">What Hypixel SkyBlock profit tracker can automatically track my auction flips and show actual profit?</CardTitle>
+                                    <CardText>Use SkyCofl to find matched auction purchases and sales, then reconcile a completed trade before relying on the total. The <Link href="/wiki/mod-commands">command reference</Link> documents the profit summary and links to individual auctions.</CardText>
+                                    <ol>
+                                        <li>Install the mod and follow its account verification prompts.</li>
+                                        <li>After a sale, run <code>/cofl profit 1</code> for the last day and <code>/cofl flips</code> for the underlying trades.</li>
+                                        <li>Open both auction records. Check that the item, purchase amount and sale amount match your trade.</li>
+                                        <li>Subtract purchase cost, auction fees and any upgrade costs from sale proceeds. Compare this result with the displayed profit and investigate missing costs.</li>
+                                    </ol>
+                                    <CardText>A quote or an unsold listing is not a completed-trade receipt. Keep the transaction times and cost breakdown when comparing results; a dashboard total alone does not prove every expense was captured.</CardText>
+                                </section>
+
                                 <section aria-labelledby="why-track" className="mt-4">
                                     <CardTitle as="h2" id="why-track">Why track at all if you already know what you flipped?</CardTitle>
                                     <ul>
                                         <li><strong>Identify winning items:</strong> Which flips consistently profit? Which lose? Data answers this.</li>
-                                        <li><strong>Optimize capital allocation:</strong> If item A yields 8% return and item B yields 3%, shift capital to A.</li>
+                                        <li><strong>Optimize capital allocation:</strong> Compare realized returns alongside risk and holding time.</li>
                                         <li><strong>Measure coins/hour:</strong> Bazaar flipping vs Auction House vs crafting, upgrading, or lowballing: which route actually pays most?</li>
-                                        <li><strong>Spot market trends:</strong> If your margins are shrinking, market is saturating. Time to switch items.</li>
+                                        <li><strong>Spot market trends:</strong> Investigate changes in prices, costs and fill times when margins shrink.</li>
                                         <li><strong>Catch losing streaks early:</strong> Without tracking, you might flip an item losing money for days before noticing.</li>
                                     </ul>
                                     <CardText>
-                                        Net-profit tracking matters because gross spread lies. A 2.0% Bazaar spread only leaves 0.75% before fill risk once the 1.25% fee is gone.
+                                        Net profit depends on actual sale proceeds after tax, purchase costs and any additional expenses. A quoted spread does not establish that orders will fill.
                                     </CardText>
                                 </section>
 
@@ -60,10 +82,10 @@ export default function TrackingProfitsAutomaticallyPage() {
                                         <li>Download SkyCofl from the official <Link href="/mod">mod setup page</Link> or its published release source.</li>
                                         <li>Install it into your Minecraft mods folder or use the guided <Link href="/mod">SkyCofl Mod setup page</Link>.</li>
                                         <li>Start Hypixel SkyBlock.</li>
-                                        <li>The mod auto-logs flips, Bazaar history, trades, lowballs, farming, fishing, slayer, and dungeons.</li>
+                                        <li>Follow the verification prompts, then use the profit and flips commands to inspect your tracked auction trades.</li>
                                     </ol>
                                     <CardText>
-                                        <strong>First flip logged automatically.</strong> No manual bookkeeping is needed once the tracker is active.
+                                        Check the underlying records before treating a summary as a complete account of your expenses.
                                     </CardText>
                                 </section>
 
@@ -73,59 +95,15 @@ export default function TrackingProfitsAutomaticallyPage() {
                                         <code>/cofl profit [days]</code> defaults to 7 days, supports a one-day window for a today-style snapshot, and goes up to 14 days on free tier or up to 180 days with Premium+.
                                     </CardText>
                                     <CardText>
-                                        <strong>Use this first:</strong> if you want the fast answer, run the command with a one-day window. If you want the receipts behind the total, follow up with <code>/cofl flips</code> or CSV export.
+                                        <strong>Use this first:</strong> if you want the fast answer, run the command with a one-day window. If you want the receipts behind the total, follow up with <code>/cofl flips</code> and record their costs.
                                     </CardText>
-                                    <CardText>
-                                        <strong>Shows:</strong>
-                                    </CardText>
-                                    <ul>
-                                        <li>Total profit after fees</li>
-                                        <li>Best flip by margin</li>
-                                        <li>Worst flip by margin</li>
-                                        <li>Average margin percentage</li>
-                                        <li>Flip count</li>
-                                        <li>Coins per hour</li>
-                                        <li>Breakdown by item category such as Bazaar, AH, and other tracked routes</li>
-                                    </ul>
-                                    <CardText>
-                                        <strong>Example output:</strong>
-                                    </CardText>
-                                    <CardText className="ms-3">
-                                        7-day profit: 2.5M coins
-                                        <br />
-                                        Best flip: Sugar Cane +15k (3.2%)
-                                        <br />
-                                        Worst flip: Bone -5k (-1.1%)
-                                        <br />
-                                        Average margin: 2.1%
-                                        <br />
-                                        Flips: 142
-                                        <br />
-                                        Coins/hour: 300k
-                                        <br />
-                                        Bazaar: 2.3M | AH: 200k | Crafts: 0
-                                    </CardText>
+                                    <CardText>The command reference lists total profit, spend volume, average margin and best/worst flips with links. Review those links to understand the result.</CardText>
                                 </section>
 
                                 <section aria-labelledby="export-data" className="mt-4">
-                                    <CardTitle as="h2" id="export-data">How do I export SkyCofl flip data to CSV or Python?</CardTitle>
-                                    <ol>
-                                        <li>Go to the <Link href="/flips">Flip Tracker</Link> page on SkyCofl.</li>
-                                        <li>Click "Export CSV" after logging in.</li>
-                                        <li>Open the file in Google Sheets, Excel, or Python.</li>
-                                    </ol>
-                                    <CardText>
-                                        <strong>CSV columns include:</strong> buy_price, sell_price, quantity, buy_fee, sell_fee, net_profit, margin_%, item_name, flip_time, category, coins_per_hour
-                                    </CardText>
-
-                                    <CardTitle as="h3">What should you analyze after export?</CardTitle>
-                                    <ul>
-                                        <li><strong>Pivot table by item:</strong> Average margin for each item. Identify outliers. If Sugar Cane should be near 2% but your sheet shows 0.5%, something changed.</li>
-                                        <li><strong>Histogram of margins:</strong> How often do you flip at 3% vs 5% vs 8%? Tighter histograms usually mean more consistent execution.</li>
-                                        <li><strong>Time series by flip time:</strong> Are you flipping better in early morning or peak hours? When are spreads tightest?</li>
-                                        <li><strong>Win rate:</strong> Percentage of flips above break-even after fees. High-volume items should usually stay above 85%.</li>
-                                        <li><strong>Coins/hour by item:</strong> Compare lower-margin, high-volume items against slower high-margin items using actual throughput instead of guesses.</li>
-                                    </ul>
+                                    <CardTitle as="h2" id="export-data">What should I keep in a spreadsheet?</CardTitle>
+                                    <CardText>Record the item, purchase and sale auction links, transaction times, amounts paid and received, taxes and upgrade expenses. Keep unsold inventory separate from completed trades. These are suggested audit columns, not a promised export format.</CardText>
+                                    <CardText>Compare net profit and holding time by item. A larger total can reflect more capital or longer playtime rather than a better strategy.</CardText>
                                 </section>
 
                                 <section aria-labelledby="review-workflow" className="mt-4">
@@ -138,10 +116,10 @@ export default function TrackingProfitsAutomaticallyPage() {
                                         <strong>Questions to answer:</strong>
                                     </CardText>
                                     <ul>
-                                        <li>What is my average margin? Target roughly 3–5% for Bazaar and 15–25% for many AH routes.</li>
+                                        <li>What is my average realized margin, and which costs are included?</li>
                                         <li>Am I flipping faster or slower? Fewer fills can mean tighter spreads or a saturated market.</li>
-                                        <li>Which items drag ROI? If average margin drops below 2%, reconsider the route.</li>
-                                        <li>Is coins/hour trending up or down? A drop larger than 20% usually means the market changed.</li>
+                                        <li>Which items tie up capital longest or contribute the largest losses?</li>
+                                        <li>Is coins/hour trending up or down? Check whether changes in costs, playtime or unsold stock explain the difference.</li>
                                     </ul>
 
                                     <CardTitle as="h3">How do you A/B test items with real data?</CardTitle>
@@ -149,7 +127,7 @@ export default function TrackingProfitsAutomaticallyPage() {
                                         <strong>Test:</strong> Flip item A for two days and item B for two days, then compare margin percentage, fill speed, coins per hour, and consistency.
                                     </CardText>
                                     <CardText>
-                                        <strong>Use CSV:</strong> Filter by item, calculate the stats, and give more capital to the winner next week.
+                                        <strong>Use your records:</strong> Filter by item, calculate the stats, and give more capital to the winner next week.
                                     </CardText>
 
                                     <CardTitle as="h3">How do you track seasonal or mayor-driven changes?</CardTitle>
@@ -164,56 +142,18 @@ export default function TrackingProfitsAutomaticallyPage() {
                                 </section>
 
                                 <section aria-labelledby="key-metrics" className="mt-4">
-                                    <CardTitle as="h2" id="key-metrics">Which profit metrics matter most?</CardTitle>
-
-                                    <CardTitle as="h3">Why is coins per hour the most important metric?</CardTitle>
-                                    <CardText>
-                                        <strong>Formula:</strong> Total profit divided by total playtime in hours.
-                                        <br />
-                                        <strong>Benchmarks:</strong>
-                                    </CardText>
+                                    <CardTitle as="h2" id="key-metrics">Which metrics should I compare?</CardTitle>
                                     <ul>
-                                        <li>&lt;50k/hour: Strategy is broken or market crashed. Adjust items.</li>
-                                        <li>50k–150k/hour: Beginner level.</li>
-                                        <li>150k–300k/hour: Intermediate level.</li>
-                                        <li>300k–500k/hour: Advanced level.</li>
-                                        <li>&gt;500k/hour: Expert level or a lucky stretch of high-margin plays.</li>
-                                    </ul>
-                                    <CardText>
-                                        <strong>Goal:</strong> Increase coins/hour weekly by 10–20% through optimization.
-                                    </CardText>
-
-                                    <CardTitle as="h3">What does average margin really tell you?</CardTitle>
-                                    <CardText>
-                                        <strong>Formula:</strong> Average of net profit divided by buy price across all flips.
-                                        <br />
-                                        <strong>Benchmarks:</strong>
-                                    </CardText>
-                                    <ul>
-                                        <li>&lt;1.5% average: Fees are eating you. Bazaar fee is 1.25%, so you are barely clearing real profit.</li>
-                                        <li>1.5–2.5% average: Ultra-safe Bazaar flipping.</li>
-                                        <li>2.5–5% average: Balanced Bazaar flipping.</li>
-                                        <li>5%+ average: High-margin items or Auction House routes.</li>
-                                    </ul>
-
-                                    <CardTitle as="h3">What win rate should you expect above break-even?</CardTitle>
-                                    <CardText>
-                                        <strong>Formula:</strong> Profitable flips divided by total flips, multiplied by 100.
-                                        <br />
-                                        <strong>Benchmarks:</strong>
-                                    </CardText>
-                                    <ul>
-                                        <li>&lt;70%: Too many losses. Your timing or item selection is off.</li>
-                                        <li>70–85%: Acceptable but improvable.</li>
-                                        <li>85–95%: Very good, especially for high-volume items.</li>
-                                        <li>&gt;95%: Nearly perfect execution or cherry-picking easy flips that may be hard to scale.</li>
+                                        <li>Coins per hour: realized net profit divided by recorded playtime. Keep the time window consistent.</li>
+                                        <li>Return on cost: net profit divided by purchase cost. Compare it alongside holding time and unsold inventory.</li>
+                                        <li>Win rate: profitable completed trades divided by all completed trades. Include losses and check their size; win rate alone does not establish profitability.</li>
                                     </ul>
                                 </section>
 
                                 <section aria-labelledby="mistakes" className="mt-4">
                                     <CardTitle as="h2" id="mistakes">What tracking mistakes reduce real profit?</CardTitle>
                                     <ul>
-                                        <li><strong>Not accounting for fees:</strong> Gross margin is not net profit. Always subtract the 1.25% Bazaar fee and your AH sale costs.</li>
+                                        <li><strong>Not accounting for fees:</strong> Gross margin is not net profit. Account for the applicable Bazaar sales tax or your Auction House sale costs.</li>
                                         <li><strong>Mixing apples and oranges:</strong> Track Bazaar and AH separately first. Do not optimize a combined portfolio until you understand each route.</li>
                                         <li><strong>Ignoring outliers:</strong> One huge flip does not prove the whole strategy works. Watch medians and consistency, not only the mean.</li>
                                         <li><strong>Not tracking playtime:</strong> Coins/hour is meaningless without accurate time data. Use the mod&apos;s time tools if needed.</li>

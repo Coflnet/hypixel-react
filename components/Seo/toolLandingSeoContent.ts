@@ -60,6 +60,14 @@ export const toolLandingSeoContent = {
         ],
         faqs: [
             {
+                question: 'How can I check whether a Hypixel SkyBlock Bazaar flip will still be profitable after tax and fees?',
+                answer: 'Subtract purchase cost and other expenses from sale proceeds after sales tax. Use your current in-game rate and the actual filled quantity. Do not subtract tax twice from an already-net estimate. Unfilled orders and market snapshots are not realized profit.'
+            },
+            {
+                question: 'I have 5 million coins in Hypixel SkyBlock. Which tools can help me find realistic Bazaar flips with enough demand?',
+                answer: 'Use SkyCofl Bazaar to compare prices and volume, then check the in-game order book. Keep the total cost of open orders within your available budget, leaving coins for other expenses. Market volume is not a promise that your order fills: competing orders, your queue position and price changes affect execution. Start with a small order and measure its fill time before increasing size.'
+            },
+            {
                 question: 'What margin is usually worth flipping on the bazaar?',
                 answer: 'For most players, the sweet spot is an item with enough spread to cover fees and still leave a cushion after minor price movement. A smaller but very liquid margin usually beats a huge spread on a dead market.'
             },
@@ -69,6 +77,11 @@ export const toolLandingSeoContent = {
             }
         ],
         relatedLinks: [
+            {
+                href: '/guides/how-to-make-money-with-bazaar-flipping',
+                label: 'Check net profit, budget and fills',
+                description: 'Separate a quoted spread from the proceeds of completed orders.'
+            },
             {
                 href: '/wiki/bazaar-flips',
                 label: 'Complete Bazaar Flipping Guide',
