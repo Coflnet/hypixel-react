@@ -12,18 +12,15 @@ describe('DOM translation protection', () => {
     })
 
     it('survives replaced loading text when Bazaar prices finish loading', () => {
+        const history = [
+            { timestamp: '2026-09-01T12:00:00Z', buy: 800000, sell: 790000 },
+            { timestamp: '2026-09-01T12:05:00Z', buy: 800000, sell: 790000 }
+        ]
+        cy.intercept('GET', '**/api/bazaar/ENCHANTMENT_SHARPNESS_6/history/*', history).as('initialHistory')
         let releaseHistory: () => void
         const historyReady = new Promise<void>(resolve => {
             releaseHistory = resolve
         })
-        cy.intercept('GET', '**/api/bazaar/ENCHANTMENT_SHARPNESS_6/history/*', request =>
-            historyReady.then(() =>
-                request.reply([
-                    { timestamp: '2026-09-01T12:00:00Z', buy: 800000, sell: 790000 },
-                    { timestamp: '2026-09-01T12:05:00Z', buy: 800000, sell: 790000 }
-                ])
-            )
-        ).as('history')
         cy.intercept('GET', '**/api/bazaar/ENCHANTMENT_SHARPNESS_6/snapshot*', { body: null })
         cy.intercept('GET', '**/api/mayor*', [])
         cy.visit(itemPath, {
@@ -31,6 +28,13 @@ describe('DOM translation protection', () => {
                 window.sessionStorage.clear()
             }
         })
+        cy.wait('@initialHistory')
+        cy.contains('b', 'Avg Buy Price:').parent().should('contain.text', '800,000 Coins')
+        // Hold a range change after navigation so page loading cannot consume the intercept timeout.
+        cy.intercept('GET', '**/api/bazaar/ENCHANTMENT_SHARPNESS_6/history/week', request =>
+            historyReady.then(() => request.reply(history))
+        ).as('history')
+        cy.contains('label', '1 Week').click()
 
         for (const label of ['Avg Sell Price:', 'Avg Buy Price:']) {
             cy.contains('b', label)
