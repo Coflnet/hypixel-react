@@ -11,12 +11,18 @@ function durationInMs(cssDuration: string) {
 
 describe('Reduced motion', () => {
     afterEach(() => {
-        emulateReducedMotion('no-preference')
+        cy.then(() => emulateReducedMotion('no-preference'))
     })
 
     it('shows the offline banner without the slide-in animation', () => {
-        emulateReducedMotion('reduce')
-        cy.visit('/')
+        cy.then(() => emulateReducedMotion('reduce'))
+        cy.visit('/', {
+            onBeforeLoad(win) {
+                cy.spy(win, 'addEventListener').as('addEventListener')
+            }
+        })
+        // Wait for the effect to subscribe before dispatching an event that cannot be replayed.
+        cy.get('@addEventListener').should('have.been.calledWith', 'offline')
         cy.window().then(win => {
             Object.defineProperty(win.navigator, 'onLine', { configurable: true, get: () => false })
             win.dispatchEvent(new win.Event('offline'))

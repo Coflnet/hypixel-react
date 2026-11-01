@@ -38,7 +38,8 @@ describe('Tracked flip recovery', () => {
             request.reply({ statusCode: 503, body: { message: 'Tracker unavailable' } })
         }).as('rangeFailure')
         cy.get('.react-datepicker__input-container input').first().click()
-        cy.get('.react-datepicker__day--today').click()
+        // The start-date calendar may show the previous month, where today is not rendered.
+        cy.get('.react-datepicker__day:not(.react-datepicker__day--disabled):not(.react-datepicker__day--selected)').last().click()
         cy.wait('@rangeFailure')
         cy.contains('[role="alert"]', 'Showing previously loaded flips.').should('be.visible')
         cy.contains('Tracked Diamond').should('be.visible')
