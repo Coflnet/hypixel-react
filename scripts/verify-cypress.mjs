@@ -1,11 +1,11 @@
 import { spawnSync } from 'node:child_process'
 import { createRequire } from 'node:module'
-import { rmSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { readdirSync, readFileSync, rmSync } from 'node:fs'
+import { basename, dirname, join, resolve } from 'node:path'
 
-// One full Cypress pass, preceded by a burn-in of the specs changed since a base commit: each changed
-// spec must also pass BURN_IN_RUNS more times in fresh Cypress processes. New or edited tests are where
-// flakes come from, so they are repeated; the rest of the suite runs once instead of three times.
+// One full Cypress pass, preceded by a burn-in of the specs changed since a base commit (or importing a
+// changed support module): each must also pass BURN_IN_RUNS more times in fresh Cypress processes.
+// New or edited tests are where flakes come from, so they are repeated; the rest runs once.
 //
 //   node scripts/verify-cypress.mjs [--burn-in-base <git ref>] [extra cypress run args]
 //
@@ -13,8 +13,10 @@ import { dirname, resolve } from 'node:path'
 // Without a base only the full pass runs.
 // Never retry a failed test into a green build: every run has retries disabled.
 
-const BURN_IN_RUNS = Number(process.env.BURN_IN_RUNS || 2)
-const SPEC_PATTERN = /^cypress\/e2e\/.+\.cy\.[jt]sx?$/
+const BURN_IN_RUNS = burnInRuns()
+const SPEC_DIRECTORY = 'cypress/e2e'
+const SPEC_PATTERN = /\.cy\.[jt]sx?$/
+const SUPPORT_PATTERN = /^cypress\/support\/.+\.[jt]sx?$/
 const resultsDirectory = 'test-results/cypress'
 
 const require = createRequire(import.meta.url)
@@ -32,12 +34,34 @@ function git(args) {
     return result.stdout
 }
 
-// Specs added or modified between the base and HEAD. Deleted specs are left out, they cannot run.
+function burnInRuns() {
+    const runs = Number(process.env.BURN_IN_RUNS || 2)
+    if (Number.isInteger(runs) && runs >= 0) return runs
+    throw new Error(`BURN_IN_RUNS must be a whole number, got "${process.env.BURN_IN_RUNS}"`)
+}
+
+function allSpecs() {
+    return readdirSync(SPEC_DIRECTORY, { recursive: true })
+        .map(file => join(SPEC_DIRECTORY, file))
+        .filter(file => SPEC_PATTERN.test(file))
+}
+
+// e2e.ts runs before every spec; burning in the whole suite for it would undo the savings.
+function specsImportingSupport(supportFiles) {
+    const modules = supportFiles.map(file => `support/${basename(file).replace(/\.[jt]sx?$/, '')}'`)
+    if (!modules.length) return []
+    return allSpecs().filter(spec => modules.some(module => readFileSync(spec, 'utf8').includes(module)))
+}
+
+// Specs added or modified between the base and HEAD, plus specs importing a changed support module.
+// Deleted files are left out, they cannot run.
 function changedSpecs(base) {
     if (!base) return []
     git(['rev-parse', '--verify', '--quiet', `${base}^{commit}`])
-    const files = git(['diff', '--name-only', '--diff-filter=d', base, 'HEAD', '--', 'cypress/e2e'])
-    return files.split('\n').filter(file => SPEC_PATTERN.test(file))
+    const files = git(['diff', '--name-only', '--diff-filter=d', base, 'HEAD', '--', 'cypress']).split('\n')
+    const specs = files.filter(file => file.startsWith(`${SPEC_DIRECTORY}/`) && SPEC_PATTERN.test(file))
+    const importers = specsImportingSupport(files.filter(file => SUPPORT_PATTERN.test(file)))
+    return [...new Set([...specs, ...importers])].sort()
 }
 
 function runCypress(name, cypressArgs) {
