@@ -1,37 +1,5 @@
 const itemPath = '/item/ENCHANTMENT_SHARPNESS_6'
-
-function replaceLoadingText(price: Element) {
-    // Translators replace React-owned text nodes with their own elements.
-    // Force that mutation even if the browser honors our translation opt-out.
-    const document = price.ownerDocument
-    const walker = document.createTreeWalker(price, NodeFilter.SHOW_TEXT)
-    let node: Node | null
-    while ((node = walker.nextNode())) {
-        if (node.textContent !== '-') continue
-        const translated = document.createElement('font')
-        translated.textContent = 'translated loading text'
-        node.parentNode!.replaceChild(translated, node)
-        return
-    }
-    throw new Error('Loading price text was not found')
-}
-
-function translatePricesWhenLoading(window: Cypress.AUTWindow, onTranslated: () => void) {
-    const labels = ['Avg Sell Price:', 'Avg Buy Price:']
-    const observer = new window.MutationObserver(() => {
-        const headings = Array.from(window.document.querySelectorAll('b'))
-        const prices = labels.map(label => headings.find(heading => heading.textContent === label)?.parentElement)
-        if (!prices.every(price => price?.querySelector('span')?.textContent === '-')) return
-
-        observer.disconnect()
-        prices.forEach((price, index) => {
-            expect(price!.textContent).to.equal(`${labels[index]} -`)
-            replaceLoadingText(price!)
-        })
-        onTranslated()
-    })
-    observer.observe(window.document, { childList: true, subtree: true, characterData: true })
-}
+const PAGE_READY_TIMEOUT = 30000
 
 describe('DOM translation protection', () => {
     it('opts out of DOM translation in the server HTML before hydration', () => {
@@ -46,27 +14,54 @@ describe('DOM translation protection', () => {
 
     it('survives replaced loading text when Bazaar prices finish loading', () => {
         let releaseHistory: () => void
+        let historyRequested = false
         const historyReady = new Promise<void>(resolve => {
             releaseHistory = resolve
         })
-        cy.intercept('GET', '**/api/bazaar/ENCHANTMENT_SHARPNESS_6/history/*', request =>
-            historyReady.then(() =>
+        cy.intercept('GET', '**/api/bazaar/ENCHANTMENT_SHARPNESS_6/history/*', request => {
+            historyRequested = true
+            return historyReady.then(() =>
                 request.reply([
                     { timestamp: '2026-09-01T12:00:00Z', buy: 800000, sell: 790000 },
                     { timestamp: '2026-09-01T12:05:00Z', buy: 800000, sell: 790000 }
                 ])
             )
-        ).as('history')
+        }).as('history')
         cy.intercept('GET', '**/api/bazaar/ENCHANTMENT_SHARPNESS_6/snapshot*', { body: null })
         cy.intercept('GET', '**/api/mayor*', [])
         cy.visit(itemPath, {
             onBeforeLoad(window) {
                 window.sessionStorage.clear()
-                // Translate and release the response without waiting for cy.visit to finish.
-                translatePricesWhenLoading(window, releaseHistory)
             }
         })
 
+        // The server renders "0 Coins". The loading text replaces it only once the page has hydrated and
+        // its chart timers have requested the history, which takes a while on a starved runner. The
+        // request is the readiness gate, the translation itself is asserted after it.
+        cy.wrap(null, { timeout: PAGE_READY_TIMEOUT }).should(() => expect(historyRequested, 'history requested').to.equal(true))
+        for (const label of ['Avg Sell Price:', 'Avg Buy Price:']) {
+            cy.contains('b', label)
+                .parent()
+                .should('have.text', `${label} -`)
+                .then(prices => {
+                    // Translators replace React-owned text nodes with their own elements.
+                    // Force that mutation even if the browser honors our translation opt-out.
+                    const price = prices[0]
+                    const document = price.ownerDocument
+                    const walker = document.createTreeWalker(price, NodeFilter.SHOW_TEXT)
+                    let node: Node | null
+                    while ((node = walker.nextNode())) {
+                        if (node.textContent !== '-') continue
+                        const translated = document.createElement('font')
+                        translated.textContent = 'translated loading text'
+                        node.parentNode!.replaceChild(translated, node)
+                        return
+                    }
+                    throw new Error('Loading price text was not found')
+                })
+        }
+
+        cy.then(() => releaseHistory())
         cy.wait('@history')
         cy.contains('b', 'Avg Buy Price:').parent().should('contain.text', '800,000 Coins')
         cy.contains('b', 'Avg Sell Price:').parent().should('contain.text', '790,000 Coins')

@@ -1,3 +1,5 @@
+import { pageText, tickUntil } from '../support/clock'
+
 beforeEach(() => {
     cy.then(() => Cypress.automation('remote:debugger:protocol', { command: 'Network.clearBrowserCache' }))
     cy.intercept('GET', '**/api/premium/slots', { body: [] })
@@ -130,15 +132,27 @@ describe('Premium refresh after checkout', () => {
 
     for (const path of ['/premium', '/account']) {
         it(`picks up delayed payment confirmation on ${path} without reloading`, () => {
-            stubProducts()
-            stubSubscriptions({ body: [] })
-            visitAuthenticatedPage(path)
-            cy.wait(['@products', '@subscriptions'])
-            cy.contains('No Premium').should('be.visible')
-
-            stubProducts({ body: ownership })
-            stubSubscriptions({ body: [{ ...activeSubscription, productName: 'premium' }] })
-            cy.contains('Premium (Subscription)', { timeout: 12000 }).should('be.visible')
+            const lookups = { products: 0, subscriptions: 0 }
+            let paid = false
+            cy.intercept('POST', '**/api/premium/user/owns', request => {
+                lookups.products++
+                request.reply({ body: paid ? ownership : {} })
+            })
+            cy.intercept('GET', '**/api/premium/subscription', request => {
+                lookups.subscriptions++
+                request.reply({ body: paid ? [{ ...activeSubscription, productName: 'premium' }] : [] })
+            })
+            // The page polls every 5 seconds; faked timers let the test skip that wait.
+            let page: Cypress.AUTWindow
+            cy.clock(Date.now(), ['setTimeout', 'clearTimeout'])
+            visitAuthenticatedPage(path, window => {
+                page = window
+            })
+            tickUntil(() => lookups.products > 0 && lookups.subscriptions > 0 && pageText(page).includes('No Premium'), 'the first lookup shows no Premium')
+            cy.then(() => {
+                paid = true
+            })
+            tickUntil(() => pageText(page).includes('Premium (Subscription)'), 'a poll picks up the payment')
             cy.contains('No Premium').should('not.exist')
             if (path === '/premium') cy.contains('You have a Premium account.').should('be.visible')
             cy.window().then(window => {
@@ -601,7 +615,10 @@ describe('Purchased slot assignments', () => {
         cy.contains('button', 'Save assignment').click()
         cy.wait('@assignSlot')
         cy.get('[data-testid="tier-slot"]').should('contain.text', 'Notch')
-        cy.get('.Toastify__toast', { timeout: 15000 }).should('not.exist')
+        // Close the confirmation instead of waiting for its auto-close, it would cover the screenshot.
+        cy.contains('.Toastify__toast', 'Slot assigned').should('be.visible')
+        cy.get('.Toastify__close-button').click({ multiple: true })
+        cy.get('.Toastify__toast').should('not.exist')
         cy.get('#purchased-slots').screenshot('purchased-slot-management')
     })
 

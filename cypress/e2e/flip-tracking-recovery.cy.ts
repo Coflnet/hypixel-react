@@ -4,6 +4,14 @@ const failedPlayer = '00000000000040008000000000000001'
 const emptyPlayer = '00000000000040008000000000000002'
 const emptyMessage = "We couldn't find any flips for this player within the selected timeframe."
 
+// The start date is a week ago, so its calendar shows the previous month during the first days of a month.
+function pickTodayInOpenDatePicker() {
+    cy.get('.react-datepicker__month').then($month => {
+        if ($month.find('.react-datepicker__day--today').length === 0) cy.get('.react-datepicker__navigation--next').click()
+    })
+    cy.get('.react-datepicker__day--today').click()
+}
+
 describe('Tracked flip recovery', () => {
     it('distinguishes a server failure from empty history and recovers after retry', () => {
         cy.intercept('GET', `**/api/flip/stats/player/${failedPlayer}*`, { statusCode: 503, body: { message: 'Tracker unavailable' } }).as('failedFlips')
@@ -38,8 +46,7 @@ describe('Tracked flip recovery', () => {
             request.reply({ statusCode: 503, body: { message: 'Tracker unavailable' } })
         }).as('rangeFailure')
         cy.get('.react-datepicker__input-container input').first().click()
-        // The start-date calendar may show the previous month, where today is not rendered.
-        cy.get('.react-datepicker__day:not(.react-datepicker__day--disabled):not(.react-datepicker__day--selected)').last().click()
+        pickTodayInOpenDatePicker()
         cy.wait('@rangeFailure')
         cy.contains('[role="alert"]', 'Showing previously loaded flips.').should('be.visible')
         cy.contains('Tracked Diamond').should('be.visible')
