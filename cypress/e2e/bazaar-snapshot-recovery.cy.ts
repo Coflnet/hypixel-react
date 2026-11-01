@@ -15,42 +15,78 @@ const unavailable = { statusCode: 503, body: 'Unavailable' }
 // timers. Faking them lets a test step through that schedule instead of waiting for it in real time.
 // Date stays real: the hook computes its delays from it when it schedules them.
 const FAKED_TIMERS = ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] as const
-const FIRST_RETRY_MS = 3000
+const RETRY_DELAYS_MS = [3000, 6000]
+// The chart's mount effect requests its history after a 100 ms and then a 500 ms timer.
+const HISTORY_TIMERS_MS = 600
+// Hydrating the item page and loading its chart chunk can take long on a starved CI runner. Only the
+// readiness gate gets this budget (in 50 ms steps of fake time), the behaviour is asserted after it.
+const PAGE_READY_STEPS = 1200
 
 let page: Cypress.AUTWindow
+
+// What the page itself did, in order. Recorded inside the page, so it is exact when cy.tick returns,
+// unlike intercept counts, which arrive later through the proxy.
+interface SnapshotActivity {
+    nowFetches: number
+    events: Array<'now fetched' | 'retry armed' | 'retry fired'>
+}
 
 function showsErrorNotice() {
     return pageText(page).includes(ERROR_NOTICE)
 }
 
+function isNowSnapshotRequest(input: RequestInfo | URL) {
+    const url = input instanceof Request ? input.url : String(input)
+    return url.includes('/snapshot') && !url.includes('timestamp=2020-')
+}
+
+function recordSnapshotActivity(window: Cypress.AUTWindow, activity: SnapshotActivity) {
+    const fetch = window.fetch
+    window.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
+        if (isNowSnapshotRequest(input)) {
+            activity.nowFetches++
+            activity.events.push('now fetched')
+        }
+        return fetch.call(window, input, init)
+    }
+    const setTimeout = window.setTimeout
+    window.setTimeout = ((handler: TimerHandler, delay?: number, ...args: unknown[]) => {
+        if (typeof handler !== 'function' || !RETRY_DELAYS_MS.includes(delay ?? 0)) return setTimeout(handler, delay, ...args)
+        activity.events.push('retry armed')
+        return setTimeout(() => {
+            activity.events.push('retry fired')
+            handler(...args)
+        }, delay)
+    }) as typeof window.setTimeout
+}
+
 function stubHistory() {
-    const history = { requests: 0 }
-    cy.intercept('GET', '**/api/bazaar/BOOSTER_COOKIE/history/*', request => {
-        history.requests++
-        request.reply([
-            { timestamp: '2026-09-01T12:00:00Z', buy: 12000000, sell: 11900000 },
-            { timestamp: '2026-09-01T12:05:00Z', buy: 12000000, sell: 11900000 }
-        ])
-    }).as('history')
+    cy.intercept('GET', '**/api/bazaar/BOOSTER_COOKIE/history/*', [
+        { timestamp: '2026-09-01T12:00:00Z', buy: 12000000, sell: 11900000 },
+        { timestamp: '2026-09-01T12:05:00Z', buy: 12000000, sell: 11900000 }
+    ]).as('history')
     cy.intercept('GET', '**/api/mayor*', [])
-    return history
 }
 
 function visitItem(onBeforeLoad?: (window: Cypress.AUTWindow) => void) {
-    const history = stubHistory()
+    const activity: SnapshotActivity = { nowFetches: 0, events: [] }
+    stubHistory()
     cy.clock(Date.now(), [...FAKED_TIMERS])
     cy.visit('/item/BOOSTER_COOKIE', {
         onBeforeLoad(window) {
             page = window
+            recordSnapshotActivity(window, activity)
             onBeforeLoad?.(window)
         }
     })
-    // Hydration and the dynamically imported chart take real time. Once the chart's range control is
-    // there, the chart has armed the timer that requests its history.
-    cy.contains('label', '1 Hour').should('exist')
-    // Small steps: the first quiet retry must not fire before a test gets to look at the page.
-    tickUntil(() => history.requests > 0, 'the price history is requested', 50)
+    // The chart renders only on the client, from the mount effect that also arms its history timers.
+    // React commits the loaded chart chunk on a timer of its own, so the clock has to move meanwhile;
+    // small steps keep the snapshot's quiet retry far away.
+    tickUntil(() => page.document.querySelector('.echarts-for-react') !== null, 'the chart mounts', 50, PAGE_READY_STEPS)
+    cy.tick(HISTORY_TIMERS_MS)
+    // No time passes on the faked clock while the history is on its way.
     cy.wait('@history')
+    return activity
 }
 
 // Answers snapshot requests with `reply` and counts them per kind of timestamp.
@@ -77,13 +113,8 @@ function recordSnapshotErrorReports(window: Cypress.AUTWindow, reports: string[]
     }
 }
 
-// Logs when the page arms the first quiet retry of a failed snapshot load.
-function recordFirstRetries(window: Cypress.AUTWindow, events: string[]) {
-    const setTimeout = window.setTimeout
-    window.setTimeout = ((handler: TimerHandler, delay?: number, ...args: unknown[]) => {
-        if (delay === FIRST_RETRY_MS) events.push('retry armed')
-        return setTimeout(handler, delay, ...args)
-    }) as typeof window.setTimeout
+function dispatchSnapshotTimestamp(window: Cypress.AUTWindow, timestamp: Date) {
+    window.document.dispatchEvent(new window.CustomEvent('bazaarSnapshotUpdate', { detail: { timestamp } }))
 }
 
 describe('Bazaar snapshot recovery', () => {
@@ -103,14 +134,17 @@ describe('Bazaar snapshot recovery', () => {
     it('shows a snapshot without order lists, ignores invalid chart timestamps and stays usable', () => {
         // undefined fields are left out of the stubbed JSON body
         stubSnapshots(() => ({ body: { ...snapshot, buyOrders: undefined, sellOrders: undefined } }))
-        visitItem()
+        const activity = visitItem()
         cy.contains('(Insta) Buy information').should('be.visible')
         cy.contains(ERROR_NOTICE).should('not.exist')
+        let fetchesBefore = 0
         cy.window().then(window => {
-            window.document.dispatchEvent(new window.CustomEvent('bazaarSnapshotUpdate', { detail: { timestamp: new window.Date(NaN) } }))
+            fetchesBefore = activity.nowFetches
+            dispatchSnapshotTimestamp(window, new window.Date(NaN))
         })
-        // Past the snapshot's 100 ms debounce of the chart event.
-        cy.tick(1000)
+        // An invalid timestamp used to replace the pending auto-refresh with a load that could never
+        // succeed. The poll armed by the first snapshot has to keep running.
+        tickUntil(() => activity.nowFetches > fetchesBefore, 'auto-refresh loads the next snapshot')
         cy.contains('Invalid time value').should('not.exist')
         cy.contains('(Insta) Buy information').should('be.visible')
         cy.contains('label', '1 Hour').click()
@@ -136,28 +170,19 @@ describe('Bazaar snapshot recovery', () => {
 
     it('retries a transient failure quietly and recovers before the error state ever shows', () => {
         // Destroying the connection surfaces as a network-level fetch rejection - the reported iPhone
-        // Safari "Load failed". Every load the page starts while it hydrates fails this way, so the
-        // recovery can only come from a quiet retry.
-        let healthy = false
-        let failedLoads = 0
+        // Safari "Load failed". Every load fails this way until a quiet retry has fired, so the
+        // recovery can only come from that retry.
         let sawErrorState = false
         cy.intercept('GET', '**/api/bazaar/BOOSTER_COOKIE/snapshot*', request => {
-            if (healthy) return request.reply(snapshot)
-            failedLoads++
+            if (activity.events.includes('retry fired')) return request.reply(snapshot)
             request.destroy()
         })
-        visitItem()
-        cy.then(() => {
-            healthy = true
-        })
+        const activity = visitItem()
         tickUntil(() => {
             sawErrorState ||= showsErrorNotice() || page.document.querySelector('.Toastify__toast') !== null
             return pageText(page).includes('(Insta) Buy information')
         }, 'the snapshot recovers')
-        cy.then(() => {
-            expect(failedLoads, 'failed loads').to.be.at.least(1)
-            expect(sawErrorState, 'error notice or toast while retrying').to.equal(false)
-        })
+        cy.then(() => expect(sawErrorState, 'error notice or toast while retrying').to.equal(false))
         cy.contains(ERROR_NOTICE).should('not.exist')
         cy.get('.Toastify__toast').should('not.exist')
     })
@@ -191,32 +216,23 @@ describe('Bazaar snapshot recovery', () => {
     it('drops a stale retry instead of letting it clobber a newer timestamp', () => {
         const historicTimestampIso = '2020-06-15T12:00:00.000Z'
         const historicSnapshot = { ...snapshot, timeStamp: historicTimestampIso, buyPrice: 500, sellPrice: 400 }
-        // The page may load the "now" snapshot more than once while it starts, so only the count at
-        // the moment the historic view takes over matters: no "now" request may follow it.
-        const events: string[] = []
-        let nowRequestsBeforeHistoric = -1
-        const counts = stubSnapshots(historic => {
-            if (historic) {
-                nowRequestsBeforeHistoric = counts.now
-                return { body: historicSnapshot }
-            }
-            events.push('now requested')
-            return unavailable
-        })
-        visitItem(window => recordFirstRetries(window, events))
+        const counts = stubSnapshots(historic => (historic ? { body: historicSnapshot } : unavailable))
+        const activity = visitItem()
         // The latest "now" load has failed and armed its quiet retry, which the faked clock holds back.
-        cy.wrap(events).should(() => expect(events.at(-1)).to.equal('retry armed'))
+        cy.wrap(activity).should(() => expect(activity.events.at(-1)).to.equal('retry armed'))
+        let fetchesAtSwitch = 0
         cy.window().then(window => {
-            window.document.dispatchEvent(new window.CustomEvent('bazaarSnapshotUpdate', { detail: { timestamp: new window.Date(historicTimestampIso) } }))
+            fetchesAtSwitch = activity.nowFetches
+            dispatchSnapshotTimestamp(window, new window.Date(historicTimestampIso))
         })
         tickUntil(() => counts.historic > 0, 'the historic snapshot is requested')
         cy.contains('2020').should('be.visible')
         // Past the whole retry schedule of the stale request. Over an hour old, the historic view
-        // never polls, so any further "now" request would be that stale retry.
+        // never polls, so any further "now" fetch would be that stale retry.
         cy.tick(30000)
         cy.contains('2020').should('be.visible')
         cy.contains(ERROR_NOTICE).should('not.exist')
-        cy.then(() => expect(counts.now).to.equal(nowRequestsBeforeHistoric))
+        cy.then(() => expect(activity.nowFetches, '"now" fetches after the switch').to.equal(fetchesAtSwitch))
     })
 
     it('offers a page retry after an unexpected client error', () => {
