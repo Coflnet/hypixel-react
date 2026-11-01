@@ -616,7 +616,8 @@ describe('Purchased slot assignments', () => {
         cy.wait('@assignSlot')
         cy.get('[data-testid="tier-slot"]').should('contain.text', 'Notch')
         // Close the confirmation instead of waiting for its auto-close, it would cover the screenshot.
-        cy.contains('.Toastify__toast', 'Slot assigned').find('.Toastify__close-button').click()
+        cy.contains('.Toastify__toast', 'Slot assigned').should('be.visible')
+        cy.get('.Toastify__close-button').click({ multiple: true })
         cy.get('.Toastify__toast').should('not.exist')
         cy.get('#purchased-slots').screenshot('purchased-slot-management')
     })
