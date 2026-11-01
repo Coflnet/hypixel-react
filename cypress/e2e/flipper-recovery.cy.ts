@@ -2,6 +2,7 @@ import { recordHydrationErrors } from '../support/hydrationErrors'
 
 function visitFlipper(
     options: {
+        resumeEvents?: boolean
         filter?: Record<string, unknown>
         dropFirstHandshake?: boolean
         authenticated?: boolean
@@ -19,6 +20,10 @@ function visitFlipper(
     cy.intercept('GET', '**/s.nitropay.com/**', '')
     cy.visit('/flipper', {
         onBeforeLoad(window) {
+            // Synthetic online events also wake notification background sync, disabled in Cypress.
+            if (options.resumeEvents && (window as any).SyncManager) {
+                cy.stub((window as any).SyncManager.prototype, 'register').resolves()
+            }
             window.localStorage.clear()
             window.sessionStorage.clear()
             window.document.cookie = 'nonEssentialCookiesAllowed=false; path=/'
@@ -36,6 +41,7 @@ function visitFlipper(
 
             class FlipWebSocket {
                 static OPEN = 1
+                static CONNECTING = 0
                 readyState = 1
                 onopen: ((event: Event) => void) | null = null
                 onclose: ((event: Event) => void) | null = null
@@ -119,6 +125,24 @@ function emitFlip(name: string, sold = false) {
     })
 }
 
+function clearFlipCache() {
+    // A clock advanced into the future must not leave apparently valid login replies for later tests.
+    cy.window().then(window => new Cypress.Promise<void>((resolve, reject) => {
+        const request = window.indexedDB.open('keyval-store')
+        request.onerror = () => reject(request.error)
+        request.onsuccess = () => {
+            const database = request.result
+            const transaction = database.transaction('keyval', 'readwrite')
+            transaction.objectStore('keyval').clear()
+            transaction.oncomplete = () => {
+                database.close()
+                resolve()
+            }
+            transaction.onerror = () => reject(transaction.error)
+        }
+    }))
+}
+
 function expectSubscriptionCount(count: number, type = 'subFlipAnonym') {
     cy.window().should(window => {
         expect((window as any).websocket.sent.filter(request => request.type === type)).to.have.length(count)
@@ -197,6 +221,70 @@ describe('Flipper recovery', () => {
         cy.get('#onlyUnsoldCheckbox').check()
         emitFlip('Still Hidden Flip', true)
         cy.contains('Still Hidden Flip').should('not.exist')
+    })
+
+    it('resumes a stalled feed immediately on online and refreshes the countdown', () => {
+        cy.clock(Date.now(), ['Date', 'setInterval', 'clearInterval'])
+        visitFlipper({ filter: {}, failCountdown: true, authenticated: true, resumeEvents: true })
+        expectSubscriptionCount(1, 'subFlip')
+        cy.intercept('GET', '**/api/flip/update/when', { body: new Date().toISOString() }).as('recoveredCountdown')
+        cy.tick(61_000)
+        cy.window().then(window => window.dispatchEvent(new Event('online')))
+        cy.window().its('flipSockets', { timeout: 2000 }).should('have.length', 2)
+        expectSubscriptionCount(1, 'subFlip')
+        cy.wait('@recoveredCountdown')
+        cy.window().then(window => {
+            const types = (window as any).websocket.sent.map(request => request.type)
+            expect(types.indexOf('loginWithToken')).to.be.lessThan(types.indexOf('subFlip'))
+        })
+        emitFlip('Recovered Online Feed')
+        cy.contains('Recovered Online Feed').should('be.visible')
+        cy.contains('[role="status"]', 'Reconnecting').should('not.exist')
+        clearFlipCache()
+    })
+
+    it('resumes after a long hidden interval but preserves healthy and connecting sockets', () => {
+        cy.clock(Date.now(), ['Date', 'setInterval', 'clearInterval'])
+        visitFlipper({ filter: {}, resumeEvents: true })
+        expectSubscriptionCount(1)
+        const visibility = (hidden: boolean) => cy.document().then(document => {
+            Object.defineProperty(document, 'hidden', { configurable: true, value: hidden })
+            document.dispatchEvent(new Event('visibilitychange'))
+        })
+        visibility(true)
+        cy.tick(6000)
+        visibility(false)
+        cy.window().its('flipSockets').should('have.length', 1)
+        cy.window().then(window => {
+            const socket = (window as any).websocket
+            socket.readyState = 0
+            window.dispatchEvent(new Event('online'))
+        })
+        cy.window().its('flipSockets').should('have.length', 1)
+        cy.window().then(window => { (window as any).websocket.readyState = 1 })
+        visibility(true)
+        cy.tick(61_000)
+        visibility(false)
+        cy.window().its('flipSockets', { timeout: 2000 }).should('have.length', 2)
+        expectSubscriptionCount(1)
+        emitFlip('Recovered Visible Feed')
+        cy.contains('Recovered Visible Feed').should('be.visible')
+    })
+
+    it('shows reconnecting while offline and bypasses pending backoff on online', () => {
+        visitFlipper({ filter: {}, resumeEvents: true })
+        expectSubscriptionCount(1)
+        cy.window().then(window => {
+            cy.stub(window.Math, 'random').returns(0.99)
+            ;(window as any).websocket.close()
+        })
+        cy.contains('[role="status"]', 'Reconnecting').should('be.visible')
+        cy.window().then(window => window.dispatchEvent(new Event('online')))
+        cy.window().its('flipSockets', { timeout: 2000 }).should('have.length', 2)
+        expectSubscriptionCount(1)
+        emitFlip('Recovered Closed Feed')
+        cy.contains('Recovered Closed Feed').should('be.visible')
+        cy.contains('[role="status"]', 'Reconnecting').should('not.exist')
     })
 
     it('reconnects a silent socket even when the browser still reports it open', () => {

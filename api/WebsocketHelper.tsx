@@ -16,20 +16,59 @@ let connectionWatchdog: ReturnType<typeof setInterval> | undefined
 
 let apiSubscriptions: ApiSubscription[] = []
 
+export const SOCKET_STATE_CHANGED = 'flip_socket_state_changed'
+let removeResumeListeners: (() => void) | undefined
+
+export function isSocketReady(): boolean {
+    return isSessionReady
+}
+
+function notifySocketState(reconnected = false): void {
+    window.dispatchEvent(new CustomEvent(SOCKET_STATE_CHANGED, { detail: reconnected }))
+}
+
 export const USER_CHANGED_SLUG = 'user_changed'
 
 function isUserChangedClose(event?: Event): boolean {
     return (event as CloseEvent | undefined)?.reason === USER_CHANGED_SLUG
 }
 
+function listenForResume(getLastMessageAt: () => number, reconnect: () => void): void {
+    const resumeConnection = () => {
+        // An in-flight connection gets its normal setup timeout, never a duplicate socket.
+        if (websocket.readyState === WebSocket.CONNECTING) return
+        if (websocket.readyState === WebSocket.OPEN && Date.now() - getLastMessageAt() <= 60_000) return
+        clearTimeout(reconnectTimeout)
+        reconnectTimeout = undefined
+        reconnect()
+    }
+    let hiddenAt = document.hidden ? Date.now() : undefined
+    const onVisibilityChange = () => {
+        if (document.hidden) {
+            hiddenAt = Date.now()
+            return
+        }
+        const hiddenDuration = hiddenAt === undefined ? 0 : Date.now() - hiddenAt
+        hiddenAt = undefined
+        if (hiddenDuration > 5000) resumeConnection()
+    }
+    window.addEventListener('online', resumeConnection)
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    removeResumeListeners = () => {
+        window.removeEventListener('online', resumeConnection)
+        document.removeEventListener('visibilitychange', onVisibilityChange)
+    }
+}
+
 function initWebsocket(): void {
     let lastMessageAt = Date.now()
     let connectedAt = Date.now()
 
-    let onWebsocketClose = (event?: Event): void => {
+    let onWebsocketClose = (event?: Event, immediate = false): void => {
         if (reconnectTimeout !== undefined) return
         isConnectionIdSet = false
         isSessionReady = false
+        notifySocketState()
         // Retire the socket immediately, even if a half-open connection never emits close.
         websocket.onclose = null
         websocket.onerror = null
@@ -39,7 +78,7 @@ function initWebsocket(): void {
         reconnectTimeout = setTimeout(() => {
             reconnectTimeout = undefined
             websocket = getNewWebsocket(true)
-        }, Math.random() * 5000)
+        }, immediate ? 0 : Math.random() * 5000)
         // A lost setup reply must not leave a matching request blocking the next handshake.
         const setupRequests = requests.filter(request => [RequestType.SET_CONNECTION_ID, RequestType.LOGIN_WITH_TOKEN].includes(request.type))
         removeSentRequests(setupRequests)
@@ -61,6 +100,7 @@ function initWebsocket(): void {
                 localStorage.setItem('googleId', token)
             }
             isSessionReady = true
+            notifySocketState(isReconnecting)
             if (isReconnecting) {
                 const toReconnect = [...apiSubscriptions]
                 apiSubscriptions = []
@@ -145,6 +185,8 @@ function initWebsocket(): void {
         ;(window as any).websocket = websocket
         return websocket
     }
+
+    listenForResume(() => lastMessageAt, () => onWebsocketClose(undefined, true))
 
     websocket = getNewWebsocket(false)
     connectionWatchdog = setInterval(() => {
@@ -252,6 +294,8 @@ function _isWebsocketReady(requestType: string, websocket: WebSocket) {
 }
 
 function disconnect(): void {
+    removeResumeListeners?.()
+    removeResumeListeners = undefined
     clearInterval(connectionWatchdog)
     connectionWatchdog = undefined
     if (reconnectTimeout !== undefined) {
@@ -267,6 +311,7 @@ function disconnect(): void {
     }
     isConnectionIdSet = false
     isSessionReady = false
+    notifySocketState()
     websocket = undefined!
     requests = []
     apiSubscriptions = []
