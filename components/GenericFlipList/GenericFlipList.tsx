@@ -80,6 +80,9 @@ export function GenericFlipList<T>({
     const shouldShowAds = premiumState.isKnown && !premiumState.hasPremium
 
     const { processedItems, isProcessing } = useSortedAndFilteredItems(items, orderBy, nameFilter, minimumProfit, filterFunction, sortFunctionArgs)
+    // Keep the current cards while a sort or filter runs. Swapping them for the spinner unmounted every card
+    // right after hydration, and with it a detail dialog the visitor had just opened.
+    const showSpinner = isProcessing && processedItems.length === 0
 
     // Batch rendering state to limit DOM nodes for very large lists
     const safeInitial = Math.max(3, initialRenderCount || 0)
@@ -353,7 +356,7 @@ export function GenericFlipList<T>({
     }
 
     const list = useMemo(() => {
-        if (isProcessing) {
+        if (showSpinner) {
             return []
         }
 
@@ -370,7 +373,7 @@ export function GenericFlipList<T>({
                         <ListItemAdElement key={getItemKeyAction(item) + '-ad'} slotId={`flip-list-ad-${getItemKeyAction(item)}`} sizes={getAdSizes()} />
                     </div>
                 } else {
-                    ad = <div className={styles.flipCard} key={getItemKeyAction(item)}>
+                    ad = <div className={styles.flipCard} key={getItemKeyAction(item) + '-ad'}>
                         {getListElement(item, true)}
                     </div>
                 }
@@ -410,7 +413,7 @@ export function GenericFlipList<T>({
         })
 
         return list
-    }, [processedItems, hasPremium, shouldShowAds, isProcessing, censoredItemGenerator, customItemWrapper, renderedCount, listElementSizes])
+    }, [processedItems, hasPremium, shouldShowAds, showSpinner, censoredItemGenerator, customItemWrapper, renderedCount, listElementSizes])
 
     const flipListClass = showColumns && columns ? `${styles.flipList} ${styles[`columns-${columns}`]}` : styles.flipList
     return (
@@ -446,7 +449,7 @@ export function GenericFlipList<T>({
             <PremiumModal show={showPremiumModal} onHide={() => setShowPremiumModal(false)} />
             {processedItems.length > 0 ? <p>{clickMessage}</p> : null}
             <div className={flipListClass}>
-                {isProcessing ? (
+                {showSpinner ? (
                     <div
                         className={styles.loadingContainer}
                         style={{

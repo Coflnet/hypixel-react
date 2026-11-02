@@ -469,8 +469,9 @@ describe('Market analysis section', () => {
         cy.contains('Similar items').should('not.exist')
         cy.contains('Hide similar items').should('not.exist')
 
-        // "below the FAQ": the FAQ heading must precede the Related items heading in DOM order
-        cy.get('h2, h3').then($headings => {
+        // "below the FAQ": the FAQ heading must precede the Related items heading in DOM order.
+        // `:visible` leaves out a stale copy that can stay in the hidden streaming container above the FAQ.
+        cy.get('h2:visible, h3:visible').then($headings => {
             const texts = $headings.toArray().map(el => el.textContent?.trim() || '')
             const faqIndex = texts.findIndex(t => t === 'FAQ')
             const relatedIndex = texts.findIndex(t => t.startsWith('Related items'))
