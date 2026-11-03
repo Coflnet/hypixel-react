@@ -438,17 +438,17 @@ function PremiumFeatures() {
                                 type="hover"
                                 tooltipContent={
                                     <p>
-                                        The Hypixel Auctions API updates once every 60 seconds. After we were able to load new auctions, this is how long it
-                                        will take until they are shown to you. (Parsing auctions, finding references, comparing to determine profit,
-                                        distributing and filtering and sending to you)
+                                        Compared to Premium+, which gets every flip first (including pre-API flips). Each lower tier receives a flip
+                                        about 0.5 seconds after the tier above. If a higher tier also wants a flip (their filter matched it), the next
+                                        tier waits 3-5 seconds instead.
                                     </p>
                                 }
                             />
                         </td>
-                        <td className={styles.premiumProductColumn}>40 sec</td>
-                        <td className={styles.premiumProductColumn}>10-20 sec</td>
-                        <td className={styles.premiumProductColumn}>~1 sec</td>
-                        <td className={styles.premiumProductColumn}>&lt; 1 sec</td>
+                        <td className={styles.premiumProductColumn}>+1.5 sec</td>
+                        <td className={styles.premiumProductColumn}>+1 sec</td>
+                        <td className={styles.premiumProductColumn}>+0.5 sec</td>
+                        <td className={styles.premiumProductColumn}>First</td>
                     </tr>
                 </tbody>
             </Table>

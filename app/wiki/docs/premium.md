@@ -12,13 +12,15 @@ SkyCofl offers several premium tiers to enhance your SkyBlock experience and sup
 
 ### Free
 - Basic auction house browsing
-- Delayed flipper (40+ seconds)
+- Flipper delay: about 1.5 seconds after Premium+ (each tier waits 3-5 seconds instead of 0.5 when a higher tier wants the flip too)
+- All flips, no minimum profit
 - Limited recent auctions (12)
 - Basic notifications (3)
 - Price history access
 
 ### Starter Premium
-- Flipper delay: 10-20 seconds
+- Flipper delay: about 1 second after Premium+
+- All flips, no minimum profit
 - Recent auctions: 60
 - Notifications: 10
 - Full filter access
@@ -26,7 +28,7 @@ SkyCofl offers several premium tiers to enhance your SkyBlock experience and sup
 - White chat color in mod
 
 ### Premium
-- Flipper delay: ~1 second
+- Flipper delay: about 0.5 seconds after Premium+
 - Recent auctions: 120
 - Notifications: 100
 - Low supply items access
@@ -36,7 +38,7 @@ SkyCofl offers several premium tiers to enhance your SkyBlock experience and sup
 - Green chat color in mod
 
 ### Premium+
-- Flipper delay: \<1 second
+- Gets every flip before the other tiers, including pre-API flips that mod users find before the auction shows up in the Hypixel API. During an auction's bed (its first 20 seconds) pre-API flips go only to users with Pre-API hours; Premium+ gets them when the bed ends, Premium about 1 second later, and each lower tier about 0.5 seconds after the one above
 - All premium features
 - Auction archive access
 - Flip replay system

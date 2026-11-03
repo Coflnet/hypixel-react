@@ -46,7 +46,7 @@ To set the minprofit to just half for all flips found by the sniper finder (lbin
 Selects flips still in the 20 seconds in grace period after start. As they are not directly purchaseable they have more competition than flips that can be directly purchased. This filter can be used both to select flips that are still in grace period and ones that are not.
 
 ## PreApi
-Pre api flips are flips that we found based before the 1 minute api update. They have less competition because most bots are not able to find them before the api updates. The fairness system delays users that buy suspiciously fast extra on these flips to give other users a better chance to buy them. This filter allows you to select those flips. 
+Pre api flips are flips that we found based before the 1 minute api update. They have less competition because most bots are not able to find them before the api updates. The fairness system delays users that buy suspiciously fast extra on these flips to give other users a better chance to buy them. This filter allows you to select those flips. Pre api flips that are still in their bed (the first 20 seconds of an auction, in which it can't be bought) stay exclusive to Premium+ until the bed ends, because the public API never shows auctions that are still in their bed. 
 
 ## PremPlus
 Targets flips found found by one of the prem+ instances, marked with a gray `!`. The prem+ instances run a hyper optimized version of the flip finder that is able to find flips faster than the normal finder. It was built following user requests and forwards its flips after a 1 second delay in case the main instance didn't find them yet. This filter allows you to select those flips.
