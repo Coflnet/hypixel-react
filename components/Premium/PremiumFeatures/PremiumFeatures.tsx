@@ -7,6 +7,16 @@ import Tooltip from '../../Tooltip/Tooltip'
 import styles from './PremiumFeatures.module.css'
 import Image from 'next/image'
 
+function ReceiveTimeCell({ measured, path }: { measured: string; path: string }) {
+    return (
+        <td className={styles.premiumProductColumn}>
+            {measured}
+            <br />
+            <small style={{ opacity: 0.7 }}>{path}</small>
+        </td>
+    )
+}
+
 function PremiumFeatures() {
     const checkIconSvg = (
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="lime" className="bi bi-check-circle-fill" viewBox="0 0 16 16">
@@ -437,18 +447,42 @@ function PremiumFeatures() {
                                 }
                                 type="hover"
                                 tooltipContent={
-                                    <p>
-                                        Compared to Premium+, which gets every flip first (including pre-API flips). Each lower tier receives a flip
-                                        about 0.5 seconds after the tier above. If a higher tier also wants a flip (their filter matched it), the next
-                                        tier waits 3-5 seconds instead.
-                                    </p>
+                                    <>
+                                        <p>
+                                            Measured from the Hypixel API update until the flip reaches you (average over recent flips). Premium+ is
+                                            below 0 because flips that mod users find before the API lists them reach Premium+ first.
+                                        </p>
+                                        <p>
+                                            The second line is the path a flip takes: each lower tier gets it about 0.5 seconds after the tier above
+                                            (3-5 seconds when a higher tier&apos;s filter also matched it). Because the path starts at Premium+, even
+                                            free users can get some pre-API flips before the Hypixel API update.
+                                        </p>
+                                    </>
                                 }
                             />
                         </td>
-                        <td className={styles.premiumProductColumn}>+1.5 sec</td>
-                        <td className={styles.premiumProductColumn}>+1 sec</td>
-                        <td className={styles.premiumProductColumn}>+0.5 sec</td>
-                        <td className={styles.premiumProductColumn}>First</td>
+                        <ReceiveTimeCell measured="~6 sec" path="+1.5 sec after Premium+" />
+                        <ReceiveTimeCell measured="~3 sec" path="+1 sec after Premium+" />
+                        <ReceiveTimeCell measured="~0 sec" path="+0.5 sec after Premium+" />
+                        <ReceiveTimeCell measured="< 0 sec" path="gets every flip first" />
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>
+                            Typical profit vs. free
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={<p>Median realized profit per user per day (AH flips, bazaar and tasks tracked by the mod) compared to free users. Measured over the last 24 hours on 2026-11-04.</p>}
+                            />
+                        </td>
+                        <td className={styles.premiumProductColumn}>1x</td>
+                        <td className={styles.premiumProductColumn}>1.5x</td>
+                        <td className={styles.premiumProductColumn}>2.6x</td>
+                        <td className={styles.premiumProductColumn}>5.9x</td>
                     </tr>
                 </tbody>
             </Table>
