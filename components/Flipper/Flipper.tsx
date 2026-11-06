@@ -13,6 +13,7 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList as List } from 'react-window'
 import { v4 as generateUUID } from 'uuid'
 import api from '../../api/ApiHelper'
+import { isSocketReady, SOCKET_STATE_CHANGED } from '../../api/WebsocketHelper'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils'
 import { useReferralRewardsEligibility, useWasAlreadyLoggedIn } from '../../utils/Hooks'
@@ -73,6 +74,7 @@ function Flipper(props: Props) {
     const [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
     const [currentEnabledScroll, setEnabledScroll] = useState(false)
     let enabledScroll = currentEnabledScroll
+    const [isReconnecting, setIsReconnecting] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [refInfo, setRefInfo] = useState<RefInfo>()
     const [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null)
@@ -121,6 +123,12 @@ function Flipper(props: Props) {
             onNextFlipNotification
         )
         getLastFlipFetchTime()
+        setIsReconnecting(!isSocketReady())
+        const onSocketStateChange = (event: Event) => {
+            setIsReconnecting(!isSocketReady())
+            if ((event as CustomEvent<boolean>).detail) getLastFlipFetchTime()
+        }
+        window.addEventListener(SOCKET_STATE_CHANGED, onSocketStateChange)
 
         const onFlipSettingsChange = e => {
             filterRef.current = getSettingsObject(FLIPPER_FILTER_KEY, {})
@@ -147,6 +155,7 @@ function Flipper(props: Props) {
         setIsSmall(document.body.clientWidth < 1000)
 
         return () => {
+            window.removeEventListener(SOCKET_STATE_CHANGED, onSocketStateChange)
             mounted.current = false
             clearTimeout(subscriptionTimer.current)
             document.removeEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, onFlipSettingsChange)
@@ -700,6 +709,11 @@ function Flipper(props: Props) {
                             ) : null}
                         </Form>
                         <hr />
+                        {isReconnecting && (
+                            <Alert variant="secondary" role="status" className="py-2">
+                                Reconnecting…
+                            </Alert>
+                        )}
                         {flips.length === 0 && !isLoading ? (
                             <Alert variant="info">
                                 <Alert.Heading style={{ fontSize: '1rem' }}>Waiting for new auctions</Alert.Heading>
