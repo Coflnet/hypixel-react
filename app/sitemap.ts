@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next'
 import { SITEMAP_CONFIG, getFullUrl } from '../utils/sitemap-config'
 import { generateGuideSitemapEntries, generateWikiSitemapEntries } from '../utils/sitemap-discovery'
+import { getPublicTasks } from '../api/publicTaskApi'
 
 interface Item {
     tag: string;
@@ -68,6 +69,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     } catch (error) {
         console.error('Error adding updates archive pages to sitemap:', error)
     }
+    // Add money-making task detail pages; getPublicTasks never throws and yields null when the API is down
+    try {
+        const taskEntries = await generateTaskSitemapEntries()
+        sitemapEntries.push(...taskEntries)
+        console.log(`Added ${taskEntries.length} task pages to sitemap`)
+    } catch (error) {
+        console.error('Error adding task pages to sitemap:', error)
+    }
+
     // Add auction items (limited for sitemap size)
     try {
         const auctionItems = await generateItemSitemap('auction')
@@ -122,6 +132,20 @@ async function generateItemSitemap(type: 'auction' | 'bazaar'): Promise<Metadata
         console.error(`Error generating ${type} sitemap:`, error)
         return []
     }
+}
+
+async function generateTaskSitemapEntries(): Promise<MetadataRoute.Sitemap> {
+    const tasks = await getPublicTasks()
+    if (!tasks) {
+        return []
+    }
+    const today = new Date()
+    return tasks.map(task => ({
+        url: getFullUrl(`/tasks/${encodeURIComponent(task.slug)}`),
+        lastModified: today,
+        changeFrequency: 'daily' as const,
+        priority: 0.6
+    }))
 }
 
 // Helper function to check if item is bazaar item

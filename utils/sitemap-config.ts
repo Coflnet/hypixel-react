@@ -186,6 +186,14 @@ export const SITEMAP_CONFIG = {
             keywords: ['profit leaderboard', 'flipping profit', 'skycofl leaderboard']
         },
         {
+            url: '/tasks',
+            priority: 0.8,
+            changefreq: 'hourly' as const,
+            title: 'Hypixel SkyBlock Money Making Methods – Live Coins per Hour',
+            description: 'Live coins per hour for Hypixel SkyBlock money making methods based on community-tracked SkyCofl mod data.',
+            keywords: ['money making methods', 'coins per hour', 'skyblock money making', 'skycofl tasks']
+        },
+        {
             url: '/mayor',
             priority: 0.7,
             changefreq: 'daily' as const,

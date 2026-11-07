@@ -952,6 +952,8 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- The base list search lets you filter tasks by name (e.g. “Garden” or “Kat”).
 	- After the list prints, the command posts a follow-up reminding you to report incorrect numbers; on old mod versions it suggests an update.
 
+- **Website:** The community averages behind the task list are public on the [live money making methods page](/tasks), with coins/hour, current players, drops and best zones per task. `/cofl task` personalizes them for your profile.
+
 
 
 ## Utility Commands

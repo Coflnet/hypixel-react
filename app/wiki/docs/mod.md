@@ -65,7 +65,7 @@ Lowballing is one of the most profitable money making methods in hypixel skybloc
 - `/cofl attributeflip` - Shows auction items that can be bought, some enchant or other modifier applied and solf for profit
 - `/cofl crafts` - Shows profitable auction house, bazaar and bazaar to ah craft flips
 - `/cofl fusionflip` - Displays the most profitable buy order, fusion machine combining and sell order flips
-- `/cofl task` - Shows a breakdown of what is the most profitable money making method for you currently (tracks items you collect to update estimate in real time)
+- `/cofl task` - Shows a breakdown of what is the most profitable money making method for you currently (tracks items you collect to update estimate in real time). Community averages are on the [live money making methods page](/tasks)
 - `/cofl profit` - Ah profit you made recently
 - `/cofl lowball` - Allows you to register as a lowballer or offer an item to lowballers for a good price, you can decide if you want more coins or a faster buyer
 

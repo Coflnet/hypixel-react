@@ -240,6 +240,7 @@ import type {
   Profile,
   ProfitableCraft,
   PublicSubscription,
+  PublicTaskEstimate,
   PurchaseArgs,
   PurchaseableProduct,
   PutApiNotificationsSubscriptions401One,
@@ -19901,6 +19902,315 @@ export function useGetApiInventory<TData = Awaited<ReturnType<typeof getApiInven
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetApiInventoryQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type getApiTasksResponse200TextPlain = {
+  data: PublicTaskEstimate[]
+  status: 200
+}
+
+export type getApiTasksResponse200ApplicationJson = {
+  data: PublicTaskEstimate[]
+  status: 200
+}
+
+export type getApiTasksResponse200TextJson = {
+  data: PublicTaskEstimate[]
+  status: 200
+}
+
+export type getApiTasksResponse503TextPlain = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksResponse503ApplicationJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksResponse503TextJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksResponseSuccess = (getApiTasksResponse200TextPlain | getApiTasksResponse200ApplicationJson | getApiTasksResponse200TextJson) & {
+  headers: Headers;
+};
+export type getApiTasksResponseError = (getApiTasksResponse503TextPlain | getApiTasksResponse503ApplicationJson | getApiTasksResponse503TextJson) & {
+  headers: Headers;
+};
+
+export type getApiTasksResponse = (getApiTasksResponseSuccess | getApiTasksResponseError)
+
+export const getGetApiTasksUrl = () => {
+
+
+
+
+  return `https://sky.coflnet.com/api/tasks`
+}
+
+/**
+ * @summary All task estimates sorted by coins per hour, best first
+ */
+export const getApiTasks = async ( options?: RequestInit): Promise<getApiTasksResponse> => {
+
+  const res = await fetch(getGetApiTasksUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiTasksResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiTasksResponse
+}
+
+
+
+
+
+export const getGetApiTasksQueryKey = () => {
+    return [
+    `https://sky.coflnet.com/api/tasks`
+    ] as const;
+    }
+
+
+export const getGetApiTasksQueryOptions = <TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiTasksQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTasks>>> = ({ signal }) => getApiTasks({ signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiTasksQueryResult = NonNullable<Awaited<ReturnType<typeof getApiTasks>>>
+export type GetApiTasksQueryError = ErrorResponse
+
+
+export function useGetApiTasks<TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasks>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasks>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasks<TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasks>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasks>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasks<TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary All task estimates sorted by coins per hour, best first
+ */
+
+export function useGetApiTasks<TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiTasksQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type getApiTasksSlugResponse200TextPlain = {
+  data: PublicTaskEstimate
+  status: 200
+}
+
+export type getApiTasksSlugResponse200ApplicationJson = {
+  data: PublicTaskEstimate
+  status: 200
+}
+
+export type getApiTasksSlugResponse200TextJson = {
+  data: PublicTaskEstimate
+  status: 200
+}
+
+export type getApiTasksSlugResponse404TextPlain = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugResponse404ApplicationJson = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugResponse404TextJson = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugResponse503TextPlain = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugResponse503ApplicationJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugResponse503TextJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugResponseSuccess = (getApiTasksSlugResponse200TextPlain | getApiTasksSlugResponse200ApplicationJson | getApiTasksSlugResponse200TextJson) & {
+  headers: Headers;
+};
+export type getApiTasksSlugResponseError = (getApiTasksSlugResponse404TextPlain | getApiTasksSlugResponse404ApplicationJson | getApiTasksSlugResponse404TextJson | getApiTasksSlugResponse503TextPlain | getApiTasksSlugResponse503ApplicationJson | getApiTasksSlugResponse503TextJson) & {
+  headers: Headers;
+};
+
+export type getApiTasksSlugResponse = (getApiTasksSlugResponseSuccess | getApiTasksSlugResponseError)
+
+export const getGetApiTasksSlugUrl = (slug: string,) => {
+
+
+
+
+  return `https://sky.coflnet.com/api/tasks/${slug}`
+}
+
+/**
+ * @summary A single task estimate
+ */
+export const getApiTasksSlug = async (slug: string, options?: RequestInit): Promise<getApiTasksSlugResponse> => {
+
+  const res = await fetch(getGetApiTasksSlugUrl(slug),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiTasksSlugResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiTasksSlugResponse
+}
+
+
+
+
+
+export const getGetApiTasksSlugQueryKey = (slug: string,) => {
+    return [
+    `https://sky.coflnet.com/api/tasks/${slug}`
+    ] as const;
+    }
+
+
+export const getGetApiTasksSlugQueryOptions = <TData = Awaited<ReturnType<typeof getApiTasksSlug>>, TError = ErrorResponse>(slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlug>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiTasksSlugQueryKey(slug);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTasksSlug>>> = ({ signal }) => getApiTasksSlug(slug, { signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: slug !== null && slug !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlug>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiTasksSlugQueryResult = NonNullable<Awaited<ReturnType<typeof getApiTasksSlug>>>
+export type GetApiTasksSlugQueryError = ErrorResponse
+
+
+export function useGetApiTasksSlug<TData = Awaited<ReturnType<typeof getApiTasksSlug>>, TError = ErrorResponse>(
+ slug: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlug>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasksSlug>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasksSlug>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasksSlug<TData = Awaited<ReturnType<typeof getApiTasksSlug>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlug>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasksSlug>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasksSlug>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasksSlug<TData = Awaited<ReturnType<typeof getApiTasksSlug>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlug>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary A single task estimate
+ */
+
+export function useGetApiTasksSlug<TData = Awaited<ReturnType<typeof getApiTasksSlug>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlug>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiTasksSlugQueryOptions(slug,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

@@ -3412,6 +3412,142 @@ export interface PublicSubscription {
 }
 
 /**
+ * An item dropped by a task
+ */
+export interface PublicTaskDrop {
+  /**
+     * Item tag
+     * @nullable
+     */
+  itemTag?: string | null;
+  /**
+     * Display name, null if unknown
+     * @nullable
+     */
+  itemName?: string | null;
+  /** Drops per hour */
+  ratePerHour: number;
+  /** Price of one item */
+  priceEach: number;
+  /** Coins per hour this drop contributes */
+  contributionPerHour: number;
+}
+
+/**
+ * A step of a task
+ */
+export interface PublicTaskStep {
+  /** Step number */
+  number: number;
+  /**
+     * Instruction text
+     * @nullable
+     */
+  text?: string | null;
+}
+
+/**
+ * A zone and its earnings
+ */
+export interface PublicTaskZone {
+  /**
+     * Zone name
+     * @nullable
+     */
+  zone?: string | null;
+  /** Coins per hour in the zone */
+  coinsPerHour: number;
+  /** Players tracked in the zone */
+  players: number;
+}
+
+/**
+ * A community money making task estimate for the website
+ */
+export interface PublicTaskEstimate {
+  /**
+     * Display name
+     * @nullable
+     */
+  name?: string | null;
+  /**
+     * Url safe unique identifier
+     * @nullable
+     */
+  slug?: string | null;
+  /**
+     * Category of the task
+     * @nullable
+     */
+  category?: string | null;
+  /**
+     * Short description
+     * @nullable
+     */
+  description?: string | null;
+  /**
+     * active, passive or limited
+     * @nullable
+     */
+  type?: string | null;
+  /** Estimated coins per hour */
+  coinsPerHour: number;
+  /**
+     * Where the estimate comes from (stat_bucket, global, formula)
+     * @nullable
+     */
+  source?: string | null;
+  /** Hours of community tracking behind the estimate */
+  communityTrackedHours: number;
+  /** Number of players that contributed */
+  contributors: number;
+  /** Players currently doing the task */
+  currentDoers: number;
+  /** Change of current doers over the last 20 minutes */
+  doersChange20m: number;
+  /**
+     * Island the task takes place on
+     * @nullable
+     */
+  island?: string | null;
+  /**
+     * Location description
+     * @nullable
+     */
+  where?: string | null;
+  /**
+     * Warp command
+     * @nullable
+     */
+  warp?: string | null;
+  /**
+     * Wiki page of the task
+     * @nullable
+     */
+  wikiUrl?: string | null;
+  /**
+     * Wiki page of the location
+     * @nullable
+     */
+  whereWikiUrl?: string | null;
+  /**
+     * Steps to perform
+     * @nullable
+     */
+  steps?: PublicTaskStep[] | null;
+  /**
+     * Items dropped
+     * @nullable
+     */
+  drops?: PublicTaskDrop[] | null;
+  /**
+     * Best zones for this task
+     * @nullable
+     */
+  bestZones?: PublicTaskZone[] | null;
+}
+
+/**
  * Arguments for purchasing a service
  */
 export interface PurchaseArgs {

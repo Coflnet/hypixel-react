@@ -9,6 +9,7 @@ import NotificationIcon from '@mui/icons-material/NotificationsOutlined'
 import PolicyIcon from '@mui/icons-material/Policy'
 import ShareIcon from '@mui/icons-material/ShareOutlined'
 import StorefrontIcon from '@mui/icons-material/Storefront'
+import PaidIcon from '@mui/icons-material/Paid'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
@@ -138,6 +139,9 @@ function NavBar(props: Props) {
                             </MenuItem>
                             <MenuItem className={styles.menuItem} component={<Link href={'/flipper'} />} icon={<StorefrontIcon />}>
                                 Item Flipper
+                            </MenuItem>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/tasks'} />} icon={<PaidIcon />}>
+                                Money Making
                             </MenuItem>
                             <MenuItem className={styles.menuItem} component={<Link href={'/account'} />} icon={<AccountIcon />}>
                                 Account
