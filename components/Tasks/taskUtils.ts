@@ -27,6 +27,15 @@ export function formatDoersChange(change: number): string {
     return change > 0 ? `+${formatCount(change)}` : `-${formatCount(Math.abs(change))}`
 }
 
+/** The warp as a command: the API sends the full "/warp hub", a bare name gets the prefix. */
+export function formatWarpCommand(warp: string): string {
+    const trimmed = warp.trim()
+    if (trimmed.startsWith('/')) {
+        return trimmed
+    }
+    return `/warp ${trimmed}`
+}
+
 export function getSourceLabel(source: PublicTask['source']): string {
     return source === 'formula' ? 'estimated from drop rates' : 'community data'
 }

@@ -241,6 +241,7 @@ import type {
   ProfitableCraft,
   PublicSubscription,
   PublicTaskEstimate,
+  PublicTaskSetups,
   PurchaseArgs,
   PurchaseableProduct,
   PutApiNotificationsSubscriptions401One,
@@ -20217,6 +20218,363 @@ export function useGetApiTasksSlug<TData = Awaited<ReturnType<typeof getApiTasks
   return withQueryKey(query, queryOptions.queryKey);
 }
 
+
+
+
+
+
+
+export type getApiTasksSlugSetupsResponse200TextPlain = {
+  data: PublicTaskSetups
+  status: 200
+}
+
+export type getApiTasksSlugSetupsResponse200ApplicationJson = {
+  data: PublicTaskSetups
+  status: 200
+}
+
+export type getApiTasksSlugSetupsResponse200TextJson = {
+  data: PublicTaskSetups
+  status: 200
+}
+
+export type getApiTasksSlugSetupsResponse404TextPlain = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugSetupsResponse404ApplicationJson = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugSetupsResponse404TextJson = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugSetupsResponse503TextPlain = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugSetupsResponse503ApplicationJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugSetupsResponse503TextJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugSetupsResponseSuccess = (getApiTasksSlugSetupsResponse200TextPlain | getApiTasksSlugSetupsResponse200ApplicationJson | getApiTasksSlugSetupsResponse200TextJson) & {
+  headers: Headers;
+};
+export type getApiTasksSlugSetupsResponseError = (getApiTasksSlugSetupsResponse404TextPlain | getApiTasksSlugSetupsResponse404ApplicationJson | getApiTasksSlugSetupsResponse404TextJson | getApiTasksSlugSetupsResponse503TextPlain | getApiTasksSlugSetupsResponse503ApplicationJson | getApiTasksSlugSetupsResponse503TextJson) & {
+  headers: Headers;
+};
+
+export type getApiTasksSlugSetupsResponse = (getApiTasksSlugSetupsResponseSuccess | getApiTasksSlugSetupsResponseError)
+
+export const getGetApiTasksSlugSetupsUrl = (slug: string,) => {
+
+
+
+
+  return `https://sky.coflnet.com/api/tasks/${slug}/setups`
+}
+
+/**
+ * @summary Gear setups of a task: which armor, tools and pets to use at different price points.
+The baseline and budget setups include their numbers, the mid and endgame setups are locked
+(numbers are null) and available with premium on the details endpoint.
+ */
+export const getApiTasksSlugSetups = async (slug: string, options?: RequestInit): Promise<getApiTasksSlugSetupsResponse> => {
+
+  const res = await fetch(getGetApiTasksSlugSetupsUrl(slug),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiTasksSlugSetupsResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiTasksSlugSetupsResponse
+}
+
+
+
+
+
+export const getGetApiTasksSlugSetupsQueryKey = (slug: string,) => {
+    return [
+    `https://sky.coflnet.com/api/tasks/${slug}/setups`
+    ] as const;
+    }
+
+
+export const getGetApiTasksSlugSetupsQueryOptions = <TData = Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError = ErrorResponse>(slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiTasksSlugSetupsQueryKey(slug);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTasksSlugSetups>>> = ({ signal }) => getApiTasksSlugSetups(slug, { signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: slug !== null && slug !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiTasksSlugSetupsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiTasksSlugSetups>>>
+export type GetApiTasksSlugSetupsQueryError = ErrorResponse
+
+
+export function useGetApiTasksSlugSetups<TData = Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError = ErrorResponse>(
+ slug: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasksSlugSetups>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasksSlugSetups>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasksSlugSetups<TData = Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasksSlugSetups>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasksSlugSetups>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasksSlugSetups<TData = Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Gear setups of a task: which armor, tools and pets to use at different price points.
+The baseline and budget setups include their numbers, the mid and endgame setups are locked
+(numbers are null) and available with premium on the details endpoint.
+ */
+
+export function useGetApiTasksSlugSetups<TData = Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiTasksSlugSetupsQueryOptions(slug,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type getApiTasksSlugSetupsDetailsResponse200TextPlain = {
+  data: PublicTaskSetups
+  status: 200
+}
+
+export type getApiTasksSlugSetupsDetailsResponse200ApplicationJson = {
+  data: PublicTaskSetups
+  status: 200
+}
+
+export type getApiTasksSlugSetupsDetailsResponse200TextJson = {
+  data: PublicTaskSetups
+  status: 200
+}
+
+export type getApiTasksSlugSetupsDetailsResponse401TextPlain = {
+  data: ErrorResponse
+  status: 401
+}
+
+export type getApiTasksSlugSetupsDetailsResponse401ApplicationJson = {
+  data: ErrorResponse
+  status: 401
+}
+
+export type getApiTasksSlugSetupsDetailsResponse401TextJson = {
+  data: ErrorResponse
+  status: 401
+}
+
+export type getApiTasksSlugSetupsDetailsResponse403TextPlain = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type getApiTasksSlugSetupsDetailsResponse403ApplicationJson = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type getApiTasksSlugSetupsDetailsResponse403TextJson = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type getApiTasksSlugSetupsDetailsResponse404TextPlain = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugSetupsDetailsResponse404ApplicationJson = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugSetupsDetailsResponse404TextJson = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugSetupsDetailsResponse503TextPlain = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugSetupsDetailsResponse503ApplicationJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugSetupsDetailsResponse503TextJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugSetupsDetailsResponseSuccess = (getApiTasksSlugSetupsDetailsResponse200TextPlain | getApiTasksSlugSetupsDetailsResponse200ApplicationJson | getApiTasksSlugSetupsDetailsResponse200TextJson) & {
+  headers: Headers;
+};
+export type getApiTasksSlugSetupsDetailsResponseError = (getApiTasksSlugSetupsDetailsResponse401TextPlain | getApiTasksSlugSetupsDetailsResponse401ApplicationJson | getApiTasksSlugSetupsDetailsResponse401TextJson | getApiTasksSlugSetupsDetailsResponse403TextPlain | getApiTasksSlugSetupsDetailsResponse403ApplicationJson | getApiTasksSlugSetupsDetailsResponse403TextJson | getApiTasksSlugSetupsDetailsResponse404TextPlain | getApiTasksSlugSetupsDetailsResponse404ApplicationJson | getApiTasksSlugSetupsDetailsResponse404TextJson | getApiTasksSlugSetupsDetailsResponse503TextPlain | getApiTasksSlugSetupsDetailsResponse503ApplicationJson | getApiTasksSlugSetupsDetailsResponse503TextJson) & {
+  headers: Headers;
+};
+
+export type getApiTasksSlugSetupsDetailsResponse = (getApiTasksSlugSetupsDetailsResponseSuccess | getApiTasksSlugSetupsDetailsResponseError)
+
+export const getGetApiTasksSlugSetupsDetailsUrl = (slug: string,) => {
+
+
+
+
+  return `https://sky.coflnet.com/api/tasks/${slug}/setups/details`
+}
+
+/**
+ * @summary Gear setups with coins per hour, buy cost, resale value and payback hours. Premium and premium plus only.
+ */
+export const getApiTasksSlugSetupsDetails = async (slug: string, options?: RequestInit): Promise<getApiTasksSlugSetupsDetailsResponse> => {
+
+  const res = await fetch(getGetApiTasksSlugSetupsDetailsUrl(slug),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiTasksSlugSetupsDetailsResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiTasksSlugSetupsDetailsResponse
+}
+
+
+
+
+
+export const getGetApiTasksSlugSetupsDetailsQueryKey = (slug: string,) => {
+    return [
+    `https://sky.coflnet.com/api/tasks/${slug}/setups/details`
+    ] as const;
+    }
+
+
+export const getGetApiTasksSlugSetupsDetailsQueryOptions = <TData = Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError = ErrorResponse>(slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiTasksSlugSetupsDetailsQueryKey(slug);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>> = ({ signal }) => getApiTasksSlugSetupsDetails(slug, { signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: slug !== null && slug !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiTasksSlugSetupsDetailsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>>
+export type GetApiTasksSlugSetupsDetailsQueryError = ErrorResponse
+
+
+export function useGetApiTasksSlugSetupsDetails<TData = Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError = ErrorResponse>(
+ slug: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasksSlugSetupsDetails<TData = Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasksSlugSetupsDetails<TData = Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Gear setups with coins per hour, buy cost, resale value and payback hours. Premium and premium plus only.
+ */
+
+export function useGetApiTasksSlugSetupsDetails<TData = Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiTasksSlugSetupsDetailsQueryOptions(slug,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
 
 
 

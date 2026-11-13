@@ -1,11 +1,9 @@
 'use client'
 import { ReactNode, useMemo } from 'react'
 import ReactECharts from 'echarts-for-react'
-import Link from 'next/link'
 import { Alert, Button, Card, Col, Row, ToggleButton, ToggleButtonGroup } from 'react-bootstrap'
-import LockIcon from '@mui/icons-material/Lock'
 import Number from '../Number/Number'
-import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { PremiumGate } from '../Premium/PremiumGate'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import type { LiveAnalysisStatus, LiveMarketAnalysisResult, LiveMarketTimeOnMarketBucket, SoldAnalysisResult, SoldAnalysisStatus } from '../../hooks/useMarketAnalysis'
 import {
@@ -179,24 +177,18 @@ function SpeedTiles({
     )
 }
 
-function PremiumGate({ days, isSignedIn }: { days: number; isSignedIn: boolean }) {
+function AnalysisPremiumGate({ days, isSignedIn }: { days: number; isSignedIn: boolean }) {
     const requiredLabel = getRequiredPremiumLabel(days)
     return (
-        <Alert variant="warning" className="d-flex align-items-center flex-wrap gap-2 mb-0">
-            <LockIcon fontSize="small" />
-            <span>
-                Analyzing {days} days of history requires <strong>{requiredLabel}</strong>.
-            </span>
-            {isSignedIn ? (
-                <Link href={`/premium?tier=${requiredLabel === 'Premium' ? 'premium' : 'starter'}`}>
-                    <Button size="sm" variant="warning">
-                        Go to Premium
-                    </Button>
-                </Link>
-            ) : (
-                <GoogleSignIn />
-            )}
-        </Alert>
+        <PremiumGate
+            isSignedIn={isSignedIn}
+            requiredTier={requiredLabel === 'Premium' ? 'premium' : 'starter'}
+            message={
+                <>
+                    Analyzing {days} days of history requires <strong>{requiredLabel}</strong>.
+                </>
+            }
+        />
     )
 }
 
@@ -335,7 +327,7 @@ function MarketAnalysisBody(props: Props) {
                     </Button>
                 </Alert>
             ) : sold.status === 'premium' ? (
-                <PremiumGate days={props.days} isSignedIn={sold.isSignedIn} />
+                <AnalysisPremiumGate days={props.days} isSignedIn={sold.isSignedIn} />
             ) : sold.status === 'empty' ? (
                 <Alert variant="secondary" className="text-center mb-0">
                     Not enough sales in this period for an analysis.

@@ -3447,6 +3447,31 @@ export interface PublicTaskStep {
 }
 
 /**
+ * A requirement of a task, the same for every player
+ */
+export interface PublicTaskRequirement {
+  /**
+     * Human readable name, for example "Catacombs 36"
+     * @nullable
+     */
+  label?: string | null;
+  /**
+     * Kind of requirement, for example skill_level, catacombs_level or slayer_tier
+     * @nullable
+     */
+  kind?: string | null;
+  /**
+     * Sub selector of the kind (skill name, slayer family, dungeon mode), null if it has none
+     * @nullable
+     */
+  key?: string | null;
+  /** Level, floor or tier to reach */
+  target: number;
+  /** True when the game blocks the task without it, false when only recommended */
+  hard: boolean;
+}
+
+/**
  * A zone and its earnings
  */
 export interface PublicTaskZone {
@@ -3459,6 +3484,576 @@ export interface PublicTaskZone {
   coinsPerHour: number;
   /** Players tracked in the zone */
   players: number;
+}
+
+/**
+ * One gear piece of a setup
+ */
+export interface PublicGearItem {
+  /**
+     * Slot, eg. helmet or tool
+     * @nullable
+     */
+  slot?: string | null;
+  /**
+     * Item tag
+     * @nullable
+     */
+  itemTag?: string | null;
+  /**
+     * Display name
+     * @nullable
+     */
+  itemName?: string | null;
+  /**
+     * Why the piece is in the setup
+     * @nullable
+     */
+  reason?: string | null;
+  /** False for items that can't be traded, they are excluded from all costs */
+  tradeable: boolean;
+  /**
+     * Measured only, locked: null. False when too few players share the modifiers, the item is then priced without any
+     * @nullable
+     */
+  modifiersMeasured?: boolean | null;
+  /**
+     * Measured only, locked: null. True when the baseline has the same item, it is left out of the setup cost
+     * @nullable
+     */
+  owned?: boolean | null;
+  spec?: PublicGearSpec;
+  acquisition?: PublicAcquisition;
+  /**
+     * Locked: null. Price to buy, null for untradeable items and for owned items of estimated setups
+     * @nullable
+     */
+  buyPrice?: number | null;
+  /**
+     * Measured only, locked: null. True when Coflnet.Sky.Api.Models.Tasks.PublicGearItem.BuyPrice is only a lower bound
+     * @nullable
+     */
+  priceLowerBound?: boolean | null;
+  /**
+     * Locked: null. What the item sells for after fees
+     * @nullable
+     */
+  resaleValue?: number | null;
+  /**
+     * Locked: null. Market stability label
+     * @nullable
+     */
+  stability?: string | null;
+  /**
+     * Locked: null. Coefficient of variation of the daily price over 30 days
+     * @nullable
+     */
+  cv?: number | null;
+  /**
+     * Locked: null. Relative price change per week
+     * @nullable
+     */
+  trendPerWeek?: number | null;
+  /**
+     * Locked: null. 10th percentile of the daily price
+     * @nullable
+     */
+  p10?: number | null;
+  /**
+     * Locked: null. Sales per day
+     * @nullable
+     */
+  volumePerDay?: number | null;
+}
+
+/**
+ * One gear setup
+ */
+export interface PublicGearSetup {
+  /** Subscription tier required to reveal a locked placeholder. */
+  requiredTier?: string | null;
+  /** True when the numbers of this setup are withheld (mid and endgame on the public endpoint) */
+  locked: boolean;
+  /**
+     * Id of the setup within the task
+     * @nullable
+     */
+  id?: string | null;
+  /**
+     * Display name
+     * @nullable
+     */
+  name?: string | null;
+  /**
+     * Price tier, eg. budget, mid or endgame
+     * @nullable
+     */
+  tier?: string | null;
+  /**
+     * baseline, upgrade or reached
+     * @nullable
+     */
+  status?: string | null;
+  /**
+     * measured (from players using this gear) or estimate (modelled, shown where nothing is measured)
+     * @nullable
+     */
+  basis?: string | null;
+  /**
+     * low, medium or high; measured setups below 5 players are always low
+     * @nullable
+     */
+  confidence?: string | null;
+  /**
+     * What the numbers assume
+     * @nullable
+     */
+  assumptions?: string[] | null;
+  /**
+     * https sources the setup is based on
+     * @nullable
+     */
+  sources?: string[] | null;
+  /**
+     * Slug of the task this setup unlocks, if any
+     * @nullable
+     */
+  unlocksTask?: string | null;
+  /**
+     * The gear pieces
+     * @nullable
+     */
+  items?: PublicGearItem[] | null;
+  /**
+     * Measured only, locked: null. Distinct players, a minimum when Coflnet.Sky.Api.Models.Tasks.PublicGearSetup.PlayersAtLeast is true
+     * @nullable
+     */
+  players?: number | null;
+  /**
+     * Measured only, locked: null. True below 5 players: the rates are rounded and Coflnet.Sky.Api.Models.Tasks.PublicGearSetup.Players is a minimum ("2+")
+     * @nullable
+     */
+  playersAtLeast?: boolean | null;
+  /**
+     * Measured only, locked: null. Player count for display, eg. "2+" when rounded, else the exact count
+     * @nullable
+     */
+  playersLabel?: string | null;
+  /**
+     * Measured only, locked: null. Number of play sessions, below 5 players the lower bound of a 1-2-5 band
+     * @nullable
+     */
+  observations?: number | null;
+  /**
+     * Measured only, locked: null. Play sessions for display, eg. "5+" when banded, else the exact count
+     * @nullable
+     */
+  observationsLabel?: string | null;
+  /**
+     * Measured only, locked: null. Hours played with this setup, 2 significant digits when rounded
+     * @nullable
+     */
+  hours?: number | null;
+  /**
+     * Measured only, locked: null. 25th percentile of the players' common coins per hour, null below 5 players
+     * @nullable
+     */
+  commonP25?: number | null;
+  /**
+     * Measured only, locked: null. 75th percentile of the players' common coins per hour, null below 5 players
+     * @nullable
+     */
+  commonP75?: number | null;
+  /**
+     * Details only, measured only: median stats of the players with this setup, eg. Farming Fortune
+     * @nullable
+     */
+  statMedians?: PublicGearSetupStatMedians;
+  /**
+     * Locked: null. Coins per hour with this setup
+     * @nullable
+     */
+  coinsPerHour?: number | null;
+  /**
+     * Locked: null. Coins per hour gained over the baseline
+     * @nullable
+     */
+  deltaCoinsPerHour?: number | null;
+  /**
+     * Locked: null. Coins per hour relative to the community average
+     * @nullable
+     */
+  multiplier?: number | null;
+  /**
+     * Locked: null. Price of the items that are not owned yet
+     * @nullable
+     */
+  buyCost?: number | null;
+  /**
+     * Locked: null. What the bought items can be sold for after fees
+     * @nullable
+     */
+  resaleValue?: number | null;
+  /**
+     * Locked: null. Coins lost when buying and later selling the items
+     * @nullable
+     */
+  borrowCost?: number | null;
+  /**
+     * Locked: null. Resale value divided by buy cost
+     * @nullable
+     */
+  resaleRatio?: number | null;
+  /**
+     * Locked: null. Hours until the extra income covers the borrow cost
+     * @nullable
+     */
+  paybackHoursBorrow?: number | null;
+  /**
+     * Locked: null. Hours until the extra income covers the full buy cost
+     * @nullable
+     */
+  paybackHoursFull?: number | null;
+  /**
+     * Locked or unknown payback: null. True when full buy cost takes more than 150 hours to recover; budget upgrades with this flag are omitted
+     * @nullable
+     */
+  paybackTooLong?: boolean | null;
+  /**
+     * Locked: null. Income gain after 10 hours minus the borrow cost
+     * @nullable
+     */
+  netGain10h?: number | null;
+  /**
+     * Locked: null. Income gain after 50 hours minus the borrow cost
+     * @nullable
+     */
+  netGain50h?: number | null;
+  /**
+     * Locked: null. Stable, moderate, volatile, illiquid or unknown market for the bought items
+     * @nullable
+     */
+  stability?: string | null;
+  /**
+     * Locked: null. True when a price was missing, the cost numbers are then null
+     * @nullable
+     */
+  priceIncomplete?: boolean | null;
+  /**
+     * Measured only, locked: null. True when an item's price is only a lower bound (its plain item's or a base that still needs grinding), the real cost may be higher
+     * @nullable
+     */
+  priceLowerBound?: boolean | null;
+  /**
+     * Locked: null. True when the setup does not earn more than the baseline, so there is no payback
+     * @nullable
+     */
+  noProfitGain?: boolean | null;
+}
+
+/**
+ * Gear setups of a task. The baseline and budget setups carry their numbers for everyone,
+ * the numbers of the other setups are premium and null while that setup is locked.
+ */
+export interface PublicTaskSetups {
+  /**
+     * Slug of the task
+     * @nullable
+     */
+  slug?: string | null;
+  /**
+     * Display name of the task
+     * @nullable
+     */
+  taskName?: string | null;
+  /**
+     * Name of the gear profile the setups come from, eg. Crop farming
+     * @nullable
+     */
+  profileName?: string | null;
+  /**
+     * Gear category of the task, eg. farming, null when unknown
+     * @nullable
+     */
+  category?: string | null;
+  /**
+     * When the measured setups were derived, null when nothing is measured yet
+     * @nullable
+     */
+  measuredAt?: string | null;
+  /** True when any setup is locked, so its numbers are withheld */
+  locked: boolean;
+  /**
+     * Coins per hour with the baseline gear
+     * @nullable
+     */
+  baselineCoinsPerHour?: number | null;
+  baseline?: PublicGearSetup;
+  /**
+     * Upgrade setups, usually budget, mid and endgame
+     * @nullable
+     */
+  setups?: PublicGearSetup[] | null;
+  /**
+     * Rate the measured setups' gain is relative to: the measured baseline's, else the community average
+     * @nullable
+     */
+  comparisonCoinsPerHour?: number | null;
+  /**
+     * Details only: measured effect of changing one modifier, eg. Harvesting 5 to 6
+     * @nullable
+     */
+  modifierEffects?: PublicModifierEffect[] | null;
+}
+
+export interface PublicAcquisition {
+  /**
+     * Coins the setup cost counts for this item, null when no price is known
+     * @nullable
+     */
+  cost?: number | null;
+  /**
+     * Where Coflnet.Sky.Api.Models.Tasks.PublicAcquisition.Cost comes from: direct, base or market (recent sales, when nothing is listed)
+     * @nullable
+     */
+  costSource?: string | null;
+  direct?: PublicDirectPurchase;
+  /**
+     * Why Coflnet.Sky.Api.Models.Tasks.PublicAcquisition.Direct is null, eg. no_matching_listing
+     * @nullable
+     */
+  directUnavailableReason?: string | null;
+  cheapestBase?: PublicCheapestBase;
+  /**
+     * Why Coflnet.Sky.Api.Models.Tasks.PublicAcquisition.CheapestBase is null
+     * @nullable
+     */
+  baseUnavailableReason?: string | null;
+}
+
+export interface PublicAcquisitionUpgrade {
+  /**
+     * enchant, stars, hotPotato, recombobulator, reforge, gem, gemSlot, part, applied, petItem or unsupported
+     * @nullable
+     */
+  kind?: string | null;
+  /**
+     * Enchant name, gem slot, part key or modifier key
+     * @nullable
+     */
+  name?: string | null;
+  /**
+     * Level on the base
+     * @nullable
+     */
+  fromLevel?: number | null;
+  /**
+     * Target level
+     * @nullable
+     */
+  toLevel?: number | null;
+  /**
+     * Item to buy, null when unknown
+     * @nullable
+     */
+  itemTag?: string | null;
+  /** How many of the item */
+  amount: number;
+  /** Coins for this upgrade, 0 when not priced */
+  cost: number;
+  /** False when no price was found */
+  priced: boolean;
+}
+
+export interface PublicCheapestBase {
+  /**
+     * Auction of the base item, null when it is a clean item at its clean price
+     * @nullable
+     */
+  auctionUuid?: string | null;
+  /**
+     * In game command that opens the base auction, null without an auction
+     * @nullable
+     */
+  command?: string | null;
+  /** Price of the base item */
+  basePrice: number;
+  /**
+     * Upgrades to buy and apply
+     * @nullable
+     */
+  upgrades?: PublicAcquisitionUpgrade[] | null;
+  /** Base price plus the priced upgrades */
+  total: number;
+  /**
+     * Earned modifiers the base lacks, they have to be ground
+     * @nullable
+     */
+  grindRequired?: PublicGrindRequirement[] | null;
+  /** True when an upgrade has no price, the total is then too low */
+  incomplete: boolean;
+}
+
+export interface PublicDirectPurchase {
+  /** BIN price */
+  price: number;
+  /**
+     * Auction uuid, 32 hex characters
+     * @nullable
+     */
+  auctionUuid?: string | null;
+  /**
+     * In game command that opens the auction, eg. /viewauction <uuid>
+     * @nullable
+     */
+  command?: string | null;
+}
+
+export interface PublicGearChange {
+  /**
+     * tool, armor, pet, equipment, tool.reforge, tool.enchants.<name>, ...
+     * @nullable
+     */
+  component?: string | null;
+  /**
+     * Null when the part was absent
+     * @nullable
+     */
+  from?: string | null;
+  /**
+     * Null when the part was removed
+     * @nullable
+     */
+  to?: string | null;
+}
+
+export type PublicGearSetupStatMedians = {[key: string]: number} | null;
+
+export interface PublicGearSpec {
+  /**
+     * Rarity of the item (recombobulator included) or of the pet
+     * @nullable
+     */
+  rarity?: string | null;
+  /**
+     * Reforge, eg. blessed
+     * @nullable
+     */
+  reforge?: string | null;
+  /**
+     * Dungeon stars
+     * @nullable
+     */
+  stars?: number | null;
+  /**
+     * Hot and fuming potato books
+     * @nullable
+     */
+  hotPotatoCount?: number | null;
+  /**
+     * True when recombobulated
+     * @nullable
+     */
+  recombobulated?: boolean | null;
+  /**
+     * Enchant name to level
+     * @nullable
+     */
+  enchants?: PublicGearSpecEnchants;
+  /**
+     * Gem slot to gem item tag
+     * @nullable
+     */
+  gems?: PublicGearSpecGems;
+  /**
+     * Part key (drill_part_engine, hook, ...) to the part item tag
+     * @nullable
+     */
+  parts?: PublicGearSpecParts;
+  /**
+     * Earned counter (eg. farmed_cultivating) to its value, can only be ground, not bought
+     * @nullable
+     */
+  counters?: PublicGearSpecCounters;
+  /**
+     * Applied item (eg. farming_for_dummies_count) to its count
+     * @nullable
+     */
+  applied?: PublicGearSpecApplied;
+  /**
+     * Item type from the lore, eg. FARMING TOOL
+     * @nullable
+     */
+  itemType?: string | null;
+  /**
+     * Rate relevant stats of the item, eg. Farming Fortune
+     * @nullable
+     */
+  stats?: PublicGearSpecStats;
+  /**
+     * Pets only: minimum pet level
+     * @nullable
+     */
+  petLevel?: number | null;
+  /**
+     * Pets only: held pet item tag
+     * @nullable
+     */
+  heldItem?: string | null;
+}
+
+export type PublicGearSpecApplied = {[key: string]: number} | null;
+
+export type PublicGearSpecCounters = {[key: string]: number} | null;
+
+export type PublicGearSpecEnchants = {[key: string]: number} | null;
+
+export type PublicGearSpecGems = {[key: string]: string | null} | null;
+
+export type PublicGearSpecParts = {[key: string]: string | null} | null;
+
+export type PublicGearSpecStats = {[key: string]: number} | null;
+
+export interface PublicGrindRequirement {
+  /**
+     * counter, enchant or petLevel
+     * @nullable
+     */
+  kind?: string | null;
+  /**
+     * Counter key, enchant name or pet type
+     * @nullable
+     */
+  name?: string | null;
+  /** Value on the base */
+  have: number;
+  /** Value the setup has */
+  need: number;
+  /** How much is missing */
+  deficit: number;
+}
+
+export interface PublicModifierEffect {
+  /**
+     * What differs between the two setups
+     * @nullable
+     */
+  changes?: PublicGearChange[] | null;
+  /** Distinct players, a minimum when Coflnet.Sky.Api.Models.Tasks.PublicModifierEffect.PlayersAtLeast is true */
+  players: number;
+  /** True below 5 players: the numbers are rounded, Coflnet.Sky.Api.Models.Tasks.PublicModifierEffect.Players and Coflnet.Sky.Api.Models.Tasks.PublicModifierEffect.Pairs are minimums */
+  playersAtLeast: boolean;
+  /**
+     * Player count for display, eg. "2+" when rounded
+     * @nullable
+     */
+  playersLabel?: string | null;
+  /** Before and after pairs over all players, a minimum when Coflnet.Sky.Api.Models.Tasks.PublicModifierEffect.PlayersAtLeast is true */
+  pairs: number;
+  /** Common coins per hour after divided by before */
+  ratio: number;
+  /** (Ratio - 1) * 100 */
+  percentChange: number;
 }
 
 /**
@@ -3540,6 +4135,11 @@ export interface PublicTaskEstimate {
      * @nullable
      */
   drops?: PublicTaskDrop[] | null;
+  /**
+     * What a player needs for this task, hard ones block it, the others are recommended
+     * @nullable
+     */
+  requirements?: PublicTaskRequirement[] | null;
   /**
      * Best zones for this task
      * @nullable

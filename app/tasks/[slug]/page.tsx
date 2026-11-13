@@ -10,6 +10,8 @@ import { TaskBestZones } from '../../../components/Tasks/TaskBestZones'
 import { TaskDropsTable } from '../../../components/Tasks/TaskDropsTable'
 import { TaskLocation } from '../../../components/Tasks/TaskLocation'
 import { TaskModCta } from '../../../components/Tasks/TaskModCta'
+import { TaskRequirements } from '../../../components/Tasks/TaskRequirements'
+import { TaskSetups } from '../../../components/Tasks/TaskSetups'
 import { TaskStats } from '../../../components/Tasks/TaskStats'
 import { TaskSteps } from '../../../components/Tasks/TaskSteps'
 import { TaskTypeBadge } from '../../../components/Tasks/TaskTypeBadge'
@@ -80,7 +82,9 @@ async function TaskDetails({ task }: { task: PublicTask }) {
             <TaskStats task={task} />
             <TaskSteps steps={task.steps} />
             <TaskLocation task={task} />
+            <TaskRequirements requirements={task.requirements} />
             <TaskDropsTable drops={task.drops} />
+            <TaskSetups slug={task.slug} allTasks={allTasks} />
             <TaskBestZones zones={task.bestZones} />
             <RelatedTasks task={task} allTasks={allTasks} />
             <JsonLd data={buildTaskHowTo(task)} />

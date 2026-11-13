@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import type { PublicTask } from '../../api/publicTaskApi'
+import { formatWarpCommand } from './taskUtils'
 
 function ExternalLink({ href, children }: { href?: string; children: ReactNode }) {
     if (!href) {
@@ -39,7 +40,7 @@ export function TaskLocation({ task }: { task: PublicTask }) {
                     <>
                         <dt className="col-sm-3">Warp</dt>
                         <dd className="col-sm-9">
-                            <code>/warp {task.warp}</code>
+                            <code>{formatWarpCommand(task.warp)}</code>
                         </dd>
                     </>
                 ) : null}

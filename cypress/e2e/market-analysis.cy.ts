@@ -211,7 +211,7 @@ describe('Market analysis premium gating (backend-driven)', () => {
             .its('request.headers')
             .should('have.property', 'googletoken', marketAnalysisAuthToken)
         cy.get('[data-testid="market-analysis-sold"]', { timeout: 10000 }).should('be.visible')
-        cy.contains(/requires/i).should('not.exist')
+        cy.get('[data-cy="premium-gate"]').should('not.exist')
     })
 
     it('a signed-in user with a valid token whose backend refuses for premium sees "Go to Premium"', () => {
@@ -230,8 +230,10 @@ describe('Market analysis premium gating (backend-driven)', () => {
         cy.get('[data-testid="market-analysis-period-30"]').click()
         cy.wait('@soldAnalysis30')
 
-        cy.contains(/requires/i).should('be.visible')
-        cy.contains('button', 'Go to Premium').should('be.visible')
+        cy.get('[data-cy="premium-gate"]').contains(/requires/i).should('not.be.visible')
+        cy.get('[data-cy="premium-gate"] summary').click()
+        cy.get('[data-cy="premium-gate"]').contains(/requires/i).should('be.visible')
+        cy.contains('a.btn', 'Go to Premium').should('be.visible')
         cy.contains('button', /^Sign in$/).should('not.exist')
     })
 
@@ -261,8 +263,10 @@ describe('Market analysis premium gating (backend-driven)', () => {
         cy.get('[data-testid="market-analysis-period-30"]').click()
         cy.wait('@soldAnalysis30')
 
-        cy.contains(/requires/i).should('be.visible')
-        cy.contains('button', 'Go to Premium').should('not.exist')
+        cy.get('[data-cy="premium-gate"]').contains(/requires/i).should('not.be.visible')
+        cy.get('[data-cy="premium-gate"] summary').click()
+        cy.get('[data-cy="premium-gate"]').contains(/requires/i).should('be.visible')
+        cy.contains('a.btn', 'Go to Premium').should('not.exist')
         cy.contains('button', /^Sign in$/).should('be.visible')
     })
 
@@ -278,7 +282,9 @@ describe('Market analysis premium gating (backend-driven)', () => {
 
         cy.wait(300)
         cy.get('@soldAnalysis.all').should('have.length', 1)
-        cy.contains(/requires/i).should('be.visible')
+        cy.get('[data-cy="premium-gate"]').contains(/requires/i).should('not.be.visible')
+        cy.get('[data-cy="premium-gate"] summary').click()
+        cy.get('[data-cy="premium-gate"]').contains(/requires/i).should('be.visible')
         cy.contains('button', /^Sign in$/).should('be.visible')
     })
 
@@ -294,7 +300,7 @@ describe('Market analysis premium gating (backend-driven)', () => {
         cy.contains(/could not load/i).should('be.visible')
         cy.contains('button', 'Retry').should('be.visible')
         cy.contains(/not enough sales/i).should('not.exist')
-        cy.contains(/requires/i).should('not.exist')
+        cy.get('[data-cy="premium-gate"]').should('not.exist')
     })
 })
 
