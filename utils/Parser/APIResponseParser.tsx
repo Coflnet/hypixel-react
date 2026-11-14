@@ -406,8 +406,7 @@ export function parseAccountInfo(accountInfo): AccountInfo {
     return {
         email: accountInfo.email,
         mcId: accountInfo.mcId,
-        mcName: accountInfo.mcName,
-        token: accountInfo.token
+        mcName: accountInfo.mcName
     }
 }
 
