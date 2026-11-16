@@ -17,6 +17,7 @@ import { getResultNavigationUrl } from '../../../utils/Search/FilterResultId'
 import { getEnchantmentRename } from '../../../utils/EnchantmentRenames'
 import { getCustomItemRedirectPath } from '../../../utils/ItemRedirectUtils'
 import type { CachedItemInfo } from '../../../utils/ItemsCache'
+import { getBuiltTaskLinks } from '../../../utils/ItemTaskSourcesData'
 
 interface ItemPageData {
     item: Omit<Partial<SkyblockItem>, 'flags'> & { itemName?: string | null; flags?: number | string }
@@ -112,6 +113,7 @@ export default async function Page(props) {
                     prices={data.prices}
                     isBazaar={isBazaar}
                     itemFlags={data.itemFlags || null}
+                    taskSources={getBuiltTaskLinks(tag)}
                 />
                 <RelatedItems tag={tag} isBazaarItem={isBazaar} />
             </ItemPageClient>

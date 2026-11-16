@@ -40,3 +40,6 @@ cypress/videos/*
 /playwright/.cache/
 data/
 tsconfig.tsbuildinfo
+
+# generated at build time by utils/generateItemTaskSources.mjs
+/data/generated/
