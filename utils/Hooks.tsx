@@ -3,10 +3,7 @@ import { Dispatch, SetStateAction, useCallback, useEffect, useRef, useState, use
 import { getCurrentCoflCoins, subscribeToCoflcoinChange } from './CoflCoinsUtils'
 import { getURLSearchParam } from './Parser/URLParser'
 import { isClientSideRendering } from './SSRUtils'
-
-let referralRewardsEligibilityRequest: Promise<boolean> | undefined
-const REFERRAL_COUNTRY_CACHE_KEY = 'referralRewardsCountry'
-const REFERRAL_COUNTRY_CACHE_DURATION = 24 * 60 * 60 * 1000
+import { detectVisitorCountryCode } from './CountryDetection'
 
 export function useForceUpdate() {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -119,29 +116,9 @@ export function useWasAlreadyLoggedIn() {
 export function useReferralRewardsEligibility() {
     const [isEligible, setIsEligible] = useState<boolean>()
 
+    // the same in-memory detection as the purchase country; the country is not stored on the device
     useEffect(() => {
-        try {
-            const cachedCountry = JSON.parse(localStorage.getItem(REFERRAL_COUNTRY_CACHE_KEY) || 'null')
-            if (cachedCountry?.expiresAt > Date.now()) {
-                referralRewardsEligibilityRequest = Promise.resolve(cachedCountry.country === 'US')
-            }
-        } catch {}
-
-        referralRewardsEligibilityRequest ??= fetch('https://api.country.is')
-            .then(async response => {
-                if (!response.ok) return false
-
-                const result = await response.json()
-                const country = result.country?.toUpperCase()
-                if (country) {
-                    try {
-                        localStorage.setItem(REFERRAL_COUNTRY_CACHE_KEY, JSON.stringify({ country, expiresAt: Date.now() + REFERRAL_COUNTRY_CACHE_DURATION }))
-                    } catch {}
-                }
-                return country === 'US'
-            })
-            .catch(() => false)
-        referralRewardsEligibilityRequest.then(setIsEligible)
+        void detectVisitorCountryCode().then(country => setIsEligible(country === 'US'))
     }, [])
 
     return isEligible

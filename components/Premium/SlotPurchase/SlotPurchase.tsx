@@ -26,6 +26,7 @@ import {
     getCheckoutLink,
     getCheckoutParams,
     getFirstPeriodLabel,
+    getTaxLabel,
     getPeriodPercent,
     isExactCharge,
     getWeeksOfSeconds,
@@ -88,7 +89,7 @@ function useSlotCheckoutOffer(countryCode: string | undefined, purchaseType: Pur
 
 export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, initialDiscountCode, countryCode, busy, onBusyChange: setBusy, onCountryChange }: Props) {
     const variant = usePremiumVariant()
-    const { products, loading, catalogError, pricingError, canUsePrices, price, priceWithCode, retry, taxLabel } = catalog
+    const { products, loading, catalogError, pricingError, canUsePrices, price, priceWithCode, retry } = catalog
     const [selected, setSelected] = useState<PurchaseableProduct>()
     const [purchased, setPurchased] = useState<PurchaseableProduct>()
     const [busyProvider, setBusyProvider] = useState<PaymentProvider | null>(null)
@@ -97,6 +98,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
     const offer = useSlotCheckoutOffer(countryCode, purchaseType, selected)
     /** billed by us directly (Stripe/PayPal) in a country whose tax is known: the displayed price is exactly the charge */
     const direct = isExactCharge(offer.providers, countryCode)
+    const taxLabel = getTaxLabel(countryCode, direct)
     const discount = useDiscountCode(initialDiscountCode, {
         weeks: SLOT_BILLING_WEEKS,
         validateInitial: true,
@@ -301,7 +303,9 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
                                                 ? <RecurringPrice amount={amount!} discounted={priceWithCode(product, percent, direct)!} currency={currency} percent={percent} />
                                                 : pricingError || canUsePrices
                                                   ? 'Price unavailable'
-                                                  : 'Loading price…'
+                                                  : countryCode
+                                                    ? 'Loading price…'
+                                                    : 'Choose your country to see the price'
                                             : `${product.cost?.toLocaleString()} CoflCoins`}
                                     </div>
                                     <p className={styles.period}>

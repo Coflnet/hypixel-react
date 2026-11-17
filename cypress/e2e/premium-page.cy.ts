@@ -190,7 +190,6 @@ function visitNewPage(path = '/premium?premiumVariant=new', loggedIn = false, on
         onBeforeLoad(window) {
             window.localStorage.clear()
             window.sessionStorage.clear()
-            window.localStorage.setItem('userCountryCode', 'DE')
             installMatomoQueue(window)
             if (loggedIn) installAuthenticatedWebSocket(window)
             onBeforeLoad?.(window)
@@ -439,6 +438,8 @@ describe('Premium redesign', () => {
         // without media stubs the CDN poster fails, its frame is removed and the layout shifts
         stubMedia()
         visitSignedOut()
+        // the plan prices are before VAT until the country is detected (nothing is stored on the device); then the price line reflows
+        cy.get('[data-testid="plan-premium"]').should('contain', '€11.53').and('not.contain', 'plus VAT where applicable')
         cy.contains('button', /^Get Premium$/).scrollIntoView()
         // the page scrolls smoothly: wait until the button arrived and the position no longer changes
         expectInViewport('[data-testid="plan-premium"] button')
@@ -595,7 +596,7 @@ describe('Premium redesign', () => {
         stubAccount()
         visitNewPage('/premium?premiumVariant=new', true)
         cy.wait(['@products', '@subscriptions', '@terms'])
-        cy.get('[data-testid="plan-premium_plus"]').should('contain', '€').and('contain', 'per month')
+        cy.get('[data-testid="plan-premium_plus"]').should('contain', '€').and('contain', 'per 4 weeks').and('not.contain', 'month')
         cy.contains('button', 'Get Premium+').click()
         cy.get('#buyPremium').should('be.visible').and('contain', 'Choose Your Plan Type')
         cy.location('search').should('contain', 'tier=premium_plus').and('contain', 'premiumVariant=new')

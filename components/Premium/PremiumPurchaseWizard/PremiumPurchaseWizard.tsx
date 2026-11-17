@@ -5,7 +5,7 @@ import { PremiumTier, PurchaseType, Duration } from './types'
 import { getStepDisplay } from './stepDisplay'
 import { TierSelectionStep, PaymentMethodStep, DurationSelectionStep, PurchaseCompletionStep } from './Steps'
 import { PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
-import { parseTierFromUrl } from '../../../utils/PremiumUpgradeUtils'
+import { getTierOfProduct, parseTierFromUrl } from '../../../utils/PremiumUpgradeUtils'
 import { getActiveSubscriptionDiscount } from '../../../utils/DiscountUtils'
 import { useCountryDetection } from '../../../hooks/useCountryDetection'
 import SlotPurchase from '../SlotPurchase/SlotPurchase'
@@ -96,16 +96,7 @@ function PremiumPurchaseWizard(props: Props) {
     const [tierPreselected, setTierPreselected] = useState(false)
     const [packageSkipped, setPackageSkipped] = useState(false)
 
-    const getCurrentTier = (): PremiumTier | null => {
-        if (!props.activePremiumProduct) return null
-
-        const productSlug = props.activePremiumProduct.productSlug
-        if (productSlug.includes('starter')) return PremiumTier.STARTER
-        if (productSlug.includes('premium_plus') || productSlug.includes('premium+')) return PremiumTier.PREMIUM_PLUS
-        if (productSlug.includes('premium')) return PremiumTier.PREMIUM
-
-        return null
-    }
+    const getCurrentTier = (): PremiumTier | null => getTierOfProduct(props.activePremiumProduct)
 
     const getTierRank = (tier: PremiumTier): number => {
         switch (tier) {

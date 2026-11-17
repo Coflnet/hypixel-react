@@ -28,19 +28,6 @@ export const getTierDisplayName = (tier: PremiumTier): string => {
     }
 }
 
-export const getDurationDisplayName = (duration: Duration | null): string => {
-    if (!duration) return ''
-    switch (duration) {
-        case Duration.HOUR: return '1 Hour'
-        case Duration.DAY: return '1 Day'
-        case Duration.WEEK: return '1 Week'
-        case Duration.MONTHLY: return '1 Month'
-        case Duration.QUARTER: return 'Quarterly'
-        case Duration.YEARLY: return 'Yearly'
-        default: return ''
-    }
-}
-
 // Duration options for each tier and purchase type
 export const getDurationOptions = (tier: PremiumTier, type: PurchaseType) => {
     if (type === PurchaseType.COFLCOINS) {
@@ -68,12 +55,12 @@ export const getDurationOptions = (tier: PremiumTier, type: PurchaseType) => {
         }
     } else {
         if (tier === PremiumTier.STARTER)
-            return [{ label: 'Yearly', desc: 'Due to payment fees there is only yearly for starter', icon: '🎯', value: Duration.YEARLY }]
-        // Subscription type
+            return [{ label: 'Yearly', desc: 'Renews every 52 weeks. Due to payment fees Starter is only billed yearly', icon: '🎯', value: Duration.YEARLY }]
+        // Subscriptions bill in weeks: every 4 weeks is not a calendar month
         return [
-            { label: 'Monthly', desc: 'Flexible monthly subscription', icon: '📅', value: Duration.MONTHLY },
-            { label: 'Quarterly', desc: 'Renewing quarterly - better value', icon: '📆', value: Duration.QUARTER, badge: 'Recommended' },
-            { label: 'Yearly', desc: 'Best value - save with annual billing', icon: '🎯', value: Duration.YEARLY }
+            { label: '4 weeks', desc: 'Flexible, renews every 4 weeks', icon: '📅', value: Duration.MONTHLY },
+            { label: 'Quarterly', desc: 'Renews every 13 weeks - better value', icon: '📆', value: Duration.QUARTER, badge: 'Recommended' },
+            { label: 'Yearly', desc: 'Renews every 52 weeks - best value', icon: '🎯', value: Duration.YEARLY }
         ]
     }
 }

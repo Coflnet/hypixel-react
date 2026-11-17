@@ -151,3 +151,13 @@ export const parseTierFromUrl = (tierParam: string | null): PremiumTier | null =
  *     // Show upsell banner with link
  * }
  */
+
+/** the tier of an owned Premium product (e.g. "premium_plus"), null for no product or an unknown slug */
+export const getTierOfProduct = (product: { productSlug: string } | null | undefined): PremiumTier | null => {
+    const slug = product?.productSlug
+    if (!slug) return null
+    if (slug.includes('starter')) return PremiumTier.STARTER
+    if (slug.includes('premium_plus') || slug.includes('premium+')) return PremiumTier.PREMIUM_PLUS
+    if (slug.includes('premium')) return PremiumTier.PREMIUM
+    return null
+}

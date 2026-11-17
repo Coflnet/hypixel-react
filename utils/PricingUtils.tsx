@@ -2,11 +2,11 @@ import { PremiumTier } from '../components/Premium/PremiumPurchaseWizard/types'
 import { BatchProductPricingResponse, ProviderPricingOption } from '../api/_generated/skyApi.schemas'
 import { Duration } from '../components/Premium/PremiumPurchaseWizard/types'
 
-// Base prices in EUR (before tax)
+// Base prices in EUR (before tax), per billing period of the plan cards: Starter every 52 weeks, the others per 4 weeks
 export const BASE_PRICES = {
-    [PremiumTier.STARTER]: 16.99, // yearly
-    [PremiumTier.PREMIUM]: 9.69, // monthly
-    [PremiumTier.PREMIUM_PLUS]: 354.2 / 12 // monthly (yearly)
+    [PremiumTier.STARTER]: 16.99, // every 52 weeks
+    [PremiumTier.PREMIUM]: 9.69, // every 4 weeks
+    [PremiumTier.PREMIUM_PLUS]: 354.2 / 13 // per 4 weeks, billed every 52 weeks
 }
 
 // Standard VAT rates used for estimates; checkout resolves regional rates and exemptions.
@@ -73,47 +73,14 @@ export interface PriceInfo {
     vatAmount: number
     totalPrice: number
     currency: string
-    displayText: string
 }
 
+/** the plan card price of a tier (see BASE_PRICES) after `discountPercent`, with the country's VAT estimate */
 export function calculatePrice(tier: PremiumTier, countryCode?: string, discountPercent: number = 0): PriceInfo {
-    let basePrice = BASE_PRICES[tier]
-    basePrice *= 1 - discountPercent / 100
+    const basePrice = BASE_PRICES[tier] * (1 - discountPercent / 100)
     const vatRate = countryCode ? VAT_RATES[countryCode.toUpperCase()] || 0 : 0
     const vatAmount = basePrice * vatRate
-    const totalPrice = basePrice + vatAmount
-
-    // Determine if we should show (+VAT) text
-    const isUSOrUnknown = !countryCode || countryCode.toUpperCase() === 'US' || !VAT_RATES[countryCode.toUpperCase()]
-
-    let displayText: string
-    if (isUSOrUnknown) {
-        displayText = `€${basePrice.toFixed(2)} (+VAT)`
-    } else {
-        displayText = `€${totalPrice.toFixed(2)}`
-    }
-
-    // Add billing period info
-    switch (tier) {
-        case PremiumTier.STARTER:
-            displayText += '/year'
-            break
-        case PremiumTier.PREMIUM:
-            displayText += '/month'
-            break
-        case PremiumTier.PREMIUM_PLUS:
-            displayText += '/month'
-            break
-    }
-
-    return {
-        basePrice,
-        vatRate,
-        vatAmount,
-        totalPrice,
-        currency: 'EUR',
-        displayText
-    }
+    return { basePrice, vatRate, vatAmount, totalPrice: basePrice + vatAmount, currency: 'EUR' }
 }
 
 export const CURRENCY_SYMBOLS: Record<string, string> = {

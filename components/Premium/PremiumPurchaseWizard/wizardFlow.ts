@@ -154,7 +154,8 @@ export function getStepTitle(step: number, context: CopyContext): string {
         case STEP.DURATION:
             return 'Select Duration'
         case STEP.PURCHASE:
-            return context.isUpgrade && context.slotCount === 0 ? 'Complete Upgrade' : 'Complete Purchase'
+            // buying the tier already owned again extends it: that is a purchase, not an upgrade
+            return context.isUpgrade && context.slotCount === 0 && context.tier !== context.currentTier ? 'Complete Upgrade' : 'Complete Purchase'
         default:
             return 'Premium Purchase'
     }

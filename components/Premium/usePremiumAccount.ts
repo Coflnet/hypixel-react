@@ -8,12 +8,7 @@ import usePremiumRefresh from '../../hooks/usePremiumRefresh'
 import { PremiumTier } from './PremiumPurchaseWizard/types'
 import type { TierRequest } from './PremiumPurchaseWizard/PremiumPurchaseWizard'
 import type { PurchaseReadiness } from './purchaseTarget'
-
-export type LegalLocale = 'de' | 'en'
-
-function getLegalLocale(): LegalLocale {
-    return typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en'
-}
+import { getLegalLocale } from '../../utils/LegalLinks'
 
 /** reads ?tier=, ?upgrade= and ?slots= once after mount */
 function useUpgradeRequestFromUrl(onSlots: () => void, onUpgrade: () => void) {

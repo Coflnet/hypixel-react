@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { getApiPremiumSlotsProducts, postApiTopupRates } from '../api/_generated/skyApi'
 import type { BatchProductPricingResponse, PurchaseableProduct } from '../api/_generated/skyApi.schemas'
 import { applyPercent, getDirectPrice } from '../utils/SubscriptionCheckout'
-import { getDiscountPercent, getProvider, getPriceWithVAT, shouldIncludeVAT } from '../utils/PricingUtils'
+import { getDiscountPercent, getProvider, getPriceWithVAT } from '../utils/PricingUtils'
 
 export default function useSlotCatalog(countryCode?: string) {
     const [products, setProducts] = useState<PurchaseableProduct[]>([])
@@ -124,7 +124,8 @@ export default function useSlotCatalog(countryCode?: string) {
         applyCreatorCode,
         creatorPercent,
         retry,
-        taxLabel: shouldIncludeVAT(countryCode) ? 'Includes estimated tax' : 'Tax calculated at checkout'
+        /** the buyer's country; while it is unknown subscription prices are not loaded */
+        countryCode
     }
 }
 

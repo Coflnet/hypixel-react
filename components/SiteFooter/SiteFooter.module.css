@@ -1,0 +1,19 @@
+.footer {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    padding: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.link {
+    font-weight: 600;
+    color: #00bc8c;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.link:hover,
+.link:focus-visible {
+    color: #fff;
+}

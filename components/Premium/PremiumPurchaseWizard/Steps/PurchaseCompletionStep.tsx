@@ -35,7 +35,6 @@ export default function PurchaseCompletionStep({
             {selectedType === PurchaseType.SUBSCRIPTION && (
                 <BuySubscription
                     key={selectedTier}
-                    activePremiumProduct={activePremiumProduct}
                     selectedTier={selectedTier}
                     selectedDuration={selectedDuration}
                     initialDiscountCode={initialDiscountCode}

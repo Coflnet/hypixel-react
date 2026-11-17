@@ -9,7 +9,6 @@ import BuyPremium from './BuyPremium/BuyPremium'
 import { getPremiumLabelForSubscription } from '../../utils/PremiumTypeUtils'
 import { getLocalDateAndTime } from '../../utils/Formatter'
 import PremiumStatus from './PremiumStatus/PremiumStatus'
-import BuySubscription from './BuySubscription/BuySubscription'
 import PremiumPurchaseWizard from './PremiumPurchaseWizard/PremiumPurchaseWizard'
 import { CoinsSaleNote } from '../Discounts/DiscountBanners'
 import AgreementDocumentList from '../Legal/AgreementDocumentList'
@@ -17,7 +16,9 @@ import UpgradeSubscription from './UpgradeSubscription/UpgradeSubscription'
 import { PremiumAccount } from './usePremiumAccount'
 import { usePremiumVariant } from './PremiumVariantContext'
 import { trackPremiumFunnelEvent } from '../../utils/PremiumTracking'
-import { SIGN_IN_TARGET } from './purchaseTarget'
+import { SIGN_IN_TARGET, WIZARD_TARGET } from './purchaseTarget'
+import { PremiumTier } from './PremiumPurchaseWizard/types'
+import { getTierOfProduct } from '../../utils/PremiumUpgradeUtils'
 import type { SignInDialogControl } from './useSignInPrompt'
 import { PREMIUM_VARIANT_QUERY, withVariantOverride } from '../../utils/PremiumExperiment'
 import sectionStyles from './PremiumAccountSections.module.css'
@@ -111,6 +112,14 @@ export function TermsAlerts({ account }: AccountProps) {
     )
 }
 
+/** "Extend Premium" when an owner asked for their own tier again, "Upgrade Premium" for a higher one */
+function getPurchaseTitle(account: PremiumAccount): string {
+    const { showSlots, hasPremium, showUpgradeWizard, requestedTier, activePremiumProduct } = account
+    if (showSlots) return 'Get slots'
+    if (!hasPremium || !showUpgradeWizard) return 'Get Premium'
+    return requestedTier && requestedTier.tier === getTierOfProduct(activePremiumProduct) ? 'Extend Premium' : 'Upgrade Premium'
+}
+
 export function PurchaseWizardSection({ account }: AccountProps) {
     const { isWizardShown, showSlots, hasPremium, showUpgradeWizard, activePremiumProduct, premiumSubscriptions, requestedTier } = account
     // the current page separates its sections with rules; the redesign nests the wizard in its plans section
@@ -120,7 +129,7 @@ export function PurchaseWizardSection({ account }: AccountProps) {
         <div id="buyPremium" className={`${sectionStyles.purchaseSection} ${isRedesign ? sectionStyles.purchaseSectionNew : ''}`}>
             {isRedesign ? null : <hr />}
             <div className={sectionStyles.purchaseHead}>
-                <h2 className={sectionStyles.purchaseTitle}>{showSlots ? 'Get slots' : hasPremium && showUpgradeWizard ? 'Upgrade Premium' : 'Get Premium'}</h2>
+                <h2 className={sectionStyles.purchaseTitle}>{getPurchaseTitle(account)}</h2>
                 {hasPremium && showUpgradeWizard && (
                     <Button variant="secondary" size="sm" onClick={account.returnToPremiumManagement}>
                         ← Back to Premium Management
@@ -201,6 +210,29 @@ function ExtendHeaderActions({ account }: AccountProps) {
     )
 }
 
+function scrollToWizard() {
+    // the click renders the wizard; it is in the page once the frame after it is drawn
+    window.requestAnimationFrame(() => document.getElementById(WIZARD_TARGET)?.scrollIntoView({ block: 'start' }))
+}
+
+/** a new subscription goes through the purchase wizard (prices for the buyer's country, all payment providers, the promotion) */
+function ExtendWithSubscription({ account }: AccountProps) {
+    function openWizard() {
+        account.requestTier(getTierOfProduct(account.activePremiumProduct) ?? PremiumTier.PREMIUM)
+        scrollToWizard()
+    }
+
+    return (
+        <div style={{ marginBottom: '20px' }}>
+            <h4>Subscriptions</h4>
+            <p>Start a subscription for your current tier or a higher one. You choose the billing period and the payment method in the next steps.</p>
+            <Button variant="success" onClick={openWizard}>
+                Extend with a subscription
+            </Button>
+        </div>
+    )
+}
+
 export function ExtendPremiumSection({ account, showFriendsCard }: AccountProps & { showFriendsCard: boolean }) {
     const { isLoggedIn, isLoading, canPurchase, hasPremium, showUpgradeWizard, activePremiumProduct, premiumSubscriptions } = account
     if (!isLoggedIn || isLoading || !canPurchase || !hasPremium || showUpgradeWizard) return null
@@ -214,6 +246,7 @@ export function ExtendPremiumSection({ account, showFriendsCard }: AccountProps 
             <p style={{ marginBottom: '30px' }} className="text-muted">
                 Already have premium? You can extend your subscription, add more time, or upgrade to a higher tier.
             </p>
+            <ExtendWithSubscription account={account} />
             {showFriendsCard ? (
                 <Card className="mb-4">
                     <Card.Body>
@@ -228,10 +261,6 @@ export function ExtendPremiumSection({ account, showFriendsCard }: AccountProps 
                     <strong>Advanced Options</strong>
                 </summary>
                 <div style={{ marginLeft: '20px' }}>
-                    <div style={{ marginBottom: '20px' }}>
-                        <h4>Subscriptions</h4>
-                        <BuySubscription activePremiumProduct={activePremiumProduct!} />
-                    </div>
                     <div style={{ marginBottom: '20px' }}>
                         <h4>Prepaid</h4>
                         <BuyPremium

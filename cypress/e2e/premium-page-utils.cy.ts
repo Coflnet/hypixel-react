@@ -482,6 +482,7 @@ describe('Purchase wizard navigation', () => {
         expect(getStepTitle(STEP.TYPE, context)).to.equal('Choose Your Plan Type')
         expect(getStepTitle(STEP.TIER, { ...context, isUpgrade: true, currentTier: PremiumTier.STARTER })).to.equal('Upgrade Your Starter Premium')
         expect(getStepTitle(STEP.PURCHASE, { ...context, isUpgrade: true })).to.equal('Complete Upgrade')
+        expect(getStepTitle(STEP.PURCHASE, { ...context, isUpgrade: true, currentTier: PremiumTier.PREMIUM })).to.equal('Complete Purchase')
         expect(getStepHelper(STEP.DURATION, context)).to.contain('How long would you like Premium?')
         expect(getStepHelper(STEP.PURCHASE, context)).to.equal(null)
     })
@@ -511,13 +512,18 @@ describe('Plan cards', () => {
     it('shows prices from the pricing utilities, with VAT for known countries', () => {
         expect(getPlanPrice(PremiumTier.STARTER, 'US')).to.deep.equal({
             amount: '€16.99',
-            plusVat: true,
-            period: 'per year',
-            note: 'Yearly only, because of payment fees'
+            unit: '+ VAT per 52 weeks',
+            note: 'Billed every 52 weeks only, because of payment fees'
         })
-        expect(getPlanPrice(PremiumTier.PREMIUM)).to.deep.include({ amount: '€9.69', plusVat: true, note: 'Or €27.69 quarterly, €96.69 yearly' })
-        expect(getPlanPrice(PremiumTier.PREMIUM_PLUS)).to.deep.include({ amount: '€29.52', note: 'Billed yearly at €354.20, or €35.69 monthly' })
-        expect(getPlanPrice(PremiumTier.PREMIUM, 'DE')).to.deep.include({ amount: '€11.53', plusVat: false, period: 'per month' })
+        // an unknown country is not priced as the US: before VAT, and it says so
+        expect(getPlanPrice(PremiumTier.PREMIUM)).to.deep.include({
+            amount: '€9.69',
+            unit: 'per 4 weeks, plus VAT where applicable',
+            note: 'Or €27.69 every 13 weeks, €96.69 every 52 weeks'
+        })
+        // billed every 52 weeks: 354.20 / 13 per 4 weeks, not / 12 per month
+        expect(getPlanPrice(PremiumTier.PREMIUM_PLUS)).to.deep.include({ amount: '€27.25', note: 'Billed every 52 weeks at €354.20, or €35.69 every 4 weeks' })
+        expect(getPlanPrice(PremiumTier.PREMIUM, 'DE')).to.deep.include({ amount: '€11.53', unit: 'per 4 weeks' })
     })
 
     it('sends visitors to the step that blocks the purchase', () => {

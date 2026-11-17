@@ -118,6 +118,48 @@ export function showsVatSuffix(countryCode: string | null | undefined, exact: bo
     return code === 'US' || VAT_RATES[code] === undefined
 }
 
+/** said after a price while the buyer's country is unknown: the price is before tax and nothing can be charged yet */
+export const UNKNOWN_COUNTRY_VAT_NOTE = 'plus VAT where applicable'
+
+/** the tax note after a price: none once tax is in it, "(+VAT)" where checkout adds it, an open note while the country is unknown */
+export function getVatNote(countryCode: string | null | undefined, exact: boolean): string {
+    if (!countryCode) return UNKNOWN_COUNTRY_VAT_NOTE
+    return showsVatSuffix(countryCode, exact) ? '(+VAT)' : ''
+}
+
+/**
+ * The tax line of a subscription price: "Includes VAT" only when the page shows the exact charge of a direct checkout
+ * (see isExactCharge), an estimate's wording otherwise, and an open note while the buyer's country is unknown.
+ */
+export function getTaxLabel(countryCode: string | null | undefined, exact: boolean): string {
+    if (!countryCode) return 'Plus VAT where applicable'
+    const hasVat = getVatBasisPoints(countryCode) > 0 && countryCode.toUpperCase() !== 'US'
+    if (exact) return hasVat ? 'Includes VAT' : 'No tax added'
+    return hasVat ? 'Includes estimated tax' : 'Tax calculated at checkout'
+}
+
+/** a billing period of `weeks`, e.g. "every 4 weeks" */
+export function getEveryPeriodLabel(weeks: number): string {
+    return `every ${weeks} weeks`
+}
+
+/** the unit of a price for `weeks`, e.g. "per 4 weeks"; subscriptions bill in weeks, never calendar months */
+export function getPerPeriodLabel(weeks: number): string {
+    return `per ${weeks} weeks`
+}
+
+/** what a period of `weeks` costs per 4 weeks, e.g. €96.69 for 52 weeks is €7.44 per 4 weeks */
+export function getPerFourWeeks(total: number, weeks: number): number {
+    return (total * 4) / weeks
+}
+
+/** whole percent a longer billing period saves against paying every 4 weeks for as long, rounded down so it never overstates */
+export function getSavingsPercent(fourWeekPrice: number, periodPrice: number, weeks: number): number {
+    if (fourWeekPrice <= 0 || weeks <= 4) return 0
+    const savings = 1 - periodPrice / ((fourWeekPrice * weeks) / 4)
+    return Math.max(0, Math.floor(savings * 100))
+}
+
 /** the promotion when the checkout uses at least one provider it is valid for, otherwise null */
 export function getPromotionFor(promotion: AutoDiscount | null | undefined, providers: PaymentProvider[]): AutoDiscount | null {
     if (!promotion?.code || providers.length === 0) return null
@@ -194,12 +236,27 @@ export function getFirstPeriodLabel(weeks: number): string {
     return weeks === 52 ? 'first year' : `first ${weeks} weeks`
 }
 
-/** e.g. "November 30", in UTC like the other sale end dates */
-export function formatPromotionEnd(expiresAt: string | null | undefined): string | null {
+function isMidnight(date: Date, timeZone?: string): boolean {
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone, hourCycle: 'h23', hour: 'numeric', minute: 'numeric', second: 'numeric' }).formatToParts(date)
+    return parts.filter(part => part.type !== 'literal').every(part => Number(part.value) === 0)
+}
+
+function formatDay(date: Date, timeZone?: string): string {
+    return date.toLocaleDateString('en-US', { timeZone, month: 'long', day: 'numeric' })
+}
+
+/**
+ * When the promotion ends, in the viewer's time zone (`timeZone` overrides it, e.g. in tests):
+ * "Offer runs through November 30." for an end at local midnight, otherwise the date and time,
+ * e.g. "Offer ends December 1, 12:59 AM GMT+1."; null without a valid end.
+ */
+export function describePromotionEnd(expiresAt: string | null | undefined, timeZone?: string): string | null {
     if (!expiresAt) return null
     const date = new Date(expiresAt)
     if (Number.isNaN(date.getTime())) return null
-    return date.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric' })
+    if (isMidnight(date, timeZone)) return `Offer runs through ${formatDay(new Date(date.getTime() - 1), timeZone)}.`
+    const time = date.toLocaleTimeString('en-US', { timeZone, hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })
+    return `Offer ends ${formatDay(date, timeZone)}, ${time}.`
 }
 
 /** a fixed discount amount, given in cents like the payment backend stores it, e.g. "€5.00 off" */
@@ -220,12 +277,12 @@ function describeScope(promotion: AutoDiscount, weeks?: number): string {
 }
 
 /**
- * The promotion's terms, e.g. "Black Friday: 50% off your first payment (the first year). Offer ends November 30."
+ * The promotion's terms, e.g. "Black Friday: 50% off your first payment (the first year). Offer ends November 30, 11:59 PM UTC."
  * The end date is when the offer stops, not the discount: an "every payment" discount keeps applying to renewals after it.
- * Without `weeks` (no billing period chosen yet) the best amount is named.
+ * Without `weeks` (no billing period chosen yet) the best amount is named. `timeZone` overrides the viewer's (tests).
  */
-export function describePromotion(promotion: AutoDiscount, weeks?: number): string {
-    const end = formatPromotionEnd(promotion.expiresAt)
+export function describePromotion(promotion: AutoDiscount, weeks?: number, timeZone?: string): string {
+    const end = describePromotionEnd(promotion.expiresAt, timeZone)
     const name = promotion.name || 'Sale'
-    return `${name}: ${describeAmount(promotion, weeks)} ${describeScope(promotion, weeks)}.${end ? ` Offer ends ${end}.` : ''}`
+    return `${name}: ${describeAmount(promotion, weeks)} ${describeScope(promotion, weeks)}.${end ? ` ${end}` : ''}`
 }

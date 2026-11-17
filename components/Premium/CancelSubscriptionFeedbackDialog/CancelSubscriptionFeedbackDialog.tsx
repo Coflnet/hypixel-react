@@ -3,6 +3,7 @@ import { Alert, Modal, Form, Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../../api/ApiHelper'
 import Tooltip from '../../Tooltip/Tooltip'
+import CancelContractLink from '../../Legal/CancelContractLink'
 
 interface Props {
     show: boolean
@@ -124,6 +125,9 @@ function CancelSubscriptionFeedbackDialog(props: Props) {
                         ) : null}
                     </div>
                 ) : null}
+                <p>
+                    Feedback is optional. You can also cancel on Coflnet's cancellation page: <CancelContractLink />
+                </p>
                 <div>
                     <p>
                         We're sorry to see you go! To help us improve our service, please let us know why you're canceling:

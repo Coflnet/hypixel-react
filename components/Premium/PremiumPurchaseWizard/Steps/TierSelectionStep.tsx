@@ -89,8 +89,7 @@ function TierPrice({ tier, countryCode, discount }: { tier: PremiumTier; country
 }
 
 function getPriceUnit(tier: PremiumTier, countryCode: string | undefined, discount: Discount | null) {
-    const base = getPlanPrice(tier, countryCode)
-    const period = `${base.plusVat ? '+ VAT ' : ''}${base.period}`
+    const period = getPlanPrice(tier, countryCode).unit
     if (!discount || discount.percentage <= 0) return period
     return (
         <>
@@ -183,7 +182,7 @@ export default function TierSelectionStep({
         const tier = config.tier
         const isSuggested = suggestedTier === tier
         const canSelect = canSelectTier(tier, currentTier, isUpgrade)
-        // the amount is the lowest monthly equivalent (Premium Plus: billed yearly), as on the plan cards
+        // the amount is the lowest price per 4 weeks (Premium Plus: billed every 52 weeks), as on the plan cards
         const priceNote = forFriends ? null : getPlanPrice(tier, countryCode).note
         return {
             value: tier,

@@ -1,6 +1,7 @@
 import type { SlotCatalog } from '../../../../hooks/useSlotCatalog'
 import OptionGroup, { WizardOption } from '../OptionGroup'
 import { PremiumTier, PurchaseType } from '../types'
+import { getTaxLabel } from '../../../../utils/SubscriptionCheckout'
 
 interface Props {
     tier: PremiumTier
@@ -47,7 +48,7 @@ function getPackagePrices(catalog: SlotCatalog, tier: PremiumTier, recurring: bo
 
 function isLoadingPrices(catalog: SlotCatalog, tier: PremiumTier, recurring: boolean): boolean {
     if (catalog.loading) return true
-    if (!recurring) return false
+    if (!recurring || !catalog.countryCode) return false
     const hasRecurringProducts = catalog.products.some(product => product.slotTier === tier && product.slug?.startsWith('l_'))
     return hasRecurringProducts && !catalog.canUsePrices && !catalog.pricingError && !catalog.catalogError
 }
@@ -80,14 +81,16 @@ export default function PackageSelectionStep({ tier, forFriends, purchaseType, c
     function getPriceParts(count: number): Pick<WizardOption<number>, 'price' | 'unit'> {
         if (count === 0) return { unit: 'Price depends on duration' }
         if (loading) return { unit: 'Loading price…' }
+        if (recurring && !catalog.countryCode) return { unit: 'Choose your country at checkout to see the price' }
         const price = prices[count]
         if (!price) return { unit: 'Price unavailable' }
         if (!recurring) return { price: price.amount, unit: price.unit }
+        // the per-slot amounts here are always estimates, also for a direct checkout
         const unit = (
             <>
                 {price.unit}
                 <br />
-                {catalog.taxLabel}
+                {getTaxLabel(catalog.countryCode, false)}
             </>
         )
         return { price: price.amount, unit }

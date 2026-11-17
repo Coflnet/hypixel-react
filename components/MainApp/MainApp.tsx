@@ -21,6 +21,7 @@ import GlobalSearchShortcut from '../Search/GlobalSearchShortcut'
 import { initCoflCoinManager } from '../../utils/CoflCoinsUtils'
 import properties from '../../properties'
 import { isStaleChunkError, recoverFromStaleChunks } from '../../utils/StaleChunkUtils'
+import SiteFooter from '../SiteFooter/SiteFooter'
 
 initCoflCoinManager()
 
@@ -223,6 +224,7 @@ export function MainApp(props: { children: ReactNode }) {
             <TopLoadingAnimation />
             <GlobalSearchShortcut />
             {props.children}
+            <SiteFooter />
             {!properties.isTestRunner && !hasNitroCMP && privacySignal === false ? (
                 <CookieConsent
                     enableDeclineButton

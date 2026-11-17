@@ -3,7 +3,19 @@ import OptionGroup, { WizardOption } from '../OptionGroup'
 import { Duration, PurchaseType, PremiumTier, getDurationOptions } from '../types'
 import { VAT_RATES, SUBSCRIPTION_PRICES } from '../../../../utils/PricingUtils'
 import { CheckoutOffer, useCheckoutOffer } from '../../../../hooks/useCheckoutOffer'
-import { getBillingWeeks, getDirectPrice, getFirstPeriodLabel, getPeriodPercent, isExactCharge, isFirstPaymentOnly, showsVatSuffix } from '../../../../utils/SubscriptionCheckout'
+import {
+    getBillingWeeks,
+    getDirectPrice,
+    getEveryPeriodLabel,
+    getFirstPeriodLabel,
+    getPerFourWeeks,
+    getPerPeriodLabel,
+    getPeriodPercent,
+    getVatNote,
+    isExactCharge,
+    isFirstPaymentOnly,
+    showsVatSuffix
+} from '../../../../utils/SubscriptionCheckout'
 import { PromotionNote } from '../../Checkout/CheckoutParts'
 import styles from './Steps.module.css'
 
@@ -33,20 +45,29 @@ function getTierKey(tier: PremiumTier): string {
     return tier === PremiumTier.STARTER ? 'starter_premium' : 'premium_plus'
 }
 
-interface BillingPeriod {
-    /** the plan price of the period, before VAT */
-    price: number
-    months: number
+function isSubscription(props: Props): boolean {
+    return props.selectedType === PurchaseType.SUBSCRIPTION
 }
 
-function getBillingPeriod(tier: PremiumTier, duration: Duration): BillingPeriod {
+function getPlanPrice(tier: PremiumTier, duration: Duration): number {
     const prices = SUBSCRIPTION_PRICES[getTierKey(tier)] || { monthly: 0, quarterly: 0, yearly: 0 }
-    if (tier === PremiumTier.STARTER && duration === Duration.QUARTER) return { price: STARTER_HALF_YEAR_PRICE, months: 6 }
-    if (duration === Duration.QUARTER) return { price: prices.quarterly, months: 3 }
-    if (duration === Duration.YEARLY) return { price: prices.yearly, months: 12 }
-    if (duration === Duration.WEEK && prices.weekly) return { price: prices.weekly, months: 7 / 30 }
-    if (duration === Duration.DAY && prices.daily) return { price: prices.daily, months: 1 / 30 }
-    return { price: prices.monthly, months: 1 }
+    if (tier === PremiumTier.STARTER && duration === Duration.QUARTER) return STARTER_HALF_YEAR_PRICE
+    if (duration === Duration.QUARTER) return prices.quarterly
+    if (duration === Duration.YEARLY) return prices.yearly
+    if (duration === Duration.WEEK && prices.weekly) return prices.weekly
+    if (duration === Duration.DAY && prices.daily) return prices.daily
+    return prices.monthly
+}
+
+/** CoflCoins durations are shown per month, as before */
+function getCoflCoinsMonths(tier: PremiumTier, duration: Duration): number {
+    const prices = SUBSCRIPTION_PRICES[getTierKey(tier)]
+    if (tier === PremiumTier.STARTER && duration === Duration.QUARTER) return 6
+    if (duration === Duration.QUARTER) return 3
+    if (duration === Duration.YEARLY) return 12
+    if (duration === Duration.WEEK && prices?.weekly) return 7 / 30
+    if (duration === Duration.DAY && prices?.daily) return 1 / 30
+    return 1
 }
 
 /** what a billing period costs for the country after `percent`: exactly the charge of a direct checkout, otherwise a VAT estimate */
@@ -55,10 +76,11 @@ function getPeriodTotal(price: number, percent: number, props: Props, direct: bo
     return price * (1 - percent / 100) * (1 + getVATRate(props.countryCode))
 }
 
-/** the monthly equivalent of a duration, VAT included for the country */
-function getMonthlyPrice(props: Props, duration: Duration, percent: number, direct: boolean): number {
-    const period = getBillingPeriod(props.selectedTier, duration)
-    return getPeriodTotal(period.price, percent, props, direct) / period.months
+/** a subscription bills every 4, 13 or 52 weeks and is shown per 4 weeks, never per calendar month; CoflCoins per month */
+function getUnitPrice(props: Props, duration: Duration, percent: number, direct: boolean): number {
+    const total = getPeriodTotal(getPlanPrice(props.selectedTier, duration), percent, props, direct)
+    if (isSubscription(props)) return getPerFourWeeks(total, getBillingWeeks(duration))
+    return total / getCoflCoinsMonths(props.selectedTier, duration)
 }
 
 function getBadge(option: { badge?: string; value: Duration }): string | undefined {
@@ -66,30 +88,59 @@ function getBadge(option: { badge?: string; value: Duration }): string | undefin
     return option.value === Duration.YEARLY ? 'Best Value' : undefined
 }
 
-function getUnit(props: Props, duration: Duration, direct: boolean): string {
+/** " (+VAT)" where checkout adds it, ", plus VAT where applicable" while the country is unknown */
+function getVatText(props: Props, direct: boolean): string {
+    const note = getVatNote(props.countryCode, direct)
+    if (!note) return ''
+    return props.countryCode ? ` ${note}` : `, ${note}`
+}
+
+interface PeriodPrice {
+    /** the promotion's percent for this billing period, 0 without one */
+    percent: number
+    /** the promotion covers only the first payment */
+    firstOnly: boolean
+}
+
+/**
+ * e.g. "per 4 weeks · €96.69 every 52 weeks": the amount is per 4 weeks, the period total says what is billed;
+ * a first-payment promotion says what it covers ("· €48.34 for the first year", "per 4 weeks, first 4 weeks")
+ */
+function getSubscriptionUnit(props: Props, duration: Duration, direct: boolean, { percent, firstOnly }: PeriodPrice): string {
+    const weeks = getBillingWeeks(duration)
+    const unit = `${getPerPeriodLabel(4)}${getVatText(props, direct)}`
+    if (weeks === 4) return firstOnly ? `${unit}, ${getFirstPeriodLabel(weeks)}` : unit
+    const total = euro(getPeriodTotal(getPlanPrice(props.selectedTier, duration), percent, props, direct), direct)
+    return `${unit} · ${total} ${firstOnly ? `for the ${getFirstPeriodLabel(weeks)}` : getEveryPeriodLabel(weeks)}`
+}
+
+function getCoflCoinsUnit(props: Props, duration: Duration, direct: boolean): string {
     const vatSuffix = showsVatSuffix(props.countryCode, direct) ? ' (+VAT)' : ''
-    const isStarterHalfYear = props.selectedType === PurchaseType.COFLCOINS && props.selectedTier === PremiumTier.STARTER && duration === Duration.QUARTER
+    const isStarterHalfYear = props.selectedTier === PremiumTier.STARTER && duration === Duration.QUARTER
     if (!isStarterHalfYear) return 'per month'
     const total = euro(getPeriodTotal(STARTER_HALF_YEAR_PRICE, 0, props, direct), direct)
     return `per month${vatSuffix} · ${total}${vatSuffix} total for 1,800 CoflCoins`
 }
 
+function getUnit(props: Props, duration: Duration, direct: boolean, periodPrice: PeriodPrice): string {
+    if (isSubscription(props)) return getSubscriptionUnit(props, duration, direct, periodPrice)
+    return getCoflCoinsUnit(props, duration, direct)
+}
+
 type OptionPrices = Pick<WizardOption<Duration>, 'price' | 'originalPrice' | 'discountBadge' | 'unit'>
 
-/** the monthly equivalent, struck through and discounted while a promotion covers the billing period */
+/** the price per 4 weeks (CoflCoins: per month), struck through and discounted while a promotion covers the billing period */
 function getOptionPrices(props: Props, duration: Duration, offer: CheckoutOffer): OptionPrices {
     const direct = isExactCharge(offer.providers, props.countryCode)
     const promotion = offer.promotion
-    const unit = getUnit(props, duration, direct)
-    const weeks = getBillingWeeks(duration)
-    const percent = getPeriodPercent(promotion, weeks)
-    const monthly = getMonthlyPrice(props, duration, 0, direct)
-    if (!promotion || !percent) return { price: `~${euro(monthly, direct)}`, unit }
+    const percent = promotion ? getPeriodPercent(promotion, getBillingWeeks(duration)) : 0
+    const regular = getUnitPrice(props, duration, 0, direct)
+    if (!promotion || !percent) return { price: `~${euro(regular, direct)}`, unit: getUnit(props, duration, direct, { percent: 0, firstOnly: false }) }
     return {
-        price: `~${euro(getMonthlyPrice(props, duration, percent, direct), direct)}`,
-        originalPrice: `~${euro(monthly, direct)}`,
+        price: `~${euro(getUnitPrice(props, duration, percent, direct), direct)}`,
+        originalPrice: `~${euro(regular, direct)}`,
         discountBadge: `-${percent}%`,
-        unit: isFirstPaymentOnly(promotion) ? `${unit}, ${getFirstPeriodLabel(weeks)}` : unit
+        unit: getUnit(props, duration, direct, { percent, firstOnly: isFirstPaymentOnly(promotion) })
     }
 }
 

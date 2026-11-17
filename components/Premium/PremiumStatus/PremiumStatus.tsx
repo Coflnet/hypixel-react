@@ -10,6 +10,7 @@ import CancelSubscriptionFeedbackDialog from '../CancelSubscriptionFeedbackDialo
 import { usePutApiPremiumSubscriptionExternalIdReactivate } from '../../../api/_generated/skyApi'
 import { toast } from 'react-toastify'
 import UpgradeSubscription from '../UpgradeSubscription/UpgradeSubscription'
+import CancelContractLink from '../../Legal/CancelContractLink'
 
 interface Props {
     products: PremiumProduct[]
@@ -210,6 +211,11 @@ function PremiumStatus(props: Props) {
                             {props.hasProductLoadingError ? <li>Premium products could not be loaded</li> : null}
                             {props.hasSubscriptionLoadingError ? <li>Premium subscriptions could not be loaded</li> : null}
                         </ul>
+                        {props.subscriptions.some(subscription => !subscription.endsAt) ? (
+                            <p style={{ clear: 'left' }}>
+                                You can also cancel on Coflnet's cancellation page: <CancelContractLink />
+                            </p>
+                        ) : null}
                     </div>
                 ) : (
                     <p>

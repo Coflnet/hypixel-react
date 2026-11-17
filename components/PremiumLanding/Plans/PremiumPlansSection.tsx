@@ -42,10 +42,7 @@ function PlanPrice({ tier, countryCode }: { tier: PremiumTier; countryCode?: str
         <div className={styles.price}>
             <div className={styles.priceLine}>
                 <span className={styles.amount}>{price.amount}</span>
-                <span className={page.muted}>
-                    {price.plusVat ? '+ VAT ' : ''}
-                    {price.period}
-                </span>
+                <span className={page.muted}>{price.unit}</span>
             </div>
             <span className={styles.small}>{price.note}</span>
         </div>
