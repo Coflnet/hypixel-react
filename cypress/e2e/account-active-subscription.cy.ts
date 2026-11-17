@@ -68,6 +68,9 @@ function installAuthenticatedWebSocket(window: Cypress.AUTWindow) {
             }, 0)
         }
 
+        // Next's dev HMR client registers listeners on the replaced WebSocket too
+        addEventListener() {}
+        removeEventListener() {}
         close() {}
     }
 
@@ -1021,6 +1024,135 @@ describe('Slot packages in the Premium wizard', () => {
         })
     }
 
+    describe('creator and discount codes on a slot subscription', () => {
+        const checkoutUrl = '**/api/premium/subscription/l_premium-slots-4?*'
+
+        function stubCreatorPricing() {
+            cy.intercept('POST', '**/api/topup/rates', request => {
+                const discounted = request.body.creatorCode === 'friend'
+                request.reply({
+                    body: {
+                        products: slotPricing().products.map(product => {
+                            const original = product.providers[0].originalPrice
+                            return {
+                                ...product,
+                                discountPercent: discounted ? 10 : 0,
+                                providers: [{ ...product.providers[0], discountedPrice: discounted ? Math.round(original * 90) / 100 : original }]
+                            }
+                        })
+                    }
+                })
+            }).as('slotPrices')
+        }
+
+        function openReview(path?: string) {
+            visitShop(path)
+            choosePackage('Premium', 4, 'Subscription')
+            cy.contains('button', 'Continue with subscription').click()
+            cy.contains('.modal-title', 'Review your slot subscription').should('be.visible')
+        }
+
+        function openCodes() {
+            cy.get('.modal').contains('button', 'Have a discount or creator code?').click()
+        }
+
+        it('sends the creator code and shows the reduced price', () => {
+            stubCreatorPricing()
+            cy.intercept('POST', checkoutUrl, request => {
+                expect(request.query.creatorCode).to.equal('friend')
+                expect(request.query.assignSlots).to.equal('true')
+                expect(request.query).not.to.have.property('discountcode')
+                request.reply({ statusCode: 200, body: { directLink: 'https://test.lemonsqueezy.com/checkout/slot-bundle' } })
+            }).as('slotCheckout')
+            openReview()
+            cy.get('.modal').should('contain.text', '29.69')
+            openCodes()
+            cy.get('.modal input[placeholder="Enter creator code"]').type('friend')
+            cy.get('.modal input[placeholder="Enter creator code"]').closest('div').parent().contains('button', 'Apply').click()
+            cy.get('@slotPrices.all').should(calls => expect(calls[calls.length - 1].request.body.creatorCode).to.equal('friend'))
+            cy.get('.modal').should('contain.text', '26.72').and('contain.text', 'Creator code applied! You get 10% off').and('contain.text', 'You save')
+            cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
+            cy.contains('button', 'Continue to checkout').click()
+            cy.wait('@slotCheckout')
+        })
+
+        it('validates a discount code, shows the discounted price and sends it', () => {
+            cy.intercept('GET', '**/api/discount/SAVE20', { body: { code: 'SAVE20', amount: 20, amountType: 'percent', name: 'Spring', isValid: true, durationInMonths: 0 } }).as('discount')
+            cy.intercept('POST', checkoutUrl, request => {
+                expect(request.query.discountcode).to.equal('SAVE20')
+                expect(request.query).not.to.have.property('creatorCode')
+                request.reply({ statusCode: 200, body: { directLink: 'https://test.lemonsqueezy.com/checkout/slot-bundle' } })
+            }).as('slotCheckout')
+            openReview()
+            openCodes()
+            cy.get('.modal input[placeholder="Enter discount code"]').type('SAVE20')
+            cy.get('.modal input[placeholder="Enter discount code"]').closest('div').parent().contains('button', 'Apply').click()
+            cy.wait('@discount')
+            cy.get('.modal').should('contain.text', '23.76').and('contain.text', 'Discount code valid!').and('contain.text', 'You save')
+            cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
+            cy.contains('button', 'Continue to checkout').click()
+            cy.wait('@slotCheckout')
+        })
+
+        it('prefills and validates the discount code from the page URL', () => {
+            cy.intercept('GET', '**/api/discount/SAVE20', { body: { code: 'SAVE20', amount: 20, amountType: 'percent', name: 'Spring', isValid: true, durationInMonths: 0 } }).as('discount')
+            openReview('/premium?slots=true&code=SAVE20#buyPremium')
+            cy.wait('@discount')
+            cy.get('.modal').should('contain.text', '23.76').and('contain.text', 'Discount code valid!')
+            cy.get('.modal input[placeholder="Enter discount code"]').should('have.value', 'SAVE20')
+        })
+
+        it('rejects an invalid discount code without changing the price', () => {
+            cy.intercept('GET', '**/api/discount/NOPE', { body: { code: 'NOPE', amount: 0, isValid: false } })
+            openReview()
+            openCodes()
+            cy.get('.modal input[placeholder="Enter discount code"]').type('NOPE')
+            cy.get('.modal input[placeholder="Enter discount code"]').closest('div').parent().contains('button', 'Apply').click()
+            cy.get('.modal').should('contain.text', 'This discount code is not valid').and('contain.text', '29.69')
+        })
+
+        // regression: a creator code the quote failed for blocked every subscription price and could not be removed
+        it('drops a creator code the prices cannot be loaded with and keeps the checkout usable', () => {
+            cy.intercept('POST', '**/api/topup/rates', request => {
+                if (request.body.creatorCode === 'typo') return request.reply({ statusCode: 400, body: { error: 'Invalid or expired creator code' } })
+                request.reply({ body: slotPricing() })
+            }).as('slotPrices')
+            cy.intercept('POST', checkoutUrl, request => {
+                expect(request.query).not.to.have.property('creatorCode')
+                request.reply({ statusCode: 200, body: { directLink: 'https://test.lemonsqueezy.com/checkout/slot-bundle' } })
+            }).as('slotCheckout')
+            openReview()
+            openCodes()
+            cy.get('.modal input[placeholder="Enter creator code"]').type('typo')
+            cy.get('.modal input[placeholder="Enter creator code"]').closest('div').parent().contains('button', 'Apply').click()
+            cy.get('.modal').should('contain.text', 'The creator code typo could not be applied').and('contain.text', '29.69')
+            cy.get('.modal').should('not.contain.text', 'Creator code applied')
+            cy.get('[data-testid="slot-offer"]').should('contain.text', '29.69')
+            cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
+            cy.contains('button', 'Continue to checkout').should('be.enabled').click()
+            cy.wait('@slotCheckout')
+        })
+
+        // regression: a yearly-only code was accepted (and its discount shown) for a slot subscription that renews every 4 weeks
+        it('holds back a yearly-only discount code because slot subscriptions renew every 4 weeks', () => {
+            cy.intercept('GET', '**/api/discount/YEARLY20', { body: { code: 'YEARLY20', amount: 20, amountType: 'percent', name: 'Yearly Deal', isValid: true, durationInMonths: 0 } }).as('discount')
+            cy.intercept('POST', checkoutUrl, request => {
+                expect(request.query).not.to.have.property('discountcode')
+                request.reply({ statusCode: 200, body: { directLink: 'https://test.lemonsqueezy.com/checkout/slot-bundle' } })
+            }).as('slotCheckout')
+            openReview()
+            openCodes()
+            cy.get('.modal input[placeholder="Enter discount code"]').type('YEARLY20')
+            cy.get('.modal input[placeholder="Enter discount code"]').closest('div').parent().contains('button', 'Apply').click()
+            cy.wait('@discount')
+            cy.get('.modal').should('contain.text', 'only valid for yearly billing').and('contain.text', '29.69')
+            cy.get('.modal').should('not.contain.text', '23.76').and('not.contain.text', 'Switch to yearly')
+            cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
+            cy.contains('button', 'Continue to checkout').click()
+            cy.wait('@slotCheckout')
+        })
+    })
+
     it('purchases one four-slot package for 27,000 coins with the existing declaration and identity confirmation', () => {
         cy.intercept('POST', '**/api/service/purchase', request => {
             expect(request.headers.googletoken).to.equal(googleToken)
@@ -1201,5 +1333,90 @@ describe('Slot packages in the Premium wizard', () => {
         cy.document().then(document => expect(document.documentElement.scrollWidth).to.be.at.most(390))
         cy.get('[data-testid="slot-offer"]').first().scrollIntoView()
         cy.screenshot('slot-bundles-mobile', { capture: 'viewport', blackout: ['#nprogress'] })
+    })
+})
+
+describe('Discount codes at the subscription checkout', () => {
+    const save20 = { code: 'SAVE20', amount: 20, amountType: 'percent', name: 'Spring', isValid: true, durationInMonths: 0 }
+    const yearly20 = { code: 'YEARLY20', amount: 20, amountType: 'percent', name: 'Yearly Deal', isValid: true, durationInMonths: 0 }
+
+    beforeEach(() => {
+        cy.intercept('GET', 'https://api.country.is*', { body: { country: 'US' } })
+        cy.intercept('POST', '**/api/topup/rates', {
+            body: {
+                products: [['l_premium', 9.69], ['l_premium-year', 96.69]].map(([slug, amount]) => ({
+                    productSlug: slug,
+                    discountPercent: 0,
+                    providers: [{ providerSlug: 'lemonsqueezy', currencyCode: 'EUR', originalPrice: Number(amount), discountedPrice: Number(amount) }]
+                }))
+            }
+        })
+        cy.intercept('GET', '**/api/discount/SAVE20', { body: save20 }).as('save20')
+        cy.intercept('GET', '**/api/discount/YEARLY20', { body: yearly20 }).as('yearly20')
+        stubProducts()
+        stubSubscriptions({ body: [] })
+    })
+
+    function openCheckout(duration: 'Monthly' | 'Yearly', path = '/premium?tier=premium') {
+        visitAuthenticatedPage(path)
+        wizardOption(/^Subscription$/).click()
+        wizardOption('Just for me').click()
+        wizardOption(new RegExp(`^${duration}$`)).click()
+        cy.contains('#buyPremium h3', 'Complete Purchase').should('be.visible')
+    }
+
+    function discountInput() {
+        return cy.get('#buyPremium input[placeholder="Enter discount code"]')
+    }
+
+    function discountAction(label: 'Apply' | 'Clear') {
+        return discountInput().closest('div').parent().contains('button', label)
+    }
+
+    function applyDiscount(code: string) {
+        cy.get('#buyPremium').contains('button', 'Have a discount or creator code?').click()
+        discountInput().type(code)
+        discountAction('Apply').click()
+    }
+
+    it('applies a valid code to the price and sends it with the checkout', () => {
+        cy.intercept('POST', /\/api\/premium\/subscription\/l_premium\?/, request => {
+            expect(request.query.discountCode).to.equal('SAVE20')
+            request.reply({ statusCode: 200, body: { directLink: 'https://test.lemonsqueezy.com/checkout/premium' } })
+        }).as('checkout')
+        openCheckout('Monthly')
+        applyDiscount('SAVE20')
+        cy.wait('@save20')
+        cy.get('#buyPremium').should('contain.text', 'Discount code valid!').and('contain.text', '7.76')
+        cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
+        cy.contains('button', 'Continue to our secure payment processor').click()
+        cy.wait('@checkout')
+    })
+
+    it('holds a yearly-only code back on monthly billing until the visitor opts in, and clears it again', () => {
+        openCheckout('Monthly')
+        applyDiscount('YEARLY20')
+        cy.wait('@yearly20')
+        cy.get('#buyPremium').should('contain.text', 'only valid for yearly billing').and('not.contain.text', 'Discount code valid!')
+        cy.get('#buyPremium').contains('button', 'Switch to yearly and apply discount').click()
+        cy.get('#buyPremium').should('contain.text', 'Discount code valid!').and('not.contain.text', 'only valid for yearly billing')
+        discountAction('Clear').click()
+        discountInput().should('have.value', '')
+        cy.get('#buyPremium').should('not.contain.text', 'Discount code valid!')
+        discountAction('Apply').should('be.disabled')
+    })
+
+    it('accepts a yearly-only code on yearly billing', () => {
+        openCheckout('Yearly')
+        applyDiscount('YEARLY20')
+        cy.wait('@yearly20')
+        cy.get('#buyPremium').should('contain.text', 'Discount code valid!').and('not.contain.text', 'only valid for yearly billing')
+    })
+
+    it('prefills and validates the code from the page URL', () => {
+        openCheckout('Monthly', '/premium?tier=premium&code=SAVE20')
+        cy.wait('@save20')
+        discountInput().should('have.value', 'SAVE20')
+        cy.get('#buyPremium').should('contain.text', 'Discount code valid!').and('contain.text', '7.76')
     })
 })

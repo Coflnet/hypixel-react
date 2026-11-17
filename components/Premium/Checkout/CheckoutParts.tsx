@@ -1,5 +1,6 @@
 'use client'
 import { ReactNode, useId } from 'react'
+import type { ValidatedDiscount } from '../../../api/_generated/skyApi.schemas'
 import { PremiumTier } from '../PremiumPurchaseWizard/types'
 import styles from './Checkout.module.css'
 
@@ -134,6 +135,36 @@ export function CodeField({ label, placeholder, value, onChange, disabled, actio
             </div>
             {children}
         </div>
+    )
+}
+
+export function CreatorCodeMessage({ percent }: { percent: number | null }) {
+    return <CheckoutSuccess>{percent ? `✓ Creator code applied! You get ${percent}% off` : '✓ Creator code applied'}</CheckoutSuccess>
+}
+
+interface DiscountCodeMessageProps {
+    error: string | null
+    discount: ValidatedDiscount | null
+    /** shown under the error, e.g. to switch to a billing period the code works with */
+    errorAction?: ReactNode
+}
+
+export function DiscountCodeMessage({ error, discount, errorAction }: DiscountCodeMessageProps) {
+    if (error)
+        return (
+            <CheckoutError>
+                {error}
+                {errorAction}
+            </CheckoutError>
+        )
+    if (!discount?.isValid) return null
+    const amount = discount.amountType === 'percent' || discount.amountType === 'percentage' ? `${discount.amount}% off` : `${discount.amount} off`
+    return (
+        <CheckoutSuccess>
+            <strong>✓ Discount code valid!</strong> {discount.name ? `${discount.name}: ` : ''}
+            {amount}
+            {discount.durationInMonths > 0 ? ` for ${discount.durationInMonths} payment${discount.durationInMonths > 1 ? 's' : ''}` : ''}
+        </CheckoutSuccess>
     )
 }
 

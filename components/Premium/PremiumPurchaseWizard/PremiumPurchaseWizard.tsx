@@ -348,6 +348,7 @@ function PremiumPurchaseWizard(props: Props) {
                             tier={selectedTier!}
                             purchaseType={selectedType!}
                             slotCount={slotCount}
+                            initialDiscountCode={urlDiscountCode}
                             busy={slotPurchaseBusy}
                             onBusyChange={setSlotPurchaseBusy}
                             onCountryChange={handleCountryChange}

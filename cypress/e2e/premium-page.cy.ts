@@ -72,6 +72,10 @@ function installAuthenticatedWebSocket(window: Cypress.AUTWindow, storeToken = t
         }
 
         close() {}
+
+        // the Next dev server's HMR client registers listeners on window.WebSocket
+        addEventListener() {}
+        removeEventListener() {}
     }
 
     window.WebSocket = AuthenticatedWebSocket as unknown as typeof WebSocket

@@ -9,8 +9,8 @@ import { toast } from 'react-toastify'
 import { Duration, PremiumTier, PurchaseType, getTierDisplayName } from '../PremiumPurchaseWizard/types'
 import { TierUpsellPanel } from '../../Discounts/DiscountBanners'
 import discountStyles from '../../Discounts/Discounts.module.css'
-import { postApiTopupRates, getApiDiscountCode } from '../../../api/_generated/skyApi'
-import { BatchProductPricingResponse, ValidatedDiscount } from '../../../api/_generated/skyApi.schemas'
+import { postApiTopupRates } from '../../../api/_generated/skyApi'
+import { BatchProductPricingResponse } from '../../../api/_generated/skyApi.schemas'
 import {
     getProviderPrice,
     getProviderOriginalPrice,
@@ -20,6 +20,7 @@ import {
     VAT_RATES,
     formatMoney
 } from '../../../utils/PricingUtils'
+import useDiscountCode from '../../../hooks/useDiscountCode'
 import { useCountryDetection } from '../../../hooks/useCountryDetection'
 import { usePremiumVariant } from '../PremiumVariantContext'
 import { trackPremiumFunnelEvent } from '../../../utils/PremiumTracking'
@@ -30,7 +31,8 @@ import {
     CheckoutButton,
     CheckoutError,
     CheckoutLayout,
-    CheckoutSuccess,
+    CreatorCodeMessage,
+    DiscountCodeMessage,
     CodeDisclosure,
     CodeField,
     PaymentActions,
@@ -54,21 +56,18 @@ function BuySubscription(props: Props) {
     const [selectedPremiumType, setSelectedPremiumType] = useState<PremiumType>()
     const [isYearOption, setIsYearOption] = useState<boolean>()
     const [creatorCode, setCreatorCode] = useState('')
-    const [discountCode, setDiscountCode] = useState(props.initialDiscountCode || '')
     const [isLoadingPrices, setIsLoadingPrices] = useState(false)
     const [pricingData, setPricingData] = useState<BatchProductPricingResponse | null>(null)
     const [pricingError, setPricingError] = useState<string | null>(null)
     const [appliedCreatorCode, setAppliedCreatorCode] = useState<string | null>(null)
-    const [validatedDiscount, setValidatedDiscount] = useState<ValidatedDiscount | null>(null)
-    const [pendingYearlyDiscount, setPendingYearlyDiscount] = useState<ValidatedDiscount | null>(null)
-    const [isValidatingDiscount, setIsValidatingDiscount] = useState(false)
-    const [discountError, setDiscountError] = useState<string | null>(null)
     const [isRedirecting, setIsRedirecting] = useState(false)
     const [codesOpen, setCodesOpen] = useState<boolean | null>(null)
     // back from the payment provider the cached page would still say "Redirecting…"
     useBackForwardRestore(() => setIsRedirecting(false))
     const { selectedCountry } = useCountryDetection()
     const summerDiscount = getActiveSubscriptionDiscount()
+    const discount = useDiscountCode(props.initialDiscountCode, { isYearly: isYearOption !== undefined ? isYearOption : props.selectedDuration === Duration.YEARLY })
+    const { validated: validatedDiscount, pendingYearly: pendingYearlyDiscount, validating: isValidatingDiscount, error: discountError, code: discountCode } = discount
 
     const country = props.countryCode || selectedCountry?.value || 'US'
 
@@ -77,7 +76,7 @@ function BuySubscription(props: Props) {
         // Auto-validate discount code if provided from URL
         if (props.initialDiscountCode) {
             setTimeout(() => {
-                validateDiscountCodeValue(props.initialDiscountCode!)
+                discount.validate(props.initialDiscountCode!)
             }, 100)
         }
     }, [])
@@ -153,62 +152,6 @@ function BuySubscription(props: Props) {
 
     const applyCreatorCode = () => {
         fetchPricing(creatorCode)
-    }
-
-    const validateDiscountCodeValue = async (code: string) => {
-        if (!code.trim()) {
-            setDiscountError('Please enter a discount code')
-            return
-        }
-
-        setIsValidatingDiscount(true)
-        setDiscountError(null)
-        setValidatedDiscount(null)
-
-        try {
-            const response = await getApiDiscountCode(code.trim())
-            if (response.status === 200 && response.data) {
-                if (response.data.isValid) {
-                    // Determine whether yearly billing is currently selected
-                    const currentIsYear = isYearOption !== undefined ? isYearOption : (props.selectedDuration === Duration.YEARLY)
-
-                    // If discount name indicates yearly-only and monthly is selected, show error
-                    const name = response.data.name || ''
-                    if (name.toLowerCase().includes('yearly') && !currentIsYear) {
-                        // Keep the discount data as pending so user can opt-in to switch to yearly
-                        setPendingYearlyDiscount(response.data)
-                        setDiscountError('This discount code is only valid for yearly billing')
-                        setValidatedDiscount(null)
-                    } else {
-                        setPendingYearlyDiscount(null)
-                        setValidatedDiscount(response.data)
-                        setDiscountError(null)
-                    }
-                } else {
-                    setDiscountError('This discount code is not valid')
-                    setValidatedDiscount(null)
-                }
-            } else {
-                setDiscountError('Could not validate discount code')
-                setValidatedDiscount(null)
-            }
-        } catch (error) {
-            console.error('Error validating discount code:', error)
-            setDiscountError('Failed to validate discount code. Please try again.')
-            setValidatedDiscount(null)
-        } finally {
-            setIsValidatingDiscount(false)
-        }
-    }
-
-    const validateDiscountCode = () => {
-        validateDiscountCodeValue(discountCode)
-    }
-
-    const clearDiscountCode = () => {
-        setDiscountCode('')
-        setValidatedDiscount(null)
-        setDiscountError(null)
     }
 
     const getCurrencyCode = (): string => {
@@ -431,21 +374,9 @@ function BuySubscription(props: Props) {
         }
     }
 
-    const onDiscountCodeChange = (value: string) => {
-        setDiscountCode(value)
-        if (validatedDiscount) {
-            setValidatedDiscount(null)
-        }
-        if (discountError) {
-            setDiscountError(null)
-        }
-    }
-
     const applyPendingYearlyDiscount = () => {
         setIsYearOption(true)
-        setValidatedDiscount(pendingYearlyDiscount)
-        setPendingYearlyDiscount(null)
-        setDiscountError(null)
+        discount.applyPendingYearly()
     }
 
     // open while a code is prefilled or in use, until the visitor toggles it
@@ -507,39 +438,19 @@ function BuySubscription(props: Props) {
 
     function renderCreatorCodeMessage() {
         if (!appliedCreatorCode || pricingError) return null
-        const percent = getCreatorCodePercent()
-        return <CheckoutSuccess>{percent ? `✓ Creator code applied! You get ${percent}% off` : '✓ Creator code applied'}</CheckoutSuccess>
+        return <CreatorCodeMessage percent={getCreatorCodePercent()} />
     }
 
     function renderDiscountCodeMessage() {
-        if (discountError) {
-            return (
-                <CheckoutError>
-                    {discountError}
-                    {pendingYearlyDiscount && !isYearlySelected() ? (
-                        <div className={styles.messageAction}>
-                            <button type="button" className={styles.linkButton} onClick={applyPendingYearlyDiscount}>
-                                Switch to yearly and apply discount
-                            </button>
-                        </div>
-                    ) : null}
-                </CheckoutError>
-            )
-        }
-        if (!validatedDiscount?.isValid) return null
-        const amount =
-            validatedDiscount.amountType === 'percent' || validatedDiscount.amountType === 'percentage'
-                ? `${validatedDiscount.amount}% off`
-                : `${validatedDiscount.amount} off`
-        return (
-            <CheckoutSuccess>
-                <strong>✓ Discount code valid!</strong> {validatedDiscount.name ? `${validatedDiscount.name}: ` : ''}
-                {amount}
-                {validatedDiscount.durationInMonths > 0
-                    ? ` for ${validatedDiscount.durationInMonths} payment${validatedDiscount.durationInMonths > 1 ? 's' : ''}`
-                    : ''}
-            </CheckoutSuccess>
-        )
+        const switchToYearly =
+            pendingYearlyDiscount && !isYearlySelected() ? (
+                <div className={styles.messageAction}>
+                    <button type="button" className={styles.linkButton} onClick={applyPendingYearlyDiscount}>
+                        Switch to yearly and apply discount
+                    </button>
+                </div>
+            ) : null
+        return <DiscountCodeMessage error={discountError} discount={validatedDiscount} errorAction={switchToYearly} />
     }
 
     function renderCodes() {
@@ -561,10 +472,10 @@ function BuySubscription(props: Props) {
                     label="Discount code"
                     placeholder="Enter discount code"
                     value={discountCode}
-                    onChange={onDiscountCodeChange}
+                    onChange={discount.changeCode}
                     disabled={isValidatingDiscount}
                     actionLabel={validatedDiscount ? 'Clear' : isValidatingDiscount ? <Spinner size="sm" animation="border" /> : 'Apply'}
-                    onAction={validatedDiscount ? clearDiscountCode : validateDiscountCode}
+                    onAction={validatedDiscount ? discount.clear : () => discount.validate()}
                     actionDisabled={isValidatingDiscount || (!validatedDiscount && !discountCode.trim())}
                 >
                     {renderDiscountCodeMessage()}

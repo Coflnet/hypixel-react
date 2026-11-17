@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react'
 import { getApiPremiumSlotsProducts, postApiTopupRates } from '../api/_generated/skyApi'
 import type { BatchProductPricingResponse, PurchaseableProduct } from '../api/_generated/skyApi.schemas'
-import { getProvider, getPriceWithVAT, shouldIncludeVAT } from '../utils/PricingUtils'
+import { getDiscountPercent, getProvider, getPriceWithVAT, shouldIncludeVAT } from '../utils/PricingUtils'
 
 export default function useSlotCatalog(countryCode?: string) {
     const [products, setProducts] = useState<PurchaseableProduct[]>([])
     const [loading, setLoading] = useState(true)
     const [catalogError, setCatalogError] = useState(false)
     const [pricing, setPricing] = useState<BatchProductPricingResponse>()
-    const [pricingCountry, setPricingCountry] = useState('')
+    const [pricingKey, setPricingKey] = useState('')
+    const [creatorCode, setCreatorCode] = useState('')
+    const [rejectedCreatorCode, setRejectedCreatorCode] = useState('')
     const [pricingError, setPricingError] = useState(false)
     const [reload, setReload] = useState(0)
 
@@ -43,9 +45,9 @@ export default function useSlotCatalog(countryCode?: string) {
         if (!countryCode || !subscriptions.length) return
         const controller = new AbortController()
         setPricingError(false)
-        setPricingCountry('')
+        setPricingKey('')
         postApiTopupRates(
-            { productSlugs: subscriptions.map(product => product.slug!), countryCode },
+            { productSlugs: subscriptions.map(product => product.slug!), countryCode, creatorCode: creatorCode || null },
             {
                 signal: controller.signal,
                 headers: { GoogleToken: sessionStorage.getItem('googleId') || '' }
@@ -55,15 +57,19 @@ export default function useSlotCatalog(countryCode?: string) {
                 if (response.status !== 200 || !response.data.products) throw new Error()
                 if (controller.signal.aborted) return
                 setPricing(response.data)
-                setPricingCountry(countryCode)
+                setPricingKey(`${countryCode}|${creatorCode}`)
             })
             .catch(() => {
-                if (!controller.signal.aborted) setPricingError(true)
+                if (controller.signal.aborted) return
+                if (!creatorCode) return setPricingError(true)
+                // a creator code the quote fails for (unknown or expired) is dropped, the prices load again without it
+                setRejectedCreatorCode(creatorCode)
+                setCreatorCode('')
             })
         return () => controller.abort()
-    }, [products, countryCode])
+    }, [products, countryCode, creatorCode])
 
-    const canUsePrices = !!countryCode && pricingCountry === countryCode && !pricingError
+    const canUsePrices = !!countryCode && pricingKey === `${countryCode}|${creatorCode}` && !pricingError
 
     function price(product: PurchaseableProduct) {
         if (!canUsePrices) return undefined
@@ -72,6 +78,17 @@ export default function useSlotCatalog(countryCode?: string) {
         // Lemon Squeezy's batch prices are before tax. Round the whole bundle before dividing by slots.
         const withTax = (amount: number) => Math.round(getPriceWithVAT(amount, countryCode) * 100) / 100
         return { ...provider, originalPrice: withTax(provider.originalPrice), discountedPrice: withTax(provider.discountedPrice) }
+    }
+
+    /** percent the applied creator code takes off a product, null without one */
+    function creatorPercent(product: PurchaseableProduct) {
+        if (!canUsePrices || !creatorCode) return null
+        return getDiscountPercent(pricing || null, product.slug!)
+    }
+
+    function applyCreatorCode(code: string) {
+        setRejectedCreatorCode('')
+        setCreatorCode(code.trim())
     }
 
     function retry() {
@@ -85,6 +102,11 @@ export default function useSlotCatalog(countryCode?: string) {
         pricingError,
         canUsePrices,
         price,
+        creatorCode,
+        /** the last creator code the prices could not be loaded with, empty otherwise */
+        rejectedCreatorCode,
+        applyCreatorCode,
+        creatorPercent,
         retry,
         taxLabel: shouldIncludeVAT(countryCode) ? 'Includes estimated tax' : 'Tax calculated at checkout'
     }

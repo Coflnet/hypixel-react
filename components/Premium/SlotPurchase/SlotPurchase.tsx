@@ -7,11 +7,14 @@ import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import { postApiPremiumSubscriptionSubscriptionSlug } from '../../../api/_generated/skyApi'
 import type { PurchaseableProduct } from '../../../api/_generated/skyApi.schemas'
 import { useCoflCoins } from '../../../utils/Hooks'
+import useDiscountCode, { discountPercentOf } from '../../../hooks/useDiscountCode'
 import type { SlotCatalog } from '../../../hooks/useSlotCatalog'
 import Tooltip from '../../Tooltip/Tooltip'
 import { PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import { Country } from '../../../utils/CountryUtils'
 import CountrySelect from '../../CountrySelect/CountrySelect'
+import SlotCodes from './SlotCodes'
+import { Savings } from '../Checkout/CheckoutParts'
 import BuyPremiumConfirmationDialog from '../BuyPremiumConfirmationDialog/BuyPremiumConfirmationDialog'
 import styles from './SlotPurchase.module.css'
 import { usePremiumVariant } from '../PremiumVariantContext'
@@ -21,6 +24,7 @@ import { PremiumTier, PurchaseType, getTierDisplayName } from '../PremiumPurchas
 const isSubscription = (product: PurchaseableProduct) => product.slug?.startsWith('l_') === true
 const duration = (product: PurchaseableProduct) => (product.ownershipSeconds === 2419200 ? '4 weeks' : `${(product.ownershipSeconds || 0) / 86400} days`)
 const money = (amount: number, currency = 'EUR') => new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(amount)
+const roundUpToCent = (amount: number) => Math.ceil(Math.round(amount * 1e6) / 1e4) / 100
 const tierName = (product: PurchaseableProduct) => (product.slotTier === 'premium_plus' ? 'Premium+' : 'Premium')
 
 interface Props {
@@ -28,18 +32,22 @@ interface Props {
     tier: PremiumTier
     purchaseType: PurchaseType
     slotCount: number
+    /** discount code to check and apply right away, e.g. from the page URL */
+    initialDiscountCode?: string | null
     busy: boolean
     onBusyChange(busy: boolean): void
     onCountryChange(country: Country): void
 }
 
-export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, busy, onBusyChange: setBusy, onCountryChange }: Props) {
+export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, initialDiscountCode, busy, onBusyChange: setBusy, onCountryChange }: Props) {
     const variant = usePremiumVariant()
     const { products, loading, catalogError, pricingError, canUsePrices, price, retry, taxLabel } = catalog
     const [selected, setSelected] = useState<PurchaseableProduct>()
     const [purchased, setPurchased] = useState<PurchaseableProduct>()
     const [error, setError] = useState('')
     const coflCoins = useCoflCoins()
+    // slot subscriptions renew every 4 weeks, so yearly-only codes do not apply to them
+    const discount = useDiscountCode(initialDiscountCode, { isYearly: false, validateInitial: true })
 
     async function checkout(token?: string, declaration?: ServicePurchaseDeclaration) {
         if (!selected || busy) return
@@ -51,7 +59,11 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, b
             if (isSubscription(product)) {
                 const response = await postApiPremiumSubscriptionSubscriptionSlug(
                     product.slug!,
-                    { assignSlots: true },
+                    {
+                        assignSlots: true,
+                        creatorCode: catalog.creatorCode || undefined,
+                        discountcode: discount.validated?.code || undefined
+                    },
                     {
                         headers: { GoogleToken: sessionStorage.getItem('googleId') || '' }
                     }
@@ -69,6 +81,16 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, b
         } finally {
             setBusy(false)
         }
+    }
+
+    function quoteWithCodes(provider: ReturnType<SlotCatalog['price']>, discountPercent: number) {
+        if (!provider) return undefined
+        // the provider's discounted price already includes the creator code
+        const current = provider.discountedPrice ?? provider.originalPrice
+        const final = discountPercent ? roundUpToCent(current * (1 - discountPercent / 100)) : current
+        const saved = Math.max(0, Math.round((provider.originalPrice - final) * 100) / 100)
+        const savedPercent = saved ? Math.round((saved / provider.originalPrice) * 100) : 0
+        return { final, original: provider.originalPrice, saved, savedPercent, currency: provider.currencyCode || 'EUR' }
     }
 
     if (purchased)
@@ -90,6 +112,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, b
     )
     const hasSubscriptions = offers.some(isSubscription)
     const selectedPrice = selected ? price(selected) : undefined
+    const selectedQuote = quoteWithCodes(selectedPrice, discountPercentOf(discount.validated))
     const selectedPremiumType = selected ? PREMIUM_TYPES.find(type => type.productId === selected.slotTier)! : undefined
 
     return (
@@ -252,11 +275,21 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, b
                         {selected?.slotCount} {selected && tierName(selected)} {selected?.slotCount === 1 ? 'slot' : 'slots'}
                     </h5>
                     <p>
-                        <strong>
-                            {selectedPrice && money(selectedPrice.discountedPrice ?? selectedPrice.originalPrice, selectedPrice.currencyCode || 'EUR')}
-                        </strong>{' '}
+                        <strong>{selectedQuote ? money(selectedQuote.final, selectedQuote.currency) : '…'}</strong>
+                        {selectedQuote?.saved ? (
+                            <>
+                                {' '}
+                                <s>{money(selectedQuote.original, selectedQuote.currency)}</s>
+                            </>
+                        ) : null}{' '}
                         every {selected && duration(selected)} for {selected?.slotCount === 1 ? 'this slot' : 'the whole bundle'}.
                     </p>
+                    {selectedQuote?.saved ? (
+                        <Savings>
+                            You save {money(selectedQuote.saved, selectedQuote.currency)} (~{selectedQuote.savedPercent}% off)
+                        </Savings>
+                    ) : null}
+                    {selected ? <SlotCodes catalog={catalog} discount={discount} creatorPercent={catalog.creatorPercent(selected)} /> : null}
                     <p>
                         This starts a new subscription for these slots. It renews automatically until canceled; cancellation keeps access through the paid
                         period.
