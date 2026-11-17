@@ -31,8 +31,21 @@ import { COMMUNITY_QUOTES } from '../../components/PremiumLanding/content/quotes
 import { placePopover } from '../../components/PremiumLanding/Compare/usePreviewPopover'
 import { tearDownWhenRemoved } from '../../components/PremiumLanding/FeatureMedia/useClipPlayer'
 import { getChatColor } from '../../components/PremiumLanding/content/chatColors'
-import { PremiumTier } from '../../components/Premium/PremiumPurchaseWizard/types'
+import { Duration, PremiumTier, PurchaseType } from '../../components/Premium/PremiumPurchaseWizard/types'
 import { getStepDisplay } from '../../components/Premium/PremiumPurchaseWizard/stepDisplay'
+import { formatMoney } from '../../utils/PricingUtils'
+import {
+    canSelectTier,
+    getNextStep,
+    getPreviousStep,
+    getStepFlow,
+    getStepHelper,
+    getStepTitle,
+    getSummaryChips,
+    isPointerClick,
+    STEP,
+    WizardState
+} from '../../components/Premium/PremiumPurchaseWizard/wizardFlow'
 
 const BROWSER = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
 const GOOGLEBOT = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
@@ -373,6 +386,124 @@ describe('Purchase wizard step count', () => {
         expect(getStepDisplay({ ...picked, tier: PremiumTier.STARTER, currentStep: 2 })).to.deep.equal({ visible: 1, total: 3 })
         expect(getStepDisplay({ ...picked, tier: PremiumTier.STARTER, currentStep: 5 })).to.deep.equal({ visible: 3, total: 3 })
         expect(getStepDisplay({ ...picked, slotCount: 4, currentStep: 5 })).to.deep.equal({ visible: 3, total: 3 })
+    })
+})
+
+describe('Purchase wizard navigation', () => {
+    const start: WizardState = { currentStep: STEP.TIER, tier: null, type: null, slotCount: 0, duration: null }
+    const subscription: WizardState = { ...start, tier: PremiumTier.PREMIUM, type: PurchaseType.SUBSCRIPTION }
+
+    /** Starter has no slot packages, and friends always buy at least one slot before the checkout */
+    function isReachable(state: WizardState): boolean {
+        if (state.tier === PremiumTier.STARTER && (state.showSlots || state.slotCount > 0)) return false
+        // only a personal purchase upgraded in place from Starter skips the package step
+        if (state.packageSkipped && (state.showSlots || state.slotCount > 0)) return false
+        return !(state.showSlots && state.slotCount === 0 && state.currentStep === STEP.PURCHASE)
+    }
+
+    it('draws one progress segment per counted step, in line with "Step x of y"', () => {
+        for (const tier of [PremiumTier.STARTER, PremiumTier.PREMIUM, PremiumTier.PREMIUM_PLUS])
+            for (const slotCount of [0, 1, 4])
+                for (const showSlots of [false, true])
+                    for (const tierPreselected of [false, true])
+                        for (const packageSkipped of [false, true])
+                        for (const currentStep of [1, 2, 3, 4, 5]) {
+                            const state = { ...start, tier, slotCount, showSlots, tierPreselected, packageSkipped, currentStep }
+                            const flow = getStepFlow(state)
+                            if (!flow.includes(currentStep) || !isReachable(state)) continue
+                            const display = getStepDisplay(state)
+                            expect(flow.length, JSON.stringify(state)).to.equal(display.total)
+                            expect(flow.indexOf(currentStep) + 1, JSON.stringify(state)).to.equal(display.visible)
+                        }
+    })
+
+    it('enables Continue only once the step has an answer and follows the skipped steps', () => {
+        expect(getNextStep(start)).to.equal(null)
+        expect(getNextStep({ ...start, tier: PremiumTier.PREMIUM })).to.equal(STEP.TYPE)
+        expect(getNextStep({ ...subscription, type: null, currentStep: STEP.TYPE })).to.equal(null)
+        expect(getNextStep({ ...subscription, currentStep: STEP.TYPE })).to.equal(STEP.PACKAGE)
+        expect(getNextStep({ ...subscription, tier: PremiumTier.STARTER, currentStep: STEP.TYPE })).to.equal(STEP.DURATION)
+        // "Just for me" is preselected for personal purchases, friends have to pick a package
+        expect(getNextStep({ ...subscription, currentStep: STEP.PACKAGE })).to.equal(STEP.DURATION)
+        expect(getNextStep({ ...subscription, currentStep: STEP.PACKAGE, showSlots: true })).to.equal(null)
+        expect(getNextStep({ ...subscription, currentStep: STEP.PACKAGE, slotCount: 4 })).to.equal(STEP.PURCHASE)
+        expect(getNextStep({ ...subscription, currentStep: STEP.DURATION })).to.equal(null)
+        expect(getNextStep({ ...subscription, currentStep: STEP.DURATION, duration: Duration.YEARLY })).to.equal(STEP.PURCHASE)
+        expect(getNextStep({ ...subscription, currentStep: STEP.PURCHASE })).to.equal(null)
+    })
+
+    // regression: an upgrade could continue with the active (disabled) tier
+    it('continues from the tier step only with a tier the visitor may buy', () => {
+        const upgrade = { ...start, isUpgrade: true, currentTier: PremiumTier.PREMIUM_PLUS }
+        expect(canSelectTier(PremiumTier.PREMIUM_PLUS, PremiumTier.PREMIUM_PLUS, true)).to.equal(false)
+        expect(canSelectTier(PremiumTier.PREMIUM_PLUS, PremiumTier.PREMIUM, true)).to.equal(true)
+        expect(canSelectTier(PremiumTier.STARTER, PremiumTier.PREMIUM_PLUS, false)).to.equal(true)
+        expect(getNextStep({ ...upgrade, tier: PremiumTier.PREMIUM_PLUS })).to.equal(null)
+        expect(getNextStep({ ...upgrade, currentTier: PremiumTier.PREMIUM, tier: PremiumTier.PREMIUM_PLUS })).to.equal(STEP.TYPE)
+    })
+
+    // regression: Starter upgraded in place at the checkout grew a package step it never showed
+    it('leaves out a package step the visitor skipped', () => {
+        const upgraded = { ...subscription, duration: Duration.YEARLY, currentStep: STEP.PURCHASE, packageSkipped: true }
+        expect(getStepFlow(upgraded)).to.deep.equal([STEP.TIER, STEP.TYPE, STEP.DURATION, STEP.PURCHASE])
+        expect(getSummaryChips(upgraded).map(chip => chip.step)).to.deep.equal([STEP.TYPE, STEP.DURATION])
+        expect(getPreviousStep({ ...upgraded, currentStep: STEP.DURATION })).to.equal(STEP.TYPE)
+        expect(getNextStep({ ...upgraded, currentStep: STEP.TYPE })).to.equal(STEP.DURATION)
+    })
+
+    it('has no Back on the first step and goes back over skipped steps', () => {
+        expect(getPreviousStep(start)).to.equal(null)
+        expect(getPreviousStep({ ...subscription, currentStep: STEP.TYPE })).to.equal(STEP.TIER)
+        expect(getPreviousStep({ ...subscription, currentStep: STEP.PURCHASE, slotCount: 4 })).to.equal(STEP.PACKAGE)
+        expect(getPreviousStep({ ...subscription, currentStep: STEP.DURATION, tier: PremiumTier.STARTER })).to.equal(STEP.TYPE)
+        expect(getPreviousStep({ ...subscription, currentStep: STEP.PURCHASE, duration: Duration.MONTHLY })).to.equal(STEP.DURATION)
+    })
+
+    it('summarises each answered step as a chip that names the step it changes', () => {
+        const done = { ...subscription, duration: Duration.QUARTER, currentStep: STEP.PURCHASE }
+        expect(getSummaryChips({ ...subscription, currentStep: STEP.TYPE })).to.deep.equal([])
+        expect(getSummaryChips(done).map(chip => chip.ariaLabel)).to.deep.equal([
+            'Change plan type: Subscription',
+            'Change package: Just for me',
+            'Change duration: Quarterly'
+        ])
+        expect(getSummaryChips({ ...done, slotCount: 4 }).map(chip => [chip.step, chip.value])).to.deep.equal([
+            [STEP.TYPE, 'Subscription'],
+            [STEP.PACKAGE, '4 slots']
+        ])
+        expect(getSummaryChips({ ...done, tier: PremiumTier.STARTER, type: PurchaseType.COFLCOINS }).map(chip => chip.value)).to.deep.equal([
+            'CoflCoins',
+            '6 Months'
+        ])
+    })
+
+    it('titles every step once and keeps the questions as helper lines', () => {
+        const context = { isUpgrade: false, currentTier: null, forFriends: false, slotCount: 0, tier: PremiumTier.PREMIUM, type: PurchaseType.COFLCOINS }
+        expect(getStepTitle(STEP.TYPE, context)).to.equal('Choose Your Plan Type')
+        expect(getStepTitle(STEP.TIER, { ...context, isUpgrade: true, currentTier: PremiumTier.STARTER })).to.equal('Upgrade Your Starter Premium')
+        expect(getStepTitle(STEP.PURCHASE, { ...context, isUpgrade: true })).to.equal('Complete Upgrade')
+        expect(getStepHelper(STEP.DURATION, context)).to.contain('How long would you like Premium?')
+        expect(getStepHelper(STEP.PURCHASE, context)).to.equal(null)
+    })
+
+    it('advances on pointer clicks only; keyboard activation and arrow keys dispatch clicks with detail 0', () => {
+        expect(isPointerClick({ detail: 1 })).to.equal(true)
+        expect(isPointerClick({ detail: 2 })).to.equal(true)
+        expect(isPointerClick({ detail: 0 })).to.equal(false)
+    })
+})
+
+describe('Money formatting', () => {
+    // regression: the checkout total read "421.5 Euro"
+    it('shows the currency with the amount and always two decimals', () => {
+        const total = formatMoney(421.5, 'EUR')
+        expect(total).to.equal(new Intl.NumberFormat(undefined, { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(421.5))
+        expect(total).to.match(/421[.,]50/).and.to.contain('€')
+        expect(formatMoney(10, 'USD')).to.match(/10[.,]00/).and.to.contain('$')
+    })
+
+    it('falls back to the code for an unknown currency', () => {
+        expect(formatMoney(9.5, 'Euro')).to.equal('9.50 Euro')
     })
 })
 

@@ -15,6 +15,9 @@ import { TierUpsellPanel } from '../../Discounts/DiscountBanners'
 import discountStyles from '../../Discounts/Discounts.module.css'
 import { usePremiumVariant } from '../PremiumVariantContext'
 import { trackPremiumFunnelEvent } from '../../../utils/PremiumTracking'
+import stepStyles from '../PremiumPurchaseWizard/Steps/Steps.module.css'
+import checkoutStyles from '../Checkout/Checkout.module.css'
+import { CheckoutButton, CheckoutError, CheckoutLayout, PaymentActions, Savings, SummaryRow, SummaryTotal } from '../Checkout/CheckoutParts'
 
 const getPremiumOptionKey = (option: PremiumTypeOption): string => `${option.productId}:${option.value}:${option.label}`
 
@@ -185,114 +188,120 @@ function BuyPremium(props: Props) {
     const showScalableWeekSelector =
         props.selectedTier === PremiumTier.PREMIUM_PLUS && props.selectedDuration === Duration.WEEK && scalablePremiumPlusWeekOptions.length > 0
 
+    function renderDurationRow() {
+        if (!showScalableWeekSelector) return <SummaryRow label="Duration">{purchasePremiumOption.label}</SummaryRow>
+        return (
+            <SummaryRow label="Duration">
+                <select
+                    aria-label="Select Premium Plus duration in weeks"
+                    className={`form-select ${checkoutStyles.select}`}
+                    value={getPremiumOptionKey(purchasePremiumOption)}
+                    onChange={event => onDurationChange(event, scalablePremiumPlusWeekOptions)}
+                >
+                    {scalablePremiumPlusWeekOptions.map(option => (
+                        <option key={getPremiumOptionKey(option)} value={getPremiumOptionKey(option)}>
+                            {option.label}
+                        </option>
+                    ))}
+                </select>
+            </SummaryRow>
+        )
+    }
+
+    function renderBalance() {
+        if (coflCoins < 0) return <SummaryRow label="Your balance">Loading…</SummaryRow>
+        return (
+            <SummaryRow label="Your balance">
+                <Number number={coflCoins} /> CoflCoins
+            </SummaryRow>
+        )
+    }
+
+    function renderRemaining() {
+        if (coflCoins < 0) return null
+        if (coflCoins >= getPurchasePrice()) {
+            return (
+                <Savings>
+                    Remaining after purchase: <Number number={coflCoins - getPurchasePrice()} /> CoflCoins
+                </Savings>
+            )
+        }
+        return <CheckoutError>You don't have enough CoflCoins for this purchase, scroll down to buy more!</CheckoutError>
+    }
+
+    function renderSummary() {
+        const tierClass = props.selectedTier === PremiumTier.PREMIUM_PLUS ? stepStyles.tierPremiumPlus : props.selectedTier === PremiumTier.PREMIUM ? stepStyles.tierPremium : ''
+        return (
+            <>
+                <SummaryRow label="Plan">
+                    <span className={tierClass}>{getDisplayTierName()}</span>
+                </SummaryRow>
+                <SummaryRow label="Payment">CoflCoins</SummaryRow>
+                {renderDurationRow()}
+                {renderBalance()}
+                <SummaryTotal label="Price" amount={<Number number={getPurchasePrice()} />} unit="CoflCoins, paid once">
+                    {renderRemaining()}
+                </SummaryTotal>
+            </>
+        )
+    }
+
+    function renderFeatures() {
+        return (
+            <div className={discountStyles.featuresRow}>
+                <div className={checkoutStyles.features}>
+                    <h6>What you'll get:</h6>
+                    <ul>
+                        {props.selectedTier === PremiumTier.PREMIUM_PLUS ? (
+                            <>
+                                <li>Top flip receive time</li>
+                                <li>All tools for analysis</li>
+                                <li>Full auction archive</li>
+                                <li>Data export & API access</li>
+                            </>
+                        ) : props.selectedTier === PremiumTier.PREMIUM ? (
+                            <>
+                                <li>Up to 1s slower than Premium+</li>
+                                <li>A lot of tools</li>
+                                <li>Extended history & filter access</li>
+                            </>
+                        ) : (
+                            <>
+                                <li>Premium flip notifications</li>
+                                <li>Basic tools and analysis</li>
+                                <li>Limited history access</li>
+                            </>
+                        )}
+                    </ul>
+                </div>
+                {props.selectedTier && (
+                    <TierUpsellPanel
+                        currentTier={props.selectedTier}
+                        purchaseType={PurchaseType.COFLCOINS}
+                        duration={props.selectedDuration}
+                        onUpgrade={tier => props.onUpgradeTier?.(tier)}
+                    />
+                )}
+            </div>
+        )
+    }
+
     // If coming from wizard, show only the selected option with summary
     if (props.selectedTier && props.selectedDuration !== undefined) {
         return (
             <>
-                <div className={styles.summarySection}>
-                    <h6>Your Selection:</h6>
-                    <p>
-                        <strong>Tier:</strong>{' '}
-                        <span
-                            className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${props.selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''
-                                }`}
-                        >
-                            {getDisplayTierName()}
-                        </span>
-                    </p>
-                    <p>
-                        <strong>Payment Method:</strong> CoflCoins
-                    </p>
-                    {showScalableWeekSelector ? (
-                        <div className={styles.summarySelector}>
-                            <span className={styles.summarySelectorLabel}>Duration:</span>
-                            <Form.Select
-                                aria-label="Select Premium Plus duration in weeks"
-                                className={`${styles.dropdown} ${styles.summaryDropdown}`}
-                                value={getPremiumOptionKey(purchasePremiumOption)}
-                                onChange={event => onDurationChange(event, scalablePremiumPlusWeekOptions)}
-                            >
-                                {scalablePremiumPlusWeekOptions.map(option => (
-                                    <option key={getPremiumOptionKey(option)} value={getPremiumOptionKey(option)}>
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </Form.Select>
-                        </div>
-                    ) : (
-                        <p>
-                            <strong>Duration:</strong> {purchasePremiumOption.label}
-                        </p>
-                    )}
-                    <p>
-                        <strong>Price:</strong> <Number number={getPurchasePrice()} /> CoflCoins
-                    </p>
-                </div>
-
-                <div className={styles.balanceSection}>
-                    <div className={styles.coinBalance}>
-                        <CoflCoinsDisplay />
-                    </div>
-                    {coflCoins >= getPurchasePrice() ? (
-                        <p className={styles.remainingBalance}>
-                            <strong>Remaining after purchase:</strong> <Number number={coflCoins - getPurchasePrice()} /> CoflCoins
-                        </p>
-                    ) : (
-                        <p className={styles.insufficientFunds}>You don't have enough CoflCoins for this purchase, scroll down to buy more!</p>
-                    )}
-                </div>
-
-                <div className={discountStyles.featuresRow}>
-                    <div className={styles.featuresSection}>
-                        <h6>What you'll get:</h6>
-                        <ul>
-                            {props.selectedTier === PremiumTier.PREMIUM_PLUS ? (
-                                <>
-                                    <li>Top flip receive time</li>
-                                    <li>All tools for analysis</li>
-                                    <li>Full auction archive</li>
-                                    <li>Data export & API access</li>
-                                </>
-                            ) : props.selectedTier === PremiumTier.PREMIUM ? (
-                                <>
-                                    <li>Up to 1s slower than Premium+</li>
-                                    <li>A lot of tools</li>
-                                    <li>Extended history & filter access</li>
-                                </>
-                            ) : (
-                                <>
-                                    <li>Premium flip notifications</li>
-                                    <li>Basic tools and analysis</li>
-                                    <li>Limited history access</li>
-                                </>
-                            )}
-                        </ul>
-                    </div>
-                    {props.selectedTier && (
-                        <TierUpsellPanel
-                            currentTier={props.selectedTier}
-                            purchaseType={PurchaseType.COFLCOINS}
-                            duration={props.selectedDuration}
-                            onUpgrade={tier => props.onUpgradeTier?.(tier)}
-                        />
-                    )}
-                </div>
-
-                <div className={styles.purchaseInfo}>
-                    <p>This is a prepaid service. We won't automatically charge you after your premium time runs out!</p>
-                </div>
-
-                <div className={styles.purchaseButtonContainer}>
-                    <Button
-                        variant="success"
-                        size="lg"
-                        className={styles.purchaseButton}
-                        onClick={handleAttemptPurchaseClick}
-                        disabled={isPurchasing}
-                    >
-                        Purchase for <Number number={getPurchasePrice()} /> CoflCoins
-                    </Button>
-                </div>
+                <CheckoutLayout
+                    summary={renderSummary()}
+                    actions={
+                        <PaymentActions note="This is a prepaid service. We won't automatically charge you after your premium time runs out!">
+                            <CheckoutButton tier={props.selectedTier} busy={isPurchasing} busyLabel="Purchasing…" onClick={handleAttemptPurchaseClick}>
+                                Purchase for <Number number={getPurchasePrice()} /> CoflCoins
+                            </CheckoutButton>
+                        </PaymentActions>
+                    }
+                >
+                    {renderFeatures()}
+                </CheckoutLayout>
                 <BuyPremiumConfirmationDialog
                     type="prepaid"
                     show={showPrepaidConfirmationDialog}

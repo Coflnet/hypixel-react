@@ -260,3 +260,11 @@ export const getPriceWithVAT = (basePrice: number, countryCode?: string): number
     const vatRate = VAT_RATES[countryCode!.toUpperCase()] ?? 0
     return basePrice * (1 + vatRate)
 }
+/** a price with its currency in the visitor's locale, always with cents, e.g. "€421.50"; unknown codes fall back to "421.50 XYZ" */
+export function formatMoney(value: number, currencyCode: string): string {
+    try {
+        return new Intl.NumberFormat(undefined, { style: 'currency', currency: currencyCode, minimumFractionDigits: 2 }).format(value)
+    } catch {
+        return `${value.toFixed(2)} ${currencyCode}`
+    }
+}

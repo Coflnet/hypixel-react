@@ -2,82 +2,57 @@ import styles from './Steps.module.css'
 import { PremiumTier, getTierDisplayName } from '../types'
 import { calculatePrice } from '../../../../utils/PricingUtils'
 import CountrySelect from '../../../CountrySelect/CountrySelect'
-import TierCard, { TierConfig, TierStatus } from './TierCard'
+import OptionGroup, { WizardOption } from '../OptionGroup'
+import { canSelectTier } from '../wizardFlow'
 import { Country } from '../../../../utils/CountryUtils'
 import { Discount, formatDiscountEndDate, getActiveSubscriptionDiscount } from '../../../../utils/DiscountUtils'
+import { getPlanPrice } from '../../../PremiumLanding/content/planPricing'
+
+interface TierConfig {
+    tier: PremiumTier
+    title: string
+    titleClass?: string
+    features: string[]
+    description: string
+    upgradeDescription?: string
+}
 
 const TIER_CONFIGS: TierConfig[] = [
     {
         tier: PremiumTier.STARTER,
-        icon: '⭐',
         title: 'Starter',
         features: ['Basic price alerts', 'Everything you need to start', 'Ad-free experience'],
         description: 'Essential features for casual players'
     },
     {
         tier: PremiumTier.PREMIUM,
-        icon: '🌟',
         title: 'Premium',
-        titleClass: 'tierPremium',
+        titleClass: styles.tierPremium,
         features: ['Optimized bazaar flips', '1 year auction house searches', 'Lowball helper'],
         description: 'All Starter features plus advanced tools',
         upgradeDescription: 'Upgrade from Starter to unlock advanced features'
     },
     {
         tier: PremiumTier.PREMIUM_PLUS,
-        icon: '🚀',
         title: 'Premium Plus',
-        titleClass: 'tierPremiumPlus',
+        titleClass: styles.tierPremiumPlus,
         features: ['Fastest auction flips', '6 year data exports', 'Realtime market analysis', 'Access to BazaarPro'],
         description: 'All Premium features plus exclusive access to',
         upgradeDescription: 'Upgrade to Premium Plus for the fastest experience'
     }
 ]
 
-const TIER_RANKS: Record<PremiumTier, number> = {
-    [PremiumTier.STARTER]: 1,
-    [PremiumTier.PREMIUM]: 2,
-    [PremiumTier.PREMIUM_PLUS]: 3
-}
-
-function getTierRank(tier: PremiumTier): number {
-    return TIER_RANKS[tier] ?? 0
-}
-
-function canSelectTier(tier: PremiumTier, currentTier?: PremiumTier | null, isUpgrade?: boolean): boolean {
-    if (!isUpgrade || !currentTier) return true
-    return getTierRank(tier) > getTierRank(currentTier)
-}
-
-function getTierStatus(tier: PremiumTier, currentTier?: PremiumTier | null, isUpgrade?: boolean): TierStatus {
-    if (!isUpgrade || !currentTier) return ''
-    const currentRank = getTierRank(currentTier)
-    const tierRank = getTierRank(tier)
-
-    if (tierRank === currentRank) return 'current'
-    if (tierRank < currentRank) return 'downgrade'
-    if (tierRank === currentRank + 1) return 'upgrade'
-    return 'higher-upgrade'
-}
-
-interface Props {
-    onTierSelect(tier: PremiumTier): void
-    forFriends?: boolean
-    currentTier?: PremiumTier | null
-    isUpgrade?: boolean
-    suggestedTier?: PremiumTier | null
-    activePremiumProduct?: PremiumProduct
-    selectedCountry?: Country
-    onCountryChange: (country: Country) => void
-}
-
 const SUGGESTED_FEATURES: Partial<Record<PremiumTier, string>> = {
-    [PremiumTier.PREMIUM]: '🆕 Enhanced flip detection',
+    [PremiumTier.PREMIUM]: 'New: enhanced flip detection',
     [PremiumTier.PREMIUM_PLUS]: 'Advanced money making methods (soon™️)'
 }
 
 const EXTRA_BADGES: Partial<Record<PremiumTier, string>> = {
-    [PremiumTier.PREMIUM]: 'Most Popular'
+    [PremiumTier.PREMIUM]: 'Most popular'
+}
+
+function isCurrentTier(tier: PremiumTier, currentTier?: PremiumTier | null, isUpgrade?: boolean): boolean {
+    return !!isUpgrade && tier === currentTier
 }
 
 function formatExpiryDate(date: Date): string {
@@ -90,31 +65,109 @@ function formatExpiryDate(date: Date): string {
     })
 }
 
-function DiscountedPrice({ tier, countryCode, discount }: { tier: PremiumTier; countryCode?: string; discount: Discount | null }) {
-    const basePrice = calculatePrice(tier, countryCode)
+interface Props {
+    onTierSelect(tier: PremiumTier, advance: boolean): void
+    selectedTier: PremiumTier | null
+    forFriends?: boolean
+    currentTier?: PremiumTier | null
+    isUpgrade?: boolean
+    suggestedTier?: PremiumTier | null
+    activePremiumProduct?: PremiumProduct
+    selectedCountry?: Country
+    onCountryChange: (country: Country) => void
+}
 
-    if (!discount || discount.percentage <= 0) {
-        return <>starts at {basePrice.displayText}</>
-    }
-
-    const discountedPrice = calculatePrice(tier, countryCode, discount.percentage)
-
+function TierPrice({ tier, countryCode, discount }: { tier: PremiumTier; countryCode?: string; discount: Discount | null }) {
+    const base = getPlanPrice(tier, countryCode)
+    if (!discount || discount.percentage <= 0) return <>{base.amount}</>
+    const discounted = calculatePrice(tier, countryCode, discount.percentage)
     return (
         <>
-            starts at <br />
-            <span style={{ textDecoration: 'line-through', marginRight: 8, opacity: 0.7 }}>{basePrice.displayText}</span>
-            <br />
-            <span>{discountedPrice.displayText}</span>
-            <br />
-            <small style={{ cursor: 'help' }} className="text-success" title={`Apply code ${discount.code} at checkout to receive ${discount.percentage}% off`}>
-                -{discount.percentage}% with code <strong>{discount.code}</strong>
-            </small>
+            <s className={styles.struck}>{base.amount}</s> €{discounted.totalPrice.toFixed(2)}
         </>
+    )
+}
+
+function getPriceUnit(tier: PremiumTier, countryCode: string | undefined, discount: Discount | null) {
+    const base = getPlanPrice(tier, countryCode)
+    const period = `${base.plusVat ? '+ VAT ' : ''}${base.period}`
+    if (!discount || discount.percentage <= 0) return period
+    return (
+        <>
+            {period}
+            <br />
+            <span className={styles.saving} title={`Apply code ${discount.code} at checkout to receive ${discount.percentage}% off`}>
+                -{discount.percentage}% with code <strong>{discount.code}</strong>
+            </span>
+        </>
+    )
+}
+
+function TierFeatures({ features, extra }: { features: string[]; extra?: string }) {
+    return (
+        <span className={styles.features}>
+            {features.map(feature => (
+                <span key={feature} className={styles.feature}>
+                    {feature}
+                </span>
+            ))}
+            {extra ? <span className={`${styles.feature} ${styles.newFeature}`}>{extra}</span> : null}
+        </span>
+    )
+}
+
+function TierDescription({ text, note }: { text: string; note: string | null }) {
+    if (!note) return <>{text}</>
+    return (
+        <>
+            {text}
+            <br />
+            <span className={styles.priceNote}>{note}</span>
+        </>
+    )
+}
+
+function getTierBadge(tier: PremiumTier, isCurrent: boolean, isSuggested: boolean): string | undefined {
+    if (isCurrent) return 'Current'
+    if (isSuggested) return 'Recommended upgrade'
+    return EXTRA_BADGES[tier]
+}
+
+function UpgradeIntro({ currentTier, activePremiumProduct }: { currentTier: PremiumTier; activePremiumProduct?: PremiumProduct }) {
+    return (
+        <div className={styles.inset}>
+            <p>
+                You currently have <strong>{getTierDisplayName(currentTier)}</strong> active until{' '}
+                <strong>{activePremiumProduct ? formatExpiryDate(activePremiumProduct.expires) : 'Unknown'}</strong>.
+            </p>
+            <p>
+                <strong>Upgrade protection:</strong> while the upgrade is active your {getTierDisplayName(currentTier)} is paused, not lost, and it resumes
+                when the upgrade expires.
+            </p>
+        </div>
+    )
+}
+
+function TierNote({ forFriends }: { forFriends?: boolean }) {
+    const discount = getActiveSubscriptionDiscount()
+    if (forFriends) return null
+    return (
+        <p className={styles.note}>
+            Prices include applicable VAT/sales tax for your country where available. For the US and some other countries, VAT will be added at checkout.
+            {discount && (
+                <>
+                    <br />
+                    <strong>{discount.label}:</strong> Apply code <code>{discount.code}</code> at checkout for {discount.percentage}% off any subscription
+                    until {formatDiscountEndDate(discount.endsAt)}.
+                </>
+            )}
+        </p>
     )
 }
 
 export default function TierSelectionStep({
     onTierSelect,
+    selectedTier,
     forFriends,
     currentTier,
     isUpgrade,
@@ -123,89 +176,42 @@ export default function TierSelectionStep({
     selectedCountry,
     onCountryChange
 }: Props) {
-    const tierDisplayName = currentTier ? getTierDisplayName(currentTier) : ''
     const discount = getActiveSubscriptionDiscount()
+    const countryCode = selectedCountry?.value
+
+    function toOption(config: TierConfig): WizardOption<PremiumTier> {
+        const tier = config.tier
+        const isSuggested = suggestedTier === tier
+        const canSelect = canSelectTier(tier, currentTier, isUpgrade)
+        // the amount is the lowest monthly equivalent (Premium Plus: billed yearly), as on the plan cards
+        const priceNote = forFriends ? null : getPlanPrice(tier, countryCode).note
+        return {
+            value: tier,
+            title: config.title,
+            titleClassName: config.titleClass,
+            badge: getTierBadge(tier, isCurrentTier(tier, currentTier, isUpgrade), isSuggested),
+            description: canSelect ? <TierDescription text={(isSuggested && config.upgradeDescription) || config.description} note={priceNote} /> : 'Cannot downgrade',
+            price: forFriends ? undefined : <TierPrice tier={tier} countryCode={countryCode} discount={discount} />,
+            unit: forFriends ? undefined : getPriceUnit(tier, countryCode, discount),
+            footer: <TierFeatures features={config.features} extra={isSuggested ? SUGGESTED_FEATURES[tier] : undefined} />,
+            disabled: !canSelect
+        }
+    }
+
+    const options = TIER_CONFIGS.filter(config => !forFriends || config.tier !== PremiumTier.STARTER).map(toOption)
+    // a downgrade request can leave a tier the visitor cannot buy in the state; it is never shown as chosen
+    const selected = selectedTier && canSelectTier(selectedTier, currentTier, isUpgrade) ? selectedTier : null
 
     return (
         <div className={styles.stepContent}>
-            <h4 className={styles.stepQuestion}>{isUpgrade ? 'Upgrade Your Premium' : 'Which premium tier would you like?'}</h4>
-            <p className={styles.stepDescription}>
-                {isUpgrade ? (
-                    <>
-                        You currently have <strong>{tierDisplayName}</strong> active until{' '}
-                        <strong>{activePremiumProduct ? formatExpiryDate(activePremiumProduct.expires) : 'Unknown'}</strong>.
-                        <br />
-                        When you upgrade, your existing tier will be paused and you'll get the full benefits of the higher tier. Nothing will be lost - your
-                        previous tier will resume when the upgrade expires.
-                    </>
-                ) : forFriends ? (
-                    'Choose the tier your friends will receive.'
-                ) : (
-                    'Choose the tier that best fits your needs. Higher tiers include all features from lower tiers.'
-                )}
-            </p>
-
-            {isUpgrade && (
-                <div className={styles.infoBox}>
-                    <div className={styles.checkIcon}>ℹ️</div>
-                    <div>
-                        <strong>Upgrade Protection:</strong> Your current {tierDisplayName} subscription will be paused (not lost) while your upgrade is active.
-                        You'll automatically return to your previous tier when the upgrade expires.
-                    </div>
-                </div>
-            )}
-
+            {isUpgrade && currentTier ? <UpgradeIntro currentTier={currentTier} activePremiumProduct={activePremiumProduct} /> : null}
             {!forFriends && (
                 <div className={styles.countrySelection}>
                     <CountrySelect onCountryChange={onCountryChange} />
                 </div>
             )}
-
-            <div className={styles.optionsGrid}>
-                {TIER_CONFIGS.filter(config => !forFriends || config.tier !== PremiumTier.STARTER).map(config => {
-                    const tier = config.tier
-                    const isSuggested = suggestedTier === tier
-                    const pricing = forFriends ? null : <DiscountedPrice tier={tier} countryCode={selectedCountry?.value} discount={discount} />
-
-                    return (
-                        <TierCard
-                            key={tier}
-                            config={config}
-                            pricing={pricing}
-                            status={getTierStatus(tier, currentTier, isUpgrade)}
-                            isSuggested={isSuggested}
-                            canSelect={canSelectTier(tier, currentTier, isUpgrade)}
-                            onSelect={onTierSelect}
-                            extraBadge={EXTRA_BADGES[tier]}
-                            suggestedFeature={SUGGESTED_FEATURES[tier]}
-                        />
-                    )
-                })}
-            </div>
-
-            <div className={styles.tierNote}>
-                <strong>Note:</strong> Higher tiers include all features from lower tiers plus additional benefits.
-                {isUpgrade && (
-                    <>
-                        <br />
-                        <strong>Upgrade Protection:</strong> Your current subscription will be paused (not cancelled) while the upgrade is active.
-                    </>
-                )}
-                {!forFriends && (
-                    <>
-                        <br />
-                        Prices include applicable VAT/sales tax for your country where available. For the US and some other countries, VAT will be added at
-                        checkout.
-                        {discount && (
-                            <>
-                                <br />
-                                ☀️ <strong>{discount.label}:</strong> Apply code <code>{discount.code}</code> at checkout for {discount.percentage}% off any
-                                subscription until {formatDiscountEndDate(discount.endsAt)}.
-                            </>
-                        )}
-                    </>
-                )}
-            </div>
+            <OptionGroup legend="Premium tier" options={options} selected={selected} onChoose={onTierSelect} />
+            <TierNote forFriends={forFriends} />
         </div>
     )
 }

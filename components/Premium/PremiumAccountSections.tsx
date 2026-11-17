@@ -20,6 +20,7 @@ import { trackPremiumFunnelEvent } from '../../utils/PremiumTracking'
 import { SIGN_IN_TARGET } from './purchaseTarget'
 import type { SignInDialogControl } from './useSignInPrompt'
 import { PREMIUM_VARIANT_QUERY, withVariantOverride } from '../../utils/PremiumExperiment'
+import sectionStyles from './PremiumAccountSections.module.css'
 
 // Account and purchase building blocks of /premium, shared by both A/B variants so behaviour stays identical.
 
@@ -112,12 +113,14 @@ export function TermsAlerts({ account }: AccountProps) {
 
 export function PurchaseWizardSection({ account }: AccountProps) {
     const { isWizardShown, showSlots, hasPremium, showUpgradeWizard, activePremiumProduct, premiumSubscriptions, requestedTier } = account
+    // the current page separates its sections with rules; the redesign nests the wizard in its plans section
+    const isRedesign = usePremiumVariant() === 'new'
     if (!isWizardShown) return null
     return (
-        <div id="buyPremium" style={{ marginBottom: '40px' }}>
-            <hr />
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h2>{showSlots ? 'Get slots' : hasPremium && showUpgradeWizard ? 'Upgrade Premium' : 'Get Premium'}</h2>
+        <div id="buyPremium" className={`${sectionStyles.purchaseSection} ${isRedesign ? sectionStyles.purchaseSectionNew : ''}`}>
+            {isRedesign ? null : <hr />}
+            <div className={sectionStyles.purchaseHead}>
+                <h2 className={sectionStyles.purchaseTitle}>{showSlots ? 'Get slots' : hasPremium && showUpgradeWizard ? 'Upgrade Premium' : 'Get Premium'}</h2>
                 {hasPremium && showUpgradeWizard && (
                     <Button variant="secondary" size="sm" onClick={account.returnToPremiumManagement}>
                         ← Back to Premium Management

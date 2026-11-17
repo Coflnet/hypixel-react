@@ -1,4 +1,5 @@
 import { pageText, tickUntil } from '../support/clock'
+import { formatMoney } from '../../utils/PricingUtils'
 
 beforeEach(() => {
     cy.then(() => Cypress.automation('remote:debugger:protocol', { command: 'Network.clearBrowserCache' }))
@@ -27,6 +28,13 @@ beforeEach(() => {
 })
 
 const googleToken = 'eyJhbGciOiJub25lIn0.eyJleHAiOjQxMDI0NDQ4MDAsImVtYWlsIjoiY3lwcmVzc0BleGFtcGxlLmNvbSIsIm5hbWUiOiJDeXByZXNzIn0.signature'
+
+const OPTION_TITLE = '[data-testid="wizard-option-title"]'
+
+/** the title of a wizard option row; clicking it clicks its row like a pointer would */
+function wizardOption(title: string | RegExp) {
+    return cy.get('#buyPremium').contains(OPTION_TITLE, title)
+}
 
 interface StubResponse {
     statusCode?: number
@@ -187,7 +195,7 @@ describe('Premium refresh after checkout', () => {
         stubSubscriptions({ body: [] })
         visitAuthenticatedPage('/premium?tier=premium_plus')
         cy.wait(['@products', '@subscriptions'])
-        cy.get('#buyPremium').contains('h5', /^CoflCoins$/).click()
+        wizardOption(/^CoflCoins$/).click()
         cy.get('#buyPremium').contains('Choose Your Package').should('be.visible')
         cy.window().then(window => window.dispatchEvent(new window.Event('focus')))
         cy.wait('@products')
@@ -734,17 +742,17 @@ describe('Slot packages in the Premium wizard', () => {
 
     function visitShop(path = '/premium?slots=true#buyPremium') {
         visitAuthenticatedPage(path)
-        cy.contains('Which premium tier would you like?').should('be.visible')
-        cy.get('#buyPremium h5').should('have.length', 2)
+        cy.contains('Choose the tier your friends will receive.').should('be.visible')
+        cy.get(`#buyPremium ${OPTION_TITLE}`).should('have.length', 2)
     }
 
     function packageButton(count: number) {
-        return cy.get('[data-testid="premium-package"]').contains('h5', count === 0 ? 'Just for me' : count === 1 ? 'One assignable slot' : 'Package of 4')
+        return cy.get('[data-testid="premium-package"]').contains(OPTION_TITLE, count === 0 ? 'Just for me' : count === 1 ? 'One assignable slot' : 'Package of 4')
     }
 
     function choosePackage(tier = 'Premium+', count = 4, payment = 'CoflCoins') {
-        cy.get('#buyPremium').contains('h5', tier === 'Premium+' ? /^Premium Plus$/ : /^Premium$/).click()
-        cy.get('#buyPremium').contains('h5', payment).click()
+        wizardOption(tier === 'Premium+' ? /^Premium Plus$/ : /^Premium$/).click()
+        wizardOption(payment).click()
         packageButton(count).click()
     }
 
@@ -757,20 +765,20 @@ describe('Slot packages in the Premium wizard', () => {
     it('offers all three packages between payment and duration and skips duration for assignable slots', () => {
         cy.viewport(1280, 1300)
         visitAuthenticatedPage('/premium')
-        cy.get('#buyPremium').contains('h5', /^Premium Plus$/).click()
+        wizardOption(/^Premium Plus$/).click()
         cy.contains('Step 2 of 5').should('be.visible')
-        cy.contains('How would you like to pay?').should('be.visible')
+        cy.contains('#buyPremium h3', 'Choose Your Plan Type').should('be.visible')
         cy.get('[data-testid="premium-package"]').should('not.exist')
-        cy.get('#buyPremium').contains('h5', /^CoflCoins$/).click()
+        wizardOption(/^CoflCoins$/).click()
         cy.contains('Choose Your Package').should('be.visible')
         cy.contains('Step 3 of 5').should('be.visible')
-        cy.get('[data-testid="premium-package"]').should('have.length', 3).and('be.enabled')
+        cy.get('[data-testid="premium-package"] input').should('have.length', 3).and('be.enabled')
         packageButton(0).should('be.visible')
-        packageButton(1).closest('button').should('contain.text', '9,000 CoflCoins per slot · 4 weeks')
-        packageButton(4).closest('button').should('contain.text', '6,750 CoflCoins per slot · 4 weeks')
+        packageButton(1).closest('label').should('contain.text', '9,000 CoflCoins per slot · 4 weeks')
+        packageButton(4).closest('label').should('contain.text', '6,750 CoflCoins per slot · 4 weeks')
         cy.get('[data-testid="slot-offer"]').should('not.exist')
         cy.get('#buyPremium input[placeholder="Select your country"]').should('not.exist')
-        cy.contains('#buyPremium h3', 'Choose Your Package').closest('.card').screenshot('package-before-duration')
+        cy.contains('#buyPremium h3', 'Choose Your Package').closest('[data-testid="premium-wizard"]').screenshot('package-before-duration')
         packageButton(4).click()
         cy.contains('Step 4 of 4').should('be.visible')
         cy.contains('h3', 'Select Duration').should('not.exist')
@@ -784,7 +792,7 @@ describe('Slot packages in the Premium wizard', () => {
         packageButton(0).click()
         cy.contains('h3', 'Select Duration').should('be.visible')
         cy.contains('Step 4 of 5').should('be.visible')
-        cy.get('#buyPremium').contains('h5', '4 Weeks').click()
+        wizardOption('4 Weeks').click()
         cy.contains('Step 5 of 5').should('be.visible')
         cy.contains('h3', 'Complete Purchase').should('be.visible')
         cy.get('#buyPremium').contains('button', 'Back').click()
@@ -794,11 +802,11 @@ describe('Slot packages in the Premium wizard', () => {
     it('keeps both friends choices selectable with an empty catalog', () => {
         cy.intercept('GET', '**/api/premium/slots/products', { body: [] }).as('slotProducts')
         visitShop()
-        cy.get('#buyPremium').contains('h5', /^Premium Plus$/).click()
-        cy.get('#buyPremium').contains('h5', /^CoflCoins$/).click()
-        cy.get('[data-testid="premium-package"]').should('have.length', 2).and('be.enabled')
+        wizardOption(/^Premium Plus$/).click()
+        wizardOption(/^CoflCoins$/).click()
+        cy.get('[data-testid="premium-package"] input').should('have.length', 2).and('be.enabled')
         cy.contains('No slots are currently available').should('not.exist')
-        packageButton(4).closest('button').should('contain.text', 'Price unavailable').and('be.enabled')
+        packageButton(4).closest('label').should('contain.text', 'Price unavailable').find('input').should('be.enabled')
         packageButton(4).click()
         cy.contains('This package is currently unavailable').should('be.visible')
         cy.get('[data-testid="slot-offer"]').should('not.exist')
@@ -809,11 +817,152 @@ describe('Slot packages in the Premium wizard', () => {
         cy.contains('h3', 'Select Duration').should('not.exist')
     })
 
+    // regression: plan type and duration were <div onClick> cards that keyboard users could not reach
+    it('lets keyboard-only users choose the plan type and duration with arrow keys and Continue', () => {
+        visitAuthenticatedPage('/premium?tier=premium')
+        cy.contains('#buyPremium h3', 'Choose Your Plan Type').should('be.visible')
+        cy.get('#buyPremium input[type="radio"]').first().focus()
+        cy.press(Cypress.Keyboard.Keys.DOWN)
+        cy.get('#buyPremium input[value="coflcoins"]').should('be.checked').and('be.focused')
+        cy.press(Cypress.Keyboard.Keys.UP)
+        cy.get('#buyPremium input[value="subscription"]').should('be.checked').and('be.focused')
+        // arrow keys only select: the visitor stays on the step until Continue
+        cy.contains('#buyPremium h3', 'Choose Your Plan Type').should('be.visible')
+        cy.contains('Step 1 of 4').should('be.visible')
+        cy.press(Cypress.Keyboard.Keys.TAB)
+        cy.focused().should('have.text', 'Back')
+        cy.press(Cypress.Keyboard.Keys.TAB)
+        cy.focused().should('have.text', 'Continue')
+        cy.press(Cypress.Keyboard.Keys.SPACE)
+        cy.contains('#buyPremium h3', 'Choose Your Package').should('be.focused')
+        cy.get('#buyPremium input:checked').should('have.value', '0').focus()
+        cy.press(Cypress.Keyboard.Keys.DOWN)
+        cy.get('#buyPremium input:checked').should('have.value', '1')
+        cy.press(Cypress.Keyboard.Keys.UP)
+        cy.get('#buyPremium input:checked').should('have.value', '0')
+        cy.contains('#buyPremium h3', 'Choose Your Package').should('be.visible')
+        cy.get('#buyPremium').contains('button', 'Continue').focus()
+        cy.press(Cypress.Keyboard.Keys.SPACE)
+        cy.contains('#buyPremium h3', 'Select Duration').should('be.focused')
+        cy.get('#buyPremium').contains('button', 'Continue').should('be.disabled')
+        cy.get('#buyPremium input[type="radio"]').first().focus()
+        cy.press(Cypress.Keyboard.Keys.DOWN)
+        cy.get('#buyPremium input[value="quarter"]').should('be.checked')
+        cy.contains('#buyPremium h3', 'Select Duration').should('be.visible')
+        cy.get('#buyPremium').contains('button', 'Continue').should('be.enabled').focus()
+        cy.press(Cypress.Keyboard.Keys.SPACE)
+        cy.contains('#buyPremium h3', 'Complete Purchase').should('be.focused')
+        cy.get('#buyPremium [aria-label="Change plan type: Subscription"]').should('be.visible')
+        cy.get('#buyPremium [aria-label="Change package: Just for me"]').should('be.visible')
+        cy.get('#buyPremium [aria-label="Change duration: Quarterly"]').should('be.visible')
+    })
+
+    it('advances on a pointer click and jumps back to a step from its summary chip', () => {
+        visitAuthenticatedPage('/premium?tier=premium')
+        wizardOption(/^Subscription$/).click()
+        cy.contains('#buyPremium h3', 'Choose Your Package').should('be.visible')
+        wizardOption('Just for me').click()
+        cy.contains('#buyPremium h3', 'Select Duration').should('be.visible')
+        wizardOption(/^Yearly$/).click()
+        cy.contains('#buyPremium h3', 'Complete Purchase').should('be.visible')
+        cy.contains('Step 4 of 4').should('be.visible')
+        cy.get('#buyPremium [data-testid="premium-wizard"] > div').first().should('contain.text', 'Premium').and('contain.text', 'Yearly')
+        // regression: the total read "96.69 Euro" (number, then the currency name)
+        cy.get('#buyPremium').should('contain.text', formatMoney(96.69, 'EUR')).and('not.contain.text', 'Euro')
+        cy.get('#buyPremium [aria-label="Change plan type: Subscription"]').click()
+        cy.contains('#buyPremium h3', 'Choose Your Plan Type').should('be.focused')
+        cy.contains('Step 1 of 4').should('be.visible')
+        cy.get('#buyPremium input[value="subscription"]').should('be.checked')
+        // coming back, the earlier answers stay and Continue walks forward again
+        cy.get('#buyPremium').contains('button', 'Continue').click()
+        cy.contains('#buyPremium h3', 'Choose Your Package').should('be.visible')
+        cy.get('#buyPremium').contains('button', 'Continue').click()
+        cy.contains('#buyPremium h3', 'Select Duration').should('be.visible')
+        cy.get('#buyPremium input[value="yearly"]').should('be.checked')
+        cy.get('#buyPremium [aria-label="Change package: Just for me"]').click()
+        cy.contains('#buyPremium h3', 'Choose Your Package').should('be.visible')
+        cy.contains('Step 2 of 4').should('be.visible')
+    })
+
+    // regression: a Premium Plus holder asking for Premium kept Premium Plus checked (disabled, "Cannot downgrade") and Continue bought it
+    it('never offers the active tier as a choice when an upgrade link asks for a lower tier', () => {
+        stubProducts({ body: { premium_plus: { expiresAt: '2099-02-01T00:00:00Z' } } })
+        visitAuthenticatedPage('/premium?tier=premium')
+        cy.contains('#buyPremium h3', 'Upgrade Your Premium Plus').should('be.visible')
+        cy.get('#buyPremium input[type="radio"]').should('have.length', 3).and('be.disabled')
+        cy.get('#buyPremium input:checked').should('not.exist')
+        cy.get('#buyPremium').contains('label', 'Premium Plus').should('contain.text', 'Cannot downgrade')
+        cy.get('#buyPremium').contains('button', 'Continue').should('be.disabled')
+    })
+
+    // regression: the Premium Plus row showed the yearly price per month without saying so
+    it('says how the tier prices are billed', () => {
+        visitAuthenticatedPage('/premium')
+        wizardOption(/^Premium Plus$/).closest('label').should('contain.text', 'Billed yearly at').and('contain.text', 'monthly')
+        wizardOption(/^Starter$/).closest('label').should('contain.text', 'Yearly only')
+    })
+
+    // regression: back from the payment provider (back/forward cache) the button stayed disabled on "Redirecting…"
+    it('enables the checkout button again when the page comes back from the back/forward cache', () => {
+        cy.intercept('POST', '**/api/premium/subscription/l_premium-year*', { statusCode: 200, body: { directLink: 'https://test.lemonsqueezy.com/checkout/premium' } }).as('checkout')
+        visitAuthenticatedPage('/premium?tier=premium')
+        wizardOption(/^Subscription$/).click()
+        wizardOption('Just for me').click()
+        wizardOption(/^Yearly$/).click()
+        cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
+        cy.contains('button', 'Continue to our secure payment processor').click()
+        cy.wait('@checkout')
+        cy.get('@checkoutNavigation').should('have.been.calledOnce')
+        cy.contains('button', 'Redirecting to payment provider...').should('be.disabled').and('have.attr', 'aria-busy', 'true')
+        cy.window().then(window => window.dispatchEvent(new window.PageTransitionEvent('pageshow', { persisted: false })))
+        cy.contains('button', 'Redirecting to payment provider...').should('be.disabled')
+        cy.window().then(window => window.dispatchEvent(new window.PageTransitionEvent('pageshow', { persisted: true })))
+        cy.contains('button', 'Continue to our secure payment processor').should('be.enabled').and('not.have.attr', 'aria-busy')
+    })
+
+    // regression: upgrading Starter in place added a "Just for me" chip and a Back path through a package step never shown
+    it('keeps the steps the visitor saw after upgrading Starter in place at the checkout', () => {
+        visitAuthenticatedPage('/premium?tier=starter')
+        wizardOption(/^Subscription$/).click()
+        cy.contains('#buyPremium h3', 'Select Duration').should('be.visible')
+        wizardOption(/^Yearly$/).click()
+        cy.contains('#buyPremium h3', 'Complete Purchase').should('be.visible')
+        cy.contains('Step 3 of 3').should('be.visible')
+        cy.get('#buyPremium').contains('button', 'Upgrade to Premium').click()
+        cy.contains('Step 3 of 3').should('be.visible')
+        cy.get('#buyPremium [aria-label^="Change package"]').should('not.exist')
+        cy.get('#buyPremium [aria-label="Change duration: Yearly"]').should('be.visible')
+        cy.get('#buyPremium').contains('button', 'Back').click()
+        cy.contains('#buyPremium h3', 'Select Duration').should('be.visible')
+        cy.get('#buyPremium').contains('button', 'Back').click()
+        cy.contains('#buyPremium h3', 'Choose Your Plan Type').should('be.visible')
+        // from the plan type on, the upgraded tier offers its packages again
+        cy.get('#buyPremium').contains('button', 'Continue').click()
+        cy.contains('#buyPremium h3', 'Choose Your Package').should('be.visible')
+    })
+
+    it('hides Back on the first step instead of disabling it and needs a choice before Continue', () => {
+        visitAuthenticatedPage('/premium')
+        cy.contains('#buyPremium h3', 'Choose Your Premium Tier').should('be.visible')
+        cy.contains('Step 1 of 5').should('be.visible')
+        cy.get('#buyPremium').contains('button', 'Back').should('not.exist')
+        cy.get('#buyPremium').contains('button', 'Continue').should('be.disabled')
+        cy.get('#buyPremium input[value="starter"]').focus()
+        cy.press(Cypress.Keyboard.Keys.DOWN)
+        cy.get('#buyPremium input[value="premium"]').should('be.checked')
+        cy.contains('#buyPremium h3', 'Choose Your Premium Tier').should('be.visible')
+        cy.get('#buyPremium').contains('button', 'Continue').should('be.enabled').click()
+        cy.contains('#buyPremium h3', 'Choose Your Plan Type').should('be.visible')
+        cy.get('#buyPremium').contains('button', 'Back').should('be.visible').click()
+        cy.get('#buyPremium').contains('button', 'Back').should('not.exist')
+        cy.get('#buyPremium input[value="premium"]').should('be.checked')
+    })
+
     it('keeps Starter on its four-step personal flow and skips unsupported slot packages', () => {
         visitAuthenticatedPage('/premium')
-        cy.get('#buyPremium').contains('h5', /^Starter$/).click()
+        wizardOption(/^Starter$/).click()
         cy.contains('Step 2 of 4').should('be.visible')
-        cy.contains('How would you like to pay?').should('be.visible')
+        cy.contains('#buyPremium h3', 'Choose Your Plan Type').should('be.visible')
         cy.get('[data-testid="premium-package"]').should('not.exist')
         cy.get('#buyPremium').contains('button', 'Back').click()
         cy.contains('Choose Your Premium Tier').should('be.visible')
@@ -822,16 +971,16 @@ describe('Slot packages in the Premium wizard', () => {
 
     it('opens payment for a preselected tier, then shows packages before duration', () => {
         visitAuthenticatedPage('/premium?tier=premium_plus')
-        cy.contains('How would you like to pay?').should('be.visible')
+        cy.contains('#buyPremium h3', 'Choose Your Plan Type').should('be.visible')
         // the tier was chosen before the wizard opened, so its step is skipped and not counted
         cy.contains('Step 1 of 4').should('be.visible')
-        cy.get('#buyPremium').contains('h5', /^Subscription$/).click()
+        wizardOption(/^Subscription$/).click()
         cy.contains('Choose Your Package').should('be.visible')
         cy.contains('Step 2 of 4').should('be.visible')
         packageButton(0).should('be.visible')
         cy.get('[data-testid="premium-package"]').should('have.length', 3)
-        cy.contains('#buyPremium h5', 'One assignable slot').should('be.visible')
-        packageButton(4).closest('button').should('contain.text', '~€24.92 per slot · every 4 weeks')
+        cy.get('#buyPremium').contains(OPTION_TITLE, 'One assignable slot').should('be.visible')
+        packageButton(4).closest('label').should('contain.text', '~€24.92 per slot · every 4 weeks')
     })
 
     it('makes bundles reachable for an existing subscriber without entering the upgrade dialog', () => {
@@ -843,7 +992,7 @@ describe('Slot packages in the Premium wizard', () => {
         cy.contains('a', 'Explore slots & bundles').click()
         cy.location('search').should('contain', 'slots=true')
         cy.contains('h2', 'Get slots').should('be.visible')
-        cy.get('#buyPremium h5').should('have.length', 2)
+        cy.get(`#buyPremium ${OPTION_TITLE}`).should('have.length', 2)
         cy.contains('.modal-title', 'Upgrade subscription').should('not.exist')
     })
 
@@ -924,7 +1073,7 @@ describe('Slot packages in the Premium wizard', () => {
         cy.contains('button', 'Continue with subscription').should('be.disabled')
         cy.get('#buyPremium').contains('button', 'Back').click()
         cy.get('#buyPremium').contains('button', 'Back').click()
-        cy.get('#buyPremium').contains('h5', /^CoflCoins$/).click()
+        wizardOption(/^CoflCoins$/).click()
         packageButton(4).click()
         cy.contains('button', 'Buy with CoflCoins').should('be.enabled')
         cy.contains('button', 'Continue with subscription').should('not.exist')
@@ -933,27 +1082,27 @@ describe('Slot packages in the Premium wizard', () => {
     // regression: ?tier=premium preselected the tier but still opened the tier step
     it('skips the tier step for a ?tier=premium link and lets Back change the tier', () => {
         visitAuthenticatedPage('/premium?tier=premium')
-        cy.contains('How would you like to pay?').should('be.visible')
+        cy.contains('#buyPremium h3', 'Choose Your Plan Type').should('be.visible')
         cy.contains('Step 1 of 4').should('be.visible')
         cy.get('#buyPremium').contains('button', 'Back').click()
         cy.contains('Choose Your Premium Tier').should('be.visible')
         cy.contains('Step 1 of 5').should('be.visible')
-        cy.get('#buyPremium').contains('h5', /^Premium Plus$/).click()
+        wizardOption(/^Premium Plus$/).click()
         cy.contains('Step 2 of 5').should('be.visible')
     })
 
     it('hides personal access in slot mode for subscriptions and CoflCoins', () => {
         visitShop()
         cy.contains('Step 1 of 4').should('be.visible')
-        cy.get('#buyPremium').contains('h5', /^Premium$/).click()
-        cy.get('#buyPremium').contains('h5', /^Subscription$/).click()
+        wizardOption(/^Premium$/).click()
+        wizardOption(/^Subscription$/).click()
         cy.get('[data-testid="premium-package"]').should('have.length', 2)
         packageButton(0).should('not.exist')
         packageButton(4).should('be.visible')
         cy.contains('Step 3 of 4').should('be.visible')
-        cy.contains('#buyPremium h5', 'One assignable slot').should('be.visible')
+        cy.get('#buyPremium').contains(OPTION_TITLE, 'One assignable slot').should('be.visible')
         cy.get('#buyPremium').contains('button', 'Back').click()
-        cy.get('#buyPremium').contains('h5', /^CoflCoins$/).click()
+        wizardOption(/^CoflCoins$/).click()
         cy.get('[data-testid="premium-package"]').should('have.length', 2)
         packageButton(0).should('not.exist')
         packageButton(4).should('be.visible')
@@ -980,8 +1129,8 @@ describe('Slot packages in the Premium wizard', () => {
         choosePackage('Premium', 4, 'Subscription')
         cy.get('[data-testid="slot-offer"]').should('contain.text', '29.69')
         cy.get('#buyPremium').contains('button', 'Back').click()
-        packageButton(4).closest('button').should('contain.text', '~€7.42 per slot')
-        cy.contains('#buyPremium h3', 'Choose Your Package').closest('.card').screenshot('subscription-package-options')
+        packageButton(4).closest('label').should('contain.text', '~€7.42 per slot')
+        cy.contains('#buyPremium h3', 'Choose Your Package').closest('[data-testid="premium-wizard"]').screenshot('subscription-package-options')
         packageButton(4).click()
         cy.contains('Renews automatically. Cancel anytime.').trigger('mouseover')
         cy.get('[role="tooltip"]').should('contain.text', 'account page').and('contain.text', 'time you have already paid for')
@@ -991,9 +1140,9 @@ describe('Slot packages in the Premium wizard', () => {
     it('purchases four Premium slots for 6,000 CoflCoins and shows their per-slot cost', () => {
         cy.intercept('POST', '**/api/service/purchase', { statusCode: 200 }).as('buySlots')
         visitShop()
-        cy.get('#buyPremium').contains('h5', /^Premium$/).click()
-        cy.get('#buyPremium').contains('h5', /^CoflCoins$/).click()
-        packageButton(4).closest('button').should('contain.text', '1,500 CoflCoins per slot · 30 days')
+        wizardOption(/^Premium$/).click()
+        wizardOption(/^CoflCoins$/).click()
+        packageButton(4).closest('label').should('contain.text', '1,500 CoflCoins per slot · 30 days')
         packageButton(4).click()
         cy.get('[data-testid="slot-offer"]').should('contain.text', '6,000 CoflCoins').and('contain.text', '1,500 CoflCoins')
         cy.contains('button', 'Buy with CoflCoins').click()
@@ -1030,7 +1179,7 @@ describe('Slot packages in the Premium wizard', () => {
         cy.get('[data-testid="slot-offer"]').should('contain.text', '35.63')
         cy.contains('button', 'Continue with subscription').should('be.enabled')
         cy.get('#buyPremium').contains('button', 'Back').click()
-        packageButton(4).closest('button').should('contain.text', '~€8.91 per slot')
+        packageButton(4).closest('label').should('contain.text', '~€8.91 per slot')
     })
 
     it('keeps the cards usable on a phone and confirms price changes when the country changes', () => {
@@ -1042,7 +1191,7 @@ describe('Slot packages in the Premium wizard', () => {
         cy.get('.rbt-menu').contains('Germany').click()
         cy.get('[data-testid="slot-offer"]').first().should('contain.text', '35.33')
         cy.get('#buyPremium').contains('button', 'Back').click()
-        packageButton(4).closest('button').should('contain.text', '~€8.83 per slot · every 4 weeks')
+        packageButton(4).closest('label').should('contain.text', '~€8.83 per slot · every 4 weeks')
         cy.document().then(document => expect(document.documentElement.scrollWidth).to.be.at.most(390))
         packageButton(4).click()
         cy.get('[data-testid="slot-offer"]').first().should('contain.text', '35.33')

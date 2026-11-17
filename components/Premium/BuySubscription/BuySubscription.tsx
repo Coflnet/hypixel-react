@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import api from '../../../api/ApiHelper'
-import { Button, Card, Col, Row, Form, Spinner, InputGroup } from 'react-bootstrap'
+import { Button, Card, Col, Row, Spinner } from 'react-bootstrap'
 import styles from './BuySubscription.module.css'
 import stepStyles from '../PremiumPurchaseWizard/Steps/Steps.module.css'
 import NumberElement from '../../Number/Number'
@@ -12,18 +12,33 @@ import discountStyles from '../../Discounts/Discounts.module.css'
 import { postApiTopupRates, getApiDiscountCode } from '../../../api/_generated/skyApi'
 import { BatchProductPricingResponse, ValidatedDiscount } from '../../../api/_generated/skyApi.schemas'
 import {
-    getCurrencySymbol,
     getProviderPrice,
     getProviderOriginalPrice,
     getProviderCurrencyCode,
     getDiscountPercent,
     getTierApiProductId,
-    VAT_RATES
+    VAT_RATES,
+    formatMoney
 } from '../../../utils/PricingUtils'
 import { useCountryDetection } from '../../../hooks/useCountryDetection'
 import { usePremiumVariant } from '../PremiumVariantContext'
 import { trackPremiumFunnelEvent } from '../../../utils/PremiumTracking'
 import { formatDiscountEndDate, getActiveSubscriptionDiscount } from '../../../utils/DiscountUtils'
+import checkoutStyles from '../Checkout/Checkout.module.css'
+import { useBackForwardRestore } from '../Checkout/useBackForwardRestore'
+import {
+    CheckoutButton,
+    CheckoutError,
+    CheckoutLayout,
+    CheckoutSuccess,
+    CodeDisclosure,
+    CodeField,
+    PaymentActions,
+    Savings,
+    SummaryNote,
+    SummaryRow,
+    SummaryTotal
+} from '../Checkout/CheckoutParts'
 
 interface Props {
     activePremiumProduct: PremiumProduct
@@ -48,6 +63,10 @@ function BuySubscription(props: Props) {
     const [pendingYearlyDiscount, setPendingYearlyDiscount] = useState<ValidatedDiscount | null>(null)
     const [isValidatingDiscount, setIsValidatingDiscount] = useState(false)
     const [discountError, setDiscountError] = useState<string | null>(null)
+    const [isRedirecting, setIsRedirecting] = useState(false)
+    const [codesOpen, setCodesOpen] = useState<boolean | null>(null)
+    // back from the payment provider the cached page would still say "Redirecting…"
+    useBackForwardRestore(() => setIsRedirecting(false))
     const { selectedCountry } = useCountryDetection()
     const summerDiscount = getActiveSubscriptionDiscount()
 
@@ -192,13 +211,12 @@ function BuySubscription(props: Props) {
         setDiscountError(null)
     }
 
-    const getDisplayCurrency = (): string => {
-        if (!pricingData || !pricingData.products || !props.selectedTier) return 'Euro'
-        const productId = getProductIdForTier(props.selectedTier, getCurrentDuration())
-        const currencyCode = getCurrencyCodeValue(productId, 'lemonsqueezy')
-        const symbol = getCurrencySymbol(currencyCode)
-        return symbol === currencyCode ? currencyCode : symbol
+    const getCurrencyCode = (): string => {
+        if (!pricingData || !pricingData.products || !props.selectedTier) return 'EUR'
+        return getCurrencyCodeValue(getProductIdForTier(props.selectedTier, getCurrentDuration()), 'lemonsqueezy')
     }
+
+    const money = (value: number): string => formatMoney(value, getCurrencyCode())
 
     const getOriginalPrice = (): number | null => {
         if (!pricingData || !pricingData.products || !props.selectedTier) return null
@@ -339,12 +357,13 @@ function BuySubscription(props: Props) {
         return -1
     }
 
-    function startSubscriptionPurchase(targetType: PremiumType, duration: Duration = Duration.MONTHLY) {
-        if (!targetType) return
+    /** opens the payment provider; false when the purchase could not start (no login) */
+    function startSubscriptionPurchase(targetType: PremiumType, duration: Duration = Duration.MONTHLY): boolean {
+        if (!targetType) return false
         const googleToken = sessionStorage.getItem('googleId')
         if (!googleToken) {
             toast.error('Please login to continue with the purchase')
-            return
+            return false
         }
 
         let productId = ''
@@ -379,295 +398,250 @@ function BuySubscription(props: Props) {
                 window.open(data.directLink, '_self')
             })
             .catch(() => {
+                setIsRedirecting(false)
                 toast.error('Failed to redirect to payment provider. Please try again.')
             })
+        return true
+    }
+
+    const isYearlySelected = (): boolean => (isYearOption !== undefined ? isYearOption : props.selectedDuration === Duration.YEARLY)
+
+    const getCreatorCodePercent = (): number | null =>
+        props.selectedTier ? getDiscountPercentValue(getProductIdForTier(props.selectedTier, getCurrentDuration())) : null
+
+    const getBillingDisplayText = (): string => {
+        switch (getCurrentDuration()) {
+            case Duration.YEARLY:
+                return 'Yearly (52 weeks)'
+            case Duration.QUARTER:
+                return 'Quarterly (13 weeks)'
+            default:
+                return 'Monthly (4 weeks)'
+        }
+    }
+
+    const getPricePerPeriodText = (): string => {
+        switch (getCurrentDuration()) {
+            case Duration.YEARLY:
+                return 'per year'
+            case Duration.QUARTER:
+                return 'per quarter'
+            default:
+                return 'per month'
+        }
+    }
+
+    const onDiscountCodeChange = (value: string) => {
+        setDiscountCode(value)
+        if (validatedDiscount) {
+            setValidatedDiscount(null)
+        }
+        if (discountError) {
+            setDiscountError(null)
+        }
+    }
+
+    const applyPendingYearlyDiscount = () => {
+        setIsYearOption(true)
+        setValidatedDiscount(pendingYearlyDiscount)
+        setPendingYearlyDiscount(null)
+        setDiscountError(null)
+    }
+
+    // open while a code is prefilled or in use, until the visitor toggles it
+    const isCodesOpen = codesOpen ?? (!!props.initialDiscountCode || !!appliedCreatorCode || !!validatedDiscount || !!discountError)
+
+    function renderSavings(discountInfo: ReturnType<typeof getTotalDiscountInfo>) {
+        if (!discountInfo.creatorPercent && !discountInfo.discountCodePercent) return null
+        if (discountInfo.absoluteSavings) {
+            return (
+                <Savings>
+                    You save {money(discountInfo.absoluteSavings)}
+                    {discountInfo.totalSavings ? ` (~${discountInfo.totalSavings}% off)` : ''}
+                </Savings>
+            )
+        }
+        if (discountInfo.totalSavings) return <Savings>Total savings: ~{discountInfo.totalSavings}% off original price</Savings>
+        return null
+    }
+
+    function renderSummary(targetType: PremiumType) {
+        const finalPrice = getFinalPrice(getSubscriptionPrice())
+        const discountInfo = getTotalDiscountInfo()
+        const originalPrice = getOriginalPrice()
+        const showOriginal = (hasActiveDiscount() || !!validatedDiscount) && !!originalPrice
+        const hasCodeDiscount = !!discountInfo.creatorPercent || !!discountInfo.discountCodePercent
+        return (
+            <>
+                <SummaryRow label="Plan">
+                    <span className={props.selectedTier === PremiumTier.PREMIUM_PLUS ? stepStyles.tierPremiumPlus : props.selectedTier === PremiumTier.PREMIUM ? stepStyles.tierPremium : ''}>
+                        {getDisplayTierName()}
+                    </span>
+                </SummaryRow>
+                <SummaryRow label="Payment">Subscription</SummaryRow>
+                <SummaryRow label="Billing">{getBillingDisplayText()}</SummaryRow>
+                {discountInfo.creatorPercent ? <SummaryRow label="Creator code">-{discountInfo.creatorPercent}%</SummaryRow> : null}
+                {discountInfo.discountCodePercent ? <SummaryRow label="Discount code">-{discountInfo.discountCodePercent}%</SummaryRow> : null}
+                <SummaryTotal
+                    label="Price"
+                    amount={money(finalPrice)}
+                    original={showOriginal ? money(originalPrice!) : null}
+                    unit={`${getVATDisplayText().trim()} ${getPricePerPeriodText()}`.trim()}
+                >
+                    {renderSavings(discountInfo)}
+                    {getCurrentDuration() === Duration.YEARLY && targetType.productId !== 'starter_premium' && !hasCodeDiscount ? (
+                        <Savings>{targetType.productId === 'premium_plus' ? '23%' : '14%'} off compared to monthly billing</Savings>
+                    ) : null}
+                </SummaryTotal>
+                {pricingError ? <CheckoutError>{pricingError}</CheckoutError> : null}
+                {summerDiscount && !validatedDiscount ? (
+                    <SummaryNote>
+                        <strong>{summerDiscount.label}:</strong> use code <code>{summerDiscount.code}</code> at checkout for <strong>{summerDiscount.percentage}% off</strong>{' '}
+                        until {formatDiscountEndDate(summerDiscount.endsAt)}.
+                    </SummaryNote>
+                ) : null}
+                <SummaryNote>Prices include VAT for your country where available. In the US and some other countries it is added at checkout.</SummaryNote>
+            </>
+        )
+    }
+
+    function renderCreatorCodeMessage() {
+        if (!appliedCreatorCode || pricingError) return null
+        const percent = getCreatorCodePercent()
+        return <CheckoutSuccess>{percent ? `✓ Creator code applied! You get ${percent}% off` : '✓ Creator code applied'}</CheckoutSuccess>
+    }
+
+    function renderDiscountCodeMessage() {
+        if (discountError) {
+            return (
+                <CheckoutError>
+                    {discountError}
+                    {pendingYearlyDiscount && !isYearlySelected() ? (
+                        <div className={styles.messageAction}>
+                            <button type="button" className={styles.linkButton} onClick={applyPendingYearlyDiscount}>
+                                Switch to yearly and apply discount
+                            </button>
+                        </div>
+                    ) : null}
+                </CheckoutError>
+            )
+        }
+        if (!validatedDiscount?.isValid) return null
+        const amount =
+            validatedDiscount.amountType === 'percent' || validatedDiscount.amountType === 'percentage'
+                ? `${validatedDiscount.amount}% off`
+                : `${validatedDiscount.amount} off`
+        return (
+            <CheckoutSuccess>
+                <strong>✓ Discount code valid!</strong> {validatedDiscount.name ? `${validatedDiscount.name}: ` : ''}
+                {amount}
+                {validatedDiscount.durationInMonths > 0
+                    ? ` for ${validatedDiscount.durationInMonths} payment${validatedDiscount.durationInMonths > 1 ? 's' : ''}`
+                    : ''}
+            </CheckoutSuccess>
+        )
+    }
+
+    function renderCodes() {
+        return (
+            <CodeDisclosure open={isCodesOpen} onToggle={() => setCodesOpen(!isCodesOpen)}>
+                <CodeField
+                    label="Creator code (optional, supports a creator)"
+                    placeholder="Enter creator code"
+                    value={creatorCode}
+                    onChange={setCreatorCode}
+                    disabled={isLoadingPrices}
+                    actionLabel={isLoadingPrices ? <Spinner size="sm" animation="border" /> : 'Apply'}
+                    onAction={applyCreatorCode}
+                    actionDisabled={isLoadingPrices || !creatorCode.trim()}
+                >
+                    {renderCreatorCodeMessage()}
+                </CodeField>
+                <CodeField
+                    label="Discount code"
+                    placeholder="Enter discount code"
+                    value={discountCode}
+                    onChange={onDiscountCodeChange}
+                    disabled={isValidatingDiscount}
+                    actionLabel={validatedDiscount ? 'Clear' : isValidatingDiscount ? <Spinner size="sm" animation="border" /> : 'Apply'}
+                    onAction={validatedDiscount ? clearDiscountCode : validateDiscountCode}
+                    actionDisabled={isValidatingDiscount || (!validatedDiscount && !discountCode.trim())}
+                >
+                    {renderDiscountCodeMessage()}
+                </CodeField>
+            </CodeDisclosure>
+        )
+    }
+
+    function renderFeatures(targetType: PremiumType) {
+        return (
+            <div className={discountStyles.featuresRow}>
+                <div className={checkoutStyles.features}>
+                    <h6>What you'll get:</h6>
+                    <ul>
+                        {targetType.productId === 'premium_plus' ? (
+                            <>
+                                <li>Top flip receive time</li>
+                                <li>All tools for analysis</li>
+                                <li>Full auction archive</li>
+                                <li>Data export & API access</li>
+                            </>
+                        ) : targetType.productId === 'starter_premium' ? (
+                            <>
+                                <li>Ad-free experience</li>
+                                <li>Extended limits across features</li>
+                                <li>Starter tools & access</li>
+                            </>
+                        ) : (
+                            <>
+                                <li>Up to 1s slower than Premium+</li>
+                                <li>A lot of tools</li>
+                                <li>Extended history & filter access</li>
+                            </>
+                        )}
+                    </ul>
+                </div>
+                {props.selectedTier && (
+                    <TierUpsellPanel
+                        currentTier={props.selectedTier}
+                        purchaseType={PurchaseType.SUBSCRIPTION}
+                        duration={getCurrentDuration()}
+                        countryCode={country}
+                        onUpgrade={tier => props.onUpgradeTier?.(tier)}
+                    />
+                )}
+            </div>
+        )
+    }
+
+    function onSubscribeClick(targetType: PremiumType) {
+        setSelectedPremiumType(targetType)
+        if (startSubscriptionPurchase(selectedPremiumType || wizardSelectedType!, getCurrentDuration())) setIsRedirecting(true)
     }
 
     if (props.selectedTier && props.selectedDuration !== undefined) {
         const targetType = wizardSelectedType!
-        const currentDuration = getCurrentDuration()
-        const basePrice = getSubscriptionPrice()
-        const finalPrice = getFinalPrice(basePrice)
-        const discountInfo = getTotalDiscountInfo()
-        const hasAnyDiscount = hasActiveDiscount() || validatedDiscount
-
-        // Helper to get billing display text
-        const getBillingDisplayText = (): string => {
-            switch (currentDuration) {
-                case Duration.YEARLY:
-                    return 'Yearly (52 weeks)'
-                case Duration.QUARTER:
-                    return 'Quarterly (13 weeks)'
-                default:
-                    return 'Monthly (4 weeks)'
-            }
-        }
-
-        const getPricePerPeriodText = (): string => {
-            switch (currentDuration) {
-                case Duration.YEARLY:
-                    return 'per year'
-                case Duration.QUARTER:
-                    return 'per quarter'
-                default:
-                    return 'per month'
-            }
-        }
-
         return (
-            <>
-                <div className={styles.summarySection}>
-                    <h6>Your Selection:</h6>
-                    <p>
-                        <strong>Tier:</strong>{' '}
-                        <span
-                            className={`${styles.summaryValue} ${props.selectedTier === PremiumTier.PREMIUM ? stepStyles.tierPremium : ''} ${props.selectedTier === PremiumTier.PREMIUM_PLUS ? stepStyles.tierPremiumPlus : ''
-                                }`}
-                        >
-                            {getDisplayTierName()}
-                        </span>
-                    </p>
-                    <p>
-                        <strong>Billing:</strong> {getBillingDisplayText()}
-                    </p>
-                    <p>
-                        <>
-                            <strong>Price:</strong> <NumberElement number={finalPrice} /> {getDisplayCurrency()}{getVATDisplayText()} {getPricePerPeriodText()}&nbsp;
-                            {hasAnyDiscount && getOriginalPrice() && (
-                                <>
-                                    {' '}
-                                    <span style={{ textDecoration: 'line-through', opacity: 0.7 }}>
-                                        <NumberElement number={getOriginalPrice()!} /> {getDisplayCurrency()}
-                                    </span>
-                                </>
-                            )}
-                        </>
-                    </p>
-                    {/* Show applied discounts */}
-                    {(discountInfo.creatorPercent || discountInfo.discountCodePercent) && (
-                        <div style={{ marginTop: '10px', padding: '10px', backgroundColor: 'rgba(76, 175, 80, 0.1)', borderRadius: '8px', border: '1px solid rgba(76, 175, 80, 0.3)' }}>
-                            <strong style={{ color: '#4caf50' }}>💰 Applied Discounts:</strong>
-                            <ul style={{ margin: '5px 0 0 0', paddingLeft: '20px', listStyle: 'none' }}>
-                                {discountInfo.creatorPercent && (
-                                    <li style={{ color: '#4caf50' }}>✓ Creator code: {discountInfo.creatorPercent}% off</li>
-                                )}
-                                {discountInfo.discountCodePercent && (
-                                    <li style={{ color: '#4caf50' }}>✓ Discount code: {discountInfo.discountCodePercent}% off</li>
-                                )}
-                            </ul>
-                            {discountInfo.absoluteSavings ? (
-                                <p style={{ margin: '5px 0 0 0', fontWeight: 'bold', color: '#4caf50' }}>
-                                    You save <NumberElement number={discountInfo.absoluteSavings} /> {getDisplayCurrency()}
-                                    {discountInfo.totalSavings ? ` (~${discountInfo.totalSavings}% off)` : ''}
-                                </p>
-                            ) : discountInfo.totalSavings ? (
-                                <p style={{ margin: '5px 0 0 0', fontWeight: 'bold', color: '#4caf50' }}>
-                                    Total savings: ~{discountInfo.totalSavings}% off original price
-                                </p>
-                            ) : null}
-                        </div>
-                    )}
-                    {currentDuration === Duration.YEARLY && targetType.productId !== 'starter_premium' && !discountInfo.creatorPercent && !discountInfo.discountCodePercent && (
-                        <p className={styles.discount}>
-                            <strong>Savings:</strong> {targetType.productId === 'premium_plus' ? '23%' : '14%'} off compared to monthly billing
-                        </p>
-                    )}
-                    {summerDiscount && !validatedDiscount && (
-                        <p className={styles.discount}>
-                            ☀️ <strong>{summerDiscount.label}:</strong> use code <code>{summerDiscount.code}</code> at checkout for{' '}
-                            <strong>{summerDiscount.percentage}% off</strong> until {formatDiscountEndDate(summerDiscount.endsAt)}.
-                        </p>
-                    )}
-                </div>
-
-                <div className={discountStyles.featuresRow}>
-                    <div className={styles.featuresSection}>
-                        <h6>What you'll get:</h6>
-                        <ul>
-                            {targetType.productId === 'premium_plus' ? (
-                                <>
-                                    <li>Top flip receive time</li>
-                                    <li>All tools for analysis</li>
-                                    <li>Full auction archive</li>
-                                    <li>Data export & API access</li>
-                                </>
-                            ) : targetType.productId === 'starter_premium' ? (
-                                <>
-                                    <li>Ad-free experience</li>
-                                    <li>Extended limits across features</li>
-                                    <li>Starter tools & access</li>
-                                </>
-                            ) : (
-                                <>
-                                    <li>Up to 1s slower than Premium+</li>
-                                    <li>A lot of tools</li>
-                                    <li>Extended history & filter access</li>
-                                </>
-                            )}
-                        </ul>
-                    </div>
-                    {props.selectedTier && (
-                        <TierUpsellPanel
-                            currentTier={props.selectedTier}
-                            purchaseType={PurchaseType.SUBSCRIPTION}
-                            duration={currentDuration}
-                            countryCode={country}
-                            onUpgrade={tier => props.onUpgradeTier?.(tier)}
-                        />
-                    )}
-                </div>
-
-                <Row className="g-3" style={{ marginBottom: '20px' }}>
-                    <Col md={6}>
-                        <Card style={{ height: '100%' }}>
-                            <Card.Header>
-                                <Card.Title style={{ fontSize: '1rem', margin: 0 }}>Creator Code</Card.Title>
-                            </Card.Header>
-                            <Card.Body>
-                                <Form.Group>
-                                    <Form.Label style={{ color: '#adb5bd', fontSize: '0.9rem' }}>
-                                        Support a creator (Optional)
-                                    </Form.Label>
-                                    <InputGroup>
-                                        <Form.Control
-                                            type="text"
-                                            placeholder="Enter creator code"
-                                            value={creatorCode}
-                                            onChange={e => setCreatorCode(e.target.value)}
-                                            disabled={isLoadingPrices}
-                                        />
-                                        <Button
-                                            variant="primary"
-                                            onClick={applyCreatorCode}
-                                            disabled={isLoadingPrices || !creatorCode.trim()}
-                                        >
-                                            {isLoadingPrices ? <Spinner size="sm" animation="border" /> : 'Apply'}
-                                        </Button>
-                                    </InputGroup>
-                                </Form.Group>
-                                {pricingError && (
-                                    <div style={{ color: 'red', marginTop: '10px', fontSize: '0.9rem' }}>
-                                        {pricingError}
-                                    </div>
-                                )}
-                                {appliedCreatorCode && !pricingError && (
-                                    <div style={{ marginTop: '10px', fontSize: '0.9rem', color: getDiscountPercentValue(getProductIdForTier(props.selectedTier!, getCurrentDuration())) ? '#20c997' : '#6c757d' }}>
-                                        {getDiscountPercentValue(getProductIdForTier(props.selectedTier!, getCurrentDuration()))
-                                            ? `✓ Creator code applied! You get ${getDiscountPercentValue(getProductIdForTier(props.selectedTier!, getCurrentDuration()))}% off`
-                                            : '✓ Creator code applied'}
-                                    </div>
-                                )}
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                    <Col md={6}>
-                        <Card style={{ height: '100%' }}>
-                            <Card.Header>
-                                <Card.Title style={{ fontSize: '1rem', margin: 0 }}>Discount Code</Card.Title>
-                            </Card.Header>
-                            <Card.Body>
-                                <Form.Group>
-                                    <Form.Label style={{ color: '#adb5bd', fontSize: '0.9rem' }}>
-                                        Have a discount code? (Optional)
-                                    </Form.Label>
-                                    <InputGroup>
-                                        <Form.Control
-                                            type="text"
-                                            placeholder="Enter discount code"
-                                            value={discountCode}
-                                            onChange={e => {
-                                                setDiscountCode(e.target.value)
-                                                if (validatedDiscount) {
-                                                    setValidatedDiscount(null)
-                                                }
-                                                if (discountError) {
-                                                    setDiscountError(null)
-                                                }
-                                            }}
-                                            disabled={isValidatingDiscount}
-                                        />
-                                        {validatedDiscount ? (
-                                            <Button
-                                                variant="outline-secondary"
-                                                onClick={clearDiscountCode}
-                                                disabled={isValidatingDiscount}
-                                            >
-                                                Clear
-                                            </Button>
-                                        ) : (
-                                            <Button
-                                                variant="primary"
-                                                onClick={validateDiscountCode}
-                                                disabled={isValidatingDiscount || !discountCode.trim()}
-                                            >
-                                                {isValidatingDiscount ? <Spinner size="sm" animation="border" /> : 'Validate'}
-                                            </Button>
-                                        )}
-                                    </InputGroup>
-                                </Form.Group>
-                                {discountError && (
-                                    <div style={{ color: '#dc3545', marginTop: '10px', fontSize: '0.9rem' }}>
-                                        {discountError}
-                                        {pendingYearlyDiscount && !(isYearOption !== undefined ? isYearOption : (props.selectedDuration === Duration.YEARLY)) && (
-                                            <div style={{ marginTop: '8px' }}>
-                                                <Button
-                                                    variant="primary"
-                                                    size="sm"
-                                                    onClick={() => {
-                                                        setIsYearOption(true)
-                                                        setValidatedDiscount(pendingYearlyDiscount)
-                                                        setPendingYearlyDiscount(null)
-                                                        setDiscountError(null)
-                                                    }}
-                                                >
-                                                    Switch to yearly and apply discount
-                                                </Button>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                                {validatedDiscount && validatedDiscount.isValid && (
-                                    <div style={{ marginTop: '10px', fontSize: '0.9rem', color: '#20c997' }}>
-                                        <strong>✓ Discount code valid!</strong>
-                                        <br />
-                                        {validatedDiscount.name && <span>{validatedDiscount.name}: </span>}
-                                        <span>
-                                            {validatedDiscount.amountType === 'percent' || validatedDiscount.amountType === 'percentage'
-                                                ? `${validatedDiscount.amount}% off`
-                                                : `${validatedDiscount.amount} off`}
-                                        </span>
-                                        {validatedDiscount.durationInMonths > 0 && (
-                                            <span> for {validatedDiscount.durationInMonths} payment{validatedDiscount.durationInMonths > 1 ? 's' : ''}</span>
-                                        )}
-                                    </div>
-                                )}
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
-
-                <div className={styles.purchaseButtonContainer}>
-                    <Button
-                        variant="success"
-                        size="lg"
-                        className={styles.purchaseButton}
-                        onClick={() => {
-                            setSelectedPremiumType(targetType)
-                            startSubscriptionPurchase(
-                                selectedPremiumType || wizardSelectedType!,
-                                currentDuration
-                            )
-                            const activeEl = document.activeElement as HTMLElement | null
-                            if (activeEl && activeEl.tagName === 'BUTTON') {
-                                activeEl.innerText = 'Redirecting to payment provider...'
-                                    ; (activeEl as HTMLButtonElement).disabled = true
-                            }
-                        }}
-                    >
-                        Continue to our secure payment processor
-                    </Button>
-                </div>
-            </>
+            <CheckoutLayout
+                summary={renderSummary(targetType)}
+                actions={
+                    <>
+                        {renderCodes()}
+                        <PaymentActions note="Renews automatically until you cancel. Cancel any time on this page; Premium stays active until the end of the paid period.">
+                            <CheckoutButton
+                                tier={props.selectedTier}
+                                busy={isRedirecting}
+                                busyLabel="Redirecting to payment provider..."
+                                onClick={() => onSubscribeClick(targetType)}
+                            >
+                                Continue to our secure payment processor
+                            </CheckoutButton>
+                        </PaymentActions>
+                    </>
+                }
+            >
+                {renderFeatures(targetType)}
+            </CheckoutLayout>
         )
     }
 

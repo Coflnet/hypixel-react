@@ -1,158 +1,79 @@
 'use client'
-import { Card } from 'react-bootstrap'
-import styles from './Steps.module.css'
-import { Duration, PurchaseType, PremiumTier, getTierDisplayName, getDurationOptions } from '../types'
+import OptionGroup, { WizardOption } from '../OptionGroup'
+import { Duration, PurchaseType, PremiumTier, getDurationOptions } from '../types'
 import { VAT_RATES, SUBSCRIPTION_PRICES } from '../../../../utils/PricingUtils'
 
 interface Props {
     selectedType: PurchaseType
     selectedTier: PremiumTier
     selectedDuration: Duration | null
-    onDurationSelect: (duration: Duration) => void
+    onDurationSelect: (duration: Duration, advance: boolean) => void
     countryCode?: string
 }
 
-export default function DurationSelectionStep({
-    selectedType,
-    selectedTier,
-    selectedDuration,
-    onDurationSelect,
-    countryCode
-}: Props) {
-    const tierDisplayName = getTierDisplayName(selectedTier)
-    const durationOptions = getDurationOptions(selectedTier, selectedType)
+/** CoflCoins price of the half-year Starter package, before VAT */
+const STARTER_HALF_YEAR_PRICE = 9.69
 
-    // Get VAT rate for current country
-    const getVATRate = (): number => {
-        if (!countryCode) return 0
-        const upperCode = countryCode.toUpperCase()
-        return VAT_RATES[upperCode] ?? 0
-    }
+function getVATRate(countryCode?: string): number {
+    if (!countryCode) return 0
+    return VAT_RATES[countryCode.toUpperCase()] ?? 0
+}
 
-    // Check if VAT should be included in the price
-    const shouldIncludeVATInPrice = (): boolean => {
-        if (!countryCode) return false
-        const upperCode = countryCode.toUpperCase()
-        return upperCode !== 'US' && VAT_RATES[upperCode] !== undefined
-    }
+function shouldIncludeVATInPrice(countryCode?: string): boolean {
+    if (!countryCode) return false
+    const upperCode = countryCode.toUpperCase()
+    return upperCode !== 'US' && VAT_RATES[upperCode] !== undefined
+}
 
-    // Calculate price with VAT
-    const getPriceWithVAT = (basePrice: number): number => {
-        const vatRate = getVATRate()
-        return basePrice * (1 + vatRate)
-    }
+function roundUpToCent(value: number): number {
+    return Math.ceil(value * 100) / 100
+}
 
-    // Get monthly equivalent price for a duration
-    const getMonthlyPrice = (duration: Duration): number => {
-        const tierKey = selectedTier === PremiumTier.PREMIUM ? 'premium' : selectedTier === PremiumTier.STARTER ? 'starter_premium' : 'premium_plus'
-        const prices = SUBSCRIPTION_PRICES[tierKey] || { monthly: 0, quarterly: 0, yearly: 0 }
+function euro(value: number): string {
+    return `€${roundUpToCent(value).toFixed(2)}`
+}
 
-        let monthlyPrice = prices.monthly
-        if (selectedTier === PremiumTier.STARTER && duration === Duration.QUARTER) {
-            return getPriceWithVAT(9.69) / 6
-        } else if (duration === Duration.QUARTER) {
-            monthlyPrice = prices.quarterly / 3 // 3 months
-        } else if (duration === Duration.YEARLY) {
-            monthlyPrice = prices.yearly / 12 // 12 months
-        } else if (duration === Duration.WEEK && prices.weekly) {
-            monthlyPrice = prices.weekly * (30 / 7) // ~4.29 weeks per month
-        } else if (duration === Duration.DAY && prices.daily) {
-            monthlyPrice = prices.daily * 30 // 30 days per month
-        }
+function getTierKey(tier: PremiumTier): string {
+    if (tier === PremiumTier.PREMIUM) return 'premium'
+    return tier === PremiumTier.STARTER ? 'starter_premium' : 'premium_plus'
+}
 
-        return getPriceWithVAT(monthlyPrice)
-    }
+/** the monthly equivalent of a duration, VAT included for the country */
+function getMonthlyPrice(tier: PremiumTier, duration: Duration, countryCode?: string): number {
+    const withVat = (price: number) => price * (1 + getVATRate(countryCode))
+    const prices = SUBSCRIPTION_PRICES[getTierKey(tier)] || { monthly: 0, quarterly: 0, yearly: 0 }
 
-    // Round up to next full cent
-    const roundUpToCent = (value: number): number => {
-        return Math.ceil(value * 100) / 100
-    }
+    if (tier === PremiumTier.STARTER && duration === Duration.QUARTER) return withVat(STARTER_HALF_YEAR_PRICE) / 6
+    if (duration === Duration.QUARTER) return withVat(prices.quarterly / 3)
+    if (duration === Duration.YEARLY) return withVat(prices.yearly / 12)
+    if (duration === Duration.WEEK && prices.weekly) return withVat(prices.weekly * (30 / 7))
+    if (duration === Duration.DAY && prices.daily) return withVat(prices.daily * 30)
+    return withVat(prices.monthly)
+}
 
-    if (selectedType === PurchaseType.COFLCOINS) {
-        return (
-            <div className={styles.stepContent}>
-                <h4 className={styles.stepQuestion}>
-                    How long would you like your{' '}
-                    <span
-                        className={`${selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''
-                            }`}
-                    >
-                        {tierDisplayName}
-                    </span>
-                    ?
-                </h4>
-                <p className={styles.coflcoinsDescription}>
-                    Choose your preferred duration for{' '}
-                    <span
-                        className={`${selectedTier === PremiumTier.PREMIUM ? styles.tierPremium : ''} ${selectedTier === PremiumTier.PREMIUM_PLUS ? styles.tierPremiumPlus : ''
-                            }`}
-                    >
-                        {tierDisplayName}
-                    </span>
-                    . Different durations may have different per-week pricing.
-                </p>
+function getBadge(option: { badge?: string; value: Duration }): string | undefined {
+    if (option.badge) return option.badge
+    return option.value === Duration.YEARLY ? 'Best Value' : undefined
+}
 
-                <div className={styles.optionsGrid}>
-                    {durationOptions.map(opt => (
-                        <Card
-                            key={opt.label}
-                            className={`${styles.optionCard} ${selectedDuration === opt.value ? styles.selected : ''}`}
-                            onClick={() => onDurationSelect(opt.value)}
-                        >
-                            <Card.Body className={styles.optionBody}>
-                                <div className={styles.optionIcon}>{opt.icon}</div>
-                                <h5 className={styles.durationTitle}>{opt.label}</h5>
-                                <p className={styles.durationDescription}>{opt.desc}</p>
-                                {opt.badge ? (
-                                    <small className={styles.recommendation}>{opt.badge}</small>
-                                ) : opt.value === Duration.YEARLY ? (
-                                    <small className={styles.recommendation}>Best Value</small>
-                                ) : null}
-                                <div className={styles.monthlyPrice}>
-                                    <small>
-                                        {selectedTier === PremiumTier.STARTER && opt.value === Duration.QUARTER
-                                            ? `~€${roundUpToCent(getMonthlyPrice(opt.value)).toFixed(2)}${shouldIncludeVATInPrice() ? '' : ' (+VAT)'}/month · €${roundUpToCent(getPriceWithVAT(9.69)).toFixed(2)}${shouldIncludeVATInPrice() ? '' : ' (+VAT)'} total for 1,800 CoflCoins`
-                                            : `~€${roundUpToCent(getMonthlyPrice(opt.value)).toFixed(2)}/month`}
-                                    </small>
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    ))}
-                </div>
-            </div>
-        )
-    }
+function getUnit(props: Props, duration: Duration): string {
+    const vatSuffix = shouldIncludeVATInPrice(props.countryCode) ? '' : ' (+VAT)'
+    const isStarterHalfYear = props.selectedType === PurchaseType.COFLCOINS && props.selectedTier === PremiumTier.STARTER && duration === Duration.QUARTER
+    if (!isStarterHalfYear) return 'per month'
+    const total = euro(STARTER_HALF_YEAR_PRICE * (1 + getVATRate(props.countryCode)))
+    return `per month${vatSuffix} · ${total}${vatSuffix} total for 1,800 CoflCoins`
+}
 
-    return (
-        <div className={styles.stepContent}>
-            <h4 className={styles.stepQuestion}>How long would you like your subscription?</h4>
-            <p className={styles.stepDescription}>
-                Choose your billing cycle. You can cancel anytime and will retain access until the end of your billing period.
-            </p>
+export default function DurationSelectionStep(props: Props) {
+    const { selectedType, selectedTier, selectedDuration, onDurationSelect, countryCode } = props
+    const options: WizardOption<Duration>[] = getDurationOptions(selectedTier, selectedType).map(option => ({
+        value: option.value,
+        title: option.label,
+        description: option.desc,
+        badge: getBadge(option),
+        price: `~${euro(getMonthlyPrice(selectedTier, option.value, countryCode))}`,
+        unit: getUnit(props, option.value)
+    }))
 
-            <div className={styles.optionsGrid}>
-                {durationOptions.map(opt => (
-                    <Card
-                        key={opt.label}
-                        className={`${styles.optionCard} ${selectedDuration === opt.value ? styles.selected : ''}`}
-                        onClick={() => onDurationSelect(opt.value)}
-                    >
-                        <Card.Body className={styles.optionBody}>
-                            <div className={styles.optionIcon}>{opt.icon}</div>
-                            <h5 className={styles.durationTitle}>{opt.label}</h5>
-                            <p className={styles.durationDescription}>{opt.desc}</p>
-                            {opt.badge ? (
-                                <small className={styles.recommendation}>{opt.badge}</small>
-                            ) : opt.value === Duration.YEARLY ? (
-                                <small className={styles.recommendation}>Best Value</small>
-                            ) : null}
-                            <div className={styles.monthlyPrice}>
-                                <small>~€{roundUpToCent(getMonthlyPrice(opt.value)).toFixed(2)}/month</small>
-                            </div>
-                        </Card.Body>
-                    </Card>
-                ))}
-            </div>
-        </div>
-    )
+    return <OptionGroup legend="Duration" options={options} selected={selectedDuration} onChoose={onDurationSelect} />
 }

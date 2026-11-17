@@ -1,7 +1,5 @@
 'use client'
-import { useState, useEffect, useRef } from 'react'
-import { Button, Card, ProgressBar } from 'react-bootstrap'
-import { ChevronLeft } from '@mui/icons-material'
+import { useState, useEffect, useRef, useId } from 'react'
 import styles from './PremiumPurchaseWizard.module.css'
 import { PremiumTier, PurchaseType, Duration } from './types'
 import { getStepDisplay } from './stepDisplay'
@@ -15,6 +13,9 @@ import PackageSelectionStep from './Steps/PackageSelectionStep'
 import useSlotCatalog from '../../../hooks/useSlotCatalog'
 import { usePremiumVariant } from '../PremiumVariantContext'
 import { trackPremiumFunnelEvent } from '../../../utils/PremiumTracking'
+import { STEP, WizardState, getNextStep, getPreviousStep, getStepFlow, getStepHelper, getStepTitle, getSummaryChips } from './wizardFlow'
+import { useStepTitleFocus } from './useStepTitleFocus'
+import WizardHeader from './WizardHeader'
 
 interface Props {
     showSlots: boolean
@@ -39,8 +40,45 @@ function useTrackWizardStep(step: number, tier: PremiumTier | null) {
     }, [variant, step])
 }
 
+function ChevronLeftIcon() {
+    return (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M15 6l-6 6 6 6" />
+        </svg>
+    )
+}
+
+interface FooterProps {
+    canGoBack: boolean
+    backDisabled: boolean
+    showContinue: boolean
+    canContinue: boolean
+    onBack(): void
+    onContinue(): void
+}
+
+/** Back is left out on the first step instead of disabled; Continue moves on after a keyboard choice or a return via Back */
+function WizardFooter({ canGoBack, backDisabled, showContinue, canContinue, onBack, onContinue }: FooterProps) {
+    return (
+        <div className={styles.footer}>
+            {canGoBack ? (
+                <button type="button" className={styles.backButton} onClick={onBack} disabled={backDisabled}>
+                    <ChevronLeftIcon />
+                    Back
+                </button>
+            ) : null}
+            <span className={styles.spacer} />
+            {showContinue ? (
+                <button type="button" className={styles.continueButton} onClick={onContinue} disabled={!canContinue}>
+                    Continue
+                </button>
+            ) : null}
+        </div>
+    )
+}
+
 function PremiumPurchaseWizard(props: Props) {
-    const [currentStep, setCurrentStep] = useState(1)
+    const [currentStep, setCurrentStep] = useState<number>(STEP.TIER)
     const [slotCount, setSlotCount] = useState(0)
     const [slotPurchaseBusy, setSlotPurchaseBusy] = useState(false)
     const [selectedTier, setSelectedTier] = useState<PremiumTier | null>(null)
@@ -51,16 +89,12 @@ function PremiumPurchaseWizard(props: Props) {
     const { selectedCountry, handleCountryChange } = useCountryDetection()
     const slotCatalog = useSlotCatalog(selectedCountry?.value)
     const variant = usePremiumVariant()
+    const titleId = useId()
+    const { titleRef, focusNextTitle } = useStepTitleFocus()
     useTrackWizardStep(currentStep, selectedTier)
 
     const [tierPreselected, setTierPreselected] = useState(false)
-    const { visible: visibleStep, total: totalSteps } = getStepDisplay({
-        currentStep,
-        slotCount,
-        tier: selectedTier,
-        showSlots: props.showSlots,
-        tierPreselected
-    })
+    const [packageSkipped, setPackageSkipped] = useState(false)
 
     const getCurrentTier = (): PremiumTier | null => {
         if (!props.activePremiumProduct) return null
@@ -106,6 +140,29 @@ function PremiumPurchaseWizard(props: Props) {
         }
     }
 
+    const isUpgradeFlow = (): boolean => !props.showSlots && !!(hasActivePremium() && getCurrentTier())
+
+    const { visible: visibleStep, total: totalSteps } = getStepDisplay({
+        currentStep,
+        slotCount,
+        tier: selectedTier,
+        showSlots: props.showSlots,
+        tierPreselected,
+        packageSkipped
+    })
+    const flowState: WizardState = {
+        currentStep,
+        tier: selectedTier,
+        type: selectedType,
+        slotCount,
+        duration: selectedDuration,
+        showSlots: props.showSlots,
+        tierPreselected,
+        packageSkipped,
+        isUpgrade: isUpgradeFlow(),
+        currentTier: getCurrentTier()
+    }
+
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search)
         const tierParam = urlParams.get('tier')
@@ -139,8 +196,9 @@ function PremiumPurchaseWizard(props: Props) {
         const isUpgrade = !props.showSlots && !!(hasActivePremium() && currentTier)
         // the same tier extends it (like /premium?tier=...), only a downgrade stays on the tier step
         if (isUpgrade && currentTier && getTierRank(tier) < getTierRank(currentTier)) {
-            handleTierSelect(getSuggestedUpgradeTier() ?? currentTier)
-            setCurrentStep(1)
+            // the active tier cannot be bought as an upgrade: without a higher tier nothing is chosen
+            resetChoices(getSuggestedUpgradeTier())
+            setCurrentStep(STEP.TIER)
             setTierPreselected(false)
             return
         }
@@ -148,61 +206,90 @@ function PremiumPurchaseWizard(props: Props) {
         setTierPreselected(true)
     }
 
-    const getStepTitle = () => {
-        const currentTier = getCurrentTier()
-        const isUpgrade = !props.showSlots && !!(hasActivePremium() && currentTier)
+    const getCopyContext = () => ({
+        isUpgrade: isUpgradeFlow(),
+        currentTier: getCurrentTier(),
+        forFriends: props.showSlots,
+        slotCount,
+        tier: selectedTier,
+        type: selectedType
+    })
 
-        switch (currentStep) {
-            case 1:
-                if (isUpgrade) {
-                    return `Upgrade Your ${
-                        currentTier === PremiumTier.STARTER ? 'Starter Premium' : currentTier === PremiumTier.PREMIUM ? 'Premium' : 'Premium Plus'
-                    }`
-                }
-                return 'Choose Your Premium Tier'
-            case 2:
-                return 'Choose Your Plan Type'
-            case 3:
-                return 'Choose Your Package'
-            case 4:
-                return 'Select Duration'
-            case 5:
-                return isUpgrade && slotCount === 0 ? 'Complete Upgrade' : 'Complete Purchase'
-            default:
-                return 'Premium Purchase'
-        }
+    /** a step change the visitor made: the new step's title takes the focus */
+    function goToStep(step: number | null) {
+        if (step === null || step === currentStep) return
+        // back at the plan type the package step is offered again
+        if (step <= STEP.TYPE) setPackageSkipped(false)
+        focusNextTitle()
+        setCurrentStep(step)
     }
 
-    // Auto-advance handlers for each step
-    const handleTierSelect = (tier: PremiumTier) => {
+    function advanceWith(patch: Partial<WizardState>) {
+        goToStep(getNextStep({ ...flowState, ...patch }))
+    }
+
+    function resetChoices(tier: PremiumTier | null) {
         setSelectedTier(tier)
         setSlotCount(0)
         setSelectedType(null)
         setSelectedDuration(null)
-        setCurrentStep(2)
+        setPackageSkipped(false)
     }
 
-    const handleTypeSelect = (type: PurchaseType) => {
+    // a tier picked on the page (plan card, ?tier= link) starts over at the plan type
+    const handleTierSelect = (tier: PremiumTier) => {
+        resetChoices(tier)
+        setCurrentStep(STEP.TYPE)
+    }
+
+    // a pointer click selects and advances (advance = true); arrow keys and Space only select
+    const chooseTier = (tier: PremiumTier, advance: boolean) => {
+        if (tier !== selectedTier) resetChoices(tier)
+        if (advance) advanceWith({ tier })
+    }
+
+    const chooseType = (type: PurchaseType, advance: boolean) => {
+        // the durations differ per plan type
+        const duration = type === selectedType ? selectedDuration : null
         setSelectedType(type)
-        setCurrentStep(selectedTier === PremiumTier.STARTER ? 4 : 3)
+        setSelectedDuration(duration)
+        if (advance) advanceWith({ type, duration })
     }
 
-    const handleDurationSelect = (duration: Duration) => {
+    function trackSlotsChoice(count: number) {
+        if (count > 0) trackPremiumFunnelEvent('slots click', variant, { source: 'wizard', slots: count, tier: selectedTier })
+    }
+
+    const choosePackage = (count: number, advance: boolean) => {
+        setSlotCount(count)
+        if (!advance) return
+        trackSlotsChoice(count)
+        advanceWith({ slotCount: count })
+    }
+
+    const chooseDuration = (duration: Duration, advance: boolean) => {
         setSelectedDuration(duration)
-        // Auto-advance to next step
-        setCurrentStep(5)
+        if (advance) advanceWith({ duration })
+    }
+
+    const handleContinue = () => {
+        if (currentStep === STEP.PACKAGE) trackSlotsChoice(slotCount)
+        goToStep(getNextStep(flowState))
     }
 
     const handleBack = () => {
-        if (currentStep <= 1) return
+        const previousStep = getPreviousStep(flowState)
+        if (previousStep === null) return
         // back from the first counted step lets the visitor change the preselected tier
-        if (currentStep === 2) setTierPreselected(false)
-        setCurrentStep(currentStep === 5 && slotCount > 0 ? 3 : currentStep === 4 && selectedTier === PremiumTier.STARTER ? 2 : currentStep - 1)
+        if (currentStep === STEP.TYPE) setTierPreselected(false)
+        goToStep(previousStep)
     }
 
     // Upgrade to a higher tier in place (from the "What you could get" panel) and
     // auto-apply the active sale code so the discount is already filled in.
     const handleTierUpgrade = (tier: PremiumTier) => {
+        // Starter never showed the package step; the upgraded flow keeps leaving it out (personal access)
+        if (selectedTier === PremiumTier.STARTER) setPackageSkipped(true)
         setSelectedTier(tier)
         const discount = getActiveSubscriptionDiscount()
         if (discount) {
@@ -212,14 +299,15 @@ function PremiumPurchaseWizard(props: Props) {
 
     const renderCurrentStep = () => {
         const currentTier = getCurrentTier()
-        const isUpgrade = !props.showSlots && !!(hasActivePremium() && currentTier)
+        const isUpgrade = isUpgradeFlow()
         const suggestedTier = props.showSlots ? null : getSuggestedUpgradeTier()
 
         switch (currentStep) {
-            case 1:
+            case STEP.TIER:
                 return (
                     <TierSelectionStep
-                        onTierSelect={handleTierSelect}
+                        onTierSelect={chooseTier}
+                        selectedTier={selectedTier}
                         forFriends={props.showSlots}
                         currentTier={currentTier}
                         isUpgrade={isUpgrade}
@@ -229,9 +317,9 @@ function PremiumPurchaseWizard(props: Props) {
                         onCountryChange={handleCountryChange}
                     />
                 )
-            case 2:
-                return <PaymentMethodStep selectedType={selectedType} onTypeSelect={handleTypeSelect} />
-            case 3:
+            case STEP.TYPE:
+                return <PaymentMethodStep selectedType={selectedType} onTypeSelect={chooseType} />
+            case STEP.PACKAGE:
                 return (
                     <PackageSelectionStep
                         forFriends={props.showSlots}
@@ -239,24 +327,20 @@ function PremiumPurchaseWizard(props: Props) {
                         tier={selectedTier!}
                         purchaseType={selectedType!}
                         slotCount={slotCount}
-                        onSelect={count => {
-                            if (count > 0) trackPremiumFunnelEvent('slots click', variant, { source: 'wizard', slots: count, tier: selectedTier })
-                            setSlotCount(count)
-                            setCurrentStep(count > 0 ? 5 : 4)
-                        }}
+                        onSelect={choosePackage}
                     />
                 )
-            case 4:
+            case STEP.DURATION:
                 return (
                     <DurationSelectionStep
                         selectedType={selectedType!}
                         selectedTier={selectedTier!}
                         selectedDuration={selectedDuration}
-                        onDurationSelect={handleDurationSelect}
+                        onDurationSelect={chooseDuration}
                         countryCode={selectedCountry?.value}
                     />
                 )
-            case 5:
+            case STEP.PURCHASE:
                 if (slotCount > 0)
                     return (
                         <SlotPurchase
@@ -287,32 +371,33 @@ function PremiumPurchaseWizard(props: Props) {
         }
     }
 
+    const copyContext = getCopyContext()
     return (
-        <div className={styles.wizard}>
-            <Card className={styles.wizardCard}>
-                <Card.Header className={styles.wizardHeader}>
-                    <h3>{getStepTitle()}</h3>
-                    <ProgressBar now={(visibleStep / totalSteps) * 100} className={styles.progressBar} variant="success" />
-                    <small className={styles.stepIndicator}>{`Step ${visibleStep} of ${totalSteps}`}</small>
-                </Card.Header>
-
-                <Card.Body className={styles.wizardBody}>{renderCurrentStep()}</Card.Body>
-
-                <Card.Footer className={styles.wizardFooter}>
-                    <div className={styles.navigationButtons}>
-                        <Button variant="outline-secondary" onClick={handleBack} disabled={currentStep === 1 || slotPurchaseBusy} className={styles.backButton}>
-                            <ChevronLeft /> Back
-                        </Button>
-
-                        {visibleStep === totalSteps && (
-                            <div className={styles.finalStep}>
-                                <small>Complete your purchase using the options above</small>
-                            </div>
-                        )}
-                    </div>
-                </Card.Footer>
-            </Card>
-        </div>
+        <section className={styles.wizard} aria-labelledby={titleId} data-testid="premium-wizard">
+            <WizardHeader
+                flow={getStepFlow(flowState)}
+                currentStep={currentStep}
+                visibleStep={visibleStep}
+                totalSteps={totalSteps}
+                title={getStepTitle(currentStep, copyContext)}
+                titleId={titleId}
+                titleRef={titleRef}
+                helper={getStepHelper(currentStep, copyContext)}
+                tier={selectedTier}
+                chips={getSummaryChips(flowState)}
+                chipsDisabled={slotPurchaseBusy}
+                onChipClick={goToStep}
+            />
+            <div>{renderCurrentStep()}</div>
+            <WizardFooter
+                canGoBack={getPreviousStep(flowState) !== null}
+                backDisabled={slotPurchaseBusy}
+                showContinue={currentStep < STEP.PURCHASE}
+                canContinue={getNextStep(flowState) !== null}
+                onBack={handleBack}
+                onContinue={handleContinue}
+            />
+        </section>
     )
 }
 
