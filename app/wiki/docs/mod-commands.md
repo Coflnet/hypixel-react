@@ -186,7 +186,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 - **Summary:** No description in attributes
 
-- **Account requirements:** Works for any verified account. Requesting more than 14 days of history requires **Premium Plus**; otherwise the command throws `not_allowed`.
+- **Account requirements:** Works for any verified account. Everyone gets 14 days of history, **Premium** gets 365 days and **Premium Plus** has no limit; asking for more than your tier allows throws `not_allowed`.
 
 - **Arguments & options:**
 	- Syntax: `/flips [sort] [days] [page]`
@@ -195,7 +195,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 	- `page` paginates through results. Mix in search text to filter item names before paging.
 	- Each entry links to both the buy and sell auction pages with hover breakdowns showing profit modifiers and finder type.
 
-- **Note:** Requesting more than 14 days of history requires Premium Plus. Use the `days` parameter to adjust the window and `sort` to change ordering.
+- **Note:** More than 14 days of history requires Premium, more than 365 days requires Premium Plus. Use the `days` parameter to adjust the window and `sort` to change ordering.
 
 
 
@@ -280,7 +280,7 @@ By the time you read this there may be new commands available, the tab-auto comp
 
  - **In-game blurb:** Usage: `/cl profit {days}` The default is 7 days Flip tracking includes modifications to items and craft flips
 
-- **Account requirements:** Anyone can check their last 14 days of profit; **Premium Plus** extends the window to 180 days.
+- **Account requirements:** Anyone can check their last 14 days of profit; **Premium** extends the window to 365 days and **Premium Plus** to 3 years (1095 days).
 
 - **Arguments & options:**
 	- Syntax: `/cofl profit [ign] {days}`
@@ -752,21 +752,6 @@ By the time you read this there may be new commands available, the tab-auto comp
 
 
 
-### TransferCoinsCommand
-
-- **Primary syntax:** `/cofl transfercoins` (also `/cl transfercoins`)
-
-- **Summary:** No description in attributes
-
-- **Account requirements:** Must be logged in with sufficient CoflCoin balance. Transfers use the Payments API, so both sender and receiver need SkyCofl accounts.
-
-- **Arguments & subcommands:**
-	- `<amount> <player>` – moves the specified number of CoflCoins to another user. The amount must be a positive integer; the command rejects non-numeric input and amounts ≤ 0.
-	- The recipient is looked up by IGN; behind the scenes the command resolves the user ID and creates a transfer reference (`<ign>-<connId>`).
-	- Any API error (insufficient funds, unknown player) is surfaced as a SkyCofl error code so you know what to fix.
-
-
-
 ## State Commands
 
 ### AttributeFlipCommand
@@ -1176,7 +1161,6 @@ By the time you read this there may be new commands available, the tab-auto comp
 - **Arguments & subcommands:**
 	- No argument – if you are not logged in, the command sends a login prompt. Otherwise it checks whether your IGN has completed the verification bid. Verified players get confirmation plus a reminder about chat access; unverified players receive instructions to complete the process.
 	- When verification is missing but your session token is stale, the command restarts `/cofl start` to refresh it automatically.
-	- If you’re verified but not eligible to send CoflCoins (e.g. multiple emails) the command explains why and suggests upgrading to Premium Plus to lift the restriction.
 
 ## Fairness Commands
 

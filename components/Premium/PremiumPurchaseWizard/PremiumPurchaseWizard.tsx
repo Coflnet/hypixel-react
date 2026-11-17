@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Button, Card, ProgressBar } from 'react-bootstrap'
 import { ChevronLeft } from '@mui/icons-material'
 import styles from './PremiumPurchaseWizard.module.css'
@@ -12,12 +12,30 @@ import { useCountryDetection } from '../../../hooks/useCountryDetection'
 import SlotPurchase from '../SlotPurchase/SlotPurchase'
 import PackageSelectionStep from './Steps/PackageSelectionStep'
 import useSlotCatalog from '../../../hooks/useSlotCatalog'
+import { usePremiumVariant } from '../PremiumVariantContext'
+import { trackPremiumFunnelEvent } from '../../../utils/PremiumTracking'
 
 interface Props {
     showSlots: boolean
     activePremiumProduct: PremiumProduct
     premiumSubscriptions: PremiumSubscription[]
     onNewActivePremiumProduct: () => void
+    /** a tier the visitor explicitly picked on the page (plan cards); every new request selects it like a click on its tier card */
+    requestedTier?: TierRequest | null
+}
+
+export interface TierRequest {
+    tier: PremiumTier
+}
+
+/** reports every wizard step the visitor reaches on /premium; tier changes within a step are not counted again */
+function useTrackWizardStep(step: number, tier: PremiumTier | null) {
+    const variant = usePremiumVariant()
+    const tierRef = useRef(tier)
+    tierRef.current = tier
+    useEffect(() => {
+        trackPremiumFunnelEvent('wizard step', variant, { step, tier: tierRef.current })
+    }, [variant, step])
 }
 
 function PremiumPurchaseWizard(props: Props) {
@@ -31,6 +49,8 @@ function PremiumPurchaseWizard(props: Props) {
     const [upgradeDiscountCode, setUpgradeDiscountCode] = useState<string | null>(null)
     const { selectedCountry, handleCountryChange } = useCountryDetection()
     const slotCatalog = useSlotCatalog(selectedCountry?.value)
+    const variant = usePremiumVariant()
+    useTrackWizardStep(currentStep, selectedTier)
 
     const totalSteps = props.showSlots || slotCount > 0 || selectedTier === PremiumTier.STARTER ? 4 : 5
     const visibleStep = currentStep - ((slotCount > 0 && currentStep === 5) || (selectedTier === PremiumTier.STARTER && currentStep >= 4) ? 1 : 0)
@@ -89,6 +109,11 @@ function PremiumPurchaseWizard(props: Props) {
             setUrlDiscountCode(codeParam)
         }
 
+        if (props.requestedTier) {
+            selectRequestedTier(props.requestedTier.tier)
+            return
+        }
+
         const preSelectedTier = parseTierFromUrl(tierParam)
 
         if (preSelectedTier) {
@@ -107,7 +132,19 @@ function PremiumPurchaseWizard(props: Props) {
                 setSelectedTier(suggestedTier)
             }
         }
-    }, [props.activePremiumProduct])
+    }, [props.activePremiumProduct, props.requestedTier])
+
+    function selectRequestedTier(tier: PremiumTier) {
+        const currentTier = getCurrentTier()
+        const isUpgrade = !props.showSlots && !!(hasActivePremium() && currentTier)
+        // the same tier extends it (like /premium?tier=...), only a downgrade stays on the tier step
+        if (isUpgrade && currentTier && getTierRank(tier) < getTierRank(currentTier)) {
+            handleTierSelect(getSuggestedUpgradeTier() ?? currentTier)
+            setCurrentStep(1)
+            return
+        }
+        handleTierSelect(tier)
+    }
 
     const getStepTitle = () => {
         const currentTier = getCurrentTier()
@@ -200,6 +237,7 @@ function PremiumPurchaseWizard(props: Props) {
                         purchaseType={selectedType!}
                         slotCount={slotCount}
                         onSelect={count => {
+                            if (count > 0) trackPremiumFunnelEvent('slots click', variant, { source: 'wizard', slots: count, tier: selectedTier })
                             setSlotCount(count)
                             setCurrentStep(count > 0 ? 5 : 4)
                         }}

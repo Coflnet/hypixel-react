@@ -67,7 +67,6 @@ export enum RequestType {
     GET_COFLCOIN_BALANCE = 'getCoflBalance',
     GET_FLIP_SETTINGS = 'getFlipSettings',
     SET_FLIP_SETTING = 'setFlipSetting',
-    TRANSFER_COFLCOINS = 'transferCofl',
     GET_BAZAAR_SNAPSHOT = 'getBazaarSnapshot',
     SUBSCRIBE_FLIPS_ANONYM = 'subFlipAnonym',
     GET_PRIVACY_SETTINGS = 'getPrivacySettings',

@@ -67,7 +67,8 @@ function formatMargin(margin?: number | null): string {
 
 export function ReverseNpcFlips() {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
-    const [hasPremium, setHasPremium] = useState(false)
+    // the on-demand refresh is a Premium feature (the backend ignores it below Premium); seeing the top flips stays Starter
+    const [canRefresh, setCanRefresh] = useState(false)
     const [cooldown, setCooldown] = useState(0)
     const [isRefreshing, setIsRefreshing] = useState(false)
     const [authError, setAuthError] = useState<string | null>(null)
@@ -121,10 +122,10 @@ export function ReverseNpcFlips() {
     const refreshPremiumStatus = useCallback(() => {
         api.refreshLoadPremiumProducts(
             products => {
-                setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
+                setCanRefresh(hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM))
             },
             () => {
-                setHasPremium(false)
+                setCanRefresh(false)
             }
         )
     }, [])
@@ -204,7 +205,7 @@ export function ReverseNpcFlips() {
     }, [refreshPremiumStatus])
 
     const handleRefresh = useCallback(async () => {
-        if (!hasPremium || isRefreshing || cooldown > 0 || !googleToken) {
+        if (!canRefresh || isRefreshing || cooldown > 0 || !googleToken) {
             return
         }
         setIsRefreshing(true)
@@ -247,7 +248,7 @@ export function ReverseNpcFlips() {
                     : 'Failed to request a reverse NPC refresh. Please try again.'
             toast.error(message)
         }
-    }, [cooldown, googleToken, hasPremium, isRefreshing, refetch])
+    }, [cooldown, googleToken, canRefresh, isRefreshing, refetch])
 
     function getFlipHeader(flip: NpcFlip): React.JSX.Element {
         const tag = flip.itemId || 'BARRIER'
@@ -362,7 +363,7 @@ export function ReverseNpcFlips() {
             </details>
             {isLoggedIn && (
                 <div className="my-3">
-                    {hasPremium ? (
+                    {canRefresh ? (
                         <div className="d-flex align-items-center gap-3 flex-wrap">
                             <Button variant="primary" disabled={isRefreshing || cooldown > 0} onClick={handleRefresh}>
                                 {isRefreshing ? (
@@ -379,8 +380,8 @@ export function ReverseNpcFlips() {
                             <small className="text-muted">We trigger a recalculation and fetch updated flips after {REFRESH_DELAY_SECONDS} seconds.</small>
                         </div>
                     ) : (
-                        <PremiumNotifier variant="warning" showCta={false} title="Starter Premium required">
-                            Starter Premium unlocks the reverse NPC recalculation button. You can still browse the current flips below.
+                        <PremiumNotifier variant="warning" showCta={false} title="Premium required">
+                            Premium unlocks the reverse NPC recalculation button. You can still browse the current flips below.
                         </PremiumNotifier>
                     )}
                 </div>

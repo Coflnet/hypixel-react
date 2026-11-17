@@ -64,7 +64,8 @@ export function MainApp(props: { children: ReactNode }) {
     }, [])
 
     useEffect(() => {
-        pushInstruction('requireConsent')
+        // `requireConsent` is set when the Matomo instance is created (Providers.tsx), before any event; pushing it
+        // again here made Matomo log "registered more than once"
         const hasGpc = hasGlobalPrivacyControl()
         setPrivacySignal(hasGpc)
 

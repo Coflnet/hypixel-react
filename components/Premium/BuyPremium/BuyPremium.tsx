@@ -13,6 +13,8 @@ import BuyPremiumConfirmationDialog from '../BuyPremiumConfirmationDialog/BuyPre
 import { PremiumTier, Duration, PurchaseType, getTierDisplayName } from '../PremiumPurchaseWizard/types'
 import { TierUpsellPanel } from '../../Discounts/DiscountBanners'
 import discountStyles from '../../Discounts/Discounts.module.css'
+import { usePremiumVariant } from '../PremiumVariantContext'
+import { trackPremiumFunnelEvent } from '../../../utils/PremiumTracking'
 
 const getPremiumOptionKey = (option: PremiumTypeOption): string => `${option.productId}:${option.value}:${option.label}`
 
@@ -66,6 +68,7 @@ const findMatchingPremiumOption = (premiumType: PremiumType, wizardDuration: Dur
 }
 
 function BuyPremium(props: Props) {
+    const variant = usePremiumVariant()
     // Get initial premium type based on selected tier
     const getInitialPremiumType = () => {
         if (!props.selectedTier) return PREMIUM_TYPES[0]
@@ -138,6 +141,7 @@ function BuyPremium(props: Props) {
     function onPremiumBuy(googleToken: string, declaration?: ServicePurchaseDeclaration) {
         setShowPrepaidConfirmationDialog(false)
         setIsPurchasing(true)
+        trackPremiumFunnelEvent('checkout started', variant, { product: purchasePremiumOption.productId, provider: 'coflcoins' })
 
         api.purchaseWithCoflcoins(purchasePremiumOption.productId, googleToken, purchasePremiumOption.value, declaration).then(() => {
             document.dispatchEvent(

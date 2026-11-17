@@ -14,6 +14,8 @@ import { Country } from '../../../utils/CountryUtils'
 import CountrySelect from '../../CountrySelect/CountrySelect'
 import BuyPremiumConfirmationDialog from '../BuyPremiumConfirmationDialog/BuyPremiumConfirmationDialog'
 import styles from './SlotPurchase.module.css'
+import { usePremiumVariant } from '../PremiumVariantContext'
+import { trackPremiumFunnelEvent } from '../../../utils/PremiumTracking'
 import { PremiumTier, PurchaseType, getTierDisplayName } from '../PremiumPurchaseWizard/types'
 
 const isSubscription = (product: PurchaseableProduct) => product.slug?.startsWith('l_') === true
@@ -32,6 +34,7 @@ interface Props {
 }
 
 export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, busy, onBusyChange: setBusy, onCountryChange }: Props) {
+    const variant = usePremiumVariant()
     const { products, loading, catalogError, pricingError, canUsePrices, price, retry, taxLabel } = catalog
     const [selected, setSelected] = useState<PurchaseableProduct>()
     const [purchased, setPurchased] = useState<PurchaseableProduct>()
@@ -43,6 +46,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, b
         const product = selected
         setBusy(true)
         setError('')
+        trackPremiumFunnelEvent('checkout started', variant, { product: product.slug, provider: isSubscription(product) ? 'subscription' : 'coflcoins' })
         try {
             if (isSubscription(product)) {
                 const response = await postApiPremiumSubscriptionSubscriptionSlug(

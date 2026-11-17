@@ -1,0 +1,448 @@
+import {
+    formatUtcDay,
+    getUserAgentBucket,
+    getVariantHeaderValue,
+    hashText,
+    isBotUserAgent,
+    pickVariant,
+    PREMIUM_EXPERIMENT,
+    PremiumExperimentConfig,
+    PremiumVariant,
+    resolvePremiumVariant,
+    withVariantOverride
+} from '../../utils/PremiumExperiment'
+import {
+    buildPremiumEvent,
+    formatEventName,
+    pushMatomoEvent,
+    trackExperimentExposure,
+    trackPremiumFunnelEvent,
+    trackPremiumPageEvent
+} from '../../utils/PremiumTracking'
+import { getAutoplayPolicy, PlaybackState, shouldLoadClip, shouldPlayClip } from '../../utils/ClipAutoplay'
+import { DEFAULT_FEATURE_MEDIA_BASE, formatClipLength, getFeatureMediaUrls } from '../../utils/FeatureMedia'
+import { PREMIUM_FEATURES } from '../../components/PremiumLanding/content/features'
+import { COMPARE_GROUPS } from '../../components/PremiumLanding/content/comparison'
+import { PLAN_CARDS } from '../../components/PremiumLanding/content/plans'
+import { getPlanPrice } from '../../components/PremiumLanding/content/planPricing'
+import { getPurchaseTarget, getSignInActionTarget, getSignInStep } from '../../components/Premium/purchaseTarget'
+import { ANONYMOUS_AUTHOR, formatQuoteDate, getQuoteAuthor } from '../../components/PremiumLanding/SocialProof/quoteFormat'
+import { COMMUNITY_QUOTES } from '../../components/PremiumLanding/content/quotes'
+import { placePopover } from '../../components/PremiumLanding/Compare/usePreviewPopover'
+import { tearDownWhenRemoved } from '../../components/PremiumLanding/FeatureMedia/useClipPlayer'
+import { getChatColor } from '../../components/PremiumLanding/content/chatColors'
+import { PremiumTier } from '../../components/Premium/PremiumPurchaseWizard/types'
+
+const BROWSER = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
+const GOOGLEBOT = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
+/** a fixed request time, so the specs do not depend on the day they run */
+const NOW = new Date('2026-11-16T12:00:00Z')
+const NEXT_DAY = new Date('2026-11-17T12:00:00Z')
+
+function config(weights: PremiumExperimentConfig['weights'], name = PREMIUM_EXPERIMENT.name): PremiumExperimentConfig {
+    return { name, weights }
+}
+
+/** a fixed sample of distinct user agents; real browsers send reduced strings, so real traffic clusters into far fewer buckets */
+function sampleUserAgents(count = 2000): string[] {
+    const platforms = ['Windows NT 10.0; Win64; x64', 'Macintosh; Intel Mac OS X 10_15_7', 'X11; Linux x86_64', 'Linux; Android 14; Pixel 8']
+    return Array.from(
+        { length: count },
+        (_, i) => `Mozilla/5.0 (${platforms[i % platforms.length]}) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${100 + (i % 40)}.0.${i}.0 Safari/537.36`
+    )
+}
+
+function variantsOf(userAgents: string[], experiment: PremiumExperimentConfig = PREMIUM_EXPERIMENT, now: Date = NOW): PremiumVariant[] {
+    return userAgents.map(userAgent => resolvePremiumVariant({ userAgent, now }, experiment).variant)
+}
+
+function movedShare(before: PremiumVariant[], after: PremiumVariant[]): number {
+    return before.filter((variant, i) => variant !== after[i]).length / before.length
+}
+
+function share(variants: PremiumVariant[], variant: PremiumVariant): number {
+    return variants.filter(v => v === variant).length / variants.length
+}
+
+describe('Premium page experiment assignment', () => {
+    it('uses a pinned FNV-1a based hash over name, UTC day and user agent (changing it would reshuffle every visitor)', () => {
+        expect(hashText('')).to.equal(2872998923)
+        expect(hashText('a')).to.equal(444641715)
+        expect(hashText(`premium-page-2026-11\n2026-11-16\n${BROWSER}`)).to.equal(1689905075)
+        expect(getUserAgentBucket(BROWSER, NOW, config({ current: 50, new: 50 }, 'premium-page-2026-11'))).to.equal(1689905075 / 2 ** 32)
+        const bucket = getUserAgentBucket(BROWSER, NOW)
+        expect(bucket).to.be.at.least(0)
+        expect(bucket).to.be.below(1)
+    })
+
+    it('formats the UTC day, also where the local day differs', () => {
+        expect(formatUtcDay(new Date('2026-11-16T00:00:00Z'))).to.equal('2026-11-16')
+        expect(formatUtcDay(new Date('2026-11-16T23:59:59.999Z'))).to.equal('2026-11-16')
+        expect(formatUtcDay(new Date('2026-11-17T00:30:00+02:00'))).to.equal('2026-11-16')
+    })
+
+    it('gives the same user agent the same variant on every request of a UTC day, without storing anything', () => {
+        const sameDay = [new Date('2026-11-16T00:00:00Z'), NOW, new Date('2026-11-16T23:59:59.999Z')]
+        for (const userAgent of sampleUserAgents(50)) {
+            const first = resolvePremiumVariant({ userAgent, now: NOW })
+            expect(first.inExperiment).to.equal(true)
+            for (const now of sameDay) expect(resolvePremiumVariant({ userAgent, now })).to.deep.equal(first)
+        }
+        expect(Object.keys(resolvePremiumVariant({ userAgent: BROWSER, now: NOW })).sort()).to.deep.equal(['inExperiment', 'variant'])
+    })
+
+    it('can put a user agent into another arm on another day', () => {
+        const userAgents = sampleUserAgents(50)
+        const today = variantsOf(userAgents)
+        const tomorrow = variantsOf(userAgents, PREMIUM_EXPERIMENT, NEXT_DAY)
+        expect(today.some((variant, i) => variant !== tomorrow[i])).to.equal(true)
+        expect(getUserAgentBucket(BROWSER, NOW)).not.to.equal(getUserAgentBucket(BROWSER, NEXT_DAY))
+    })
+
+    it('moves about half of the user agents to the other arm from one day to the next', () => {
+        const userAgents = sampleUserAgents()
+        expect(movedShare(variantsOf(userAgents), variantsOf(userAgents, PREMIUM_EXPERIMENT, NEXT_DAY))).to.be.within(0.45, 0.55)
+        // the split stays balanced on every day
+        expect(share(variantsOf(userAgents, PREMIUM_EXPERIMENT, NEXT_DAY), 'new')).to.be.within(0.45, 0.55)
+    })
+
+    it('splits different user agents roughly by weight', () => {
+        const userAgents = sampleUserAgents()
+        const half = share(variantsOf(userAgents, config({ current: 50, new: 50 })), 'new')
+        expect(half).to.be.within(0.45, 0.55)
+        const fifth = share(variantsOf(userAgents, config({ current: 80, new: 20 })), 'new')
+        expect(fifth).to.be.within(0.16, 0.24)
+    })
+
+    it('reshuffles when the experiment is renamed', () => {
+        const userAgents = sampleUserAgents()
+        const before = variantsOf(userAgents, config({ current: 50, new: 50 }, 'premium-page-a'))
+        const after = variantsOf(userAgents, config({ current: 50, new: 50 }, 'premium-page-b'))
+        expect(movedShare(before, after)).to.be.within(0.4, 0.6)
+    })
+
+    it('lets the QA query parameter override only the request that carries it', () => {
+        const userAgent = sampleUserAgents().find(ua => resolvePremiumVariant({ userAgent: ua, now: NOW }).variant === 'current')!
+        expect(resolvePremiumVariant({ userAgent, queryOverride: 'new', now: NOW })).to.deep.equal({ variant: 'new', inExperiment: true })
+        expect(resolvePremiumVariant({ userAgent, now: NOW }).variant).to.equal('current')
+        expect(resolvePremiumVariant({ userAgent, queryOverride: 'bogus', now: NOW }).variant).to.equal('current')
+    })
+
+    it('keeps the QA override on links that reload /premium', () => {
+        expect(withVariantOverride('/premium?slots=true#buyPremium', 'new')).to.equal('/premium?slots=true&premiumVariant=new#buyPremium')
+        expect(withVariantOverride('/premium?slots=true#buyPremium', null)).to.equal('/premium?slots=true#buyPremium')
+        expect(withVariantOverride('/premium?slots=true#buyPremium', 'bogus')).to.equal('/premium?slots=true#buyPremium')
+    })
+
+    it('always serves the control to bots and requests without a user agent', () => {
+        for (const userAgent of [GOOGLEBOT, 'Mozilla/5.0 (compatible; bingbot/2.0)', 'facebookexternalhit/1.1', 'curl/8.4.0', '', null, undefined]) {
+            expect(resolvePremiumVariant({ userAgent, queryOverride: 'new', now: NOW })).to.deep.equal({ variant: 'current', inExperiment: false })
+        }
+        expect(getVariantHeaderValue(resolvePremiumVariant({ userAgent: GOOGLEBOT, now: NOW }))).to.equal('bot')
+        expect(getVariantHeaderValue(resolvePremiumVariant({ userAgent: BROWSER, queryOverride: 'new', now: NOW }))).to.equal('new')
+        for (const userAgent of [BROWSER, 'Mozilla/5.0 (Linux; Android 11; CUBOT X50) AppleWebKit/537.36 Chrome/120 Mobile Safari/537.36']) {
+            expect(isBotUserAgent(userAgent), userAgent).to.equal(false)
+        }
+        for (const userAgent of ['Slackbot-LinkExpanding 1.0 (+https://api.slack.com/robots)', 'Mozilla/5.0 (compatible; YandexBot/3.0)', 'Twitterbot/1.0']) {
+            expect(isBotUserAgent(userAgent), userAgent).to.equal(true)
+        }
+    })
+
+    it('ends the test when one variant gets 100%', () => {
+        const userAgents = sampleUserAgents(500)
+        expect(new Set(variantsOf(userAgents, config({ current: 0, new: 100 })))).to.deep.equal(new Set(['new']))
+        expect(new Set(variantsOf(userAgents, config({ current: 100, new: 0 })))).to.deep.equal(new Set(['current']))
+        for (const bucket of [0, 0.5, 0.999]) {
+            expect(pickVariant(bucket, config({ current: 0, new: 100 }))).to.equal('new')
+            expect(pickVariant(bucket, config({ current: 100, new: 0 }))).to.equal('current')
+        }
+    })
+
+    it('falls back to the control when all weights are zero', () => {
+        expect(pickVariant(0.5, config({ current: 0, new: 0 }))).to.equal('current')
+    })
+})
+
+describe('Premium tracking helper', () => {
+    it('formats event names as key=value pairs, variant first, without empty values', () => {
+        expect(formatEventName({ variant: 'new', tier: 'premium', empty: undefined, none: null })).to.equal('variant=new;tier=premium')
+        expect(formatEventName({ text: 'a;b=c' })).to.equal('text=a_b_c')
+        expect(formatEventName({})).to.equal(undefined)
+        expect(buildPremiumEvent('premium page', 'plan button', 'new', { tier: 'premium' })).to.deep.equal({
+            category: 'premium page',
+            action: 'plan button',
+            name: 'variant=new;tier=premium'
+        })
+        expect(buildPremiumEvent('premium funnel', 'wizard step', undefined)).to.deep.equal({ category: 'premium funnel', action: 'wizard step' })
+    })
+
+    it('pushes a Matomo trackEvent instruction', () => {
+        const queue: unknown[][] = []
+        pushMatomoEvent({ category: 'premium page', action: 'feature selected', name: 'variant=new;feature=finders' }, queue)
+        trackExperimentExposure('premium-page-test', 'new', queue)
+        expect(queue).to.deep.equal([
+            ['trackEvent', 'premium page', 'feature selected', 'variant=new;feature=finders'],
+            ['trackEvent', 'experiment', 'premium-page-test', 'new']
+        ])
+    })
+
+    it('never throws when Matomo is missing or blocked', () => {
+        const page = window as Window & { _paq?: unknown }
+        const original = page._paq
+        try {
+            delete page._paq
+            expect(() => trackPremiumFunnelEvent('wizard step', 'new', { step: 1 })).not.to.throw()
+            expect(() => pushMatomoEvent({ category: 'a', action: 'b' }, undefined)).not.to.throw()
+            const throwing = {
+                push() {
+                    throw new Error('blocked')
+                }
+            }
+            expect(() => pushMatomoEvent({ category: 'a', action: 'b' }, throwing)).not.to.throw()
+        } finally {
+            page._paq = original
+        }
+    })
+
+    it('tracks the sign-in prompt of an action as a page event, variant first', () => {
+        const queue: unknown[][] = []
+        trackPremiumPageEvent('sign in prompt', 'new', { source: 'coflcoins' }, queue)
+        expect(queue).to.deep.equal([['trackEvent', 'premium page', 'sign in prompt', 'variant=new;source=coflcoins']])
+    })
+
+    it('only reports funnel events on the premium page (with a variant)', () => {
+        const queue: unknown[][] = []
+        trackPremiumFunnelEvent('checkout started', undefined, { product: 'l_premium' }, queue)
+        trackPremiumFunnelEvent('checkout started', 'current', { product: 'l_premium', provider: 'subscription' }, queue)
+        expect(queue).to.deep.equal([['trackEvent', 'premium funnel', 'checkout started', 'variant=current;product=l_premium;provider=subscription']])
+    })
+
+    it('reports page events of visitors outside the experiment (bots) without a variant', () => {
+        const queue: unknown[][] = []
+        trackPremiumPageEvent('plan button', undefined, { tier: 'premium' }, queue)
+        trackPremiumPageEvent('closing cta', undefined, undefined, queue)
+        expect(queue).to.deep.equal([
+            ['trackEvent', 'premium page', 'plan button', 'tier=premium'],
+            ['trackEvent', 'premium page', 'closing cta']
+        ])
+    })
+})
+
+describe('Chat color cells', () => {
+    it('shows the chat color rows in the Minecraft colors and leaves other text alone', () => {
+        expect(['Gray', 'White', 'Green', 'Gold'].map(getChatColor)).to.deep.equal(['#AAAAAA', '#FFFFFF', '#55FF55', '#FFAA00'])
+        expect(getChatColor('2 min')).to.equal(undefined)
+        const row = COMPARE_GROUPS.flatMap(group => group.rows).find(r => r.label === 'Chat color')
+        expect(row?.chatColors).to.equal(true)
+        expect(PREMIUM_FEATURES.find(feature => feature.id === 'chatflips')?.chatColors).to.equal(true)
+    })
+})
+
+describe('Feature clip teardown', () => {
+    function videoWithSources(): HTMLVideoElement {
+        const video = document.createElement('video')
+        ;['a.webm', 'a.mp4'].forEach(src => {
+            const source = document.createElement('source')
+            source.setAttribute('src', src)
+            video.appendChild(source)
+        })
+        document.body.appendChild(video)
+        return video
+    }
+
+    const sources = (video: HTMLVideoElement) => Array.from(video.querySelectorAll('source')).map(source => source.getAttribute('src'))
+
+    // regression: React's development StrictMode detaches and re-attaches the ref once; tearing that video down left
+    // it without sources, so every clip showed "Clip unavailable" before any request was made
+    it('keeps the sources of a video React detached but kept in the page', () => {
+        const video = videoWithSources()
+        tearDownWhenRemoved(video, task => task())
+        expect(sources(video)).to.deep.equal(['a.webm', 'a.mp4'])
+        video.remove()
+    })
+
+    it('stops the download of a removed video', () => {
+        const video = videoWithSources()
+        video.remove()
+        tearDownWhenRemoved(video, task => task())
+        expect(sources(video)).to.deep.equal([null, null])
+    })
+})
+
+describe('Feature clip player decisions', () => {
+    const base: PlaybackState = { policy: 'auto', inView: true, visible: true, pageVisible: true, started: false, tapped: false, userPaused: false, failed: false }
+
+    it('only autoplays without reduced motion, data saver and touch-first input', () => {
+        expect(getAutoplayPolicy(null)).to.equal('unknown')
+        expect(getAutoplayPolicy({ reducedMotion: false, saveData: false, touchFirst: false })).to.equal('auto')
+        expect(getAutoplayPolicy({ reducedMotion: true, saveData: false, touchFirst: false })).to.equal('manual')
+        expect(getAutoplayPolicy({ reducedMotion: false, saveData: true, touchFirst: false })).to.equal('manual')
+        expect(getAutoplayPolicy({ reducedMotion: false, saveData: false, touchFirst: true })).to.equal('manual')
+    })
+
+    it('loads the clip only when it is wanted', () => {
+        expect(shouldLoadClip(base)).to.equal(true)
+        expect(shouldLoadClip({ ...base, inView: false })).to.equal(false)
+        expect(shouldLoadClip({ ...base, pageVisible: false })).to.equal(false)
+        expect(shouldLoadClip({ ...base, policy: 'unknown' })).to.equal(false)
+        expect(shouldLoadClip({ ...base, policy: 'manual' })).to.equal(false)
+        expect(shouldLoadClip({ ...base, policy: 'manual', started: true })).to.equal(true)
+        expect(shouldLoadClip({ ...base, started: true, inView: false })).to.equal(true)
+        expect(shouldLoadClip({ ...base, started: true, failed: true })).to.equal(false)
+    })
+
+    it('plays only while visible and not paused by the user', () => {
+        expect(shouldPlayClip({ ...base, started: true })).to.equal(true)
+        expect(shouldPlayClip({ ...base, started: true, inView: false })).to.equal(false)
+        expect(shouldPlayClip({ ...base, started: true, pageVisible: false })).to.equal(false)
+        expect(shouldPlayClip({ ...base, started: true, userPaused: true })).to.equal(false)
+        expect(shouldPlayClip({ ...base, policy: 'manual' })).to.equal(false)
+    })
+
+    it('keeps a tapped clip playing while any part of it is visible', () => {
+        const tapped = { ...base, policy: 'manual' as const, started: true, tapped: true }
+        expect(shouldPlayClip({ ...tapped, inView: false })).to.equal(true)
+        expect(shouldPlayClip({ ...tapped, inView: false, visible: false })).to.equal(false)
+        expect(shouldPlayClip({ ...tapped, pageVisible: false })).to.equal(false)
+        expect(shouldPlayClip({ ...base, started: true, inView: false, visible: true })).to.equal(false)
+    })
+})
+
+describe('Feature media and data', () => {
+    it('builds poster and clip urls from the base', () => {
+        expect(getFeatureMediaUrls('flipper')).to.deep.equal({
+            poster: `${DEFAULT_FEATURE_MEDIA_BASE}/flipper.webp`,
+            webm: `${DEFAULT_FEATURE_MEDIA_BASE}/flipper.webm`,
+            mp4: `${DEFAULT_FEATURE_MEDIA_BASE}/flipper.mp4`
+        })
+        expect(getFeatureMediaUrls('a b', 'http://localhost:8080/media//').poster).to.equal('http://localhost:8080/media/a%20b.webp')
+        expect(formatClipLength(9)).to.equal('0:09')
+        expect(formatClipLength(75)).to.equal('1:15')
+    })
+
+    it('has unique features with four tier values each', () => {
+        const ids = PREMIUM_FEATURES.map(feature => feature.id)
+        expect(new Set(ids).size).to.equal(ids.length)
+        PREMIUM_FEATURES.forEach(feature => expect(feature.values, feature.id).to.have.length(4))
+        expect(PREMIUM_FEATURES.filter(feature => feature.media?.kind === 'clip').map(feature => feature.id)).to.deep.equal([
+            'flipper',
+            'finders',
+            'tasks',
+            'history',
+            'bazaar',
+            'tooltip',
+            'chatflips',
+            'commands',
+            'leaderboard'
+        ])
+        expect(PREMIUM_FEATURES.filter(feature => feature.media?.kind === 'still').map(feature => feature.id)).to.deep.equal([])
+    })
+
+    it('points every comparison clipId at an existing feature', () => {
+        const ids = new Set(PREMIUM_FEATURES.map(feature => feature.id))
+        COMPARE_GROUPS.forEach(group =>
+            group.rows.forEach(row => {
+                expect(row.cells, row.label).to.have.length(4)
+                if (row.clipId) expect(ids.has(row.clipId), `${row.label} -> ${row.clipId}`).to.equal(true)
+            })
+        )
+        const labels = COMPARE_GROUPS.flatMap(group => group.rows.map(row => row.label))
+        expect(new Set(labels).size).to.equal(labels.length)
+    })
+
+    it('has one plan card per tier', () => {
+        expect(PLAN_CARDS.map(plan => plan.tier)).to.deep.equal([PremiumTier.STARTER, PremiumTier.PREMIUM, PremiumTier.PREMIUM_PLUS])
+    })
+})
+
+describe('Plan cards', () => {
+    it('shows prices from the pricing utilities, with VAT for known countries', () => {
+        expect(getPlanPrice(PremiumTier.STARTER, 'US')).to.deep.equal({
+            amount: '€16.99',
+            plusVat: true,
+            period: 'per year',
+            note: 'Yearly only, because of payment fees'
+        })
+        expect(getPlanPrice(PremiumTier.PREMIUM)).to.deep.include({ amount: '€9.69', plusVat: true, note: 'Or €27.69 quarterly, €96.69 yearly' })
+        expect(getPlanPrice(PremiumTier.PREMIUM_PLUS)).to.deep.include({ amount: '€29.52', note: 'Billed yearly at €354.20, or €35.69 monthly' })
+        expect(getPlanPrice(PremiumTier.PREMIUM, 'DE')).to.deep.include({ amount: '€11.53', plusVat: false, period: 'per month' })
+    })
+
+    it('sends visitors to the step that blocks the purchase', () => {
+        expect(getPurchaseTarget({ isLoggedIn: false, isLoading: false, canPurchase: false }, 'buyPremium')).to.equal('premium-sign-in')
+        expect(getPurchaseTarget({ isLoggedIn: true, isLoading: true, canPurchase: false }, 'buyPremium')).to.equal('premium-sign-in')
+        expect(getPurchaseTarget({ isLoggedIn: true, isLoading: false, canPurchase: false }, 'buyPremium')).to.equal('terms-acceptance')
+        expect(getPurchaseTarget({ isLoggedIn: true, isLoading: false, canPurchase: true }, 'buyPremium')).to.equal('buyPremium')
+        expect(getPurchaseTarget({ isLoggedIn: true, isLoading: false, canPurchase: true }, 'coflcoins-purchase')).to.equal('coflcoins-purchase')
+    })
+
+    it('opens the sign-in for a signed out visitor, waits during a running login and runs otherwise', () => {
+        expect(getSignInStep({ isLoggedIn: false, isSigningIn: false })).to.equal('prompt')
+        expect(getSignInStep({ isLoggedIn: false, isSigningIn: true })).to.equal('wait')
+        expect(getSignInStep({ isLoggedIn: true, isSigningIn: true })).to.equal('wait')
+        expect(getSignInStep({ isLoggedIn: true, isSigningIn: false })).to.equal('run')
+    })
+
+    it('continues an action after the sign-in at its purchase block, or at the step that blocks it', () => {
+        const ready = { isLoggedIn: true, isLoading: false, canPurchase: true }
+        const needsTerms = { ...ready, canPurchase: false }
+        expect(getSignInActionTarget('plan', ready)).to.equal('buyPremium')
+        expect(getSignInActionTarget('slots', ready)).to.equal('buyPremium')
+        expect(getSignInActionTarget('coflcoins', ready)).to.equal('coflcoins-purchase')
+        for (const action of ['plan', 'slots', 'coflcoins'] as const) {
+            expect(getSignInActionTarget(action, needsTerms)).to.equal('terms-acceptance')
+            expect(getSignInActionTarget(action, { ...ready, isLoggedIn: false })).to.equal('premium-sign-in')
+        }
+    })
+})
+
+describe('Community quotes', () => {
+    it('formats the day with a fixed English month table, independent of locale and timezone', () => {
+        expect(formatQuoteDate('2026-07-15')).to.equal('15 Jul 2026')
+        expect(formatQuoteDate('2025-02-16')).to.equal('16 Feb 2025')
+        expect(formatQuoteDate('2024-12-01')).to.equal('1 Dec 2024')
+        expect(formatQuoteDate('2024-01-31')).to.equal('31 Jan 2024')
+    })
+
+    it('shows anything that is not a YYYY-MM-DD day as it is', () => {
+        expect(formatQuoteDate('2024-13-01')).to.equal('2024-13-01')
+        expect(formatQuoteDate('15.07.2026')).to.equal('15.07.2026')
+        expect(formatQuoteDate('')).to.equal('')
+    })
+
+    it('shows a generic author with a neutral avatar when the quote has no name', () => {
+        expect(ANONYMOUS_AUTHOR).to.equal('SkyCofl user')
+        expect(getQuoteAuthor({ date: '2026-07-15', text: 'prem+ best' })).to.deep.equal({ name: 'SkyCofl user' })
+        expect(getQuoteAuthor({ name: '  ', date: '2026-07-15', text: 'prem+ best' })).to.deep.equal({ name: 'SkyCofl user' })
+        expect(getQuoteAuthor({ name: 'strikeangles', date: '2025-02-16', text: 'prem+ is awesome' })).to.deep.equal({ name: 'strikeangles', initial: 'S' })
+    })
+
+    it('lists the quotes newest first', () => {
+        const days = COMMUNITY_QUOTES.map(quote => quote.date)
+        expect(days).to.deep.equal([...days].sort().reverse())
+    })
+})
+
+describe('Preview popover placement', () => {
+    const viewport = { width: 1200, height: 800 }
+
+    function rect(left: number, top: number, height = 44): DOMRect {
+        return { left, top, bottom: top + height, right: left + 300, width: 300, height, x: left, y: top, toJSON: () => ({}) } as DOMRect
+    }
+
+    it('opens below the row when there is room, above otherwise', () => {
+        expect(placePopover(rect(100, 100), 280, viewport)).to.deep.equal({ left: 108, top: 148, width: 340, above: false })
+        const above = placePopover(rect(100, 700), 280, viewport)
+        expect(above.above).to.equal(true)
+        expect(above.top).to.equal(700 - 4 - 280)
+    })
+
+    it('stays inside narrow viewports', () => {
+        const phone = placePopover(rect(200, 100), 280, { width: 360, height: 640 })
+        expect(phone.width).to.equal(340)
+        expect(phone.left).to.equal(12)
+        const small = placePopover(rect(200, 100), 280, { width: 320, height: 640 })
+        expect(small.width).to.equal(304)
+        expect(small.left).to.equal(8)
+    })
+})

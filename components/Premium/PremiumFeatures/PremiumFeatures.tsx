@@ -196,7 +196,7 @@ function PremiumFeatures() {
                         <td className={styles.featureColumn}>Medium Term investment flips (Mayor cycle)</td>
                         {xIconElement}
                         {xIconElement}
-                        {xIconElement}
+                        {checkIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>

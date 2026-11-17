@@ -14,14 +14,30 @@ import { atobUnicode } from '../../utils/Base64Utils'
 import { Button, Modal } from 'react-bootstrap'
 import AgreementDocumentList from '../Legal/AgreementDocumentList'
 import { isTermsReminderPostponed, postponeTermsReminder } from '../../utils/TermsReminderUtils'
+import { usePremiumVariant } from '../Premium/PremiumVariantContext'
+import { formatEventName } from '../../utils/PremiumTracking'
 
 const USER_CHANGED_RELOAD_KEY = 'userChangedReload'
+// a closing dialog gives the focus back to the control that opened it; without preventScroll the browser scrolls
+// there and undoes a scroll the page made meanwhile (e.g. to the purchase an action continued with)
+const RESTORE_FOCUS_WITHOUT_SCROLL = { preventScroll: true }
 
 interface Props {
     onAfterLogin?(): void
+    /** the login was rejected (invalid or expired token, failed agreement check); the visitor is logged out */
     onLoginFail?(): void
     onManualLoginClick?(): void
     rerenderFlip?: number
+    /**
+     * Opens the sign-in dialog from outside, e.g. for an action that needs a signed in account. The dialog shows
+     * while this is true or the own "Sign in" button opened it; the parent sets it back to false in
+     * `onDialogClose` (dismissed) or `onLoginStart` (Google returned a credential).
+     */
+    showDialog?: boolean
+    /** the visitor closed the sign-in dialog without signing in */
+    onDialogClose?(): void
+    /** a login has started: with a stored token on mount, or after Google returned a credential */
+    onLoginStart?(): void
 }
 
 function GoogleSignIn(props: Props) {
@@ -39,6 +55,7 @@ function GoogleSignIn(props: Props) {
     const completedLogin = useRef(false)
     const legalLocale = typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en'
     const { trackEvent } = useMatomo()
+    const premiumVariant = usePremiumVariant()
     const forceUpdate = useForceUpdate()
 
     useEffect(() => {
@@ -70,6 +87,15 @@ function GoogleSignIn(props: Props) {
         setShowTermsModal(false)
         document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.GOOGLE_LOGIN))
         props.onAfterLogin?.()
+    }
+
+    /** forgets the rejected token and tells the parent, which shows the logged out state again */
+    function failLogin() {
+        setIsLoggedIn(false)
+        setWasAlreadyLoggedInThisSession(false)
+        sessionStorage.removeItem('googleId')
+        localStorage.removeItem('googleId')
+        props.onLoginFail?.()
     }
 
     async function finishLogin(loginToken: string): Promise<void> {
@@ -104,10 +130,7 @@ function GoogleSignIn(props: Props) {
             if (slug !== 'invalid_token')
                 toast.error(`An error occoured while trying to sign in with Google. ${error ? slug || JSON.stringify(error) : null}`)
             else console.warn('setGoogle: Invalid token error', error)
-            setIsLoggedIn(false)
-            setWasAlreadyLoggedInThisSession(false)
-            sessionStorage.removeItem('googleId')
-            localStorage.removeItem('googleId')
+            failLogin()
         } finally {
             setTermsLoading(false)
         }
@@ -127,10 +150,7 @@ function GoogleSignIn(props: Props) {
                     ? 'Die aktuellen Vertragsbedingungen konnten nicht geprüft werden. Bitte versuchen Sie es erneut.'
                     : 'The current agreement could not be checked. Please try again.'
             )
-            setIsLoggedIn(false)
-            setWasAlreadyLoggedInThisSession(false)
-            sessionStorage.removeItem('googleId')
-            localStorage.removeItem('googleId')
+            failLogin()
         } finally {
             setTermsLoading(false)
         }
@@ -161,7 +181,13 @@ function GoogleSignIn(props: Props) {
     function onLoginSucces(token: string, forceRefresh = true) {
         setShowSignInModal(false)
         setIsLoggedIn(true)
+        props.onLoginStart?.()
         void requestTermsAcceptance(token, forceRefresh)
+    }
+
+    function closeSignInDialog() {
+        setShowSignInModal(false)
+        props.onDialogClose?.()
     }
 
     function continueUnderPreviousTerms() {
@@ -170,7 +196,8 @@ function GoogleSignIn(props: Props) {
         void finishLogin(pendingLoginToken)
     }
 
-    function onLoginFail() {
+    /** the Google button reported an error; the dialog stays open for another try */
+    function onGoogleError() {
         toast.error('Something went wrong, please try again.', { autoClose: 20000 })
     }
 
@@ -179,9 +206,11 @@ function GoogleSignIn(props: Props) {
         if (props.onManualLoginClick) {
             props.onManualLoginClick()
         }
+        // on /premium the A/B variant is added, so sign-in clicks can be compared between the variants
         trackEvent({
             category: 'login',
-            action: 'click'
+            action: 'click',
+            name: formatEventName({ variant: premiumVariant })
         })
     }
 
@@ -196,7 +225,13 @@ function GoogleSignIn(props: Props) {
                     Sign in
                 </Button>
             ) : null}
-            <Modal show={showSignInModal} onHide={() => setShowSignInModal(false)} centered contentClassName={styles.agreementModal}>
+            <Modal
+                show={showSignInModal || props.showDialog === true}
+                onHide={closeSignInDialog}
+                centered
+                contentClassName={styles.agreementModal}
+                restoreFocusOptions={RESTORE_FOCUS_WITHOUT_SCROLL}
+            >
                 <Modal.Header closeButton>
                     <Modal.Title>Sign in to SkyCofl</Modal.Title>
                 </Modal.Header>
@@ -214,7 +249,7 @@ function GoogleSignIn(props: Props) {
                                 }
                                 onLoginSucces(response.credential!)
                             }}
-                            onError={onLoginFail}
+                            onError={onGoogleError}
                             theme="filled_blue"
                             size="large"
                             shape="pill"
@@ -242,7 +277,14 @@ function GoogleSignIn(props: Props) {
                     {legalLocale === 'de' ? 'Anmeldung wird abgeschlossen…' : 'Finishing sign-in…'}
                 </span>
             ) : null}
-            <Modal show={showTermsModal} backdrop="static" keyboard={false} centered contentClassName={styles.agreementModal}>
+            <Modal
+                show={showTermsModal}
+                backdrop="static"
+                keyboard={false}
+                centered
+                contentClassName={styles.agreementModal}
+                restoreFocusOptions={RESTORE_FOCUS_WITHOUT_SCROLL}
+            >
                 <Modal.Header>
                     <div>
                         <span className={styles.eyebrow}>{legalLocale === 'de' ? 'BEDINGUNGEN & DATENSCHUTZ' : 'TERMS & PRIVACY'}</span>

@@ -16,10 +16,13 @@ import CountrySelect from '../CountrySelect/CountrySelect'
 import { useCountryDetection } from '../../hooks/useCountryDetection'
 import { getGeneratedApiErrorMessage } from '../../utils/GeneratedApiResponseUtils'
 import styles from './CoflCoinsPurchase.module.css'
+import { usePremiumVariant } from '../Premium/PremiumVariantContext'
+import { trackPremiumFunnelEvent } from '../../utils/PremiumTracking'
 
 const PAYMENT_REDIRECT_ERROR = 'Something went wrong. Please try again.'
 
 function Payment() {
+    const variant = usePremiumVariant()
     const [loadingId, setLoadingId] = useState('')
     const [currentRedirectLink, setCurrentRedirectLink] = useState('')
     const [showAll, setShowAll] = useState(false)
@@ -196,18 +199,22 @@ function Payment() {
     }
 
     function onPayPaypal(productId: string, coflCoins?: number, codes?: PurchaseCodes) {
+        trackPremiumFunnelEvent('coflcoins purchase click', variant, { product: productId, provider: 'paypal' })
         startTopUp(postApiTopupPaypalProductSlug, productId, coflCoins, codes)
     }
 
     function onPayStripe(productId: string, coflCoins?: number, codes?: PurchaseCodes) {
+        trackPremiumFunnelEvent('coflcoins purchase click', variant, { product: productId, provider: 'stripe' })
         startTopUp(postApiTopupStripeProductSlug, productId, coflCoins, codes)
     }
 
     function onPayLemonSqueezy(productId: string, coflCoins?: number, codes?: PurchaseCodes) {
+        trackPremiumFunnelEvent('coflcoins purchase click', variant, { product: productId, provider: 'lemonsqueezy' })
         startTopUp(postApiTopupLemonsqueezyProductSlug, productId, coflCoins, codes)
     }
 
     function onPayGooglePlay(productId: string, coflCoins?: number) {
+        trackPremiumFunnelEvent('coflcoins purchase click', variant, { product: productId, provider: 'googleplay' })
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
         console.log('[Billing] onPayGooglePlay called', { productId, coflCoins })
 

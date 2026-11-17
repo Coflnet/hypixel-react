@@ -138,7 +138,7 @@ import {
  * 1. Websocket command-channel calls (via `websocketHelper.sendRequest`/`.subscribe`) -
  *    live subscriptions, push updates and request/response pairs that only exist on the
  *    persistent websocket connection (e.g. subscribeFlips, getAccountInfo, setFlipSetting,
- *    transferCoflCoins, loadConfig/updateConfig). There is no REST equivalent.
+ *    loadConfig/updateConfig). There is no REST equivalent.
  * 2. The deprecated HTTP fallback for that same command channel (`httpApi.sendRequest` /
  *    `httpApi.sendLimitedCacheRequest`, see HttpHelper.tsx). It POSTs a base64-encoded
  *    command payload to `${commandEndpoint}/command/...` so server-side rendering (which
@@ -1697,29 +1697,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             })
     }
 
-    let transferCoflCoins = (email: string | undefined, mcId: string | undefined, amount: number, reference: string): Promise<void> => {
-        return new Promise((resolve, reject) => {
-            let data = {
-                email: email,
-                mcId: mcId,
-                amount: amount,
-                reference: reference
-            }
-
-            websocketHelper.sendRequest({
-                type: RequestType.TRANSFER_COFLCOINS,
-                data: data,
-                resolve: function () {
-                    resolve()
-                },
-                reject: function (error) {
-                    apiErrorHandler(RequestType.TRANSFER_COFLCOINS, error, data)
-                    reject(error)
-                }
-            })
-        })
-    }
-
     let getBazaarSnapshot = async (
         itemTag: string,
         timestamp: string | number | Date,
@@ -2423,7 +2400,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         setFlipSetting,
         getKatFlips,
         getTrackedFlipsForPlayer,
-        transferCoflCoins,
         getBazaarSnapshot,
         getBazaarPrices,
         getBazaarPricesByRange,

@@ -836,7 +836,8 @@ describe('Slot packages in the Premium wizard', () => {
     it('makes bundles reachable for an existing subscriber without entering the upgrade dialog', () => {
         stubProducts({ body: { premium_plus: { expiresAt: '2099-02-01T00:00:00Z' } } })
         stubSubscriptions({ body: [activeSubscription] })
-        visitAuthenticatedPage('/premium')
+        // the "Premium for friends" card is part of the current page; the A/B split of a user agent changes daily
+        visitAuthenticatedPage('/premium?premiumVariant=current')
         cy.on('window:before:load', installAuthenticatedWebSocket)
         cy.contains('a', 'Explore slots & bundles').click()
         cy.location('search').should('contain', 'slots=true')

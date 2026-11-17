@@ -21,6 +21,8 @@ import {
     VAT_RATES
 } from '../../../utils/PricingUtils'
 import { useCountryDetection } from '../../../hooks/useCountryDetection'
+import { usePremiumVariant } from '../PremiumVariantContext'
+import { trackPremiumFunnelEvent } from '../../../utils/PremiumTracking'
 import { formatDiscountEndDate, getActiveSubscriptionDiscount } from '../../../utils/DiscountUtils'
 
 interface Props {
@@ -33,6 +35,7 @@ interface Props {
 }
 
 function BuySubscription(props: Props) {
+    const variant = usePremiumVariant()
     const [selectedPremiumType, setSelectedPremiumType] = useState<PremiumType>()
     const [isYearOption, setIsYearOption] = useState<boolean>()
     const [creatorCode, setCreatorCode] = useState('')
@@ -370,6 +373,7 @@ function BuySubscription(props: Props) {
         }
         const productIdWithCode = queryParams.length > 0 ? `${productId}?${queryParams.join('&')}` : productId
 
+        trackPremiumFunnelEvent('checkout started', variant, { product: productId, provider: 'subscription' })
         api.purchasePremiumSubscription(productIdWithCode, googleToken)
             .then(data => {
                 window.open(data.directLink, '_self')

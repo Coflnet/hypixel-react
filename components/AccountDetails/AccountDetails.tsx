@@ -17,7 +17,6 @@ import Number from '../Number/Number'
 import CancelSubscriptionFeedbackDialog from '../Premium/CancelSubscriptionFeedbackDialog/CancelSubscriptionFeedbackDialog'
 import PremiumStatus from '../Premium/PremiumStatus/PremiumStatus'
 import Tooltip from '../Tooltip/Tooltip'
-import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import styles from './AccountDetails.module.css'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
 import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, getSetting, removeSettings } from '../../utils/SettingsUtils'
@@ -31,7 +30,6 @@ function AccountDetails() {
     const [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(0)
     const [products, setProducts] = useState<PremiumProduct[]>([])
     const [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
-    const [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
     const [hasLoadingPremiumProductsError, setHasLoadingPremiumProductsError] = useState(false)
     const [subscriptionLookupStatus, setSubscriptionLookupStatus] = useState<'loading' | 'succeeded' | 'failed'>('loading')
     const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
@@ -254,28 +252,6 @@ function AccountDetails() {
                         ) : (
                             <Number number={coflCoins} />
                         )}
-                        <Button
-                            className={styles.sendCoflCoinsButton}
-                            onClick={() => {
-                                setShowSendCoflcoins(true)
-                            }}
-                        >
-                            Send CoflCoins
-                        </Button>
-                        <Modal
-                            size={'lg'}
-                            show={showSendcoflcoins}
-                            onHide={() => {
-                                setShowSendCoflcoins(false)
-                            }}
-                        >
-                            <Modal.Header closeButton>
-                                <Modal.Title>Send CoflCoins</Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body>
-                                <TransferCoflCoins />
-                            </Modal.Body>
-                        </Modal>
                     </p>
                     <p>
                         <span className={styles.label}>Transaction history:</span>
