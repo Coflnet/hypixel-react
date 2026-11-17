@@ -23,15 +23,21 @@ import { trackPremiumFunnelEvent } from '../../../utils/PremiumTracking'
 import { PremiumTier, PurchaseType, getTierDisplayName } from '../PremiumPurchaseWizard/types'
 import {
     PaymentProvider,
+    getCheckoutErrorMessage,
     getCheckoutLink,
     getCheckoutParams,
+    getDeclarationErrorSlug,
     getFirstPeriodLabel,
+    getSubscriptionDeclaration,
     getTaxLabel,
     getPeriodPercent,
     isExactCharge,
     getWeeksOfSeconds,
     isFirstPaymentOnly
 } from '../../../utils/SubscriptionCheckout'
+import { usePurchaseDeclaration } from '../../../hooks/usePurchaseDeclaration'
+import { useCheckoutRequestId } from '../../../hooks/useCheckoutRequestId'
+import PurchaseDeclaration from '../PurchaseDeclaration/PurchaseDeclaration'
 
 const isSubscription = (product: PurchaseableProduct) => product.slug?.startsWith('l_') === true
 const duration = (product: PurchaseableProduct) => (product.ownershipSeconds === 2419200 ? '4 weeks' : `${(product.ownershipSeconds || 0) / 86400} days`)
@@ -80,6 +86,20 @@ function describeBilling(product: PurchaseableProduct, renewal: string, firstPay
     return `First ${duration(product)}, then ${renewal} every ${duration(product)}`
 }
 
+/** a failed subscription checkout; `declarationRefused` when the server refused the early start declaration */
+class CheckoutFailure extends Error {
+    constructor(
+        message: string,
+        readonly declarationRefused: boolean
+    ) {
+        super(message)
+    }
+}
+
+function toCheckoutFailure(data: unknown): CheckoutFailure {
+    return new CheckoutFailure(getCheckoutErrorMessage(data), !!getDeclarationErrorSlug(data))
+}
+
 /** the providers and promotion of the reviewed product, or of the whole country while none is reviewed */
 function useSlotCheckoutOffer(countryCode: string | undefined, purchaseType: PurchaseType, selected?: PurchaseableProduct): CheckoutOffer {
     const recurring = purchaseType === PurchaseType.SUBSCRIPTION
@@ -96,6 +116,10 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
     const [error, setError] = useState('')
     const coflCoins = useCoflCoins()
     const offer = useSlotCheckoutOffer(countryCode, purchaseType, selected)
+    const reviewsSubscription = !!selected && isSubscription(selected)
+    // every opened review is a new order: the declaration starts unticked
+    const declaration = usePurchaseDeclaration(reviewsSubscription, reviewsSubscription ? selected!.slug! : '')
+    const checkoutRequest = useCheckoutRequestId()
     /** billed by us directly (Stripe/PayPal) in a country whose tax is known: the displayed price is exactly the charge */
     const direct = isExactCharge(offer.providers, countryCode)
     const taxLabel = getTaxLabel(countryCode, direct)
@@ -121,18 +145,31 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
             discountCode: discount.validated?.code,
             promotion: offer.promotion
         })
-        const response = await postApiPremiumSubscriptionSubscriptionSlug(product.slug!, params, {
+        const body = getSubscriptionDeclaration(declaration.declaration, declaration.confirmed, checkoutRequest.requestIdFor(product.slug!, provider))
+        const response = await postApiPremiumSubscriptionSubscriptionSlug(product.slug!, body, params, {
             headers: { GoogleToken: sessionStorage.getItem('googleId') || '' }
         })
         const link = response.status === 200 ? getCheckoutLink(response.data) : null
-        if (!link) throw new Error('Checkout could not be opened. Please try again.')
+        if (!link) throw toCheckoutFailure(response.data)
         window.open(link, '_self')
     }
 
-    async function checkout(token?: string, declaration?: ServicePurchaseDeclaration, provider: PaymentProvider = 'lemonsqueezy') {
+    /** the declaration was refused: it is loaded again, unticked, and the next attempt gets a new request id */
+    function onCheckoutFailed(failure: unknown) {
+        if (!(failure instanceof CheckoutFailure) || !failure.declarationRefused) {
+            setError('The purchase could not be completed. Check your account before trying again.')
+            return
+        }
+        checkoutRequest.renew()
+        setError(failure.message)
+        void declaration.reload()
+    }
+
+    async function checkout(token?: string, prepaidDeclaration?: ServicePurchaseDeclaration, provider: PaymentProvider = 'lemonsqueezy') {
         if (!selected || busy) return
         const product = selected
         const recurring = isSubscription(product)
+        if (recurring && !declaration.confirmed) return
         setBusy(true)
         setBusyProvider(recurring ? provider : null)
         setError('')
@@ -146,12 +183,12 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
                 await openSubscriptionCheckout(product, provider)
             } else {
                 setSelected(undefined)
-                await api.purchaseWithCoflcoins(product.slug!, token!, 1, declaration)
+                await api.purchaseWithCoflcoins(product.slug!, token!, 1, prepaidDeclaration)
                 document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, { detail: { coflCoins: coflCoins - product.cost! } }))
                 setPurchased(product)
             }
-        } catch {
-            setError('The purchase could not be completed. Check your account before trying again.')
+        } catch (failure) {
+            onCheckoutFailed(failure)
         } finally {
             setBusy(false)
             setBusyProvider(null)
@@ -173,7 +210,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
     function renderPaymentButtons() {
         if (offer.providers.length === 0 || offer.loading)
             return (
-                <Button variant="success" disabled={busy || !canUsePrices || offer.loading} onClick={() => void checkout()}>
+                <Button variant="success" disabled={busy || !canUsePrices || offer.loading || !declaration.confirmed} onClick={() => void checkout()}>
                     {busy ? 'Opening checkout…' : offer.loading ? 'Loading payment options…' : 'Continue to checkout'}
                 </Button>
             )
@@ -183,7 +220,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
                     tier={tier}
                     providers={offer.providers}
                     busyProvider={busyProvider}
-                    disabled={busy || !canUsePrices}
+                    disabled={busy || !canUsePrices || !declaration.confirmed}
                     onPay={provider => void checkout(undefined, undefined, provider)}
                 />
             </div>
@@ -424,6 +461,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
                     <p>{taxLabel}. Checkout confirms the final price.</p>
                     <p>After payment, you’ll return to your account to assign the slots to your friends.</p>
                     <p>Cancel from Account → Purchased slots using <strong>{selected?.slotCount === 1 ? 'Cancel slot subscription' : `Cancel ${selected?.slotCount}-slot subscription`}</strong>. {selected?.slotCount === 1 ? 'Only this slot subscription will stop renewing.' : 'All slots in this subscription stop renewing together.'}</p>
+                    <PurchaseDeclaration state={declaration} id="slot-subscription-early-start-declaration" />
                 </Modal.Body>
                 {renderFooter()}
             </Modal>

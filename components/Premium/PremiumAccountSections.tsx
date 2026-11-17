@@ -1,5 +1,5 @@
 'use client'
-import { MouseEvent, ReactNode } from 'react'
+import { MouseEvent, ReactNode, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Alert, Button, Card } from 'react-bootstrap'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
@@ -17,8 +17,9 @@ import { PremiumAccount } from './usePremiumAccount'
 import { usePremiumVariant } from './PremiumVariantContext'
 import { trackPremiumFunnelEvent } from '../../utils/PremiumTracking'
 import { SIGN_IN_TARGET, WIZARD_TARGET } from './purchaseTarget'
-import { PremiumTier } from './PremiumPurchaseWizard/types'
-import { getTierOfProduct } from '../../utils/PremiumUpgradeUtils'
+import { PremiumTier, getTierDisplayName } from './PremiumPurchaseWizard/types'
+import { getPurchaseHeading } from './PremiumPurchaseWizard/wizardFlow'
+import { findRenewingSubscription, getTierOfProduct, getTierOfSubscription } from '../../utils/PremiumUpgradeUtils'
 import type { SignInDialogControl } from './useSignInPrompt'
 import { PREMIUM_VARIANT_QUERY, withVariantOverride } from '../../utils/PremiumExperiment'
 import sectionStyles from './PremiumAccountSections.module.css'
@@ -112,24 +113,35 @@ export function TermsAlerts({ account }: AccountProps) {
     )
 }
 
-/** "Extend Premium" when an owner asked for their own tier again, "Upgrade Premium" for a higher one */
-function getPurchaseTitle(account: PremiumAccount): string {
+/** "Extend Premium" while an owner buys their own tier again, "Upgrade Premium" for a higher one (`wizardTier`: the wizard's choice) */
+function getPurchaseTitle(account: PremiumAccount, wizardTier: PremiumTier | null | undefined): string {
     const { showSlots, hasPremium, showUpgradeWizard, requestedTier, activePremiumProduct } = account
-    if (showSlots) return 'Get slots'
-    if (!hasPremium || !showUpgradeWizard) return 'Get Premium'
-    return requestedTier && requestedTier.tier === getTierOfProduct(activePremiumProduct) ? 'Extend Premium' : 'Upgrade Premium'
+    return getPurchaseHeading({
+        forFriends: showSlots,
+        hasPremium: !!hasPremium,
+        isOwnerPurchase: showUpgradeWizard,
+        currentTier: getTierOfProduct(activePremiumProduct),
+        tier: wizardTier === undefined ? (requestedTier?.tier ?? null) : wizardTier
+    })
 }
 
 export function PurchaseWizardSection({ account }: AccountProps) {
-    const { isWizardShown, showSlots, hasPremium, showUpgradeWizard, activePremiumProduct, premiumSubscriptions, requestedTier } = account
+    if (!account.isWizardShown) return null
+    return <PurchaseWizardPanel account={account} />
+}
+
+/** mounted while the wizard is shown, so the tier it reported is forgotten when it closes */
+function PurchaseWizardPanel({ account }: AccountProps) {
+    const { showSlots, hasPremium, showUpgradeWizard, activePremiumProduct, premiumSubscriptions, requestedTier } = account
+    // undefined until the wizard chose a tier: the requested tier names the heading meanwhile
+    const [wizardTier, setWizardTier] = useState<PremiumTier | null>()
     // the current page separates its sections with rules; the redesign nests the wizard in its plans section
     const isRedesign = usePremiumVariant() === 'new'
-    if (!isWizardShown) return null
     return (
         <div id="buyPremium" className={`${sectionStyles.purchaseSection} ${isRedesign ? sectionStyles.purchaseSectionNew : ''}`}>
             {isRedesign ? null : <hr />}
             <div className={sectionStyles.purchaseHead}>
-                <h2 className={sectionStyles.purchaseTitle}>{getPurchaseTitle(account)}</h2>
+                <h2 className={sectionStyles.purchaseTitle}>{getPurchaseTitle(account, wizardTier)}</h2>
                 {hasPremium && showUpgradeWizard && (
                     <Button variant="secondary" size="sm" onClick={account.returnToPremiumManagement}>
                         ← Back to Premium Management
@@ -141,6 +153,7 @@ export function PurchaseWizardSection({ account }: AccountProps) {
                 activePremiumProduct={activePremiumProduct!}
                 premiumSubscriptions={premiumSubscriptions}
                 requestedTier={requestedTier}
+                onTierChange={setWizardTier}
                 onNewActivePremiumProduct={() => {
                     account.returnToPremiumManagement()
                     void account.loadPremiumProducts()
@@ -215,18 +228,62 @@ function scrollToWizard() {
     window.requestAnimationFrame(() => document.getElementById(WIZARD_TARGET)?.scrollIntoView({ block: 'start' }))
 }
 
+interface RenewingNoticeProps {
+    subscription: PremiumSubscription
+    confirming: boolean
+    onConfirm(): void
+    onCancel(): void
+}
+
+/** an owner whose subscription of this tier still renews: another one would be billed in addition, so they confirm it first */
+function RenewingSubscriptionNotice({ subscription, confirming, onConfirm, onCancel }: RenewingNoticeProps) {
+    return (
+        <Alert variant="warning" data-testid="renewing-subscription-notice">
+            <p>
+                You already have a renewing {getTierDisplayName(getTierOfSubscription(subscription)!)} subscription. It renews on{' '}
+                <strong>{getLocalDateAndTime(subscription.renewsAt)}</strong>. A new subscription is billed in addition to it; it does not replace it.
+            </p>
+            {confirming ? (
+                <div className="d-flex gap-2 flex-wrap">
+                    <Button variant="warning" onClick={onConfirm}>
+                        Yes, start another subscription
+                    </Button>
+                    <Button variant="secondary" onClick={onCancel}>
+                        Keep only my current subscription
+                    </Button>
+                </div>
+            ) : null}
+        </Alert>
+    )
+}
+
 /** a new subscription goes through the purchase wizard (prices for the buyer's country, all payment providers, the promotion) */
 function ExtendWithSubscription({ account }: AccountProps) {
+    const tier = getTierOfProduct(account.activePremiumProduct) ?? PremiumTier.PREMIUM
+    const renewing = findRenewingSubscription(account.activeSubscriptions, tier)
+    const [confirming, setConfirming] = useState(false)
+
     function openWizard() {
-        account.requestTier(getTierOfProduct(account.activePremiumProduct) ?? PremiumTier.PREMIUM)
+        setConfirming(false)
+        account.requestTier(tier)
         scrollToWizard()
+    }
+
+    // a renewing subscription of the same tier: the first click asks for the confirmation
+    function onExtendClick() {
+        if (!renewing) {
+            openWizard()
+            return
+        }
+        setConfirming(true)
     }
 
     return (
         <div style={{ marginBottom: '20px' }}>
             <h4>Subscriptions</h4>
             <p>Start a subscription for your current tier or a higher one. You choose the billing period and the payment method in the next steps.</p>
-            <Button variant="success" onClick={openWizard}>
+            {renewing ? <RenewingSubscriptionNotice subscription={renewing} confirming={confirming} onConfirm={openWizard} onCancel={() => setConfirming(false)} /> : null}
+            <Button variant="success" disabled={account.hasSubscriptionLoadingError || confirming} onClick={onExtendClick}>
                 Extend with a subscription
             </Button>
         </div>

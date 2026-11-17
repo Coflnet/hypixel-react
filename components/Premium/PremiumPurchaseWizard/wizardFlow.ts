@@ -161,6 +161,26 @@ export function getStepTitle(step: number, context: CopyContext): string {
     }
 }
 
+interface HeadingContext {
+    forFriends: boolean
+    hasPremium: boolean
+    /** the owner opened the wizard to extend or upgrade (not a first purchase) */
+    isOwnerPurchase: boolean
+    currentTier: PremiumTier | null
+    /** the tier chosen in the wizard right now (the requested one until the wizard reports its choice) */
+    tier: PremiumTier | null
+}
+
+/**
+ * The heading above the wizard: "Extend Premium" only while an owner buys their own tier again; once they go back and pick a
+ * higher tier it is "Upgrade Premium", like the checkout's "Complete Upgrade".
+ */
+export function getPurchaseHeading(context: HeadingContext): string {
+    if (context.forFriends) return 'Get slots'
+    if (!context.hasPremium || !context.isOwnerPurchase) return 'Get Premium'
+    return context.tier && context.tier === context.currentTier ? 'Extend Premium' : 'Upgrade Premium'
+}
+
 function getTierHelper(context: CopyContext): string {
     if (context.isUpgrade) return 'Pick the higher tier you want. Your current tier is paused, not lost.'
     if (context.forFriends) return 'Choose the tier your friends will receive.'

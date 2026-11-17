@@ -279,3 +279,58 @@ test('names subscription billing periods in weeks, never as a month', () => {
     assert.match(labels[1], /13 weeks/)
     assert.match(labels[2], /52 weeks/)
 })
+
+// regression: US plan cards said "+ VAT" although the direct US checkout adds no tax
+test('prices the plan cards like the direct checkout charges where it is exact', () => {
+    const plus = planPricing.getPlanPrice(PremiumTier.PREMIUM_PLUS, 'US', true)
+    assert.equal(plus.amount, '€27.25')
+    assert.equal(plus.unit, 'per 4 weeks')
+    assert.match(plus.note, /every 52 weeks at €354\.20, or €35\.69 every 4 weeks/)
+    const premium = planPricing.getPlanPrice(PremiumTier.PREMIUM, 'DE', true)
+    assert.equal(premium.amount, '€11.53')
+    assert.equal(premium.unit, 'per 4 weeks')
+    // Lemon Squeezy adds the US sales tax at checkout
+    assert.equal(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'US', false).unit, '+ VAT per 4 weeks')
+})
+
+test('says under the plan cards how tax is charged, in the checkout wording', () => {
+    assert.equal(planPricing.getPlanTaxNote('US', true), 'No tax added.')
+    assert.equal(planPricing.getPlanTaxNote('DE', true), 'Includes VAT.')
+    assert.equal(planPricing.getPlanTaxNote('US', false), 'Tax calculated at checkout. Checkout confirms the final price.')
+    assert.equal(planPricing.getPlanTaxNote('DE', false), 'Includes estimated tax. Checkout confirms the final price.')
+    assert.match(planPricing.getPlanTaxNote(undefined, false), /before VAT until your country is known/)
+    for (const exact of [true, false]) assert.doesNotMatch(planPricing.getPlanTaxNote('US', exact), /VAT is added/)
+})
+
+const declaration = { version: 'premium-service-start-2026-07-28', locale: 'de', text: 'Ich verlange ausdrücklich…' }
+const requestId = '7f0c2a9e-5d0b-4b8e-9c55-1f2d3e4a5b6c'
+
+test('sends the confirmed early start declaration with the subscription checkout', () => {
+    assert.deepEqual({ ...checkout.getSubscriptionDeclaration(declaration, true, requestId) }, {
+        immediatePerformanceRequested: true,
+        withdrawalConsequenceAcknowledged: true,
+        declarationVersion: 'premium-service-start-2026-07-28',
+        legalLocale: 'de',
+        declarationRequestId: requestId
+    })
+})
+
+test('requests no early start without a confirmed declaration, both flags equal', () => {
+    for (const body of [checkout.getSubscriptionDeclaration(declaration, false, requestId), checkout.getSubscriptionDeclaration(undefined, true, requestId)]) {
+        assert.equal(body.immediatePerformanceRequested, false)
+        assert.equal(body.withdrawalConsequenceAcknowledged, false)
+        assert.equal(body.declarationVersion, null)
+    }
+    assert.equal(checkout.getSubscriptionDeclaration({ ...declaration, locale: 'en' }, true, requestId).legalLocale, 'en')
+})
+
+test('explains a refused declaration and keeps the generic message for other checkout errors', () => {
+    assert.equal(checkout.getDeclarationErrorSlug({ slug: 'service_performance_declaration_required', message: 'x' }), 'service_performance_declaration_required')
+    assert.equal(checkout.getDeclarationErrorSlug({ slug: 'payment_error', message: 'invalid_service_performance_declaration' }), 'invalid_service_performance_declaration')
+    assert.equal(checkout.getDeclarationErrorSlug('invalid_service_performance_declaration'), 'invalid_service_performance_declaration')
+    assert.equal(checkout.getDeclarationErrorSlug({ slug: 'payment_error', message: 'Country mismatch' }), null)
+    assert.equal(checkout.getDeclarationErrorSlug(null), null)
+    assert.match(checkout.getCheckoutErrorMessage({ slug: 'service_performance_declaration_required' }), /tick the early start declaration/)
+    assert.match(checkout.getCheckoutErrorMessage({ slug: 'invalid_service_performance_declaration' }), /has changed or could not be verified/)
+    assert.equal(checkout.getCheckoutErrorMessage({ slug: 'payment_error' }), 'Failed to redirect to payment provider. Please try again.')
+})

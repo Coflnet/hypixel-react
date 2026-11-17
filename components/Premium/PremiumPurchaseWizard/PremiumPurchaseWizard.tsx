@@ -24,6 +24,8 @@ interface Props {
     onNewActivePremiumProduct: () => void
     /** a tier the visitor explicitly picked on the page (plan cards); every new request selects it like a click on its tier card */
     requestedTier?: TierRequest | null
+    /** the tier chosen in the wizard changed, e.g. for the heading above it */
+    onTierChange?(tier: PremiumTier | null): void
 }
 
 export interface TierRequest {
@@ -81,7 +83,7 @@ function PremiumPurchaseWizard(props: Props) {
     const [currentStep, setCurrentStep] = useState<number>(STEP.TIER)
     const [slotCount, setSlotCount] = useState(0)
     const [slotPurchaseBusy, setSlotPurchaseBusy] = useState(false)
-    const [selectedTier, setSelectedTier] = useState<PremiumTier | null>(null)
+    const [selectedTier, setTier] = useState<PremiumTier | null>(null)
     const [selectedType, setSelectedType] = useState<PurchaseType | null>(null)
     const [selectedDuration, setSelectedDuration] = useState<Duration | null>(null)
     const [urlDiscountCode, setUrlDiscountCode] = useState<string | null>(null)
@@ -92,6 +94,11 @@ function PremiumPurchaseWizard(props: Props) {
     const titleId = useId()
     const { titleRef, focusNextTitle } = useStepTitleFocus()
     useTrackWizardStep(currentStep, selectedTier)
+
+    function setSelectedTier(tier: PremiumTier | null) {
+        setTier(tier)
+        props.onTierChange?.(tier)
+    }
 
     const [tierPreselected, setTierPreselected] = useState(false)
     const [packageSkipped, setPackageSkipped] = useState(false)

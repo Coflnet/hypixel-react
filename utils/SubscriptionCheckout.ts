@@ -1,4 +1,10 @@
-import type { AutoDiscount, PostApiPremiumSubscriptionSubscriptionSlugParams, SubscriptionProviderOption } from '../api/_generated/skyApi.schemas'
+import type {
+    AutoDiscount,
+    LegalDeclaration,
+    PostApiPremiumSubscriptionSubscriptionSlugParams,
+    SubscriptionDeclarationArgs,
+    SubscriptionProviderOption
+} from '../api/_generated/skyApi.schemas'
 import { Duration } from '../components/Premium/PremiumPurchaseWizard/types'
 import { VAT_RATES } from './PricingUtils'
 
@@ -194,6 +200,53 @@ export function getCheckoutParams(request: CheckoutRequest): PostApiPremiumSubsc
     }
     if (request.provider === 'lemonsqueezy') return params
     return { ...params, provider: request.provider, country: request.country || undefined }
+}
+
+/**
+ * The early start declaration sent with a subscription checkout, like the prepaid purchase's: the buyer confirmed the shown
+ * declaration (its version and locale), `requestId` is the GUID of this checkout attempt. Unconfirmed, it requests nothing.
+ */
+export function getSubscriptionDeclaration(declaration: LegalDeclaration | undefined, confirmed: boolean, requestId: string): SubscriptionDeclarationArgs {
+    const requested = confirmed && !!declaration
+    return {
+        immediatePerformanceRequested: requested,
+        withdrawalConsequenceAcknowledged: requested,
+        declarationVersion: requested ? declaration!.version : null,
+        legalLocale: declaration?.locale === 'de' ? 'de' : 'en',
+        declarationRequestId: requestId
+    }
+}
+
+/** the errors a subscription checkout answers when its declaration is missing or not the current one */
+export type DeclarationErrorSlug = 'service_performance_declaration_required' | 'invalid_service_performance_declaration'
+
+const DECLARATION_ERROR_MESSAGES: Record<DeclarationErrorSlug, string> = {
+    service_performance_declaration_required:
+        'Please tick the early start declaration, then choose the payment method again. Without it the subscription cannot start.',
+    invalid_service_performance_declaration:
+        'The early start declaration has changed or could not be verified. Please read it again, confirm it and choose the payment method again.'
+}
+
+const CHECKOUT_FAILED_MESSAGE = 'Failed to redirect to payment provider. Please try again.'
+
+function readSlug(data: unknown): string {
+    if (typeof data === 'string') return data
+    if (!data || typeof data !== 'object') return ''
+    const { slug, message } = data as { slug?: unknown; message?: unknown }
+    return [slug, message].filter(value => typeof value === 'string').join(' ')
+}
+
+/** the declaration error of a failed checkout response (its slug, or the slug in its message), null for other errors */
+export function getDeclarationErrorSlug(data: unknown): DeclarationErrorSlug | null {
+    const text = readSlug(data)
+    const slugs = Object.keys(DECLARATION_ERROR_MESSAGES) as DeclarationErrorSlug[]
+    return slugs.find(slug => text.includes(slug)) ?? null
+}
+
+/** what a failed subscription checkout tells the buyer: what to do about the declaration, otherwise to try again */
+export function getCheckoutErrorMessage(data: unknown): string {
+    const slug = getDeclarationErrorSlug(data)
+    return slug ? DECLARATION_ERROR_MESSAGES[slug] : CHECKOUT_FAILED_MESSAGE
 }
 
 /** the checkout url of a subscription purchase response (`dirctLink` is the deprecated spelling) */

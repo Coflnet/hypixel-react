@@ -7,6 +7,8 @@ beforeEach(() => {
     // Until the backend offers Stripe and PayPal the checkout keeps the single Lemon Squeezy button without a promotion.
     cy.intercept('GET', '**/api/premium/subscription/providers*', { statusCode: 404, body: {} })
     cy.intercept('GET', '**/api/premium/discount/auto*', { statusCode: 204 })
+    // the visitor's country (SkyApi reads Cloudflare's); tests of another country stub it again
+    cy.intercept('GET', '**/api/premium/country', { body: { country: 'DE' } })
     // Advancing the checkout clock also runs the background cache-version check.
     // Stub it on both localhost (remote commands) and 127.0.0.1 (relative commands).
     cy.intercept('GET', '**/command/version/**', { body: 'cypress-version' })
@@ -35,6 +37,11 @@ const googleToken = 'eyJhbGciOiJub25lIn0.eyJleHAiOjQxMDI0NDQ4MDAsImVtYWlsIjoiY3l
 const OPTION_TITLE = '[data-testid="wizard-option-title"]'
 
 /** the title of a wizard option row; clicking it clicks its row like a pointer would */
+/** ticks the early start declaration of the open checkout; its payment buttons stay disabled until then */
+function confirmDeclaration() {
+    cy.get('[data-testid="purchase-declaration"] input[type="checkbox"]').check()
+}
+
 function wizardOption(title: string | RegExp) {
     return cy.get('#buyPremium').contains(OPTION_TITLE, title)
 }
@@ -390,6 +397,27 @@ describe('Contract cancellation link', () => {
             .and('have.text', 'Verträge hier kündigen')
     })
 
+    // regression: the fixed cookie banner and the anchor ad covered the footer's cancellation link
+    it('stays reachable above a bar fixed at the bottom of the window', () => {
+        cy.visit('/about')
+        cy.document().then(document => {
+            const banner = document.createElement('div')
+            banner.className = 'CookieConsent'
+            banner.setAttribute('style', 'position: fixed; left: 0; right: 0; bottom: 0; height: 140px; background: black; z-index: 999')
+            document.body.appendChild(banner)
+        })
+        cy.get('footer[data-testid="site-footer"]').should('have.css', 'padding-bottom', `${16 + 140}px`)
+        cy.scrollTo('bottom')
+        cy.get('footer [data-testid="cancel-contract-link"]').should(link => {
+            const box = link[0].getBoundingClientRect()
+            const atLink = link[0].ownerDocument.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2)
+            expect(atLink, 'the link is not covered').to.equal(link[0])
+        })
+        // the bar closed: the room goes away
+        cy.get('.CookieConsent').invoke('remove')
+        cy.get('footer[data-testid="site-footer"]').should('have.css', 'padding-bottom', '16px')
+    })
+
     it('is next to the subscription cancel actions of the account page', () => {
         stubProducts()
         stubSubscriptions({ statusCode: 200, body: [activeSubscription] })
@@ -477,7 +505,7 @@ describe('Premium page upgrade button', () => {
     // checkout past the provider routing and the promotion; they now extend through the purchase wizard
     for (const variant of ['current', 'new']) {
         it(`extends Premium through the purchase wizard with the buyer's providers on the ${variant} page`, () => {
-            cy.intercept('GET', 'https://api.country.is*', { body: { country: 'DE' } })
+            cy.intercept('GET', '**/api/premium/country', { body: { country: 'DE' } })
             cy.intercept('GET', '**/api/premium/subscription/providers*', { body: [{ provider: 'stripe' }, { provider: 'paypal' }] }).as('providers')
             cy.intercept('POST', '**/api/topup/rates', {
                 body: { products: [{ productSlug: 'l_premium', discountPercent: 0, providers: [{ providerSlug: 'lemonsqueezy', currencyCode: 'EUR', originalPrice: 9.69, discountedPrice: 9.69 }] }] }
@@ -494,13 +522,14 @@ describe('Premium page upgrade button', () => {
             cy.get('#buyPremium').should('contain.text', formatMoney(11.53, 'EUR')).and('contain.text', 'per 4 weeks').and('not.contain.text', '8.69')
             cy.intercept('POST', /\/api\/premium\/subscription\/l_premium(\?|$)/, { body: { directLink: 'https://checkout.stripe.com/c/pay/test' } }).as('checkout')
             cy.window().then(window => cy.stub(window, 'open'))
+            confirmDeclaration()
             cy.contains('button', 'Pay with card').click()
             cy.wait('@checkout').its('request.query').should('deep.include', { provider: 'stripe', country: 'DE' })
         })
     }
 
     it('extends Premium Plus with a Premium Plus subscription, not Premium', () => {
-        cy.intercept('GET', 'https://api.country.is*', { body: { country: 'DE' } })
+        cy.intercept('GET', '**/api/premium/country', { body: { country: 'DE' } })
         cy.intercept('GET', '**/api/premium/subscription/providers*', { body: [{ provider: 'stripe' }, { provider: 'paypal' }] })
         cy.intercept('POST', '**/api/topup/rates', {
             body: { products: [{ productSlug: 'l_prem_plus', discountPercent: 0, providers: [{ providerSlug: 'lemonsqueezy', currencyCode: 'EUR', originalPrice: 35.69, discountedPrice: 35.69 }] }] }
@@ -518,6 +547,7 @@ describe('Premium page upgrade button', () => {
         cy.get('#buyPremium').should('contain.text', 'Premium Plus').and('contain.text', formatMoney(42.47, 'EUR'))
         cy.intercept('POST', /\/api\/premium\/subscription\/l_prem_plus(\?|$)/, { body: { directLink: 'https://checkout.stripe.com/c/pay/test' } }).as('checkout')
         cy.window().then(window => cy.stub(window, 'open'))
+        confirmDeclaration()
         cy.contains('button', 'Pay with card').click()
         cy.wait('@checkout').its('request.query').should('deep.include', { provider: 'stripe', country: 'DE' })
     })
@@ -591,6 +621,50 @@ describe('Premium page upgrade button', () => {
         cy.contains('span', /^Premium — renews/).parent().contains('button', 'Upgrade to Higher Tier').click()
         cy.wait('@plans')
         cy.contains('.modal-title', 'Upgrade subscription').should('be.visible')
+    })
+
+    // regression: an owner whose subscription still renews could start a second one of the same tier and be billed twice
+    it('asks before starting another subscription of the tier that already renews', () => {
+        visitPremium({ statusCode: 200, body: [{ ...activeSubscription, productName: 'premium' }] })
+        cy.get('[data-testid="renewing-subscription-notice"]')
+            .should('contain.text', 'You already have a renewing Premium subscription')
+            .and('contain.text', 'It renews on')
+            .and('contain.text', '2099')
+            .and('contain.text', 'billed in addition')
+        cy.contains('#extendPremium button', 'Extend with a subscription').click()
+        cy.get('#buyPremium').should('not.exist')
+        cy.contains('button', 'Keep only my current subscription').click()
+        cy.contains('button', 'Yes, start another subscription').should('not.exist')
+        cy.get('#buyPremium').should('not.exist')
+        cy.contains('#extendPremium button', 'Extend with a subscription').click()
+        cy.contains('button', 'Yes, start another subscription').click()
+        cy.get('#buyPremium').should('be.visible').and('contain.text', 'Extend Premium').and('contain.text', 'Choose Your Plan Type')
+    })
+
+    it('does not warn about a subscription of another tier or one that was canceled', () => {
+        visitPremium({ statusCode: 200, body: [
+            { ...activeSubscription, externalId: 'plus-subscription', productName: 'premium_plus' },
+            { ...activeSubscription, externalId: 'canceled', productName: 'premium', endsAt: '2099-01-15T00:00:00Z' }
+        ] })
+        cy.contains('#extendPremium button', 'Extend with a subscription').click()
+        cy.get('[data-testid="renewing-subscription-notice"]').should('not.exist')
+        cy.get('#buyPremium').should('be.visible').and('contain.text', 'Extend Premium')
+    })
+
+    // regression: after choosing "Extend" and then a higher tier the heading still said "Extend Premium"
+    it('calls it an upgrade once the owner goes back and picks a higher tier', () => {
+        visitPremium({ statusCode: 200, body: [] })
+        cy.contains('#extendPremium button', 'Extend with a subscription').click()
+        cy.contains('#buyPremium h2', 'Extend Premium').should('be.visible')
+        cy.get('[data-testid="premium-wizard"]').contains('button', /^Back$/).click()
+        wizardOption(/^Premium Plus$/).click()
+        cy.contains('#buyPremium h2', 'Upgrade Premium').should('be.visible')
+        cy.contains('#buyPremium h2', 'Extend Premium').should('not.exist')
+        wizardOption(/^Subscription$/).click()
+        wizardOption('Just for me').click()
+        wizardOption(/^4 weeks$/).click()
+        cy.contains('#buyPremium h3', 'Complete Upgrade').should('be.visible')
+        cy.contains('#buyPremium h2', 'Upgrade Premium').should('be.visible')
     })
 })
 
@@ -825,7 +899,7 @@ function slotPricing() {
 
 describe('Slot packages in the Premium wizard', () => {
     beforeEach(() => {
-        cy.intercept('GET', 'https://api.country.is*', { body: { country: 'US' } })
+        cy.intercept('GET', '**/api/premium/country', { body: { country: 'US' } })
         cy.intercept('GET', '**/api/premium/slots/products', { body: slotCatalog }).as('slotProducts')
         cy.intercept('POST', '**/api/topup/rates', request => request.reply({ body: slotPricing() })).as('slotPrices')
         stubProducts()
@@ -1003,6 +1077,7 @@ describe('Slot packages in the Premium wizard', () => {
         wizardOption('Just for me').click()
         wizardOption(/^Yearly$/).click()
         cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
+        confirmDeclaration()
         cy.contains('button', 'Continue to our secure payment processor').click()
         cy.wait('@checkout')
         cy.get('@checkoutNavigation').should('have.been.calledOnce')
@@ -1094,6 +1169,9 @@ describe('Slot packages in the Premium wizard', () => {
             cy.intercept('POST', `**/api/premium/subscription/${slug}?*`, request => {
                 expect(request.query.assignSlots).to.equal('true')
                 expect(request.headers.googletoken).to.equal(googleToken)
+                // the Lemon Squeezy checkout carries the early start declaration too
+                expect(request.body).to.include({ immediatePerformanceRequested: true, withdrawalConsequenceAcknowledged: true, declarationVersion: 'test-declaration', legalLocale: 'en' })
+                expect(request.body.declarationRequestId).to.be.a('string').and.not.be.empty
                 request.reply({ statusCode: 200, delay: 500, body: { directLink: 'https://test.lemonsqueezy.com/checkout/slot-bundle' } })
             }).as('slotCheckout')
             visitShop()
@@ -1105,6 +1183,9 @@ describe('Slot packages in the Premium wizard', () => {
             cy.contains('.modal-title', 'Review your slot subscription').should('be.visible')
             cy.get('.modal').should('contain.text', 'new subscription').and('contain.text', 'assign the slots')
             if (count === 1) cy.get('.modal').should('contain.text', 'Cancel slot subscription').and('contain.text', 'Only this slot subscription')
+            cy.get('#slot-subscription-early-start-declaration').should('not.be.checked')
+            cy.contains('button', 'Continue to checkout').should('be.disabled')
+            confirmDeclaration()
             cy.contains('button', 'Continue to checkout').click()
             cy.contains('button', 'Opening checkout…').should('be.disabled')
             cy.get('#buyPremium').contains('button', 'Back').should('be.disabled')
@@ -1162,6 +1243,7 @@ describe('Slot packages in the Premium wizard', () => {
             cy.get('@slotPrices.all').should(calls => expect(calls[calls.length - 1].request.body.creatorCode).to.equal('friend'))
             cy.get('.modal').should('contain.text', '26.72').and('contain.text', 'Creator code applied! You get 10% off').and('contain.text', 'You save')
             cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
+            confirmDeclaration()
             cy.contains('button', 'Continue to checkout').click()
             cy.wait('@slotCheckout')
         })
@@ -1180,6 +1262,7 @@ describe('Slot packages in the Premium wizard', () => {
             cy.wait('@discount')
             cy.get('.modal').should('contain.text', '23.76').and('contain.text', 'Discount code valid!').and('contain.text', 'You save')
             cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
+            confirmDeclaration()
             cy.contains('button', 'Continue to checkout').click()
             cy.wait('@slotCheckout')
         })
@@ -1219,6 +1302,7 @@ describe('Slot packages in the Premium wizard', () => {
             cy.get('.modal').should('not.contain.text', 'Creator code applied')
             cy.get('[data-testid="slot-offer"]').should('contain.text', '29.69')
             cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
+            confirmDeclaration()
             cy.contains('button', 'Continue to checkout').should('be.enabled').click()
             cy.wait('@slotCheckout')
         })
@@ -1238,6 +1322,7 @@ describe('Slot packages in the Premium wizard', () => {
             cy.get('.modal').should('contain.text', 'only valid for yearly billing').and('contain.text', '29.69')
             cy.get('.modal').should('not.contain.text', '23.76').and('not.contain.text', 'Switch to yearly')
             cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
+            confirmDeclaration()
             cy.contains('button', 'Continue to checkout').click()
             cy.wait('@slotCheckout')
         })
@@ -1431,7 +1516,7 @@ describe('Discount codes at the subscription checkout', () => {
     const yearly20 = { code: 'YEARLY20', amount: 20, amountType: 'percent', name: 'Yearly Deal', isValid: true, durationInMonths: 0 }
 
     beforeEach(() => {
-        cy.intercept('GET', 'https://api.country.is*', { body: { country: 'US' } })
+        cy.intercept('GET', '**/api/premium/country', { body: { country: 'US' } })
         cy.intercept('POST', '**/api/topup/rates', {
             body: {
                 products: [['l_premium', 9.69], ['l_premium-year', 96.69]].map(([slug, amount]) => ({
@@ -1481,6 +1566,7 @@ describe('Discount codes at the subscription checkout', () => {
         cy.wait('@save20')
         cy.get('#buyPremium').should('contain.text', 'Discount code valid!').and('contain.text', '7.76')
         cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
+        confirmDeclaration()
         cy.contains('button', 'Continue to our secure payment processor').click()
         cy.wait('@checkout')
     })
@@ -1511,6 +1597,7 @@ describe('Discount codes at the subscription checkout', () => {
         cy.get('#buyPremium').should('contain.text', 'Renews every 52 weeks').and('contain.text', 'per 52 weeks').and('not.contain.text', 'per 4 weeks')
         cy.get('#buyPremium').should('contain.text', formatMoney(77.36, 'EUR')).and('contain.text', formatMoney(96.69, 'EUR'))
         cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
+        confirmDeclaration()
         cy.contains('button', 'Continue to our secure payment processor').click()
         cy.wait('@checkout').then(({ request }) => {
             expect(new URL(request.url).pathname).to.match(/\/l_premium-year$/)
@@ -1559,7 +1646,7 @@ function stubPromotion() {
 describe('Stripe and PayPal checkout with the automatic promotion', () => {
     beforeEach(() => {
         setTimeZone('Europe/Berlin')
-        cy.intercept('GET', 'https://api.country.is*', { body: { country: 'US' } })
+        cy.intercept('GET', '**/api/premium/country', { body: { country: 'US' } })
         cy.intercept('POST', '**/api/topup/rates', {
             body: {
                 products: [['l_premium', 9.69], ['l_premium-quarter', 27.69], ['l_premium-year', 96.69]].map(([slug, amount]) => ({
@@ -1612,6 +1699,7 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         cy.get('[data-testid="checkout-payment"]').should('contain.text', 'Secure checkout by Stripe')
         cy.get('#buyPremium').screenshot('checkout-provider-buttons')
         stubCheckout('l_premium')
+        confirmDeclaration()
         cy.get('button[aria-label="Pay with PayPal"]').click()
         cy.wait('@checkout').its('request.query').should('deep.equal', { provider: 'paypal', country: 'US' })
         cy.get('@checkoutNavigation').should('have.been.calledOnceWithExactly', 'https://checkout.stripe.com/c/pay/test', '_self')
@@ -1619,6 +1707,7 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         cy.contains('button', 'Pay with card').should('be.disabled')
         // back from PayPal (back/forward cache) both buttons work again
         cy.window().then(window => window.dispatchEvent(new window.PageTransitionEvent('pageshow', { persisted: true })))
+        confirmDeclaration()
         cy.contains('button', 'Pay with card').should('be.enabled').click()
         cy.wait('@checkout').its('request.query').should('deep.include', { provider: 'stripe', country: 'US' })
     })
@@ -1633,6 +1722,7 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         cy.get('[data-testid="promotion-note"]').should('not.exist')
         cy.get('#buyPremium input[placeholder="Enter discount code"]').should('have.value', '')
         stubCheckout('l_premium')
+        confirmDeclaration()
         cy.contains('button', 'Continue to our secure payment processor').click()
         cy.wait('@checkout').its('request.query').should('not.have.any.keys', 'provider', 'country', 'discountcode')
     })
@@ -1669,13 +1759,14 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         cy.get('#buyPremium input[placeholder="Enter discount code"]').should('have.value', 'BF2026')
         cy.get('#buyPremium').should('contain.text', formatMoney(48.34, 'EUR'))
         stubCheckout('l_premium-year')
+        confirmDeclaration()
         cy.contains('button', 'Pay with card').click()
         cy.wait('@checkout').its('request.query').should('deep.equal', { discountcode: 'BF2026', provider: 'stripe', country: 'US' })
     })
 
     // the page charges what the backend does: discount rounded half to even on the net, then German VAT rounded to the cent
     it('shows the exact charge of a German buyer, without rounding the discounted gross up', () => {
-        cy.intercept('GET', 'https://api.country.is*', { body: { country: 'DE' } })
+        cy.intercept('GET', '**/api/premium/country', { body: { country: 'DE' } })
         stubProviders(directProviders)
         stubPromotion()
         openCheckout('Yearly')
@@ -1687,7 +1778,7 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
 
     // regression: a failed country detection priced the buyer as the US and opened the checkout with country US
     it('prices an unknown country before VAT and needs the country before any payment button works', () => {
-        cy.intercept('GET', 'https://api.country.is*', { forceNetworkError: true })
+        cy.intercept('GET', '**/api/premium/country', { forceNetworkError: true })
         stubProviders(directProviders)
         openDurations()
         durationRow('4 weeks').should('contain.text', '~€9.69').and('contain.text', 'per 4 weeks, plus VAT where applicable')
@@ -1703,6 +1794,7 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         cy.get('[data-testid="checkout-country-required"]').should('not.exist')
         cy.get('#buyPremium').should('contain.text', formatMoney(11.53, 'EUR')).and('not.contain.text', 'plus VAT where applicable')
         stubCheckout('l_premium')
+        confirmDeclaration()
         cy.contains('button', 'Pay with card').click()
         cy.wait('@checkout').its('request.query').should('deep.equal', { provider: 'stripe', country: 'DE' })
         // regression: the detected country was kept on the device without consent (purchase and referral country)
@@ -1714,7 +1806,7 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
 
     // regression: a country detection that never answered kept the country select disabled ("Loading...") and the checkout blocked
     it('lets the buyer choose the country when the detection does not answer', () => {
-        cy.intercept('GET', 'https://api.country.is*', { delay: 30000, body: { country: 'US' } })
+        cy.intercept('GET', '**/api/premium/country', { delay: 30000, body: { country: 'US' } })
         stubProviders(directProviders)
         openCheckout('4 weeks')
         cy.get('[data-testid="checkout-country-required"] input[placeholder="Select your country"]', { timeout: 10000 }).should('not.be.disabled').click().type('Germany')
@@ -1742,6 +1834,7 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         cy.get('#buyPremium input[placeholder="Enter discount code"]').should('have.value', '')
         cy.get('#buyPremium').should('not.contain.text', 'Discount code valid!').and('not.contain.text', formatMoney(7.27, 'EUR'))
         stubCheckout('l_premium')
+        confirmDeclaration()
         cy.contains('button', 'Pay with card').click()
         cy.wait('@checkout').its('request.query').should('not.have.property', 'discountcode')
     })
@@ -1802,6 +1895,7 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         discountInput().should('have.value', 'BF2026')
         cy.get('#buyPremium').should('not.contain.text', 'Summer').and('contain.text', formatMoney(7.27, 'EUR'))
         stubCheckout('l_premium')
+        confirmDeclaration()
         cy.contains('button', 'Pay with card').click()
         cy.wait('@checkout').its('request.query').should('deep.equal', { discountcode: 'BF2026', provider: 'stripe', country: 'US' })
     })
@@ -1821,6 +1915,7 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         cy.get('[data-testid="promotion-note"]').should('not.exist')
         cy.get('#buyPremium').should('not.contain.text', formatMoney(7.27, 'EUR')).and('not.contain.text', 'Discount code valid!')
         stubCheckout('l_premium')
+        confirmDeclaration()
         cy.contains('button', 'Pay with card').click()
         cy.wait('@checkout').its('request.query').should('not.have.property', 'discountcode')
     })
@@ -1850,11 +1945,89 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         })
         cy.get('#buyPremium').should('contain.text', formatMoney(300, 'EUR'))
     })
+
+    const GUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+
+    function returnFromProvider() {
+        cy.window().then(window => window.dispatchEvent(new window.PageTransitionEvent('pageshow', { persisted: true })))
+    }
+
+    // the early start declaration and withdrawal instructions of the prepaid purchase are part of every subscription checkout
+    it('waits for the early start declaration and sends it, one request id per plan and payment provider', () => {
+        stubProviders(directProviders)
+        openCheckout('4 weeks')
+        stubCheckout('l_premium')
+        cy.get('[data-testid="purchase-declaration"]')
+            .should('contain.text', 'Start my purchased access immediately.')
+            .find('a')
+            .should('have.attr', 'href', 'https://coflnet.com/withdrawal#withdraw-contract')
+        cy.get('#subscription-early-start-declaration').should('not.be.checked')
+        cy.contains('button', 'Pay with card').should('be.disabled')
+        cy.get('button[aria-label="Pay with PayPal"]').should('be.disabled')
+        confirmDeclaration()
+        cy.contains('button', 'Pay with card').click()
+        cy.wait('@checkout').its('request.body').then(body => {
+            expect(body).to.include({
+                immediatePerformanceRequested: true,
+                withdrawalConsequenceAcknowledged: true,
+                declarationVersion: 'test-declaration',
+                legalLocale: 'en'
+            })
+            expect(body.declarationRequestId).to.match(GUID)
+            // a retry with the same provider is the same attempt, another provider a new one
+            returnFromProvider()
+            cy.contains('button', 'Pay with card').click()
+            cy.wait('@checkout').its('request.body.declarationRequestId').should('equal', body.declarationRequestId)
+            returnFromProvider()
+            cy.get('button[aria-label="Pay with PayPal"]').click()
+            cy.wait('@checkout').its('request.body.declarationRequestId').should('match', GUID).and('not.equal', body.declarationRequestId)
+        })
+    })
+
+    it('starts unticked again for another billing period', () => {
+        stubProviders(directProviders)
+        openCheckout('4 weeks')
+        confirmDeclaration()
+        cy.contains('button', 'Pay with card').should('be.enabled')
+        cy.get('#buyPremium button[aria-label^="Change duration"]').click()
+        wizardOption(/^Yearly$/).click()
+        cy.get('#subscription-early-start-declaration').should('not.be.checked')
+        cy.contains('button', 'Pay with card').should('be.disabled')
+    })
+
+    // the server refuses a missing or outdated declaration; the buyer is told what to do instead of "try again"
+    it('explains a refused declaration, unticks it and loads it again', () => {
+        stubProviders(directProviders)
+        openCheckout('4 weeks')
+        cy.intercept('POST', /\/api\/premium\/subscription\/l_premium(\?|$)/, {
+            statusCode: 400,
+            body: { slug: 'invalid_service_performance_declaration', message: 'invalid_service_performance_declaration' }
+        }).as('refused')
+        cy.intercept('GET', '**/api/user/terms*').as('termsReload')
+        confirmDeclaration()
+        cy.contains('button', 'Pay with card').click()
+        cy.wait('@refused')
+        cy.get('#buyPremium').should('contain.text', 'The early start declaration has changed or could not be verified')
+        cy.wait('@termsReload')
+        cy.get('#subscription-early-start-declaration').should('not.be.checked')
+        cy.contains('button', 'Pay with card').should('be.disabled')
+    })
+
+    // SkyApi before the rollout of GET /api/premium/country: the country stays unknown and no third party is asked
+    it('leaves the country to the buyer while SkyApi does not know the country endpoint', () => {
+        cy.intercept('GET', '**/api/premium/country', { statusCode: 404, body: 'Not Found' }).as('country')
+        cy.intercept('GET', 'https://api.country.is*', cy.spy().as('thirdParty'))
+        stubProviders(directProviders)
+        openCheckout('4 weeks')
+        cy.get('[data-testid="checkout-country-required"]').should('be.visible')
+        cy.get('@country.all').should('have.length', 1)
+        cy.get('@thirdParty').should('not.have.been.called')
+    })
 })
 
 describe('Slot subscriptions with Stripe, PayPal and the promotion', () => {
     beforeEach(() => {
-        cy.intercept('GET', 'https://api.country.is*', { body: { country: 'US' } })
+        cy.intercept('GET', '**/api/premium/country', { body: { country: 'US' } })
         cy.intercept('GET', '**/api/premium/slots/products', { body: slotCatalog }).as('slotProducts')
         cy.intercept('POST', '**/api/topup/rates', request => request.reply({ body: slotPricing() })).as('slotPrices')
         stubProducts()
@@ -1878,6 +2051,7 @@ describe('Slot subscriptions with Stripe, PayPal and the promotion', () => {
         cy.get('.modal').should('contain.text', '22.27').and('contain.text', 'for the first 4 weeks, then').and('contain.text', 'Black Friday: 25% off')
         cy.get('.modal').contains('button', 'Pay with card').scrollIntoView().should('be.visible')
         cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
+        confirmDeclaration()
         cy.get('.modal button[aria-label="Pay with PayPal"]').click()
         cy.wait('@slotCheckout').its('request.query').should('deep.equal', {
             assignSlots: 'true', discountcode: 'BF2026', provider: 'paypal', country: 'US'
@@ -1934,7 +2108,7 @@ describe('Slot subscriptions with Stripe, PayPal and the promotion', () => {
 
 describe('Slot subscriptions for a buyer without a detected country', () => {
     beforeEach(() => {
-        cy.intercept('GET', 'https://api.country.is*', { forceNetworkError: true })
+        cy.intercept('GET', '**/api/premium/country', { forceNetworkError: true })
         cy.intercept('GET', '**/api/premium/slots/products', { body: slotCatalog }).as('slotProducts')
         cy.intercept('POST', '**/api/topup/rates', request => request.reply({ body: slotPricing() })).as('slotPrices')
         stubProducts()

@@ -53,6 +53,7 @@ import type {
   CommandListEntry,
   CompletedBazaarFlip,
   CopperFlip,
+  CountryResponse,
   CraftInstruction,
   CurrentPrice,
   DeleteApiLowballOfferOfferId401One,
@@ -273,6 +274,7 @@ import type {
   SpreadFlip,
   StorageQuickStatus,
   SubscriptionChangeResult,
+  SubscriptionDeclarationArgs,
   SubscriptionPlan,
   SubscriptionProviderOption,
   SupplyElement,
@@ -15856,14 +15858,15 @@ export const getPostApiPremiumSubscriptionSubscriptionSlugUrl = (subscriptionSlu
  * @summary Purchase a service
  */
 export const postApiPremiumSubscriptionSubscriptionSlug = async (subscriptionSlug: string,
+    subscriptionDeclarationArgs?: SubscriptionDeclarationArgs,
     params?: PostApiPremiumSubscriptionSubscriptionSlugParams, options?: RequestInit): Promise<postApiPremiumSubscriptionSubscriptionSlugResponse> => {
 
   const res = await fetch(getPostApiPremiumSubscriptionSubscriptionSlugUrl(subscriptionSlug,params),
   {
     ...options,
-    method: 'POST'
-
-
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(subscriptionDeclarationArgs)
   }
 )
 
@@ -15879,8 +15882,8 @@ export const postApiPremiumSubscriptionSubscriptionSlug = async (subscriptionSlu
 
 
 export const getPostApiPremiumSubscriptionSubscriptionSlugMutationOptions = <TError = PostApiPremiumSubscriptionSubscriptionSlug401One | string | void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string;data?: SubscriptionDeclarationArgs;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string;data?: SubscriptionDeclarationArgs;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}, TContext> => {
 
 const mutationKey = ['postApiPremiumSubscriptionSubscriptionSlug'];
 const {mutation: mutationOptions, fetch: fetchOptions} = options ?
@@ -15892,10 +15895,10 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, {subscriptionSlug: string;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}> = (props) => {
-          const {subscriptionSlug,params} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, {subscriptionSlug: string;data?: SubscriptionDeclarationArgs;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}> = (props) => {
+          const {subscriptionSlug,data,params} = props ?? {};
 
-          return  postApiPremiumSubscriptionSubscriptionSlug(subscriptionSlug,params,fetchOptions)
+          return  postApiPremiumSubscriptionSubscriptionSlug(subscriptionSlug,data,params,fetchOptions)
         }
 
 
@@ -15906,22 +15909,152 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type PostApiPremiumSubscriptionSubscriptionSlugMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>>
-
+    export type PostApiPremiumSubscriptionSubscriptionSlugMutationBody = SubscriptionDeclarationArgs | undefined
     export type PostApiPremiumSubscriptionSubscriptionSlugMutationError = PostApiPremiumSubscriptionSubscriptionSlug401One | string | void
 
     /**
  * @summary Purchase a service
  */
 export const usePostApiPremiumSubscriptionSubscriptionSlug = <TError = PostApiPremiumSubscriptionSubscriptionSlug401One | string | void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string;data?: SubscriptionDeclarationArgs;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>,
         TError,
-        {subscriptionSlug: string;params?: PostApiPremiumSubscriptionSubscriptionSlugParams},
+        {subscriptionSlug: string;data?: SubscriptionDeclarationArgs;params?: PostApiPremiumSubscriptionSubscriptionSlugParams},
         TContext
       > => {
       return useMutation(getPostApiPremiumSubscriptionSubscriptionSlugMutationOptions(options), queryClient);
     }
+
+export type getApiPremiumCountryResponse200TextPlain = {
+  data: CountryResponse
+  status: 200
+}
+
+export type getApiPremiumCountryResponse200ApplicationJson = {
+  data: CountryResponse
+  status: 200
+}
+
+export type getApiPremiumCountryResponse200TextJson = {
+  data: CountryResponse
+  status: 200
+}
+
+export type getApiPremiumCountryResponseSuccess = (getApiPremiumCountryResponse200TextPlain | getApiPremiumCountryResponse200ApplicationJson | getApiPremiumCountryResponse200TextJson) & {
+  headers: Headers;
+};
+;
+
+export type getApiPremiumCountryResponse = (getApiPremiumCountryResponseSuccess)
+
+export const getGetApiPremiumCountryUrl = () => {
+
+
+
+
+  return `https://sky.coflnet.com/api/premium/country`
+}
+
+/**
+ * @summary Gets the country of the caller as seen by Cloudflare; never cached.
+ */
+export const getApiPremiumCountry = async ( options?: RequestInit): Promise<getApiPremiumCountryResponse> => {
+
+  const res = await fetch(getGetApiPremiumCountryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiPremiumCountryResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiPremiumCountryResponse
+}
+
+
+
+
+
+export const getGetApiPremiumCountryQueryKey = () => {
+    return [
+    `https://sky.coflnet.com/api/premium/country`
+    ] as const;
+    }
+
+
+export const getGetApiPremiumCountryQueryOptions = <TData = Awaited<ReturnType<typeof getApiPremiumCountry>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumCountry>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiPremiumCountryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPremiumCountry>>> = ({ signal }) => getApiPremiumCountry({ signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumCountry>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiPremiumCountryQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPremiumCountry>>>
+export type GetApiPremiumCountryQueryError = unknown
+
+
+export function useGetApiPremiumCountry<TData = Awaited<ReturnType<typeof getApiPremiumCountry>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumCountry>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPremiumCountry>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPremiumCountry>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPremiumCountry<TData = Awaited<ReturnType<typeof getApiPremiumCountry>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumCountry>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPremiumCountry>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPremiumCountry>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPremiumCountry<TData = Awaited<ReturnType<typeof getApiPremiumCountry>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumCountry>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Gets the country of the caller as seen by Cloudflare; never cached.
+ */
+
+export function useGetApiPremiumCountry<TData = Awaited<ReturnType<typeof getApiPremiumCountry>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumCountry>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiPremiumCountryQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export type getApiPremiumSubscriptionProvidersResponse200TextPlain = {
   data: SubscriptionProviderOption[]

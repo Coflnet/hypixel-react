@@ -16,7 +16,9 @@ import {
 } from '../../Premium/PremiumAccountSections'
 import { PremiumTier } from '../../Premium/PremiumPurchaseWizard/types'
 import { PLAN_BUTTON_LABEL, PLAN_CARDS, PlanCard } from '../content/plans'
-import { getPlanPrice } from '../content/planPricing'
+import { getPlanPrice, getPlanTaxNote } from '../content/planPricing'
+import { useCheckoutOffer } from '../../../hooks/useCheckoutOffer'
+import { isExactCharge } from '../../../utils/SubscriptionCheckout'
 import page from '../PremiumLanding.module.css'
 import { COFLCOINS_TARGET, getSignInActionTarget, PurchaseReadiness, SIGN_IN_TARGET, SignInAction } from '../../Premium/purchaseTarget'
 import { useSignInPrompt } from '../../Premium/useSignInPrompt'
@@ -36,8 +38,22 @@ function CheckIcon() {
     )
 }
 
-function PlanPrice({ tier, countryCode }: { tier: PremiumTier; countryCode?: string }) {
-    const price = getPlanPrice(tier, countryCode)
+interface PlanPricing {
+    countryCode?: string
+    /** a direct checkout bills the country: the cards show its exact charge (see isExactCharge) */
+    exact: boolean
+}
+
+/** the buyer's country and whether the plan prices are the exact charge of its direct checkout */
+function usePlanPricing(): PlanPricing {
+    const countryCode = useCountryDetection().selectedCountry?.value
+    const offer = useCheckoutOffer(countryCode)
+    // the previous country's providers are kept while this country's load: they do not decide its prices
+    return { countryCode, exact: !offer.loading && isExactCharge(offer.providers, countryCode) }
+}
+
+function PlanPrice({ tier, pricing }: { tier: PremiumTier; pricing: PlanPricing }) {
+    const price = getPlanPrice(tier, pricing.countryCode, pricing.exact)
     return (
         <div className={styles.price}>
             <div className={styles.priceLine}>
@@ -49,7 +65,7 @@ function PlanPrice({ tier, countryCode }: { tier: PremiumTier; countryCode?: str
     )
 }
 
-function PlanCardView({ plan, countryCode, onSelect }: { plan: PlanCard; countryCode?: string; onSelect(tier: PremiumTier): void }) {
+function PlanCardView({ plan, pricing, onSelect }: { plan: PlanCard; pricing: PlanPricing; onSelect(tier: PremiumTier): void }) {
     const style = CARD_STYLE[plan.tier]
     return (
         <div className={`${page.card} ${styles.plan} ${style.card ?? ''}`} data-testid={`plan-${plan.tier}`}>
@@ -60,7 +76,7 @@ function PlanCardView({ plan, countryCode, onSelect }: { plan: PlanCard; country
                 </div>
                 <p className={page.muted}>{plan.description}</p>
             </div>
-            <PlanPrice tier={plan.tier} countryCode={countryCode} />
+            <PlanPrice tier={plan.tier} pricing={pricing} />
             <div className={styles.stats}>
                 {plan.stats.map(stat => (
                     <div key={stat.label} className={styles.stat}>
@@ -123,7 +139,7 @@ function ExtrasCards({ account, onBuyCoflCoins, onSlotsNeedSignIn }: ExtrasCards
 export default function PremiumPlansSection({ communityQuotes }: { communityQuotes?: ReactNode }) {
     const variant = usePremiumVariant()
     const account = usePremiumAccount()
-    const { selectedCountry } = useCountryDetection()
+    const pricing = usePlanPricing()
     const scrollTo = useScrollToAfterRender(SIGN_IN_TARGET)
     const signIn = useSignInPrompt(account, {
         onPrompt: action => trackPremiumPageEvent('sign in prompt', variant, { source: action }),
@@ -151,12 +167,11 @@ export default function PremiumPlansSection({ communityQuotes }: { communityQuot
                 </div>
                 <div className={styles.plans}>
                     {PLAN_CARDS.map(plan => (
-                        <PlanCardView key={plan.tier} plan={plan} countryCode={selectedCountry?.value} onSelect={selectPlan} />
+                        <PlanCardView key={plan.tier} plan={plan} pricing={pricing} onSelect={selectPlan} />
                     ))}
                 </div>
-                <p className={styles.small}>
-                    Prices include applicable VAT or sales tax for your country where available. For the US and some other countries, VAT is added at
-                    checkout. Profit figures are the median realized profit per user per day compared to free users, measured over 24 hours on 2026-11-04.
+                <p className={styles.small} data-testid="plan-tax-note">
+                    {getPlanTaxNote(pricing.countryCode, pricing.exact)} Profit figures are the median realized profit per user per day compared to free users, measured over 24 hours on 2026-11-04.
                 </p>
                 {communityQuotes}
                 <div className={styles.account}>

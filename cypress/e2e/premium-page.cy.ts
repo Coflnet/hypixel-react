@@ -114,6 +114,11 @@ function scrolledTo() {
 }
 
 /** at least part of the element is on screen */
+/** ticks the early start declaration of the open checkout; its payment buttons stay disabled until then */
+function confirmDeclaration() {
+    cy.get('[data-testid="purchase-declaration"] input[type="checkbox"]').check()
+}
+
 function expectInViewport(selector: string) {
     cy.get(selector).should(element => {
         const rect = element[0].getBoundingClientRect()
@@ -169,7 +174,8 @@ const TERMS_ALLOWING_PURCHASE = {
     hash: 'test-hash',
     englishUrl: '/terms/en',
     germanUrl: '/terms/de',
-    documents: []
+    documents: [],
+    premiumPurchaseDeclaration: { version: 'test-declaration', locale: 'en', text: 'Start my Premium immediately.' }
 }
 
 function stubAccount(terms: object = TERMS_ALLOWING_PURCHASE) {
@@ -213,7 +219,7 @@ beforeEach(() => {
     cy.intercept('GET', '**/api/premium/slots', { body: [] })
     cy.intercept('GET', '**/command/version/**', { body: 'cypress-version' })
     cy.intercept('GET', 'https://track.coflnet.com/matomo.js*', { headers: { 'content-type': 'application/javascript' }, body: '' })
-    cy.intercept('GET', 'https://api.country.is*', { body: { country: 'DE' } })
+    cy.intercept('GET', '**/api/premium/country', { body: { country: 'DE' } })
     // the single Lemon Squeezy checkout until a test offers Stripe and PayPal
     cy.intercept('GET', '**/api/premium/subscription/providers*', { statusCode: 404, body: {} })
     cy.intercept('GET', '**/api/premium/discount/auto*', { statusCode: 204 })
@@ -458,6 +464,27 @@ describe('Premium redesign', () => {
         )
     })
 
+    // regression: US plan cards said "+ VAT" although the direct US checkout adds none
+    it('prices the plan cards like the direct checkout of the visitor country', () => {
+        cy.intercept('GET', '**/api/premium/country', { body: { country: 'US' } })
+        cy.intercept('GET', '**/api/premium/subscription/providers*', { body: [{ provider: 'stripe' }, { provider: 'paypal' }] })
+        visitSignedOut()
+        cy.get('[data-testid="plan-premium"]').should('contain', '€9.69').and('contain', 'per 4 weeks').and('not.contain', 'VAT')
+        cy.get('[data-testid="plan-tax-note"]').should('contain.text', 'No tax added.').and('not.contain.text', 'VAT is added')
+    })
+
+    // SkyApi before the rollout of GET /api/premium/country: unknown country, no third-party lookup
+    it('prices the plan cards before VAT while SkyApi cannot tell the country', () => {
+        cy.intercept('GET', '**/api/premium/country', { statusCode: 404, body: 'Not Found' }).as('country')
+        cy.intercept('GET', 'https://api.country.is*', cy.spy().as('thirdParty'))
+        visitSignedOut()
+        cy.wait('@country')
+        cy.get('[data-testid="plan-premium"]').should('contain', '€9.69').and('contain', 'plus VAT where applicable')
+        cy.get('[data-testid="plan-tax-note"]').should('contain.text', 'before VAT until your country is known')
+        cy.get('@country.all').should('have.length', 1)
+        cy.get('@thirdParty').should('not.have.been.called')
+    })
+
     it('continues to the wizard on the chosen plan once the sign-in from that dialog completed', () => {
         stubAccount()
         stubGoogleIdentity()
@@ -622,8 +649,20 @@ describe('Premium redesign', () => {
         cy.get('#buyPremium').contains('[data-testid="wizard-option-title"]', /^Yearly$/).click()
         cy.contains('button', 'Pay with card').should('be.visible')
         cy.window().then(window => cy.stub(window, 'open'))
+        // the payment buttons wait for the unticked early start declaration
+        cy.get('button[aria-label="Pay with PayPal"]').should('be.disabled')
+        confirmDeclaration()
         cy.get('button[aria-label="Pay with PayPal"]').click()
-        cy.wait('@checkout').its('request.query').should('deep.include', { provider: 'paypal', country: 'DE' })
+        cy.wait('@checkout').its('request').should(request => {
+            expect(request.query).to.deep.include({ provider: 'paypal', country: 'DE' })
+            expect(request.body).to.include({
+                immediatePerformanceRequested: true,
+                withdrawalConsequenceAcknowledged: true,
+                declarationVersion: 'test-declaration',
+                legalLocale: 'en'
+            })
+            expect(request.body.declarationRequestId).to.match(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
+        })
         expectTracked(['trackEvent', 'premium funnel', 'checkout started', 'variant=new;product=l_premium-year;provider=subscription;paymentProvider=paypal'])
     })
 

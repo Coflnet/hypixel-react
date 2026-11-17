@@ -27,11 +27,14 @@ import {
     getCheckoutLink,
     getCheckoutParams,
     getDirectPrice,
+    getCheckoutErrorMessage,
+    getDeclarationErrorSlug,
     getEveryPeriodLabel,
     getFirstPeriodLabel,
     getPerPeriodLabel,
     getPeriodPercent,
     getSavingsPercent,
+    getSubscriptionDeclaration,
     getTaxLabel,
     getVatNote,
     isExactCharge,
@@ -60,6 +63,9 @@ import {
     SummaryTotal
 } from '../Checkout/CheckoutParts'
 import { useSubscriptionPricing } from './useSubscriptionPricing'
+import { usePurchaseDeclaration } from '../../../hooks/usePurchaseDeclaration'
+import { useCheckoutRequestId } from '../../../hooks/useCheckoutRequestId'
+import PurchaseDeclaration from '../PurchaseDeclaration/PurchaseDeclaration'
 
 // The subscription checkout, the last step of the purchase wizard.
 
@@ -148,6 +154,12 @@ function BuySubscription(props: Props) {
     /** billed by us directly (Stripe/PayPal) in a country whose tax is known: the displayed price is exactly the charge, see getDirectPrice */
     const isDirect = isExactCharge(offer.providers, buyerCountry)
     const { pricingData } = pricing
+    // every plan is its own order: the declaration starts unticked again for another plan
+    const declaration = usePurchaseDeclaration(true, productSlug)
+    const checkoutRequest = useCheckoutRequestId()
+    // the refusal belongs to the plan it was given for
+    const [refusal, setRefusal] = useState<{ productSlug: string; message: string } | null>(null)
+    const declarationError = refusal?.productSlug === productSlug ? refusal.message : null
 
     const money = (value: number): string => formatMoney(value, getProviderCurrencyCode(pricingData, productSlug, 'lemonsqueezy'))
 
@@ -192,34 +204,47 @@ function BuySubscription(props: Props) {
         return buyerCountry ? `${vat} ${period}` : `${period}, ${vat}`
     }
 
+    /** the server refused the declaration: it is loaded again, unticked, and the next attempt gets a new request id */
+    function onCheckoutFailed(data: unknown) {
+        setBusyCheckout(null)
+        if (!getDeclarationErrorSlug(data)) {
+            toast.error(getCheckoutErrorMessage(data))
+            return
+        }
+        checkoutRequest.renew()
+        setRefusal({ productSlug, message: getCheckoutErrorMessage(data) })
+        void declaration.reload()
+    }
+
     async function openCheckout(choice: PaymentProvider, googleToken: string) {
+        const params = getCheckoutParams({
+            provider: choice,
+            country: buyerCountry,
+            creatorCode: pricing.appliedCreatorCode,
+            discountCode: validatedDiscount?.code,
+            promotion: offer.promotion
+        })
         try {
-            const params = getCheckoutParams({
-                provider: choice,
-                country: buyerCountry,
-                creatorCode: pricing.appliedCreatorCode,
-                discountCode: validatedDiscount?.code,
-                promotion: offer.promotion
-            })
-            const response = await postApiPremiumSubscriptionSubscriptionSlug(productSlug, params, { headers: { GoogleToken: googleToken } })
+            const body = getSubscriptionDeclaration(declaration.declaration, declaration.confirmed, checkoutRequest.requestIdFor(productSlug, choice))
+            const response = await postApiPremiumSubscriptionSubscriptionSlug(productSlug, body, params, { headers: { GoogleToken: googleToken } })
             const link = response.status === 200 ? getCheckoutLink(response.data) : null
-            if (!link) throw new Error('Checkout could not be opened')
-            window.open(link, '_self')
+            if (link) window.open(link, '_self')
+            else onCheckoutFailed(response.data)
         } catch {
-            setBusyCheckout(null)
-            toast.error('Failed to redirect to payment provider. Please try again.')
+            onCheckoutFailed(null)
         }
     }
 
     /** opens the payment provider; nothing happens without a login or a country */
     function onSubscribeClick(choice: PaymentProvider) {
-        if (!buyerCountry) return
+        if (!buyerCountry || !declaration.confirmed) return
         const googleToken = sessionStorage.getItem('googleId')
         if (!googleToken) {
             toast.error('Please login to continue with the purchase')
             return
         }
         trackPremiumFunnelEvent('checkout started', variant, { product: productSlug, provider: 'subscription', paymentProvider: choice })
+        setRefusal(null)
         setBusyCheckout(choice)
         void openCheckout(choice, googleToken)
     }
@@ -359,6 +384,16 @@ function BuySubscription(props: Props) {
         )
     }
 
+    /** the early start declaration; the payment buttons stay disabled until it is ticked */
+    function renderDeclaration() {
+        return (
+            <>
+                {declarationError ? <CheckoutError>{declarationError}</CheckoutError> : null}
+                <PurchaseDeclaration state={declaration} id="subscription-early-start-declaration" />
+            </>
+        )
+    }
+
     /** card and PayPal while the direct providers are on, otherwise the single Lemon Squeezy button; none without a country */
     function renderPaymentButtons() {
         if (!buyerCountry) return <CountryRequired />
@@ -368,9 +403,17 @@ function BuySubscription(props: Props) {
                     Loading payment options...
                 </CheckoutButton>
             )
-        if (offer.providers.length > 0) return <ProviderButtons tier={tier} providers={offer.providers} busyProvider={busyCheckout} onPay={onSubscribeClick} />
+        const notConfirmed = !declaration.confirmed
+        if (offer.providers.length > 0)
+            return <ProviderButtons tier={tier} providers={offer.providers} busyProvider={busyCheckout} disabled={notConfirmed} onPay={onSubscribeClick} />
         return (
-            <CheckoutButton tier={tier} busy={busyCheckout !== null} busyLabel="Redirecting to payment provider..." onClick={() => onSubscribeClick('lemonsqueezy')}>
+            <CheckoutButton
+                tier={tier}
+                busy={busyCheckout !== null}
+                busyLabel="Redirecting to payment provider..."
+                disabled={notConfirmed}
+                onClick={() => onSubscribeClick('lemonsqueezy')}
+            >
                 Continue to our secure payment processor
             </CheckoutButton>
         )
@@ -382,6 +425,7 @@ function BuySubscription(props: Props) {
             actions={
                 <>
                     {renderCodes()}
+                    {renderDeclaration()}
                     <PaymentActions note={CHECKOUT_NOTE}>{renderPaymentButtons()}</PaymentActions>
                 </>
             }

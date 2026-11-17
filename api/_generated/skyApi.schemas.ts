@@ -1692,6 +1692,17 @@ export interface Cost {
 }
 
 /**
+ * The country of the caller
+ */
+export interface CountryResponse {
+  /**
+     * Two letter upper case ISO country, null when unknown
+     * @nullable
+     */
+  country?: string | null;
+}
+
+/**
  * Flat top level 3x3 recipe grid, unchanged for backwards compatibility with the website
  * @nullable
  */
@@ -5546,6 +5557,38 @@ export interface SubscriptionChangeResult {
   status?: string | null;
   /** @nullable */
   redirectUrl?: string | null;
+}
+
+/**
+ * The user's early performance declaration for a subscription checkout. Same fields as the
+ * declaration of Coflnet.Sky.Api.Models.PurchaseArgs; the legal texts are filled in by the server.
+ */
+export interface SubscriptionDeclarationArgs {
+  /**
+     * Whether the user expressly requested early performance for this order.
+     * @nullable
+     */
+  immediatePerformanceRequested?: boolean | null;
+  /**
+     * Whether the user acknowledged the consequence of complete performance.
+     * @nullable
+     */
+  withdrawalConsequenceAcknowledged?: boolean | null;
+  /**
+     * Hash-verified declaration version shown to the user.
+     * @nullable
+     */
+  declarationVersion?: string | null;
+  /**
+     * Locale in which the declaration was shown.
+     * @nullable
+     */
+  legalLocale?: string | null;
+  /**
+     * Idempotency identifier (a GUID) for this declaration and order.
+     * @nullable
+     */
+  declarationRequestId?: string | null;
 }
 
 export interface SubscriptionPlan {

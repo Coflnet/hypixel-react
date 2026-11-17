@@ -6,7 +6,9 @@ import OptionGroup, { WizardOption } from '../OptionGroup'
 import { canSelectTier } from '../wizardFlow'
 import { Country } from '../../../../utils/CountryUtils'
 import { Discount, formatDiscountEndDate, getActiveSubscriptionDiscount } from '../../../../utils/DiscountUtils'
-import { getPlanPrice } from '../../../PremiumLanding/content/planPricing'
+import { getPlanPrice, getPlanTaxNote } from '../../../PremiumLanding/content/planPricing'
+import { useCheckoutOffer } from '../../../../hooks/useCheckoutOffer'
+import { getDirectPrice, isExactCharge } from '../../../../utils/SubscriptionCheckout'
 
 interface TierConfig {
     tier: PremiumTier
@@ -77,19 +79,25 @@ interface Props {
     onCountryChange: (country: Country) => void
 }
 
-function TierPrice({ tier, countryCode, discount }: { tier: PremiumTier; countryCode?: string; discount: Discount | null }) {
-    const base = getPlanPrice(tier, countryCode)
+/** the tier's price after the sale percent: the direct checkout's exact charge, otherwise the tax estimate */
+function getDiscountedPrice(tier: PremiumTier, countryCode: string | undefined, exact: boolean, percent: number): number {
+    if (exact) return getDirectPrice(calculatePrice(tier).basePrice, percent, countryCode)
+    return calculatePrice(tier, countryCode, percent).totalPrice
+}
+
+function TierPrice({ tier, countryCode, exact, discount }: { tier: PremiumTier; countryCode?: string; exact: boolean; discount: Discount | null }) {
+    const base = getPlanPrice(tier, countryCode, exact)
     if (!discount || discount.percentage <= 0) return <>{base.amount}</>
-    const discounted = calculatePrice(tier, countryCode, discount.percentage)
+    const discounted = getDiscountedPrice(tier, countryCode, exact, discount.percentage)
     return (
         <>
-            <s className={styles.struck}>{base.amount}</s> €{discounted.totalPrice.toFixed(2)}
+            <s className={styles.struck}>{base.amount}</s> €{discounted.toFixed(2)}
         </>
     )
 }
 
-function getPriceUnit(tier: PremiumTier, countryCode: string | undefined, discount: Discount | null) {
-    const period = getPlanPrice(tier, countryCode).unit
+function getPriceUnit(tier: PremiumTier, countryCode: string | undefined, exact: boolean, discount: Discount | null) {
+    const period = getPlanPrice(tier, countryCode, exact).unit
     if (!discount || discount.percentage <= 0) return period
     return (
         <>
@@ -147,12 +155,12 @@ function UpgradeIntro({ currentTier, activePremiumProduct }: { currentTier: Prem
     )
 }
 
-function TierNote({ forFriends }: { forFriends?: boolean }) {
+function TierNote({ forFriends, countryCode, exact }: { forFriends?: boolean; countryCode?: string; exact: boolean }) {
     const discount = getActiveSubscriptionDiscount()
     if (forFriends) return null
     return (
         <p className={styles.note}>
-            Prices include applicable VAT/sales tax for your country where available. For the US and some other countries, VAT will be added at checkout.
+            {getPlanTaxNote(countryCode, exact)}
             {discount && (
                 <>
                     <br />
@@ -177,21 +185,23 @@ export default function TierSelectionStep({
 }: Props) {
     const discount = getActiveSubscriptionDiscount()
     const countryCode = selectedCountry?.value
+    const offer = useCheckoutOffer(forFriends ? undefined : countryCode)
+    const exact = !offer.loading && isExactCharge(offer.providers, countryCode)
 
     function toOption(config: TierConfig): WizardOption<PremiumTier> {
         const tier = config.tier
         const isSuggested = suggestedTier === tier
         const canSelect = canSelectTier(tier, currentTier, isUpgrade)
         // the amount is the lowest price per 4 weeks (Premium Plus: billed every 52 weeks), as on the plan cards
-        const priceNote = forFriends ? null : getPlanPrice(tier, countryCode).note
+        const priceNote = forFriends ? null : getPlanPrice(tier, countryCode, exact).note
         return {
             value: tier,
             title: config.title,
             titleClassName: config.titleClass,
             badge: getTierBadge(tier, isCurrentTier(tier, currentTier, isUpgrade), isSuggested),
             description: canSelect ? <TierDescription text={(isSuggested && config.upgradeDescription) || config.description} note={priceNote} /> : 'Cannot downgrade',
-            price: forFriends ? undefined : <TierPrice tier={tier} countryCode={countryCode} discount={discount} />,
-            unit: forFriends ? undefined : getPriceUnit(tier, countryCode, discount),
+            price: forFriends ? undefined : <TierPrice tier={tier} countryCode={countryCode} exact={exact} discount={discount} />,
+            unit: forFriends ? undefined : getPriceUnit(tier, countryCode, exact, discount),
             footer: <TierFeatures features={config.features} extra={isSuggested ? SUGGESTED_FEATURES[tier] : undefined} />,
             disabled: !canSelect
         }
@@ -210,7 +220,7 @@ export default function TierSelectionStep({
                 </div>
             )}
             <OptionGroup legend="Premium tier" options={options} selected={selected} onChoose={onTierSelect} />
-            <TierNote forFriends={forFriends} />
+            <TierNote forFriends={forFriends} countryCode={countryCode} exact={exact} />
         </div>
     )
 }

@@ -26,7 +26,7 @@ function openAuction(start: string) {
     cy.intercept('GET', '**/api/item/STONE/details', { tag: 'STONE', name: 'Start date test', tier: 'COMMON' })
     cy.intercept('GET', '**/api/flip/update/when', { body: '2026-01-02T00:00:00Z' })
     cy.intercept('GET', '**/preScript.js', { body: '' })
-    cy.intercept('GET', 'https://api.country.is/**', { country: 'US' })
+    cy.intercept('GET', '**/api/premium/country', { body: { country: 'US' } })
     visitFlipper()
     selectAuction()
     cy.wait('@auction')
