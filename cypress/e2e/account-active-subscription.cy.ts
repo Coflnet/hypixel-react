@@ -823,10 +823,11 @@ describe('Slot packages in the Premium wizard', () => {
     it('opens payment for a preselected tier, then shows packages before duration', () => {
         visitAuthenticatedPage('/premium?tier=premium_plus')
         cy.contains('How would you like to pay?').should('be.visible')
-        cy.contains('Step 2 of 5').should('be.visible')
+        // the tier was chosen before the wizard opened, so its step is skipped and not counted
+        cy.contains('Step 1 of 4').should('be.visible')
         cy.get('#buyPremium').contains('h5', /^Subscription$/).click()
         cy.contains('Choose Your Package').should('be.visible')
-        cy.contains('Step 3 of 5').should('be.visible')
+        cy.contains('Step 2 of 4').should('be.visible')
         packageButton(0).should('be.visible')
         cy.get('[data-testid="premium-package"]').should('have.length', 3)
         cy.contains('#buyPremium h5', 'One assignable slot').should('be.visible')
@@ -927,6 +928,18 @@ describe('Slot packages in the Premium wizard', () => {
         packageButton(4).click()
         cy.contains('button', 'Buy with CoflCoins').should('be.enabled')
         cy.contains('button', 'Continue with subscription').should('not.exist')
+    })
+
+    // regression: ?tier=premium preselected the tier but still opened the tier step
+    it('skips the tier step for a ?tier=premium link and lets Back change the tier', () => {
+        visitAuthenticatedPage('/premium?tier=premium')
+        cy.contains('How would you like to pay?').should('be.visible')
+        cy.contains('Step 1 of 4').should('be.visible')
+        cy.get('#buyPremium').contains('button', 'Back').click()
+        cy.contains('Choose Your Premium Tier').should('be.visible')
+        cy.contains('Step 1 of 5').should('be.visible')
+        cy.get('#buyPremium').contains('h5', /^Premium Plus$/).click()
+        cy.contains('Step 2 of 5').should('be.visible')
     })
 
     it('hides personal access in slot mode for subscriptions and CoflCoins', () => {

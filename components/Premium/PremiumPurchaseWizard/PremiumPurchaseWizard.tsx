@@ -4,6 +4,7 @@ import { Button, Card, ProgressBar } from 'react-bootstrap'
 import { ChevronLeft } from '@mui/icons-material'
 import styles from './PremiumPurchaseWizard.module.css'
 import { PremiumTier, PurchaseType, Duration } from './types'
+import { getStepDisplay } from './stepDisplay'
 import { TierSelectionStep, PaymentMethodStep, DurationSelectionStep, PurchaseCompletionStep } from './Steps'
 import { PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
 import { parseTierFromUrl } from '../../../utils/PremiumUpgradeUtils'
@@ -52,8 +53,14 @@ function PremiumPurchaseWizard(props: Props) {
     const variant = usePremiumVariant()
     useTrackWizardStep(currentStep, selectedTier)
 
-    const totalSteps = props.showSlots || slotCount > 0 || selectedTier === PremiumTier.STARTER ? 4 : 5
-    const visibleStep = currentStep - ((slotCount > 0 && currentStep === 5) || (selectedTier === PremiumTier.STARTER && currentStep >= 4) ? 1 : 0)
+    const [tierPreselected, setTierPreselected] = useState(false)
+    const { visible: visibleStep, total: totalSteps } = getStepDisplay({
+        currentStep,
+        slotCount,
+        tier: selectedTier,
+        showSlots: props.showSlots,
+        tierPreselected
+    })
 
     const getCurrentTier = (): PremiumTier | null => {
         if (!props.activePremiumProduct) return null
@@ -117,15 +124,8 @@ function PremiumPurchaseWizard(props: Props) {
         const preSelectedTier = parseTierFromUrl(tierParam)
 
         if (preSelectedTier) {
-            setSelectedTier(preSelectedTier)
-
-            const currentTier = getCurrentTier()
-            const currentTierRank = currentTier ? getTierRank(currentTier) : 0
-            const selectedTierRank = getTierRank(preSelectedTier)
-
-            if (preSelectedTier === PremiumTier.PREMIUM_PLUS || (currentTier && selectedTierRank > currentTierRank)) {
-                setCurrentStep(2) // Skip to payment for a preselected tier
-            }
+            // a ?tier= link is a choice already made, like a plan card
+            selectRequestedTier(preSelectedTier)
         } else if (hasActivePremium()) {
             const suggestedTier = props.showSlots ? null : getSuggestedUpgradeTier()
             if (suggestedTier) {
@@ -141,9 +141,11 @@ function PremiumPurchaseWizard(props: Props) {
         if (isUpgrade && currentTier && getTierRank(tier) < getTierRank(currentTier)) {
             handleTierSelect(getSuggestedUpgradeTier() ?? currentTier)
             setCurrentStep(1)
+            setTierPreselected(false)
             return
         }
         handleTierSelect(tier)
+        setTierPreselected(true)
     }
 
     const getStepTitle = () => {
@@ -192,9 +194,10 @@ function PremiumPurchaseWizard(props: Props) {
     }
 
     const handleBack = () => {
-        if (currentStep > 1) {
-            setCurrentStep(currentStep === 5 && slotCount > 0 ? 3 : currentStep === 4 && selectedTier === PremiumTier.STARTER ? 2 : currentStep - 1)
-        }
+        if (currentStep <= 1) return
+        // back from the first counted step lets the visitor change the preselected tier
+        if (currentStep === 2) setTierPreselected(false)
+        setCurrentStep(currentStep === 5 && slotCount > 0 ? 3 : currentStep === 4 && selectedTier === PremiumTier.STARTER ? 2 : currentStep - 1)
     }
 
     // Upgrade to a higher tier in place (from the "What you could get" panel) and

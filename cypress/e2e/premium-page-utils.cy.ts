@@ -32,6 +32,7 @@ import { placePopover } from '../../components/PremiumLanding/Compare/usePreview
 import { tearDownWhenRemoved } from '../../components/PremiumLanding/FeatureMedia/useClipPlayer'
 import { getChatColor } from '../../components/PremiumLanding/content/chatColors'
 import { PremiumTier } from '../../components/Premium/PremiumPurchaseWizard/types'
+import { getStepDisplay } from '../../components/Premium/PremiumPurchaseWizard/stepDisplay'
 
 const BROWSER = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
 const GOOGLEBOT = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
@@ -352,6 +353,26 @@ describe('Feature media and data', () => {
 
     it('has one plan card per tier', () => {
         expect(PLAN_CARDS.map(plan => plan.tier)).to.deep.equal([PremiumTier.STARTER, PremiumTier.PREMIUM, PremiumTier.PREMIUM_PLUS])
+    })
+})
+
+describe('Purchase wizard step count', () => {
+    const base = { slotCount: 0, tier: PremiumTier.PREMIUM, tierPreselected: false }
+
+    it('counts every step when the tier is chosen in the wizard', () => {
+        expect(getStepDisplay({ ...base, currentStep: 1 })).to.deep.equal({ visible: 1, total: 5 })
+        expect(getStepDisplay({ ...base, currentStep: 5 })).to.deep.equal({ visible: 5, total: 5 })
+        expect(getStepDisplay({ ...base, tier: PremiumTier.STARTER, currentStep: 4 })).to.deep.equal({ visible: 3, total: 4 })
+        expect(getStepDisplay({ ...base, slotCount: 4, currentStep: 5 })).to.deep.equal({ visible: 4, total: 4 })
+    })
+
+    it('leaves out the tier step when the tier was picked on a plan card or by link', () => {
+        const picked = { ...base, tierPreselected: true }
+        expect(getStepDisplay({ ...picked, currentStep: 2 })).to.deep.equal({ visible: 1, total: 4 })
+        expect(getStepDisplay({ ...picked, currentStep: 5 })).to.deep.equal({ visible: 4, total: 4 })
+        expect(getStepDisplay({ ...picked, tier: PremiumTier.STARTER, currentStep: 2 })).to.deep.equal({ visible: 1, total: 3 })
+        expect(getStepDisplay({ ...picked, tier: PremiumTier.STARTER, currentStep: 5 })).to.deep.equal({ visible: 3, total: 3 })
+        expect(getStepDisplay({ ...picked, slotCount: 4, currentStep: 5 })).to.deep.equal({ visible: 3, total: 3 })
     })
 })
 
