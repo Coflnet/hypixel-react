@@ -215,6 +215,9 @@ beforeEach(() => {
     cy.intercept('GET', '**/command/version/**', { body: 'cypress-version' })
     cy.intercept('GET', 'https://track.coflnet.com/matomo.js*', { headers: { 'content-type': 'application/javascript' }, body: '' })
     cy.intercept('GET', 'https://api.country.is*', { body: { country: 'DE' } })
+    // the single Lemon Squeezy checkout until a test offers Stripe and PayPal
+    cy.intercept('GET', '**/api/premium/subscription/providers*', { statusCode: 404, body: {} })
+    cy.intercept('GET', '**/api/premium/discount/auto*', { statusCode: 204 })
     cy.intercept('GET', 'https://accounts.google.com/gsi/client*', { headers: { 'content-type': 'application/javascript' }, body: '' })
     cy.intercept('GET', '**/preScript.js', { headers: { 'content-type': 'application/javascript' }, body: '' })
     // the page reports to Matomo only; any request to an own experiment endpoint would be a regression
@@ -604,6 +607,23 @@ describe('Premium redesign', () => {
         cy.contains('Send CoflCoins').should('not.exist')
         // the slots link reloads /premium and keeps the QA override
         cy.contains('a', 'Explore Slots and Bundles').should('have.attr', 'href', '/premium?slots=true&premiumVariant=new#buyPremium')
+    })
+
+    it('offers card and PayPal in the redesign too and tracks the chosen provider', () => {
+        stubAccount()
+        cy.intercept('GET', '**/api/premium/subscription/providers*', { body: [{ provider: 'stripe' }, { provider: 'paypal' }] })
+        cy.intercept('POST', '**/api/topup/rates', { statusCode: 503, body: {} })
+        cy.intercept('POST', '**/api/premium/subscription/l_premium-year?*', { body: { directLink: 'https://www.paypal.com/checkoutnow?token=test' } }).as('checkout')
+        visitNewPage('/premium?premiumVariant=new&tier=premium', true)
+        cy.wait(['@products', '@subscriptions'])
+        cy.get('#buyPremium').contains('[data-testid="wizard-option-title"]', /^Subscription$/).click()
+        cy.get('#buyPremium').contains('[data-testid="wizard-option-title"]', 'Just for me').click()
+        cy.get('#buyPremium').contains('[data-testid="wizard-option-title"]', /^Yearly$/).click()
+        cy.contains('button', 'Pay with card').should('be.visible')
+        cy.window().then(window => cy.stub(window, 'open'))
+        cy.get('button[aria-label="Pay with PayPal"]').click()
+        cy.wait('@checkout').its('request.query').should('deep.include', { provider: 'paypal', country: 'DE' })
+        expectTracked(['trackEvent', 'premium funnel', 'checkout started', 'variant=new;product=l_premium-year;provider=subscription;paymentProvider=paypal'])
     })
 
     it('keeps the ?tier= deep link working', () => {

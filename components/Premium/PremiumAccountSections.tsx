@@ -177,9 +177,11 @@ export function SlotsLink({ children, className, variant = 'success', onSignInNe
 function ExtendHeaderActions({ account }: AccountProps) {
     const { hasSubscriptionLoadingError, activeSubscriptions } = account
     if (!hasSubscriptionLoadingError && activeSubscriptions.length > 0) {
+        // a subscription whose plan cannot change (e.g. PayPal) gets no upgrade button
+        const upgradable = activeSubscriptions.filter(subscription => subscription.canChangePlan !== false)
         return (
             <div>
-                {activeSubscriptions.map(subscription => (
+                {upgradable.map(subscription => (
                     <div key={subscription.externalId}>
                         {activeSubscriptions.length > 1 && (
                             <span>

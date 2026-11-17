@@ -388,7 +388,6 @@ interface API {
     getLinkvertiseLink(provider?: string): Promise<string>
     getPremiumSubscriptions(): Promise<PremiumSubscription[]>
     cancelPremiumSubscription(id: string): Promise<void>
-    purchasePremiumSubscription(productSlug: string, googleToken: string): Promise<PaymentResponse>
     getCraftInstructions(itemTag: string): Promise<CraftingInstructions>
     deleteAccount(): Promise<AccountDeletionResult>
 }
@@ -617,10 +616,6 @@ interface ItemPriceMovement {
     lastUpdated?: Date
 }
 
-interface PaymentResponse {
-    id: string
-    directLink: string
-}
 interface KatFlipCoreData {
     hours: number
     materials?: Record<string, number>
@@ -888,6 +883,12 @@ interface PremiumSubscription {
     paymentAmount: string
     renewsAt: Date
     createdAt: Date
+    /** lemonsqueezy, stripe or paypal; undefined from an older backend */
+    providerSlug?: string
+    /** false when a canceled subscription cannot be reactivated (PayPal); undefined keeps resuming available */
+    canResume?: boolean
+    /** false when the plan cannot be switched; undefined keeps plan changes available */
+    canChangePlan?: boolean
 }
 
 interface CraftingInstructions {

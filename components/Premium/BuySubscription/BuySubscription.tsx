@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
-import api from '../../../api/ApiHelper'
 import { Button, Card, Col, Row, Spinner } from 'react-bootstrap'
 import styles from './BuySubscription.module.css'
 import stepStyles from '../PremiumPurchaseWizard/Steps/Steps.module.css'
@@ -9,7 +8,7 @@ import { toast } from 'react-toastify'
 import { Duration, PremiumTier, PurchaseType, getTierDisplayName } from '../PremiumPurchaseWizard/types'
 import { TierUpsellPanel } from '../../Discounts/DiscountBanners'
 import discountStyles from '../../Discounts/Discounts.module.css'
-import { postApiTopupRates } from '../../../api/_generated/skyApi'
+import { postApiPremiumSubscriptionSubscriptionSlug, postApiTopupRates } from '../../../api/_generated/skyApi'
 import { BatchProductPricingResponse } from '../../../api/_generated/skyApi.schemas'
 import {
     getProviderPrice,
@@ -21,6 +20,19 @@ import {
     formatMoney
 } from '../../../utils/PricingUtils'
 import useDiscountCode from '../../../hooks/useDiscountCode'
+import { useCheckoutOffer } from '../../../hooks/useCheckoutOffer'
+import {
+    PaymentProvider,
+    getBillingWeeks,
+    getCheckoutLink,
+    getCheckoutParams,
+    getDirectPrice,
+    getFirstPeriodLabel,
+    getPeriodPercent,
+    isExactCharge,
+    isFirstPaymentOnly,
+    showsVatSuffix
+} from '../../../utils/SubscriptionCheckout'
 import { useCountryDetection } from '../../../hooks/useCountryDetection'
 import { usePremiumVariant } from '../PremiumVariantContext'
 import { trackPremiumFunnelEvent } from '../../../utils/PremiumTracking'
@@ -36,6 +48,8 @@ import {
     CodeDisclosure,
     CodeField,
     PaymentActions,
+    PromotionNote,
+    ProviderButtons,
     Savings,
     SummaryNote,
     SummaryRow,
@@ -49,37 +63,61 @@ interface Props {
     initialDiscountCode?: string | null
     countryCode?: string
     onUpgradeTier?: (tier: PremiumTier) => void
+    /** changes the wizard's billing period, e.g. to the yearly billing a code is limited to */
+    onSelectDuration?: (duration: Duration) => void
+}
+
+/** the checkout opened by a payment button: the provider, or Lemon Squeezy's single button */
+type CheckoutChoice = PaymentProvider
+
+const CHECKOUT_NOTE = 'Renews automatically until you cancel. Cancel any time on this page; Premium stays active until the end of the paid period.'
+
+const TIER_OF_PRODUCT: Record<string, PremiumTier> = {
+    premium: PremiumTier.PREMIUM,
+    premium_plus: PremiumTier.PREMIUM_PLUS,
+    starter_premium: PremiumTier.STARTER
+}
+
+function getTierOfType(type: PremiumType): PremiumTier {
+    return TIER_OF_PRODUCT[type.productId] ?? PremiumTier.PREMIUM
 }
 
 function BuySubscription(props: Props) {
     const variant = usePremiumVariant()
     const [selectedPremiumType, setSelectedPremiumType] = useState<PremiumType>()
-    const [isYearOption, setIsYearOption] = useState<boolean>()
     const [creatorCode, setCreatorCode] = useState('')
     const [isLoadingPrices, setIsLoadingPrices] = useState(false)
     const [pricingData, setPricingData] = useState<BatchProductPricingResponse | null>(null)
     const [pricingError, setPricingError] = useState<string | null>(null)
     const [appliedCreatorCode, setAppliedCreatorCode] = useState<string | null>(null)
-    const [isRedirecting, setIsRedirecting] = useState(false)
+    const [busyCheckout, setBusyCheckout] = useState<CheckoutChoice | null>(null)
     const [codesOpen, setCodesOpen] = useState<boolean | null>(null)
     // back from the payment provider the cached page would still say "Redirecting…"
-    useBackForwardRestore(() => setIsRedirecting(false))
+    useBackForwardRestore(() => setBusyCheckout(null))
     const { selectedCountry } = useCountryDetection()
     const summerDiscount = getActiveSubscriptionDiscount()
-    const discount = useDiscountCode(props.initialDiscountCode, { isYearly: isYearOption !== undefined ? isYearOption : props.selectedDuration === Duration.YEARLY })
+    const isWizardCheckout = !!props.selectedTier && props.selectedDuration !== undefined
+    const buyerCountry = props.countryCode || selectedCountry?.value
+    const country = buyerCountry || 'US'
+    const billingWeeks = getBillingWeeks(props.selectedDuration)
+    const offer = useCheckoutOffer(
+        isWizardCheckout ? buyerCountry : undefined,
+        isWizardCheckout ? getTierApiProductId(props.selectedTier!, props.selectedDuration || Duration.MONTHLY) : undefined
+    )
+    const discount = useDiscountCode(props.initialDiscountCode, {
+        weeks: isWizardCheckout ? billingWeeks : undefined,
+        validateInitial: true,
+        autoCode: offer.promotion?.code,
+        isSubscription: true,
+        provider: offer.codeProvider
+    })
     const { validated: validatedDiscount, pendingYearly: pendingYearlyDiscount, validating: isValidatingDiscount, error: discountError, code: discountCode } = discount
+    const discountCodePercent = getPeriodPercent(validatedDiscount, billingWeeks)
 
-    const country = props.countryCode || selectedCountry?.value || 'US'
-
+    // the yearly switch and the tier upgrade at the checkout change the product: it has its own price
     useEffect(() => {
-        fetchPricing(creatorCode)
-        // Auto-validate discount code if provided from URL
-        if (props.initialDiscountCode) {
-            setTimeout(() => {
-                discount.validate(props.initialDiscountCode!)
-            }, 100)
-        }
-    }, [])
+        fetchPricing(appliedCreatorCode ?? '')
+    }, [props.selectedDuration, props.selectedTier])
 
     const fetchPricing = async (code: string) => {
         setIsLoadingPrices(true)
@@ -88,7 +126,7 @@ function BuySubscription(props: Props) {
         try {
             let productSlugs: string[] = []
             if (props.selectedTier && props.selectedDuration !== undefined) {
-                const productId = getProductIdForTier(props.selectedTier, props.selectedDuration === Duration.YEARLY)
+                const productId = getProductIdForTier(props.selectedTier, getCurrentDuration())
                 productSlugs = [productId]
             } else {
                 productSlugs = [
@@ -161,13 +199,16 @@ function BuySubscription(props: Props) {
 
     const money = (value: number): string => formatMoney(value, getCurrencyCode())
 
+    /** billed by us directly (Stripe/PayPal) in a country whose tax is known: the displayed price is exactly the charge, see getDirectPrice */
+    const isDirect = isExactCharge(offer.providers, buyerCountry)
+
     const getOriginalPrice = (): number | null => {
         if (!pricingData || !pricingData.products || !props.selectedTier) return null
         const productId = getProductIdForTier(props.selectedTier, getCurrentDuration())
         const price = getProviderOriginalPriceValue(productId, 'lemonsqueezy')
         if (price === null) return null
-        const priceWithVat = getPriceWithVAT(price)
-        return Math.ceil(priceWithVat * 100) / 100
+        if (isDirect) return getDirectPrice(price, 0, country)
+        return Math.ceil(getPriceWithVAT(price) * 100) / 100
     }
 
     const hasActiveDiscount = (): boolean => {
@@ -175,12 +216,6 @@ function BuySubscription(props: Props) {
         const productId = getProductIdForTier(props.selectedTier, getCurrentDuration())
         const discountPercent = getDiscountPercentValue(productId)
         return discountPercent !== null && discountPercent > 0
-    }
-
-    // Get the discount code multiplier (e.g., 20% off = 0.8)
-    const getDiscountCodeMultiplier = (): number => {
-        if (!validatedDiscount || !validatedDiscount.amount || validatedDiscount.amountType !== 'percent') return 1
-        return 1 - (validatedDiscount.amount / 100)
     }
 
     // Get VAT rate for current country
@@ -204,17 +239,15 @@ function BuySubscription(props: Props) {
 
     // Get VAT display text
     const getVATDisplayText = (): string => {
-        if (shouldIncludeVATInPrice()) return ''
-        return ' (+VAT)'
+        return showsVatSuffix(buyerCountry, isDirect) ? ' (+VAT)' : ''
     }
 
     // Calculate final price after both creator code and discount code are applied
-    const getFinalPrice = (basePrice: number): number => {
+    const getFinalPrice = (basePrice: number, percent = discountCodePercent): number => {
         // Creator code discount is already applied in basePrice from API
-        // Apply discount code on top and then VAT (multiplicative)
-        const discountedPrice = basePrice * getDiscountCodeMultiplier()
-        const priceWithVat = getPriceWithVAT(discountedPrice)
-        // round up to next cent for display/charging
+        if (isDirect) return getDirectPrice(basePrice, percent, country)
+        // Lemon Squeezy: discount code on top and then VAT, rounded up to the next cent
+        const priceWithVat = getPriceWithVAT(basePrice * (1 - percent / 100))
         return Math.ceil(priceWithVat * 100) / 100
     }
 
@@ -226,8 +259,6 @@ function BuySubscription(props: Props) {
         absoluteSavings: number | null
     } => {
         const creatorPercent = props.selectedTier ? getDiscountPercentValue(getProductIdForTier(props.selectedTier, getCurrentDuration())) : null
-        const discountCodePercent = validatedDiscount?.amountType === 'percent' ? validatedDiscount.amount : null
-
         const originalPrice = getOriginalPrice()
         const basePrice = getSubscriptionPrice()
         const finalPrice = getFinalPrice(basePrice)
@@ -235,10 +266,10 @@ function BuySubscription(props: Props) {
         if (originalPrice && finalPrice < originalPrice) {
             const totalSavings = Math.round((1 - finalPrice / originalPrice) * 100)
             const absoluteSavings = Math.round((originalPrice - finalPrice) * 100) / 100
-            return { creatorPercent, discountCodePercent: discountCodePercent ?? null, totalSavings, absoluteSavings }
+            return { creatorPercent, discountCodePercent: discountCodePercent || null, totalSavings, absoluteSavings }
         }
 
-        return { creatorPercent, discountCodePercent: discountCodePercent ?? null, totalSavings: null, absoluteSavings: null }
+        return { creatorPercent, discountCodePercent: discountCodePercent || null, totalSavings: null, absoluteSavings: null }
     }
 
     // If we have wizard selections, use them to determine the selected type and duration
@@ -300,54 +331,40 @@ function BuySubscription(props: Props) {
         return -1
     }
 
+    async function openCheckout(productId: string, choice: CheckoutChoice, googleToken: string) {
+        try {
+            const params = getCheckoutParams({
+                provider: choice,
+                country: buyerCountry,
+                creatorCode: appliedCreatorCode,
+                discountCode: validatedDiscount?.code,
+                promotion: offer.promotion
+            })
+            const response = await postApiPremiumSubscriptionSubscriptionSlug(productId, params, { headers: { GoogleToken: googleToken } })
+            const link = response.status === 200 ? getCheckoutLink(response.data) : null
+            if (!link) throw new Error('Checkout could not be opened')
+            window.open(link, '_self')
+        } catch {
+            setBusyCheckout(null)
+            toast.error('Failed to redirect to payment provider. Please try again.')
+        }
+    }
+
     /** opens the payment provider; false when the purchase could not start (no login) */
-    function startSubscriptionPurchase(targetType: PremiumType, duration: Duration = Duration.MONTHLY): boolean {
+    function startSubscriptionPurchase(targetType: PremiumType, duration: Duration = Duration.MONTHLY, choice: CheckoutChoice = 'lemonsqueezy'): boolean {
         if (!targetType) return false
         const googleToken = sessionStorage.getItem('googleId')
         if (!googleToken) {
             toast.error('Please login to continue with the purchase')
             return false
         }
-
-        let productId = ''
-        if (targetType.productId === 'premium') {
-            productId = 'l_premium'
-        }
-        if (targetType.productId === 'premium_plus') {
-            productId = 'l_prem_plus'
-        }
-        if (targetType.productId === 'starter_premium') {
-            productId = 'l_starter_premium'
-        }
-        if (duration === Duration.QUARTER) {
-            productId += '-quarter'
-        } else if (duration === Duration.YEARLY) {
-            productId += '-year'
-        }
-
-        // Build query parameters for creator code and discount code
-        const queryParams: string[] = []
-        if (appliedCreatorCode) {
-            queryParams.push(`creatorCode=${encodeURIComponent(appliedCreatorCode)}`)
-        }
-        if (validatedDiscount?.code) {
-            queryParams.push(`discountCode=${encodeURIComponent(validatedDiscount.code)}`)
-        }
-        const productIdWithCode = queryParams.length > 0 ? `${productId}?${queryParams.join('&')}` : productId
-
-        trackPremiumFunnelEvent('checkout started', variant, { product: productId, provider: 'subscription' })
-        api.purchasePremiumSubscription(productIdWithCode, googleToken)
-            .then(data => {
-                window.open(data.directLink, '_self')
-            })
-            .catch(() => {
-                setIsRedirecting(false)
-                toast.error('Failed to redirect to payment provider. Please try again.')
-            })
+        const productId = getTierApiProductId(getTierOfType(targetType), duration)
+        trackPremiumFunnelEvent('checkout started', variant, { product: productId, provider: 'subscription', paymentProvider: choice })
+        void openCheckout(productId, choice, googleToken)
         return true
     }
 
-    const isYearlySelected = (): boolean => (isYearOption !== undefined ? isYearOption : props.selectedDuration === Duration.YEARLY)
+    const isYearlySelected = (): boolean => props.selectedDuration === Duration.YEARLY
 
     const getCreatorCodePercent = (): number | null =>
         props.selectedTier ? getDiscountPercentValue(getProductIdForTier(props.selectedTier, getCurrentDuration())) : null
@@ -374,8 +391,9 @@ function BuySubscription(props: Props) {
         }
     }
 
+    // the wizard bills yearly from now on, so the price, the product and the code all match
     const applyPendingYearlyDiscount = () => {
-        setIsYearOption(true)
+        props.onSelectDuration?.(Duration.YEARLY)
         discount.applyPendingYearly()
     }
 
@@ -423,7 +441,9 @@ function BuySubscription(props: Props) {
                     {getCurrentDuration() === Duration.YEARLY && targetType.productId !== 'starter_premium' && !hasCodeDiscount ? (
                         <Savings>{targetType.productId === 'premium_plus' ? '23%' : '14%'} off compared to monthly billing</Savings>
                     ) : null}
+                    {renderRenewalNote()}
                 </SummaryTotal>
+                {offer.promotion && validatedDiscount?.code === offer.promotion.code ? <PromotionNote promotion={offer.promotion} weeks={billingWeeks} /> : null}
                 {pricingError ? <CheckoutError>{pricingError}</CheckoutError> : null}
                 {summerDiscount && !validatedDiscount ? (
                     <SummaryNote>
@@ -436,6 +456,18 @@ function BuySubscription(props: Props) {
         )
     }
 
+    /** a code for the first payment only: what the subscription renews at afterwards */
+    function renderRenewalNote() {
+        if (!discountCodePercent || !isFirstPaymentOnly(validatedDiscount)) return null
+        const renewal = getFinalPrice(getSubscriptionPrice(), 0)
+        return (
+            <SummaryNote>
+                The discount covers the {getFirstPeriodLabel(billingWeeks)}. Then {money(renewal)}
+                {getVATDisplayText()} {getPricePerPeriodText()}.
+            </SummaryNote>
+        )
+    }
+
     function renderCreatorCodeMessage() {
         if (!appliedCreatorCode || pricingError) return null
         return <CreatorCodeMessage percent={getCreatorCodePercent()} />
@@ -443,14 +475,14 @@ function BuySubscription(props: Props) {
 
     function renderDiscountCodeMessage() {
         const switchToYearly =
-            pendingYearlyDiscount && !isYearlySelected() ? (
+            pendingYearlyDiscount && !isYearlySelected() && props.onSelectDuration ? (
                 <div className={styles.messageAction}>
                     <button type="button" className={styles.linkButton} onClick={applyPendingYearlyDiscount}>
                         Switch to yearly and apply discount
                     </button>
                 </div>
             ) : null
-        return <DiscountCodeMessage error={discountError} discount={validatedDiscount} errorAction={switchToYearly} />
+        return <DiscountCodeMessage error={discountError} discount={validatedDiscount} weeks={billingWeeks} errorAction={switchToYearly} />
     }
 
     function renderCodes() {
@@ -525,12 +557,34 @@ function BuySubscription(props: Props) {
         )
     }
 
-    function onSubscribeClick(targetType: PremiumType) {
+    function onSubscribeClick(targetType: PremiumType, choice: CheckoutChoice) {
         setSelectedPremiumType(targetType)
-        if (startSubscriptionPurchase(selectedPremiumType || wizardSelectedType!, getCurrentDuration())) setIsRedirecting(true)
+        if (startSubscriptionPurchase(selectedPremiumType || wizardSelectedType!, getCurrentDuration(), choice)) setBusyCheckout(choice)
     }
 
-    if (props.selectedTier && props.selectedDuration !== undefined) {
+    /** card and PayPal while the direct providers are on, otherwise the single Lemon Squeezy button */
+    function renderPaymentButtons(tier: PremiumTier, targetType: PremiumType) {
+        if (offer.loading)
+            return (
+                <CheckoutButton tier={tier} busy busyLabel="Loading payment options..." onClick={() => undefined}>
+                    Loading payment options...
+                </CheckoutButton>
+            )
+        if (offer.providers.length > 0)
+            return <ProviderButtons tier={tier} providers={offer.providers} busyProvider={busyCheckout} onPay={choice => onSubscribeClick(targetType, choice)} />
+        return (
+            <CheckoutButton
+                tier={tier}
+                busy={busyCheckout !== null}
+                busyLabel="Redirecting to payment provider..."
+                onClick={() => onSubscribeClick(targetType, 'lemonsqueezy')}
+            >
+                Continue to our secure payment processor
+            </CheckoutButton>
+        )
+    }
+
+    if (isWizardCheckout) {
         const targetType = wizardSelectedType!
         return (
             <CheckoutLayout
@@ -538,16 +592,7 @@ function BuySubscription(props: Props) {
                 actions={
                     <>
                         {renderCodes()}
-                        <PaymentActions note="Renews automatically until you cancel. Cancel any time on this page; Premium stays active until the end of the paid period.">
-                            <CheckoutButton
-                                tier={props.selectedTier}
-                                busy={isRedirecting}
-                                busyLabel="Redirecting to payment provider..."
-                                onClick={() => onSubscribeClick(targetType)}
-                            >
-                                Continue to our secure payment processor
-                            </CheckoutButton>
-                        </PaymentActions>
+                        <PaymentActions note={CHECKOUT_NOTE}>{renderPaymentButtons(props.selectedTier!, targetType)}</PaymentActions>
                     </>
                 }
             >
@@ -578,7 +623,6 @@ function BuySubscription(props: Props) {
                                     className={styles.purchaseButton}
                                     onClick={() => {
                                         const type = PREMIUM_TYPES.find(type => type.productId === 'premium_plus')
-                                        setIsYearOption(false)
                                         setSelectedPremiumType(type)
                                         if (type) startSubscriptionPurchase(type, Duration.MONTHLY)
                                     }}
@@ -598,7 +642,6 @@ function BuySubscription(props: Props) {
                                             className={styles.purchaseButton}
                                             onClick={() => {
                                                 const type = PREMIUM_TYPES.find(type => type.productId === 'premium_plus')
-                                                setIsYearOption(true)
                                                 setSelectedPremiumType(type)
                                                 if (type) startSubscriptionPurchase(type, Duration.YEARLY)
                                             }}
@@ -628,7 +671,6 @@ function BuySubscription(props: Props) {
                                     className={styles.purchaseButton}
                                     onClick={() => {
                                         const type = PREMIUM_TYPES.find(type => type.productId === 'premium')
-                                        setIsYearOption(false)
                                         setSelectedPremiumType(type)
                                         if (type) startSubscriptionPurchase(type, Duration.MONTHLY)
                                     }}
@@ -646,7 +688,6 @@ function BuySubscription(props: Props) {
                                     className={styles.purchaseButton}
                                     onClick={() => {
                                         const type = PREMIUM_TYPES.find(type => type.productId === 'premium')
-                                        setIsYearOption(true)
                                         setSelectedPremiumType(type)
                                         if (type) startSubscriptionPurchase(type, Duration.YEARLY)
                                     }}

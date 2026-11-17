@@ -10,6 +10,8 @@ interface Props {
     discount: DiscountCodeState
     /** percent the creator code takes off the reviewed product */
     creatorPercent: number | null
+    /** the billing period in weeks, for codes with per-period amounts */
+    weeks?: number
 }
 
 function CreatorCodeStatus({ catalog, percent }: { catalog: SlotCatalog; percent: number | null }) {
@@ -19,7 +21,7 @@ function CreatorCodeStatus({ catalog, percent }: { catalog: SlotCatalog; percent
 }
 
 /** creator and discount code fields of the slot subscription review */
-export default function SlotCodes({ catalog, discount, creatorPercent }: Props) {
+export default function SlotCodes({ catalog, discount, creatorPercent, weeks }: Props) {
     const [creatorInput, setCreatorInput] = useState(catalog.creatorCode)
     const [open, setOpen] = useState<boolean | null>(null)
     const pricesLoading = !catalog.canUsePrices && !catalog.pricingError
@@ -51,7 +53,7 @@ export default function SlotCodes({ catalog, discount, creatorPercent }: Props) 
                 onAction={validated ? discount.clear : () => discount.validate()}
                 actionDisabled={validating || (!validated && !discount.code.trim())}
             >
-                <DiscountCodeMessage error={discount.error} discount={validated} />
+                <DiscountCodeMessage error={discount.error} discount={validated} weeks={weeks} />
             </CodeField>
         </CodeDisclosure>
     )

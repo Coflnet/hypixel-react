@@ -257,9 +257,75 @@
     cursor: progress;
 }
 
+.cardIcon {
+    flex: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.providerOption {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.providerHint {
+    font-size: 12px;
+    color: #adb5bd;
+    text-align: center;
+}
+
+/* PayPal's white button for dark pages, with its blue wordmark colour */
+.paypal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 8px 16px;
+    font: inherit;
+    font-weight: 700;
+    color: #003087;
+    background: #fff;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.paypalWordmark {
+    font-size: 20px;
+    font-weight: 800;
+    font-style: italic;
+}
+
+.paypal:hover:not(:disabled) {
+    filter: brightness(0.94);
+}
+
+.paypal:disabled {
+    color: #adb5bd;
+    background: #444;
+    cursor: not-allowed;
+}
+
+.paypal[aria-busy='true'] {
+    cursor: progress;
+}
+
+.promotion {
+    margin: 0;
+    padding-left: 10px;
+    font-size: 14px;
+    color: #fff;
+    border-left: 3px solid #00bc8c;
+}
+
 .disclosure:focus-visible,
 .secondaryButton:focus-visible,
 .cta:focus-visible,
+.paypal:focus-visible,
 .codeInput:focus-visible,
 .select:focus-visible {
     outline: 2px solid #fff;

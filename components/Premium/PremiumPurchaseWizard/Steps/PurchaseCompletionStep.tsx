@@ -14,6 +14,8 @@ interface Props {
     initialDiscountCode?: string | null
     countryCode?: string
     onSelectTier?: (tier: PremiumTier) => void
+    /** switches the billing period from the checkout, e.g. to the yearly billing a code needs */
+    onSelectDuration?: (duration: Duration) => void
 }
 
 export default function PurchaseCompletionStep({
@@ -26,6 +28,7 @@ export default function PurchaseCompletionStep({
     initialDiscountCode
     , countryCode
     , onSelectTier
+    , onSelectDuration
 }: Props) {
     return (
         <div className={styles.stepContent}>
@@ -38,6 +41,7 @@ export default function PurchaseCompletionStep({
                     initialDiscountCode={initialDiscountCode}
                     countryCode={countryCode}
                     onUpgradeTier={onSelectTier}
+                    onSelectDuration={onSelectDuration}
                 />
             )}
             {selectedType === PurchaseType.COFLCOINS && (

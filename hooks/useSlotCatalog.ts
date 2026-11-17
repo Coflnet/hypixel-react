@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getApiPremiumSlotsProducts, postApiTopupRates } from '../api/_generated/skyApi'
 import type { BatchProductPricingResponse, PurchaseableProduct } from '../api/_generated/skyApi.schemas'
+import { applyPercent, getDirectPrice } from '../utils/SubscriptionCheckout'
 import { getDiscountPercent, getProvider, getPriceWithVAT, shouldIncludeVAT } from '../utils/PricingUtils'
 
 export default function useSlotCatalog(countryCode?: string) {
@@ -71,13 +72,27 @@ export default function useSlotCatalog(countryCode?: string) {
 
     const canUsePrices = !!countryCode && pricingKey === `${countryCode}|${creatorCode}` && !pricingError
 
-    function price(product: PurchaseableProduct) {
+    /** the taxed price of a pre-tax amount: exact for a direct checkout, an estimate rounded to the cent for Lemon Squeezy */
+    function taxed(amount: number, percent: number, direct: boolean) {
+        if (direct) return getDirectPrice(amount, percent, countryCode)
+        // Lemon Squeezy's batch prices are before tax. Round the whole bundle before dividing by slots.
+        return applyPercent(Math.round(getPriceWithVAT(amount, countryCode) * 100) / 100, percent)
+    }
+
+    /** the product's prices with tax; `direct` when a Stripe or PayPal checkout bills it */
+    function price(product: PurchaseableProduct, direct = false) {
         if (!canUsePrices) return undefined
         const provider = getProvider(pricing || null, product.slug!, 'lemonsqueezy')
         if (!provider) return undefined
-        // Lemon Squeezy's batch prices are before tax. Round the whole bundle before dividing by slots.
-        const withTax = (amount: number) => Math.round(getPriceWithVAT(amount, countryCode) * 100) / 100
-        return { ...provider, originalPrice: withTax(provider.originalPrice), discountedPrice: withTax(provider.discountedPrice) }
+        return { ...provider, originalPrice: taxed(provider.originalPrice, 0, direct), discountedPrice: taxed(provider.discountedPrice, 0, direct) }
+    }
+
+    /** the product's price with tax after a discount code's percent; the creator code is already in the provider's discounted price */
+    function priceWithCode(product: PurchaseableProduct, percent: number, direct: boolean) {
+        if (!canUsePrices) return undefined
+        const provider = getProvider(pricing || null, product.slug!, 'lemonsqueezy')
+        if (!provider) return undefined
+        return taxed(provider.discountedPrice ?? provider.originalPrice, percent, direct)
     }
 
     /** percent the applied creator code takes off a product, null without one */
@@ -102,6 +117,7 @@ export default function useSlotCatalog(countryCode?: string) {
         pricingError,
         canUsePrices,
         price,
+        priceWithCode,
         creatorCode,
         /** the last creator code the prices could not be loaded with, empty otherwise */
         rejectedCreatorCode,

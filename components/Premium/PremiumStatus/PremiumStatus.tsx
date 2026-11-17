@@ -172,7 +172,7 @@ function PremiumStatus(props: Props) {
                                                 </span>
                                             }
                                         />
-                                        {subscription.endsAt && (
+                                        {subscription.endsAt && subscription.canResume !== false && (
                                             <Tooltip
                                                 type="hover"
                                                 content={
@@ -188,7 +188,7 @@ function PremiumStatus(props: Props) {
                                                 tooltipContent={<span>Reactivate subscription</span>}
                                             />
                                         )}
-                                        {!subscription.endsAt && (
+                                        {!subscription.endsAt && subscription.canChangePlan !== false && (
                                             <UpgradeSubscription subscription={subscription} />
                                         )}
                                         {!subscription.endsAt && (

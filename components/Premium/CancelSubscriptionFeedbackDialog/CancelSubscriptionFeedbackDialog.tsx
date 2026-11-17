@@ -15,6 +15,15 @@ interface SubscriptionCancelFeedbackExtended extends SubscriptionCancelFeedback 
     cantAffordAnymore?: boolean
 }
 
+/** PayPal cancels at once (access still lasts to the period end), so such a subscription cannot be resumed */
+function cannotResume(subscription: PremiumSubscription): boolean {
+    return subscription.canResume === false || subscription.providerSlug === 'paypal'
+}
+
+function getProviderName(subscription: PremiumSubscription): string {
+    return subscription.providerSlug === 'paypal' ? 'PayPal' : 'The payment provider'
+}
+
 function CancelSubscriptionFeedbackDialog(props: Props) {
     const [feedback, setFeedback] = useState<SubscriptionCancelFeedbackExtended>({
         stoppedPlayingSkyblock: false,
@@ -107,6 +116,12 @@ function CancelSubscriptionFeedbackDialog(props: Props) {
                                   : 'This stops renewal for this subscription.'}
                             {' '}Access continues through the paid period.
                         </p>
+                        {cannotResume(props.subscription) ? (
+                            <p>
+                                {getProviderName(props.subscription)} ends the subscription right away, so it cannot be resumed later. To keep Premium after
+                                the paid period, start a new subscription.
+                            </p>
+                        ) : null}
                     </div>
                 ) : null}
                 <div>

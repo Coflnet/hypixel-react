@@ -32,7 +32,6 @@ import {
     parseMayorData,
     parseMinecraftConnectionInfo,
     parseOwnerHistory,
-    parsePaymentResponse,
     parsePlayer,
     parsePopularSearch,
     parsePremiumProducts,
@@ -124,7 +123,6 @@ import {
     getApiAuctionsTagItemTagArchiveOverview,
     postApiAuctionsTagItemTagArchiveExport,
     getApiLinkvertise,
-    postApiPremiumSubscriptionSubscriptionSlug,
     getApiPremiumSubscription,
     deleteApiPremiumSubscriptionExternalId,
     getApiCraftItemTagInstructions
@@ -2246,15 +2244,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let purchasePremiumSubscription = (productSlug: string, googleToken: string): Promise<PaymentResponse> => {
-        return postApiPremiumSubscriptionSubscriptionSlug(productSlug, undefined, googleTokenHeaders(googleToken))
-            .then(response => parsePaymentResponse(response.data))
-            .catch(error => {
-                apiErrorHandler(RequestType.PURCHASE_PREMIUM_SUBSCRIPTION, error)
-                throw error
-            })
-    }
-
     let getPremiumSubscriptions = (): Promise<PremiumSubscription[]> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
@@ -2435,7 +2424,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getLinkvertiseLink,
         getPremiumSubscriptions,
         cancelPremiumSubscription,
-        purchasePremiumSubscription,
         getCraftInstructions,
         deleteAccount
     }

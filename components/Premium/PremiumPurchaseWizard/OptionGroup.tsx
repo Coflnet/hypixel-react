@@ -9,8 +9,12 @@ export interface WizardOption<T extends string | number> {
     titleClassName?: string
     description?: ReactNode
     badge?: string
+    /** e.g. "-50%" for a running promotion, shown beside the price */
+    discountBadge?: string
     /** e.g. "€9.69"; shown large on the right */
     price?: ReactNode
+    /** the price before a discount, struck through beside `price` */
+    originalPrice?: ReactNode
     /** e.g. "per month"; shown small under the price */
     unit?: ReactNode
     /** a full-width line under the row (features, "Cannot downgrade") */
@@ -34,12 +38,22 @@ interface RowProps<T extends string | number> {
     onChoose(value: T, advance: boolean): void
 }
 
-function OptionPrice({ price, unit }: { price?: ReactNode; unit?: ReactNode }) {
+type OptionPriceProps = Pick<WizardOption<string>, 'price' | 'originalPrice' | 'discountBadge' | 'unit'>
+
+function OptionPrice({ price, originalPrice, discountBadge, unit }: OptionPriceProps) {
     if (price == null && unit == null) return null
-    // the space keeps the price and its unit apart in the text content (screen readers, copy)
+    // the spaces keep the badge, the prices and the unit apart in the text content (screen readers, copy)
     return (
         <span className={styles.price}>
-            {price != null ? <span className={styles.amount}>{price}</span> : null} {unit != null ? <span className={styles.unit}>{unit}</span> : null}
+            {price != null ? (
+                <span className={styles.priceLine}>
+                    {discountBadge ? <span className={styles.discountBadge}>{discountBadge}</span> : null}{' '}
+                    <span className={styles.amount}>
+                        {originalPrice != null ? <s className={styles.original}>{originalPrice}</s> : null} {price}
+                    </span>
+                </span>
+            ) : null}{' '}
+            {unit != null ? <span className={styles.unit}>{unit}</span> : null}
         </span>
     )
 }
@@ -74,7 +88,7 @@ function OptionRow<T extends string | number>({ option, name, checked, onChoose 
                 </span>
                 {option.description ? <span className={styles.description}>{option.description}</span> : null}
             </span>
-            <OptionPrice price={option.price} unit={option.unit} />
+            <OptionPrice price={option.price} originalPrice={option.originalPrice} discountBadge={option.discountBadge} unit={option.unit} />
             {option.footer ? <span className={styles.footer}>{option.footer}</span> : null}
         </label>
     )

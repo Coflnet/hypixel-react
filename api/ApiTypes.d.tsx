@@ -100,7 +100,6 @@ export enum RequestType {
     GET_LINKVERTISE_LINK = 'getLinkvertiseLink',
     CREATE_PREMIUM_SUBSCRIPTION = 'createPremiumSubscription',
     DELETE_PREMIUM_SUBSCRIPTION = 'deletePremiumSubscription',
-    PURCHASE_PREMIUM_SUBSCRIPTION = 'purchasePremiumSubscription',
     GET_CRAFTING_INSTRUCTIONS = 'craft/instructions',
     DELETE_ACCOUNT = 'deleteAccount'
 }
