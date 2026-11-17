@@ -178,6 +178,7 @@ function PremiumStatus(props: Props) {
                                                 content={
                                                     <span style={{ color: 'green' }}>
                                                         <RestartAlt
+                                                            data-testid="reactivate-subscription"
                                                             style={{ cursor: 'pointer', color: 'green', marginLeft: 5 }}
                                                             onClick={() => {
                                                                 reactivateMutation.mutate({ externalId: subscription.externalId })

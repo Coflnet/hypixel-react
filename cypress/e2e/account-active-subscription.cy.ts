@@ -1808,7 +1808,7 @@ describe('PayPal subscriptions in the account', () => {
         ] })
         visitAuthenticatedPage()
         cy.wait('@subscriptions')
-        cy.get('[data-testid="RestartAltIcon"]').should('have.length', 1)
+        cy.get('[data-testid="reactivate-subscription"]').should('have.length', 1)
     })
 
     it('does not promise resuming when a PayPal subscription is canceled', () => {
