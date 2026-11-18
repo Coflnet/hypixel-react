@@ -26,12 +26,18 @@ import {
     getCheckoutErrorMessage,
     getCheckoutLink,
     getCheckoutParams,
+    CANCEL_ANYTIME,
+    describeRenewal,
+    findFourWeekSlotProduct,
     getDeclarationErrorSlug,
     getFirstPeriodLabel,
+    hasRenewalTerm,
     getSubscriptionDeclaration,
     getTaxLabel,
     getPeriodPercent,
     isExactCharge,
+    isFourWeekContinuation,
+    isNetCharge,
     getWeeksOfSeconds,
     isFirstPaymentOnly
 } from '../../../utils/SubscriptionCheckout'
@@ -40,7 +46,11 @@ import { useCheckoutRequestId } from '../../../hooks/useCheckoutRequestId'
 import PurchaseDeclaration from '../PurchaseDeclaration/PurchaseDeclaration'
 
 const isSubscription = (product: PurchaseableProduct) => product.slug?.startsWith('l_') === true
-const duration = (product: PurchaseableProduct) => (product.ownershipSeconds === 2419200 ? '4 weeks' : `${(product.ownershipSeconds || 0) / 86400} days`)
+const WEEK_SECONDS = 7 * 24 * 3600
+const duration = (product: PurchaseableProduct) => {
+    const seconds = product.ownershipSeconds || 0
+    return seconds % WEEK_SECONDS === 0 ? `${seconds / WEEK_SECONDS} weeks` : `${seconds / 86400} days`
+}
 const money = (amount: number, currency = 'EUR') => new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(amount)
 const tierName = (product: PurchaseableProduct) => (product.slotTier === 'premium_plus' ? 'Premium+' : 'Premium')
 
@@ -58,8 +68,8 @@ interface Props {
     onCountryChange(country: Country): void
 }
 
-/** slot subscriptions renew every 4 weeks, so codes are checked for that billing period (yearly-only codes do not apply) */
-const SLOT_BILLING_WEEKS = 4
+/** the billing period of a bundle whose period is not known yet (no product of the package): the 4 weeks slot subscriptions have */
+const DEFAULT_BILLING_WEEKS = 4
 
 interface RecurringPriceProps {
     amount: number
@@ -121,10 +131,17 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
     const declaration = usePurchaseDeclaration(reviewsSubscription, reviewsSubscription ? selected!.slug! : '')
     const checkoutRequest = useCheckoutRequestId()
     /** billed by us directly (Stripe/PayPal) in a country whose tax is known: the displayed price is exactly the charge */
-    const direct = isExactCharge(offer.providers, countryCode)
-    const taxLabel = getTaxLabel(countryCode, direct)
+    const exact = isExactCharge(offer.providers, countryCode, offer.mode)
+    /** Stripe Managed Payments: net prices, Stripe adds the tax */
+    const net = isNetCharge(offer.providers, offer.mode)
+    /** how the catalog taxes a price: exactly like the direct checkout, net, or as an estimate */
+    const direct: boolean | 'net' = net ? 'net' : exact
+    const taxLabel = getTaxLabel(countryCode, exact, net)
+    // codes are checked for the billing period of the reviewed bundle, the first one of the package before one is reviewed
+    const offered = products.filter(product => product.slotCount === slotCount && product.slotTier === tier && isSubscription(product) === (purchaseType === PurchaseType.SUBSCRIPTION))
+    const billingWeeks = getWeeksOfSeconds((selected ?? offered[0])?.ownershipSeconds || DEFAULT_BILLING_WEEKS * WEEK_SECONDS)
     const discount = useDiscountCode(initialDiscountCode, {
-        weeks: SLOT_BILLING_WEEKS,
+        weeks: billingWeeks,
         validateInitial: true,
         autoCode: offer.promotion?.code,
         isSubscription: purchaseType === PurchaseType.SUBSCRIPTION,
@@ -134,6 +151,35 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
     /** the discount code's percent for a product's billing period */
     function codePercent(product: PurchaseableProduct) {
         return getPeriodPercent(discount.validated, getWeeksOfSeconds(product.ownershipSeconds))
+    }
+
+    /** a 13/52 week bundle paid with card or PayPal continues every 4 weeks after its first term */
+    function continuesEvery4Weeks(product: PurchaseableProduct) {
+        return isFourWeekContinuation(offer) && hasRenewalTerm(getWeeksOfSeconds(product.ownershipSeconds))
+    }
+
+    /** the renewal price of a long bundle, taken from its 4-week sibling; null without one (left out, not guessed) */
+    function renewalLabel(product: PurchaseableProduct): string | null {
+        const fourWeek = findFourWeekSlotProduct(products, product)
+        if (!fourWeek || offer.loading) return null
+        const renewal = catalog.renewalPrice(fourWeek, discount.validated, net)
+        return renewal === undefined ? null : money(renewal, price(fourWeek, direct)?.currencyCode || 'EUR')
+    }
+
+    /** how long the shown price covers: the first term of a long bundle, the period of a 4-week one (then its renewal after a code) */
+    function describeReviewTerm(product: PurchaseableProduct, quote: ReturnType<typeof quoteWithCodes>): string {
+        if (continuesEvery4Weeks(product)) return `for the first ${duration(product)}`
+        if (quote && firstPaymentOnly && codePercent(product) > 0) {
+            return `for the ${getFirstPeriodLabel(getWeeksOfSeconds(product.ownershipSeconds))}, then ${money(quote.renewal, quote.currency)} every ${duration(product)}`
+        }
+        return `every ${duration(product)}`
+    }
+
+    /** e.g. "Then €9.69 every 4 weeks after the first 52 weeks, until cancelled", "Then €9.69 every 4 weeks" after a first-payment code */
+    function describeContinuation(product: PurchaseableProduct): string {
+        const coveredByCode = firstPaymentOnly && codePercent(product) > 0
+        const text = describeRenewal(getWeeksOfSeconds(product.ownershipSeconds), renewalLabel(product), coveredByCode)
+        return text.charAt(0).toUpperCase() + text.slice(1)
     }
 
     async function openSubscriptionCheckout(product: PurchaseableProduct, provider: PaymentProvider) {
@@ -163,6 +209,12 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
         checkoutRequest.renew()
         setError(failure.message)
         void declaration.reload()
+    }
+
+    /** how an offer bills; a 13/52 week bundle says what it continues with after its first term */
+    function describeOfferBilling(product: PurchaseableProduct, renewal: string, firstOnly: boolean): string {
+        if (!continuesEvery4Weeks(product)) return describeBilling(product, renewal, firstOnly)
+        return `First ${duration(product)}, ${describeRenewal(getWeeksOfSeconds(product.ownershipSeconds), renewalLabel(product), true)}${firstOnly ? '' : ' until cancelled'}`
     }
 
     async function checkout(token?: string, prepaidDeclaration?: ServicePurchaseDeclaration, provider: PaymentProvider = 'lemonsqueezy') {
@@ -258,9 +310,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
             </div>
         )
 
-    const offers = products.filter(
-        product => product.slotCount === slotCount && product.slotTier === tier && isSubscription(product) === (purchaseType === PurchaseType.SUBSCRIPTION)
-    )
+    const offers = offered
     const hasSubscriptions = offers.some(isSubscription)
     const selectedQuote = selected ? quoteWithCodes(selected, codePercent(selected)) : undefined
     const firstPaymentOnly = isFirstPaymentOnly(discount.validated)
@@ -273,7 +323,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
                 <p>
                     {slotCount} {getTierDisplayName(tier)} {slotCount === 1 ? 'slot' : 'slots'} · Assign to friends after payment
                 </p>
-                {showPromotion ? <PromotionNote promotion={offer.promotion!} weeks={SLOT_BILLING_WEEKS} /> : null}
+                {showPromotion ? <PromotionNote promotion={offer.promotion!} weeks={billingWeeks} /> : null}
             </div>
             {loading ? <p role="status">Loading slot options…</p> : null}
             {catalogError || (hasSubscriptions && pricingError) ? (
@@ -347,7 +397,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
                                     </div>
                                     <p className={styles.period}>
                                         {recurring
-                                            ? `${describeBilling(product, priceReady ? money(amount!, currency) : '', percent > 0 && firstPaymentOnly)} for ${slotCount === 1 ? 'this slot' : `all ${slotCount} slots`}`
+                                            ? `${describeOfferBilling(product, priceReady ? money(amount!, currency) : '', percent > 0 && firstPaymentOnly)} for ${slotCount === 1 ? 'this slot' : `all ${slotCount} slots`}`
                                             : `One payment · ${duration(product)} of access`}
                                     </p>
                                     {slotCount > 1 && (!recurring || priceReady) ? (
@@ -442,18 +492,16 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
                                 <s>{money(selectedQuote.original, selectedQuote.currency)}</s>
                             </>
                         ) : null}{' '}
-                        {selected && selectedQuote && firstPaymentOnly && codePercent(selected) > 0
-                            ? `for the ${getFirstPeriodLabel(getWeeksOfSeconds(selected.ownershipSeconds))}, then ${money(selectedQuote.renewal, selectedQuote.currency)} every ${duration(selected)}`
-                            : `every ${selected ? duration(selected) : ''}`}{' '}
-                        for {selected?.slotCount === 1 ? 'this slot' : 'the whole bundle'}.
+                        {selected ? describeReviewTerm(selected, selectedQuote) : ''} for {selected?.slotCount === 1 ? 'this slot' : 'the whole bundle'}.
+                        {selected && continuesEvery4Weeks(selected) ? ` ${describeContinuation(selected)}. ${CANCEL_ANYTIME}.` : null}
                     </p>
                     {selectedQuote?.saved ? (
                         <Savings>
                             You save {money(selectedQuote.saved, selectedQuote.currency)} (~{selectedQuote.savedPercent}% off)
                         </Savings>
                     ) : null}
-                    {showPromotion ? <PromotionNote promotion={offer.promotion!} weeks={SLOT_BILLING_WEEKS} /> : null}
-                    {selected ? <SlotCodes catalog={catalog} discount={discount} creatorPercent={catalog.creatorPercent(selected)} weeks={SLOT_BILLING_WEEKS} /> : null}
+                    {showPromotion ? <PromotionNote promotion={offer.promotion!} weeks={billingWeeks} /> : null}
+                    {selected ? <SlotCodes catalog={catalog} discount={discount} creatorPercent={catalog.creatorPercent(selected)} weeks={billingWeeks} /> : null}
                     <p>
                         This starts a new subscription for these slots. It renews automatically until canceled; cancellation keeps access through the paid
                         period.

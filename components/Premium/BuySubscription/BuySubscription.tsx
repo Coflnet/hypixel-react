@@ -21,15 +21,23 @@ import {
 } from '../../../utils/PricingUtils'
 import useDiscountCode from '../../../hooks/useDiscountCode'
 import { useCheckoutOffer } from '../../../hooks/useCheckoutOffer'
+import { useRenewalPrice } from '../../../hooks/useRenewalPrice'
 import {
+    CANCEL_ANYTIME,
     PaymentProvider,
+    describeRenewal,
+    getBillingLabel,
     getBillingWeeks,
+    getFourWeekProductSlug,
+    getRenewalPrice,
+    hasRenewalTerm,
+    isFourWeekContinuation,
+    isNetCharge,
     getCheckoutLink,
     getCheckoutParams,
     getDirectPrice,
     getCheckoutErrorMessage,
     getDeclarationErrorSlug,
-    getEveryPeriodLabel,
     getFirstPeriodLabel,
     getPerPeriodLabel,
     getPeriodPercent,
@@ -152,8 +160,16 @@ function BuySubscription(props: Props) {
     const { validated: validatedDiscount, pendingYearly: pendingYearlyDiscount, validating: isValidatingDiscount, error: discountError, code: discountCode } = discount
     const discountCodePercent = getPeriodPercent(validatedDiscount, billingWeeks)
     /** billed by us directly (Stripe/PayPal) in a country whose tax is known: the displayed price is exactly the charge, see getDirectPrice */
-    const isDirect = isExactCharge(offer.providers, buyerCountry)
+    const isDirect = isExactCharge(offer.providers, buyerCountry, offer.mode)
+    /** Stripe Managed Payments bills it: the price shown is the net price, Stripe adds the tax */
+    const isNet = isNetCharge(offer.providers, offer.mode)
+    /** the country the price is taxed for: none for Managed Payments, which shows net prices */
+    const taxCountry = isNet ? undefined : buyerCountry
     const { pricingData } = pricing
+    /** a 13/52 week plan continues every 4 weeks after its first term at the 4-week plan's price, unless Lemon Squeezy alone is left */
+    const continuesEvery4Weeks = isFourWeekContinuation(offer) && hasRenewalTerm(billingWeeks)
+    // the price is named only once the offer is settled: its mode decides how the tax is added
+    const fourWeekPrice = useRenewalPrice(continuesEvery4Weeks && !offer.loading ? getFourWeekProductSlug(tier) : null, buyerCountry, pricing.appliedCreatorCode)
     // every plan is its own order: the declaration starts unticked again for another plan
     const declaration = usePurchaseDeclaration(true, productSlug)
     const checkoutRequest = useCheckoutRequestId()
@@ -170,14 +186,14 @@ function BuySubscription(props: Props) {
 
     /** the charged price after the discount code: exact for a direct checkout, otherwise the tax estimate rounded up */
     function getFinalPrice(basePrice: number, percent = discountCodePercent): number {
-        if (isDirect) return getDirectPrice(basePrice, percent, buyerCountry)
+        if (isDirect || isNet) return getDirectPrice(basePrice, percent, taxCountry)
         return roundUpToCent(getPriceWithVAT(basePrice * (1 - percent / 100), buyerCountry))
     }
 
     function getOriginalPrice(): number | null {
         const price = getProviderOriginalPrice(pricingData, productSlug, 'lemonsqueezy')
         if (price === null) return null
-        if (isDirect) return getDirectPrice(price, 0, buyerCountry)
+        if (isDirect || isNet) return getDirectPrice(price, 0, taxCountry)
         return roundUpToCent(getPriceWithVAT(price, buyerCountry))
     }
 
@@ -198,7 +214,7 @@ function BuySubscription(props: Props) {
 
     /** "per 4 weeks (+VAT)", "per 52 weeks" or, while the country is unknown, "per 4 weeks, plus VAT where applicable" */
     function getPriceUnit(): string {
-        const vat = getVatNote(buyerCountry, isDirect)
+        const vat = getVatNote(buyerCountry, isDirect, isNet)
         const period = getPerPeriodLabel(billingWeeks)
         if (!vat) return period
         return buyerCountry ? `${vat} ${period}` : `${period}, ${vat}`
@@ -278,8 +294,35 @@ function BuySubscription(props: Props) {
         return <Savings>{percent}% off compared to paying every 4 weeks</Savings>
     }
 
+    /** the renewal's price with its tax note, null while the 4-week plan's price is not known (it is left out, not guessed) */
+    function getRenewalLabel(): string | null {
+        const renewal = getRenewalPrice(fourWeekPrice, validatedDiscount, taxCountry)
+        if (renewal === null) return null
+        const note = getVatNote(buyerCountry, isDirect, isNet)
+        return note ? `${money(renewal)} ${note}` : money(renewal)
+    }
+
+    /** a 13/52 week plan: what the first term costs and that it then continues every 4 weeks until cancelled */
+    function renderContinuationNote() {
+        const firstOnly = discountCodePercent > 0 && isFirstPaymentOnly(validatedDiscount)
+        const text = describeRenewal(billingWeeks, getRenewalLabel(), firstOnly)
+        if (firstOnly) {
+            return (
+                <SummaryNote>
+                    {money(getFinalPrice(getSubscriptionPrice()))} for the first {billingWeeks} weeks, {text}. {CANCEL_ANYTIME}.
+                </SummaryNote>
+            )
+        }
+        return (
+            <SummaryNote>
+                {text.charAt(0).toUpperCase() + text.slice(1)}. {CANCEL_ANYTIME}.
+            </SummaryNote>
+        )
+    }
+
     /** a code for the first payment only: what the subscription renews at afterwards */
     function renderRenewalNote() {
+        if (continuesEvery4Weeks) return renderContinuationNote()
         if (!discountCodePercent || !isFirstPaymentOnly(validatedDiscount)) return null
         const renewal = getFinalPrice(getSubscriptionPrice(), 0)
         return (
@@ -302,7 +345,7 @@ function BuySubscription(props: Props) {
     /** the same tax wording as the price: an exact direct charge includes VAT (or none is added, US), estimates say so */
     function renderTaxNote() {
         if (!buyerCountry) return <SummaryNote>Prices are before VAT until you choose your country. VAT is added where applicable.</SummaryNote>
-        return <SummaryNote>{getTaxLabel(buyerCountry, isDirect)}.</SummaryNote>
+        return <SummaryNote>{getTaxLabel(buyerCountry, isDirect, isNet)}.</SummaryNote>
     }
 
     function renderSummary() {
@@ -318,7 +361,7 @@ function BuySubscription(props: Props) {
                     <span className={TIER_CLASS[tier] ?? ''}>{getTierDisplayName(tier)}</span>
                 </SummaryRow>
                 <SummaryRow label="Payment">Subscription</SummaryRow>
-                <SummaryRow label="Billing">Renews {getEveryPeriodLabel(billingWeeks)}</SummaryRow>
+                <SummaryRow label="Billing">{getBillingLabel(billingWeeks, isFourWeekContinuation(offer))}</SummaryRow>
                 {discountInfo.creatorPercent ? <SummaryRow label="Creator code">-{discountInfo.creatorPercent}%</SummaryRow> : null}
                 {discountInfo.discountCodePercent ? <SummaryRow label="Discount code">-{discountInfo.discountCodePercent}%</SummaryRow> : null}
                 <SummaryTotal label="Price" amount={money(finalPrice)} original={showOriginal ? money(originalPrice!) : null} unit={getPriceUnit()}>

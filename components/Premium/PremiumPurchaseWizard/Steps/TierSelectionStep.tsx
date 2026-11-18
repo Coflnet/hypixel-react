@@ -6,9 +6,9 @@ import OptionGroup, { WizardOption } from '../OptionGroup'
 import { canSelectTier } from '../wizardFlow'
 import { Country } from '../../../../utils/CountryUtils'
 import { Discount, formatDiscountEndDate, getActiveSubscriptionDiscount } from '../../../../utils/DiscountUtils'
-import { getPlanPrice, getPlanTaxNote } from '../../../PremiumLanding/content/planPricing'
+import { PlanBilling, getPlanBilling, getPlanPrice, getPlanTaxNote } from '../../../PremiumLanding/content/planPricing'
 import { useCheckoutOffer } from '../../../../hooks/useCheckoutOffer'
-import { getDirectPrice, isExactCharge } from '../../../../utils/SubscriptionCheckout'
+import { getDirectPrice } from '../../../../utils/SubscriptionCheckout'
 
 interface TierConfig {
     tier: PremiumTier
@@ -80,15 +80,16 @@ interface Props {
 }
 
 /** the tier's price after the sale percent: the direct checkout's exact charge, otherwise the tax estimate */
-function getDiscountedPrice(tier: PremiumTier, countryCode: string | undefined, exact: boolean, percent: number): number {
-    if (exact) return getDirectPrice(calculatePrice(tier).basePrice, percent, countryCode)
+function getDiscountedPrice(tier: PremiumTier, countryCode: string | undefined, billing: PlanBilling, percent: number): number {
+    if (billing.exact) return getDirectPrice(calculatePrice(tier).basePrice, percent, countryCode)
+    if (billing.net) return getDirectPrice(calculatePrice(tier).basePrice, percent, undefined)
     return calculatePrice(tier, countryCode, percent).totalPrice
 }
 
-function TierPrice({ tier, countryCode, exact, discount }: { tier: PremiumTier; countryCode?: string; exact: boolean; discount: Discount | null }) {
-    const base = getPlanPrice(tier, countryCode, exact)
+function TierPrice({ tier, countryCode, billing, discount }: { tier: PremiumTier; countryCode?: string; billing: PlanBilling; discount: Discount | null }) {
+    const base = getPlanPrice(tier, countryCode, billing)
     if (!discount || discount.percentage <= 0) return <>{base.amount}</>
-    const discounted = getDiscountedPrice(tier, countryCode, exact, discount.percentage)
+    const discounted = getDiscountedPrice(tier, countryCode, billing, discount.percentage)
     return (
         <>
             <s className={styles.struck}>{base.amount}</s> €{discounted.toFixed(2)}
@@ -96,8 +97,8 @@ function TierPrice({ tier, countryCode, exact, discount }: { tier: PremiumTier; 
     )
 }
 
-function getPriceUnit(tier: PremiumTier, countryCode: string | undefined, exact: boolean, discount: Discount | null) {
-    const period = getPlanPrice(tier, countryCode, exact).unit
+function getPriceUnit(tier: PremiumTier, countryCode: string | undefined, billing: PlanBilling, discount: Discount | null) {
+    const period = getPlanPrice(tier, countryCode, billing).unit
     if (!discount || discount.percentage <= 0) return period
     return (
         <>
@@ -155,12 +156,12 @@ function UpgradeIntro({ currentTier, activePremiumProduct }: { currentTier: Prem
     )
 }
 
-function TierNote({ forFriends, countryCode, exact }: { forFriends?: boolean; countryCode?: string; exact: boolean }) {
+function TierNote({ forFriends, countryCode, billing }: { forFriends?: boolean; countryCode?: string; billing: PlanBilling }) {
     const discount = getActiveSubscriptionDiscount()
     if (forFriends) return null
     return (
         <p className={styles.note}>
-            {getPlanTaxNote(countryCode, exact)}
+            {getPlanTaxNote(countryCode, billing)}
             {discount && (
                 <>
                     <br />
@@ -186,22 +187,22 @@ export default function TierSelectionStep({
     const discount = getActiveSubscriptionDiscount()
     const countryCode = selectedCountry?.value
     const offer = useCheckoutOffer(forFriends ? undefined : countryCode)
-    const exact = !offer.loading && isExactCharge(offer.providers, countryCode)
+    const billing = getPlanBilling(offer, countryCode)
 
     function toOption(config: TierConfig): WizardOption<PremiumTier> {
         const tier = config.tier
         const isSuggested = suggestedTier === tier
         const canSelect = canSelectTier(tier, currentTier, isUpgrade)
         // the amount is the lowest price per 4 weeks (Premium Plus: billed every 52 weeks), as on the plan cards
-        const priceNote = forFriends ? null : getPlanPrice(tier, countryCode, exact).note
+        const priceNote = forFriends ? null : getPlanPrice(tier, countryCode, billing).note
         return {
             value: tier,
             title: config.title,
             titleClassName: config.titleClass,
             badge: getTierBadge(tier, isCurrentTier(tier, currentTier, isUpgrade), isSuggested),
             description: canSelect ? <TierDescription text={(isSuggested && config.upgradeDescription) || config.description} note={priceNote} /> : 'Cannot downgrade',
-            price: forFriends ? undefined : <TierPrice tier={tier} countryCode={countryCode} exact={exact} discount={discount} />,
-            unit: forFriends ? undefined : getPriceUnit(tier, countryCode, exact, discount),
+            price: forFriends ? undefined : <TierPrice tier={tier} countryCode={countryCode} billing={billing} discount={discount} />,
+            unit: forFriends ? undefined : getPriceUnit(tier, countryCode, billing, discount),
             footer: <TierFeatures features={config.features} extra={isSuggested ? SUGGESTED_FEATURES[tier] : undefined} />,
             disabled: !canSelect
         }
@@ -220,7 +221,7 @@ export default function TierSelectionStep({
                 </div>
             )}
             <OptionGroup legend="Premium tier" options={options} selected={selected} onChoose={onTierSelect} />
-            <TierNote forFriends={forFriends} countryCode={countryCode} exact={exact} />
+            <TierNote forFriends={forFriends} countryCode={countryCode} billing={billing} />
         </div>
     )
 }

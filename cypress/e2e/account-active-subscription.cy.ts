@@ -1063,10 +1063,21 @@ describe('Slot packages in the Premium wizard', () => {
 
     // regression: the Premium Plus row showed the yearly price per month without saying so, and 4-week billing read "per month"
     it('says how the tier prices are billed', () => {
+        cy.intercept('GET', '**/api/premium/subscription/providers*', { statusCode: 404, body: {} })
         visitAuthenticatedPage('/premium')
         wizardOption(/^Premium Plus$/).closest('label').should('contain.text', 'Billed every 52 weeks at').and('contain.text', 'every 4 weeks')
         wizardOption(/^Premium Plus$/).closest('label').should('contain.text', '€27.25').and('contain.text', 'per 4 weeks').and('not.contain.text', 'month')
-        wizardOption(/^Starter$/).closest('label').should('contain.text', 'every 52 weeks only').and('contain.text', 'per 52 weeks')
+        // Starter is only sold for 52 weeks
+        wizardOption(/^Starter$/).closest('label').should('contain.text', 'every 52 weeks only').and('contain.text', '€16.69').and('contain.text', 'per 52 weeks')
+    })
+
+    // the card/PayPal wording is the default: Lemon Squeezy's "renews every 52 weeks" only appears once the offer settled on it
+    it('does not say a plan renews every 52 weeks while the payment providers are unknown', () => {
+        cy.intercept('GET', '**/api/premium/subscription/providers*', { statusCode: 404, body: {}, delay: 2500 }).as('slowProviders')
+        visitAuthenticatedPage('/premium')
+        wizardOption(/^Premium Plus$/).closest('label').should('contain.text', 'then every 4 weeks until cancelled').and('not.contain.text', 'Billed every 52 weeks')
+        cy.wait('@slowProviders')
+        wizardOption(/^Premium Plus$/).closest('label').should('contain.text', 'Billed every 52 weeks at')
     })
 
     // regression: back from the payment provider (back/forward cache) the button stayed disabled on "Redirecting…"
@@ -1740,8 +1751,8 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         }
         // regression: prices read "per month" for 4-week periods; 13 and 52 weeks are spread over 4-week periods with their total
         durationRow('4 weeks').should('contain.text', '~€7.27').and('contain.text', 'per 4 weeks, first 4 weeks')
-        durationRow('Quarterly').should('contain.text', '-50%').and('contain.text', '~€4.26').and('contain.text', '€13.84 for the first 13 weeks').find('s').should('have.text', '~€8.52')
-        durationRow('Yearly').should('contain.text', '-50%').and('contain.text', '~€3.72').and('contain.text', '€48.34 for the first year').find('s').should('have.text', '~€7.44')
+        durationRow('Quarterly').should('contain.text', '-50%').and('contain.text', '~€4.26').and('contain.text', '€13.84 for the first 13 weeks, then €9.69 every 4 weeks').find('s').should('have.text', '~€8.52')
+        durationRow('Yearly').should('contain.text', '-50%').and('contain.text', '~€3.72').and('contain.text', '€48.34 for the first year, then €9.69 every 4 weeks').find('s').should('have.text', '~€7.44')
         cy.get('#buyPremium').should('not.contain.text', 'month')
         cy.get('#buyPremium').screenshot('promotion-durations')
         wizardOption(/^Yearly$/).click()
@@ -1750,7 +1761,9 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         cy.get('#buyPremium').should('contain.text', 'Discount code valid!').and('contain.text', 'Black Friday: 50% off the first year')
         cy.get('#buyPremium').should('contain.text', formatMoney(48.34, 'EUR'))
         cy.get('#buyPremium s').should('contain.text', formatMoney(96.69, 'EUR'))
-        cy.get('#buyPremium').should('contain.text', 'The discount covers the first year. Then').and('contain.text', 'per 52 weeks')
+        // a code for the first payment only does not touch the renewal: the 4-week plan's full price, no matter how long the first term is
+        cy.get('#buyPremium').should('contain.text', '€48.34 for the first 52 weeks, then €9.69 every 4 weeks. Cancel anytime.').and('contain.text', 'per 52 weeks')
+        cy.get('#buyPremium').should('contain.text', '52 weeks, then every 4 weeks until cancelled').and('not.contain.text', 'Renews every 52 weeks')
         cy.get('[data-testid="promotion-note"]').invoke('text').should('match', /50% off your first payment \(the first year\)\. Offer ends December 1, 12:59\sAM GMT\+1\./)
         cy.get('#buyPremium').screenshot('promotion-checkout')
         // back and forward again: the promotion is already loaded and still applied
@@ -1762,6 +1775,93 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         confirmDeclaration()
         cy.contains('button', 'Pay with card').click()
         cy.wait('@checkout').its('request.query').should('deep.equal', { discountcode: 'BF2026', provider: 'stripe', country: 'US' })
+    })
+
+    const forever13 = { code: 'FOREVER13', name: 'Loyal', amountType: 'percent', amount: 25, periodAmounts: { 4: 10, 13: 25, 52: 25 }, duration: 'forever', isValid: true, durationInMonths: 0 }
+
+    // the renewal is the 4-week plan (9.69) with the code's 4-week percent (10), not the 13-week plan with the 13-week percent
+    it('continues a 13 week plan with a forever code every 4 weeks at the discounted 4-week price', () => {
+        cy.intercept('GET', '**/api/discount/FOREVER13*', { body: forever13 }).as('forever')
+        stubProviders(directProviders)
+        openDurations()
+        wizardOption(/^Quarterly$/).click()
+        cy.contains('#buyPremium h3', 'Complete Purchase').should('be.visible')
+        cy.get('#buyPremium').contains('button', 'Have a discount or creator code?').click()
+        discountInput().type('FOREVER13')
+        discountInput().closest('div').parent().contains('button', 'Apply').click()
+        cy.wait('@forever')
+        cy.get('#buyPremium').should('contain.text', 'Discount code valid!').and('contain.text', formatMoney(20.77, 'EUR'))
+        cy.get('#buyPremium').should('contain.text', '13 weeks, then every 4 weeks until cancelled')
+        cy.get('#buyPremium').should('contain.text', `Then ${formatMoney(8.72, 'EUR')} every 4 weeks after the first 13 weeks, until cancelled. Cancel anytime.`)
+        cy.get('#buyPremium').should('not.contain.text', 'Renews every 13 weeks').and('not.contain.text', 'every 13 weeks')
+    })
+
+    it('continues a 52 week plan without a code every 4 weeks at the 4-week price', () => {
+        stubProviders(directProviders)
+        openCheckout('Yearly')
+        cy.get('#buyPremium').should('contain.text', `Then ${formatMoney(9.69, 'EUR')} every 4 weeks after the first 52 weeks, until cancelled. Cancel anytime.`)
+        cy.get('#buyPremium').should('not.contain.text', 'every 52 weeks')
+    })
+
+    it('keeps the Lemon Squeezy wording of a 52 week plan', () => {
+        stubProviders({}, 404)
+        openCheckout('Yearly')
+        cy.get('#buyPremium').should('contain.text', 'Renews every 52 weeks').and('not.contain.text', 'until cancelled')
+    })
+
+    // Starter is sold for 52 weeks only; the year continues every 4 weeks at the 4-week price of l_starter_premium
+    it('continues a yearly Starter every 4 weeks at the Starter 4-week price', () => {
+        const prices: Record<string, number> = { 'l_starter_premium': 2.69, 'l_starter_premium-quarter': 9.69, 'l_starter_premium-year': 16.69 }
+        cy.intercept('POST', '**/api/topup/rates', request => {
+            request.reply({
+                body: {
+                    products: (request.body.productSlugs as string[]).map(slug => ({
+                        productSlug: slug, discountPercent: 0,
+                        providers: [{ providerSlug: 'lemonsqueezy', currencyCode: 'EUR', originalPrice: prices[slug], discountedPrice: prices[slug] }]
+                    }))
+                }
+            })
+        }).as('starterRates')
+        stubProviders(directProviders)
+        visitAuthenticatedPage('/premium?tier=starter')
+        wizardOption(/^Subscription$/).click()
+        durationRow('Yearly').should('contain.text', 'First 52 weeks, then every 4 weeks until cancelled').and('contain.text', '€16.69 for the first year, then €2.69 every 4 weeks')
+        durationRow('Yearly').should('contain.text', 'then €2.69 every 4 weeks').and('not.contain.text', 'renews every 52')
+        wizardOption(/^Yearly$/).click()
+        cy.contains('#buyPremium h3', 'Complete Purchase').should('be.visible')
+        cy.get('#buyPremium').should('contain.text', formatMoney(16.69, 'EUR'))
+        cy.get('#buyPremium').should('contain.text', `Then ${formatMoney(2.69, 'EUR')} every 4 weeks after the first 52 weeks, until cancelled. Cancel anytime.`)
+        cy.get('#buyPremium').should('contain.text', '52 weeks, then every 4 weeks until cancelled').and('not.contain.text', 'every 52 weeks')
+        cy.get('@starterRates.all').should(calls => {
+            const slugs = calls.flatMap(call => (call as unknown as { request: { body: { productSlugs: string[] } } }).request.body.productSlugs)
+            expect(slugs).to.include('l_starter_premium')
+        })
+    })
+
+    // Stripe Managed Payments adds the tax itself: net prices with "(+tax)", never a VAT estimate
+    it('shows net prices with (+tax) when Stripe Managed Payments bills the buyer', () => {
+        cy.intercept('GET', '**/api/premium/country', { body: { country: 'BR' } })
+        stubProviders([{ provider: 'stripe', mode: 'managed' }])
+        openDurations()
+        durationRow('Yearly').should('contain.text', '(+tax)').and('contain.text', 'then €9.69 every 4 weeks').and('not.contain.text', 'VAT')
+        wizardOption(/^Yearly$/).click()
+        cy.contains('#buyPremium h3', 'Complete Purchase').should('be.visible')
+        cy.get('#buyPremium').should('contain.text', formatMoney(96.69, 'EUR')).and('contain.text', 'Tax is added at checkout.')
+        cy.get('#buyPremium').should('contain.text', `Then ${formatMoney(9.69, 'EUR')} (+tax) every 4 weeks after the first 52 weeks, until cancelled.`)
+        cy.get('#buyPremium').should('not.contain.text', 'Includes').and('not.contain.text', 'estimated')
+    })
+
+    // a fixed amount code states cents; the backend takes it off every renewal of a forever code
+    it('takes a fixed forever code off the renewal', () => {
+        const fixed = { code: 'FIVE', name: 'Five off', amountType: 'fixed', amount: 100, periodAmounts: { 4: 100, 52: 100 }, duration: 'forever', isValid: true, durationInMonths: 0 }
+        cy.intercept('GET', '**/api/discount/FIVE*', { body: fixed }).as('fixed')
+        stubProviders(directProviders)
+        openCheckout('Yearly')
+        cy.get('#buyPremium').contains('button', 'Have a discount or creator code?').click()
+        discountInput().type('FIVE')
+        discountInput().closest('div').parent().contains('button', 'Apply').click()
+        cy.wait('@fixed')
+        cy.get('#buyPremium').should('contain.text', `Then ${formatMoney(8.69, 'EUR')} every 4 weeks after the first 52 weeks, until cancelled.`)
     })
 
     // the page charges what the backend does: discount rounded half to even on the net, then German VAT rounded to the cent
@@ -2057,6 +2157,64 @@ describe('Slot subscriptions with Stripe, PayPal and the promotion', () => {
             assignSlots: 'true', discountcode: 'BF2026', provider: 'paypal', country: 'US'
         })
         cy.get('@checkoutNavigation').should('have.been.calledOnceWithExactly', 'https://www.paypal.com/checkoutnow?token=test', '_self')
+    })
+
+    describe('a 52 week bundle', () => {
+        const yearBundle = { slug: 'l_premium-slots-4-year', slotTier: 'premium', slotCount: 4, cost: 72000, ownershipSeconds: 52 * 7 * 24 * 3600 }
+
+        beforeEach(() => {
+            cy.intercept('GET', '**/api/premium/slots/products', { body: [...slotCatalog, yearBundle] })
+            cy.intercept('POST', '**/api/topup/rates', request => {
+                const { products } = slotPricing()
+                const year = { productSlug: yearBundle.slug, providers: [{ providerSlug: 'lemonsqueezy', currencyCode: 'EUR', originalPrice: 300, discountedPrice: 300 }] }
+                request.reply({ body: { products: [...products, year] } })
+            })
+        })
+
+        function openYearBundle() {
+            visitAuthenticatedPage('/premium?slots=true#buyPremium')
+            wizardOption(/^Premium$/).click()
+            wizardOption(/^Subscription$/).click()
+            cy.get('[data-testid="premium-package"]').contains(OPTION_TITLE, 'Package of 4').click()
+            cy.get('[data-testid="slot-offer"]').should('have.length', 2)
+        }
+
+        it('continues every 4 weeks at the 4-week bundle price after the first 52 weeks', () => {
+            stubProviders(directProviders)
+            openYearBundle()
+            cy.get('[data-testid="slot-offer"]').eq(1).should('contain.text', 'First 52 weeks, then €29.69 every 4 weeks until cancelled').and('not.contain.text', 'Every 52 weeks')
+            cy.get('[data-testid="slot-offer"]').eq(1).contains('button', 'Continue with subscription').click()
+            cy.get('.modal').should('contain.text', 'for the first 52 weeks for the whole bundle')
+                .and('contain.text', 'Then €29.69 every 4 weeks after the first 52 weeks, until cancelled. Cancel anytime.')
+        })
+
+        // a code for the first payment only does not change the renewal
+        it('says a first-payment promotion covers the first 52 weeks and the renewal stays at the full 4-week price', () => {
+            stubProviders(directProviders)
+            stubPromotion()
+            openYearBundle()
+            cy.wait('@promotionCode')
+            cy.get('[data-testid="slot-offer"]').eq(1).should('contain.text', '-50%').and('contain.text', 'First 52 weeks, then €29.69 every 4 weeks')
+            cy.get('[data-testid="slot-offer"]').eq(1).contains('button', 'Continue with subscription').click()
+            cy.get('.modal').should('contain.text', '€150.00').and('contain.text', 'for the first 52 weeks for the whole bundle. Then €29.69 every 4 weeks. Cancel anytime.')
+            cy.get('.modal').should('not.contain.text', 'after the first 52 weeks')
+            // the promotion is read for the bundle's 52 weeks (50%), not for 4 weeks (25%)
+            cy.get('.modal').should('contain.text', '50% off your first payment (the first year)').and('not.contain.text', '25% off')
+        })
+
+        // the package card is keyed by slot count and period: the 52 week bundle does not replace the 4-week price
+        it('keeps the 4-week price on the package card', () => {
+            stubProviders(directProviders)
+            openYearBundle()
+            cy.get('#buyPremium').contains('button', 'Back').click()
+            cy.get('[data-testid="premium-package"]').contains(OPTION_TITLE, 'Package of 4').closest('label').should('contain.text', '~€7.42 per slot · every 4 weeks').and('not.contain.text', '52 weeks')
+        })
+
+        it('keeps the Lemon Squeezy wording', () => {
+            stubProviders({}, 404)
+            openYearBundle()
+            cy.get('[data-testid="slot-offer"]').eq(1).should('not.contain.text', 'until cancelled')
+        })
     })
 
     // regression: the Back button sat squeezed beside the stacked provider buttons

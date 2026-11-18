@@ -4,8 +4,10 @@ import { useGetApiPremiumDiscountAuto, useGetApiPremiumSubscriptionProviders } f
 import type { AutoDiscount } from '../api/_generated/skyApi.schemas'
 import {
     PaymentProvider,
+    ProviderMode,
     getCodeProvider,
     getDirectProviders,
+    getProviderMode,
     getNextPromotionChange,
     getPromotionFor,
     isPromotionRunning
@@ -27,8 +29,9 @@ export function useSubscriptionProviders(country?: string, productSlug?: string)
         { query: { enabled: !!country, staleTime: PROVIDERS_STALE_TIME, retry: false, placeholderData: keepPreviousData } }
     )
     const providers = query.data?.status === 200 ? getDirectProviders(query.data.data) : []
+    const mode = query.data?.status === 200 ? getProviderMode(query.data.data) : null
     const pending = !country || query.isLoading
-    return { providers, loading: pending || query.isPlaceholderData, codeProvider: getCodeProvider(providers, pending) }
+    return { providers, mode, loading: pending || query.isPlaceholderData, codeProvider: getCodeProvider(providers, pending) }
 }
 
 /** the current time, renewed when `promotion` starts or ends so the page stops applying it at its end */
@@ -60,6 +63,8 @@ export interface CheckoutOffer {
     providers: PaymentProvider[]
     /** the automatic promotion, only when one of `providers` honours it */
     promotion: AutoDiscount | null
+    /** how the providers bill: `managed` (Stripe adds the tax, the page shows net prices) or `direct`; null without providers */
+    mode: ProviderMode | null
     /** the provider a discount code is checked for, undefined while unknown */
     codeProvider?: PaymentProvider
     /** true until the providers of this country and product are known; no checkout may open meanwhile */
@@ -73,6 +78,7 @@ export function useCheckoutOffer(country?: string, productSlug?: string): Checko
     return {
         providers: providers.providers,
         promotion: getPromotionFor(auto.promotion, providers.providers),
+        mode: providers.mode,
         codeProvider: providers.codeProvider,
         loading: providers.loading || auto.loading
     }

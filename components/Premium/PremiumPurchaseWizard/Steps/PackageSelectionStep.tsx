@@ -1,7 +1,7 @@
 import type { SlotCatalog } from '../../../../hooks/useSlotCatalog'
 import OptionGroup, { WizardOption } from '../OptionGroup'
 import { PremiumTier, PurchaseType } from '../types'
-import { getTaxLabel } from '../../../../utils/SubscriptionCheckout'
+import { getTaxLabel, isFourWeekSeconds } from '../../../../utils/SubscriptionCheckout'
 
 interface Props {
     tier: PremiumTier
@@ -23,27 +23,47 @@ interface PackageCopy {
     description: string
 }
 
+const WEEK_SECONDS = 7 * 24 * 3600
+
 function formatPeriod(ownershipSeconds: number): string {
-    return ownershipSeconds === 2419200 ? '4 weeks' : `${ownershipSeconds / 86400} days`
+    return ownershipSeconds % WEEK_SECONDS === 0 ? `${ownershipSeconds / WEEK_SECONDS} weeks` : `${ownershipSeconds / 86400} days`
 }
 
-/** the per-slot price of each package size, e.g. { amount: "~€24.92", unit: "per slot · every 4 weeks" } */
+/** what a subscription's price covers: "every 4 weeks", a longer first term "for 52 weeks" (it continues every 4 weeks or renews, by provider) */
+function describeSlotPeriod(ownershipSeconds: number): string {
+    return isFourWeekSeconds(ownershipSeconds) ? `every ${formatPeriod(ownershipSeconds)}` : `for ${formatPeriod(ownershipSeconds)}`
+}
+
+/**
+ * the per-slot price of each package size, e.g. { amount: "~€24.92", unit: "per slot · every 4 weeks" }. Prices are kept per slot
+ * count and billing period (the shortest period is shown), so a 52 week bundle never replaces the 4 week price of its package.
+ */
 function getPackagePrices(catalog: SlotCatalog, tier: PremiumTier, recurring: boolean): Record<number, PackagePrice> {
-    const prices: Record<number, PackagePrice> = {}
+    const prices: Record<string, PackagePrice & { seconds: number }> = {}
     for (const product of catalog.products.filter(product => product.slotTier === tier && product.slug?.startsWith('l_') === recurring)) {
         const provider = catalog.price(product)
         const amount = recurring ? (provider?.discountedPrice ?? provider?.originalPrice) : product.cost
         if (amount === undefined || !Number.isFinite(amount) || amount <= 0) continue
         const perSlot = amount / product.slotCount!
-        const period = formatPeriod(product.ownershipSeconds!)
-        prices[product.slotCount!] = recurring
+        const seconds = product.ownershipSeconds!
+        prices[`${product.slotCount}|${seconds}`] = recurring
             ? {
                   amount: `~${new Intl.NumberFormat(undefined, { style: 'currency', currency: provider?.currencyCode || 'EUR' }).format(perSlot)}`,
-                  unit: `per slot · every ${period}`
+                  unit: `per slot · ${describeSlotPeriod(seconds)}`,
+                  seconds
               }
-            : { amount: perSlot.toLocaleString(), unit: `CoflCoins per slot · ${period}` }
+            : { amount: perSlot.toLocaleString(), unit: `CoflCoins per slot · ${formatPeriod(seconds)}`, seconds }
     }
-    return prices
+    return pickShortestPeriods(prices)
+}
+
+function pickShortestPeriods(prices: Record<string, PackagePrice & { seconds: number }>): Record<number, PackagePrice> {
+    const shortest: Record<number, PackagePrice & { seconds: number }> = {}
+    for (const [key, price] of Object.entries(prices)) {
+        const count = Number(key.split('|')[0])
+        if (!shortest[count] || price.seconds < shortest[count].seconds) shortest[count] = price
+    }
+    return shortest
 }
 
 function isLoadingPrices(catalog: SlotCatalog, tier: PremiumTier, recurring: boolean): boolean {

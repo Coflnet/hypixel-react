@@ -509,21 +509,32 @@ describe('Money formatting', () => {
 })
 
 describe('Plan cards', () => {
+    const lemonSqueezy = { exact: false, net: false, continues: false, settled: true }
+    const direct = { exact: true, net: false, continues: true, settled: true }
+
     it('shows prices from the pricing utilities, with VAT for known countries', () => {
-        expect(getPlanPrice(PremiumTier.STARTER, 'US')).to.deep.equal({
-            amount: '€16.99',
+        // Starter is sold for 52 weeks only (payment fees)
+        expect(getPlanPrice(PremiumTier.STARTER, 'US', lemonSqueezy)).to.deep.equal({
+            amount: '€16.69',
             unit: '+ VAT per 52 weeks',
             note: 'Billed every 52 weeks only, because of payment fees'
         })
         // an unknown country is not priced as the US: before VAT, and it says so
-        expect(getPlanPrice(PremiumTier.PREMIUM)).to.deep.include({
+        expect(getPlanPrice(PremiumTier.PREMIUM, undefined, lemonSqueezy)).to.deep.include({
             amount: '€9.69',
             unit: 'per 4 weeks, plus VAT where applicable',
             note: 'Or €27.69 every 13 weeks, €96.69 every 52 weeks'
         })
         // billed every 52 weeks: 354.20 / 13 per 4 weeks, not / 12 per month
-        expect(getPlanPrice(PremiumTier.PREMIUM_PLUS)).to.deep.include({ amount: '€27.25', note: 'Billed every 52 weeks at €354.20, or €35.69 every 4 weeks' })
-        expect(getPlanPrice(PremiumTier.PREMIUM, 'DE')).to.deep.include({ amount: '€11.53', unit: 'per 4 weeks' })
+        expect(getPlanPrice(PremiumTier.PREMIUM_PLUS, undefined, lemonSqueezy)).to.deep.include({ amount: '€27.25', note: 'Billed every 52 weeks at €354.20, or €35.69 every 4 weeks' })
+        expect(getPlanPrice(PremiumTier.PREMIUM, 'DE', lemonSqueezy)).to.deep.include({ amount: '€11.53', unit: 'per 4 weeks' })
+        // card and PayPal: the 52 week plan continues every 4 weeks, also the default before the offer is known
+        expect(getPlanPrice(PremiumTier.PREMIUM_PLUS, 'US', direct).note).to.equal(
+            '€354.20 for the first 52 weeks, then €35.69 every 4 weeks until cancelled. Or €35.69 every 4 weeks from the start. Cancel anytime'
+        )
+        expect(getPlanPrice(PremiumTier.PREMIUM_PLUS).note).to.equal(
+            '€354.20 for the first 52 weeks, then every 4 weeks until cancelled. Or €35.69 every 4 weeks from the start. Cancel anytime'
+        )
     })
 
     it('sends visitors to the step that blocks the purchase', () => {

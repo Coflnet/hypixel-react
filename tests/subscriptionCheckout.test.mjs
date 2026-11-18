@@ -23,6 +23,11 @@ const planPricing = loadModule('../components/PremiumLanding/content/planPricing
 })
 const { Duration, PremiumTier, PurchaseType } = types
 
+/** how the plan cards are charged: card/PayPal in a direct country, Lemon Squeezy only, Stripe Managed Payments, and before the offer is known */
+const exactBilling = { exact: true, net: false, continues: true, settled: true }
+const lemonBilling = { exact: false, net: false, continues: false, settled: true }
+const managedBilling = { exact: false, net: true, continues: true, settled: true }
+
 /** browsers may put a narrow no-break space before AM/PM; the assertions compare plain spaces */
 const plain = text => text.replace(/\s/g, ' ')
 
@@ -112,7 +117,27 @@ test('knows the exact charge only for the EU, the UK and the US', () => {
     assert.equal(checkout.hasExactTax(undefined), false)
     assert.equal(checkout.isExactCharge(['stripe'], 'DE'), true)
     assert.equal(checkout.isExactCharge([], 'DE'), false)
-    assert.equal(checkout.isExactCharge(['stripe'], 'BR'), false)
+    // the provider's mode decides, not the country: a direct provider bills any country it is offered for, Managed Payments never exact
+    assert.equal(checkout.isExactCharge(['stripe'], 'BR', 'direct'), true)
+    assert.equal(checkout.isExactCharge(['stripe'], 'BR', 'managed'), false)
+    assert.equal(checkout.isExactCharge(['stripe'], undefined, 'direct'), false)
+    assert.equal(checkout.isNetCharge(['stripe'], 'managed'), true)
+    assert.equal(checkout.isNetCharge(['stripe'], 'direct'), false)
+    assert.equal(checkout.isNetCharge([], 'managed'), false)
+})
+
+test('reads the providers mode, a missing mode counts as direct', () => {
+    assert.equal(checkout.getProviderMode([{ provider: 'stripe', mode: 'managed' }, { provider: 'paypal', mode: 'managed' }]), 'managed')
+    assert.equal(checkout.getProviderMode([{ provider: 'stripe', mode: 'direct' }, { provider: 'paypal', mode: 'direct' }]), 'direct')
+    assert.equal(checkout.getProviderMode([{ provider: 'stripe' }]), 'direct')
+    assert.equal(checkout.getProviderMode([{ provider: 'lemonsqueezy', mode: 'managed' }]), null)
+    assert.equal(checkout.getProviderMode(undefined), null)
+})
+
+test('names managed prices net with (+tax)', () => {
+    assert.equal(checkout.getVatNote('BR', false, true), '(+tax)')
+    assert.equal(checkout.getTaxLabel('BR', false, true), 'Tax is added at checkout')
+    assert.equal(checkout.getVatNote('DE', true), '')
 })
 
 test('every country with an exact charge has a VAT rate or is the US', () => {
@@ -251,17 +276,21 @@ test('finds the next start or end of a promotion', () => {
 })
 
 // regression: the plan cards said "per month" for 4-week billing and showed Premium+ as its yearly price over 12 months
-test('prices the plan cards per 4 weeks (Starter per 52 weeks) and says when VAT is not included', () => {
-    const plus = planPricing.getPlanPrice(PremiumTier.PREMIUM_PLUS, 'US')
+test('prices the plan cards per 4 weeks and says when VAT is not included', () => {
+    const plus = planPricing.getPlanPrice(PremiumTier.PREMIUM_PLUS, 'US', lemonBilling)
     assert.equal(plus.amount, '€27.25')
     assert.equal(plus.unit, '+ VAT per 4 weeks')
     assert.match(plus.note, /every 52 weeks at €354\.20, or €35\.69 every 4 weeks/)
-    assert.equal(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'DE').amount, '€11.53')
-    assert.equal(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'DE').unit, 'per 4 weeks')
-    assert.equal(planPricing.getPlanPrice(PremiumTier.STARTER, 'DE').unit, 'per 52 weeks')
+    assert.equal(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'DE', lemonBilling).amount, '€11.53')
+    assert.equal(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'DE', lemonBilling).unit, 'per 4 weeks')
+    // Starter is sold for 52 weeks only (payment fees), at 16.69
+    assert.equal(planPricing.getPlanPrice(PremiumTier.STARTER, 'US', exactBilling).amount, '€16.69')
+    assert.equal(planPricing.getPlanPrice(PremiumTier.STARTER, 'DE', lemonBilling).unit, 'per 52 weeks')
     for (const tier of Object.values(PremiumTier)) {
-        const price = planPricing.getPlanPrice(tier, 'DE')
-        assert.doesNotMatch(`${price.unit} ${price.note}`, /month/i, tier)
+        for (const billing of [lemonBilling, exactBilling, managedBilling, undefined]) {
+            const price = planPricing.getPlanPrice(tier, 'DE', billing)
+            assert.doesNotMatch(`${price.unit} ${price.note}`, /month/i, tier)
+        }
     }
 })
 
@@ -282,24 +311,26 @@ test('names subscription billing periods in weeks, never as a month', () => {
 
 // regression: US plan cards said "+ VAT" although the direct US checkout adds no tax
 test('prices the plan cards like the direct checkout charges where it is exact', () => {
-    const plus = planPricing.getPlanPrice(PremiumTier.PREMIUM_PLUS, 'US', true)
+    const plus = planPricing.getPlanPrice(PremiumTier.PREMIUM_PLUS, 'US', exactBilling)
     assert.equal(plus.amount, '€27.25')
     assert.equal(plus.unit, 'per 4 weeks')
-    assert.match(plus.note, /every 52 weeks at €354\.20, or €35\.69 every 4 weeks/)
-    const premium = planPricing.getPlanPrice(PremiumTier.PREMIUM, 'DE', true)
+    assert.match(plus.note, /^€354\.20 for the first 52 weeks, then €35\.69 every 4 weeks until cancelled\./)
+    assert.match(plus.note, /Cancel anytime$/)
+    const premium = planPricing.getPlanPrice(PremiumTier.PREMIUM, 'DE', exactBilling)
     assert.equal(premium.amount, '€11.53')
     assert.equal(premium.unit, 'per 4 weeks')
     // Lemon Squeezy adds the US sales tax at checkout
-    assert.equal(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'US', false).unit, '+ VAT per 4 weeks')
+    assert.equal(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'US', lemonBilling).unit, '+ VAT per 4 weeks')
 })
 
 test('says under the plan cards how tax is charged, in the checkout wording', () => {
-    assert.equal(planPricing.getPlanTaxNote('US', true), 'No tax added.')
-    assert.equal(planPricing.getPlanTaxNote('DE', true), 'Includes VAT.')
-    assert.equal(planPricing.getPlanTaxNote('US', false), 'Tax calculated at checkout. Checkout confirms the final price.')
-    assert.equal(planPricing.getPlanTaxNote('DE', false), 'Includes estimated tax. Checkout confirms the final price.')
-    assert.match(planPricing.getPlanTaxNote(undefined, false), /before VAT until your country is known/)
-    for (const exact of [true, false]) assert.doesNotMatch(planPricing.getPlanTaxNote('US', exact), /VAT is added/)
+    assert.equal(planPricing.getPlanTaxNote('US', exactBilling), 'No tax added.')
+    assert.equal(planPricing.getPlanTaxNote('DE', exactBilling), 'Includes VAT.')
+    assert.equal(planPricing.getPlanTaxNote('US', lemonBilling), 'Tax calculated at checkout. Checkout confirms the final price.')
+    assert.equal(planPricing.getPlanTaxNote('DE', lemonBilling), 'Includes estimated tax. Checkout confirms the final price.')
+    assert.equal(planPricing.getPlanTaxNote('BR', managedBilling), 'Tax is added at checkout.')
+    assert.match(planPricing.getPlanTaxNote(undefined, lemonBilling), /before VAT until your country is known/)
+    for (const billing of [exactBilling, lemonBilling]) assert.doesNotMatch(planPricing.getPlanTaxNote('US', billing), /VAT is added/)
 })
 
 const declaration = { version: 'premium-service-start-2026-07-28', locale: 'de', text: 'Ich verlange ausdrücklich…' }
@@ -333,4 +364,139 @@ test('explains a refused declaration and keeps the generic message for other che
     assert.match(checkout.getCheckoutErrorMessage({ slug: 'service_performance_declaration_required' }), /tick the early start declaration/)
     assert.match(checkout.getCheckoutErrorMessage({ slug: 'invalid_service_performance_declaration' }), /has changed or could not be verified/)
     assert.equal(checkout.getCheckoutErrorMessage({ slug: 'payment_error' }), 'Failed to redirect to payment provider. Please try again.')
+})
+
+const durationTexts = (continues, tier = PremiumTier.PREMIUM) =>
+    types.getDurationOptions(tier, PurchaseType.SUBSCRIPTION, continues).map(option => option.desc)
+
+test('says 13 and 52 week plans continue every 4 weeks, only Lemon Squeezy keeps its wording', () => {
+    const [, quarter, year] = durationTexts(true)
+    assert.match(quarter, /First 13 weeks, then every 4 weeks until cancelled\. Cancel anytime/)
+    assert.match(year, /First 52 weeks, then every 4 weeks until cancelled\. Cancel anytime/)
+    for (const text of durationTexts(true)) assert.doesNotMatch(text, /renews every (13|52) weeks/i)
+    const [, lemonQuarter, lemonYear] = durationTexts(false)
+    assert.match(lemonQuarter, /Renews every 13 weeks/)
+    assert.match(lemonYear, /Renews every 52 weeks/)
+    // the default, e.g. the server-rendered page, is the card/PayPal wording
+    assert.deepEqual(types.getDurationOptions(PremiumTier.PREMIUM, PurchaseType.SUBSCRIPTION).map(option => option.desc), durationTexts(true))
+    assert.doesNotMatch(durationTexts(true)[0], /until cancelled/)
+})
+
+test('offers Starter for 52 weeks only, continuing every 4 weeks after the first year', () => {
+    const options = types.getDurationOptions(PremiumTier.STARTER, PurchaseType.SUBSCRIPTION)
+    assert.deepEqual([...options.map(option => option.label)], ['Yearly'])
+    assert.match(durationTexts(true, PremiumTier.STARTER)[0], /First 52 weeks, then every 4 weeks until cancelled\. Cancel anytime/)
+    assert.doesNotMatch(durationTexts(true, PremiumTier.STARTER)[0], /renews every 52/i)
+    assert.match(durationTexts(false, PremiumTier.STARTER)[0], /Renews every 52 weeks/)
+})
+
+test('plan card notes say what plans continue with, without a renewal price until the offer settled', () => {
+    const premium = planPricing.getPlanPrice(PremiumTier.PREMIUM, 'US', exactBilling).note
+    assert.equal(premium, 'Or €27.69 for 13 weeks or €96.69 for 52 weeks, then €9.69 every 4 weeks until cancelled. Cancel anytime')
+    assert.equal(
+        planPricing.getPlanPrice(PremiumTier.STARTER, 'US', exactBilling).note,
+        '€16.69 for the first 52 weeks, then €2.69 every 4 weeks until cancelled. Cancel anytime'
+    )
+    assert.equal(planPricing.getPlanPrice(PremiumTier.STARTER, 'US', lemonBilling).note, 'Billed every 52 weeks only, because of payment fees')
+    // the default (server-rendered page, offer loading) is the same wording without the renewal price
+    const ssr = planPricing.getPlanPrice(PremiumTier.PREMIUM, undefined)
+    assert.equal(ssr.note, 'Or €27.69 for 13 weeks or €96.69 for 52 weeks, then every 4 weeks until cancelled. Cancel anytime')
+    assert.doesNotMatch(ssr.note, /renews every/i)
+    // Managed Payments: net prices, "+ tax"
+    const managed = planPricing.getPlanPrice(PremiumTier.PREMIUM, 'BR', managedBilling)
+    assert.equal(managed.amount, '€9.69')
+    assert.equal(managed.unit, '+ tax per 4 weeks')
+    assert.match(managed.note, /then €9\.69 every 4 weeks until cancelled/)
+    assert.equal(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'US', lemonBilling).note, 'Or €27.69 every 13 weeks, €96.69 every 52 weeks')
+})
+
+test('builds the plan billing from the offer, Lemon Squeezy only once the offer settled on it', () => {
+    const billing = (loading, providers, mode) => planPricing.getPlanBilling({ loading, providers, mode }, 'DE')
+    assert.deepEqual({ ...billing(true, [], null) }, { exact: false, net: false, continues: true, settled: false })
+    assert.deepEqual({ ...billing(false, [], null) }, { exact: false, net: false, continues: false, settled: true })
+    assert.deepEqual({ ...billing(false, ['stripe'], 'direct') }, { exact: true, net: false, continues: true, settled: true })
+    assert.deepEqual({ ...billing(false, ['stripe'], 'managed') }, { exact: false, net: true, continues: true, settled: true })
+})
+
+const forever = { amountType: 'percent', amount: 20, duration: 'forever', periodAmounts: { 4: 10, 13: 15, 52: 20 } }
+const once = { ...forever, duration: 'once' }
+const fixedForever = { amountType: 'fixed', amount: 100, duration: 'forever', periodAmounts: { 4: 50, 52: 100 } }
+
+test('prices the renewal from the 4-week plan with the 4-week percent, none for a first payment only code', () => {
+    assert.equal(checkout.getRenewalPercent(forever), 10)
+    assert.equal(checkout.getRenewalPercent(once), 0)
+    assert.equal(checkout.getRenewalPercent(null), 0)
+    assert.equal(checkout.getRenewalPrice(9.69, once, 'US'), 9.69)
+    assert.equal(checkout.getRenewalPrice(9.69, forever, 'US'), 8.72)
+    // banker's rounding on the net (9.69 * 0.9 = 8.721), half away from zero on the gross
+    assert.equal(checkout.getRenewalPrice(9.69, forever, 'DE'), checkout.getDirectPrice(9.69, 10, 'DE'))
+    assert.equal(checkout.getRenewalPrice(9.69, null, 'DE'), 11.53)
+    // Managed Payments: net, no country VAT
+    assert.equal(checkout.getRenewalPrice(9.69, null, undefined), 9.69)
+    assert.equal(checkout.getRenewalPrice(null, forever, 'DE'), null)
+    assert.equal(checkout.getRenewalPrice(0, forever, 'DE'), null)
+    assert.equal(checkout.getRenewalPrice(Number.NaN, forever, 'DE'), null)
+})
+
+test('takes a fixed forever code off the renewal in cents, like the backend', () => {
+    assert.equal(checkout.getRenewalPercent(fixedForever), 0)
+    assert.equal(checkout.getRenewalFixedCents(fixedForever), 50)
+    assert.equal(checkout.getRenewalFixedCents({ ...fixedForever, duration: 'once' }), 0)
+    assert.equal(checkout.getRenewalFixedCents(forever), 0)
+    // 9.69 - 0.50 net, then the German VAT
+    assert.equal(checkout.getRenewalPrice(9.69, fixedForever, undefined), 9.19)
+    assert.equal(checkout.getRenewalPrice(9.69, fixedForever, 'DE'), 10.94)
+    assert.equal(checkout.getRenewalPrice(0.3, { ...fixedForever, periodAmounts: null, amount: 500 }, 'US'), 0)
+})
+
+test('describes the renewal after a 13 or 52 week first term', () => {
+    assert.equal(checkout.describeRenewal(52, '€9.69', false), 'then €9.69 every 4 weeks after the first 52 weeks, until cancelled')
+    assert.equal(checkout.describeRenewal(13, '€9.69', false), 'then €9.69 every 4 weeks after the first 13 weeks, until cancelled')
+    assert.equal(checkout.describeRenewal(52, '€9.69', true), 'then €9.69 every 4 weeks')
+    // renewal price not known yet: the price is left out
+    assert.equal(checkout.describeRenewal(52, null, false), 'then every 4 weeks after the first 52 weeks, until cancelled')
+    assert.equal(checkout.describeRenewal(52, null, true), 'then every 4 weeks')
+})
+
+test('the billing line of a 13 or 52 week plan never says it renews for the same term, unless only Lemon Squeezy is left', () => {
+    assert.equal(checkout.getBillingLabel(52, true), '52 weeks, then every 4 weeks until cancelled')
+    assert.equal(checkout.getBillingLabel(13, true), '13 weeks, then every 4 weeks until cancelled')
+    assert.equal(checkout.getBillingLabel(52, false), 'Renews every 52 weeks')
+    assert.equal(checkout.getBillingLabel(4, true), 'Renews every 4 weeks')
+    assert.equal(checkout.isFourWeekContinuation({ loading: true, providers: [] }), true)
+    assert.equal(checkout.isFourWeekContinuation({ loading: false, providers: ['paypal'] }), true)
+    assert.equal(checkout.isFourWeekContinuation({ loading: false, providers: [] }), false)
+})
+
+test('every tier, Starter too, continues with its 4-week plan', () => {
+    assert.equal(checkout.getFourWeekProductSlug(PremiumTier.PREMIUM), 'l_premium')
+    assert.equal(checkout.getFourWeekProductSlug(PremiumTier.PREMIUM_PLUS), 'l_prem_plus')
+    assert.equal(checkout.getFourWeekProductSlug(PremiumTier.STARTER), 'l_starter_premium')
+})
+
+// the list prices of the server-rendered page are the backend's
+test('keeps the list prices of the backend catalog', () => {
+    const { SUBSCRIPTION_PRICES } = pricing
+    assert.deepEqual({ ...SUBSCRIPTION_PRICES.starter_premium }, { monthly: 2.69, quarterly: 9.69, yearly: 16.69 })
+    assert.deepEqual([SUBSCRIPTION_PRICES.premium.monthly, SUBSCRIPTION_PRICES.premium.quarterly, SUBSCRIPTION_PRICES.premium.yearly], [9.69, 27.69, 96.69])
+    assert.deepEqual([SUBSCRIPTION_PRICES.premium_plus.monthly, SUBSCRIPTION_PRICES.premium_plus.quarterly, SUBSCRIPTION_PRICES.premium_plus.yearly], [35.69, 99.69, 354.2])
+})
+
+test('finds the 4-week slot bundle with the same slot tier and count, in the backend 4-week range', () => {
+    const week = 7 * 24 * 3600
+    const product = (slug, slotTier, slotCount, seconds) => ({ slug, slotTier, slotCount, ownershipSeconds: seconds })
+    const catalog = [
+        product('l_premium-slots-4-year', 'premium', 4, 52 * week),
+        product('l_premium-slots-4', 'premium', 4, 4 * week),
+        product('l_premium-slots', 'premium', 1, 2430000),
+        product('l_prem_plus-slots-4', 'premium_plus', 4, 4 * week),
+        product('premium-slots-4', 'premium', 4, 4 * week)
+    ]
+    assert.equal(checkout.findFourWeekSlotProduct(catalog, catalog[0]).slug, 'l_premium-slots-4')
+    assert.equal(checkout.findFourWeekSlotProduct(catalog, product('l_premium-slots-year', 'premium', 1, 52 * week)).slug, 'l_premium-slots')
+    assert.equal(checkout.findFourWeekSlotProduct(catalog.slice(2), catalog[0]), undefined)
+    assert.equal(checkout.isFourWeekSeconds(2332800), true)
+    assert.equal(checkout.isFourWeekSeconds(2678400), true)
+    assert.equal(checkout.isFourWeekSeconds(2332799), false)
+    assert.equal(checkout.isFourWeekSeconds(2678401), false)
 })

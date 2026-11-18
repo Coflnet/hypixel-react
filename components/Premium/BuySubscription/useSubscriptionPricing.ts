@@ -5,7 +5,7 @@ import { BatchProductPricingResponse } from '../../../api/_generated/skyApi.sche
 
 const PRICING_ERROR = 'Failed to load pricing information'
 
-async function requestPricing(productSlug: string, countryCode: string, creatorCode: string): Promise<BatchProductPricingResponse> {
+export async function requestPricing(productSlug: string, countryCode: string, creatorCode: string): Promise<BatchProductPricingResponse> {
     const googleToken = sessionStorage.getItem('googleId')
     const response = await postApiTopupRates(
         { productSlugs: [productSlug], countryCode, creatorCode: creatorCode || null },

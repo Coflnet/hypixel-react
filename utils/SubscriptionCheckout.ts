@@ -2,11 +2,12 @@ import type {
     AutoDiscount,
     LegalDeclaration,
     PostApiPremiumSubscriptionSubscriptionSlugParams,
+    PurchaseableProduct,
     SubscriptionDeclarationArgs,
     SubscriptionProviderOption
 } from '../api/_generated/skyApi.schemas'
-import { Duration } from '../components/Premium/PremiumPurchaseWizard/types'
-import { VAT_RATES } from './PricingUtils'
+import { Duration, PremiumTier } from '../components/Premium/PremiumPurchaseWizard/types'
+import { VAT_RATES, getTierApiProductId } from './PricingUtils'
 
 // Payment providers and period-aware discounts of new subscriptions (Stripe, PayPal, Lemon Squeezy).
 
@@ -16,6 +17,20 @@ export type PaymentProvider = 'stripe' | 'paypal' | 'lemonsqueezy'
 export const DIRECT_PROVIDERS: PaymentProvider[] = ['stripe', 'paypal']
 
 const WEEK_SECONDS = 7 * 24 * 3600
+
+/** how a direct provider bills: `direct` sells in the buyer's country with our VAT, `managed` (Stripe Managed Payments) adds the tax itself */
+export type ProviderMode = 'direct' | 'managed'
+
+/**
+ * The mode of the offered Stripe/PayPal providers, null while none is offered. The backend gives every provider of a country the
+ * same mode; `managed` only when no direct one is among them, a missing mode counts as direct.
+ */
+export function getProviderMode(options: SubscriptionProviderOption[] | null | undefined): ProviderMode | null {
+    if (!Array.isArray(options)) return null
+    const modes = options.filter(option => DIRECT_PROVIDERS.includes(option.provider?.toLowerCase() as PaymentProvider)).map(option => option.mode?.toLowerCase())
+    if (modes.length === 0) return null
+    return modes.includes('managed') && !modes.includes('direct') && !modes.includes(undefined) ? 'managed' : 'direct'
+}
 
 /** the direct providers offered for a checkout, card (Stripe) first; empty keeps the single Lemon Squeezy checkout */
 export function getDirectProviders(options: SubscriptionProviderOption[] | null | undefined): PaymentProvider[] {
@@ -89,9 +104,14 @@ export function hasExactTax(countryCode?: string | null): boolean {
     return code === 'US' || DIRECT_VAT_COUNTRIES.has(code)
 }
 
-/** whether the page can show the exact charge: a direct provider bills the buyer's country */
-export function isExactCharge(providers: PaymentProvider[], countryCode?: string | null): boolean {
-    return providers.length > 0 && hasExactTax(countryCode)
+/** whether the page can show the exact charge: a direct (not managed) provider bills the buyer's country, as its mode says */
+export function isExactCharge(providers: PaymentProvider[], countryCode?: string | null, mode: ProviderMode | null = 'direct'): boolean {
+    return providers.length > 0 && mode === 'direct' && !!countryCode
+}
+
+/** whether Stripe Managed Payments bills it: the page shows the net price, Stripe adds the tax at checkout */
+export function isNetCharge(providers: PaymentProvider[], mode: ProviderMode | null): boolean {
+    return providers.length > 0 && mode === 'managed'
 }
 
 function getVatBasisPoints(countryCode?: string | null): number {
@@ -104,16 +124,16 @@ function getVatBasisPoints(countryCode?: string | null): number {
  * minus the discount code percent rounded half to even, then the buyer country's VAT added and rounded half away from zero.
  * Only for countries hasExactTax: the US gets no VAT added.
  */
-export function getDirectCents(planPrice: number, percent: number, countryCode?: string | null): number {
+export function getDirectCents(planPrice: number, percent: number, countryCode?: string | null, fixedCents = 0): number {
     const cents = Math.round(planPrice * 100)
     const keep = Math.round((100 - (percent || 0)) * 100)
-    const net = divideHalfEven(cents * keep, 10000)
+    const net = Math.max(0, divideHalfEven(cents * keep, 10000) - Math.round(fixedCents || 0))
     return divideHalfAway(net * (10000 + getVatBasisPoints(countryCode)), 10000)
 }
 
 /** the price a direct checkout charges in euros, see getDirectCents */
-export function getDirectPrice(planPrice: number, percent: number, countryCode?: string | null): number {
-    return getDirectCents(planPrice, percent, countryCode) / 100
+export function getDirectPrice(planPrice: number, percent: number, countryCode?: string | null, fixedCents = 0): number {
+    return getDirectCents(planPrice, percent, countryCode, fixedCents) / 100
 }
 
 /** whether a price still says "(+VAT)": not once tax is in it (an estimate for a known country, exact when `exact`) or the US adds none */
@@ -128,7 +148,8 @@ export function showsVatSuffix(countryCode: string | null | undefined, exact: bo
 export const UNKNOWN_COUNTRY_VAT_NOTE = 'plus VAT where applicable'
 
 /** the tax note after a price: none once tax is in it, "(+VAT)" where checkout adds it, an open note while the country is unknown */
-export function getVatNote(countryCode: string | null | undefined, exact: boolean): string {
+export function getVatNote(countryCode: string | null | undefined, exact: boolean, net = false): string {
+    if (net) return '(+tax)'
     if (!countryCode) return UNKNOWN_COUNTRY_VAT_NOTE
     return showsVatSuffix(countryCode, exact) ? '(+VAT)' : ''
 }
@@ -137,7 +158,8 @@ export function getVatNote(countryCode: string | null | undefined, exact: boolea
  * The tax line of a subscription price: "Includes VAT" only when the page shows the exact charge of a direct checkout
  * (see isExactCharge), an estimate's wording otherwise, and an open note while the buyer's country is unknown.
  */
-export function getTaxLabel(countryCode: string | null | undefined, exact: boolean): string {
+export function getTaxLabel(countryCode: string | null | undefined, exact: boolean, net = false): string {
+    if (net) return 'Tax is added at checkout'
     if (!countryCode) return 'Plus VAT where applicable'
     const hasVat = getVatBasisPoints(countryCode) > 0 && countryCode.toUpperCase() !== 'US'
     if (exact) return hasVat ? 'Includes VAT' : 'No tax added'
@@ -287,6 +309,92 @@ export function isFirstPaymentOnly(discount: { duration?: string | null } | null
 /** "first 4 weeks", "first 13 weeks" or "first year" */
 export function getFirstPeriodLabel(weeks: number): string {
     return weeks === 52 ? 'first year' : `first ${weeks} weeks`
+}
+
+/** the billing period 13 and 52 week subscriptions of Stripe and PayPal continue with after their first term */
+export const RENEWAL_WEEKS = 4
+
+/** said wherever a direct subscription's renewal is described */
+export const CANCEL_ANYTIME = 'Cancel anytime'
+
+/** whether a direct subscription of `weeks` continues at the 4-week price after its first term (4-week plans simply repeat) */
+export function hasRenewalTerm(weeks: number): boolean {
+    return weeks > RENEWAL_WEEKS
+}
+
+type RenewalDiscount = (PeriodDiscount & { duration?: string | null }) | null | undefined
+
+/** the percent the renewal gets off the 4-week price: the code's 4-week percent, none for a code that covers the first payment only */
+export function getRenewalPercent(discount: RenewalDiscount): number {
+    if (isFirstPaymentOnly(discount)) return 0
+    return getPeriodPercent(discount, RENEWAL_WEEKS)
+}
+
+/** the cents a fixed amount code takes off every renewal (its 4-week amount, as the backend states fixed amounts in cents); 0 for percent codes */
+export function getRenewalFixedCents(discount: RenewalDiscount): number {
+    if (!discount || isPercentDiscount(discount) || isFirstPaymentOnly(discount)) return 0
+    const amount = discount.periodAmounts?.[String(RENEWAL_WEEKS)] ?? discount.amount
+    return amount > 0 ? amount : 0
+}
+
+/**
+ * What the renewal charges in euros, like the payment backend: the 4-week plan's price of the same tier (and slots), after the
+ * creator code, minus the renewal percent (or fixed amount), plus the buyer country's VAT (see getDirectCents; pass no country for
+ * Managed Payments, which shows the net price). Null without a usable 4-week price.
+ */
+export function getRenewalPrice(fourWeekPlanPrice: number | null | undefined, discount: RenewalDiscount, countryCode?: string | null): number | null {
+    if (fourWeekPlanPrice === null || fourWeekPlanPrice === undefined) return null
+    if (!Number.isFinite(fourWeekPlanPrice) || fourWeekPlanPrice <= 0) return null
+    return getDirectPrice(fourWeekPlanPrice, getRenewalPercent(discount), countryCode, getRenewalFixedCents(discount))
+}
+
+/**
+ * Where a direct subscription goes after its first `weeks`, e.g. "then €9.69 every 4 weeks after the first 52 weeks, until cancelled";
+ * a code for the first payment only reads "then €9.69 every 4 weeks" after "€48.34 for the first 52 weeks". Without a `renewal`
+ * price (no 4-week plan to take it from) the price is left out rather than guessed.
+ */
+export function describeRenewal(weeks: number, renewal: string | null, firstPaymentOnly: boolean): string {
+    const price = renewal ? `${renewal} ` : ''
+    if (firstPaymentOnly) return `then ${price}every ${RENEWAL_WEEKS} weeks`
+    return `then ${price}every ${RENEWAL_WEEKS} weeks after the first ${weeks} weeks, until cancelled`
+}
+
+/**
+ * Whether a checkout's wording is the card/PayPal one: until the offer resolves (loading, unknown country, server-rendered page) the
+ * wording is theirs too; only an offer that settled on Lemon Squeezy alone keeps Lemon Squeezy's "renews every N weeks".
+ */
+export function isFourWeekContinuation(offer: { loading: boolean; providers: PaymentProvider[] }): boolean {
+    return offer.loading || offer.providers.length > 0
+}
+
+/** the summary's billing line: a direct 13/52 week plan continues every 4 weeks, Lemon Squeezy and 4-week plans renew as before */
+export function getBillingLabel(weeks: number, direct: boolean): string {
+    if (!direct || !hasRenewalTerm(weeks)) return `Renews ${getEveryPeriodLabel(weeks)}`
+    return `${weeks} weeks, then every ${RENEWAL_WEEKS} weeks until cancelled`
+}
+
+/** the product slug of a tier's 4-week plan (every tier has one, Starter's is l_starter_premium) */
+export function getFourWeekProductSlug(tier: PremiumTier): string {
+    return getTierApiProductId(tier, Duration.MONTHLY)
+}
+
+/** the backend's range of ownership seconds for a 4-week plan (e.g. 2419200 for Premium, 2430000 for Starter) */
+const FOUR_WEEKS_MIN_SECONDS = 2332800
+const FOUR_WEEKS_MAX_SECONDS = 2678400
+
+export function isFourWeekSeconds(seconds: number | null | undefined): boolean {
+    return (seconds ?? 0) >= FOUR_WEEKS_MIN_SECONDS && (seconds ?? 0) <= FOUR_WEEKS_MAX_SECONDS
+}
+
+/** the 4-week subscription of a slot bundle: same slot tier and slot count, 4 billing weeks; undefined when the catalog has none */
+export function findFourWeekSlotProduct(products: PurchaseableProduct[], product: PurchaseableProduct): PurchaseableProduct | undefined {
+    return products.find(
+        other =>
+            other.slug?.startsWith('l_') === true &&
+            other.slotTier === product.slotTier &&
+            other.slotCount === product.slotCount &&
+            isFourWeekSeconds(other.ownershipSeconds)
+    )
 }
 
 function isMidnight(date: Date, timeZone?: string): boolean {

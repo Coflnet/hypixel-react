@@ -445,7 +445,8 @@ describe('Premium redesign', () => {
         stubMedia()
         visitSignedOut()
         // the plan prices are before VAT until the country is detected (nothing is stored on the device); then the price line reflows
-        cy.get('[data-testid="plan-premium"]').should('contain', '€11.53').and('not.contain', 'plus VAT where applicable')
+        // the note under the price changes once the payment providers answer (until then it has the card/PayPal wording): wait for it too
+        cy.get('[data-testid="plan-premium"]').should('contain', '€11.53').and('not.contain', 'plus VAT where applicable').and('contain', 'every 13 weeks')
         cy.contains('button', /^Get Premium$/).scrollIntoView()
         // the page scrolls smoothly: wait until the button arrived and the position no longer changes
         expectInViewport('[data-testid="plan-premium"] button')
@@ -470,6 +471,8 @@ describe('Premium redesign', () => {
         cy.intercept('GET', '**/api/premium/subscription/providers*', { body: [{ provider: 'stripe' }, { provider: 'paypal' }] })
         visitSignedOut()
         cy.get('[data-testid="plan-premium"]').should('contain', '€9.69').and('contain', 'per 4 weeks').and('not.contain', 'VAT')
+        // card and PayPal continue a 13 or 52 week plan every 4 weeks at the 4-week price
+        cy.get('[data-testid="plan-premium"]').should('contain', 'then €9.69 every 4 weeks until cancelled').and('contain', 'Cancel anytime').and('not.contain', 'every 52 weeks')
         cy.get('[data-testid="plan-tax-note"]').should('contain.text', 'No tax added.').and('not.contain.text', 'VAT is added')
     })
 

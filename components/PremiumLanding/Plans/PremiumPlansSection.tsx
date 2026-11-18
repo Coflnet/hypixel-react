@@ -16,9 +16,8 @@ import {
 } from '../../Premium/PremiumAccountSections'
 import { PremiumTier } from '../../Premium/PremiumPurchaseWizard/types'
 import { PLAN_BUTTON_LABEL, PLAN_CARDS, PlanCard } from '../content/plans'
-import { getPlanPrice, getPlanTaxNote } from '../content/planPricing'
+import { PlanBilling, getPlanBilling, getPlanPrice, getPlanTaxNote } from '../content/planPricing'
 import { useCheckoutOffer } from '../../../hooks/useCheckoutOffer'
-import { isExactCharge } from '../../../utils/SubscriptionCheckout'
 import page from '../PremiumLanding.module.css'
 import { COFLCOINS_TARGET, getSignInActionTarget, PurchaseReadiness, SIGN_IN_TARGET, SignInAction } from '../../Premium/purchaseTarget'
 import { useSignInPrompt } from '../../Premium/useSignInPrompt'
@@ -40,20 +39,20 @@ function CheckIcon() {
 
 interface PlanPricing {
     countryCode?: string
-    /** a direct checkout bills the country: the cards show its exact charge (see isExactCharge) */
-    exact: boolean
+    /** how the cards' prices are charged (exact, net, estimate) and which renewal wording applies */
+    billing: PlanBilling
 }
 
-/** the buyer's country and whether the plan prices are the exact charge of its direct checkout */
+/** the buyer's country and how the plan prices will be charged */
 function usePlanPricing(): PlanPricing {
     const countryCode = useCountryDetection().selectedCountry?.value
     const offer = useCheckoutOffer(countryCode)
     // the previous country's providers are kept while this country's load: they do not decide its prices
-    return { countryCode, exact: !offer.loading && isExactCharge(offer.providers, countryCode) }
+    return { countryCode, billing: getPlanBilling(offer, countryCode) }
 }
 
 function PlanPrice({ tier, pricing }: { tier: PremiumTier; pricing: PlanPricing }) {
-    const price = getPlanPrice(tier, pricing.countryCode, pricing.exact)
+    const price = getPlanPrice(tier, pricing.countryCode, pricing.billing)
     return (
         <div className={styles.price}>
             <div className={styles.priceLine}>
@@ -171,7 +170,7 @@ export default function PremiumPlansSection({ communityQuotes }: { communityQuot
                     ))}
                 </div>
                 <p className={styles.small} data-testid="plan-tax-note">
-                    {getPlanTaxNote(pricing.countryCode, pricing.exact)} Profit figures are the median realized profit per user per day compared to free users, measured over 24 hours on 2026-11-04.
+                    {getPlanTaxNote(pricing.countryCode, pricing.billing)} Profit figures are the median realized profit per user per day compared to free users, measured over 24 hours on 2026-11-04.
                 </p>
                 {communityQuotes}
                 <div className={styles.account}>

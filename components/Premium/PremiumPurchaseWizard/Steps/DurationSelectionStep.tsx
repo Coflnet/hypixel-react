@@ -2,17 +2,23 @@
 import OptionGroup, { WizardOption } from '../OptionGroup'
 import { Duration, PurchaseType, PremiumTier, getDurationOptions } from '../types'
 import { VAT_RATES, SUBSCRIPTION_PRICES } from '../../../../utils/PricingUtils'
+import type { AutoDiscount } from '../../../../api/_generated/skyApi.schemas'
 import { CheckoutOffer, useCheckoutOffer } from '../../../../hooks/useCheckoutOffer'
 import {
     getBillingWeeks,
+    describeRenewal,
     getDirectPrice,
     getEveryPeriodLabel,
     getFirstPeriodLabel,
+    getRenewalPrice,
     getPerFourWeeks,
     getPerPeriodLabel,
     getPeriodPercent,
     getVatNote,
+    hasRenewalTerm,
     isExactCharge,
+    isFourWeekContinuation,
+    isNetCharge,
     isFirstPaymentOnly,
     showsVatSuffix
 } from '../../../../utils/SubscriptionCheckout'
@@ -89,9 +95,10 @@ function getBadge(option: { badge?: string; value: Duration }): string | undefin
 }
 
 /** " (+VAT)" where checkout adds it, ", plus VAT where applicable" while the country is unknown */
-function getVatText(props: Props, direct: boolean): string {
-    const note = getVatNote(props.countryCode, direct)
+function getVatText(props: Props, direct: boolean, net: boolean): string {
+    const note = getVatNote(props.countryCode, direct, net)
     if (!note) return ''
+    if (net) return ` ${note}`
     return props.countryCode ? ` ${note}` : `, ${note}`
 }
 
@@ -100,17 +107,36 @@ interface PeriodPrice {
     percent: number
     /** the promotion covers only the first payment */
     firstOnly: boolean
+    /** the promotion, for the renewal it applies to */
+    promotion?: AutoDiscount | null
+    /** a 13/52 week plan continues every 4 weeks after its first term (Stripe/PayPal, and until the offer settles) */
+    continues?: boolean
+    /** Managed Payments: the amounts are net, Stripe adds the tax */
+    net?: boolean
+    /** the offer settled, so the renewal price may be named (its tax depends on the provider's mode) */
+    settled?: boolean
+}
+
+/** the 4-week price of the tier after the promotion's renewal percent, "" while the offer is not settled (left out, not guessed) */
+function getRenewalText(props: Props, { promotion, settled }: PeriodPrice): string {
+    if (!settled) return ''
+    const renewal = getRenewalPrice(getPlanPrice(props.selectedTier, Duration.MONTHLY), promotion, props.countryCode)
+    return renewal === null ? '' : euro(renewal, true)
 }
 
 /**
  * e.g. "per 4 weeks · €96.69 every 52 weeks": the amount is per 4 weeks, the period total says what is billed;
  * a first-payment promotion says what it covers ("· €48.34 for the first year", "per 4 weeks, first 4 weeks")
  */
-function getSubscriptionUnit(props: Props, duration: Duration, direct: boolean, { percent, firstOnly }: PeriodPrice): string {
+function getSubscriptionUnit(props: Props, duration: Duration, direct: boolean, periodPrice: PeriodPrice): string {
+    const { percent, firstOnly } = periodPrice
     const weeks = getBillingWeeks(duration)
-    const unit = `${getPerPeriodLabel(4)}${getVatText(props, direct)}`
+    const unit = `${getPerPeriodLabel(4)}${getVatText(props, direct, !!periodPrice.net)}`
     if (weeks === 4) return firstOnly ? `${unit}, ${getFirstPeriodLabel(weeks)}` : unit
     const total = euro(getPeriodTotal(getPlanPrice(props.selectedTier, duration), percent, props, direct), direct)
+    if (periodPrice.continues && hasRenewalTerm(weeks)) {
+        return `${unit} · ${total} for the ${getFirstPeriodLabel(weeks)}, ${describeRenewal(weeks, getRenewalText(props, periodPrice) || null, true)}`
+    }
     return `${unit} · ${total} ${firstOnly ? `for the ${getFirstPeriodLabel(weeks)}` : getEveryPeriodLabel(weeks)}`
 }
 
@@ -131,16 +157,21 @@ type OptionPrices = Pick<WizardOption<Duration>, 'price' | 'originalPrice' | 'di
 
 /** the price per 4 weeks (CoflCoins: per month), struck through and discounted while a promotion covers the billing period */
 function getOptionPrices(props: Props, duration: Duration, offer: CheckoutOffer): OptionPrices {
-    const direct = isExactCharge(offer.providers, props.countryCode)
+    const net = isNetCharge(offer.providers, offer.mode)
+    // exact or net: the page shows the charge as the backend computes it; Managed Payments shows net prices, so no VAT is added
+    const direct = isExactCharge(offer.providers, props.countryCode, offer.mode) || net
+    const taxProps = net ? { ...props, countryCode: undefined } : props
+    const continues = isFourWeekContinuation(offer)
+    const state = { continues, net, settled: !offer.loading }
     const promotion = offer.promotion
     const percent = promotion ? getPeriodPercent(promotion, getBillingWeeks(duration)) : 0
-    const regular = getUnitPrice(props, duration, 0, direct)
-    if (!promotion || !percent) return { price: `~${euro(regular, direct)}`, unit: getUnit(props, duration, direct, { percent: 0, firstOnly: false }) }
+    const regular = getUnitPrice(taxProps, duration, 0, direct)
+    if (!promotion || !percent) return { price: `~${euro(regular, direct)}`, unit: getUnit(taxProps, duration, direct, { percent: 0, firstOnly: false, promotion, ...state }) }
     return {
-        price: `~${euro(getUnitPrice(props, duration, percent, direct), direct)}`,
+        price: `~${euro(getUnitPrice(taxProps, duration, percent, direct), direct)}`,
         originalPrice: `~${euro(regular, direct)}`,
         discountBadge: `-${percent}%`,
-        unit: getUnit(props, duration, direct, { percent, firstOnly: isFirstPaymentOnly(promotion) })
+        unit: getUnit(taxProps, duration, direct, { percent, firstOnly: isFirstPaymentOnly(promotion), promotion, ...state })
     }
 }
 
@@ -154,7 +185,7 @@ export default function DurationSelectionStep(props: Props) {
     const { selectedType, selectedTier, selectedDuration, onDurationSelect } = props
     const offer = useDurationOffer(props)
     const promotion = offer.promotion
-    const options: WizardOption<Duration>[] = getDurationOptions(selectedTier, selectedType).map(option => ({
+    const options: WizardOption<Duration>[] = getDurationOptions(selectedTier, selectedType, isFourWeekContinuation(offer)).map(option => ({
         value: option.value,
         title: option.label,
         description: option.desc,

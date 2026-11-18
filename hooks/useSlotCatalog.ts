@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { getApiPremiumSlotsProducts, postApiTopupRates } from '../api/_generated/skyApi'
 import type { BatchProductPricingResponse, PurchaseableProduct } from '../api/_generated/skyApi.schemas'
-import { applyPercent, getDirectPrice } from '../utils/SubscriptionCheckout'
+import { applyPercent, getDirectPrice, getRenewalPrice } from '../utils/SubscriptionCheckout'
 import { getDiscountPercent, getProvider, getPriceWithVAT } from '../utils/PricingUtils'
 
 export default function useSlotCatalog(countryCode?: string) {
@@ -73,14 +73,15 @@ export default function useSlotCatalog(countryCode?: string) {
     const canUsePrices = !!countryCode && pricingKey === `${countryCode}|${creatorCode}` && !pricingError
 
     /** the taxed price of a pre-tax amount: exact for a direct checkout, an estimate rounded to the cent for Lemon Squeezy */
-    function taxed(amount: number, percent: number, direct: boolean) {
+    function taxed(amount: number, percent: number, direct: boolean | 'net') {
+        if (direct === 'net') return getDirectPrice(amount, percent, undefined)
         if (direct) return getDirectPrice(amount, percent, countryCode)
         // Lemon Squeezy's batch prices are before tax. Round the whole bundle before dividing by slots.
         return applyPercent(Math.round(getPriceWithVAT(amount, countryCode) * 100) / 100, percent)
     }
 
     /** the product's prices with tax; `direct` when a Stripe or PayPal checkout bills it */
-    function price(product: PurchaseableProduct, direct = false) {
+    function price(product: PurchaseableProduct, direct: boolean | 'net' = false) {
         if (!canUsePrices) return undefined
         const provider = getProvider(pricing || null, product.slug!, 'lemonsqueezy')
         if (!provider) return undefined
@@ -88,11 +89,19 @@ export default function useSlotCatalog(countryCode?: string) {
     }
 
     /** the product's price with tax after a discount code's percent; the creator code is already in the provider's discounted price */
-    function priceWithCode(product: PurchaseableProduct, percent: number, direct: boolean) {
+    function priceWithCode(product: PurchaseableProduct, percent: number, direct: boolean | 'net') {
         if (!canUsePrices) return undefined
         const provider = getProvider(pricing || null, product.slug!, 'lemonsqueezy')
         if (!provider) return undefined
         return taxed(provider.discountedPrice ?? provider.originalPrice, percent, direct)
+    }
+
+    /** what a 13/52 week bundle continues at every 4 weeks: its 4-week sibling's price after the creator code and the code's renewal percent; undefined without a price */
+    function renewalPrice(fourWeekProduct: PurchaseableProduct, discount: Parameters<typeof getRenewalPrice>[1], net = false) {
+        if (!canUsePrices) return undefined
+        const provider = getProvider(pricing || null, fourWeekProduct.slug!, 'lemonsqueezy')
+        if (!provider) return undefined
+        return getRenewalPrice(provider.discountedPrice ?? provider.originalPrice, discount, net ? undefined : countryCode) ?? undefined
     }
 
     /** percent the applied creator code takes off a product, null without one */
@@ -118,6 +127,7 @@ export default function useSlotCatalog(countryCode?: string) {
         canUsePrices,
         price,
         priceWithCode,
+        renewalPrice,
         creatorCode,
         /** the last creator code the prices could not be loaded with, empty otherwise */
         rejectedCreatorCode,

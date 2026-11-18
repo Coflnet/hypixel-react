@@ -2,9 +2,10 @@ import { PremiumTier } from '../components/Premium/PremiumPurchaseWizard/types'
 import { BatchProductPricingResponse, ProviderPricingOption } from '../api/_generated/skyApi.schemas'
 import { Duration } from '../components/Premium/PremiumPurchaseWizard/types'
 
-// Base prices in EUR (before tax), per billing period of the plan cards: Starter every 52 weeks, the others per 4 weeks
+// Base prices in EUR (before tax) of the plan cards: Starter per 52 weeks, Premium per 4 weeks, Premium+ per 4 weeks billed for 52 weeks.
+// Fallback for the server-rendered page; checkouts show the backend's quote (SUBSCRIPTION_PRICES).
 export const BASE_PRICES = {
-    [PremiumTier.STARTER]: 16.99, // every 52 weeks
+    [PremiumTier.STARTER]: 16.69, // every 52 weeks
     [PremiumTier.PREMIUM]: 9.69, // every 4 weeks
     [PremiumTier.PREMIUM_PLUS]: 354.2 / 13 // per 4 weeks, billed every 52 weeks
 }
@@ -189,7 +190,7 @@ export const getTierApiProductId = (tier: PremiumTier, isYearlyOrDuration: boole
 export const SUBSCRIPTION_PRICES: Record<string, { monthly: number; quarterly: number; yearly: number; weekly?: number; daily?: number }> = {
     'premium': { monthly: 9.69, quarterly: 27.69, yearly: 96.69 },
     'premium_plus': { monthly: 35.69, quarterly: 99.69, yearly: 354.2, weekly: 10.71, daily: 2.38 },
-    'starter_premium': { monthly: 16.99, quarterly: 16.99, yearly: 16.99 }
+    'starter_premium': { monthly: 2.69, quarterly: 9.69, yearly: 16.69 }
 }
 
 export const getFallbackSubscriptionPrice = (productId: string, isYearly: boolean | Duration = false): number => {
