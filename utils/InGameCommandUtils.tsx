@@ -30,9 +30,14 @@ export function copyAndRunInGame(command: string, opts: { copiedMessage: ReactNo
     if (typeof window === 'undefined') {
         return
     }
-    writeToClipboard(command)
+    const copied = writeToClipboard(command)
 
-    let showToast = (result: RunInGameResult | null) => {
+    let showToast = async (result: RunInGameResult | null) => {
+        // a failed copy is only an error when the game did not run the command either
+        if (!result?.executed && !(await copied)) {
+            toast.error(`Couldn't copy, command: ${command}`)
+            return
+        }
         if (opts.hideToast) {
             return
         }

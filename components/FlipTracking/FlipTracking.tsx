@@ -93,7 +93,7 @@ const TRACKED_FLIP_CONTEXT_MENU_ID = 'tracked-flip-context-menu'
 
 const DEFAULT_TIME_FILTER_RANGE = 1000 * 60 * 60 * 24 * 7
 const PREMIUM_TIME_FILTER_RANGE = 1000 * 60 * 60 * 24 * 365 // 1 year for Premium
-const PREMIUM_PLUS_TIME_FILTER_RANGE = 1000 * 60 * 60 * 24 * 365 * 2 // 2 years for Premium+
+const PREMIUM_PLUS_TIME_FILTER_RANGE = 1000 * 60 * 60 * 24 * 365 * 3 // 3 years for Premium+
 const MAX_RANGE_AT_ONCE = 1000 * 60 * 60 * 24 * 30 * 12 // 12 months
 
 export function FlipTracking(props: Props) {
@@ -419,7 +419,7 @@ export function FlipTracking(props: Props) {
                         <Tooltip
                             type="hover"
                             content={<InfoIcon style={{ color: '#ffc107' }} />}
-                            tooltipContent={<div>Premium users can view up to 1 year in the past. Upgrade to Premium+ to view up to 2 years back.</div>}
+                            tooltipContent={<div>Premium users can view up to 1 year in the past. Upgrade to Premium+ to view up to 3 years back.</div>}
                         />
                     )}
                     {!hasPremium && (

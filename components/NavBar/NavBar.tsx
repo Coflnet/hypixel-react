@@ -9,11 +9,14 @@ import NotificationIcon from '@mui/icons-material/NotificationsOutlined'
 import PolicyIcon from '@mui/icons-material/Policy'
 import ShareIcon from '@mui/icons-material/ShareOutlined'
 import StorefrontIcon from '@mui/icons-material/Storefront'
+import PaidIcon from '@mui/icons-material/Paid'
 import Image from 'next/image'
 import Link from 'next/link'
 import React, { useEffect, useState } from 'react'
 import { Menu, MenuItem, Sidebar } from 'react-pro-sidebar'
 import { useReferralRewardsEligibility } from '../../utils/Hooks'
+import CancelContractLink from '../Legal/CancelContractLink'
+import { useBottomOverlayHeight } from '../../hooks/useBottomOverlayHeight'
 import styles from './NavBar.module.css'
 import { ShowChart } from '@mui/icons-material'
 
@@ -28,6 +31,8 @@ function NavBar(props: Props) {
     const [isHovering, setIsHovering] = useState(false)
     const [isSmall, setIsSmall] = useState(false)
     const isReferralEligible = useReferralRewardsEligibility()
+    // the cookie banner and the anchor ad cover the bottom of the window, the sidebar's cancellation link stays above them
+    const coveredHeight = useBottomOverlayHeight()
 
     const collapsed = isSmall ? false : !isWideOpen && !isHovering
 
@@ -139,6 +144,9 @@ function NavBar(props: Props) {
                             <MenuItem className={styles.menuItem} component={<Link href={'/flipper'} />} icon={<StorefrontIcon />}>
                                 Item Flipper
                             </MenuItem>
+                            <MenuItem className={styles.menuItem} component={<Link href={'/tasks'} />} icon={<PaidIcon />}>
+                                Money Making
+                            </MenuItem>
                             <MenuItem className={styles.menuItem} component={<Link href={'/account'} />} icon={<AccountIcon />}>
                                 Account
                             </MenuItem>
@@ -171,6 +179,12 @@ function NavBar(props: Props) {
                                 Discord
                             </MenuItem>
                         </Menu>
+                        {/* like YouTube's sidebar: the cancellation link is at hand in the menu, mainly for phones */}
+                        {!collapsed ? (
+                            <div className={styles.cancelContract} style={{ paddingBottom: 24 + coveredHeight }}>
+                                <CancelContractLink className={styles.cancelContractLink} />
+                            </div>
+                        ) : null}
                     </div>
                 </Sidebar>
             </aside>

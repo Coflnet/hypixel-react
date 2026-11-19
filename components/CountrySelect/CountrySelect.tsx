@@ -13,7 +13,7 @@ interface Props {
 export default function CountrySelect(props: Props) {
     const key = useId()
     const countryOptions = getCountries()
-    const { selectedCountry, handleCountryChange } = useCountryDetection();
+    const { selectedCountry, isDetecting, handleCountryChange } = useCountryDetection()
     const ref = useRef<TypeaheadType>(null)
 
     function getCountryImage(countryCode: string): JSX.Element {
@@ -33,14 +33,14 @@ export default function CountrySelect(props: Props) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 15, paddingBottom: 15 }}>
             <label htmlFor="countryTypeahead">Your Country: </label>
             <Typeahead
-                key={`${key}-${!selectedCountry ? 'disabled' : 'enabled'}`}
+                key={`${key}-${isDetecting ? 'disabled' : 'enabled'}`}
                 id="countryTypeahead"
                 style={{ width: 'auto' }}
-                disabled={!selectedCountry}
-                placeholder={!selectedCountry ? 'Loading...' : 'Select your country'}
+                disabled={isDetecting}
+                placeholder={isDetecting ? 'Loading...' : 'Select your country'}
                 ref={ref}
                 defaultSelected={selectedCountry ? [selectedCountry] : []}
-                isLoading={!selectedCountry}
+                isLoading={isDetecting}
                 onChange={e => {
                     if (e[0]) {
                         handleCountryChange(e[0] as Country)

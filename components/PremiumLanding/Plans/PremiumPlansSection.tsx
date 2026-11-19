@@ -1,0 +1,192 @@
+'use client'
+import { ReactNode } from 'react'
+import { useCountryDetection } from '../../../hooks/useCountryDetection'
+import { useScrollToAfterRender } from '../../../hooks/useScrollToAfterRender'
+import { trackPremiumPageEvent } from '../../../utils/PremiumTracking'
+import { usePremiumVariant } from '../../Premium/PremiumVariantContext'
+import { PremiumAccount, usePremiumAccount } from '../../Premium/usePremiumAccount'
+import {
+    CoflCoinsPurchaseBlock,
+    ExtendPremiumSection,
+    PremiumSignIn,
+    PremiumStatusLine,
+    PurchaseWizardSection,
+    SlotsLink,
+    TermsAlerts
+} from '../../Premium/PremiumAccountSections'
+import { PremiumTier } from '../../Premium/PremiumPurchaseWizard/types'
+import { PLAN_BUTTON_LABEL, PLAN_CARDS, PlanCard } from '../content/plans'
+import { PlanBilling, getPlanBilling, getPlanPrice, getPlanTaxNote } from '../content/planPricing'
+import { useCheckoutOffer } from '../../../hooks/useCheckoutOffer'
+import page from '../PremiumLanding.module.css'
+import { COFLCOINS_TARGET, getSignInActionTarget, PurchaseReadiness, SIGN_IN_TARGET, SignInAction } from '../../Premium/purchaseTarget'
+import { useSignInPrompt } from '../../Premium/useSignInPrompt'
+import styles from './PremiumPlansSection.module.css'
+
+const CARD_STYLE: Record<PremiumTier, { card?: string; title?: string; button: string }> = {
+    [PremiumTier.STARTER]: { button: styles.buttonStarter },
+    [PremiumTier.PREMIUM]: { card: styles.cardPremium, title: page.tierPremium, button: styles.buttonPremium },
+    [PremiumTier.PREMIUM_PLUS]: { title: page.tierPremiumPlus, button: styles.buttonPremiumPlus }
+}
+
+function CheckIcon() {
+    return (
+        <svg className={styles.check} width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M3 8.5l3.5 3.5L13 5" />
+        </svg>
+    )
+}
+
+interface PlanPricing {
+    countryCode?: string
+    /** how the cards' prices are charged (exact, net, estimate) and which renewal wording applies */
+    billing: PlanBilling
+}
+
+/** the buyer's country and how the plan prices will be charged */
+function usePlanPricing(): PlanPricing {
+    const countryCode = useCountryDetection().selectedCountry?.value
+    const offer = useCheckoutOffer(countryCode)
+    // the previous country's providers are kept while this country's load: they do not decide its prices
+    return { countryCode, billing: getPlanBilling(offer, countryCode) }
+}
+
+function PlanPrice({ tier, pricing }: { tier: PremiumTier; pricing: PlanPricing }) {
+    const price = getPlanPrice(tier, pricing.countryCode, pricing.billing)
+    return (
+        <div className={styles.price}>
+            <div className={styles.priceLine}>
+                <span className={styles.amount}>{price.amount}</span>
+                <span className={page.muted}>{price.unit}</span>
+            </div>
+            <span className={styles.small}>{price.note}</span>
+        </div>
+    )
+}
+
+function PlanCardView({ plan, pricing, onSelect }: { plan: PlanCard; pricing: PlanPricing; onSelect(tier: PremiumTier): void }) {
+    const style = CARD_STYLE[plan.tier]
+    return (
+        <div className={`${page.card} ${styles.plan} ${style.card ?? ''}`} data-testid={`plan-${plan.tier}`}>
+            <div className={styles.planHead}>
+                <div className={styles.planTitleRow}>
+                    <h3 className={`${styles.planTitle} ${style.title ?? ''}`}>{plan.title}</h3>
+                    {plan.badge ? <span className={styles.popular}>{plan.badge}</span> : null}
+                </div>
+                <p className={page.muted}>{plan.description}</p>
+            </div>
+            <PlanPrice tier={plan.tier} pricing={pricing} />
+            <div className={styles.stats}>
+                {plan.stats.map(stat => (
+                    <div key={stat.label} className={styles.stat}>
+                        <span className={styles.statValue}>{stat.value}</span>
+                        <span className={styles.statLabel}>{stat.label}</span>
+                    </div>
+                ))}
+            </div>
+            <ul className={styles.bullets}>
+                {plan.bullets.map(bullet => (
+                    <li key={bullet}>
+                        <CheckIcon />
+                        <span>{bullet}</span>
+                    </li>
+                ))}
+            </ul>
+            <button type="button" className={`${styles.planButton} ${style.button}`} onClick={() => onSelect(plan.tier)}>
+                {PLAN_BUTTON_LABEL[plan.tier]}
+            </button>
+        </div>
+    )
+}
+
+interface ExtrasCardsProps {
+    account: PremiumAccount
+    onBuyCoflCoins(): void
+    /** the link stays on the page: it signs in first when needed, then opens the slot wizard without a reload */
+    onSlotsNeedSignIn?(): void
+}
+
+function ExtrasCards({ account, onBuyCoflCoins, onSlotsNeedSignIn }: ExtrasCardsProps) {
+    const canBuyHere = account.isLoggedIn && account.canPurchase
+    return (
+        <div className={styles.extras}>
+            <div className={`${page.card} ${styles.extra}`}>
+                <h3 className={styles.extraTitle}>Premium for Friends</h3>
+                <p className={page.muted}>Give your friends Premium access with a single slot or a four-slot bundle.</p>
+                <SlotsLink variant="secondary" className={styles.extraButton} onSignInNeeded={onSlotsNeedSignIn}>
+                    Explore Slots and Bundles
+                </SlotsLink>
+            </div>
+            <div className={`${page.card} ${styles.extra}`}>
+                <h3 className={styles.extraTitle}>CoflCoins</h3>
+                <p className={page.muted}>Pay for any plan with CoflCoins instead of a subscription.</p>
+                {canBuyHere ? (
+                    <a href={`#${COFLCOINS_TARGET}`} className={`btn btn-secondary ${styles.extraButton}`}>
+                        Buy CoflCoins
+                    </a>
+                ) : (
+                    <button type="button" className={`btn btn-secondary ${styles.extraButton}`} onClick={onBuyCoflCoins}>
+                        Buy CoflCoins
+                    </button>
+                )}
+            </div>
+        </div>
+    )
+}
+
+/** `communityQuotes` is rendered by the server page (no client JS) and placed under the plan cards */
+export default function PremiumPlansSection({ communityQuotes }: { communityQuotes?: ReactNode }) {
+    const variant = usePremiumVariant()
+    const account = usePremiumAccount()
+    const pricing = usePlanPricing()
+    const scrollTo = useScrollToAfterRender(SIGN_IN_TARGET)
+    const signIn = useSignInPrompt(account, {
+        onPrompt: action => trackPremiumPageEvent('sign in prompt', variant, { source: action }),
+        onContinue: continueAction
+    })
+
+    /** brings the action's purchase block into view, or the step that still blocks it */
+    function continueAction(action: SignInAction, ready: PurchaseReadiness) {
+        if (action === 'slots') account.requestSlots()
+        scrollTo(getSignInActionTarget(action, ready))
+    }
+
+    function selectPlan(tier: PremiumTier) {
+        trackPremiumPageEvent('plan button', variant, { tier })
+        account.requestTier(tier)
+        signIn.runSignedIn('plan')
+    }
+
+    return (
+        <section id="plans" className={page.section}>
+            <div className={page.sectionInner}>
+                <div className={page.sectionHead}>
+                    <h2 className={page.sectionTitle}>Choose Your Plan</h2>
+                    <p className={page.muted}>Higher tiers include all features from lower tiers plus additional benefits.</p>
+                </div>
+                <div className={styles.plans}>
+                    {PLAN_CARDS.map(plan => (
+                        <PlanCardView key={plan.tier} plan={plan} pricing={pricing} onSelect={selectPlan} />
+                    ))}
+                </div>
+                <p className={styles.small} data-testid="plan-tax-note">
+                    {getPlanTaxNote(pricing.countryCode, pricing.billing)} Profit figures are the median realized profit per user per day compared to free users, measured over 24 hours on 2026-11-04.
+                </p>
+                {communityQuotes}
+                <div className={styles.account}>
+                    <PremiumStatusLine account={account} />
+                    <PremiumSignIn account={account} dialog={signIn.dialog} />
+                    <TermsAlerts account={account} />
+                    <PurchaseWizardSection account={account} />
+                    <ExtendPremiumSection account={account} showFriendsCard={false} />
+                </div>
+                <ExtrasCards
+                    account={account}
+                    onBuyCoflCoins={() => signIn.runSignedIn('coflcoins')}
+                    onSlotsNeedSignIn={() => signIn.runSignedIn('slots')}
+                />
+                <CoflCoinsPurchaseBlock account={account} />
+            </div>
+        </section>
+    )
+}

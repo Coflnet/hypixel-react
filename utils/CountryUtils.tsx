@@ -1,5 +1,4 @@
 import countryList from 'react-select-country-list'
-import { isClientSideRendering } from './SSRUtils'
 
 export interface Country {
     label: string
@@ -18,18 +17,4 @@ export function getCountries(): Country[] {
 
 export function getCountry(countryCode?: string) {
     return getCountries().find(country => country.value === countryCode)
-}
-
-export function getCountryFromUserLanguage(): Country | undefined {
-    if (!isClientSideRendering()) {
-        return undefined
-    }
-    let language = navigator.language
-    if (!language) {
-        language = 'en-US'
-    }
-    if (language.includes('-')) {
-        language = language.split('-')[1]
-    }
-    return getCountries().find(country => country.value.toLowerCase() === language.toLowerCase())
 }

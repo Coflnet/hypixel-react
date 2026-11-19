@@ -1,5 +1,6 @@
 import { skyApiFixtures as data } from './skyApi'
 import { forgeFlips } from './forge'
+import { taskFixtures } from './tasks'
 
 // Called only by the guarded Node instrumentation hook. Match exact public API
 // request families used by the historical Cypress routes; an unknown fixture URL
@@ -17,6 +18,8 @@ export function getSsrFixture(input: RequestInfo | URL, init?: RequestInit): Res
     else if (path === 'flip/stats/player/00000000000040008000000000000002') body = { flips: [], totalProfit: 0 }
     else if (path === 'flip/forge') body = forgeFlips
     else if (path === 'craft/profit') body = data.crafts
+    else if (path === 'tasks') body = taskFixtures.list
+    else if (path.startsWith('tasks/')) return getTaskFixture(path.slice('tasks/'.length))
     else if (path === 'items/bazaar/tags') body = data.bazaarTags
     else if (path === 'items') body = Object.values(data.items)
     else if (path.startsWith('player/b876ec32e396476ba1158438d83c67d4/')) {
@@ -39,8 +42,21 @@ export function getSsrFixture(input: RequestInfo | URL, init?: RequestInit): Res
     const coveredItem = Object.keys(data.items).some(tag =>
         path.startsWith(`item/${tag}/`) || path.startsWith(`item/price/${tag}/`) || path.startsWith(`bazaar/${tag}/`)
     )
-    if (coveredItem || /^(flip\/forge|craft\/profit|items(?:\/|$)|player\/b876ec32e396476ba1158438d83c67d4\/|auction\/)/.test(path)) {
+    if (coveredItem || /^(tasks(?:\/|$)|flip\/forge|craft\/profit|items(?:\/|$)|player\/b876ec32e396476ba1158438d83c67d4\/|auction\/)/.test(path)) {
         throw new Error(`Missing Cypress SSR fixture for ${url.pathname}${url.search}`)
     }
     return undefined
+}
+
+function getTaskFixture(path: string): Response {
+    const [slug, part, ...rest] = path.split('/')
+    if (rest.length > 0 || (part && part !== 'setups')) {
+        throw new Error(`Missing Cypress SSR fixture for /api/tasks/${path}`)
+    }
+    const taskBody = taskFixtures.tasks[slug]
+    if (!taskBody) return Response.json({ slug: 'task_not_found', message: 'No task' }, { status: 404 })
+    if (!part) return Response.json(taskBody)
+    const setups = taskFixtures.setups[slug]
+    if (setups) return Response.json(setups)
+    return Response.json({ slug: 'gear_setups_not_found', message: 'No setups' }, { status: 404 })
 }

@@ -16,6 +16,9 @@ const matomoTrackingInstance = createInstance({
     urlBase: 'https://track.coflnet.com',
     siteId: 1,
     configurations: {
+        // Nothing is sent before consent. Queued here, first: MainApp queues it again, but its effect runs after
+        // the page's own effects, which may already push events (e.g. the /premium experiment exposure).
+        requireConsent: true,
         // Cookie tracking remains disabled until the CMP signals full consent.
         requireCookieConsent: true
     }

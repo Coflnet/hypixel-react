@@ -172,12 +172,13 @@ function PremiumStatus(props: Props) {
                                                 </span>
                                             }
                                         />
-                                        {subscription.endsAt && (
+                                        {subscription.endsAt && subscription.canResume !== false && (
                                             <Tooltip
                                                 type="hover"
                                                 content={
                                                     <span style={{ color: 'green' }}>
                                                         <RestartAlt
+                                                            data-testid="reactivate-subscription"
                                                             style={{ cursor: 'pointer', color: 'green', marginLeft: 5 }}
                                                             onClick={() => {
                                                                 reactivateMutation.mutate({ externalId: subscription.externalId })
@@ -188,7 +189,7 @@ function PremiumStatus(props: Props) {
                                                 tooltipContent={<span>Reactivate subscription</span>}
                                             />
                                         )}
-                                        {!subscription.endsAt && (
+                                        {!subscription.endsAt && subscription.canChangePlan !== false && (
                                             <UpgradeSubscription subscription={subscription} />
                                         )}
                                         {!subscription.endsAt && (

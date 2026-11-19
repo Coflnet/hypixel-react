@@ -1,0 +1,3 @@
+.gate:not([open]) > :not(summary) {
+    display: none !important;
+}

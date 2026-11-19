@@ -148,7 +148,7 @@ export const FLIP_FINDERS = [
         ),
         selectable: true
     },
-    { value: '128', label: 'External', shortLabel: 'External', default: false, description: '', selectable: false },
+    { value: '128', label: 'Premium+', shortLabel: 'Premium+', default: false, description: '', selectable: false },
     {
         value: '1024',
         label: 'CraftCost',
