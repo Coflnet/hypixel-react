@@ -603,9 +603,11 @@ test('words the saving on prices that are already known', () => {
     assert.equal(checkout.formatUpgradeSavings({ ...base, weeks: 13, firstOnly: false }), 'With TEST90: €2.97 for the first 13 weeks instead of €29.69 (you save €26.72)')
 })
 
-// regression: the bazaar export range read "~6 years" in November 2026 although the data starts in early November 2019
-test('counts the years of bazaar history from November 2019', () => {
-    assert.equal(dataHistory.getBazaarHistoryYears(Date.UTC(2026, 9, 31)), 6)
-    assert.equal(dataHistory.getBazaarHistoryYears(Date.UTC(2026, 10, 19)), 7)
-    assert.equal(dataHistory.getBazaarHistoryYears(Date.UTC(2027, 10, 2)), 8)
+// bazaar history starts on 12 March 2020, the auction archive in early November 2019 (the export dialog said October 2019)
+test('counts the years of bazaar history from 12 March 2020 and of auctions from November 2019', () => {
+    assert.equal(dataHistory.getBazaarHistoryYears(Date.UTC(2026, 10, 19)), 6)
+    assert.equal(dataHistory.getBazaarHistoryYears(Date.UTC(2027, 2, 10)), 6)
+    assert.equal(dataHistory.getBazaarHistoryYears(Date.UTC(2027, 2, 14)), 7)
+    assert.equal(dataHistory.getAuctionHistoryYears(Date.UTC(2026, 9, 30)), 6)
+    assert.equal(dataHistory.getAuctionHistoryYears(Date.UTC(2026, 10, 19)), 7)
 })
