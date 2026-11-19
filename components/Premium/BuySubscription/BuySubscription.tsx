@@ -3,7 +3,7 @@ import { Spinner } from 'react-bootstrap'
 import styles from './BuySubscription.module.css'
 import stepStyles from '../PremiumPurchaseWizard/Steps/Steps.module.css'
 import { toast } from 'react-toastify'
-import { Duration, PremiumTier, PurchaseType, getTierDisplayName } from '../PremiumPurchaseWizard/types'
+import { CheckoutCodes, Duration, PremiumTier, getTierDisplayName } from '../PremiumPurchaseWizard/types'
 import { TierUpsellPanel } from '../../Discounts/DiscountBanners'
 import discountStyles from '../../Discounts/Discounts.module.css'
 import { postApiPremiumSubscriptionSubscriptionSlug } from '../../../api/_generated/skyApi'
@@ -24,8 +24,10 @@ import { useCheckoutOffer } from '../../../hooks/useCheckoutOffer'
 import { useRenewalPrice } from '../../../hooks/useRenewalPrice'
 import {
     CANCEL_ANYTIME,
+    RENEWAL_WEEKS,
     PaymentProvider,
     describeRenewal,
+    describeUpgradeCodeSavings,
     getBillingLabel,
     getBillingWeeks,
     getFourWeekProductSlug,
@@ -70,6 +72,7 @@ import {
     SummaryRow,
     SummaryTotal
 } from '../Checkout/CheckoutParts'
+import { getNextHigherTier, getTierHighlights, getTierIntro } from '../../PremiumLanding/content/tierHighlights'
 import { useSubscriptionPricing } from './useSubscriptionPricing'
 import { usePurchaseDeclaration } from '../../../hooks/usePurchaseDeclaration'
 import { useCheckoutRequestId } from '../../../hooks/useCheckoutRequestId'
@@ -83,18 +86,15 @@ interface Props {
     initialDiscountCode?: string | null
     /** the buyer's country; while it is unknown prices are before tax and no checkout can open */
     countryCode?: string
-    onUpgradeTier?: (tier: PremiumTier) => void
+    /** the creator code applied before an upgrade of the tier, applied again to the upgraded checkout */
+    initialCreatorCode?: string | null
+    /** switches to a higher tier in place; the applied codes go along */
+    onUpgradeTier?: (tier: PremiumTier, codes: CheckoutCodes) => void
     /** changes the wizard's billing period, e.g. to the yearly billing a code is limited to */
     onSelectDuration?: (duration: Duration) => void
 }
 
 const CHECKOUT_NOTE = 'Renews automatically until you cancel. Cancel any time on this page; Premium stays active until the end of the paid period.'
-
-const TIER_FEATURES: Record<PremiumTier, string[]> = {
-    [PremiumTier.PREMIUM_PLUS]: ['Top flip receive time', 'All tools for analysis', 'Full auction archive', 'Data export & API access'],
-    [PremiumTier.STARTER]: ['Ad-free experience', 'Extended limits across features', 'Starter tools & access'],
-    [PremiumTier.PREMIUM]: ['Up to 1s slower than Premium+', 'A lot of tools', 'Extended history & filter access']
-}
 
 const TIER_CLASS: Partial<Record<PremiumTier, string>> = {
     [PremiumTier.PREMIUM]: stepStyles.tierPremium,
@@ -116,8 +116,9 @@ function TierFeatures({ tier }: { tier: PremiumTier }) {
     return (
         <div className={checkoutStyles.features}>
             <h6>What you'll get:</h6>
+            {getTierIntro(tier) ? <p>{getTierIntro(tier)}:</p> : null}
             <ul>
-                {TIER_FEATURES[tier].map(feature => (
+                {getTierHighlights(tier).map(feature => (
                     <li key={feature}>{feature}</li>
                 ))}
             </ul>
@@ -137,7 +138,7 @@ function CountryRequired() {
 
 function BuySubscription(props: Props) {
     const variant = usePremiumVariant()
-    const [creatorCode, setCreatorCode] = useState('')
+    const [creatorCode, setCreatorCode] = useState(props.initialCreatorCode ?? '')
     const [busyCheckout, setBusyCheckout] = useState<PaymentProvider | null>(null)
     const [codesOpen, setCodesOpen] = useState<boolean | null>(null)
     // back from the payment provider the cached page would still say "Redirecting…"
@@ -148,7 +149,7 @@ function BuySubscription(props: Props) {
     const billingWeeks = getBillingWeeks(props.selectedDuration)
     const productSlug = getTierApiProductId(tier, duration)
     const summerDiscount = getActiveSubscriptionDiscount()
-    const pricing = useSubscriptionPricing(productSlug, buyerCountry)
+    const pricing = useSubscriptionPricing(productSlug, buyerCountry, props.initialCreatorCode)
     const offer = useCheckoutOffer(buyerCountry, productSlug)
     const discount = useDiscountCode(props.initialDiscountCode, {
         weeks: billingWeeks,
@@ -177,6 +178,11 @@ function BuySubscription(props: Props) {
     const [refusal, setRefusal] = useState<{ productSlug: string; message: string } | null>(null)
     const declarationError = refusal?.productSlug === productSlug ? refusal.message : null
 
+    // the next tier's quote with the same creator code, so its price is what its own checkout would charge
+    const nextTier = getNextHigherTier(tier)
+    const upgradeSlug = nextTier && !offer.loading ? getTierApiProductId(nextTier, duration) : null
+    const upgradePlanPrice = useRenewalPrice(upgradeSlug, buyerCountry, pricing.appliedCreatorCode ?? props.initialCreatorCode ?? null)
+
     const money = (value: number): string => formatMoney(value, getProviderCurrencyCode(pricingData, productSlug, 'lemonsqueezy'))
 
     /** the plan price before tax, after the creator code (the quote has it in), the list price until a quote arrives */
@@ -197,6 +203,29 @@ function BuySubscription(props: Props) {
         return roundUpToCent(getPriceWithVAT(price, buyerCountry))
     }
 
+    /** what the applied discount code saves on the next tier at this billing period, null when the line stays hidden */
+    function getUpgradeSavings(): string | null {
+        return describeUpgradeCodeSavings({
+            planPrice: upgradePlanPrice,
+            code: validatedDiscount?.code,
+            discount: validatedDiscount,
+            weeks: billingWeeks,
+            providers: offer.providers,
+            mode: offer.mode,
+            countryCode: buyerCountry,
+            promotion: offer.promotion,
+            money
+        })
+    }
+
+    /** what the next tier costs for this billing period, with the tax wording of the page; null until its quote is known */
+    function getUpgradePrice(): string | null {
+        if (upgradePlanPrice === null) return null
+        // a 13/52 week plan of a direct provider continues every 4 weeks, so its price covers the first term only
+        const period = continuesEvery4Weeks ? `for the first ${billingWeeks} weeks, then every ${RENEWAL_WEEKS} weeks` : undefined
+        return `${money(getFinalPrice(upgradePlanPrice, 0))} ${getPriceUnit(period)}`
+    }
+
     function getCreatorCodePercent(): number | null {
         return getDiscountPercent(pricingData, productSlug)
     }
@@ -213,9 +242,8 @@ function BuySubscription(props: Props) {
     }
 
     /** "per 4 weeks (+VAT)", "per 52 weeks" or, while the country is unknown, "per 4 weeks, plus VAT where applicable" */
-    function getPriceUnit(): string {
+    function getPriceUnit(period = getPerPeriodLabel(billingWeeks)): string {
         const vat = getVatNote(buyerCountry, isDirect, isNet)
-        const period = getPerPeriodLabel(billingWeeks)
         if (!vat) return period
         return buyerCountry ? `${vat} ${period}` : `${period}, ${vat}`
     }
@@ -477,10 +505,9 @@ function BuySubscription(props: Props) {
                 <TierFeatures tier={tier} />
                 <TierUpsellPanel
                     currentTier={tier}
-                    purchaseType={PurchaseType.SUBSCRIPTION}
-                    duration={duration}
-                    countryCode={buyerCountry}
-                    onUpgrade={nextTier => props.onUpgradeTier?.(nextTier)}
+                    price={getUpgradePrice()}
+                    codeSavings={getUpgradeSavings()}
+                    onUpgrade={nextTier => props.onUpgradeTier?.(nextTier, { discountCode: validatedDiscount?.code ?? (props.initialDiscountCode ? null : undefined), creatorCode: pricing.appliedCreatorCode })}
                 />
             </div>
         </CheckoutLayout>

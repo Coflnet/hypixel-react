@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useRef, useId } from 'react'
 import styles from './PremiumPurchaseWizard.module.css'
-import { PremiumTier, PurchaseType, Duration } from './types'
+import { PremiumTier, PurchaseType, Duration, CheckoutCodes } from './types'
 import { getStepDisplay } from './stepDisplay'
 import { TierSelectionStep, PaymentMethodStep, DurationSelectionStep, PurchaseCompletionStep } from './Steps'
 import { PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
@@ -88,6 +88,7 @@ function PremiumPurchaseWizard(props: Props) {
     const [selectedDuration, setSelectedDuration] = useState<Duration | null>(null)
     const [urlDiscountCode, setUrlDiscountCode] = useState<string | null>(null)
     const [upgradeDiscountCode, setUpgradeDiscountCode] = useState<string | null>(null)
+    const [upgradeCreatorCode, setUpgradeCreatorCode] = useState<string | null>(null)
     const { selectedCountry, handleCountryChange } = useCountryDetection()
     const slotCatalog = useSlotCatalog(selectedCountry?.value)
     const variant = usePremiumVariant()
@@ -283,16 +284,15 @@ function PremiumPurchaseWizard(props: Props) {
         goToStep(previousStep)
     }
 
-    // Upgrade to a higher tier in place (from the "What you could get" panel) and
-    // auto-apply the active sale code so the discount is already filled in.
-    const handleTierUpgrade = (tier: PremiumTier) => {
+    // Upgrade to a higher tier in place (from the "What you could get" panel). The codes the buyer applied go along; without
+    // an applied discount code the active sale code is filled in.
+    const handleTierUpgrade = (tier: PremiumTier, codes?: CheckoutCodes) => {
         // Starter never showed the package step; the upgraded flow keeps leaving it out (personal access)
         if (selectedTier === PremiumTier.STARTER) setPackageSkipped(true)
         setSelectedTier(tier)
-        const discount = getActiveSubscriptionDiscount()
-        if (discount) {
-            setUpgradeDiscountCode(discount.code)
-        }
+        setUpgradeCreatorCode(codes?.creatorCode ?? null)
+        // an empty code is the buyer's "cleared": neither the link's code nor the sale code comes back
+        setUpgradeDiscountCode(codes?.discountCode === null ? '' : (codes?.discountCode ?? getActiveSubscriptionDiscount()?.code ?? null))
     }
 
     const renderCurrentStep = () => {
@@ -351,6 +351,8 @@ function PremiumPurchaseWizard(props: Props) {
                             busy={slotPurchaseBusy}
                             onBusyChange={setSlotPurchaseBusy}
                             onCountryChange={handleCountryChange}
+                            onChooseSlotCount={setSlotCount}
+                            onChooseTier={setSelectedTier}
                         />
                     )
                 return (
@@ -362,6 +364,7 @@ function PremiumPurchaseWizard(props: Props) {
                         premiumSubscriptions={props.premiumSubscriptions}
                         onNewActivePremiumProduct={props.onNewActivePremiumProduct}
                         initialDiscountCode={upgradeDiscountCode ?? urlDiscountCode}
+                        initialCreatorCode={upgradeCreatorCode}
                         countryCode={selectedCountry?.value}
                         onSelectTier={handleTierUpgrade}
                         onSelectDuration={setSelectedDuration}

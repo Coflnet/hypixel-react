@@ -9,12 +9,12 @@ import {
     getActiveCoinsDiscount,
     getActiveSubscriptionDiscount
 } from '../../utils/DiscountUtils'
-import { Duration, PremiumTier, PurchaseType, getTierDisplayName } from '../Premium/PremiumPurchaseWizard/types'
+import { PremiumTier, getTierDisplayName } from '../Premium/PremiumPurchaseWizard/types'
 import { getNextTierUp } from '../../utils/PremiumUpgradeUtils'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { parsePremiumProducts } from '../../utils/Parser/APIResponseParser'
 import { LAST_PREMIUM_PRODUCTS } from '../../utils/SettingsUtils'
-import { getFallbackSubscriptionPrice, getPriceWithVAT, getTierProductId } from '../../utils/PricingUtils'
+import { getUpgradeHighlights } from '../PremiumLanding/content/tierHighlights'
 import styles from './Discounts.module.css'
 
 /**
@@ -106,52 +106,31 @@ export function CoinsSaleNote() {
     )
 }
 
-/** The best extra features unlocked by upgrading to each tier. */
-const NEXT_TIER_HIGHLIGHTS: Partial<Record<PremiumTier, string[]>> = {
-    [PremiumTier.PREMIUM]: ['Optimized bazaar flips', '1 year auction house searches', 'Lowball helper'],
-    [PremiumTier.PREMIUM_PLUS]: ['Fastest auction flips', '6 year data exports', 'Access to BazaarPro']
-}
-
 interface TierUpsellPanelProps {
     /** The tier the user is about to buy */
     currentTier: PremiumTier
-    purchaseType: PurchaseType
-    duration?: Duration | null
-    /** Selected country, used to include VAT in the advertised saving where applicable */
-    countryCode?: string
+    /** What the next tier costs for the same billing period and payment method, e.g. "€35.69 per 4 weeks"; null while unknown */
+    price?: string | null
+    /** What the applied discount code saves on the next tier, e.g. "With TEST90: ..."; null or missing hides the line */
+    codeSavings?: string | null
     /** Called with the higher tier when the user chooses to upgrade in place */
     onUpgrade: (tier: PremiumTier) => void
 }
 
 /**
- * "What you could get" panel shown next to "What you'll get" in the purchase step.
- * Advertises the next tier up, how much the active discount saves on it and its best
- * extra features. Clicking the button upgrades the selection in place (no going back).
+ * "What you could get" panel shown next to "What you'll get" in the purchase step, on every checkout below the top tier.
+ * Advertises the next tier up with its price and what it adds (the features its /premium plan card lists), and what the applied
+ * discount code saves on it. Clicking the button upgrades the selection in place (no going back).
  * Renders nothing when the user is already on the top tier.
  */
-export function TierUpsellPanel({ currentTier, purchaseType, duration, countryCode, onUpgrade }: TierUpsellPanelProps) {
+export function TierUpsellPanel({ currentTier, price, codeSavings, onUpgrade }: TierUpsellPanelProps) {
     const nextTier = getNextTierUp(currentTier)
     if (!nextTier) {
         return null
     }
 
     const nextTierName = getTierDisplayName(nextTier)
-    const highlights = NEXT_TIER_HIGHLIGHTS[nextTier] ?? []
-    const discount = getActiveSubscriptionDiscount()
-
-    let savings: number | null = null
-    if (purchaseType === PurchaseType.SUBSCRIPTION && discount) {
-        const listPrice = getFallbackSubscriptionPrice(getTierProductId(nextTier), duration ?? Duration.MONTHLY)
-        if (listPrice > 0) {
-            // Match the amount actually charged after upgrading: apply the discount, add VAT for
-            // VAT countries and round each price up to the cent exactly like the checkout does, so
-            // this saving lines up with the "Applied Discounts" total shown after the upgrade.
-            const toCents = (price: number) => Math.ceil(getPriceWithVAT(price, countryCode) * 100) / 100
-            const originalPrice = toCents(listPrice)
-            const discountedPrice = toCents(listPrice * (1 - discount.percentage / 100))
-            savings = Math.round((originalPrice - discountedPrice) * 100) / 100
-        }
-    }
+    const highlights = getUpgradeHighlights(currentTier)
 
     return (
         <div className={styles.upsellPanel}>
@@ -159,9 +138,10 @@ export function TierUpsellPanel({ currentTier, purchaseType, duration, countryCo
             <p className={styles.upsellTier}>
                 Step up to <strong>{nextTierName}</strong>
             </p>
-            {savings !== null && discount && (
-                <p className={styles.upsellSavings}>
-                    Save <strong>€{savings.toFixed(2)}</strong> on it with code <code className={styles.code}>{discount.code}</code> ({discount.percentage}% off)
+            {price ? <p data-testid="upsell-price">{price}</p> : null}
+            {codeSavings && (
+                <p className={styles.upsellSavings} data-testid="upsell-code-savings">
+                    {codeSavings}
                 </p>
             )}
             {highlights.length > 0 && (

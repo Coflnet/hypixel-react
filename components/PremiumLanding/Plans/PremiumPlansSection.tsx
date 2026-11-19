@@ -102,7 +102,7 @@ function PlanCardView({ plan, pricing, onSelect }: { plan: PlanCard; pricing: Pl
 interface ExtrasCardsProps {
     account: PremiumAccount
     onBuyCoflCoins(): void
-    /** set while the slots need a sign-in first; the link then stays on the page */
+    /** the link stays on the page: it signs in first when needed, then opens the slot wizard without a reload */
     onSlotsNeedSignIn?(): void
 }
 
@@ -183,7 +183,7 @@ export default function PremiumPlansSection({ communityQuotes }: { communityQuot
                 <ExtrasCards
                     account={account}
                     onBuyCoflCoins={() => signIn.runSignedIn('coflcoins')}
-                    onSlotsNeedSignIn={signIn.needsSignIn ? () => signIn.runSignedIn('slots') : undefined}
+                    onSlotsNeedSignIn={() => signIn.runSignedIn('slots')}
                 />
                 <CoflCoinsPurchaseBlock account={account} />
             </div>

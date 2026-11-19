@@ -18,9 +18,10 @@ export async function requestPricing(productSlug: string, countryCode: string, c
 /**
  * The quoted price of one subscription product for the buyer's country, with the creator code applied.
  * Nothing is requested while the country is unknown: the checkout then shows the list price before tax.
+ * `initialCreatorCode` is applied with the first quote (a creator code carried over from another tier's checkout).
  * A newer request (another product, country or code) wins over an older one still on its way.
  */
-export function useSubscriptionPricing(productSlug: string, countryCode?: string) {
+export function useSubscriptionPricing(productSlug: string, countryCode?: string, initialCreatorCode?: string | null) {
     const [pricingData, setPricingData] = useState<BatchProductPricingResponse | null>(null)
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState<string | null>(null)
@@ -46,7 +47,7 @@ export function useSubscriptionPricing(productSlug: string, countryCode?: string
 
     // the yearly switch and the tier upgrade at the checkout change the product: it has its own price
     useEffect(() => {
-        void load(appliedCreatorCode ?? '')
+        void load(appliedCreatorCode ?? initialCreatorCode ?? '')
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [productSlug, countryCode])
 

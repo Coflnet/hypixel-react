@@ -22,6 +22,8 @@ import { getPurchaseHeading } from './PremiumPurchaseWizard/wizardFlow'
 import { findRenewingSubscription, getTierOfProduct, getTierOfSubscription } from '../../utils/PremiumUpgradeUtils'
 import type { SignInDialogControl } from './useSignInPrompt'
 import { PREMIUM_VARIANT_QUERY, withVariantOverride } from '../../utils/PremiumExperiment'
+import { useScrollToHashTarget } from '../../hooks/useScrollToHashTarget'
+import { getScrollBehavior } from '../../hooks/useScrollToAfterRender'
 import sectionStyles from './PremiumAccountSections.module.css'
 
 // Account and purchase building blocks of /premium, shared by both A/B variants so behaviour stays identical.
@@ -127,7 +129,8 @@ function getPurchaseTitle(account: PremiumAccount, wizardTier: PremiumTier | nul
 
 export function PurchaseWizardSection({ account }: AccountProps) {
     if (!account.isWizardShown) return null
-    return <PurchaseWizardPanel account={account} />
+    // opening slots (or leaving them) starts the wizard over: choices made for a personal plan do not carry into the slot flow
+    return <PurchaseWizardPanel key={account.showSlots ? 'slots' : 'own'} account={account} />
 }
 
 /** mounted while the wizard is shown, so the tier it reported is forgotten when it closes */
@@ -137,8 +140,9 @@ function PurchaseWizardPanel({ account }: AccountProps) {
     const [wizardTier, setWizardTier] = useState<PremiumTier | null>()
     // the current page separates its sections with rules; the redesign nests the wizard in its plans section
     const isRedesign = usePremiumVariant() === 'new'
+    const scrollOnArrival = useScrollToHashTarget(WIZARD_TARGET)
     return (
-        <div id="buyPremium" className={`${sectionStyles.purchaseSection} ${isRedesign ? sectionStyles.purchaseSectionNew : ''}`}>
+        <div id={WIZARD_TARGET} ref={scrollOnArrival} className={`${sectionStyles.purchaseSection} ${isRedesign ? sectionStyles.purchaseSectionNew : ''}`}>
             {isRedesign ? null : <hr />}
             <div className={sectionStyles.purchaseHead}>
                 <h2 className={sectionStyles.purchaseTitle}>{getPurchaseTitle(account, wizardTier)}</h2>
@@ -171,7 +175,7 @@ interface SlotsLinkProps {
     children: ReactNode
     className?: string
     variant?: string
-    /** when set, the click stays on the page and this runs instead of the navigation (e.g. to sign in first) */
+    /** when set, the click stays on the page and this runs instead of the navigation (to sign in first, or to open the wizard without a reload) */
     onSignInNeeded?(): void
 }
 
@@ -225,7 +229,13 @@ function ExtendHeaderActions({ account }: AccountProps) {
 
 function scrollToWizard() {
     // the click renders the wizard; it is in the page once the frame after it is drawn
-    window.requestAnimationFrame(() => document.getElementById(WIZARD_TARGET)?.scrollIntoView({ block: 'start' }))
+    window.requestAnimationFrame(() => document.getElementById(WIZARD_TARGET)?.scrollIntoView({ block: 'start', behavior: getScrollBehavior() }))
+}
+
+/** the slot purchase for a visitor already on /premium: no reload, the wizard opens and scrolls into view */
+function openSlotsInPage(account: PremiumAccount) {
+    account.requestSlots()
+    scrollToWizard()
 }
 
 interface RenewingNoticeProps {
@@ -309,7 +319,7 @@ export function ExtendPremiumSection({ account, showFriendsCard }: AccountProps 
                     <Card.Body>
                         <h4>Premium for friends</h4>
                         <p>Give your friends Premium access with a single slot or a four-slot bundle.</p>
-                        <SlotsLink>Explore slots & bundles</SlotsLink>
+                        <SlotsLink onSignInNeeded={() => openSlotsInPage(account)}>Explore slots & bundles</SlotsLink>
                     </Card.Body>
                 </Card>
             ) : null}

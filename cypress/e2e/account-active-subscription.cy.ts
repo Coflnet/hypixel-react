@@ -928,6 +928,19 @@ describe('Slot packages in the Premium wizard', () => {
         cy.contains('button', 'Buy now for').click()
     }
 
+    // regression: the wizard only renders after the account loaded, so the browser's hash scroll to #buyPremium ran too early
+    it('opens the slot path scrolled to the wizard when the link has the #buyPremium hash', () => {
+        cy.viewport(1280, 700)
+        visitAuthenticatedPage('/premium?slots=true#buyPremium')
+        cy.contains('Choose the tier your friends will receive.').should('be.visible')
+        cy.get('[data-testid="premium-wizard"]').should($wizard => {
+            const { top, bottom } = $wizard[0].getBoundingClientRect()
+            expect(top, 'wizard starts above the bottom edge').to.be.lessThan(700)
+            expect(bottom, 'wizard ends below the top edge').to.be.greaterThan(0)
+        })
+        cy.get(`#buyPremium ${OPTION_TITLE}`).should('have.length', 2)
+    })
+
     it('offers all three packages between payment and duration and skips duration for assignable slots', () => {
         cy.viewport(1280, 1300)
         visitAuthenticatedPage('/premium')
@@ -1803,6 +1816,145 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         cy.get('#buyPremium').should('not.contain.text', 'every 52 weeks')
     })
 
+    // the upsell names what the applied code saves on Premium+ at the same billing period and provider
+    it('names what a first payment code saves on the Premium+ upgrade of a yearly checkout', () => {
+        const prices: Record<string, number> = { l_premium: 9.69, 'l_premium-year': 96.69, 'l_prem_plus-year': 354.2 }
+        cy.intercept('POST', '**/api/topup/rates', request => {
+            request.reply({
+                body: {
+                    products: (request.body.productSlugs as string[]).map(slug => ({
+                        productSlug: slug, discountPercent: 0,
+                        providers: [{ providerSlug: 'lemonsqueezy', currencyCode: 'EUR', originalPrice: prices[slug], discountedPrice: prices[slug] }]
+                    }))
+                }
+            })
+        })
+        cy.intercept('GET', '**/api/discount/TEST90*', {
+            body: { code: 'TEST90', amount: 90, amountType: 'percent', duration: 'once', isValid: true, isLimitedToProducts: false, isSubscriptionOnly: true, durationInMonths: 0 }
+        })
+        stubProviders(directProviders)
+        visitAuthenticatedPage('/premium?tier=premium&code=TEST90')
+        wizardOption(/^Subscription$/).click()
+        wizardOption('Just for me').click()
+        wizardOption(/^Yearly$/).click()
+        cy.contains('#buyPremium h3', 'Complete Purchase').should('be.visible')
+        cy.get('[data-testid="upsell-code-savings"]').should(
+            'have.text',
+            `With TEST90: ${formatMoney(35.42, 'EUR')} for the first 52 weeks instead of ${formatMoney(354.2, 'EUR')} (you save ${formatMoney(318.78, 'EUR')})`
+        )
+        // the bullets are the /premium plan card's features of the tier the upgrade adds
+        cy.get('#buyPremium').should('contain.text', 'Archive, CSV exports and about 6 years of bazaar data')
+        cy.get('#buyPremium').should('contain.text', 'In-game lowball helper').and('not.contain.text', 'Up to 1s slower')
+    })
+
+    const test90Code = { code: 'TEST90', amount: 90, amountType: 'percent', duration: 'once', isValid: true, isLimitedToProducts: false, isSubscriptionOnly: true, durationInMonths: 0 }
+
+    /** quotes with the creator code `friend` taking 10% off */
+    function stubUpgradeRates(extra: Record<string, number> = {}) {
+        const prices: Record<string, number> = { l_premium: 9.69, 'l_premium-year': 96.69, 'l_prem_plus-year': 354.2, ...extra }
+        cy.intercept('POST', '**/api/topup/rates', request => {
+            const creator = request.body.creatorCode === 'friend'
+            request.reply({
+                body: {
+                    products: (request.body.productSlugs as string[]).map(slug => ({
+                        productSlug: slug, discountPercent: creator ? 10 : 0,
+                        providers: [{ providerSlug: 'lemonsqueezy', currencyCode: 'EUR', originalPrice: prices[slug], discountedPrice: creator ? Math.round(prices[slug] * 90) / 100 : prices[slug] }]
+                    }))
+                }
+            })
+        })
+    }
+
+    function openYearlyPremium(path = '/premium?tier=premium') {
+        visitAuthenticatedPage(path)
+        wizardOption(/^Subscription$/).click()
+        wizardOption('Just for me').click()
+        wizardOption(/^Yearly$/).click()
+        cy.contains('#buyPremium h3', 'Complete Purchase').should('be.visible')
+    }
+
+    // regression: the upgrade remounted the checkout, a code typed in (not from the link) and the creator code were lost
+    it('carries a typed discount code and the creator code into the upgraded checkout', () => {
+        stubUpgradeRates()
+        cy.intercept('GET', '**/api/discount/TEST90*', { body: test90Code }).as('test90')
+        stubProviders(directProviders)
+        openYearlyPremium()
+        cy.get('#buyPremium').contains('button', 'Have a discount or creator code?').click()
+        cy.get('#buyPremium input[placeholder="Enter creator code"]').type('friend')
+        cy.get('#buyPremium input[placeholder="Enter creator code"]').closest('div').parent().contains('button', 'Apply').click()
+        cy.get('#buyPremium').should('contain.text', 'Creator code applied')
+        discountInput().type('TEST90')
+        discountInput().closest('div').parent().contains('button', 'Apply').click()
+        cy.wait('@test90')
+        cy.get('[data-testid="upsell-price"]').should('have.text', `${formatMoney(318.78, 'EUR')} for the first 52 weeks, then every 4 weeks`)
+        cy.get('[data-testid="upsell-code-savings"]').should('have.text', `With TEST90: ${formatMoney(31.88, 'EUR')} for the first 52 weeks instead of ${formatMoney(318.78, 'EUR')} (you save ${formatMoney(286.9, 'EUR')})`)
+        cy.get('#buyPremium').contains('button', 'Upgrade to Premium Plus').click()
+        cy.get('#buyPremium').should('contain.text', 'Creator code applied').and('contain.text', 'Discount code valid!')
+        discountInput().should('have.value', 'TEST90')
+        // the price is the panel's: 10% creator code, then the 90% code on the first term
+        cy.get('#buyPremium').should('contain.text', formatMoney(31.88, 'EUR')).and('contain.text', '-10%').and('contain.text', '-90%')
+    })
+
+    it('offers the next tier with its price on a checkout without any code', () => {
+        stubUpgradeRates()
+        stubProviders(directProviders)
+        openYearlyPremium()
+        cy.get('[data-testid="upsell-price"]').should('have.text', `${formatMoney(354.2, 'EUR')} for the first 52 weeks, then every 4 weeks`)
+        cy.get('[data-testid="upsell-code-savings"]').should('not.exist')
+        cy.get('#buyPremium').should('contain.text', 'Step up to Premium Plus').and('contain.text', 'Archive, CSV exports and about 6 years of bazaar data')
+        // the lower tier says it includes the one below, from its plan card
+        cy.get('#buyPremium').should('contain.text', 'All Starter features plus advanced tools:')
+    })
+
+    // regression: opening slots in place kept the personal plan's choices, the slot heading sat over a personal checkout with pay buttons
+    it('starts the slot flow fresh when slots are opened from a personal checkout', () => {
+        stubUpgradeRates()
+        stubProviders(directProviders)
+        openYearlyPremium()
+        cy.get('[data-testid="checkout-payment"]').should('exist')
+        cy.contains('a', 'Explore Slots and Bundles').click()
+        cy.contains('Choose the tier your friends will receive.').should('be.visible')
+        cy.get('[data-testid="checkout-payment"]').should('not.exist')
+        cy.contains('#buyPremium h3', 'Complete Purchase').should('not.exist')
+    })
+
+    // regression: the upsell said "per 52 weeks" although card and PayPal plans continue every 4 weeks; Lemon Squeezy renews every 52 weeks
+    it('keeps "per 52 weeks" on the upsell price while only Lemon Squeezy takes payments', () => {
+        stubUpgradeRates()
+        stubProviders({}, 404)
+        openYearlyPremium()
+        cy.get('[data-testid="upsell-price"]').should('contain.text', 'per 52 weeks').and('not.contain.text', 'for the first')
+    })
+
+    // regression: Premium's 3 months matched the "3 weeks" option of Premium+ by its raw value, 8,100 CoflCoins for 3 weeks
+    it('offers the 11 week Premium+ option next to 3 months of Premium paid with CoflCoins, and preselects it', () => {
+        stubUpgradeRates()
+        visitAuthenticatedPage('/premium?tier=premium')
+        wizardOption(/^CoflCoins$/).click()
+        wizardOption('Just for me').click()
+        wizardOption(/^3 Months$/).click()
+        cy.contains('#buyPremium h3', 'Complete Purchase').should('be.visible')
+        cy.get('[data-testid="upsell-price"]').should('have.text', '21,600 CoflCoins for 11 weeks, paid once')
+        cy.get('#buyPremium').contains('button', 'Upgrade to Premium Plus').click()
+        cy.get('#buyPremium').should('contain.text', '11 weeks').and('not.contain.text', '3 weeks')
+        cy.get('[data-testid="upsell-price"]').should('not.exist')
+    })
+
+    // regression: an upgrade brought the link's code back after the buyer cleared it
+    it('does not bring back a code from the link that the buyer cleared before upgrading', () => {
+        stubUpgradeRates()
+        cy.intercept('GET', '**/api/discount/TEST90*', { body: test90Code }).as('test90')
+        stubProviders(directProviders)
+        openYearlyPremium('/premium?tier=premium&code=TEST90')
+        cy.wait('@test90')
+        cy.get('#buyPremium').should('contain.text', 'Discount code valid!')
+        discountInput().closest('div').parent().contains('button', 'Clear').click()
+        cy.get('#buyPremium').should('not.contain.text', 'Discount code valid!')
+        cy.get('#buyPremium').contains('button', 'Upgrade to Premium Plus').click()
+        discountInput().should('have.value', '')
+        cy.get('#buyPremium').should('not.contain.text', 'Discount code valid!')
+    })
+
     it('keeps the Lemon Squeezy wording of a 52 week plan', () => {
         stubProviders({}, 404)
         openCheckout('Yearly')
@@ -2157,6 +2309,99 @@ describe('Slot subscriptions with Stripe, PayPal and the promotion', () => {
             assignSlots: 'true', discountcode: 'BF2026', provider: 'paypal', country: 'US'
         })
         cy.get('@checkoutNavigation').should('have.been.calledOnceWithExactly', 'https://www.paypal.com/checkoutnow?token=test', '_self')
+    })
+
+    const test90 = { code: 'TEST90', amount: 90, amountType: 'percent', duration: 'once', isValid: true, isLimitedToProducts: false, isSubscriptionOnly: true, durationInMonths: 0 }
+
+    function openSlotOffers(slotCount: 'One assignable slot' | 'Package of 4' = 'One assignable slot') {
+        visitAuthenticatedPage('/premium?slots=true#buyPremium')
+        wizardOption(/^Premium$/).click()
+        wizardOption(/^Subscription$/).click()
+        cy.get('[data-testid="premium-package"]').contains(OPTION_TITLE, slotCount).click()
+        cy.get('[data-testid="slot-offer"]').should('have.length', 1)
+    }
+
+    // regression: a code could only be entered after "Continue with subscription" opened the review, nothing on the offers said so
+    it('takes a discount code on the offers and reduces their price', () => {
+        stubProviders(directProviders)
+        cy.intercept('GET', '**/api/discount/TEST90*', { body: test90 }).as('test90')
+        openSlotOffers('Package of 4')
+        cy.get('#buyPremium').contains('button', 'Have a discount or creator code?').click()
+        cy.get('#buyPremium input[placeholder="Enter discount code"]').type('TEST90')
+        cy.get('#buyPremium input[placeholder="Enter discount code"]').closest('div').parent().contains('button', 'Apply').click()
+        cy.wait('@test90').its('request.query').should('deep.equal', { isSubscription: 'true', provider: 'stripe' })
+        cy.get('[data-testid="slot-offer"]').should('contain.text', '-90%').and('contain.text', '2.97').and('contain.text', 'First 4 weeks, then')
+        cy.get('[data-testid="slot-offer"] s').should('contain.text', '29.69')
+    })
+
+    it('suggests the 4-slot bundle and Premium+ slots with prices, and the applied code saving on them', () => {
+        stubProviders(directProviders)
+        cy.intercept('GET', '**/api/discount/TEST90*', { body: test90 }).as('test90')
+        visitAuthenticatedPage('/premium?slots=true&code=TEST90#buyPremium')
+        wizardOption(/^Premium$/).click()
+        wizardOption(/^Subscription$/).click()
+        cy.get('[data-testid="premium-package"]').contains(OPTION_TITLE, 'One assignable slot').click()
+        cy.wait('@test90')
+        cy.get('[data-testid="slot-upsell"]').should('have.length', 2)
+        cy.get('[data-testid="slot-upsell"]').eq(0).should('contain.text', 'Step up to 4 slots').and('contain.text', '29.69 every 4 weeks for all 4 slots').and('contain.text', '7.42 per slot instead of')
+        cy.get('[data-testid="slot-upsell-savings"]').eq(0).should('contain.text', 'With TEST90: €2.97 for the first 4 weeks instead of €29.69 (you save €26.72)')
+        cy.get('[data-testid="slot-upsell"]').eq(1).should('contain.text', 'Step up to Premium+').and('contain.text', '35.69 every 4 weeks for this slot').and('contain.text', 'Archive, CSV exports and about 6 years of bazaar data')
+        cy.get('[data-testid="slot-upsell"]').eq(1).contains('button', 'Upgrade to Premium+').click()
+        cy.get('[data-testid="slot-offer"]').should('contain.text', '35.69')
+        cy.get('[data-testid="slot-upsell"]').should('have.length', 1).and('contain.text', 'Step up to 4 slots')
+    })
+
+    it('shows no code saving on the upsell for a code limited to products, and only the tier upsell for a Premium bundle of 4', () => {
+        stubProviders(directProviders)
+        cy.intercept('GET', '**/api/discount/TEST90*', { body: { ...test90, isLimitedToProducts: true } })
+        visitAuthenticatedPage('/premium?slots=true&code=TEST90#buyPremium')
+        wizardOption(/^Premium$/).click()
+        wizardOption(/^Subscription$/).click()
+        cy.get('[data-testid="premium-package"]').contains(OPTION_TITLE, 'One assignable slot').click()
+        cy.get('[data-testid="slot-upsell"]').should('have.length', 2)
+        cy.get('[data-testid="slot-upsell-savings"]').should('not.exist')
+        cy.get('#buyPremium').contains('button', 'Back').click()
+        cy.get('[data-testid="premium-package"]').contains(OPTION_TITLE, 'Package of 4').click()
+        cy.get('[data-testid="slot-upsell"]').should('have.length', 1).and('contain.text', 'Step up to Premium+')
+    })
+
+    // regression: the upsell prices named no tax; Managed Payments shows net prices, an estimate says so
+    it('names the tax of the slot upsell prices like the offer cards', () => {
+        stubProviders([{ provider: 'stripe', mode: 'managed' }])
+        openSlotOffers()
+        cy.get('[data-testid="slot-upsell"]').first().should('contain.text', '(+tax)')
+    })
+
+    it('says tax is calculated at checkout on the slot upsell while only Lemon Squeezy takes payments', () => {
+        stubProviders({}, 404)
+        openSlotOffers()
+        cy.get('[data-testid="slot-offer"]').invoke('text').should('contain', 'Tax calculated at checkout')
+        cy.get('[data-testid="slot-upsell"]').first().should('contain.text', 'Tax calculated at checkout')
+    })
+
+    // regression: a 52 week bundle continues every 4 weeks after its first term, the upsell said it renewed every 52 weeks
+    it('words a 52 week upsell bundle as its first term', () => {
+        const yearSingle = { slug: 'l_premium-slots-year', slotTier: 'premium', slotCount: 1, cost: 18000, ownershipSeconds: 52 * 7 * 24 * 3600 }
+        const yearBundle = { slug: 'l_premium-slots-4-year', slotTier: 'premium', slotCount: 4, cost: 72000, ownershipSeconds: 52 * 7 * 24 * 3600 }
+        const fourWeek = slotCatalog.filter(product => !product.slug.startsWith('l_'))
+        cy.intercept('GET', '**/api/premium/slots/products', { body: [...fourWeek, yearSingle, yearBundle] })
+        cy.intercept('POST', '**/api/topup/rates', request => {
+            const prices: Record<string, number> = { 'l_premium-slots-year': 90, 'l_premium-slots-4-year': 300 }
+            request.reply({ body: { products: (request.body.productSlugs as string[]).map(productSlug => ({ productSlug, providers: [{ providerSlug: 'lemonsqueezy', currencyCode: 'EUR', originalPrice: prices[productSlug], discountedPrice: prices[productSlug] }] })) } })
+        })
+        stubProviders(directProviders)
+        openSlotOffers()
+        cy.get('[data-testid="slot-upsell"]').first().should('contain.text', '300.00 for the first 52 weeks for all 4 slots').and('not.contain.text', 'every 52 weeks')
+    })
+
+    // regression: the creator and discount fields of the offers and of the review dialog kept separate state
+    it('keeps one code form while the review dialog is open', () => {
+        stubProviders(directProviders)
+        openSlotOffers()
+        cy.get('[data-testid="slot-offer"]').contains('button', 'Continue with subscription').click()
+        cy.get('input[placeholder="Enter discount code"]').should('have.length', 1)
+        cy.get('.modal').contains('button', 'Back').click()
+        cy.get('input[placeholder="Enter discount code"]').should('have.length.at.most', 1)
     })
 
     describe('a 52 week bundle', () => {

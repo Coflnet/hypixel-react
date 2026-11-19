@@ -15,6 +15,7 @@ import { PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 import { Country } from '../../../utils/CountryUtils'
 import CountrySelect from '../../CountrySelect/CountrySelect'
 import SlotCodes from './SlotCodes'
+import SlotUpsell from './SlotUpsell'
 import { PromotionNote, ProviderButtons, Savings } from '../Checkout/CheckoutParts'
 import BuyPremiumConfirmationDialog from '../BuyPremiumConfirmationDialog/BuyPremiumConfirmationDialog'
 import styles from './SlotPurchase.module.css'
@@ -66,6 +67,9 @@ interface Props {
     busy: boolean
     onBusyChange(busy: boolean): void
     onCountryChange(country: Country): void
+    /** the upsell switches to a bigger bundle or a higher slot tier */
+    onChooseSlotCount(count: number): void
+    onChooseTier(tier: PremiumTier): void
 }
 
 /** the billing period of a bundle whose period is not known yet (no product of the package): the 4 weeks slot subscriptions have */
@@ -117,7 +121,7 @@ function useSlotCheckoutOffer(countryCode: string | undefined, purchaseType: Pur
     return useCheckoutOffer(recurring ? countryCode : undefined, reviewed)
 }
 
-export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, initialDiscountCode, countryCode, busy, onBusyChange: setBusy, onCountryChange }: Props) {
+export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, initialDiscountCode, countryCode, busy, onBusyChange: setBusy, onCountryChange, onChooseSlotCount, onChooseTier }: Props) {
     const variant = usePremiumVariant()
     const { products, loading, catalogError, pricingError, canUsePrices, price, priceWithCode, retry } = catalog
     const [selected, setSelected] = useState<PurchaseableProduct>()
@@ -353,6 +357,12 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
                     <CountrySelect onCountryChange={onCountryChange} />
                 </div>
             ) : null}
+            {/* the review dialog has its own copy; two would keep separate input state */}
+            {hasSubscriptions && !loading && !catalogError && offers.length > 0 && !reviewsSubscription ? (
+                <div className={styles.country}>
+                    <SlotCodes catalog={catalog} discount={discount} creatorPercent={catalog.creatorPercent(offers[0])} weeks={billingWeeks} />
+                </div>
+            ) : null}
             {offers.some(product => !isSubscription(product)) ? (
                 <p className={styles.balance}>Your balance: {coflCoins < 0 ? 'unavailable' : `${coflCoins.toLocaleString()} CoflCoins`}</p>
             ) : null}
@@ -446,6 +456,22 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
                         )
                     })}
                 </div>
+            ) : null}
+            {!loading && !catalogError && offers.length > 0 ? (
+                <SlotUpsell
+                    catalog={catalog}
+                    tier={tier}
+                    slotCount={slotCount}
+                    recurring={purchaseType === PurchaseType.SUBSCRIPTION}
+                    current={offers[0]}
+                    discount={discount.validated}
+                    offer={offer}
+                    direct={direct}
+                    money={money}
+                    taxLabel={taxLabel}
+                    onChooseSlotCount={onChooseSlotCount}
+                    onChooseTier={onChooseTier}
+                />
             ) : null}
             <p className={styles.afterPurchase}>
                 {hasSubscriptions ? 'Checkout confirms the final subscription price and taxes. ' : ''}

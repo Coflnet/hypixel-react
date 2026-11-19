@@ -21,6 +21,12 @@ const planPricing = loadModule('../components/PremiumLanding/content/planPricing
     '../../../utils/PricingUtils': pricing,
     '../../../utils/SubscriptionCheckout': checkout
 })
+const plans = loadModule('../components/PremiumLanding/content/plans.ts', { '../../Premium/PremiumPurchaseWizard/types': types })
+const highlights = loadModule('../components/PremiumLanding/content/tierHighlights.ts', {
+    '../../Premium/PremiumPurchaseWizard/types': types,
+    './plans': plans
+})
+const slotUpsell = loadModule('../utils/SlotUpsell.ts', { '../components/Premium/PremiumPurchaseWizard/types': types })
 const { Duration, PremiumTier, PurchaseType } = types
 
 /** how the plan cards are charged: card/PayPal in a direct country, Lemon Squeezy only, Stripe Managed Payments, and before the offer is known */
@@ -499,4 +505,96 @@ test('finds the 4-week slot bundle with the same slot tier and count, in the bac
     assert.equal(checkout.isFourWeekSeconds(2678400), true)
     assert.equal(checkout.isFourWeekSeconds(2332799), false)
     assert.equal(checkout.isFourWeekSeconds(2678401), false)
+})
+
+const money = amount => `€${amount.toFixed(2)}`
+const test90 = { code: 'TEST90', amount: 90, amountType: 'percent', duration: 'once', isLimitedToProducts: false }
+const upgradeOffer = (overrides = {}) => ({
+    planPrice: 354.2,
+    code: 'TEST90',
+    discount: test90,
+    weeks: 52,
+    providers: ['stripe', 'paypal'],
+    mode: 'direct',
+    countryCode: 'US',
+    promotion: null,
+    money,
+    ...overrides
+})
+
+test('names what a first payment code saves on the other tier', () => {
+    assert.equal(checkout.describeUpgradeCodeSavings(upgradeOffer()), 'With TEST90: €35.42 for the first 52 weeks instead of €354.20 (you save €318.78)')
+})
+
+test('describes a code for every period per period, with VAT of the buyer country', () => {
+    const text = checkout.describeUpgradeCodeSavings(upgradeOffer({ discount: { ...test90, duration: 'forever' }, countryCode: 'DE' }))
+    // a 13/52 week plan continues every 4 weeks at the 4-week price, so even a code for every payment covers the first term only
+    assert.equal(text, 'With TEST90: €42.15 for the first 52 weeks instead of €421.50 (you save €379.35)')
+    const fourWeeks = checkout.describeUpgradeCodeSavings(upgradeOffer({ discount: { ...test90, duration: 'forever' }, weeks: 4 }))
+    assert.equal(fourWeeks, 'With TEST90: €35.42 per 4 weeks instead of €354.20 (you save €318.78)')
+})
+
+test('shows net prices with the tax note for Managed Payments', () => {
+    const text = checkout.describeUpgradeCodeSavings(upgradeOffer({ mode: 'managed', countryCode: 'DE' }))
+    assert.equal(text, 'With TEST90: €35.42 (+tax) for the first 52 weeks instead of €354.20 (you save €318.78)')
+})
+
+test('hides the upgrade saving unless it is certain', () => {
+    const hidden = overrides => checkout.describeUpgradeCodeSavings(upgradeOffer(overrides))
+    assert.equal(hidden({ discount: { ...test90, isLimitedToProducts: true } }), null)
+    assert.equal(hidden({ providers: [] }), null)
+    assert.equal(hidden({ planPrice: null }), null)
+    assert.equal(hidden({ weeks: 13, discount: { ...test90, periodAmounts: { 52: 90 }, amount: 0 } }), null)
+    assert.equal(hidden({ discount: { ...test90, amountType: 'fixed' } }), null)
+    assert.equal(hidden({ countryCode: undefined }), null)
+    assert.equal(hidden({ code: 'GTA6', promotion: { code: 'GTA6', providers: ['lemonsqueezy'] } }), null)
+    assert.equal(hidden({ code: 'GTA6', promotion: { code: 'GTA6', providers: ['stripe'] } }), null, 'PayPal would not get the code')
+})
+
+test('the wizard bullets of every tier are the /premium plan card features', () => {
+    for (const card of plans.PLAN_CARDS) {
+        assert.deepEqual(highlights.getTierHighlights(card.tier), card.bullets)
+        assert.ok(card.bullets.length >= 3 && card.bullets.length <= 5)
+    }
+})
+
+test('the plan cards say a higher tier includes the lower ones, the lowest has no such line', () => {
+    assert.equal(highlights.getTierIntro(PremiumTier.STARTER), null)
+    assert.equal(highlights.getTierIntro(PremiumTier.PREMIUM), 'All Starter features plus advanced tools')
+    assert.equal(highlights.getTierIntro(PremiumTier.PREMIUM_PLUS), 'All Premium features plus the fastest flips and advanced tools')
+})
+
+test('the upsell lists what the next tier adds and nothing for the top tier', () => {
+    assert.deepEqual(highlights.getUpgradeHighlights(PremiumTier.STARTER), highlights.getTierHighlights(PremiumTier.PREMIUM))
+    assert.deepEqual(highlights.getUpgradeHighlights(PremiumTier.PREMIUM), highlights.getTierHighlights(PremiumTier.PREMIUM_PLUS))
+    assert.equal(highlights.getUpgradeHighlights(PremiumTier.PREMIUM_PLUS).length, 0)
+    assert.ok(highlights.getUpgradeHighlights(PremiumTier.PREMIUM).includes('Archive, CSV exports and about 6 years of bazaar data'))
+})
+
+const WEEK = 7 * 24 * 3600
+const slotProducts = [
+    ['l_premium-slots', 'premium', 1, 4 * WEEK],
+    ['l_premium-slots-4', 'premium', 4, 4 * WEEK],
+    ['l_prem_plus-slots', 'premium_plus', 1, 4 * WEEK],
+    ['l_prem_plus-slots-4', 'premium_plus', 4, 4 * WEEK],
+    ['premium-slots', 'premium', 1, 4 * WEEK],
+    ['premium-slots-4', 'premium', 4, 4 * WEEK],
+    ['l_premium-slots-4-year', 'premium', 4, 52 * WEEK]
+].map(([slug, slotTier, slotCount, ownershipSeconds]) => ({ slug, slotTier, slotCount, ownershipSeconds }))
+const upsellSlugs = (tier, count, recurring, seconds = 4 * WEEK) => Array.from(slotUpsell.getSlotUpsells(slotProducts, tier, count, recurring, seconds), upsell => `${upsell.kind}:${upsell.product.slug}`)
+
+test('suggests only slot products the catalog sells for the same period and payment method', () => {
+    assert.deepEqual(upsellSlugs('premium', 1, true), ['bundle:l_premium-slots-4', 'tier:l_prem_plus-slots'])
+    assert.deepEqual(upsellSlugs('premium', 4, true), ['tier:l_prem_plus-slots-4'])
+    assert.deepEqual(upsellSlugs('premium_plus', 1, true), ['bundle:l_prem_plus-slots-4'])
+    assert.deepEqual(upsellSlugs('premium_plus', 4, true), [])
+    assert.deepEqual(upsellSlugs('premium', 1, false), ['bundle:premium-slots-4'], 'CoflCoins has no Premium+ slot in this catalog')
+    assert.deepEqual(upsellSlugs('premium', 1, true, 52 * WEEK), ['bundle:l_premium-slots-4-year'], 'no Premium+ slot is sold for 52 weeks')
+})
+
+test('words the saving on prices that are already known', () => {
+    const base = { code: 'TEST90', discounted: 2.97, original: 29.69, weeks: 4, net: false, firstOnly: true, money }
+    assert.equal(checkout.formatUpgradeSavings(base), 'With TEST90: €2.97 for the first 4 weeks instead of €29.69 (you save €26.72)')
+    assert.equal(checkout.formatUpgradeSavings({ ...base, net: true, firstOnly: false }), 'With TEST90: €2.97 (+tax) per 4 weeks instead of €29.69 (you save €26.72)')
+    assert.equal(checkout.formatUpgradeSavings({ ...base, weeks: 13, firstOnly: false }), 'With TEST90: €2.97 for the first 13 weeks instead of €29.69 (you save €26.72)')
 })

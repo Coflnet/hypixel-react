@@ -10,13 +10,14 @@ import { CoflCoinsDisplay } from '../../CoflCoins/CoflCoinsDisplay'
 import Number from '../../Number/Number'
 import styles from './BuyPremium.module.css'
 import BuyPremiumConfirmationDialog from '../BuyPremiumConfirmationDialog/BuyPremiumConfirmationDialog'
-import { PremiumTier, Duration, PurchaseType, getTierDisplayName } from '../PremiumPurchaseWizard/types'
+import { PremiumTier, Duration, getTierDisplayName } from '../PremiumPurchaseWizard/types'
 import { TierUpsellPanel } from '../../Discounts/DiscountBanners'
 import discountStyles from '../../Discounts/Discounts.module.css'
 import { usePremiumVariant } from '../PremiumVariantContext'
 import { trackPremiumFunnelEvent } from '../../../utils/PremiumTracking'
 import stepStyles from '../PremiumPurchaseWizard/Steps/Steps.module.css'
 import checkoutStyles from '../Checkout/Checkout.module.css'
+import { getNextHigherTier, getTierHighlights, getTierIntro } from '../../PremiumLanding/content/tierHighlights'
 import { CheckoutButton, CheckoutError, CheckoutLayout, PaymentActions, Savings, SummaryRow, SummaryTotal } from '../Checkout/CheckoutParts'
 
 const getPremiumOptionKey = (option: PremiumTypeOption): string => `${option.productId}:${option.value}:${option.label}`
@@ -39,36 +40,36 @@ interface Props {
     onUpgradeTier?: (tier: PremiumTier) => void
 }
 
-// Helper function to find the best matching premium option based on wizard duration
-const findMatchingPremiumOption = (premiumType: PremiumType, wizardDuration: Duration | null | undefined): PremiumTypeOption => {
-    if (!wizardDuration) return premiumType.options[0]
-
-    const durationOption = premiumType.options.find(option => {
-        const labelStr = typeof option.label === 'string' ? option.label : String(option.label)
-        const lowerLabel = labelStr.toLowerCase()
-
-        switch (wizardDuration) {
-            case Duration.HOUR:
-                return lowerLabel.includes('hour')
-            case Duration.DAY:
-                return lowerLabel.includes('day') && !lowerLabel.includes('week')
-            case Duration.WEEK:
-                return lowerLabel.includes('week') && !lowerLabel.includes('month')
-            case Duration.MONTHLY:
-                return lowerLabel.includes('month') || lowerLabel.includes('4 weeks')
-            case Duration.QUARTER:
-                // Prefer an option explicitly representing 3 months (value === 3) or matching common quarterly labels
-                if (option.value === 3) return true
-                return lowerLabel.includes('3 month') || lowerLabel.includes('3 months') || lowerLabel.includes('11 weeks') || lowerLabel.includes('6 months')
-            case Duration.YEARLY:
-                return lowerLabel.includes('year') || lowerLabel.includes('12 months')
-            default:
-                return false
-        }
-    })
-
-    return durationOption || premiumType.options[0]
+/** whether a coins option has the length of the wizard's billing period; the label decides, never the raw `value` (3 weeks is not 3 months) */
+function isOptionOfDuration(premiumType: PremiumType, option: PremiumTypeOption, wizardDuration: Duration): boolean {
+    const label = (typeof option.label === 'string' ? option.label : String(option.label)).toLowerCase()
+    switch (wizardDuration) {
+        case Duration.HOUR:
+            return label.includes('hour')
+        case Duration.DAY:
+            return label.includes('day') && !label.includes('week')
+        case Duration.WEEK:
+            return label.includes('week') && !label.includes('month')
+        case Duration.MONTHLY:
+            return label.includes('month') || label.includes('4 weeks')
+        case Duration.QUARTER:
+            // Starter's quarter step is its half year; the other tiers' is 3 months (Premium+: 11 weeks)
+            if (premiumType.productId === 'starter_premium') return label.includes('6 months')
+            return label.includes('3 month') || label.includes('11 weeks')
+        case Duration.YEARLY:
+            return label.includes('year') || label.includes('12 months')
+        default:
+            return false
+    }
 }
+
+/** the option of the wizard's duration, undefined when the type has none */
+const findOptionOfDuration = (premiumType: PremiumType, wizardDuration: Duration | null | undefined): PremiumTypeOption | undefined =>
+    wizardDuration ? premiumType.options.find(option => isOptionOfDuration(premiumType, option, wizardDuration)) : undefined
+
+// Helper function to find the best matching premium option based on wizard duration
+const findMatchingPremiumOption = (premiumType: PremiumType, wizardDuration: Duration | null | undefined): PremiumTypeOption =>
+    findOptionOfDuration(premiumType, wizardDuration) || premiumType.options[0]
 
 function BuyPremium(props: Props) {
     const variant = usePremiumVariant()
@@ -171,6 +172,18 @@ function BuyPremium(props: Props) {
         return purchasePremiumOption.value * purchasePremiumOption.price
     }
 
+    /** what the next tier costs for the same duration in CoflCoins, e.g. "21,600 CoflCoins for 11 weeks, paid once"; null when it has no such option */
+    function getUpgradePrice(): string | null {
+        const next = props.selectedTier ? getNextHigherTier(props.selectedTier) : null
+        const type = PREMIUM_TYPES.find(premiumType => premiumType.productId === next)
+        // Starter's quarter is a half year, no other tier sells that length
+        if (!type || (props.selectedTier === PremiumTier.STARTER && props.selectedDuration === Duration.QUARTER)) return null
+        const option = findOptionOfDuration(type, props.selectedDuration)
+        if (!option) return null
+        const length = String(option.label).replace(/\s*\(.*\)/, '')
+        return `${(option.value * option.price).toLocaleString()} CoflCoins for ${length}, paid once`
+    }
+
     function getDurationString(): string {
         let durationString = purchasePremiumType.durationString
         const duration = +purchasePremiumOption.value
@@ -251,34 +264,17 @@ function BuyPremium(props: Props) {
             <div className={discountStyles.featuresRow}>
                 <div className={checkoutStyles.features}>
                     <h6>What you'll get:</h6>
+                    {props.selectedTier && getTierIntro(props.selectedTier) ? <p>{getTierIntro(props.selectedTier)}:</p> : null}
                     <ul>
-                        {props.selectedTier === PremiumTier.PREMIUM_PLUS ? (
-                            <>
-                                <li>Top flip receive time</li>
-                                <li>All tools for analysis</li>
-                                <li>Full auction archive</li>
-                                <li>Data export & API access</li>
-                            </>
-                        ) : props.selectedTier === PremiumTier.PREMIUM ? (
-                            <>
-                                <li>Up to 1s slower than Premium+</li>
-                                <li>A lot of tools</li>
-                                <li>Extended history & filter access</li>
-                            </>
-                        ) : (
-                            <>
-                                <li>Premium flip notifications</li>
-                                <li>Basic tools and analysis</li>
-                                <li>Limited history access</li>
-                            </>
-                        )}
+                        {(props.selectedTier ? getTierHighlights(props.selectedTier) : []).map(feature => (
+                            <li key={feature}>{feature}</li>
+                        ))}
                     </ul>
                 </div>
                 {props.selectedTier && (
                     <TierUpsellPanel
                         currentTier={props.selectedTier}
-                        purchaseType={PurchaseType.COFLCOINS}
-                        duration={props.selectedDuration}
+                        price={getUpgradePrice()}
                         onUpgrade={tier => props.onUpgradeTier?.(tier)}
                     />
                 )}

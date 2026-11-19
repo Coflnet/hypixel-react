@@ -1,8 +1,13 @@
 'use client'
 import { useEffect, useState } from 'react'
 
-function prefersReducedMotion(): boolean {
+export function prefersReducedMotion(): boolean {
     return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+}
+
+/** smooth scrolling unless the visitor asked for less motion */
+export function getScrollBehavior(): ScrollBehavior {
+    return prefersReducedMotion() ? 'auto' : 'smooth'
 }
 
 /**
@@ -15,7 +20,7 @@ export function useScrollToAfterRender(fallbackId: string): (id: string) => void
     useEffect(() => {
         if (!target) return
         const element = document.getElementById(target.id) ?? document.getElementById(fallbackId)
-        element?.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth', block: 'start' })
+        element?.scrollIntoView({ behavior: getScrollBehavior(), block: 'start' })
         setTarget(null)
     }, [target, fallbackId])
 

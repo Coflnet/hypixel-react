@@ -75,3 +75,10 @@ function getSubscriptionDurationOptions(tier: PremiumTier, continues: boolean) {
         { label: 'Yearly', desc: `${describeTerm(52, continues)} - best value`, icon: '🎯', value: Duration.YEARLY }
     ]
 }
+
+/** the codes of a checkout that an in-place upgrade to another tier carries over, as the buyer applied them */
+export interface CheckoutCodes {
+    /** the applied code; null: the buyer cleared the prefilled one, undefined: no opinion */
+    discountCode?: string | null
+    creatorCode?: string | null
+}

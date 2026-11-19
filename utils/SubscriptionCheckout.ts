@@ -447,3 +447,60 @@ export function describePromotion(promotion: AutoDiscount, weeks?: number, timeZ
     const name = promotion.name || 'Sale'
     return `${name}: ${describeAmount(promotion, weeks)} ${describeScope(promotion, weeks)}.${end ? ` ${end}` : ''}`
 }
+
+interface UpgradeCodeOffer {
+    /** the other tier's plan price for the selected period, before tax and after the creator code; null while unknown */
+    planPrice: number | null
+    code: string | null | undefined
+    discount: (PeriodDiscount & { duration?: string | null; isLimitedToProducts?: boolean }) | null | undefined
+    weeks: number
+    providers: PaymentProvider[]
+    mode: ProviderMode | null
+    countryCode?: string | null
+    promotion?: AutoDiscount | null
+    /** formats an amount in the currency of the quote */
+    money(amount: number): string
+}
+
+/**
+ * What a validated discount code saves on another tier (the "What you could get" upsell), e.g.
+ * "With TEST90: €35.40 for the first 52 weeks instead of €354.20 (you save €318.80)". Null (the line stays hidden) unless the
+ * saving is certain: a code limited to certain products (which ones is not known here), a fixed amount or a period the code
+ * does not cover, a provider that does not honour it, Lemon Squeezy alone, or a charge that is not known exactly.
+ * Prices are the checkout's: with VAT for direct providers, net with "(+tax)" for Managed Payments.
+ */
+export function describeUpgradeCodeSavings(offer: UpgradeCodeOffer): string | null {
+    const { planPrice, code, discount, weeks, providers, mode, promotion } = offer
+    if (!code || !discount || discount.isLimitedToProducts) return null
+    if (planPrice === null || !Number.isFinite(planPrice) || planPrice <= 0) return null
+    if (!providers.every(provider => getDiscountCodeFor(code, promotion, provider))) return null
+    const net = isNetCharge(providers, mode)
+    if (!net && !isExactCharge(providers, offer.countryCode, mode)) return null
+    const percent = getPeriodPercent(discount, weeks)
+    const country = net ? undefined : offer.countryCode
+    const original = getDirectPrice(planPrice, 0, country)
+    const discounted = getDirectPrice(planPrice, percent, country)
+    if (percent <= 0 || discounted >= original) return null
+    return formatUpgradeSavings({ code, discounted, original, weeks, net, firstOnly: isFirstPaymentOnly(discount), money: offer.money })
+}
+
+interface UpgradeSavingsText {
+    code: string
+    /** the charge after the code and before it, as the checkout shows them */
+    discounted: number
+    original: number
+    weeks: number
+    /** Managed Payments: net prices, "(+tax)" follows the discounted one */
+    net: boolean
+    firstOnly: boolean
+    money(amount: number): string
+}
+
+/** the sentence of describeUpgradeCodeSavings for prices that are already known, e.g. a slot bundle's catalog prices */
+export function formatUpgradeSavings({ code, discounted, original, weeks, net, firstOnly, money }: UpgradeSavingsText): string {
+    const tax = net ? ` ${getVatNote(undefined, true, true)}` : ''
+    // a 13/52 week plan continues every 4 weeks at the 4-week price, so the code only covers its first term
+    const period = firstOnly || hasRenewalTerm(weeks) ? `for the first ${weeks} weeks` : getPerPeriodLabel(weeks)
+    const saved = Math.round((original - discounted) * 100) / 100
+    return `With ${code}: ${money(discounted)}${tax} ${period} instead of ${money(original)} (you save ${money(saved)})`
+}

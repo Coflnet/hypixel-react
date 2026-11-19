@@ -42,7 +42,7 @@ export const PLAN_CARDS: PlanCard[] = [
     {
         tier: PremiumTier.PREMIUM_PLUS,
         title: 'Premium+',
-        description: 'All Premium features plus the fastest flips and advansed tools',
+        description: 'All Premium features plus the fastest flips and advanced tools',
         stats: [
             { value: '< 0 sec', label: 'Flip receive time' },
             { value: '5.9x', label: 'Profit vs. Free' }

@@ -2,7 +2,7 @@
 import BuySubscription from '../../BuySubscription/BuySubscription'
 import BuyPremium from '../../BuyPremium/BuyPremium'
 import styles from './Steps.module.css'
-import { Duration, PurchaseType, PremiumTier } from '../types'
+import { CheckoutCodes, Duration, PurchaseType, PremiumTier } from '../types'
 
 interface Props {
     selectedTier: PremiumTier
@@ -12,8 +12,10 @@ interface Props {
     premiumSubscriptions: PremiumSubscription[]
     onNewActivePremiumProduct: () => void
     initialDiscountCode?: string | null
+    /** the creator code of the checkout this one was upgraded from */
+    initialCreatorCode?: string | null
     countryCode?: string
-    onSelectTier?: (tier: PremiumTier) => void
+    onSelectTier?: (tier: PremiumTier, codes?: CheckoutCodes) => void
     /** switches the billing period from the checkout, e.g. to the yearly billing a code needs */
     onSelectDuration?: (duration: Duration) => void
 }
@@ -26,6 +28,7 @@ export default function PurchaseCompletionStep({
     premiumSubscriptions,
     onNewActivePremiumProduct,
     initialDiscountCode
+    , initialCreatorCode
     , countryCode
     , onSelectTier
     , onSelectDuration
@@ -38,6 +41,7 @@ export default function PurchaseCompletionStep({
                     selectedTier={selectedTier}
                     selectedDuration={selectedDuration}
                     initialDiscountCode={initialDiscountCode}
+                    initialCreatorCode={initialCreatorCode}
                     countryCode={countryCode}
                     onUpgradeTier={onSelectTier}
                     onSelectDuration={onSelectDuration}

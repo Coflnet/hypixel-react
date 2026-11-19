@@ -8,13 +8,13 @@ import { Country } from '../../../../utils/CountryUtils'
 import { Discount, formatDiscountEndDate, getActiveSubscriptionDiscount } from '../../../../utils/DiscountUtils'
 import { PlanBilling, getPlanBilling, getPlanPrice, getPlanTaxNote } from '../../../PremiumLanding/content/planPricing'
 import { useCheckoutOffer } from '../../../../hooks/useCheckoutOffer'
+import { getTierHighlights, getTierIntro } from '../../../PremiumLanding/content/tierHighlights'
 import { getDirectPrice } from '../../../../utils/SubscriptionCheckout'
 
 interface TierConfig {
     tier: PremiumTier
     title: string
     titleClass?: string
-    features: string[]
     description: string
     upgradeDescription?: string
 }
@@ -23,14 +23,12 @@ const TIER_CONFIGS: TierConfig[] = [
     {
         tier: PremiumTier.STARTER,
         title: 'Starter',
-        features: ['Basic price alerts', 'Everything you need to start', 'Ad-free experience'],
         description: 'Essential features for casual players'
     },
     {
         tier: PremiumTier.PREMIUM,
         title: 'Premium',
         titleClass: styles.tierPremium,
-        features: ['Optimized bazaar flips', '1 year auction house searches', 'Lowball helper'],
         description: 'All Starter features plus advanced tools',
         upgradeDescription: 'Upgrade from Starter to unlock advanced features'
     },
@@ -38,7 +36,6 @@ const TIER_CONFIGS: TierConfig[] = [
         tier: PremiumTier.PREMIUM_PLUS,
         title: 'Premium Plus',
         titleClass: styles.tierPremiumPlus,
-        features: ['Fastest auction flips', '6 year data exports', 'Realtime market analysis', 'Access to BazaarPro'],
         description: 'All Premium features plus exclusive access to',
         upgradeDescription: 'Upgrade to Premium Plus for the fastest experience'
     }
@@ -200,10 +197,10 @@ export default function TierSelectionStep({
             title: config.title,
             titleClassName: config.titleClass,
             badge: getTierBadge(tier, isCurrentTier(tier, currentTier, isUpgrade), isSuggested),
-            description: canSelect ? <TierDescription text={(isSuggested && config.upgradeDescription) || config.description} note={priceNote} /> : 'Cannot downgrade',
+            description: canSelect ? <TierDescription text={(isSuggested && config.upgradeDescription) || getTierIntro(tier) || config.description} note={priceNote} /> : 'Cannot downgrade',
             price: forFriends ? undefined : <TierPrice tier={tier} countryCode={countryCode} billing={billing} discount={discount} />,
             unit: forFriends ? undefined : getPriceUnit(tier, countryCode, billing, discount),
-            footer: <TierFeatures features={config.features} extra={isSuggested ? SUGGESTED_FEATURES[tier] : undefined} />,
+            footer: <TierFeatures features={getTierHighlights(tier)} extra={isSuggested ? SUGGESTED_FEATURES[tier] : undefined} />,
             disabled: !canSelect
         }
     }
