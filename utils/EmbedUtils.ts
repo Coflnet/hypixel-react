@@ -75,20 +75,6 @@ export function formatShortDuration(ms: number): string {
     return `${Math.floor(abs / unit.ms)}${unit.suffix}`
 }
 
-const EMBED_DATE_FORMAT = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: 'UTC' })
-
-/**
- * "14 Nov 2026, 15:07 UTC", undefined for missing/invalid dates.
- * Absolute, because Discord caches an embed for a long time and "2h ago" would go stale.
- */
-export function formatEmbedDate(date: Date | undefined | null): string | undefined {
-    const time = date ? new Date(date).getTime() : NaN
-    if (Number.isNaN(time)) {
-        return undefined
-    }
-    return `${EMBED_DATE_FORMAT.format(time)} UTC`
-}
-
 export function cleanName(name?: string | null): string {
     return removeMinecraftColorCoding(name || '').trim()
 }
@@ -103,17 +89,10 @@ function isActiveAuction(auction: Auction, now: number): boolean {
     return !!auction.end && new Date(auction.end).getTime() > now
 }
 
-function getLatestAuctionText(auction: Auction, now: number): string {
+// no end times: Discord caches an embed for a long time, so any time in it would soon mislead
+function getLatestAuctionText(auction: Auction): string {
     const price = formatShortCoins(auction.highestBid || auction.startingBid)
-    return `Latest: ${cleanName(auction.item?.name) || auction.item?.tag} (${price}${getAuctionEndText(auction, now)})`
-}
-
-function getAuctionEndText(auction: Auction, now: number): string {
-    const date = formatEmbedDate(auction.end)
-    if (!date) {
-        return ''
-    }
-    return isActiveAuction(auction, now) ? `, ends ${date}` : `, ended ${date}`
+    return `Latest: ${cleanName(auction.item?.name) || auction.item?.tag} (${price})`
 }
 
 /** Summarises the player's most recent auctions (the first page the player page loads anyway) */
@@ -126,7 +105,7 @@ export function getPlayerEmbedDescription(playerName: string, auctions: Auction[
     const stats = joinEmbedParts([
         active.length > 0 && `Active: ${active.length}`,
         sold.length > 0 && `Recently sold: ${sold.length} for ${formatShortCoins(sum(sold.map(a => a.highestBid)))}`,
-        getLatestAuctionText(auctions[0], now)
+        getLatestAuctionText(auctions[0])
     ])
     return `${playerName}'s Hypixel SkyBlock auctions: ${stats}`
 }
@@ -303,12 +282,10 @@ function formatRarity(tier?: string): string | undefined {
 export function getAuctionEmbedDescription(details: AuctionDetails, now: number): string {
     const end = details.auction.end ? new Date(details.auction.end).getTime() : NaN
     const ended = !Number.isNaN(end) && end <= now
-    const date = formatEmbedDate(details.auction.end)
     return joinEmbedParts([
         cleanName(details.auction.item?.name) || details.auction.item?.tag,
         getAuctionPriceText(details, ended),
         getAuctionPeopleText(details),
-        date && `${ended ? 'Ended' : 'Ends'} ${date}`,
         formatRarity(details.auction.item?.tier as string | undefined)
     ])
 }

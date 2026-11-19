@@ -65,13 +65,6 @@ test('formatShortCoins keeps small (bazaar) prices exact and survives missing va
     assert.equal(embed.formatSignedShortCoins(5_000_000), '+5M')
 })
 
-test('formatEmbedDate gives an absolute UTC date, since Discord caches embeds for a long time', () => {
-    assert.equal(embed.formatEmbedDate(new Date(NOW - 2 * HOUR)), '19 Nov 2026, 10:00 UTC')
-    assert.equal(embed.formatEmbedDate(new Date(Date.parse('2026-01-05T00:07:00Z'))), '5 Jan 2026, 00:07 UTC')
-    assert.equal(embed.formatEmbedDate(new Date('invalid')), undefined)
-    assert.equal(embed.formatEmbedDate(undefined), undefined)
-})
-
 test('player description counts active and sold auctions of the loaded page', () => {
     const auctions = [
         auction('Hyperion', 0, 3 * HOUR, { startingBid: 900_000_000 }),
@@ -81,7 +74,7 @@ test('player description counts active and sold auctions of the loaded page', ()
     ]
     assert.equal(
         embed.getPlayerEmbedDescription('Ekwav', auctions, NOW),
-        "Ekwav's Hypixel SkyBlock auctions: Active: 1 • Recently sold: 2 for 517k • Latest: Hyperion (900M, ends 19 Nov 2026, 15:00 UTC)"
+        "Ekwav's Hypixel SkyBlock auctions: Active: 1 • Recently sold: 2 for 517k • Latest: Hyperion (900M)"
     )
 })
 
@@ -163,7 +156,7 @@ const auctionDetails = (auctionFields, bids, sellerName = 'Ekwav') => ({
 
 test('auction description of a sold BIN', () => {
     const details = auctionDetails({ highestBid: 200_000, end: new Date(NOW - 5 * 24 * HOUR) }, [{ amount: 200_000, bidder: { name: 'Buyer' } }])
-    assert.equal(embed.getAuctionEmbedDescription(details, NOW), 'Foraging Exp Boost • Sold for 200k (BIN) • Ekwav → Buyer • Ended 14 Nov 2026, 12:00 UTC • Epic')
+    assert.equal(embed.getAuctionEmbedDescription(details, NOW), 'Foraging Exp Boost • Sold for 200k (BIN) • Ekwav → Buyer • Epic')
 })
 
 test('auction description of a running auction with bids and of an unsold BIN', () => {
@@ -171,9 +164,9 @@ test('auction description of a running auction with bids and of an unsold BIN', 
         { amount: 1_500_000, bidder: { name: 'Top' } },
         { amount: 1_000_000, bidder: { name: 'Other' } }
     ])
-    assert.equal(embed.getAuctionEmbedDescription(running, NOW), 'Foraging Exp Boost • Highest bid: 1.5M (2 bids) • Ekwav → Top • Ends 19 Nov 2026, 14:00 UTC • Epic')
+    assert.equal(embed.getAuctionEmbedDescription(running, NOW), 'Foraging Exp Boost • Highest bid: 1.5M (2 bids) • Ekwav → Top • Epic')
     const unsold = auctionDetails({ end: new Date(NOW - HOUR), item: { name: 'Belt', tier: 'VERY_SPECIAL' } }, [], '')
-    assert.equal(embed.getAuctionEmbedDescription(unsold, NOW), 'Belt • Unsold BIN: 200k • Ended 19 Nov 2026, 11:00 UTC • Very Special')
+    assert.equal(embed.getAuctionEmbedDescription(unsold, NOW), 'Belt • Unsold BIN: 200k • Very Special')
 })
 
 test('getHeadMetadata defaults to the 512px logo with its real size and a summary card', () => {
