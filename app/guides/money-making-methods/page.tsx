@@ -29,6 +29,11 @@ export default function MoneyMakingMethodsPage() {
                             <CardText>
                                 <strong>Not all grinding is created equal.</strong> In Hypixel Skyblock, your coin-per-hour, time investment, and barrier to entry vary wildly depending on your method. <strong>Bazaar flipping remains the most capital-efficient path,</strong> but farming, slaying, mining, fishing, and other methods each have their place depending on your stage and goals. This guide compares every major money-making method with real data so you can choose what's right for you.
                             </CardText>
+                            <div className="alert alert-info my-3" role="note">
+                                <strong>See live coins/hour:</strong> the numbers below are long-term ranges. For current estimates measured from what players
+                                actually earn right now, check the <Link href="/tasks">live money making methods list</Link> (coins/hour, players doing each method
+                                and the best zones).
+                            </div>
                             <CardText>
                                 <strong>Use the SkyCofl Mod to track actual profits from any method.</strong> Commands like <strong>/cofl profit</strong> and <strong>/cofl flips</strong> show you exactly what you're earning, removing guesswork and helping you optimize over time.
                             </CardText>

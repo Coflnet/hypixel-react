@@ -34,20 +34,21 @@ enum RECENT_AUCTIONS_FETCH_TYPE {
 const FETCH_RESULT_SIZE = 12
 
 function RecentAuctions(props: Props) {
-    let [recentAuctions, setRecentAuctions, recentAuctionsRef] = useStateWithRef<RecentAuction[]>([])
-    let [isSSR, setIsSSR] = useState(true)
-    let [allElementsLoaded, setAllElementsLoaded] = useState(false)
-    let [premiumType, setPremiumType] = useState<PremiumType>()
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [noResults, setNoResults] = useState(false)
+    const [recentAuctions, setRecentAuctions, recentAuctionsRef] = useStateWithRef<RecentAuction[]>([])
+    const [isSSR, setIsSSR] = useState(true)
+    const [allElementsLoaded, setAllElementsLoaded] = useState(false)
+    const [premiumTypeState, setPremiumType] = useState<PremiumType>()
+    let premiumType = premiumTypeState
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [noResults, setNoResults] = useState(false)
     const [hasLoadError, setHasLoadError] = useState(false)
     const [isLoading, setIsLoading, isLoadingRef] = useStateWithRef(false)
     const mounted = useRef(false)
     const requestId = useRef(0)
     const nextPage = useRef(0)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
-    let itemFilterRef = useRef<ItemFilter>(props.itemFilter)
+    const itemFilterRef = useRef<ItemFilter>(props.itemFilter)
     itemFilterRef.current = props.itemFilter
 
     useEffect(() => {
@@ -76,7 +77,7 @@ function RecentAuctions(props: Props) {
         setRecentAuctions([auction, ...recentAuctionsRef.current])
         setNoResults(false)
     }
-    let resubscribeSoldAuctions = useLiveAuctionSubscription(
+    const resubscribeSoldAuctions = useLiveAuctionSubscription(
         () => api.subscribeSoldAuctions(props.item.tag, getEffectiveItemFilter(), onSoldAuction),
         [props.item.tag, JSON.stringify(props.itemFilter)],
         !props.isYearView
@@ -84,9 +85,9 @@ function RecentAuctions(props: Props) {
 
     // builds the filter actually used to fetch/subscribe, applying the Sold/Expired/All toggle as a HighestBid filter
     function getEffectiveItemFilter(): ItemFilter {
-        let itemFilter = { ...itemFilterRef.current } as ItemFilter
+        const itemFilter = { ...itemFilterRef.current } as ItemFilter
         if (!props.itemFilter || props.itemFilter['HighestBid'] === undefined) {
-            let fetchType = localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY)
+            const fetchType = localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY)
             switch (fetchType) {
                 case RECENT_AUCTIONS_FETCH_TYPE.UNSOLD:
                     itemFilter['HighestBid'] = '0'
@@ -168,13 +169,13 @@ function RecentAuctions(props: Props) {
     }
 
     function onAfterLogin() {
-        let onAfterPremiumProductsLoaded = (products: PremiumProduct[]) => {
+        const onAfterPremiumProductsLoaded = (products: PremiumProduct[]) => {
             setIsLoggedIn(true)
-            let activePremium = getHighestPriorityPremiumProduct(products)
+            const activePremium = getHighestPriorityPremiumProduct(products)
             if (!activePremium) {
                 return
             }
-            let highestPremium = getPremiumType(activePremium)
+            const highestPremium = getPremiumType(activePremium)
             premiumType = highestPremium
             setPremiumType(highestPremium)
             setAllElementsLoaded(false)
@@ -195,7 +196,7 @@ function RecentAuctions(props: Props) {
             })
     }
 
-    let recentAuctionList = recentAuctions.map(recentAuction => {
+    const recentAuctionList = recentAuctions.map(recentAuction => {
         return (
             <div key={recentAuction.uuid} className={styles.cardWrapper}>
                 <span className="disableLinkStyle">

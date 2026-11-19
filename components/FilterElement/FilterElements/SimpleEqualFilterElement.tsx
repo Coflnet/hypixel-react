@@ -6,14 +6,14 @@ import { convertTagToName } from '../../../utils/Formatter'
 interface Props {
     onChange(n: string)
     options: string[]
-    defaultValue: any
+    defaultValue?: string
     isValid: boolean
 }
 
 export function SimpleEqualFilterElement(props: Props) {
     function _onChange(event: ChangeEvent<HTMLSelectElement>) {
-        let selectedIndex = event.target.options.selectedIndex
-        let value = event.target.options[selectedIndex].getAttribute('data-id')!
+        const selectedIndex = event.target.options.selectedIndex
+        const value = event.target.options[selectedIndex].getAttribute('data-id')!
         props.onChange(value)
     }
 

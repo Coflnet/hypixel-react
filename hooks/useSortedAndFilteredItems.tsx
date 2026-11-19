@@ -3,7 +3,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 export interface SortOption<T> {
     label: string
     value: string
-    sortFunction(items: T[], ...args: any[]): T[]
+    sortFunction(items: T[], ...args: unknown[]): T[]
 }
 
 // Utility function to process items in chunks to avoid blocking the main thread
@@ -23,6 +23,26 @@ async function processInChunks<T>(items: T[], processor: (item: T) => boolean, c
     return result
 }
 
+// Sorts and filters in one go, so the server renders the order the client settles on. Otherwise the
+// first client run reorders the cards, and a card that moves in or out of the blurred top spots remounts.
+function sortAndFilterNow<T>(
+    items: T[],
+    orderBy: SortOption<T> | null,
+    nameFilter: string | null | undefined,
+    minimumProfit: number,
+    filterFunction?: (item: T, nameFilter: string | null | undefined, minimumProfit: number) => boolean,
+    sortFunctionArgs: unknown[] = []
+): T[] {
+    const input: T[] = Array.isArray(items) ? items : []
+    try {
+        const sorted = orderBy ? orderBy.sortFunction([...input], ...sortFunctionArgs) : input
+        return filterFunction ? sorted.filter(item => filterFunction(item, nameFilter, minimumProfit)) : sorted
+    } catch (error) {
+        console.error('Error during initial processing:', error)
+        return input
+    }
+}
+
 // Custom hook for sorting and filtering items
 export function useSortedAndFilteredItems<T>(
     items: T[],
@@ -30,11 +50,12 @@ export function useSortedAndFilteredItems<T>(
     nameFilter: string | null | undefined,
     minimumProfit: number,
     filterFunction?: (item: T, nameFilter: string | null | undefined, minimumProfit: number) => boolean,
-    sortFunctionArgs: any[] = [],
+    sortFunctionArgs: unknown[] = [],
     debounceMs: number = 300
 ) {
-    const initialItems: T[] = Array.isArray(items) ? items : []
-    const [processedItems, setProcessedItems] = useState<T[]>(initialItems)
+    const [processedItems, setProcessedItems] = useState<T[]>(() =>
+        sortAndFilterNow(items, orderBy, nameFilter, minimumProfit, filterFunction, sortFunctionArgs)
+    )
     const [isProcessing, setIsProcessing] = useState(false)
     const [debouncedNameFilter, setDebouncedNameFilter] = useState(nameFilter)
     const [debouncedMinimumProfit, setDebouncedMinimumProfit] = useState(minimumProfit)
@@ -67,7 +88,7 @@ export function useSortedAndFilteredItems<T>(
             currentNameFilter: string | null | undefined,
             currentMinimumProfit: number,
             currentFilterFunction?: (item: T, nameFilter: string | null | undefined, minimumProfit: number) => boolean,
-            currentSortFunctionArgs: any[] = []
+            currentSortFunctionArgs: unknown[] = []
         ) => {
             const processingId = ++processingIdRef.current
 

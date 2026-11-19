@@ -1,6 +1,5 @@
 import React from 'react'
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
-import Premium from '../../components/Premium/Premium'
 import { Container } from 'react-bootstrap'
 import { getQueryClient } from '../../utils/QueryUtils'
 import { getApiLeaderboardProfit, getGetApiLeaderboardProfitQueryKey } from '../../api/_generated/skyApi'

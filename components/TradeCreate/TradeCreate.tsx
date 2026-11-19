@@ -1,4 +1,4 @@
-import { Button, Card, Form, Modal, Spinner } from 'react-bootstrap'
+import { Button, Card, Form, Modal } from 'react-bootstrap'
 import { useState } from 'react'
 import api from '../../api/ApiHelper'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
@@ -20,21 +20,21 @@ interface Props {
 }
 
 export default function TradeCreate(props: Props) {
-    let [offer, setOffer] = useState<InventoryData>()
-    let [offeredCoins, setOfferedCoins] = useState<number>(0)
-    let [wantedItems, setWantedItems] = useState<WantedItem[]>([])
-    let [wantedCoins, setWantedCoins] = useState<number>(0)
-    let [showOfferModal, setShowOfferModal] = useState(false)
-    let [showCreateWantedItemModal, setShowCreateWantedItemModal] = useState(false)
-    let [isCurrentlyCreatingTrade, setIsCurrentlyCreatingTrade] = useState(false)
+    const [offer, setOffer] = useState<InventoryData>()
+    const [offeredCoins, setOfferedCoins] = useState<number>(0)
+    const [wantedItems, setWantedItems] = useState<WantedItem[]>([])
+    const [wantedCoins, setWantedCoins] = useState<number>(0)
+    const [showOfferModal, setShowOfferModal] = useState(false)
+    const [showCreateWantedItemModal, setShowCreateWantedItemModal] = useState(false)
+    const [isCurrentlyCreatingTrade, setIsCurrentlyCreatingTrade] = useState(false)
 
     function onAddWanted(newWanted: WantedItem) {
-        let updatedWanted = [...wantedItems, newWanted]
+        const updatedWanted = [...wantedItems, newWanted]
         setWantedItems(updatedWanted)
     }
 
     function onRemoveWantedByIndex(filteredIndex: number) {
-        let updatedWanted = wantedItems.filter((_, index) => index !== filteredIndex)
+        const updatedWanted = wantedItems.filter((_, index) => index !== filteredIndex)
         setWantedItems(updatedWanted)
     }
 
@@ -45,9 +45,9 @@ export default function TradeCreate(props: Props) {
 
     function createTradeOffer() {
         if (props.currentUserUUID && (offer || offeredCoins)) {
-            let wantedItemsToSend = [...wantedItems]
+            const wantedItemsToSend = [...wantedItems]
             if (wantedCoins > 0) {
-                let wantedCoinsItem = {
+                const wantedCoinsItem = {
                     itemName: 'Skyblock Coins',
                     tag: 'SKYBLOCK_COIN',
                     filters: {
@@ -77,7 +77,7 @@ export default function TradeCreate(props: Props) {
         return !((offer || offeredCoins) && (wantedItems.length > 0 || wantedCoins > 0))
     }
 
-    let selectOfferModal = (
+    const selectOfferModal = (
         <Modal
             size={'lg'}
             show={showOfferModal}
@@ -94,7 +94,7 @@ export default function TradeCreate(props: Props) {
         </Modal>
     )
 
-    let createWantedItemModal = (
+    const createWantedItemModal = (
         <Modal
             size={'lg'}
             show={showCreateWantedItemModal}

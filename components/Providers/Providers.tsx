@@ -1,5 +1,5 @@
 'use client'
-import { useEffect } from 'react'
+import { ReactNode, useEffect } from 'react'
 import { MatomoProvider, createInstance } from '@jonkoops/matomo-tracker-react'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -16,25 +16,28 @@ const matomoTrackingInstance = createInstance({
     urlBase: 'https://track.coflnet.com',
     siteId: 1,
     configurations: {
+        // Nothing is sent before consent. Queued here, first: MainApp queues it again, but its effect runs after
+        // the page's own effects, which may already push events (e.g. the /premium experiment exposure).
+        requireConsent: true,
         // Cookie tracking remains disabled until the CMP signals full consent.
         requireCookieConsent: true
     }
 })
 
-export function Providers({ children }) {
+export function Providers({ children, adsEnabled }: { children: ReactNode; adsEnabled: boolean }) {
     const queryClient = getQueryClient()
     useEffect(() => {
         if (hasGlobalPrivacyControl()) {
             document.cookie = 'nonEssentialCookiesAllowed=false; max-age=31536000; path=/; SameSite=Lax'
             document.cookie = 'CCPAOPTOUT=1; max-age=31536000; path=/; SameSite=Lax'
-            ;(window as any)._paq?.push(['forgetCookieConsentGiven'])
-            ;(window as any)._paq?.push(['optUserOut'])
+            ;window._paq?.push(['forgetCookieConsentGiven'])
+            ;window._paq?.push(['optUserOut'])
             return
         }
 
         // re-apply a previously given full-cookie consent on page load
         if (document.cookie.split('; ').includes('nonEssentialCookiesAllowed=true')) {
-            ;(window as any)._paq?.push(['setCookieConsentGiven'])
+            ;window._paq?.push(['setCookieConsentGiven'])
         }
     }, [])
     return (
@@ -42,7 +45,7 @@ export function Providers({ children }) {
             <QueryClientProvider client={queryClient}>
                 <GoogleOAuthProvider clientId="570302890760-nlkgd99b71q4d61am4lpqdhen1penddt.apps.googleusercontent.com">
                     <FavoritesProvider>
-                        <AdsProvider>
+                        <AdsProvider enabled={adsEnabled}>
                             <FlipSettingsProvider>{children}</FlipSettingsProvider>
                         </AdsProvider>
                     </FavoritesProvider>

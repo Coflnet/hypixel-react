@@ -77,7 +77,7 @@ export function BookFlips() {
         return nameMatch && profitMatch
     }
 
-    function censoredItemGenerator(flip: BookFlip): BookFlip {
+    function censoredItemGenerator(): BookFlip {
         return {
             estimatedFees: 0,
             hourlyVolume: 0,

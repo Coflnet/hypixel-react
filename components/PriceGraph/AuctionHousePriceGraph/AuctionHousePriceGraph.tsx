@@ -26,7 +26,7 @@ import { useGetApiItemPriceItemTagHistoryYear } from '../../../api/_generated/sk
 import Link from 'next/link'
 import { v4 as generateUUID } from 'uuid'
 import { useGetApiMayor } from '../../../api/_generated/skyApi'
-import type { PriceStatistics, CoflnetSkyMayorModelsModelElectionPeriod, AuctionPreview } from '../../../api/_generated/skyApi.schemas'
+import type { PriceStatistics, CoflnetSkyMayorModelsModelElectionPeriod, AuctionPreview, GetApiItemPriceItemTagHistoryYearParams } from '../../../api/_generated/skyApi.schemas'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
 import NitroAdSlot from '../../Ads/NitroAdSlot'
 import { getItemFilterFromUrl } from '../../../utils/Parser/URLParser'
@@ -77,33 +77,50 @@ interface Props {
     item: Item
 }
 
-let currentLoadingString
+type GraphPrice = { time: Date | string; avg: number; min: number; max: number; volume: number }
 
-let mounted = true
+function getAveragePrice(prices: GraphPrice[]) {
+    return prices.length ? Math.round(prices.reduce((sum, price) => sum + price.avg, 0) / prices.length) : 0
+}
+
+function createChartOptions(previous: typeof graphConfig, prices: GraphPrice[]) {
+    const values = ['avg', 'min', 'max', 'volume'] as const
+    return {
+        ...previous,
+        xAxis: previous.xAxis.map(axis => ({ ...axis, data: prices.map(price => new Date(price.time).getTime()) })),
+        series: previous.series.map((series, index) => ({
+            ...series,
+            data: index < values.length ? prices.map(price => price[values[index]].toFixed(2)) : [],
+            markArea: undefined
+        }))
+    }
+}
 
 function AuctionHousePriceGraph(props: Props) {
-    let searchParams = useSearchParams()
-    let [fetchspan, setFetchspan] = useValidRange()
-    let [isLoading, setIsLoading] = useState(false)
-    let [noDataFound, setNoDataFound] = useState(false)
-    let [avgPrice, setAvgPrice] = useState(0)
-    let [filters, setFilters] = useState([] as FilterOptions[])
-    let [itemFilter, setItemFilter] = useState<ItemFilter>()
-    let [defaultRangeSwitch, setDefaultRangeSwitch] = useState(true)
-    let [chartOptions, setChartOptions] = useState(graphConfig)
-    let [mayorData, setMayorData] = useState<MayorData[]>([])
-    let [rangeSelectKey, setRangeSelectKey] = useState(() => generateUUID())
-    let [hasPremium, setHasPremium] = useState(false)
-    let [yearStatistics, setYearStatistics] = useState<YearStatistics | null>(null)
-    let [yearServerError, setYearServerError] = useState<string | null>(null)
-    let [customStartDate, setCustomStartDate] = useState<string>('')
-    let [customEndDate, setCustomEndDate] = useState<string>('')
-    let [mayorPeriods, setMayorPeriods] = useState<CoflnetSkyMayorModelsModelElectionPeriod[]>([])
-    let [showCustomDatePicker, setShowCustomDatePicker] = useState(false)
-    let [isYearLoading, setIsYearLoading] = useState(false)
-    let [yearParams, setYearParams] = useState<any | undefined>(undefined)
-    let [yearFetchOptions, setYearFetchOptions] = useState<RequestInit | undefined>(undefined)
-    let loadingMessage = useRotatingMessages(
+    const mounted = useRef(false)
+    const requestVersion = useRef(0)
+    const searchParams = useSearchParams()
+    const [fetchspan, setFetchspan] = useValidRange()
+    const [isLoading, setIsLoading] = useState(false)
+    const [noDataFound, setNoDataFound] = useState(false)
+    const [avgPrice, setAvgPrice] = useState(0)
+    const [filters, setFilters] = useState([] as FilterOptions[])
+    const [itemFilter, setItemFilter] = useState<ItemFilter>()
+    const [defaultRangeSwitch, setDefaultRangeSwitch] = useState(true)
+    const [chartOptions, setChartOptions] = useState(graphConfig)
+    const [mayorData, setMayorData] = useState<MayorData[]>([])
+    const [rangeSelectKey, setRangeSelectKey] = useState(() => generateUUID())
+    const [hasPremium, setHasPremium] = useState(false)
+    const [yearStatistics, setYearStatistics] = useState<YearStatistics | null>(null)
+    const [yearServerError, setYearServerError] = useState<string | null>(null)
+    const [customStartDate, setCustomStartDate] = useState<string>('')
+    const [customEndDate, setCustomEndDate] = useState<string>('')
+    const [mayorPeriods, setMayorPeriods] = useState<CoflnetSkyMayorModelsModelElectionPeriod[]>([])
+    const [showCustomDatePicker, setShowCustomDatePicker] = useState(false)
+    const [isYearLoading, setIsYearLoading] = useState(false)
+    const [yearParams, setYearParams] = useState<(GetApiItemPriceItemTagHistoryYearParams & Record<string, unknown>) | undefined>(undefined)
+    const [yearFetchOptions, setYearFetchOptions] = useState<RequestInit | undefined>(undefined)
+    const loadingMessage = useRotatingMessages(
         isYearLoading,
         [
             'Loading year history data... This might take a while! 📊',
@@ -117,23 +134,24 @@ function AuctionHousePriceGraph(props: Props) {
         ],
         10000
     )
-    let graphRef = useRef<EChartsReact>(null)
-    let router = useRouter()
-    let pathname = usePathname()
+    const graphRef = useRef<EChartsReact>(null)
+    const router = useRouter()
+    const pathname = usePathname()
 
     const isSignedIn = typeof window !== 'undefined' && !!sessionStorage.getItem('googleId')
 
-    let fetchspanRef = useRef(fetchspan)
+    const fetchspanRef = useRef(fetchspan)
     fetchspanRef.current = fetchspan
-    let initialUrlFilter = useRef<string | null>(null)
+    const initialUrlFilter = useRef<string | null>(null)
 
     useEffect(() => {
-        mounted = true
+        mounted.current = true
 
         setSelectedLegendOptionsFromLocalStorage()
 
         return () => {
-            mounted = false
+            mounted.current = false
+            requestVersion.current++
         }
     }, [])
 
@@ -180,7 +198,7 @@ function AuctionHousePriceGraph(props: Props) {
     useEffect(() => {
         if (mayorQuery.data) {
             const periods = mayorQuery.data.data || []
-            const sortedPeriods = periods.sort((a: any, b: any) => new Date(b.start).getTime() - new Date(a.start).getTime())
+            const sortedPeriods = periods.sort((a, b) => new Date(b.start as string).getTime() - new Date(a.start as string).getTime())
             setMayorPeriods(sortedPeriods)
         } else if (mayorQuery.error) {
             console.error(mayorQuery.error)
@@ -200,16 +218,21 @@ function AuctionHousePriceGraph(props: Props) {
         if (!isYearLoading) return
 
         if (yearQuery.data) {
-            const response = yearQuery.data as any
+            const response = yearQuery.data
 
-            if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, fetchspan, itemFilter })) {
+            if (!mounted.current || fetchspanRef.current !== DateRange.YEAR) {
                 setIsYearLoading(false)
                 return
             }
 
             setIsYearLoading(false)
             setYearServerError(null)
-            const data = response.data
+            const data = response.data as (YearStatistics & {
+                trace?: string
+                slug?: string
+                premiumRequired?: boolean
+                error?: string
+            }) | undefined
             const status = response.status as number | undefined
 
             // Server error (500+): show support message instead of premium overlay
@@ -240,36 +263,13 @@ function AuctionHousePriceGraph(props: Props) {
             }
 
             if (data && typeof data === 'object' && 'prices' in data) {
-                setYearStatistics(data as any)
+                setYearStatistics(data)
 
-                let filteredPrices = data.prices || []
-
-                if (filteredPrices.length > 0) {
-                    if (customStartDate || customEndDate) {
-                        filteredPrices = filteredPrices.filter(item => {
-                            const itemDate = new Date(item.time)
-                            const startDate = customStartDate ? new Date(customStartDate) : new Date(0)
-                            const endDate = customEndDate ? new Date(customEndDate) : new Date()
-
-                            return itemDate >= startDate && itemDate <= endDate
-                        })
-                    }
-
-                    chartOptions.xAxis[0].data = filteredPrices.map(item => new Date(item.time).getTime())
-                    chartOptions.series[0].data = filteredPrices.map(item => item.avg.toFixed(2))
-                    chartOptions.series[1].data = filteredPrices.map(item => item.min.toFixed(2))
-                    chartOptions.series[2].data = filteredPrices.map(item => item.max.toFixed(2))
-                    chartOptions.series[3].data = filteredPrices.map(item => item.volume.toFixed(2))
-
-                    let priceSum = filteredPrices.reduce((sum, item) => sum + item.avg, 0)
-                    setAvgPrice(Math.round(priceSum / filteredPrices.length))
-                } else {
-                    setAvgPrice(0)
-                }
-
+                const prices = getYearPrices(data)
+                setAvgPrice(getAveragePrice(prices))
                 setIsLoading(false)
-                setNoDataFound(filteredPrices?.length === 0)
-                setChartOptions(chartOptions)
+                setNoDataFound(prices.length === 0)
+                setChartOptions(previous => createChartOptions(previous, prices))
             } else {
                 setIsLoading(false)
                 setNoDataFound(true)
@@ -277,7 +277,12 @@ function AuctionHousePriceGraph(props: Props) {
                 setYearStatistics(null)
             }
         } else if (yearQuery.error) {
-            const e: any = yearQuery.error
+            const e = yearQuery.error as {
+                status?: number
+                message?: string
+                trace?: string
+                response?: { status?: number; data?: { trace?: string } }
+            }
             console.error(e)
             setIsYearLoading(false)
             setIsLoading(false)
@@ -285,7 +290,7 @@ function AuctionHousePriceGraph(props: Props) {
 
             const status = e?.status || e?.response?.status
             const is401 = status === 401 || (e?.message && /\b401\b/.test(e.message))
-            const is500 = status >= 500
+            const is500 = (status ?? 0) >= 500
 
             if (is500) {
                 const trace = e?.trace || e?.response?.data?.trace || ''
@@ -305,121 +310,91 @@ function AuctionHousePriceGraph(props: Props) {
             }
             setAvgPrice(0)
         }
-    }, [yearQuery.data, yearQuery.error])
+    }, [yearQuery.data, yearQuery.error, isYearLoading])
 
-    let updateChart = (fetchspan: DateRange, itemFilter?: ItemFilter) => {
-        if (fetchspan === DateRange.ACTIVE) {
-            setIsLoading(false)
-            return
-        }
-
-        if (fetchspan === DateRange.HOUR) {
-            return
-        }
-
-        setIsLoading(true)
-
-        chartOptions.xAxis[0].data = []
-        chartOptions.series[0].data = []
-        chartOptions.series[1].data = []
-        chartOptions.series[2].data = []
-        chartOptions.series[3].data = []
-
-        currentLoadingString = JSON.stringify({
-            tag: props.item.tag,
-            fetchspan,
-            itemFilter
+    function getYearPrices(data: YearStatistics) {
+        if (!customStartDate && !customEndDate) return data.prices || []
+        const start = customStartDate ? new Date(customStartDate) : new Date(0)
+        const end = customEndDate ? new Date(customEndDate) : new Date()
+        return (data.prices || []).filter(price => {
+            const time = new Date(price.time)
+            return time >= start && time <= end
         })
-
-        if (fetchspan === DateRange.YEAR) {
-            setIsYearLoading(true)
-            setYearServerError(null)
-
-            let params: any = {}
-            if (itemFilter && Object.keys(itemFilter).length > 0) {
-                params = { ...itemFilter }
-            }
-
-            const requestOptions: RequestInit = {}
-            if (typeof window !== 'undefined') {
-                const googleId = isSignedIn ? sessionStorage.getItem('googleId') : null
-                if (googleId) {
-                    requestOptions.headers = {
-                        GoogleToken: googleId,
-                        'Content-Type': 'application/json'
-                    }
-                }
-            }
-
-            setYearParams(Object.keys(params).length > 0 ? params : undefined)
-            setYearFetchOptions(requestOptions)
-            return
-        }
-
-        api.getItemPrices(props.item.tag, fetchspan as unknown as globalThis.DateRange, itemFilter)
-            .then(async prices => {
-                if (
-                    !mounted ||
-                    currentLoadingString !==
-                    JSON.stringify({
-                        tag: props.item.tag,
-                        fetchspan,
-                        itemFilter
-                    })
-                ) {
-                    return
-                }
-
-                // Check if prices array has any data before accessing
-                if (!prices || prices.length === 0) {
-                    setIsLoading(false)
-                    setNoDataFound(true)
-                    setAvgPrice(0)
-                    return
-                }
-
-                let minDate = prices[0].time
-                let maxDate = prices[prices.length - 1].time
-
-                chartOptions.xAxis[0].data = prices.map(item => item.time.getTime())
-
-                let priceSum = 0
-
-                prices.forEach(item => {
-                    priceSum += item.avg
-                    chartOptions.series[0].data.push(item.avg.toFixed(2))
-                    chartOptions.series[1].data.push(item.min.toFixed(2))
-                    chartOptions.series[2].data.push(item.max.toFixed(2))
-                    chartOptions.series[3].data.push(item.volume.toFixed(2))
-                })
-
-                try {
-                    let mayorData = await api.getMayorData(minDate, maxDate)
-                    setMayorData(mayorData)
-                    applyMayorDataToChart(chartOptions, mayorData, 4)
-                } catch (e) { }
-
-                setAvgPrice(Math.round(priceSum / prices.length))
-                setNoDataFound(prices.length === 0)
-                setIsLoading(false)
-                setChartOptions(chartOptions)
-            })
-            .catch(e => {
-                console.error(e)
-                setIsLoading(false)
-                setNoDataFound(true)
-                setAvgPrice(0)
-            })
     }
 
-    let onRangeChange = (timespan: DateRange) => {
+    const updateChart = (fetchspan: DateRange, itemFilter?: ItemFilter) => {
+        const version = ++requestVersion.current
+        setYearStatistics(null)
+        setYearServerError(null)
+        setIsYearLoading(false)
+        setNoDataFound(false)
+        setAvgPrice(0)
+        setIsLoading(false)
+        if (fetchspan === DateRange.ACTIVE || fetchspan === DateRange.HOUR) return
+
+        setIsLoading(true)
+        if (fetchspan === DateRange.YEAR) {
+            startYearHistory(itemFilter)
+            return
+        }
+        loadPriceHistory(fetchspan, itemFilter, version)
+    }
+
+    function startYearHistory(filter?: ItemFilter) {
+        setIsYearLoading(true)
+        const params = filter && Object.keys(filter).length ? { ...filter } : undefined
+        const requestOptions: RequestInit = {}
+        const googleId = typeof window !== 'undefined' && isSignedIn ? sessionStorage.getItem('googleId') : null
+        if (googleId) {
+            requestOptions.headers = { GoogleToken: googleId, 'Content-Type': 'application/json' }
+        }
+        setYearParams(params)
+        setYearFetchOptions(requestOptions)
+    }
+
+    function isCurrentRequest(version: number) {
+        return mounted.current && requestVersion.current === version
+    }
+
+    async function loadPriceHistory(range: DateRange, filter: ItemFilter | undefined, version: number) {
+        try {
+            const prices = await api.getItemPrices(props.item.tag, range as unknown as globalThis.DateRange, filter)
+            if (!isCurrentRequest(version)) return
+            const options = createChartOptions(chartOptions, prices || [])
+            const annotations = prices?.length ? await loadMayorAnnotations(prices, options) : []
+            if (!isCurrentRequest(version)) return
+            setMayorData(annotations)
+            setAvgPrice(getAveragePrice(prices || []))
+            setNoDataFound(!prices?.length)
+            setIsLoading(false)
+            setChartOptions(options)
+        } catch (error) {
+            if (!isCurrentRequest(version)) return
+            console.error(error)
+            setIsLoading(false)
+            setNoDataFound(true)
+            setAvgPrice(0)
+        }
+    }
+
+    async function loadMayorAnnotations(prices: Awaited<ReturnType<typeof api.getItemPrices>>, options: typeof graphConfig) {
+        try {
+            const annotations = await api.getMayorData(prices[0].time, prices[prices.length - 1].time)
+            applyMayorDataToChart(options, annotations, 4)
+            return annotations
+        } catch {
+            return []
+        }
+    }
+
+    const onRangeChange = (timespan: DateRange) => {
         setFetchspan(timespan)
-        if (timespan !== DateRange.ACTIVE && itemFilter !== undefined) {
+        if (itemFilter !== undefined) {
             updateChart(timespan, itemFilter)
         }
     }
 
-    let onFilterChange = (filter: ItemFilter) => {
+    const onFilterChange = (filter: ItemFilter) => {
         setItemFilter({ ...filter })
         if (initialUrlFilter.current !== JSON.stringify(filter)) {
             initialUrlFilter.current = null
@@ -435,18 +410,20 @@ function AuctionHousePriceGraph(props: Props) {
     }
 
     function setSelectedLegendOptionsFromLocalStorage() {
-        let legendSelected = localStorage.getItem(AUCTION_GRAPH_LEGEND_SELECTION)
-        chartOptions.legend.selected = legendSelected ? JSON.parse(legendSelected) : chartOptions.legend.selected
-        setChartOptions(chartOptions)
+        const legendSelected = localStorage.getItem(AUCTION_GRAPH_LEGEND_SELECTION)
+        setChartOptions(previous => ({
+            ...previous,
+            legend: { ...previous.legend, selected: legendSelected ? JSON.parse(legendSelected) : previous.legend.selected }
+        }))
     }
 
-    function onChartsEvents(): Record<string, Function> {
+    function onChartsEvents() {
         return {
-            legendselectchanged: e => {
+            legendselectchanged: (e: { selected: Record<string, boolean> }) => {
                 localStorage.setItem(AUCTION_GRAPH_LEGEND_SELECTION, JSON.stringify(e.selected))
             },
             datazoom: (e: { start: number; end: number }) => {
-                let newChartOptions = { ...graphRef.current?.getEchartsInstance().getOption() }
+                const newChartOptions = { ...graphRef.current?.getEchartsInstance().getOption() }
                 applyMayorDataToChart(newChartOptions, mayorData, 4, e)
 
                 graphRef.current?.getEchartsInstance().setOption({
@@ -685,7 +662,7 @@ function AuctionHousePriceGraph(props: Props) {
                         isYearView={fetchspan === DateRange.YEAR}
                         onChangeToActiveAuctions={() => {
                             onRangeChange(DateRange.ACTIVE)
-                            let searchParams = new URLSearchParams(window.location.search)
+                            const searchParams = new URLSearchParams(window.location.search)
                             searchParams.set('range', 'active')
                             router.replace(`${pathname}?${searchParams.toString()}`)
                             setTimeout(() => {

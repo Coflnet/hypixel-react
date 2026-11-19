@@ -14,8 +14,8 @@ export default function ConsentButton() {
     useEffect(() => {
         const update = () => {
             try {
-                setVisible(!!(window as any).__tcfapi)
-            } catch (e) {
+                setVisible(!!window.__tcfapi)
+            } catch {
                 setVisible(false)
             }
         }
@@ -26,7 +26,7 @@ export default function ConsentButton() {
             setOptedOut(true)
         }
 
-        if ((window as any).nitroAds && (window as any).nitroAds.loaded) {
+        if (window.nitroAds && window.nitroAds.loaded) {
             update()
         } else {
             window.addEventListener('nitroAds.loaded', update)
@@ -42,27 +42,23 @@ export default function ConsentButton() {
 
             
             try {
-                if ((window as any).nitroAds && typeof (window as any).nitroAds.addUserToken === 'function') {
-                    ;(window as any).nitroAds.addUserToken('optout')
-                } else if ((window as any).nitroAds && Array.isArray((window as any).nitroAds.queue)) {
-                    (window as any).nitroAds.queue.push(['addUserToken', ['optout']])
+                if (window.nitroAds && typeof window.nitroAds.addUserToken === 'function') {
+                    window.nitroAds.addUserToken('optout')
+                } else if (window.nitroAds && Array.isArray(window.nitroAds.queue)) {
+                    window.nitroAds.queue.push(['addUserToken', ['optout']])
                 }
-            } catch (e) {
-                
-            }
+            } catch { /* The optional vendor API may not be ready. */ }
 
             
             try {
-                if ((window as any).__cmp) {
+                if (window.__cmp) {
                     
-                    (window as any).__cmp('set', {consents: {}})
+                    window.__cmp('set', {consents: {}})
                 }
-            } catch (e) {
-                
-            }
+            } catch { /* The optional vendor API may not be ready. */ }
 
             setOptedOut(true)
-            try { window.dispatchEvent(new CustomEvent('nitro.optout')) } catch (e) {}
+            try { window.dispatchEvent(new CustomEvent('nitro.optout')) } catch { /* Consent remains saved if notification fails. */ }
         } catch (e) {
             console.error('Opt-out failed', e)
         }
@@ -77,8 +73,8 @@ export default function ConsentButton() {
                     <button
                         onClick={() => {
                             try {
-                                if ((window as any).__cmp) (window as any).__cmp('showModal')
-                            } catch (e) {}
+                                if (window.__cmp) window.__cmp('showModal')
+                            } catch { /* The optional vendor API may not be ready. */ }
                         }}
                     >
                         Update cookie preferences

@@ -1,77 +1,58 @@
 'use client'
-import { useEffect, useRef, useState } from 'react'
-import { Country, getCountry, getCountryFromUserLanguage } from '../utils/CountryUtils'
-import { USER_COUNTRY_CODE } from '../utils/SettingsUtils'
+import { useSyncExternalStore } from 'react'
+import { Country, getCountry } from '../utils/CountryUtils'
+import { detectVisitorCountryCode } from '../utils/CountryDetection'
 
-export function useCountryDetection(onCountryCodeChange?: (countryCode: string) => void) {
-    const [selectedCountry, setSelectedCountry] = useState<Country>()
-    const callbackRef = useRef(onCountryCodeChange)
-    const hasUserSelected = useRef(false)
-    callbackRef.current = onCountryCodeChange
+// The buyer's country for prices, taxes and the payment providers. One state for the whole page: every country select
+// and price shows the same country. Nothing is stored on the device. An unknown country stays unknown (no guessed
+// default): prices are then shown before tax and a checkout needs the buyer to pick the country first.
+// A failed, blocked or timed out detection ends the detection, so the buyer can pick the country.
 
-    function persistCountry(country: Country) {
-        try {
-            if (country.value) {
-                localStorage.setItem(USER_COUNTRY_CODE, country.value)
-            }
-        } catch {
-            console.error('Failed to persist country to storage')
-        }
+interface CountryState {
+    country?: Country
+    /** true until the automatic detection has answered */
+    detecting: boolean
+}
+
+const SERVER_STATE: CountryState = { detecting: true }
+
+let state: CountryState = SERVER_STATE
+let detectionStarted = false
+const listeners = new Set<() => void>()
+
+function setState(next: CountryState) {
+    state = next
+    listeners.forEach(listener => listener())
+}
+
+/** a country the buyer picked meanwhile wins over the detected one */
+function startDetection() {
+    if (detectionStarted) return
+    detectionStarted = true
+    void detectVisitorCountryCode().then(code => {
+        setState({ country: state.country ?? getCountry(code), detecting: false })
+    })
+}
+
+function subscribe(listener: () => void) {
+    listeners.add(listener)
+    startDetection()
+    return () => {
+        listeners.delete(listener)
+    }
+}
+
+/** the buyer's country (undefined while unknown) and whether its detection is still running */
+export function useCountryDetection() {
+    const current = useSyncExternalStore(
+        subscribe,
+        () => state,
+        () => SERVER_STATE
+    )
+
+    function handleCountryChange(country: Country) {
+        setState({ country, detecting: false })
     }
 
-    const applyCountry = (country: Country | undefined) => {
-        if (!country) return
-        if (hasUserSelected.current) return
-        setSelectedCountry(country)
-        persistCountry(country)
-        if (callbackRef.current && country.value) {
-            callbackRef.current(country.value)
-        }
-    }
-
-    const handleCountryChange = (country: Country) => {
-        hasUserSelected.current = true
-        setSelectedCountry(country)
-        persistCountry(country)
-        if (callbackRef.current && country.value) {
-            callbackRef.current(country.value)
-        }
-    }
-
-    useEffect(() => {
-        async function detect() {
-            let cachedCode: string | null = null
-            try {
-                cachedCode = localStorage.getItem(USER_COUNTRY_CODE)
-            } catch {
-                cachedCode = null
-            }
-
-            if (cachedCode) {
-                const normalizedCode = cachedCode.toUpperCase()
-                const cachedCountry = getCountry(normalizedCode)
-                if (cachedCountry) {
-                    applyCountry(cachedCountry)
-                    return
-                }
-            }
-
-            let detectedCountry: Country | undefined
-            try {
-                const response = await fetch('https://api.country.is')
-                if (response.ok) {
-                    const result = await response.json()
-                    detectedCountry = getCountry(result.country)
-                }
-            } catch {
-                console.error('Failed to fetch country from api.country.is')
-            }
-
-            const fallbackCountry = detectedCountry || getCountryFromUserLanguage() || getCountry('US')
-            applyCountry(fallbackCountry)
-        }
-        detect()
-    }, [])
-
-    return { selectedCountry, handleCountryChange }
+    return { selectedCountry: current.country, isDetecting: current.detecting && !current.country, handleCountryChange }
 }

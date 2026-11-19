@@ -1,0 +1,200 @@
+.hero {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 56px 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 48px;
+    align-items: center;
+}
+
+.copy {
+    flex: 1 1 440px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.eyebrow {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: var(--gold);
+}
+
+.title {
+    margin: 0;
+    font-size: 48px;
+    line-height: 1.2;
+    font-weight: 700;
+    text-wrap: balance;
+}
+
+.lead {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 300;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 24px;
+    margin-top: 8px;
+}
+
+.proof {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 8px;
+    padding-top: 20px;
+    border-top: 1px solid var(--bs-secondary);
+}
+
+.proofValue {
+    font-size: 40px;
+    line-height: 1;
+    font-weight: 700;
+    color: var(--gold);
+}
+
+.small {
+    margin: 0;
+    font-size: 14px;
+    color: var(--muted-text);
+}
+
+.receiveCard {
+    flex: 1 1 440px;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.receiveHead {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 4px 12px;
+}
+
+.receiveTitle {
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.2;
+    font-weight: 500;
+}
+
+.bars {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.barRow {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr) 72px;
+    align-items: center;
+    gap: 12px;
+    min-height: 36px;
+}
+
+.barTier {
+    font-weight: 700;
+}
+
+.barValue {
+    text-align: right;
+    font-weight: 600;
+}
+
+.track {
+    position: relative;
+    height: 12px;
+    background: var(--bs-body-bg);
+    border-radius: 800px;
+}
+
+.fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    background: currentColor;
+    border-radius: 800px;
+}
+
+.dot {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 18px;
+    margin-left: -9px;
+    box-sizing: border-box;
+    background: currentColor;
+    border: 2px solid var(--card-bg);
+    border-radius: 800px;
+}
+
+.marker {
+    position: absolute;
+    top: -12px;
+    bottom: -12px;
+    width: 2px;
+    margin-left: -1px;
+    background: #fff;
+}
+
+.axis {
+    position: relative;
+    height: 18px;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--muted-text);
+}
+
+.axis span {
+    position: absolute;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+@media (max-width: 576px) {
+    .hero {
+        padding: 32px 16px;
+        gap: 32px;
+    }
+
+    .copy,
+    .receiveCard {
+        flex-basis: 100%;
+    }
+
+    .title {
+        font-size: 34px;
+    }
+
+    .lead {
+        font-size: 18px;
+    }
+
+    .receiveCard {
+        padding: 16px;
+    }
+
+    .barRow {
+        grid-template-columns: 70px minmax(0, 1fr) 60px;
+        gap: 8px;
+    }
+
+    .axis span:first-child {
+        transform: translateX(-30%);
+    }
+}

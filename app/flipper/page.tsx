@@ -11,11 +11,11 @@ import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoConten
 const seoContent = toolLandingSeoContent.flipper
 
 export default async function Page() {
-    let api = initAPI(true)
-    let flips: any[] = []
+    const api = initAPI(true)
+    let flips: FlipAuction[] = []
     try {
         flips = await api.getPreloadFlips()
-    } catch (e) {
+    } catch {
         console.log('ERROR: Error receiving preFlips ')
         console.log('------------------------\n')
     }

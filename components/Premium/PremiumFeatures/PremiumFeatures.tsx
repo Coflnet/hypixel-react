@@ -6,16 +6,27 @@ import Number from '../../Number/Number'
 import Tooltip from '../../Tooltip/Tooltip'
 import styles from './PremiumFeatures.module.css'
 import Image from 'next/image'
+import { getBazaarHistoryYears } from '../../../utils/DataHistory'
+
+function ReceiveTimeCell({ measured, path }: { measured: string; path: string }) {
+    return (
+        <td className={styles.premiumProductColumn}>
+            {measured}
+            <br />
+            <small style={{ opacity: 0.7 }}>{path}</small>
+        </td>
+    )
+}
 
 function PremiumFeatures() {
-    let checkIconSvg = (
+    const checkIconSvg = (
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="lime" className="bi bi-check-circle-fill" viewBox="0 0 16 16">
             <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
         </svg>
     )
-    let checkIconElement = <td className={styles.premiumProductColumn}>{checkIconSvg}</td>
+    const checkIconElement = <td className={styles.premiumProductColumn}>{checkIconSvg}</td>
 
-    let xIconElement = (
+    const xIconElement = (
         <td className={styles.premiumProductColumn}>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" className="bi bi-x-circle-fill" viewBox="0 0 16 16">
                 <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z" />
@@ -186,7 +197,7 @@ function PremiumFeatures() {
                         <td className={styles.featureColumn}>Medium Term investment flips (Mayor cycle)</td>
                         {xIconElement}
                         {xIconElement}
-                        {xIconElement}
+                        {checkIconElement}
                         {checkIconElement}
                     </tr>
                     <tr>
@@ -359,7 +370,7 @@ function PremiumFeatures() {
                         {xIconElement}
                         {xIconElement}
                         <td className={styles.premiumProductColumn}>180 days</td>
-                        <td className={styles.premiumProductColumn}>~6 years</td>
+                        <td className={styles.premiumProductColumn}>~{getBazaarHistoryYears()} years</td>
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>
@@ -437,18 +448,42 @@ function PremiumFeatures() {
                                 }
                                 type="hover"
                                 tooltipContent={
-                                    <p>
-                                        The Hypixel Auctions API updates once every 60 seconds. After we were able to load new auctions, this is how long it
-                                        will take until they are shown to you. (Parsing auctions, finding references, comparing to determine profit,
-                                        distributing and filtering and sending to you)
-                                    </p>
+                                    <>
+                                        <p>
+                                            Measured from the Hypixel API update until the flip reaches you (average over recent flips). Premium+ is
+                                            below 0 because flips that mod users find before the API lists them reach Premium+ first.
+                                        </p>
+                                        <p>
+                                            The second line is the path a flip takes: each lower tier gets it about 0.5 seconds after the tier above
+                                            (3-5 seconds when a higher tier&apos;s filter also matched it). Because the path starts at Premium+, even
+                                            free users can get some pre-API flips before the Hypixel API update.
+                                        </p>
+                                    </>
                                 }
                             />
                         </td>
-                        <td className={styles.premiumProductColumn}>40 sec</td>
-                        <td className={styles.premiumProductColumn}>10-20 sec</td>
-                        <td className={styles.premiumProductColumn}>~1 sec</td>
-                        <td className={styles.premiumProductColumn}>&lt; 1 sec</td>
+                        <ReceiveTimeCell measured="~6 sec" path="+1.5 sec after Premium+" />
+                        <ReceiveTimeCell measured="~3 sec" path="+1 sec after Premium+" />
+                        <ReceiveTimeCell measured="~0 sec" path="+0.5 sec after Premium+" />
+                        <ReceiveTimeCell measured="< 0 sec" path="gets every flip first" />
+                    </tr>
+                    <tr>
+                        <td className={styles.featureColumn}>
+                            Typical profit vs. free
+                            <Tooltip
+                                content={
+                                    <span style={{ marginLeft: '5px' }}>
+                                        <HelpIcon />
+                                    </span>
+                                }
+                                type="hover"
+                                tooltipContent={<p>Median realized profit per user per day (AH flips, bazaar and tasks tracked by the mod) compared to free users. Measured over the last 24 hours on 2026-11-04.</p>}
+                            />
+                        </td>
+                        <td className={styles.premiumProductColumn}>1x</td>
+                        <td className={styles.premiumProductColumn}>1.5x</td>
+                        <td className={styles.premiumProductColumn}>2.6x</td>
+                        <td className={styles.premiumProductColumn}>5.9x</td>
                     </tr>
                 </tbody>
             </Table>

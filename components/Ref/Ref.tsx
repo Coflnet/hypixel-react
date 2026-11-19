@@ -15,12 +15,12 @@ import { TEST_PREMIUM_DAYS } from '../../utils/PremiumTypeUtils'
 import { useReferralRewardsEligibility } from '../../utils/Hooks'
 
 function Ref() {
-    let [refInfo, setRefInfo] = useState<RefInfo>()
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let isEligible = useReferralRewardsEligibility()
+    const [refInfo, setRefInfo] = useState<RefInfo>()
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const isEligible = useReferralRewardsEligibility()
 
     function onLogin() {
-        let googleId = sessionStorage.getItem('googleId')
+        const googleId = sessionStorage.getItem('googleId')
         if (googleId) {
             setIsLoggedIn(true)
             api.getRefInfo().then(refInfo => {
@@ -54,7 +54,7 @@ function Ref() {
         )
     }
 
-    let claimAccountElement = (
+    const claimAccountElement = (
         <Tooltip
             type="click"
             content={<Button>How do I verify my account?</Button>}
@@ -182,7 +182,7 @@ function Ref() {
     )
 
     function linkExample(link: string) {
-        let full = link + '?refId=' + refInfo?.oldInfo.refId
+        const full = link + '?refId=' + refInfo?.oldInfo.refId
         return (
             <li>
                 <Link href={full}>{full}</Link>

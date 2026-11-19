@@ -3,7 +3,7 @@ import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
 import { Container } from 'react-bootstrap'
 import { BottomBanner } from '../../components/BottomBanner/BottomBanner'
-import { PremiumBazaarFlips } from '../../components/PremiumBazaarFlips/PremiumBazaarFlips'
+import { PremiumBazaarFlips } from '../../components/PremiumBazaarFlips/PremiumBazaarFlipsLegacy'
 import { ToolLandingSeo } from '../../components/Seo/ToolLandingSeo'
 import { toolLandingSeoContent } from '../../components/Seo/toolLandingSeoContent'
 
@@ -71,7 +71,7 @@ export default async function Page() {
 export const metadata: Metadata = getHeadMetadata(
     seoContent.metadataTitle,
     seoContent.metadataDescription,
-    'https://sky.coflnet.com/logo192.png',
+    'https://sky.coflnet.com/logo512.png',
     [
         'premium bazaar',
         'bazaar flips',

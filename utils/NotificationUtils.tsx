@@ -1,6 +1,7 @@
 import { toast } from 'react-toastify'
 import cacheUtils from './CacheUtils'
-import { canUseClipBoard, writeToClipboard } from './ClipboardUtils'
+import { canUseClipBoard } from './ClipboardUtils'
+import { copyAndRunInGame } from './InGameCommandUtils'
 
 export default function registerNotificationCallback(router) {
     let interval = setInterval(function () {
@@ -22,7 +23,7 @@ export default function registerNotificationCallback(router) {
         toast.info(notification.title + '\n' + notification.body, {
             onClick: () => {
                 if (canUseClipBoard()) {
-                    writeToClipboard('/viewauction ' + notification.click_action.split(/\/auction\//)[1])
+                    copyAndRunInGame('/viewauction ' + notification.click_action.split(/\/auction\//)[1], { copiedMessage: null, hideToast: true })
                 }
                 router.push('/' + notification.click_action.match(/\/\/[^/]+\/([^.]+)/)[1])
             },

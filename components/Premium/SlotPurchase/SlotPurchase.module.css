@@ -69,3 +69,26 @@
 .offer > button {
     margin-top: auto;
 }
+
+.original {
+    margin-right: 4px;
+    font-size: 1rem;
+    font-weight: 400;
+    color: var(--bs-secondary-color);
+}
+
+/* provider buttons full width and stacked, Back on its own row under them */
+.providerFooter {
+    flex-direction: column;
+    align-items: stretch;
+}
+
+.providerFooter .back {
+    align-self: flex-start;
+}
+
+.providers {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}

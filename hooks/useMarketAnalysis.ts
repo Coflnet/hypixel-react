@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useGetApiItemPriceItemTagAnalysis } from '../api/_generated/skyApi'
 import type { AdvancedAnalysisResult } from '../api/_generated/skyApi.schemas'
+import { classifyPremiumResponse } from '../utils/premiumResponse'
 import { useGoogleToken } from './useGoogleToken'
 
 // Collapsing/re-expanding the section (or a same-args re-render) should reuse the cached response
@@ -10,18 +11,8 @@ import { useGoogleToken } from './useGoogleToken'
 // its callers need to hand-roll a cache/inFlight map the way an earlier version of this hook did.
 const MARKET_ANALYSIS_STALE_TIME_MS = 5 * 60 * 1000
 
-/**
- * `uniqueBuyers`/`uniqueSellers`/`topBuyers` - BEING ADDED TO THE BACKEND IN PARALLEL and not in the
- * generated client yet (the currently deployed backend doesn't send them either). Remove this type -
- * folding the three fields back into `AdvancedAnalysisResult` - once the backend ships and
- * `npm run generate_api` picks them up.
- */
-export interface SoldAnalysisResult extends AdvancedAnalysisResult {
-    uniqueBuyers?: number
-    uniqueSellers?: number
-    /** @nullable */
-    topBuyers?: AdvancedAnalysisResult['topSellers']
-}
+/** the generated `AdvancedAnalysisResult` now carries `uniqueBuyers`/`uniqueSellers`/`topBuyers` */
+export type SoldAnalysisResult = AdvancedAnalysisResult
 
 /**
  * `/item/price/{tag}/analysis/live` - live BIN-listing analysis for the Market analysis section's
@@ -129,11 +120,6 @@ export interface UseMarketAnalysisResult {
     }
 }
 
-/** Non-2xx sold-analysis response bodies carry a `slug` instead of the real `AdvancedAnalysisResult`. */
-interface SoldErrorBody {
-    slug?: string
-}
-
 /**
  * Fetches sold-auction analysis (react-query wrapping the generated client) and live-listing
  * analysis (react-query wrapping the hand-written fetch above) for the Market analysis section, in
@@ -183,18 +169,12 @@ export function useMarketAnalysis({ tag, itemFilter, days, expanded }: UseMarket
         retry: false
     })
 
-    // Classifies the sold response once: undefined for a 200 (nothing to report), 'invalidToken' for
-    // an expired/rejected token (401, or slug `invalid_token`), 'premiumRequired' for a valid token
-    // that just doesn't have enough premium (403, or slug `premium_required`), 'other' for any other
-    // non-200 (a real error - never rendered as the "not enough sales" empty state).
-    const soldAuthProblem = useMemo(() => {
-        const status = soldQuery.data?.status as number | undefined
-        if (status === undefined || status === 200) return undefined
-        const data = soldQuery.data?.data as SoldErrorBody | undefined
-        if (data?.slug === 'invalid_token' || status === 401) return 'invalidToken' as const
-        if (data?.slug === 'premium_required' || status === 403) return 'premiumRequired' as const
-        return 'other' as const
-    }, [soldQuery.data])
+    // Classifies the sold response once (see classifyPremiumResponse); a non-200 is never rendered as
+    // the "not enough sales" empty state.
+    const soldAuthProblem = useMemo(
+        () => classifyPremiumResponse(soldQuery.data?.status as number | undefined, soldQuery.data?.data),
+        [soldQuery.data]
+    )
 
     const soldStatus: SoldAnalysisStatus = useMemo(() => {
         if (requiresAuth && !token) return 'premium'

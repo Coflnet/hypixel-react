@@ -1,0 +1,32 @@
+.purchaseSection {
+    margin-bottom: 40px;
+    scroll-margin-top: 16px;
+}
+
+.purchaseHead {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+/* the redesigned page: a sub-section of "Choose Your Plan", titled like the cards around it */
+.purchaseSectionNew {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 0;
+}
+
+.purchaseSectionNew .purchaseHead {
+    margin-bottom: 0;
+}
+
+.purchaseSectionNew .purchaseTitle {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: 500;
+}

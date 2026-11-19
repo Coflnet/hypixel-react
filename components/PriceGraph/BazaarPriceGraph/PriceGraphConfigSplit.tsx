@@ -112,7 +112,7 @@ function getPriceGraphConfigSplit() {
                     borderColor: undefined,
                     borderColor0: undefined
                 },
-                data: [] as any[]
+                data: [] as (number | string | (number | string)[])[]
             },
             {
                 name: 'Min',
@@ -126,7 +126,7 @@ function getPriceGraphConfigSplit() {
                     show: true,
                     valueFormatter: formatAsCoins
                 },
-                data: [] as any[]
+                data: [] as (number | string | (number | string)[])[]
             },
             {
                 name: 'Max',
@@ -140,7 +140,7 @@ function getPriceGraphConfigSplit() {
                     show: true,
                     valueFormatter: formatAsCoins
                 },
-                data: [] as any[]
+                data: [] as (number | string | (number | string)[])[]
             },
             {
                 name: 'Volume',
@@ -154,7 +154,7 @@ function getPriceGraphConfigSplit() {
                     show: true,
                     valueFormatter: numberWithThousandsSeparators
                 },
-                data: [] as any[]
+                data: [] as (number | string | (number | string)[])[]
             },
             {
                 name: 'Moving',
@@ -167,7 +167,7 @@ function getPriceGraphConfigSplit() {
                     show: true,
                     valueFormatter: numberWithThousandsSeparators
                 },
-                data: [] as any[]
+                data: [] as (number | string | (number | string)[])[]
             },
             {
                 name: 'Mayors',
@@ -181,7 +181,7 @@ function getPriceGraphConfigSplit() {
                     show: true,
                     valueFormatter: numberWithThousandsSeparators
                 },
-                data: [] as any[]
+                data: [] as (number | string | (number | string)[])[]
             }
         ]
     }

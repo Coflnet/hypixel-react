@@ -25,37 +25,37 @@ import ItemCategoryCheck from './ItemCategoryCheck/ItemCategoryCheck'
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
     options?: FilterOptions
-    defaultValue: any
+    defaultValue: string
     onIsValidChange?(newIsValid: boolean)
 }
 
 function FilterElement(props: Props) {
-    let [value, _setValue] = useState<any>()
-    let [isValid, _setIsValid] = useState(true)
-    let [errorText, setErrorText] = useState('')
+    const [value, _setValue] = useState<string | number>()
+    const [isValid, _setIsValid] = useState(true)
+    const [errorText, setErrorText] = useState('')
     // Bumped whenever the ItemCategory checker switches the filter value programmatically, forcing the
     // (otherwise uncontrolled) EqualFilterElement/SimpleEqualFilterElement to remount with the new value
     // so the select visibly reflects the switch.
-    let [itemCategorySwitchCount, setItemCategorySwitchCount] = useState(0)
+    const [itemCategorySwitchCount, setItemCategorySwitchCount] = useState(0)
 
     useEffect(() => {
         if (value) {
             return
         }
-        let parsedDefaultValue = parseValue(props.defaultValue)
+        const parsedDefaultValue = parseValue(props.defaultValue)
         updateValue(parsedDefaultValue)
         setValue(parsedDefaultValue)
     }, [])
 
-    function parseValue(newValue?: any) {
+    function parseValue(newValue?: string | number) {
         if (props.options && hasFlag(props.options.type, FilterType.DATE)) {
             if (!newValue) {
                 return Math.round(new Date().getTime() / 1000)
             }
-            if (!isNaN(newValue)) {
+            if (!isNaN(Number(newValue))) {
                 return newValue
             }
-            let date = Math.round(Date.parse(newValue) / 1000)
+            const date = Math.round(Date.parse(String(newValue)) / 1000)
             if (!isNaN(date)) {
                 return date
             }
@@ -68,7 +68,7 @@ function FilterElement(props: Props) {
         }
     }
 
-    function onFilterElementChange(value?: any) {
+    function onFilterElementChange(value?: string | number) {
         if (!value) {
             setValue('')
             updateValue('')
@@ -78,19 +78,19 @@ function FilterElement(props: Props) {
         }
     }
 
-    function updateValue(value: string) {
-        if (['Color', 'HexColorList'].includes(props.options?.name || '')) value = value.trim()
+    function updateValue(value: string | number) {
+        if (['Color', 'HexColorList'].includes(props.options?.name || '')) value = String(value).trim()
         if (!validate(value)) {
             return
         }
 
-        let newFilter = {}
+        const newFilter = {}
         newFilter[props.options!.name] = value.toString()
 
         props.onFilterChange!(newFilter)
     }
 
-    function setValue(value?: any) {
+    function setValue(value?: string | number) {
         _setValue(parseValue(value))
     }
 
@@ -109,7 +109,7 @@ function FilterElement(props: Props) {
         _setIsValid(newValue)
     }
 
-    function validate(value?: any) {
+    function validate(value?: string | number) {
         if (!value && value !== 0) {
             setErrorText('Please fill the filter or remove it')
             setIsValid(false)
@@ -122,7 +122,7 @@ function FilterElement(props: Props) {
             return !error
         }
         if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL) && hasFlag(props.options.type, FilterType.RANGE)) {
-            let validationResult = validateFilterRange(value.toString(), props.options)
+            const validationResult = validateFilterRange(value.toString(), props.options)
             setIsValid(validationResult[0])
             if (!validationResult[0]) {
                 setErrorText(validationResult[1] || '')
@@ -131,7 +131,7 @@ function FilterElement(props: Props) {
             return true
         }
         if (props.options && hasFlag(props.options.type, FilterType.DATE)) {
-            let date = new Date(value * 1000)
+            const date = new Date(Number(value) * 1000)
             if (date < new Date(props.options.options[0])) {
                 setErrorText(`Date needs to be after ${props.options.options[0]}`)
                 setIsValid(false)
@@ -147,7 +147,7 @@ function FilterElement(props: Props) {
         }
         if (props.options && hasFlag(props.options.type, FilterType.RANGE)) {
             if (props.options?.options.length === 2 && props.options.options[0] === '000000000000' && props.options.options[1] === 'ffffffffffff') {
-                let result = new RegExp(/^[0-9A-Fa-f]{12}$/).test(value)
+                const result = new RegExp(/^[0-9A-Fa-f]{12}$/).test(String(value))
                 setIsValid(result)
                 if (!isValid) {
                     setErrorText('This field needs to be 12 characters long and must only include hex characters.')
@@ -156,7 +156,7 @@ function FilterElement(props: Props) {
             }
         }
         if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL)) {
-            let validationResult = validateFilterNumber(value.toString(), props.options)
+            const validationResult = validateFilterNumber(value.toString(), props.options)
             setIsValid(validationResult[0])
             if (!validationResult[0]) {
                 setErrorText(validationResult[1] || '')
@@ -192,7 +192,7 @@ function FilterElement(props: Props) {
             )
         }
         if (hasFlag(type, FilterType.DATE)) {
-            return <DateFilterElement key={options.name} selected={value ? new Date(value * 1000) : new Date()} onChange={onFilterElementChange} />
+            return <DateFilterElement key={options.name} selected={value ? new Date(Number(value) * 1000) : new Date()} onChange={onFilterElementChange} />
         }
         if (hasFlag(type, FilterType.RANGE)) {
             return <RangeFilterElement isValid={isValid} key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
@@ -207,7 +207,7 @@ function FilterElement(props: Props) {
                     defaultValue={props.defaultValue}
                     isValid={isValid}
                     returnType="uuid"
-                    onChange={onFilterElementChange}
+                    onChange={value => onFilterElementChange(value as string)}
                 />
             )
         }
@@ -228,7 +228,7 @@ function FilterElement(props: Props) {
                     <SimpleEqualFilterElement
                         key={elementKey}
                         options={options.options}
-                        defaultValue={elementDefaultValue}
+                        defaultValue={elementDefaultValue?.toString()}
                         isValid={isValid}
                         onChange={onFilterElementChange}
                     />
@@ -239,7 +239,7 @@ function FilterElement(props: Props) {
                         key={elementKey}
                         isValid={isValid}
                         options={options}
-                        defaultValue={elementDefaultValue}
+                        defaultValue={elementDefaultValue?.toString()}
                         onChange={onFilterElementChange}
                         showIcon={hasFlag(options.type, FilterType.SHOW_ICON)}
                     />
@@ -275,7 +275,7 @@ function FilterElement(props: Props) {
                     </Form.Label>
                     {getFilterElement(props.options.type, props.options)}
                     {props.options.name === 'ItemCategory' ? (
-                        <ItemCategoryCheck selectedCategory={value} onCategorySelect={onItemCategorySwitch} />
+                        <ItemCategoryCheck selectedCategory={value?.toString()} onCategorySelect={onItemCategorySwitch} />
                     ) : null}
                     {props.options.name === 'DyeItem' ? (
                         <Form.Text>

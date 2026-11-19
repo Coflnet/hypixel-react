@@ -61,7 +61,7 @@ export default function TierSlots({ subscriptions, onCancelSubscription }: Props
         void loadSlots()
     }, [])
 
-    async function saveAssignment(slot: OwnedTierSlot, assignment: SlotRecipient) {
+    async function saveAssignment(slot: OwnedTierSlot, assignment: Omit<SlotRecipient, 'version'>) {
         setSaving(true)
         setError('')
         try {
@@ -108,7 +108,9 @@ export default function TierSlots({ subscriptions, onCancelSubscription }: Props
             </div>
             {fromCheckout ? <Alert variant="info">Assign your purchased slots below. Payment confirmation can take a moment; refresh the slots if your new purchase has not appeared yet.</Alert> : null}
             <p>Assign slots to yourself or friends. You keep control of billing and assignments.</p>
-            <p>Release slot removes its assignment and keeps billing active. To stop renewal, use Cancel slot subscription below.</p>
+            <p>
+                Release slot removes its assignment and keeps billing active. To stop renewal, use Cancel slot subscription below.
+            </p>
             {error && !editing ? (
                 <Alert variant="danger" role="alert">
                     {error}

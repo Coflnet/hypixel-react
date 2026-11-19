@@ -1,26 +1,35 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import api from '../../../../api/ApiHelper'
+import { useWasAlreadyLoggedIn } from '../../../../utils/Hooks'
+import GoogleSignIn from '../../../GoogleSignIn/GoogleSignIn'
 import { Button, Form, ListGroup, ListGroupItem } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 
 const PublishedConfigs = () => {
     const [configs, setConfigs] = useState<string[]>([])
     const [changeNotes, setChangeNotes] = useState<{ config: string; changeNotes: string }[]>([])
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
-    useEffect(() => {
-        loadConfigs()
-    }, [])
-
+    // published configs belong to an account, so they are only requested once the login is done
     async function loadConfigs() {
-        const configs = await api.getPublishedConfigs()
-        setConfigs(configs)
+        try {
+            setConfigs(await api.getPublishedConfigs())
+        } catch {
+            // the api helper already reported the error, the section stays hidden
+        }
     }
+
+    const signIn = wasAlreadyLoggedIn ? (
+        <div style={{ visibility: 'collapse', height: 0 }}>
+            <GoogleSignIn onAfterLogin={loadConfigs} />
+        </div>
+    ) : null
 
     async function updateConfig(configName: string, updateNotes: string = '') {
         try {
             await api.updateConfig(configName, updateNotes)
             toast.success(`Updated config`)
-        } catch (e) {
+        } catch {
             toast.error(`Failed to update config`)
         }
     }
@@ -29,17 +38,18 @@ const PublishedConfigs = () => {
         try {
             await api.loadConfig(configName)
             window.location.reload()
-        } catch (e) {
+        } catch {
             toast.error(`Failed to load config`)
         }
     }
 
     if (!configs || configs.length === 0) {
-        return <></>
+        return signIn
     }
 
     return (
         <>
+            {signIn}
             <h5>Update published configs</h5>
             <ListGroup>
                 {configs.map((configName, i) => (
@@ -50,8 +60,8 @@ const PublishedConfigs = () => {
                             type="text"
                             placeholder="Change notes"
                             onChange={event => {
-                                let newChangeNotes = [...changeNotes]
-                                let index = newChangeNotes.findIndex(changeNote => changeNote.config === configName)
+                                const newChangeNotes = [...changeNotes]
+                                const index = newChangeNotes.findIndex(changeNote => changeNote.config === configName)
 
                                 if (index === -1) {
                                     newChangeNotes.push({ config: configName, changeNotes: event.target.value })

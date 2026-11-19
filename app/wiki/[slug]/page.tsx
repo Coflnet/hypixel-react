@@ -19,14 +19,14 @@ async function getDoc(slug: string) {
         const fileContent = await fs.readFile(filePath, 'utf8')
         const { content, data } = matter(fileContent)
         return { content, data, slug }
-    } catch (error) {
+    } catch {
         return null
     }
 }
 
 export default async function WikiPage(props) {
     const params = await props.params
-    let slug = params.slug
+    const slug = params.slug
     const doc = await getDoc(slug)
 
     if (!doc) {

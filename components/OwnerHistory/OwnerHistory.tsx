@@ -14,8 +14,8 @@ interface Props {
 }
 
 function ItemHistory(props: Props) {
-    let [historyEntries, setHistoryEntries] = useState<OwnerHistory[]>([])
-    let [isLoading, setIsLoading] = useState(true)
+    const [historyEntries, setHistoryEntries] = useState<OwnerHistory[]>([])
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         loadOwnerHistory()
@@ -24,16 +24,16 @@ function ItemHistory(props: Props) {
     async function loadOwnerHistory() {
         setIsLoading(true)
 
-        let ownerHistory = await api.getOwnerHistory(props.uid)
+        const ownerHistory = await api.getOwnerHistory(props.uid)
 
-        let prevOwnerObjects: OwnerHistory[] = []
+        const prevOwnerObjects: OwnerHistory[] = []
 
-        let namesToFetch: string[] = []
+        const namesToFetch: string[] = []
         ownerHistory.forEach(history => {
             namesToFetch.push(history.buyer.uuid)
             namesToFetch.push(history.seller.uuid)
         })
-        let names = await api.getPlayerNames(namesToFetch)
+        const names = await api.getPlayerNames(namesToFetch)
 
         ownerHistory.forEach(history => {
             history.seller.name = names[history.seller.uuid]
@@ -42,9 +42,9 @@ function ItemHistory(props: Props) {
             prevOwnerObjects.push(history)
         })
 
-        let sorted = prevOwnerObjects.sort((a, b) => b.timestamp!.getTime() - a.timestamp!.getTime())
+        const sorted = prevOwnerObjects.sort((a, b) => b.timestamp!.getTime() - a.timestamp!.getTime())
         for (let i = 0; i < sorted.length; i++) {
-            let entry = sorted[i]
+            const entry = sorted[i]
             if (i === 0) {
                 continue
             }
@@ -87,7 +87,7 @@ function ItemHistory(props: Props) {
                 getLoadingElement()
             ) : (
                 <ListGroup className={styles.list}>
-                    {historyEntries.map((historyEntry, i) => {
+                    {historyEntries.map(historyEntry => {
                         return (
                             <ListGroup.Item className={styles.listGroupItem}>
                                 <h1 style={{ fontSize: 'large' }}>

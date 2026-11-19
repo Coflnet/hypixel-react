@@ -77,8 +77,12 @@ function mockAuctionHouseItemPage(tag: string) {
 // by a new element, and for a few hundred milliseconds the old copy can remain in a hidden streaming
 // container next to the new one. Recent auctions are requested by an effect of that same subtree, so
 // the request is the signal that the final, interactive copy is mounted.
+//
+// This is the readiness gate for everything below, so it gets the page-load budget instead of the 5s
+// request default: on a starved machine hydration alone can take longer than that, and every later
+// 4s assertion should only start counting once the page is actually interactive.
 function waitForInteractiveItemPage() {
-    cy.wait('@recentAuctions')
+    cy.wait('@recentAuctions', { timeout: 30000 })
 }
 
 /** Visits an auction-house item page (after mockAuctionHouseItemPage) and waits until it is interactive. */
@@ -207,7 +211,7 @@ describe('Market analysis premium gating (backend-driven)', () => {
             .its('request.headers')
             .should('have.property', 'googletoken', marketAnalysisAuthToken)
         cy.get('[data-testid="market-analysis-sold"]', { timeout: 10000 }).should('be.visible')
-        cy.contains(/requires/i).should('not.exist')
+        cy.get('[data-cy="premium-gate"]').should('not.exist')
     })
 
     it('a signed-in user with a valid token whose backend refuses for premium sees "Go to Premium"', () => {
@@ -226,8 +230,10 @@ describe('Market analysis premium gating (backend-driven)', () => {
         cy.get('[data-testid="market-analysis-period-30"]').click()
         cy.wait('@soldAnalysis30')
 
-        cy.contains(/requires/i).should('be.visible')
-        cy.contains('button', 'Go to Premium').should('be.visible')
+        cy.get('[data-cy="premium-gate"]').contains(/requires/i).should('not.be.visible')
+        cy.get('[data-cy="premium-gate"] summary').click()
+        cy.get('[data-cy="premium-gate"]').contains(/requires/i).should('be.visible')
+        cy.contains('a.btn', 'Go to Premium').should('be.visible')
         cy.contains('button', /^Sign in$/).should('not.exist')
     })
 
@@ -257,8 +263,10 @@ describe('Market analysis premium gating (backend-driven)', () => {
         cy.get('[data-testid="market-analysis-period-30"]').click()
         cy.wait('@soldAnalysis30')
 
-        cy.contains(/requires/i).should('be.visible')
-        cy.contains('button', 'Go to Premium').should('not.exist')
+        cy.get('[data-cy="premium-gate"]').contains(/requires/i).should('not.be.visible')
+        cy.get('[data-cy="premium-gate"] summary').click()
+        cy.get('[data-cy="premium-gate"]').contains(/requires/i).should('be.visible')
+        cy.contains('a.btn', 'Go to Premium').should('not.exist')
         cy.contains('button', /^Sign in$/).should('be.visible')
     })
 
@@ -274,7 +282,9 @@ describe('Market analysis premium gating (backend-driven)', () => {
 
         cy.wait(300)
         cy.get('@soldAnalysis.all').should('have.length', 1)
-        cy.contains(/requires/i).should('be.visible')
+        cy.get('[data-cy="premium-gate"]').contains(/requires/i).should('not.be.visible')
+        cy.get('[data-cy="premium-gate"] summary').click()
+        cy.get('[data-cy="premium-gate"]').contains(/requires/i).should('be.visible')
         cy.contains('button', /^Sign in$/).should('be.visible')
     })
 
@@ -290,7 +300,7 @@ describe('Market analysis premium gating (backend-driven)', () => {
         cy.contains(/could not load/i).should('be.visible')
         cy.contains('button', 'Retry').should('be.visible')
         cy.contains(/not enough sales/i).should('not.exist')
-        cy.contains(/requires/i).should('not.exist')
+        cy.get('[data-cy="premium-gate"]').should('not.exist')
     })
 })
 
@@ -459,14 +469,15 @@ describe('Market analysis section', () => {
 
     it('shows Related items below the FAQ and no longer shows the old Similar items heading', () => {
         mockAuctionHouseItemPage(itemTag)
-        cy.visit(`/item/${itemTag}`)
+        visitItemPage(itemTag)
 
         cy.contains('h3', 'Related items').should('be.visible')
         cy.contains('Similar items').should('not.exist')
         cy.contains('Hide similar items').should('not.exist')
 
-        // "below the FAQ": the FAQ heading must precede the Related items heading in DOM order
-        cy.get('h2, h3').then($headings => {
+        // "below the FAQ": the FAQ heading must precede the Related items heading in DOM order.
+        // `:visible` leaves out a stale copy that can stay in the hidden streaming container above the FAQ.
+        cy.get('h2:visible, h3:visible').then($headings => {
             const texts = $headings.toArray().map(el => el.textContent?.trim() || '')
             const faqIndex = texts.findIndex(t => t === 'FAQ')
             const relatedIndex = texts.findIndex(t => t.startsWith('Related items'))
@@ -477,9 +488,11 @@ describe('Market analysis section', () => {
 
     it('shows an Archive link next to Wiki for an auction-house item and preserves the active filter', () => {
         mockAuctionHouseItemPage(itemTag)
-        cy.visit(`/item/${itemTag}?Stars=5-5`)
+        visitItemPage(itemTag + '?Stars=5-5')
 
-        cy.contains('a, button', 'Wiki').should('be.visible')
+        // `:visible`: the collapsed NavBar sidebar has its own, hidden "Wiki" link that comes first in DOM order
+        // once the page is hydrated; a bare match raced against it mounting and only passed before that.
+        cy.contains('a:visible, button:visible', 'Wiki').should('be.visible')
         cy.contains('a', 'Archive')
             .should('have.attr', 'title', 'Query archived auctions')
             .invoke('attr', 'href')
@@ -493,7 +506,9 @@ describe('Market analysis section', () => {
 
         cy.visit(`/item/${bazaarItemTag}`)
 
-        cy.contains('a, button', 'Wiki').should('be.visible')
+        // `:visible`: the collapsed NavBar sidebar has its own, hidden "Wiki" link that comes first in DOM order
+        // once the page is hydrated; a bare match raced against it mounting and only passed before that.
+        cy.contains('a:visible, button:visible', 'Wiki').should('be.visible')
         cy.contains('a', 'Archive').should('not.exist')
     })
 
@@ -503,12 +518,19 @@ describe('Market analysis section', () => {
         // the item filter actually changes through the real UI, after the initial page load - not by
         // revisiting with a different URL - to prove OptionsMenu's Archive link is reactive rather
         // than only reading the filter once at mount.
+        // The filter options are mocked: left to the real API this test depended on the network being up
+        // (an unhandled "Failed to fetch" rejection from getFilters fails the test as an app exception).
+        cy.intercept('GET', '**/api/filter/options*', [
+            { name: 'Sharpness', options: ['None', '1', '2', '3', '4', '5', '6', '7'], type: 16, longType: 'NUMERICAL', description: null }
+        ])
         cy.intercept('GET', '**/api/item/price/ASPECT_OF_THE_DRAGON/history/day*', [])
         cy.intercept('GET', '**/api/mayor*', [])
-        cy.intercept('GET', '**/api/auctions/tag/ASPECT_OF_THE_DRAGON/recent/overview*', [])
+        cy.intercept('GET', '**/api/auctions/tag/ASPECT_OF_THE_DRAGON/recent/overview*', []).as('recentAuctions')
         cy.intercept('GET', '**/api/item/ASPECT_OF_THE_DRAGON/similar', [])
 
-        cy.visit('/item/ASPECT_OF_THE_DRAGON')
+        // Wait for the interactive copy of the page: clicking while it is still hydrating/streaming can hit
+        // the dropdown item while the NavBar logo is laid out over it ("element is being covered").
+        visitItemPage('ASPECT_OF_THE_DRAGON')
 
         const initialHref = buildArchiveUrl('ASPECT_OF_THE_DRAGON', {})
         cy.contains('a', 'Archive').invoke('attr', 'href').should('equal', initialHref)
@@ -516,7 +538,7 @@ describe('Market analysis section', () => {
         cy.contains('Add Filter').click()
         cy.get('input[placeholder="Add filter"]').type('shar')
         cy.contains('a', /sharpness/i).click()
-        cy.get('form').contains(/SharpnessNone1234567Please fill the filter or remove it/i).find('input').type('5')
+        cy.get('form').contains(/SharpnessPlease fill the filter or remove it/i).find('input').type('5')
 
         // Read back whatever flat filter param(s) setFilterIntoUrlParams actually wrote, then assert
         // the Archive link matches buildArchiveUrl applied to that real filter - this is what "stays

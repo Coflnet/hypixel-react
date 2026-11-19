@@ -32,7 +32,6 @@ import {
     parseMayorData,
     parseMinecraftConnectionInfo,
     parseOwnerHistory,
-    parsePaymentResponse,
     parsePlayer,
     parsePopularSearch,
     parsePremiumProducts,
@@ -40,6 +39,10 @@ import {
     parsePrivacySettings,
     parseProfitableCrafts,
     parseRecentAuction,
+    parseActiveAuctionPreview,
+    parseDate,
+    parseActiveAuctionQueryResult,
+    parseResolvedActiveQuery,
     parseRefInfo,
     parseSearchResultItem,
     parseSkyblockProfile,
@@ -62,11 +65,11 @@ import {
 import { isClientSideRendering } from '../utils/SSRUtils'
 import { HttpApi, RequestType, SubscriptionType, CUSTOM_EVENTS, NotificationListener } from './ApiTypes.d'
 import { initHttpHelper } from './HttpHelper'
-import { websocketHelper } from './WebsocketHelper'
+import { USER_CHANGED_SLUG, websocketHelper } from './WebsocketHelper'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
 import properties from '../properties'
 import { getCurrentCoflCoins } from '../utils/CoflCoinsUtils'
-import { getGeneratedApiMessage, unwrapGeneratedApiArrayResponse } from '../utils/GeneratedApiResponseUtils'
+import { getGeneratedApiMessage, unwrapGeneratedApiArrayResponse, unwrapGeneratedApiPlayerNameResponse } from '../utils/GeneratedApiResponseUtils'
 import {
     getApiSearchSearchVal,
     getApiItemItemTagDetails,
@@ -120,7 +123,6 @@ import {
     getApiAuctionsTagItemTagArchiveOverview,
     postApiAuctionsTagItemTagArchiveExport,
     getApiLinkvertise,
-    postApiPremiumSubscriptionSubscriptionSlug,
     getApiPremiumSubscription,
     deleteApiPremiumSubscriptionExternalId,
     getApiCraftItemTagInstructions
@@ -134,7 +136,7 @@ import {
  * 1. Websocket command-channel calls (via `websocketHelper.sendRequest`/`.subscribe`) -
  *    live subscriptions, push updates and request/response pairs that only exist on the
  *    persistent websocket connection (e.g. subscribeFlips, getAccountInfo, setFlipSetting,
- *    transferCoflCoins, loadConfig/updateConfig). There is no REST equivalent.
+ *    loadConfig/updateConfig). There is no REST equivalent.
  * 2. The deprecated HTTP fallback for that same command channel (`httpApi.sendRequest` /
  *    `httpApi.sendLimitedCacheRequest`, see HttpHelper.tsx). It POSTs a base64-encoded
  *    command payload to `${commandEndpoint}/command/...` so server-side rendering (which
@@ -570,7 +572,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             return Promise.resolve('')
         }
         return getApiPlayerPlayerUuidName(uuid)
-            .then(response => response.data as any)
+            .then(response => unwrapGeneratedApiPlayerNameResponse(response, 'Player name lookup failed'))
             .catch(error => {
                 apiErrorHandler(RequestType.PLAYER_NAME, error, uuid)
                 throw error
@@ -630,7 +632,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let subscribe = (topic: string, types: SubscriptionType[], targets: NotificationTarget[], price?: number, filter?: ItemFilter): Promise<void> => {
+    let subscribe = (topic: string, types: SubscriptionType[], targets: Pick<NotificationTarget, 'id' | 'name' | 'isDisabled'>[], price?: number, filter?: ItemFilter): Promise<void> => {
         return notificationApi.createNotifier(topic, types, targets, price, filter)
     }
 
@@ -651,7 +653,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     resolve(token)
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.LOGIN_WITH_TOKEN, error)
+                    // a server error reply for user_changed carries a message; the sign-in flow handles it, so no toast
+                    if (error?.slug !== USER_CHANGED_SLUG) apiErrorHandler(RequestType.LOGIN_WITH_TOKEN, error)
                     reject(error)
                 }
             })
@@ -1241,6 +1244,86 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             })
     }
 
+    /** GET against the sky-api with flat query params; errors carry the http `status` so pages can show "not ready" states */
+    let fetchActiveAuctionEndpoint = async (path: string, params: { [key: string]: string | number | undefined } = {}, noStore: boolean = false): Promise<any> => {
+        const query = new URLSearchParams()
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+                query.append(key, String(value))
+            }
+        })
+        const queryString = query.toString()
+        const response = await fetch(`${getApiEndpoint()}${path}${queryString ? '?' + queryString : ''}`, noStore ? { method: 'GET', cache: 'no-store' } : { method: 'GET' })
+        if (!response.ok) {
+            let message = ''
+            try {
+                message = (await response.text()).slice(0, 300)
+            } catch {}
+            const error = new Error(message || `HTTP ${response.status}`) as Error & { status?: number }
+            error.status = response.status
+            throw error
+        }
+        return response.json()
+    }
+
+    let searchActiveAuctions = (params: { [key: string]: string | number | undefined }): Promise<ActiveAuctionQueryResult> => {
+        return fetchActiveAuctionEndpoint('/auctions/active/filter', params, true).then(parseActiveAuctionQueryResult)
+    }
+
+    let getActiveAuctionCount = (): Promise<ActiveAuctionCount> => {
+        return fetchActiveAuctionEndpoint('/auctions/active/count', {}, true).then(data => ({
+            count: Number(data?.count) || 0,
+            ready: !!data?.ready,
+            snapshotAt: data?.snapshotAt ? parseDate(data.snapshotAt) : undefined
+        }))
+    }
+
+    let resolveActiveQuery = (q: string): Promise<ResolvedActiveQuery> => {
+        return fetchActiveAuctionEndpoint('/auctions/active/resolve', { q }).then(parseResolvedActiveQuery)
+    }
+
+    /**
+     * Subscribes to live pushes of active auctions matching the given tags/filter. `onAuction` receives new matching auctions
+     * and price updates of already known ones, `onGone` auctions that were sold, ended or cancelled.
+     * Only one live-update subscription can be active per connection; this replaces any previous one.
+     */
+    let subscribeActiveAuctions = (
+        tags: string[],
+        filter: { [key: string]: string },
+        knownUuids: string[],
+        onAuction: (auction: ActiveAuctionPreview) => void,
+        onGone: (gone: { uuid: string; reason: string }) => void,
+        onErrorCallback?: Function
+    ): void => {
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_UPDATES)
+        const cleanFilter = { ...(filter || {}) } as { [key: string]: any }
+        delete cleanFilter._hide
+        delete cleanFilter._sellerName
+        websocketHelper.subscribe({
+            type: RequestType.SUBSCRIBE_UPDATES,
+            data: {
+                topic: tags.length > 0 ? `active/${tags.join(',')}` : 'active/*',
+                filter: cleanFilter,
+                knownUuids: knownUuids.slice(0, 200)
+            },
+            callback: function (response) {
+                if (response.type === 'activeAuction') {
+                    onAuction(parseActiveAuctionPreview(response.data))
+                } else if (response.type === 'auctionGone') {
+                    onGone(response.data)
+                }
+            },
+            resubscribe: function () {
+                subscribeActiveAuctions(tags, filter, knownUuids, onAuction, onGone, onErrorCallback)
+            },
+            onError: function (message) {
+                if (onErrorCallback) {
+                    onErrorCallback(message)
+                }
+            }
+        })
+    }
+
     let connectMinecraftAccount = (playerUUID: string): Promise<MinecraftConnectionInfo> => {
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
@@ -1610,29 +1693,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 apiErrorHandler(RequestType.GET_TRACKED_FLIPS_FOR_PLAYER, error, playerUUID)
                 throw error
             })
-    }
-
-    let transferCoflCoins = (email: string | undefined, mcId: string | undefined, amount: number, reference: string): Promise<void> => {
-        return new Promise((resolve, reject) => {
-            let data = {
-                email: email,
-                mcId: mcId,
-                amount: amount,
-                reference: reference
-            }
-
-            websocketHelper.sendRequest({
-                type: RequestType.TRANSFER_COFLCOINS,
-                data: data,
-                resolve: function () {
-                    resolve()
-                },
-                reject: function (error) {
-                    apiErrorHandler(RequestType.TRANSFER_COFLCOINS, error, data)
-                    reject(error)
-                }
-            })
-        })
     }
 
     let getBazaarSnapshot = async (
@@ -2184,15 +2244,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let purchasePremiumSubscription = (productSlug: string, googleToken: string): Promise<PaymentResponse> => {
-        return postApiPremiumSubscriptionSubscriptionSlug(productSlug, undefined, googleTokenHeaders(googleToken))
-            .then(response => parsePaymentResponse(response.data))
-            .catch(error => {
-                apiErrorHandler(RequestType.PURCHASE_PREMIUM_SUBSCRIPTION, error)
-                throw error
-            })
-    }
-
     let getPremiumSubscriptions = (): Promise<PremiumSubscription[]> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
@@ -2279,6 +2330,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getItemDetails,
         getItemPrices,
         getAuctions,
+        searchActiveAuctions,
+        getActiveAuctionCount,
+        resolveActiveQuery,
+        subscribeActiveAuctions,
         getBids,
         getEnchantments,
         getAuctionDetails,
@@ -2334,7 +2389,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         setFlipSetting,
         getKatFlips,
         getTrackedFlipsForPlayer,
-        transferCoflCoins,
         getBazaarSnapshot,
         getBazaarPrices,
         getBazaarPricesByRange,
@@ -2370,7 +2424,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getLinkvertiseLink,
         getPremiumSubscriptions,
         cancelPremiumSubscription,
-        purchasePremiumSubscription,
         getCraftInstructions,
         deleteAccount
     }

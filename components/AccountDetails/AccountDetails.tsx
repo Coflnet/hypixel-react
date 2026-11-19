@@ -17,7 +17,6 @@ import Number from '../Number/Number'
 import CancelSubscriptionFeedbackDialog from '../Premium/CancelSubscriptionFeedbackDialog/CancelSubscriptionFeedbackDialog'
 import PremiumStatus from '../Premium/PremiumStatus/PremiumStatus'
 import Tooltip from '../Tooltip/Tooltip'
-import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import styles from './AccountDetails.module.css'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
 import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, getSetting, removeSettings } from '../../utils/SettingsUtils'
@@ -26,20 +25,19 @@ import TierSlots from './TierSlots/TierSlots'
 import usePremiumRefresh from '../../hooks/usePremiumRefresh'
 
 function AccountDetails() {
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [isLoading, setIsLoading] = useState(true)
-    let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(0)
-    let [products, setProducts] = useState<PremiumProduct[]>([])
-    let [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
-    let [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
-    let [hasLoadingPremiumProductsError, setHasLoadingPremiumProductsError] = useState(false)
-    let [subscriptionLookupStatus, setSubscriptionLookupStatus] = useState<'loading' | 'succeeded' | 'failed'>('loading')
-    let [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
-    let [deleteConfirmationInput, setDeleteConfirmationInput] = useState('')
-    let [isDeletingAccount, setIsDeletingAccount] = useState(false)
-    let [subscriptionToCancel, setSubscriptionToCancel] = useState<PremiumSubscription>()
-    let coflCoins = useCoflCoins()
-    let { pushInstruction } = useMatomo()
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
+    const [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(0)
+    const [products, setProducts] = useState<PremiumProduct[]>([])
+    const [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
+    const [hasLoadingPremiumProductsError, setHasLoadingPremiumProductsError] = useState(false)
+    const [subscriptionLookupStatus, setSubscriptionLookupStatus] = useState<'loading' | 'succeeded' | 'failed'>('loading')
+    const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
+    const [deleteConfirmationInput, setDeleteConfirmationInput] = useState('')
+    const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+    const [subscriptionToCancel, setSubscriptionToCancel] = useState<PremiumSubscription>()
+    const coflCoins = useCoflCoins()
+    const { pushInstruction } = useMatomo()
 
     usePremiumRefresh(isLoggedIn, () =>
         Promise.all([
@@ -60,11 +58,11 @@ function AccountDetails() {
     }, [])
 
     function getAccountElement(): JSX.Element {
-        let picture = getSetting(GOOGLE_PROFILE_PICTURE_URL)
-        let email = getSetting(GOOGLE_EMAIL)
-        let name = getSetting(GOOGLE_NAME)
+        const picture = getSetting(GOOGLE_PROFILE_PICTURE_URL)
+        const email = getSetting(GOOGLE_EMAIL)
+        const name = getSetting(GOOGLE_NAME)
 
-        let imageElement = picture ? <Image src={picture} height={24} width={24} alt="" /> : <span />
+        const imageElement = picture ? <Image src={picture} height={24} width={24} alt="" /> : <span />
         return (
             <span>
                 {imageElement} {`${name} (${email})`}
@@ -108,16 +106,16 @@ function AccountDetails() {
     }
 
     function onLogin() {
-        let googleId = sessionStorage.getItem('googleId')
+        const googleId = sessionStorage.getItem('googleId')
         setIsLoading(true)
         if (googleId) {
             setHasLoadingPremiumProductsError(false)
             setSubscriptionLookupStatus('loading')
-            let productsRequest = loadPremiumProducts().catch(() => {
+            const productsRequest = loadPremiumProducts().catch(() => {
                 setHasLoadingPremiumProductsError(true)
                 toast.error('Error loading premium products')
             })
-            let subscriptionsRequest = loadPremiumSubscriptions()
+            const subscriptionsRequest = loadPremiumSubscriptions()
                 .then(() => setSubscriptionLookupStatus('succeeded'))
                 .catch(() => {
                     setSubscriptionLookupStatus('failed')
@@ -142,7 +140,7 @@ function AccountDetails() {
     }
 
     function setTrackingAllowed(event: ChangeEvent<HTMLInputElement>) {
-        let val = event.target.checked
+        const val = event.target.checked
         if (val && (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true) {
             event.target.checked = false
             pushInstruction('forgetConsentGiven')
@@ -168,15 +166,20 @@ function AccountDetails() {
         ) {
             return false
         }
-        let cookie = Cookies.get('nonEssentialCookiesAllowed')
+        const cookie = Cookies.get('nonEssentialCookiesAllowed')
         return cookie === 'true'
     }
 
     function deleteGoogleToken() {
+        // a socket stays bound to the account it logged in as, and components keep that account's state,
+        // so drop the socket and reload (like onLogout). Without a stored token the sign-in button shows again.
+        websocketHelper.disconnect()
         sessionStorage.removeItem('googleId')
         localStorage.removeItem('googleId')
+        removeSettings([GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL])
         setIsLoggedIn(false)
         setRerenderGoogleSignIn(rerenderGoogleSignIn + 1)
+        location.reload()
     }
 
     function onSubscriptionCancel(subscription: PremiumSubscription) {
@@ -210,7 +213,7 @@ function AccountDetails() {
             })
     }
 
-    let canDeleteAccount = subscriptionLookupStatus === 'succeeded' && premiumSubscriptions.length === 0
+    const canDeleteAccount = subscriptionLookupStatus === 'succeeded' && premiumSubscriptions.length === 0
 
     return (
         <>
@@ -249,32 +252,6 @@ function AccountDetails() {
                         ) : (
                             <Number number={coflCoins} />
                         )}
-                        <Button
-                            className={styles.sendCoflCoinsButton}
-                            onClick={() => {
-                                setShowSendCoflcoins(true)
-                            }}
-                        >
-                            Send CoflCoins
-                        </Button>
-                        <Modal
-                            size={'lg'}
-                            show={showSendcoflcoins}
-                            onHide={() => {
-                                setShowSendCoflcoins(false)
-                            }}
-                        >
-                            <Modal.Header closeButton>
-                                <Modal.Title>Send CoflCoins</Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body>
-                                <TransferCoflCoins
-                                    onFinish={() => {
-                                        setShowSendCoflcoins(false)
-                                    }}
-                                />
-                            </Modal.Body>
-                        </Modal>
                     </p>
                     <p>
                         <span className={styles.label}>Transaction history:</span>

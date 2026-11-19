@@ -52,7 +52,8 @@ const flipKinds = [
         description: (
             <span>
                 Composter Flips let you profit from the Garden update by converting crops and resources in the composter. Its part of the profitable task system
-                of our mod, run <code>/cofl task</code> to access it.
+                of our mod, run <code>/cofl task</code> to access it. Community coins/hour for all tasks are on the{' '}
+                <Link href="/tasks">money making methods page</Link>.
             </span>
         ),
         icon: <Agriculture fontSize="large" />

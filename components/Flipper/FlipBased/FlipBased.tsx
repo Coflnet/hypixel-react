@@ -16,12 +16,13 @@ interface Props {
 }
 
 function FlipBased(props: Props) {
-    let [auctions, setAuctions] = useState<Auction[]>([])
-    let [isLoading, setIsLoading] = useState(true)
-    let [hasLoadingFailed, setHasLoadingFailed] = useState(false)
-    let [orderBy, setOrderBy] = useState('time')
+    const [currentAuctions, setAuctions] = useState<Auction[]>([])
+    let auctions = currentAuctions
+    const [isLoading, setIsLoading] = useState(true)
+    const [hasLoadingFailed, setHasLoadingFailed] = useState(false)
+    const [orderBy, setOrderBy] = useState('time')
 
-    let forceUpdate = useForceUpdate()
+    const forceUpdate = useForceUpdate()
 
     useEffect(() => {
         api.getFlipBasedAuctions(props.auctionUUID)
@@ -41,7 +42,7 @@ function FlipBased(props: Props) {
     }, [props.item.iconUrl, props.item.name])
 
     auctions = orderBy === 'time' ? auctions.sort((a, b) => b.end.getTime() - a.end.getTime()) : auctions.sort((a, b) => b.highestBid - a.highestBid)
-    let auctionsElement = auctions.map(auction => {
+    const auctionsElement = auctions.map(auction => {
         return (
             <>
                 <div className={styles.cardWrapper} style={{ display: 'inline-block' }} key={auction.uuid}>

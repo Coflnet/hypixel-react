@@ -8,10 +8,11 @@ import properties from '../properties'
 
 export default function AdScriptLoader() {
     const pathname = usePathname() || ''
-    const { shouldShowAds } = useAds()
+    const { shouldShowAds, isAdsEligibilityKnown } = useAds()
 
     const matchesAdRoute = pathname !== '/' && pathname != '/about' && pathname != '/premium' && pathname != '/account'
-    const shouldLoadAds = shouldShowAds && matchesAdRoute && !properties.isTestRunner
+    // the script is only requested once the premium cache has been checked, it keeps running after an unmount
+    const shouldLoadAds = isAdsEligibilityKnown && shouldShowAds && matchesAdRoute && !properties.isTestRunner
 
     if (!shouldLoadAds) {
         return null

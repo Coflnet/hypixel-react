@@ -1,11 +1,12 @@
 'use client'
-import { Alert, Button, Form, Modal } from 'react-bootstrap'
+import { Button, Modal } from 'react-bootstrap'
 import styles from './BuyPremiumConfirmationDialog.module.css'
 import { getPremiumType } from '../../../utils/PremiumTypeUtils'
 import { useState, useEffect, type JSX } from 'react'
 import { GoogleLogin } from '@react-oauth/google'
 import { toast } from 'react-toastify'
-import api from '../../../api/ApiHelper'
+import { usePurchaseDeclaration } from '../../../hooks/usePurchaseDeclaration'
+import PurchaseDeclaration from '../PurchaseDeclaration/PurchaseDeclaration'
 
 interface Props {
     type: 'prepaid' | 'subscription'
@@ -22,28 +23,15 @@ interface Props {
 
 export default function BuyPremiumConfirmationDialog(props: Props) {
     // skip the extra login confirmation for subscription purchases
-    let [hasConfirmedLogin, setHasConfirmedLogin] = useState(props.type === 'subscription')
+    const [hasConfirmedLogin, setHasConfirmedLogin] = useState(props.type === 'subscription')
     useEffect(() => {
         setHasConfirmedLogin(props.type === 'subscription')
     }, [props.type])
-    let [googleToken, setGoogleToken] = useState('')
-    const locale = typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en'
-    const [declaration, setDeclaration] = useState<ServicePurchaseDeclaration>()
-    const [declarationAccepted, setDeclarationAccepted] = useState(false)
-    const [declarationError, setDeclarationError] = useState(false)
-
-    useEffect(() => {
-        if (!props.show || props.type !== 'prepaid') return
-        setDeclaration(undefined)
-        setDeclarationAccepted(false)
-        setDeclarationError(false)
-        api.getTermsStatus(locale)
-            .then(status => {
-                if (!status.canStartNewContract || !status.premiumPurchaseDeclaration) throw new Error('Declaration unavailable')
-                setDeclaration(status.premiumPurchaseDeclaration)
-            })
-            .catch(() => setDeclarationError(true))
-    }, [props.show, props.type, locale])
+    const [googleToken, setGoogleToken] = useState('')
+    const isPrepaid = props.type === 'prepaid'
+    // every opened dialog is a new order: the declaration starts unticked
+    const declaration = usePurchaseDeclaration(props.show && isPrepaid, props.show ? props.purchasePremiumOption.productId : '')
+    const locale = declaration.locale
 
     return (
         <Modal
@@ -72,7 +60,7 @@ export default function BuyPremiumConfirmationDialog(props: Props) {
                         {props.purchasePrice}
                     </li>
                 </ul>
-                {props.type === 'prepaid' && (
+                {isPrepaid && (
                     <>
                         <p>
                             {props.slotCount ? (locale === 'de'
@@ -81,36 +69,7 @@ export default function BuyPremiumConfirmationDialog(props: Props) {
                                 ? 'Premium-Zeit wird zum nächstmöglichen Zeitpunkt hinzugefügt und kann normalerweise nicht auf ein anderes Konto verschoben werden.'
                                 : 'Premium time is added at the next available start and cannot ordinarily be moved to another account.'}
                         </p>
-                        {declarationError ? (
-                            <Alert variant="danger">
-                                {locale === 'de'
-                                    ? 'Die aktuelle rechtliche Erklärung konnte nicht geladen werden. Der Kauf ist vorübergehend nicht möglich.'
-                                    : 'The current legal declaration could not be loaded. Purchasing is temporarily unavailable.'}
-                            </Alert>
-                        ) : declaration ? (
-                            <Form.Check
-                                id="premium-early-start-declaration"
-                                type="checkbox"
-                                checked={declarationAccepted}
-                                onChange={event => setDeclarationAccepted(event.target.checked)}
-                                label={declaration.text}
-                            />
-                        ) : locale === 'de' ? (
-                            'Erklärung wird geladen…'
-                        ) : (
-                            'Loading declaration…'
-                        )}
-                        <p>
-                            <a
-                                href={
-                                    locale === 'de' ? 'https://coflnet.com/de/withdrawal#withdraw-contract' : 'https://coflnet.com/withdrawal#withdraw-contract'
-                                }
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                {locale === 'de' ? 'Widerrufsbelehrung und Online-Widerrufsformular' : 'Withdrawal instructions and online withdrawal form'}
-                            </a>
-                        </p>
+                        <PurchaseDeclaration state={declaration} id="premium-early-start-declaration" />
                     </>
                 )}
                 {props.type === 'subscription' && <p>This subscription will be automatically renewed. It can be canceled at any time and will then run out.</p>}
@@ -147,8 +106,8 @@ export default function BuyPremiumConfirmationDialog(props: Props) {
                 <Button
                     variant="success"
                     style={{ float: 'right' }}
-                    disabled={!hasConfirmedLogin || (props.type === 'prepaid' && (!declaration || !declarationAccepted))}
-                    onClick={() => props.onConfirm(googleToken, declaration)}
+                    disabled={!hasConfirmedLogin || (isPrepaid && !declaration.confirmed)}
+                    onClick={() => props.onConfirm(googleToken, isPrepaid ? declaration.declaration : undefined)}
                 >
                     Buy now for {props.purchasePrice}
                 </Button>

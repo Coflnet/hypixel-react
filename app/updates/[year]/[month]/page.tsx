@@ -8,7 +8,11 @@ import { Container } from 'react-bootstrap'
 const LAST_UPDATED_ISO = "2026-06-13"
 const LAST_UPDATED_LABEL = "June 13, 2026"
 
-export default async function UpdatesMonthPage(props: any) {
+interface MonthPageProps {
+    params: Promise<{ year: string; month: string }>
+}
+
+export default async function UpdatesMonthPage(props: MonthPageProps) {
     const params = await props.params
     const year = Number(params.year)
     const month = Number(params.month)
@@ -20,7 +24,7 @@ export default async function UpdatesMonthPage(props: any) {
     const res = await getApiDataUpdatesYearMonth(year, month)
     const messages = res?.data ?? []
     // only display messages that contain the ➡️ marker
-    const displayMessages = messages.filter((m: any) => {
+    const displayMessages = messages.filter(m => {
         const content = m.content || ''
         return content.includes('➡️')
     })
@@ -178,7 +182,7 @@ export default async function UpdatesMonthPage(props: any) {
                 {renderYearSwitch()}
 
                 <div className={styles.messages}>
-                    {displayMessages.map((m: any) => {
+                    {displayMessages.map(m => {
                         const date = m.createdAt ? new Date(m.createdAt).toLocaleString() : ''
                         const author = m.authorName || 'Unknown'
                         const contentHtml = mdRenderer.render(m.content || '')
@@ -232,7 +236,7 @@ export default async function UpdatesMonthPage(props: any) {
     )
 }
 
-export async function generateMetadata(props: any) {
+export async function generateMetadata(props: MonthPageProps) {
     const params = await props.params
     const year = Number(params.year)
     const month = Number(params.month)

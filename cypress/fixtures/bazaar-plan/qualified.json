@@ -1,0 +1,140 @@
+{
+  "quote": {
+    "quoteId": "00000000-0000-0000-0000-0000000000a1",
+    "requestId": "11111111-1111-1111-1111-111111111111",
+    "marketFrameId": "2026-10-24T12:00:00.0000000Z|inv-0",
+    "generatedAt": "2026-10-24T12:00:00Z",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "policyId": "fixed-price-no-reprice",
+    "policyVersion": 1,
+    "modelVersion": null,
+    "engineVersion": "fixture",
+    "admissionRule": null
+  },
+  "status": "Ok",
+  "investingStatus": "Qualified",
+  "investingReasonCodes": [],
+  "portfolio": {
+    "budgetCoins": 4000000,
+    "spentCoins": 276185.6,
+    "remainingBudgetCoins": 3723814.4,
+    "reserveCoins": null,
+    "reserveOwner": "Caller",
+    "freeSlotsBefore": 18,
+    "freeSlotsAfter": 15,
+    "freeInventorySlotsBefore": null,
+    "freeInventorySlotsAfter": null,
+    "heldExposureCoins": 0,
+    "suppressedItemTags": []
+  },
+  "orders": [
+    {
+      "itemTag": "ENCHANTED_DIAMOND",
+      "itemName": "Enchanted Diamond",
+      "isSell": false,
+      "pricePerUnit": 105.1,
+      "amount": 192,
+      "mode": "Active",
+      "originalQuantity": 192,
+      "entryPrice": 105.1,
+      "exitPrice": 209.9,
+      "sellTaxRate": 0.0125,
+      "taxSource": "AccountAttested",
+      "estimatedNetProfit": 19617.84,
+      "capitalLockHorizonHours": 1,
+      "deadlineSemantics": "FixedFromFirstAcceptedBuy",
+      "confidence": {
+        "eventId": "full_buy_sell_original_quantity_by_deadline_v1",
+        "probability": null,
+        "lowerBound": null,
+        "confidenceLevel": 0.95,
+        "supportDomainId": null,
+        "modelId": null,
+        "calibrationId": null,
+        "status": "NotApplicable",
+        "reasonCodes": [
+          "NotApplicableToActive"
+        ]
+      }
+    },
+    {
+      "itemTag": "ENCHANTED_GOLD",
+      "itemName": "Enchanted Gold",
+      "isSell": false,
+      "pricePerUnit": 4000.1,
+      "amount": 64,
+      "mode": "Investing",
+      "originalQuantity": 64,
+      "entryPrice": 4000.1,
+      "exitPrice": 5199.9,
+      "sellTaxRate": 0.0125,
+      "taxSource": "AccountAttested",
+      "estimatedNetProfit": 61000.5,
+      "capitalLockHorizonHours": 24,
+      "deadlineSemantics": "FixedFromFirstAcceptedBuy",
+      "confidence": {
+        "eventId": "full_buy_sell_original_quantity_by_deadline_v1",
+        "probability": 0.974,
+        "lowerBound": 0.962,
+        "confidenceLevel": 0.95,
+        "supportDomainId": null,
+        "modelId": null,
+        "calibrationId": null,
+        "status": "Qualified",
+        "reasonCodes": [
+          "ProspectiveCohorts"
+        ]
+      }
+    },
+    {
+      "itemTag": "ENCHANTED_LAPIS_LAZULI",
+      "itemName": "Enchanted Lapis Lazuli",
+      "isSell": false,
+      "pricePerUnit": 4000.1,
+      "amount": 64,
+      "mode": "Investing",
+      "originalQuantity": 64,
+      "entryPrice": 4000.1,
+      "exitPrice": 5199.9,
+      "sellTaxRate": 0.0125,
+      "taxSource": "AccountAttested",
+      "estimatedNetProfit": 61000.5,
+      "capitalLockHorizonHours": 24,
+      "deadlineSemantics": "FixedFromFirstAcceptedBuy",
+      "confidence": {
+        "eventId": "full_buy_sell_original_quantity_by_deadline_v1",
+        "probability": 0.93,
+        "lowerBound": 0.905,
+        "confidenceLevel": 0.95,
+        "supportDomainId": null,
+        "modelId": null,
+        "calibrationId": null,
+        "status": "Qualified",
+        "reasonCodes": [
+          "SimulationReplay"
+        ],
+        "qualifyThreshold": 0.9,
+        "evidenceSource": "simulation"
+      }
+    }
+  ],
+  "unqualifiedInvestingCandidates": [],
+  "modes": [
+    "Active",
+    "Investing"
+  ],
+  "investingHorizonHours": 24,
+  "budgetCoins": 4000000,
+  "budgetSource": "purse-estimate",
+  "accountState": {
+    "openOrdersEstimated": false,
+    "openBuyItemTags": [],
+    "heldItemTags": [],
+    "freeOrderSlots": 18,
+    "revision": null
+  },
+  "tier": "premium",
+  "hiddenCount": 0,
+  "premiumUrl": null,
+  "warnings": []
+}

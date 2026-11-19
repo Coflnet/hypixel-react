@@ -4,14 +4,15 @@ import Search from '../../../../components/Search/Search'
 import { convertTagToName } from '../../../../utils/Formatter'
 import api, { initAPI } from '../../../../api/ApiHelper'
 import ArchivedAuctionsList from '../../../../components/ArchivedAuctions.tsx/ArchivedAuctions'
-import { getHeadMetadata, getCanonicalUrl } from '../../../../utils/SSRUtils'
+import { getHeadMetadata, getArchiveCanonicalUrl } from '../../../../utils/SSRUtils'
 import { atobUnicode } from '../../../../utils/Base64Utils'
+import { getItemFilterEmbedText, joinEmbedParts } from '../../../../utils/EmbedUtils'
 
 export default async function Page(props) {
     const params = await props.params
-    let tag = params.tag as string
+    const tag = params.tag as string
 
-    let item = parseItem({
+    const item = parseItem({
         tag: tag,
         name: convertTagToName(tag),
         iconUrl: api.getItemImageUrl({ tag })
@@ -32,29 +33,38 @@ export default async function Page(props) {
 export async function generateMetadata(props) {
     const searchParams = await props.searchParams
     const params = await props.params
-    function getFiltersText(filter) {
-        if (!filter) {
-            return ' '
-        }
-        return `${Object.keys(filter)
-            .map(key => `➡️ ${key}: ${filter[key]}`)
-            .join('\n')}`
-    }
-
-    let tag = params?.tag as string
-    let api = initAPI(true)
-    let itemFilter = searchParams.filter ? JSON.parse(atobUnicode(searchParams.filter)) : null
-
-    let item = await api.getItemDetails(tag)
-
-    const searchString = searchParams.filter ? `?filter=${searchParams.filter}` : ''
+    const tag = params?.tag as string
+    const item = await getItemDetailsOrNull(tag)
+    const itemName = item?.name || convertTagToName(tag)
 
     return getHeadMetadata(
-        `${item.name || convertTagToName(tag)} archived auctions`,
-        `${itemFilter ? `Filters: \n${getFiltersText(itemFilter)}` : ''}`,
-        item.iconUrl,
-        [item.name || convertTagToName(tag)],
-        `${item.name || convertTagToName(tag)} price | Hypixel SkyBlock AH history tracker`,
-        getCanonicalUrl(`/item/${tag}/archive`, searchString)
+        `${itemName} archived auctions`,
+        joinEmbedParts([`Archived auctions of ${itemName} in Hypixel SkyBlock`, getItemFilterEmbedText(parseFilter(searchParams.filter))]),
+        item?.iconUrl || api.getItemImageUrl({ tag } as Item),
+        [itemName],
+        `${itemName} | Archived Auctions`,
+        getArchiveCanonicalUrl(tag, searchParams.filter),
+        // item icons are 16x16 to 64x64 depending on the item, so no size is claimed
+        { imageAlt: `${itemName} icon` }
     )
+}
+
+async function getItemDetailsOrNull(tag: string): Promise<Item | null> {
+    try {
+        return await initAPI(true).getItemDetails(tag)
+    } catch (e) {
+        console.error(`Error loading item details for archive metadata ${tag}. ${e instanceof Error ? e.message : JSON.stringify(e)}`)
+        return null
+    }
+}
+
+function parseFilter(filter?: string): ItemFilter | null {
+    if (!filter) {
+        return null
+    }
+    try {
+        return JSON.parse(atobUnicode(filter))
+    } catch {
+        return null
+    }
 }

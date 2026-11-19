@@ -39,24 +39,27 @@ let currentLoadingString
 let mounted = true
 
 function BazaarPriceGraph(props: Props) {
-    let [fetchspan, setFetchspan] = useState(DEFAULT_DATE_RANGE)
-    let [isLoading, setIsLoading] = useState(false)
-    let [noDataFound, setNoDataFound] = useState(false)
-    let [avgBuyPrice, setAvgBuyPrice] = useState(0)
-    let [avgSellPrice, setAvgSellPrice] = useState(0)
-    let [graphType, setGraphType] = useState(DEFAULT_GRAPH_TYPE)
-    let [chartOptionsPrimary, setChartOptionsPrimary] = useState(graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit())
-    let [chartOptionsSecondary, setChartOptionsSecondary] = useState(getPriceGraphConfigSplit())
-    let [prices, setPrices] = useState<BazaarPrice[]>([])
-    let [mayorData, setMayorData] = useState<MayorData[]>([])
-    let [isSSR, setIsSSR] = useState(true)
-    let { trackEvent } = useMatomo()
+    const [initialFetchspan, setFetchspan] = useState(DEFAULT_DATE_RANGE)
+    const [isLoading, setIsLoading] = useState(false)
+    const [noDataFound, setNoDataFound] = useState(false)
+    const [avgBuyPrice, setAvgBuyPrice] = useState(0)
+    const [avgSellPrice, setAvgSellPrice] = useState(0)
+    const [initialGraphType, setGraphType] = useState(DEFAULT_GRAPH_TYPE)
+    const [initialChartOptionsPrimary, setChartOptionsPrimary] = useState(initialGraphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit())
+    let fetchspan = initialFetchspan
+    let graphType = initialGraphType
+    let chartOptionsPrimary = initialChartOptionsPrimary
+    const [chartOptionsSecondary, setChartOptionsSecondary] = useState(getPriceGraphConfigSplit())
+    const [prices, setPrices] = useState<BazaarPrice[]>([])
+    const [mayorData, setMayorData] = useState<MayorData[]>([])
+    const [isSSR, setIsSSR] = useState(true)
+    const { trackEvent } = useMatomo()
 
-    let primaryChartRef = useRef<ReactECharts>(null)
-    let secondaryChartRef = useRef<ReactECharts>(null)
+    const primaryChartRef = useRef<ReactECharts>(null)
+    const secondaryChartRef = useRef<ReactECharts>(null)
     // Kept in a ref so the ~25s snapshot poll never re-renders (and thereby re-zooms) the charts.
-    let liveSnapshotRef = useRef<BazaarSnapshot | undefined>(undefined)
-    let appliedLivePointKeyRef = useRef('')
+    const liveSnapshotRef = useRef<BazaarSnapshot | undefined>(undefined)
+    const appliedLivePointKeyRef = useRef('')
 
     useEffect(() => {
         mounted = true
@@ -82,7 +85,7 @@ function BazaarPriceGraph(props: Props) {
 
     useEffect(() => {
         if (prices.length > 0) {
-            let chartOptions = graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit()
+            const chartOptions = graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit()
 
             chartOptionsPrimary = chartOptions
 
@@ -133,7 +136,7 @@ function BazaarPriceGraph(props: Props) {
         currentLoadingString = JSON.stringify({ tag: props.item.tag, fetchspan })
 
         try {
-            let prices = await loadBazaarPrices(props.item.tag, fetchspan)
+            const prices = await loadBazaarPrices(props.item.tag, fetchspan)
             let mayorData
             try {
                 mayorData = await api.getMayorData(prices[0].timestamp, prices[prices.length - 1].timestamp)
@@ -158,7 +161,7 @@ function BazaarPriceGraph(props: Props) {
     }
 
     function setSeriesType(chartOptions, seriesName: string, type: string) {
-        let series = chartOptions.series.find(series => series.name === seriesName)
+        const series = chartOptions.series.find(series => series.name === seriesName)
         if (series) {
             series.type = type
         }
@@ -168,7 +171,7 @@ function BazaarPriceGraph(props: Props) {
         if (fetchspan === DateRange.HOUR) {
             chartOptionsPrimary.legend.data = chartOptionsPrimary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
             chartOptionsSecondary.legend.data = chartOptionsSecondary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
-            chartOptionsPrimary.series.forEach((s, i) => {
+            chartOptionsPrimary.series.forEach(s => {
                 s.type = 'line'
                 if (s.name === 'Min' || s.name === 'Max') {
                     s.tooltip.show = false
@@ -211,11 +214,11 @@ function BazaarPriceGraph(props: Props) {
         if (fetchspan === DateRange.ALL) {
             return api.getBazaarPricesByRange(tag, new Date(0), new Date())
         } else if (fetchspan === DateRange.MONTH) {
-            let monthAgo = new Date()
+            const monthAgo = new Date()
             monthAgo.setMonth(monthAgo.getMonth() - 1)
             return api.getBazaarPricesByRange(tag, monthAgo, new Date())
         } else {
-            return api.getBazaarPrices(tag, fetchspan as any)
+            return api.getBazaarPrices(tag, fetchspan as unknown as globalThis.DateRange)
         }
     }
 
@@ -231,7 +234,7 @@ function BazaarPriceGraph(props: Props) {
     }
 
     function setSelectedLegendOptionsFromLocalStorage() {
-        let legendSelected = localStorage.getItem(BAZAAR_GRAPH_LEGEND_SELECTION)
+        const legendSelected = localStorage.getItem(BAZAAR_GRAPH_LEGEND_SELECTION)
         if (graphType === GRAPH_TYPE.SPLIT) {
             chartOptionsPrimary.legend.selected = legendSelected
                 ? JSON.parse(legendSelected)[getLegendLocalStorageKey(true)]
@@ -248,9 +251,9 @@ function BazaarPriceGraph(props: Props) {
         setChartOptionsSecondary(chartOptionsSecondary)
     }
 
-    function onChartsEvents(localStorageKey: string, chartRef: RefObject<ReactECharts | null>): Record<string, Function> {
+    function onChartsEvents(localStorageKey: string, chartRef: RefObject<ReactECharts | null>) {
         return {
-            datazoom: e => {
+            datazoom: (e: { start: number; end: number; batch?: { start: number; end: number }[] }) => {
                 const chart = chartRef.current?.getEchartsInstance()
                 if (!chart) return
                 const newChartOptions = { ...chart.getOption() }
@@ -267,8 +270,8 @@ function BazaarPriceGraph(props: Props) {
                     document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, { detail: { timestamp: midDate } }))
                 }, 100)
             },
-            legendselectchanged: e => {
-                let current = JSON.parse(localStorage.getItem(BAZAAR_GRAPH_LEGEND_SELECTION) || '{}')
+            legendselectchanged: (e: { selected: Record<string, boolean> }) => {
+                const current = JSON.parse(localStorage.getItem(BAZAAR_GRAPH_LEGEND_SELECTION) || '{}')
                 current[localStorageKey] = e.selected
                 localStorage.setItem(BAZAAR_GRAPH_LEGEND_SELECTION, JSON.stringify(current))
             }
@@ -413,7 +416,7 @@ function BazaarPriceGraph(props: Props) {
     }
 
     function onGraphTypeChange(e: ChangeEvent<HTMLSelectElement>) {
-        let graphType = e.target.value
+        const graphType = e.target.value
         setGraphType(graphType as GRAPH_TYPE)
         localStorage.setItem(BAZAAR_GRAPH_TYPE, graphType)
 
@@ -423,7 +426,7 @@ function BazaarPriceGraph(props: Props) {
         })
     }
 
-    let graphOverlayElement = isLoading ? (
+    const graphOverlayElement = isLoading ? (
         <div className={styles.graphOverlay}>{getLoadingElement()}</div>
     ) : noDataFound && !isLoading ? (
         <div className={styles.graphOverlay}>

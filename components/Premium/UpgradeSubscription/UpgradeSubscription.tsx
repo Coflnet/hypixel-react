@@ -5,6 +5,13 @@ import { Button, Form, Modal, Spinner } from 'react-bootstrap'
 import { changeSubscriptionPlan, getSubscriptionPlans, SubscriptionChangeResult, SubscriptionPlan } from '../../../api/SubscriptionPlans'
 import { getLocalDateAndTime } from '../../../utils/Formatter'
 
+const PROVIDER_NAMES: Record<string, string> = { stripe: 'Stripe', paypal: 'PayPal', lemonsqueezy: 'Lemon Squeezy' }
+
+/** the provider billing the subscription; subscriptions from an older backend are Lemon Squeezy's */
+function getProviderName(subscription: PremiumSubscription): string {
+    return PROVIDER_NAMES[subscription.providerSlug ?? ''] ?? 'Lemon Squeezy'
+}
+
 export default function UpgradeSubscription({ subscription, upgradeOnly = false }: { subscription: PremiumSubscription; upgradeOnly?: boolean }) {
     const [show, setShow] = useState(false)
     const [plans, setPlans] = useState<SubscriptionPlan[]>([])
@@ -12,6 +19,7 @@ export default function UpgradeSubscription({ subscription, upgradeOnly = false 
     const [busy, setBusy] = useState(false)
     const [error, setError] = useState('')
     const [result, setResult] = useState<SubscriptionChangeResult>()
+    const providerName = getProviderName(subscription)
 
     async function open() {
         setShow(true)
@@ -65,7 +73,7 @@ export default function UpgradeSubscription({ subscription, upgradeOnly = false 
                 />)}
                 {!result && plans.length > 0 && <p className="mt-3">
                     {plans.find(plan => plan.productSlug === selected)?.isUpgrade
-                        ? 'The upgrade applies after payment. Lemon Squeezy will charge the prorated difference for your remaining time. '
+                        ? `The upgrade applies after payment. ${providerName} will charge the prorated difference for your remaining time. `
                         : 'Your current paid tier stays active until renewal. The selected plan will be billed at the next renewal, with no charge now. '}
                     Your next renewal remains {getLocalDateAndTime(subscription.renewsAt)}.
                     Existing slot assignments are preserved. PayPal may ask you to confirm the change in its portal.
@@ -73,8 +81,8 @@ export default function UpgradeSubscription({ subscription, upgradeOnly = false 
                 {result?.status === 'completed' && <p role="status">Your subscription plan has been updated.</p>}
                 {result?.status === 'pending' && <p role="status">The plan change is awaiting payment confirmation. Your access will update after confirmation.</p>}
                 {result?.status === 'redirect' && <>
-                    <p>Confirm the subscription change in Lemon Squeezy. Your current plan stays active until the change is confirmed.</p>
-                    <a className="btn btn-primary" href={result.redirectUrl}>Continue in Lemon Squeezy</a>
+                    <p>Confirm the subscription change in {providerName}. Your current plan stays active until the change is confirmed.</p>
+                    <a className="btn btn-primary" href={result.redirectUrl}>Continue in {providerName}</a>
                 </>}
             </Modal.Body>
             <Modal.Footer>

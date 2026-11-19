@@ -221,6 +221,65 @@ export const toolLandingSeoContent = {
             }
         ]
     },
+    bazaarPlan: {
+        metadataTitle: 'Bazaar Plan (Active / Investing) | Personal Bazaar Orders for Your Budget',
+        metadataDescription:
+            'Get a personal Hypixel SkyBlock bazaar plan for your budget: quick Active flips, longer Investing orders or both, with entry and exit prices, net profit after tax and honest confidence.',
+        intro: [
+            'The Bazaar Plan turns the live order book into orders that fit your own budget, open orders and free order slots. Pick Active for quick flips, Investing to hold for up to 48 hours, or Both from one shared budget.',
+            'Every order shows quantity, entry and exit price, the profit after sell tax and an honest confidence badge. Investing orders are only recommended when the odds of completing the full cycle by the deadline are proven, otherwise you see why none qualifies.'
+        ],
+        sections: [
+            {
+                title: 'Why a personal plan beats a global list',
+                bullets: [
+                    'It uses your budget, your open buy orders and the items you already hold, so you are not shown orders you cannot place.',
+                    'It states the net profit after sell tax and where the tax rate comes from.',
+                    'It says clearly when the confidence is unknown instead of showing a made-up percentage.'
+                ]
+            },
+            {
+                title: 'Who benefits most from the Bazaar Plan',
+                bullets: [
+                    'Active traders who flip throughout the day and need more confidence in entry timing.',
+                    'Players working with enough capital that missed fills and slow exits become expensive.',
+                    'Anyone using SkyCofl as a daily workflow rather than as an occasional market checker.'
+                ]
+            }
+        ],
+        faqs: [
+            {
+                question: 'What do free accounts get?',
+                answer: 'Free accounts get a sample of three orders from the ranked plan and the number of orders that are hidden. Starter Premium unlocks the complete plan.'
+            },
+            {
+                question: 'Does a high-confidence badge remove the risk?',
+                answer: 'No. The badge only says the full cycle is expected to complete by the deadline with more than 95% odds, and only appears with proof. You still need to respect fees, volume and market risk.'
+            }
+        ],
+        relatedLinks: [
+            {
+                href: '/bazaar',
+                label: 'Bazaar Flips',
+                description: 'Compare the free spread list with your personal plan.'
+            },
+            {
+                href: '/guides/tracking-profits-automatically',
+                label: 'Tracking Profits Automatically',
+                description: 'Measure whether the plan is improving your real net profit.'
+            },
+            {
+                href: '/guides/best-item-to-flip-right-now',
+                label: 'Best Item to Flip Right Now',
+                description: 'Pair your plan with a live item-selection workflow.'
+            },
+            {
+                href: '/premium',
+                label: 'Premium',
+                description: 'See the full premium feature set and when it fits your trading style.'
+            }
+        ]
+    },
     crafts: {
         metadataTitle: 'Profitable Craft Flips | Hypixel SkyBlock Craft Cost and Margin Finder',
         metadataDescription:
@@ -752,6 +811,44 @@ export const toolLandingSeoContent = {
                 href: '/recentFlips',
                 label: 'Recent Flips',
                 description: 'Confirm that buyers are actually executing trades in the market you found.'
+            }
+        ]
+    },
+    activeAuctions: {
+        metadataTitle: 'Active Auction Explorer | Search Every Live Hypixel SkyBlock Auction',
+        metadataDescription:
+            'Filter all currently active Hypixel SkyBlock auctions across items by name, armor set, attributes, enchantments and price, with live updates when auctions appear, change or end.',
+        intro: [
+            'The Active Auction Explorer lets you search every auction that is running on the Hypixel Auction House right now, across all items, instead of one item at a time.',
+            'Type a plain description such as "final destination 7 sharpness" and the explorer resolves it into item tags, armor sets and filters you can edit, sort by price or ending time, and follow live as auctions are listed, outbid or sold.'
+        ],
+        sections: [
+            {
+                title: 'What you can do with it',
+                bullets: [
+                    'Search by free text and refine the result with removable tag, armor set and filter chips.',
+                    'Sort by lowest price, highest price, ending soon or newest listings.',
+                    'Group results by item to compare the cheapest listings of several related items side by side.',
+                    'Share the exact search with a link, the filters are stored in the URL.'
+                ]
+            }
+        ],
+        faqs: [
+            {
+                question: 'How fresh is the data?',
+                answer: 'The list is served from a snapshot of all active auctions that is refreshed continuously, and new listings, price changes and ended auctions are pushed live while the page is open.'
+            }
+        ],
+        relatedLinks: [
+            {
+                href: '/flipper',
+                label: 'Item Flipper',
+                description: 'Let the flipper find underpriced auctions for you instead of searching manually.'
+            },
+            {
+                href: '/lowSupply',
+                label: 'Low Supply Items',
+                description: 'Find items with few active listings.'
             }
         ]
     },

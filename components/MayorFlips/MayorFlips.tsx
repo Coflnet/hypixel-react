@@ -162,7 +162,7 @@ export function MayorFlips() {
     const loadPremiumStatus = useCallback(() => {
         api.refreshLoadPremiumProducts(
             products => {
-                setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
+                setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.PREMIUM))
             },
             () => {
                 setHasPremium(false)
@@ -242,7 +242,7 @@ export function MayorFlips() {
                             }}
                             style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}
                         >
-                            Mayor flips require having premium to view the top results. {isLoggedIn ? 'Upgrade to unlock the full mayor flip predictions.' : 'Sign in and purchase premium to unlock the full mayor flip predictions.'}
+                            Mayor flips require Premium or better to view the top results. {isLoggedIn ? 'Upgrade to unlock the full mayor flip predictions.' : 'Sign in and purchase premium to unlock the full mayor flip predictions.'}
                         </a>
                     </Alert>
                 </div>
@@ -251,7 +251,7 @@ export function MayorFlips() {
                 <div data-nosnippet data-robots="noindex">
                     <Alert variant="danger">
                         <h3 className="h5">Premium required</h3>
-                        <p>{accessMessage ?? 'Mayor flip predictions require premium or better.'}</p>
+                        <p>{accessMessage ?? 'Mayor flip predictions require Premium or better.'}</p>
                         <Button variant="danger" onClick={() => router.push(premiumPurchasePath)}>
                             Go to premium plans
                         </Button>
@@ -271,7 +271,7 @@ export function MayorFlips() {
                         </p>
                         <p>
                             {isLoggedIn
-                                ? 'You are signed in, but this account still needs starter premium or better to load the mayor flip list.'
+                                ? 'You are signed in, but this account still needs Premium or better to load the mayor flip list.'
                                 : 'Sign in with Google below to load mayor flips for your account and check whether you already have premium access.'}
                         </p>
                     </PremiumNotifier>
@@ -360,7 +360,7 @@ export function MayorFlips() {
                         getItemKeyAction={flip => flip.itemTag ?? flip.itemName ?? 'unknown'}
                         getFlipLink={getFlipLink}
                         censoredItemGenerator={censoredFlip}
-                        premiumMessage="The top 3 mayor flips can only be seen with starter premium or better"
+                        premiumMessage="The top 3 mayor flips can only be seen with Premium or better"
                         clickMessage="Click on a flip for further details"
                         showColumns
                     />

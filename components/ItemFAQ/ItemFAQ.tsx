@@ -2,21 +2,40 @@ import Link from 'next/link'
 import { numberWithThousandsSeparators, convertTagToName } from '../../utils/Formatter'
 import type { Item } from '../../api/_generated/skyApi.schemas'
 import type { CachedItemInfo } from '../../utils/ItemsCache'
+import type { ItemTaskLink } from '../../utils/ItemTaskSources'
+import { getTaskPath } from '../Tasks/taskUtils'
+
+type PriceValue = number | string | boolean | null
+
+interface FAQPrice {
+    avg?: PriceValue
+    price?: PriceValue
+    sellPrice?: PriceValue
+    buyPrice?: PriceValue
+    bin?: PriceValue
+    startingBid?: PriceValue
+    sellData?: { price?: number | null } | null
+    buyData?: { price?: number | null } | null
+}
 
 type Trend = 'increasing' | 'decreasing' | 'stable'
 
 interface FAQPair {
     q: string
     a: string | React.ReactNode
+    /** Plain text answer for the FAQPage JSON-LD, used instead of guessing it from the node. */
+    plain?: string
 }
 
 export interface ItemFAQProps {
     item: Item
     tag: string
     range: string | null
-    prices: any[]
+    prices: (FAQPrice | null)[]
     isBazaar: boolean
     itemFlags?: CachedItemInfo | null
+    /** Money-making tasks that drop this item, best first (frozen at build time, so no live numbers). Empty when none. */
+    taskSources?: ItemTaskLink[]
 }
 
 function rangeToHuman(range: string | null): string {
@@ -37,7 +56,7 @@ function rangeToHuman(range: string | null): string {
     }
 }
 
-function extractPriceValues(prices: any[], isBazaar: boolean): number[] {
+function extractPriceValues(prices: (FAQPrice | null)[], isBazaar: boolean): number[] {
     if (!Array.isArray(prices) || prices.length === 0) return []
 
     const vals: Array<number | null> = prices.map(p => {
@@ -113,8 +132,31 @@ function getFlipHref(isBazaar: boolean) {
     return isBazaar ? '/bazaar' : '/flipper'
 }
 
-export default function ItemFAQ({ item, tag, range, prices, isBazaar, itemFlags }: ItemFAQProps) {
-    const itemName = item?.itemName || convertTagToName(tag)
+function getTaskSourcesFaq(itemName: string, sources: ItemTaskLink[]): FAQPair | null {
+    if (sources.length === 0) {
+        return null
+    }
+    const intro = `${itemName} drops from these money-making tasks, best source first:`
+    return {
+        q: `How do I get ${itemName}? What is the best way to farm it?`,
+        a: (
+            <>
+                <p className="mb-1">{intro}</p>
+                <ul className="mb-0">
+                    {sources.map(source => (
+                        <li key={source.slug}>
+                            <Link href={getTaskPath(source.slug)}>{source.name}</Link>
+                        </li>
+                    ))}
+                </ul>
+            </>
+        ),
+        plain: `${intro} ${sources.map(s => `${s.name} (${getTaskPath(s.slug)})`).join(', ')}.`
+    }
+}
+
+export default function ItemFAQ({ item, tag, range, prices, isBazaar, itemFlags, taskSources = [] }: ItemFAQProps) {
+    const itemName = (item as { name?: string | null } | undefined)?.name || item?.itemName || convertTagToName(tag)
     const timeFrame = rangeToHuman(range)
     const values = extractPriceValues(prices, isBazaar)
     const stats = computeStats(values)
@@ -211,9 +253,16 @@ export default function ItemFAQ({ item, tag, range, prices, isBazaar, itemFlags 
         })
     }
 
+    const taskSourcesFaq = getTaskSourcesFaq(itemName, taskSources)
+    if (taskSourcesFaq) {
+        faqPairs.push(taskSourcesFaq)
+    }
+
     const jsonLdPairs = faqPairs.map(p => {
         let answer: string
-        if (typeof p.a === 'string') {
+        if (p.plain) {
+            answer = p.plain
+        } else if (typeof p.a === 'string') {
             answer = p.a
         } else {
             if (p.q.includes('flip')) {

@@ -1,0 +1,417 @@
+import assert from 'node:assert/strict'
+import { readFileSync } from 'node:fs'
+import { test } from 'node:test'
+import { runInNewContext } from 'node:vm'
+import ts from 'typescript'
+
+function loadModule(path, stubs = {}) {
+    const source = ts.transpileModule(readFileSync(new URL(path, import.meta.url), 'utf8'), {
+        compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, jsx: ts.JsxEmit.ReactJSX }
+    }).outputText
+    const context = { exports: {}, URLSearchParams, Date, Number, Object, Array, Set, require: name => (name in stubs ? stubs[name] : {}) }
+    runInNewContext(source, context)
+    return context.exports
+}
+
+const utils = loadModule('../utils/ActiveAuctionUtils.ts')
+const parser = loadModule('../utils/Parser/APIResponseParser.tsx')
+
+const auction = (uuid, price, end, extra = {}) => ({ uuid, tag: 'T', startingBid: price, highestBidAmount: 0, end: new Date(end), ...extra })
+
+test('parseActiveAuctionPreview normalises the contract shape', () => {
+    const parsed = parser.parseActiveAuctionPreview({
+        uuid: 'u1',
+        tag: 'HYPERION',
+        itemName: 'Hyperion',
+        tier: 'LEGENDARY',
+        bin: true,
+        startingBid: 5,
+        highestBidAmount: 0,
+        end: '2030-01-01T00:00:00Z',
+        count: 1,
+        auctioneerId: 'a1',
+        highlights: { Sharpness: '7' },
+        playerName: 'Steve'
+    })
+    assert.equal(parsed.end.toISOString(), '2030-01-01T00:00:00.000Z')
+    assert.equal(parsed.bin, true)
+    assert.deepEqual({ ...parsed.highlights }, { Sharpness: '7' })
+    assert.equal(parsed.playerName, 'Steve')
+})
+
+test('parseActiveAuctionPreview parses start and treats dates without Z as UTC', () => {
+    const parsed = parser.parseActiveAuctionPreview({ uuid: 'u', tag: 'X', start: '2030-01-01T00:00:00', end: '2030-01-01T01:00:00' })
+    assert.equal(parsed.start.toISOString(), '2030-01-01T00:00:00.000Z')
+    assert.equal(parsed.end.toISOString(), '2030-01-01T01:00:00.000Z')
+})
+
+test('parseActiveAuctionQueryResult reads resolvedTags', () => {
+    assert.deepEqual(Array.from(parser.parseActiveAuctionQueryResult({ resolvedTags: ['A'] }).resolvedTags), ['A'])
+    assert.equal(parser.parseActiveAuctionQueryResult({}).resolvedTags.length, 0)
+})
+
+test('subscription tags are capped to 8 by tagCounts and * needs a real filter', () => {
+    const tags = 'ABCDEFGHIJ'.split('')
+    const counts = Object.fromEntries(tags.map((t, i) => [t, i]))
+    assert.deepEqual(Array.from(utils.getSubscriptionTags(tags, counts)), ['J', 'I', 'H', 'G', 'F', 'E', 'D', 'C'])
+    const empty = utils.createEmptyQueryState()
+    assert.equal(utils.shouldSubscribeLive({ ...empty, armorSet: 'X' }, []), false)
+    assert.equal(utils.shouldSubscribeLive({ ...empty, itemNameContains: 'x' }, []), true)
+    assert.equal(utils.shouldSubscribeLive(empty, ['A']), true)
+    const f = utils.stateToSubscriptionFilter({ ...empty, armorSet: 'X', categories: ['H'], tags: ['A'], q: 'q', itemNameContains: 'n', filters: { Sharpness: '7' } })
+    assert.deepEqual({ ...f }, { Sharpness: '7', itemNameContains: 'n' })
+})
+
+test('NEWEST insertion uses start', () => {
+    const l = [auction('b', 1, 9000, { start: new Date(2000) }), auction('a', 1, 1000, { start: new Date(1000) })]
+    assert.equal(utils.findInsertIndex(l, auction('n', 1, 500, { start: new Date(3000) }), 'NEWEST', true), 0)
+    assert.equal(utils.findInsertIndex(l, auction('n', 1, 99999, { start: new Date(1500) }), 'NEWEST', true), 1)
+})
+
+test('parseActiveAuctionPreview tolerates missing optional fields', () => {
+    const parsed = parser.parseActiveAuctionPreview({ uuid: 'u', tag: 'X', end: '2030-01-01T00:00:00Z' })
+    assert.deepEqual({ ...parsed.highlights }, {})
+    assert.equal(parsed.count, 1)
+    assert.equal(parsed.startingBid, 0)
+})
+
+test('parseActiveAuctionQueryResult handles an empty response', () => {
+    const r = parser.parseActiveAuctionQueryResult({})
+    assert.equal(r.items.length, 0)
+    assert.equal(r.totalCount, 0)
+})
+
+test('url params round trip and keep unknown keys as filters', () => {
+    const state = utils.stateFromSearchParams('tags=A,B&armorSet=FINAL_DESTINATION&orderBy=ENDING_SOON&perTagLimit=5&Sharpness=7&q=fd')
+    assert.deepEqual([...state.tags], ['A', 'B'])
+    assert.equal(state.armorSet, 'FINAL_DESTINATION')
+    assert.equal(state.orderBy, 'ENDING_SOON')
+    assert.equal(state.perTagLimit, 5)
+    assert.deepEqual({ ...state.filters }, { Sharpness: '7' })
+    const params = utils.stateToParams(state)
+    assert.equal(params.tags, 'A,B')
+    assert.equal(params.Sharpness, '7')
+    assert.deepEqual({ ...utils.stateFromSearchParams(utils.stateToSearchString(state)).filters }, { Sharpness: '7' })
+})
+
+test('defaults are omitted from the url and invalid order falls back', () => {
+    assert.equal(utils.stateToSearchString(utils.createEmptyQueryState()), '')
+    assert.equal(utils.stateFromSearchParams('orderBy=NOPE').orderBy, 'LOWEST_PRICE')
+})
+
+test('request params never resend the free text', () => {
+    const state = { ...utils.stateFromSearchParams('q=fd&tags=A'), }
+    const req = utils.stateToRequestParams(state, 2)
+    assert.equal(req.q, undefined)
+    assert.equal(req.page, 2)
+    assert.equal(req.tags, 'A')
+    assert.equal(req.orderBy, 'LOWEST_PRICE')
+})
+
+test('chips are derived from a resolved query and can be removed', () => {
+    const base = utils.createEmptyQueryState()
+    const state = utils.applyResolvedQuery(
+        base,
+        { tags: ['A'], armorSet: 'FINAL_DESTINATION', filters: { Sharpness: '7' }, itemNameContains: 'x', description: '' },
+        'fd'
+    )
+    const chips = utils.chipsFromState(state)
+    assert.deepEqual(Array.from(chips.map(c => c.kind)), ['armorSet', 'filter', 'name'])
+    const without = utils.removeChip(state, chips[1])
+    assert.deepEqual({ ...without.filters }, {})
+    assert.equal(utils.removeChip(state, chips[0]).armorSet, null)
+    assert.equal(chips[0].kind, 'armorSet', 'piece tags are collapsed under the set chip')
+    assert.equal(state.filters.Sharpness, '7', 'original state must not be mutated')
+})
+
+test('an unresolvable text falls back to a name search', () => {
+    const state = utils.applyResolvedQuery(utils.createEmptyQueryState(), { tags: [], armorSet: null, filters: {}, itemNameContains: null, description: '' }, 'weird')
+    assert.equal(state.itemNameContains, 'weird')
+})
+
+test('live subscription needs at least one narrowing', () => {
+    assert.equal(utils.hasAnyNarrowing(utils.createEmptyQueryState()), false)
+    assert.equal(utils.hasAnyNarrowing({ ...utils.createEmptyQueryState(), tags: ['A'] }), true)
+})
+
+test('findInsertIndex sorts by price ascending and descending', () => {
+    const list = [auction('a', 10, 1000), auction('b', 20, 2000), auction('c', 30, 3000)]
+    assert.equal(utils.findInsertIndex(list, auction('n', 15, 1), 'LOWEST_PRICE', false), 1)
+    assert.equal(utils.findInsertIndex(list, auction('n', 5, 1), 'LOWEST_PRICE', true), 0)
+    const desc = [auction('c', 30, 3000), auction('b', 20, 2000), auction('a', 10, 1000)]
+    assert.equal(utils.findInsertIndex(desc, auction('n', 25, 1), 'HIGHEST_PRICE', true), 1)
+})
+
+test('findInsertIndex returns -1 behind the loaded window when more pages exist', () => {
+    const list = [auction('a', 10, 1000), auction('b', 20, 2000)]
+    assert.equal(utils.findInsertIndex(list, auction('n', 99, 1), 'LOWEST_PRICE', true), -1)
+    assert.equal(utils.findInsertIndex(list, auction('n', 99, 1), 'LOWEST_PRICE', false), 2)
+})
+
+test('findInsertIndex orders by end time and newest', () => {
+    const list = [auction('a', 1, 1000), auction('b', 1, 2000)]
+    assert.equal(utils.findInsertIndex(list, auction('n', 1, 1500), 'ENDING_SOON', true), 1)
+    const newest = [auction('b', 1, 2000), auction('a', 1, 1000)]
+    assert.equal(utils.findInsertIndex(newest, auction('n', 1, 3000), 'NEWEST', true), 0)
+})
+
+test('displayed price prefers the highest bid', () => {
+    assert.equal(utils.getAuctionPrice({ highestBidAmount: 50, startingBid: 10 }), 50)
+    assert.equal(utils.getAuctionPrice({ highestBidAmount: 0, startingBid: 10 }), 10)
+})
+
+test('formatTimeLeft', () => {
+    const now = 1_000_000
+    assert.equal(utils.formatTimeLeft(new Date(now - 1), now), 'ended')
+    assert.equal(utils.formatTimeLeft(new Date(now + 90_000), now), '1m 30s')
+    assert.equal(utils.formatTimeLeft(new Date(now + 2 * 86400_000 + 3 * 3600_000), now), '2d 3h')
+})
+
+test('removing the last narrowing chip falls back to a name search for the typed text', () => {
+    const resolved = { tags: ['LAPIS_CHEST'], armorSet: null, filters: {}, itemNameContains: null, description: '' }
+    const state = utils.applyResolvedQuery(utils.createEmptyQueryState(), resolved, 'lapis')
+    const next = utils.removeChip(state, utils.chipsFromState(state)[0])
+    assert.equal(next.q, 'lapis')
+    assert.deepEqual(Array.from(next.tags), [])
+    assert.equal(next.itemNameContains, 'lapis')
+    const chips = utils.chipsFromState(next)
+    assert.deepEqual(Array.from(chips.map(c => c.label)), ['name contains: lapis'])
+    const cleared = utils.removeChip(next, chips[0])
+    assert.equal(cleared.q, '')
+    assert.equal(cleared.itemNameContains, null)
+})
+
+test('removing one of several tags or a filter keeps the rest and no name fallback', () => {
+    const base = { ...utils.createEmptyQueryState(), q: 'lapis', tags: ['A', 'B'], filters: { Sharpness: '7' } }
+    const one = utils.removeChip(base, { kind: 'tag', key: 'A', label: 'A' })
+    assert.deepEqual(Array.from(one.tags), ['B'])
+    assert.equal(one.itemNameContains, null)
+    const f = utils.removeChip(base, { kind: 'filter', key: 'Sharpness', label: '' })
+    assert.deepEqual(Array.from(f.tags), ['A', 'B'])
+    assert.equal(f.itemNameContains, null)
+})
+
+test('armor set chip uses the description and removing it removes its tags', () => {
+    const state = utils.applyResolvedQuery(
+        utils.createEmptyQueryState(),
+        { tags: ['H', 'C', 'L', 'B'], armorSet: 'LAPIS_ARMOR', filters: {}, itemNameContains: null, description: 'Lapis Armor set' },
+        'lapis armor'
+    )
+    const chips = utils.chipsFromState(state, t => t, () => 'Lapis Armor set')
+    assert.deepEqual(Array.from(chips.map(c => c.label)), ['Lapis Armor set'])
+    const next = utils.removeChip(state, chips[0])
+    assert.equal(next.tags.length, 0)
+    assert.equal(next.armorSet, null)
+    assert.equal(next.itemNameContains, 'lapis armor')
+})
+
+test('a name-only resolve shows just the name chip', () => {
+    const state = utils.applyResolvedQuery(utils.createEmptyQueryState(), { tags: [], armorSet: null, filters: {}, itemNameContains: 'lapis', description: '' }, 'lapis')
+    assert.deepEqual(Array.from(utils.chipsFromState(state).map(c => c.kind)), ['name'])
+})
+
+test('seller label prefers the server resolved name and falls back to the uuid start', () => {
+    assert.equal(utils.getSellerLabel({ playerName: 'N_J0', auctioneerId: 'abcdef0123456789' }), 'N_J0')
+    assert.equal(utils.getSellerLabel({ auctioneerId: 'abcdef0123456789' }), 'abcdef01')
+})
+
+test('parseActiveAuctionPreview keeps playerName and leaves null names undefined', () => {
+    assert.equal(parser.parseActiveAuctionPreview({ uuid: 'u', tag: 'X', end: '2030-01-01T00:00:00Z', playerName: 'N_J0' }).playerName, 'N_J0')
+    assert.equal(parser.parseActiveAuctionPreview({ uuid: 'u', tag: 'X', end: '2030-01-01T00:00:00Z', playerName: null }).playerName, undefined)
+})
+
+test('a new resolution keeps existing filters, order and grouping (Bin survives)', () => {
+    const before = { ...utils.createEmptyQueryState(), q: 'lapis', tags: ['LAPIS_CHEST'], filters: { Bin: 'true' }, orderBy: 'ENDING_SOON', perTagLimit: 5 }
+    const state = utils.applyResolvedQuery(before, { tags: ['DIVAN_HELMET'], armorSet: null, filters: {}, itemNameContains: null, description: '' }, 'divan')
+    assert.deepEqual({ ...state.filters }, { Bin: 'true' })
+    assert.deepEqual(Array.from(state.tags), ['DIVAN_HELMET'])
+    assert.equal(state.orderBy, 'ENDING_SOON')
+    assert.equal(state.perTagLimit, 5)
+    assert.equal(utils.stateToParams(state).Bin, 'true', 'URL mirroring writes the merged state')
+    assert.equal(before.filters.Bin, 'true')
+})
+
+test('resolved filters override same-key filters but keep the others; narrowing is replaced', () => {
+    const before = { ...utils.createEmptyQueryState(), tags: ['A'], armorSet: 'X', categories: ['c'], itemNameContains: 'old', filters: { Bin: 'true', sharpness: '5' } }
+    const state = utils.applyResolvedQuery(before, { tags: ['B'], armorSet: null, filters: { sharpness: '7' }, itemNameContains: 'divan', description: '' }, 'divan sharpness 7')
+    assert.deepEqual({ ...state.filters }, { Bin: 'true', sharpness: '7' })
+    assert.deepEqual(Array.from(state.tags), ['B'])
+    assert.equal(state.armorSet, null)
+    assert.deepEqual(Array.from(state.categories), [])
+    assert.equal(state.itemNameContains, 'divan')
+})
+
+const SET_SUGGESTION = { kind: 'armorSet', key: 'ENDER', label: 'Ender Armor set' }
+const ITEM_SUGGESTION = { kind: 'item', key: 'HYPERION', label: 'Hyperion' }
+const broadSearch = () =>
+    utils.applyResolvedQuery(
+        utils.createEmptyQueryState(),
+        { tags: [], armorSet: null, filters: {}, itemNameContains: 'ender', description: '', suggestions: [SET_SUGGESTION, ITEM_SUGGESTION] },
+        'ender'
+    )
+
+test('parsers read suggestions defensively', () => {
+    assert.equal(parser.parseActiveAuctionQueryResult({}).suggestions.length, 0)
+    assert.equal(parser.parseResolvedActiveQuery({}).suggestions.length, 0)
+    assert.equal(parser.parseResolvedActiveQuery({ suggestions: 'x' }).suggestions.length, 0)
+    const parsed = parser.parseResolvedActiveQuery({ suggestions: [SET_SUGGESTION, { kind: 'bogus', key: 'A' }, null, { kind: 'item', key: 'B', tags: ['B'] }] })
+    assert.deepEqual(JSON.parse(JSON.stringify(parsed.suggestions)), [SET_SUGGESTION, { kind: 'item', key: 'B', label: 'B' }])
+    assert.equal(parser.parseActiveAuctionQueryResult({ suggestions: [ITEM_SUGGESTION] }).suggestions.length, 1)
+})
+
+test('applySuggestion narrows by set or item and keeps text and name search', () => {
+    const state = broadSearch()
+    const set = utils.applySuggestion(state, SET_SUGGESTION)
+    assert.equal(set.armorSet, 'ENDER')
+    assert.equal(set.tags.length, 0)
+    assert.equal(set.q, 'ender')
+    assert.equal(set.itemNameContains, 'ender')
+    const item = utils.applySuggestion(set, ITEM_SUGGESTION)
+    assert.equal(item.armorSet, null)
+    assert.deepEqual(Array.from(item.tags), ['HYPERION'])
+    assert.equal(item.itemNameContains, 'ender')
+})
+
+test('visibleSuggestions hides the row once one is applied and without text', () => {
+    const state = broadSearch()
+    assert.equal(utils.visibleSuggestions([SET_SUGGESTION, ITEM_SUGGESTION], state).length, 2)
+    assert.equal(utils.visibleSuggestions([SET_SUGGESTION, ITEM_SUGGESTION], utils.applySuggestion(state, SET_SUGGESTION)).length, 0)
+    assert.equal(utils.visibleSuggestions([SET_SUGGESTION, ITEM_SUGGESTION], utils.applySuggestion(state, ITEM_SUGGESTION)).length, 0)
+    assert.equal(utils.visibleSuggestions([SET_SUGGESTION], { ...state, q: '' }).length, 0)
+})
+
+test('removing the suggestion chip returns to the broad search and the suggestions reappear', () => {
+    const state = broadSearch()
+    for (const suggestion of [SET_SUGGESTION, ITEM_SUGGESTION]) {
+        const applied = utils.applySuggestion(state, suggestion)
+        const chips = utils.chipsFromState(applied)
+        assert.equal(chips[0].kind, suggestion.kind === 'armorSet' ? 'armorSet' : 'tag')
+        const back = utils.removeChip(applied, chips[0])
+        assert.equal(back.armorSet, null)
+        assert.equal(back.tags.length, 0)
+        assert.equal(back.q, 'ender')
+        assert.equal(back.itemNameContains, 'ender')
+        assert.equal(utils.visibleSuggestions([SET_SUGGESTION, ITEM_SUGGESTION], back).length, 2)
+    }
+})
+
+test('a new search replaces the narrowing but keeps filters', () => {
+    const picked = utils.applySuggestion({ ...broadSearch(), filters: { Sharpness: '7' } }, SET_SUGGESTION)
+    const next = utils.applyResolvedQuery(picked, { tags: [], armorSet: null, filters: {}, itemNameContains: 'divan', description: '', suggestions: [] }, 'divan')
+    assert.equal(next.armorSet, null)
+    assert.equal(next.itemNameContains, 'divan')
+    assert.deepEqual({ ...next.filters }, { Sharpness: '7' })
+})
+
+const emptyState = (extra = {}) => ({ ...utils.createEmptyQueryState(), ...extra })
+
+test('armor set chip uses the learnt set label, not the name-search description', () => {
+    const suggestions = [{ kind: 'armorSet', key: 'END', label: 'Ender set' }]
+    const labels = utils.rememberArmorSetLabels({}, suggestions, { armorSet: null, description: "Name contains 'end'" })
+    const picked = utils.applySuggestion(emptyState({ q: 'end', itemNameContains: 'end' }), suggestions[0])
+    const chips = utils.chipsFromState(picked, t => t, set => utils.armorSetChipLabel(set, labels, s => `${s} set`))
+    assert.equal(chips.find(c => c.kind === 'armorSet').label, 'Ender set')
+    assert.ok(!chips.some(c => c.kind === 'armorSet' && c.label === "Name contains 'end'"))
+})
+
+test('armorSetChipLabel falls back for unknown sets', () => {
+    assert.equal(utils.armorSetChipLabel('XYZ', { END: 'Ender set' }, s => `${s} set`), 'XYZ set')
+})
+
+test('rememberArmorSetLabels keeps resolver labels, ignores non-set suggestions and does not mutate', () => {
+    const old = { END: 'Ender set' }
+    const next = utils.rememberArmorSetLabels(old, [{ kind: 'tag', key: 'T', label: 'Tag' }], { armorSet: 'SUPERIOR', description: 'Superior Dragon set' })
+    assert.deepEqual({ ...next }, { END: 'Ender set', SUPERIOR: 'Superior Dragon set' })
+    assert.deepEqual({ ...old }, { END: 'Ender set' })
+})
+
+test('bin mode maps onto the Bin filter and keeps other filters', () => {
+    const base = emptyState({ filters: { Sharpness: '7' } })
+    assert.equal(utils.binModeFromState(base), 'all')
+    const bin = utils.withBinMode(base, 'bin')
+    assert.deepEqual({ ...bin.filters }, { Sharpness: '7', Bin: 'true' })
+    assert.equal(utils.binModeFromState(bin), 'bin')
+    const auction = utils.withBinMode(bin, 'auction')
+    assert.equal(auction.filters.Bin, 'false')
+    assert.equal(utils.binModeFromState(auction), 'auction')
+    const all = utils.withBinMode(auction, 'all')
+    assert.deepEqual({ ...all.filters }, { Sharpness: '7' })
+    assert.deepEqual({ ...base.filters }, { Sharpness: '7' })
+})
+
+test('Bin=false in the URL is the auction mode and changes the request', () => {
+    const state = utils.stateFromSearchParams('?Bin=false&Sharpness=7')
+    assert.equal(utils.binModeFromState(state), 'auction')
+    const all = utils.withBinMode(state, 'all')
+    assert.notEqual(JSON.stringify(utils.stateToRequestParams(state, 0)), JSON.stringify(utils.stateToRequestParams(all, 0)))
+    assert.equal(utils.stateToSearchString(state).includes('Bin=false'), true)
+})
+
+test('the Bin filter has no chip, other filters keep theirs', () => {
+    const chips = utils.chipsFromState(emptyState({ filters: { Bin: 'true', Sharpness: '7' } }))
+    assert.deepEqual([...chips.filter(c => c.kind === 'filter').map(c => c.key)], ['Sharpness'])
+    assert.ok(utils.CHIP_HIDDEN_FILTER_KEYS.includes('Bin'))
+})
+
+const fakeStorage = (initial = {}) => {
+    const data = { ...initial }
+    return { data, getItem: k => (k in data ? data[k] : null), setItem: (k, v) => void (data[k] = String(v)) }
+}
+
+test('stored bin mode is applied when the URL has no Bin param', () => {
+    const state = utils.applyStoredBinMode(utils.stateFromSearchParams('tags=A'), 'bin')
+    assert.equal(utils.binModeFromState(state), 'bin')
+    assert.equal(state.tags.join(','), 'A')
+})
+
+test('URL Bin param beats the stored bin mode', () => {
+    const state = utils.applyStoredBinMode(utils.stateFromSearchParams('Bin=false'), 'bin')
+    assert.equal(utils.binModeFromState(state), 'auction')
+})
+
+test('stored bin mode round-trips and invalid values map to all', () => {
+    const storage = fakeStorage()
+    assert.equal(utils.readStoredBinMode(storage), 'all')
+    utils.storeBinMode(storage, 'auction')
+    assert.equal(storage.data[utils.BIN_MODE_STORAGE_KEY], 'auction')
+    assert.equal(utils.readStoredBinMode(storage), 'auction')
+    assert.equal(utils.readStoredBinMode(fakeStorage({ [utils.BIN_MODE_STORAGE_KEY]: 'weird' })), 'all')
+    assert.equal(utils.readStoredBinMode(null), 'all')
+    assert.equal(utils.readStoredBinMode({ getItem: () => { throw new Error('blocked') } }), 'all')
+    utils.storeBinMode({ setItem: () => { throw new Error('blocked') } }, 'bin')
+})
+
+test('clear all keeps the bin mode', () => {
+    const before = utils.withBinMode({ ...utils.createEmptyQueryState(), tags: ['A'], q: 'x' }, 'bin')
+    const cleared = utils.withBinMode(utils.createEmptyQueryState(), utils.binModeFromState(before))
+    assert.equal(utils.binModeFromState(cleared), 'bin')
+    assert.equal(cleared.tags.length, 0)
+    assert.equal(cleared.q, '')
+})
+
+test('reconcileWithLive keeps a live add newer than the snapshot at the sorted position', () => {
+    const live = auction('live', 150, '2030-01-01T00:00:00Z', { start: new Date('2029-12-31T00:00:00Z') })
+    const added = new Map([['live', { item: live, at: 2000 }]])
+    const base = [auction('a', 100, '2030-01-01T00:00:00Z', { start: new Date('2029-12-30T00:00:00Z') }), auction('b', 200, '2030-01-01T00:00:00Z', { start: new Date('2029-12-29T00:00:00Z') })]
+    assert.deepEqual(utils.reconcileWithLive(base, 1000, added, new Map(), 'LOWEST_PRICE').map(i => i.uuid), ['a', 'live', 'b'])
+    assert.deepEqual(utils.reconcileWithLive(base, 1000, added, new Map(), 'NEWEST').map(i => i.uuid), ['live', 'a', 'b'])
+})
+
+test('reconcileWithLive does not re-insert a live add older than the snapshot', () => {
+    const added = new Map([['live', { item: auction('live', 150, '2030-01-01T00:00:00Z'), at: 500 }]])
+    assert.deepEqual(utils.reconcileWithLive([auction('a', 100, '2030-01-01T00:00:00Z')], 1000, added, new Map(), 'LOWEST_PRICE').map(i => i.uuid), ['a'])
+})
+
+test('reconcileWithLive removes uuids gone after the snapshot and keeps those gone before', () => {
+    const items = [auction('a', 100, '2030-01-01T00:00:00Z'), auction('b', 200, '2030-01-01T00:00:00Z')]
+    assert.deepEqual(utils.reconcileWithLive(items, 1000, new Map(), new Map([['a', 2000]]), 'LOWEST_PRICE').map(i => i.uuid), ['b'])
+    assert.deepEqual(utils.reconcileWithLive(items, 1000, new Map(), new Map([['a', 500]]), 'LOWEST_PRICE').map(i => i.uuid), ['a', 'b'])
+})
+
+test('reconcileWithLive never yields duplicate uuids', () => {
+    const dup = auction('a', 100, '2030-01-01T00:00:00Z')
+    const added = new Map([['a', { item: dup, at: 2000 }], ['n', { item: auction('n', 50, '2030-01-01T00:00:00Z'), at: 2000 }]])
+    const out = utils.reconcileWithLive([dup, dup], 1000, added, new Map(), 'LOWEST_PRICE').map(i => i.uuid)
+    assert.deepEqual(out, ['n', 'a'])
+    assert.deepEqual(utils.filterGoneAfter([dup, dup], 1000, new Map()).map(i => i.uuid), ['a'])
+})

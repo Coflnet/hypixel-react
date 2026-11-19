@@ -109,9 +109,9 @@ If you exceed the API rate limits continuously, your IP may be automatically blo
 | Feature | Free | Premium | Premium+ |
 |---------|------|---------|----------|
 | General API | 30 req/10s and 100 req/min | Same | Same by default, auto-unblock with token |
-| Bazaar export | ❌ | 5 units/5 min, 180 days | 5 units/5 min, data since Oct 2019 |
+| Bazaar export | ❌ | 5 units/5 min, 180 days | 5 units/5 min, data since 12 Mar 2020 |
 | Auction archive overview | ❌ | ❌ | 2s delay per request |
-| Auction archive export | ❌ | ❌ | Max 4 queued jobs, data since Oct 2019 |
+| Auction archive export | ❌ | ❌ | Max 4 queued jobs, data since Nov 2019 |
 | Archive pagination | ❌ | ❌ | Available |
 | IP ban recovery | ❌ | ❌ | Auto-unblock with token |
 

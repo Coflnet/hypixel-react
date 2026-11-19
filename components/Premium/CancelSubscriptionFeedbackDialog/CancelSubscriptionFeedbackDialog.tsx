@@ -15,15 +15,24 @@ interface SubscriptionCancelFeedbackExtended extends SubscriptionCancelFeedback 
     cantAffordAnymore?: boolean
 }
 
+/** PayPal cancels at once (access still lasts to the period end), so such a subscription cannot be resumed */
+function cannotResume(subscription: PremiumSubscription): boolean {
+    return subscription.canResume === false || subscription.providerSlug === 'paypal'
+}
+
+function getProviderName(subscription: PremiumSubscription): string {
+    return subscription.providerSlug === 'paypal' ? 'PayPal' : 'The payment provider'
+}
+
 function CancelSubscriptionFeedbackDialog(props: Props) {
-    let [feedback, setFeedback] = useState<SubscriptionCancelFeedbackExtended>({
+    const [feedback, setFeedback] = useState<SubscriptionCancelFeedbackExtended>({
         stoppedPlayingSkyblock: false,
         hasComplaint: false,
         cantAffordAnymore: false,
         additionalInformation: ''
     })
-    let [hasUserInput, setHasUserInput] = useState(false)
-    let [showMissingAdditionalInformation, setShowMissingAdditionalInformation] = useState(false)
+    const [hasUserInput, setHasUserInput] = useState(false)
+    const [showMissingAdditionalInformation, setShowMissingAdditionalInformation] = useState(false)
     const [canceling, setCanceling] = useState(false)
     const [error, setError] = useState('')
 
@@ -59,28 +68,28 @@ function CancelSubscriptionFeedbackDialog(props: Props) {
     }
 
     function onStoppedPlayingSkyblockChange(e: ChangeEvent<HTMLInputElement>) {
-        let newFeedback = { ...feedback }
+        const newFeedback = { ...feedback }
         newFeedback.stoppedPlayingSkyblock = e.target.checked
         setFeedback(newFeedback)
         setHasUserInput(true)
     }
 
     function onHasComplaintChange(e: ChangeEvent<HTMLInputElement>) {
-        let newFeedback = { ...feedback }
+        const newFeedback = { ...feedback }
         newFeedback.hasComplaint = e.target.checked
         setFeedback(newFeedback)
         setHasUserInput(true)
     }
 
     function onCantAffordAnymoreChange(e: ChangeEvent<HTMLInputElement>) {
-        let newFeedback = { ...feedback }
+        const newFeedback = { ...feedback }
         newFeedback.cantAffordAnymore = e.target.checked
         setFeedback(newFeedback)
         setHasUserInput(true)
     }
 
     function onAdditionalInformationChange(e: ChangeEvent<HTMLTextAreaElement>) {
-        let newFeedback = { ...feedback }
+        const newFeedback = { ...feedback }
         newFeedback.additionalInformation = e.target.value
         if (newFeedback.additionalInformation) {
             setShowMissingAdditionalInformation(false)
@@ -107,8 +116,15 @@ function CancelSubscriptionFeedbackDialog(props: Props) {
                                   : 'This stops renewal for this subscription.'}
                             {' '}Access continues through the paid period.
                         </p>
+                        {cannotResume(props.subscription) ? (
+                            <p>
+                                {getProviderName(props.subscription)} ends the subscription right away, so it cannot be resumed later. To keep Premium after
+                                the paid period, start a new subscription.
+                            </p>
+                        ) : null}
                     </div>
                 ) : null}
+                <p>Feedback is optional.</p>
                 <div>
                     <p>
                         We're sorry to see you go! To help us improve our service, please let us know why you're canceling:

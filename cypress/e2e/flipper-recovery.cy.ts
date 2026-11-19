@@ -1,12 +1,14 @@
-export {}
+import { recordHydrationErrors } from '../support/hydrationErrors'
 
 function visitFlipper(
     options: {
+        resumeEvents?: boolean
         filter?: Record<string, unknown>
         dropFirstHandshake?: boolean
         authenticated?: boolean
         dropReconnectLogin?: boolean
         failCountdown?: boolean
+        settings?: Record<string, string>
     } = {}
 ) {
     const token = 'eyJhbGciOiJub25lIn0.eyJleHAiOjQxNDI0NDQ4MDAsImVtYWlsIjoidGVybXNAZXhhbXBsZS5jb20ifQ.signature'
@@ -14,15 +16,22 @@ function visitFlipper(
     cy.intercept('POST', '**/api/premium/user/owns', { premium: { expiresAt: new Date(Date.now() + 86400000).toISOString() } })
     cy.intercept('GET', '**/api/referral/info*', { oldInfo: {} })
     cy.intercept('GET', '**/api/flip/update/when', options.failCountdown ? { forceNetworkError: true } : { body: new Date().toISOString() }).as('updateTime')
+    // Prevent the Nitro ad-consent banner from loading and covering the controls under test.
+    cy.intercept('GET', '**/s.nitropay.com/**', '')
     cy.visit('/flipper', {
         onBeforeLoad(window) {
+            // Synthetic online events also wake notification background sync, disabled in Cypress.
+            if (options.resumeEvents && (window as any).SyncManager) {
+                cy.stub((window as any).SyncManager.prototype, 'register').resolves()
+            }
             window.localStorage.clear()
             window.sessionStorage.clear()
             window.document.cookie = 'nonEssentialCookiesAllowed=false; path=/'
             window.localStorage.setItem(
                 'userSettings',
                 JSON.stringify({
-                    flipperFilters: JSON.stringify(options.filter ?? { minProfit: 10_000_000 })
+                    flipperFilters: JSON.stringify(options.filter ?? { minProfit: 10_000_000 }),
+                    ...options.settings
                 })
             )
 
@@ -32,6 +41,7 @@ function visitFlipper(
 
             class FlipWebSocket {
                 static OPEN = 1
+                static CONNECTING = 0
                 readyState = 1
                 onopen: ((event: Event) => void) | null = null
                 onclose: ((event: Event) => void) | null = null
@@ -115,6 +125,24 @@ function emitFlip(name: string, sold = false) {
     })
 }
 
+function clearFlipCache() {
+    // A clock advanced into the future must not leave apparently valid login replies for later tests.
+    cy.window().then(window => new Cypress.Promise<void>((resolve, reject) => {
+        const request = window.indexedDB.open('keyval-store')
+        request.onerror = () => reject(request.error)
+        request.onsuccess = () => {
+            const database = request.result
+            const transaction = database.transaction('keyval', 'readwrite')
+            transaction.objectStore('keyval').clear()
+            transaction.oncomplete = () => {
+                database.close()
+                resolve()
+            }
+            transaction.onerror = () => reject(transaction.error)
+        }
+    }))
+}
+
 function expectSubscriptionCount(count: number, type = 'subFlipAnonym') {
     cy.window().should(window => {
         expect((window as any).websocket.sent.filter(request => request.type === type)).to.have.length(count)
@@ -122,6 +150,32 @@ function expectSubscriptionCount(count: number, type = 'subFlipAnonym') {
 }
 
 describe('Flipper recovery', () => {
+    it('hydrates with the stored profit calculation and advanced filter settings', () => {
+        const hydrationErrors = recordHydrationErrors()
+        visitFlipper({ settings: { flipCustomizing: JSON.stringify({ finders: [1] }), itemFilterShowAdvanced: 'true' } })
+        cy.contains('button', 'Median').should('be.visible')
+        cy.wrap(hydrationErrors).should('be.empty')
+    })
+
+    it('does not request published configs for a visitor who is not logged in', () => {
+        visitFlipper()
+        cy.contains('span', /^Settings$/).click()
+        // the customize dialog is a lazily loaded chunk, a freshly started server needs a moment to serve it
+        cy.contains('.modal-title', 'Customize the style of flips', { timeout: 15000 }).should('be.visible')
+        expectSubscriptionCount(0, 'publishedConfigs')
+    })
+
+    it('requests published configs once the login is done', () => {
+        visitFlipper({ authenticated: true })
+        cy.contains('span', /^Settings$/).click()
+        cy.contains('.modal-title', 'Customize the style of flips', { timeout: 15000 }).should('be.visible')
+        cy.window().should(window => {
+            const types = (window as any).websocket.sent.map(request => request.type)
+            expect(types).to.include('publishedConfigs')
+            expect(types.indexOf('loginWithToken')).to.be.at.least(0).and.lessThan(types.indexOf('publishedConfigs'))
+        })
+    })
+
     it('receives anonymous flips after reconnecting even when the countdown request fails', () => {
         visitFlipper({ failCountdown: true })
         cy.window().its('websocket.subscriptionId').should('be.a', 'number')
@@ -167,6 +221,70 @@ describe('Flipper recovery', () => {
         cy.get('#onlyUnsoldCheckbox').check()
         emitFlip('Still Hidden Flip', true)
         cy.contains('Still Hidden Flip').should('not.exist')
+    })
+
+    it('resumes a stalled feed immediately on online and refreshes the countdown', () => {
+        cy.clock(Date.now(), ['Date', 'setInterval', 'clearInterval'])
+        visitFlipper({ filter: {}, failCountdown: true, authenticated: true, resumeEvents: true })
+        expectSubscriptionCount(1, 'subFlip')
+        cy.intercept('GET', '**/api/flip/update/when', { body: new Date().toISOString() }).as('recoveredCountdown')
+        cy.tick(61_000)
+        cy.window().then(window => window.dispatchEvent(new Event('online')))
+        cy.window().its('flipSockets', { timeout: 2000 }).should('have.length', 2)
+        expectSubscriptionCount(1, 'subFlip')
+        cy.wait('@recoveredCountdown')
+        cy.window().then(window => {
+            const types = (window as any).websocket.sent.map(request => request.type)
+            expect(types.indexOf('loginWithToken')).to.be.lessThan(types.indexOf('subFlip'))
+        })
+        emitFlip('Recovered Online Feed')
+        cy.contains('Recovered Online Feed').should('be.visible')
+        cy.contains('[role="status"]', 'Reconnecting').should('not.exist')
+        clearFlipCache()
+    })
+
+    it('resumes after a long hidden interval but preserves healthy and connecting sockets', () => {
+        cy.clock(Date.now(), ['Date', 'setInterval', 'clearInterval'])
+        visitFlipper({ filter: {}, resumeEvents: true })
+        expectSubscriptionCount(1)
+        const visibility = (hidden: boolean) => cy.document().then(document => {
+            Object.defineProperty(document, 'hidden', { configurable: true, value: hidden })
+            document.dispatchEvent(new Event('visibilitychange'))
+        })
+        visibility(true)
+        cy.tick(6000)
+        visibility(false)
+        cy.window().its('flipSockets').should('have.length', 1)
+        cy.window().then(window => {
+            const socket = (window as any).websocket
+            socket.readyState = 0
+            window.dispatchEvent(new Event('online'))
+        })
+        cy.window().its('flipSockets').should('have.length', 1)
+        cy.window().then(window => { (window as any).websocket.readyState = 1 })
+        visibility(true)
+        cy.tick(61_000)
+        visibility(false)
+        cy.window().its('flipSockets', { timeout: 2000 }).should('have.length', 2)
+        expectSubscriptionCount(1)
+        emitFlip('Recovered Visible Feed')
+        cy.contains('Recovered Visible Feed').should('be.visible')
+    })
+
+    it('shows reconnecting while offline and bypasses pending backoff on online', () => {
+        visitFlipper({ filter: {}, resumeEvents: true })
+        expectSubscriptionCount(1)
+        cy.window().then(window => {
+            cy.stub(window.Math, 'random').returns(0.99)
+            ;(window as any).websocket.close()
+        })
+        cy.contains('[role="status"]', 'Reconnecting').should('be.visible')
+        cy.window().then(window => window.dispatchEvent(new Event('online')))
+        cy.window().its('flipSockets', { timeout: 2000 }).should('have.length', 2)
+        expectSubscriptionCount(1)
+        emitFlip('Recovered Closed Feed')
+        cy.contains('Recovered Closed Feed').should('be.visible')
+        cy.contains('[role="status"]', 'Reconnecting').should('not.exist')
     })
 
     it('reconnects a silent socket even when the browser still reports it open', () => {
@@ -327,4 +445,33 @@ describe('Flipper recovery', () => {
             })
         })
     }
+
+    it('prefills the restriction filter when a filter search result is picked', () => {
+        cy.intercept('GET', '**/command/flipFilters/*', [])
+        cy.intercept('GET', '**/api/filter/options*', [
+            { name: 'sharpness', options: ['None', '1', '2', '3', '4', '5', '6', '7'], type: 16, longType: 'NUMERICAL', description: null }
+        ])
+        cy.intercept('GET', '**/api/item/search/hyperion%20sharp%207*', [
+            {
+                name: 'Hyperion · Sharpness 7',
+                id: 'HYPERION?sharpness=7',
+                type: 'filter',
+                iconUrl: 'https://sky.coflnet.com/static/icon/HYPERION',
+                img: null,
+                tier: 'MYTHIC',
+                tag: 'HYPERION'
+            }
+        ]).as('itemSearch')
+        visitFlipper({ authenticated: true, filter: {} })
+        cy.contains('Filter Rules').click()
+        cy.contains('Add new restriction').click()
+        cy.get('.rbt-input-main').first().type('hyperion sharp 7')
+        cy.wait('@itemSearch')
+        cy.contains('.dropdown-item', 'Hyperion · Sharpness 7').click()
+        // the item chip carries the plain item name, the filter is applied in the ItemFilter below
+        cy.get('.rbt-token').should('contain.text', 'Hyperion').and('not.contain.text', 'Sharpness')
+        cy.contains('form', /sharpness/i).find('input').should($inputs => {
+            expect(Array.from($inputs).map(i => (i as HTMLInputElement).value)).to.include('7')
+        })
+    })
 })

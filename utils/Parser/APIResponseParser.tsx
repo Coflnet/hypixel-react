@@ -1,3 +1,4 @@
+import { getFilterResultTarget } from '../Search/FilterResultId'
 import api from '../../api/ApiHelper'
 import { NotificationListener, SubscriptionType } from '../../api/ApiTypes.d'
 import { hasFlag } from '../../components/FilterElement/FilterType'
@@ -142,17 +143,19 @@ export function parseEnchantment(enchantment: any): Enchantment {
 export function parseSearchResultItem(item: any): SearchResultItem {
     let _getRoute = (): string => {
         switch (item.type) {
-            case 'filter':
-                return '/item/' + item.id.split('?')[0]
             case 'item':
                 return '/item/' + item.id
             case 'player':
                 return '/player/' + item.id
             case 'auction':
                 return '/auction/' + item.id
+            case 'page':
+                return item.id
         }
         return ''
     }
+
+    let filterTarget = item.type === 'filter' ? getFilterResultTarget(item.id) : undefined
 
     return {
         dataItem: {
@@ -160,8 +163,9 @@ export function parseSearchResultItem(item: any): SearchResultItem {
             iconUrl: item.img ? 'data:image/png;base64,' + item.img : item.type === 'item' ? api.getItemImageUrl(item) : api.getItemImageUrl(item) + '?size=8'
         },
         type: item.type,
-        route: _getRoute(),
-        urlSearchParams: item.type === 'filter' ? new URLSearchParams(item.id.split('?')[1] + '&apply=true') : undefined,
+        route: filterTarget ? filterTarget.route : _getRoute(),
+        urlSearchParams: filterTarget?.urlSearchParams,
+        description: filterTarget?.description,
         id: item.id,
         tier: item.tier
     }
@@ -280,6 +284,55 @@ export function parseProducts(products: any): Product[] {
     })
 }
 
+export function parseActiveAuctionPreview(a: any): ActiveAuctionPreview {
+    return {
+        uuid: a.uuid,
+        tag: a.tag,
+        itemName: a.itemName,
+        tier: a.tier ?? undefined,
+        bin: !!a.bin,
+        startingBid: Number(a.startingBid) || 0,
+        highestBidAmount: Number(a.highestBidAmount) || 0,
+        // parseDate treats values without a trailing Z (unspecified kind) as UTC
+        start: a.start ? parseDate(a.start) : parseDate(a.end),
+        end: parseDate(a.end),
+        count: a.count ?? 1,
+        auctioneerId: a.auctioneerId,
+        highlights: a.highlights && typeof a.highlights === 'object' ? a.highlights : {},
+        playerName: a.playerName || undefined
+    }
+}
+
+export function parseActiveQuerySuggestions(raw: any): ActiveQuerySuggestion[] {
+    if (!Array.isArray(raw)) return []
+    return raw
+        .filter(s => s && (s.kind === 'armorSet' || s.kind === 'item') && typeof s.key === 'string' && s.key)
+        .map(s => ({ kind: s.kind, key: s.key, label: typeof s.label === 'string' && s.label ? s.label : s.key }))
+}
+
+export function parseActiveAuctionQueryResult(r: any): ActiveAuctionQueryResult {
+    return {
+        items: (r?.items || []).map(parseActiveAuctionPreview),
+        totalCount: Number(r?.totalCount) || 0,
+        tagCounts: r?.tagCounts || {},
+        resolvedTags: Array.isArray(r?.resolvedTags) ? r.resolvedTags : [],
+        fromStore: !!r?.fromStore,
+        snapshotAt: r?.snapshotAt ? parseDate(r.snapshotAt) : undefined,
+        suggestions: parseActiveQuerySuggestions(r?.suggestions)
+    }
+}
+
+export function parseResolvedActiveQuery(r: any): ResolvedActiveQuery {
+    return {
+        tags: Array.isArray(r?.tags) ? r.tags : [],
+        armorSet: r?.armorSet || null,
+        filters: r?.filters && typeof r.filters === 'object' ? r.filters : {},
+        itemNameContains: r?.itemNameContains || null,
+        description: r?.description || '',
+        suggestions: parseActiveQuerySuggestions(r?.suggestions)
+    }
+}
+
 export function parseRecentAuction(auction): RecentAuction {
     return {
         end: parseDate(auction.end),
@@ -353,8 +406,7 @@ export function parseAccountInfo(accountInfo): AccountInfo {
     return {
         email: accountInfo.email,
         mcId: accountInfo.mcId,
-        mcName: accountInfo.mcName,
-        token: accountInfo.token
+        mcName: accountInfo.mcName
     }
 }
 
@@ -510,13 +562,6 @@ export function parseItemSummary(price): ItemPriceSummary {
     }
 }
 
-export function parsePaymentResponse(payment): PaymentResponse {
-    return {
-        id: payment.id,
-        directLink: payment.dirctLink
-    } as PaymentResponse
-}
-
 export function parseKatFlip(katFlip): KatFlip {
     let flip = {
         coreData: {
@@ -598,8 +643,8 @@ export function parseBazaarSnapshot(snapshot): BazaarSnapshot {
             moving: snapshot.sellMovingWeek
         },
         timeStamp: parseDate(snapshot.timeStamp),
-        buyOrders: snapshot.buyOrders.map(parseBazaarOrder),
-        sellOrders: snapshot.sellOrders.map(parseBazaarOrder)
+        buyOrders: (snapshot.buyOrders || []).map(parseBazaarOrder),
+        sellOrders: (snapshot.sellOrders || []).map(parseBazaarOrder)
     }
 }
 
@@ -754,7 +799,10 @@ export function parsePremiumSubscription(subscription: any): PremiumSubscription
         slotCount: subscription.slotCount,
         paymentAmount: subscription.paymentAmount,
         renewsAt: parseDate(subscription.renewsAt),
-        createdAt: parseDate(subscription.createdAt)
+        createdAt: parseDate(subscription.createdAt),
+        providerSlug: subscription.providerSlug ?? undefined,
+        canResume: typeof subscription.canResume === 'boolean' ? subscription.canResume : undefined,
+        canChangePlan: typeof subscription.canChangePlan === 'boolean' ? subscription.canChangePlan : undefined
     }
 }
 

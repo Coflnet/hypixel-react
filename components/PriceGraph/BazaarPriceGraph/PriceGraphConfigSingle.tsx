@@ -129,7 +129,7 @@ function getPriceGraphConfigSingle() {
                     borderColor: undefined,
                     borderColor0: undefined
                 },
-                data: [] as any
+                data: [] as (number | string | (number | string)[])[]
             },
             {
                 name: 'Min (buy)',
@@ -143,7 +143,7 @@ function getPriceGraphConfigSingle() {
                     show: true,
                     valueFormatter: formatAsCoins
                 },
-                data: [] as any[]
+                data: [] as (number | string | (number | string)[])[]
             },
             {
                 name: 'Max (buy)',
@@ -156,7 +156,7 @@ function getPriceGraphConfigSingle() {
                     show: true,
                     valueFormatter: formatAsCoins
                 },
-                data: [] as any[]
+                data: [] as (number | string | (number | string)[])[]
             },
             {
                 name: 'Volume (buy)',
@@ -169,7 +169,7 @@ function getPriceGraphConfigSingle() {
                     show: true,
                     valueFormatter: numberWithThousandsSeparators
                 },
-                data: [] as any[]
+                data: [] as (number | string | (number | string)[])[]
             },
             {
                 name: 'Moving (buy)',
@@ -181,7 +181,7 @@ function getPriceGraphConfigSingle() {
                     show: true,
                     valueFormatter: numberWithThousandsSeparators
                 },
-                data: [] as any[]
+                data: [] as (number | string | (number | string)[])[]
             },
             {
                 name: 'Price (sell)',
@@ -203,7 +203,7 @@ function getPriceGraphConfigSingle() {
                         return `${numberWithThousandsSeparators(value)} Coins`
                     }
                 },
-                data: [] as any
+                data: [] as (number | string | (number | string)[])[]
             },
             {
                 name: 'Min (sell)',
@@ -217,7 +217,7 @@ function getPriceGraphConfigSingle() {
                     show: true,
                     valueFormatter: formatAsCoins
                 },
-                data: [] as any[]
+                data: [] as (number | string | (number | string)[])[]
             },
             {
                 name: 'Max (sell)',
@@ -231,7 +231,7 @@ function getPriceGraphConfigSingle() {
                     show: true,
                     valueFormatter: formatAsCoins
                 },
-                data: [] as any[]
+                data: [] as (number | string | (number | string)[])[]
             },
             {
                 name: 'Volume (sell)',
@@ -245,7 +245,7 @@ function getPriceGraphConfigSingle() {
                     show: true,
                     valueFormatter: numberWithThousandsSeparators
                 },
-                data: [] as any[]
+                data: [] as (number | string | (number | string)[])[]
             },
             {
                 name: 'Moving (sell)',
@@ -258,7 +258,7 @@ function getPriceGraphConfigSingle() {
                     show: true,
                     valueFormatter: numberWithThousandsSeparators
                 },
-                data: [] as any[]
+                data: [] as (number | string | (number | string)[])[]
             },
             {
                 name: 'Mayors',
@@ -272,7 +272,7 @@ function getPriceGraphConfigSingle() {
                     show: true,
                     valueFormatter: numberWithThousandsSeparators
                 },
-                data: [] as any[]
+                data: [] as (number | string | (number | string)[])[]
             }
         ]
     }

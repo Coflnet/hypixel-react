@@ -1,6 +1,6 @@
 'use client'
 import { useState, type JSX } from 'react'
-import { Modal, OverlayTrigger, Tooltip as BootstrapTooltip } from 'react-bootstrap'
+import { Modal, OverlayTrigger, Tooltip as BootstrapTooltip, type OverlayTriggerProps } from 'react-bootstrap'
 import { v4 as generateUUID } from 'uuid'
 
 /**
@@ -15,16 +15,16 @@ interface Props {
     tooltipContent?: JSX.Element
     tooltipTitle?: JSX.Element
     size?: 'sm' | 'lg' | 'xl'
-    onClick?: Function
+    onClick?: () => void
     onOpen?: () => void
     className?: string
-    id?: any
-    hoverPlacement?: any
+    id?: string
+    hoverPlacement?: OverlayTriggerProps['placement']
     initiallyOpen?: boolean
 }
 
 function Tooltip(props: Props) {
-    let [showDialog, setShowDialog] = useState(props.initiallyOpen ?? false)
+    const [showDialog, setShowDialog] = useState(props.initiallyOpen ?? false)
 
     function getHoverElement() {
         return props.tooltipContent ? (

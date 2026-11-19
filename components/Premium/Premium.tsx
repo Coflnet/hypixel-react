@@ -1,150 +1,22 @@
 'use client'
-import { useEffect, useState } from 'react'
-import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import { getLoadingElement } from '../../utils/LoadingUtils'
-import { Alert, Button, Card, Modal } from 'react-bootstrap'
+import { Card } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
-import api from '../../api/ApiHelper'
 import styles from './Premium.module.css'
-import CoflCoinsPurchase from '../CoflCoins/CoflCoinsPurchase'
-import BuyPremium from './BuyPremium/BuyPremium'
-import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
-import { getHighestPriorityPremiumProduct, getPremiumLabelForSubscription } from '../../utils/PremiumTypeUtils'
-import { getLocalDateAndTime } from '../../utils/Formatter'
-import PremiumStatus from './PremiumStatus/PremiumStatus'
-import { toast } from 'react-toastify'
-import BuySubscription from './BuySubscription/BuySubscription'
-import PremiumPurchaseWizard from './PremiumPurchaseWizard/PremiumPurchaseWizard'
-import { parseTierFromUrl } from '../../utils/PremiumUpgradeUtils'
-import { CoinsSaleNote } from '../Discounts/DiscountBanners'
-import AgreementDocumentList from '../Legal/AgreementDocumentList'
-import UpgradeSubscription from './UpgradeSubscription/UpgradeSubscription'
-import usePremiumRefresh from '../../hooks/usePremiumRefresh'
+import { usePremiumAccount } from './usePremiumAccount'
+import {
+    CoflCoinsPurchaseBlock,
+    ExtendPremiumSection,
+    PremiumSignIn,
+    PremiumStatusLine,
+    PurchaseWizardSection,
+    TermsAlerts
+} from './PremiumAccountSections'
 
+/** the current /premium page; the control of the premium page A/B test */
 function Premium() {
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [hasPremium, setHasPremium] = useState<boolean>()
-    let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
-    let [products, setProducts] = useState<PremiumProduct[]>([])
-    let [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
-    let [hasSubscriptionLoadingError, setHasSubscriptionLoadingError] = useState(false)
-    let [isLoading, setIsLoading] = useState(false)
-    let [showSendCoflCoins, setShowSendCoflCoins] = useState(false)
-    let [isSSR, setIsSSR] = useState(true)
-    let [showUpgradeWizard, setShowUpgradeWizard] = useState(false)
-    const [showSlots, setShowSlots] = useState(false)
-    let [termsStatus, setTermsStatus] = useState<TermsStatus>()
-    const legalLocale = typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en'
-
-    usePremiumRefresh(isLoggedIn, () => Promise.allSettled([loadPremiumProducts(), loadPremiumSubscriptions()]))
-
-    useEffect(() => {
-        setIsSSR(false)
-
-        // Check for tier parameter to show upgrade wizard
-        checkForUpgradeRequest()
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    // Check if user is requesting an upgrade via URL parameter
-    function checkForUpgradeRequest() {
-        if (typeof window === 'undefined') return
-
-        const urlParams = new URLSearchParams(window.location.search)
-        const tierParam = urlParams.get('tier')
-        const upgradeParam = urlParams.get('upgrade')
-        if (urlParams.get('slots') === 'true') setShowSlots(true)
-
-        // Show upgrade wizard if tier parameter is present or upgrade=true
-        if (tierParam && parseTierFromUrl(tierParam)) {
-            setShowUpgradeWizard(true)
-        } else if (upgradeParam === 'true' || urlParams.get('slots') === 'true') {
-            setShowUpgradeWizard(true)
-        }
-    }
-
-    function returnToPremiumManagement() {
-        setShowUpgradeWizard(false)
-        setShowSlots(false)
-        const url = new URL(window.location.href)
-        url.searchParams.delete('tier')
-        url.searchParams.delete('upgrade')
-        url.searchParams.delete('slots')
-        window.history.replaceState({}, '', url.pathname)
-    }
-
-    function loadPremiumProducts(): Promise<void> {
-        return api.getPremiumProducts(true).then(products => {
-            products = products.filter(product => product.expires.getTime() > new Date().getTime())
-            setProducts(products)
-            let activePremiumProduct = getHighestPriorityPremiumProduct(products)
-
-            setHasPremium(!!activePremiumProduct)
-            // Keep unchanged status stable so polling does not reset the purchase wizard.
-            setActivePremiumProduct(current => (JSON.stringify(current) === JSON.stringify(activePremiumProduct) ? current : activePremiumProduct))
-        })
-    }
-
-    function loadPremiumSubscriptions(): Promise<void> {
-        return api.getPremiumSubscriptions().then(subscriptions => {
-            setHasSubscriptionLoadingError(false)
-            subscriptions = subscriptions.filter(subscription => !subscription.endsAt || subscription.endsAt.getTime() > new Date().getTime())
-            setPremiumSubscriptions(subscriptions)
-        }).catch(() => setHasSubscriptionLoadingError(true))
-    }
-
-    function loadTermsStatus(): Promise<void> {
-        return api
-            .getTermsStatus(legalLocale)
-            .then(setTermsStatus)
-            .catch(() => {
-                setTermsStatus(undefined)
-                toast.error(
-                    legalLocale === 'de'
-                        ? 'Das aktuelle SkyCofl-Vertragspaket konnte nicht geladen werden.'
-                        : 'The current SkyCofl agreement package could not be loaded.'
-                )
-            })
-    }
-
-    function acceptTerms() {
-        if (!termsStatus) return
-        setIsLoading(true)
-        api.acceptTerms(termsStatus.version, termsStatus.agreementHash, `web-premium-${legalLocale}`, legalLocale)
-            .then(setTermsStatus)
-            .catch(() =>
-                toast.error(
-                    legalLocale === 'de' ? 'Das SkyCofl-Vertragspaket konnte nicht angenommen werden.' : 'The SkyCofl agreement package could not be accepted.'
-                )
-            )
-            .finally(() => setIsLoading(false))
-    }
-
-    function onSubscriptionCancel(subscription: PremiumSubscription) {
-        return api.cancelPremiumSubscription(subscription.externalId).then(() => {
-            toast.success('Subscription cancelled')
-            return loadPremiumSubscriptions()
-        })
-    }
-
-    function onLogin() {
-        let googleId = sessionStorage.getItem('googleId')
-        if (googleId) {
-            setIsLoading(true)
-            setIsLoggedIn(true)
-            Promise.all([loadPremiumProducts(), loadPremiumSubscriptions(), loadTermsStatus()]).finally(() => setIsLoading(false))
-        }
-    }
-
-    function onLoginFail() {
-        setIsLoggedIn(false)
-        setHasPremium(false)
-        setTermsStatus(undefined)
-    }
-
-    const canPurchase = termsStatus?.canStartNewContract === true
-    const activeSubscriptions = premiumSubscriptions.filter(subscription => !subscription.endsAt)
+    const account = usePremiumAccount()
+    const { isLoggedIn, hasPremium } = account
 
     return (
         <div>
@@ -153,166 +25,17 @@ function Premium() {
                 Premium
             </h2>
             <hr />
-            {isLoading ? (
-                getLoadingElement()
-            ) : !isLoggedIn ? (
-                <div>
-                    <p style={{ color: 'yellow', margin: 0 }}>To use Premium please login with Google.</p>
-                </div>
-            ) : hasPremium ? (
-                <p className="text-success">You have a Premium account. Thank you for your support.</p>
-            ) : (
-                <div>
-                    <p style={{ color: 'red', margin: 0 }}>You do not have a Premium account.</p>
-                </div>
-            )}
-            {isLoggedIn && !hasPremium ? (
-                <p>
-                    <a href={canPurchase ? '#buyPremium' : '#terms-acceptance'}>I want Premium!</a>
-                </p>
-            ) : null}
+            <PremiumStatusLine account={account} />
             <hr />
-            <div style={{ marginBottom: '20px' }}>
-                {isLoggedIn ? <PremiumStatus products={products} subscriptions={premiumSubscriptions} onSubscriptionCancel={onSubscriptionCancel} hasSubscriptionLoadingError={hasSubscriptionLoadingError} /> : null}
-                <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
-                <div>{isLoading ? getLoadingElement() : ''}</div>
-            </div>
-            {isLoggedIn && termsStatus?.required ? (
-                <Alert id="terms-acceptance" variant="warning">
-                    <p>
-                        {legalLocale === 'de'
-                            ? 'Bitte prüfen Sie vor einem neuen Kauf das vollständige SkyCofl-Vertragspaket:'
-                            : 'Before starting a new purchase, please review the complete SkyCofl agreement package:'}
-                    </p>
-                    <AgreementDocumentList documents={termsStatus.documents} locale={legalLocale} />
-                    <p>
-                        <a href={termsStatus.agreementUrl} target="_blank" rel="noreferrer">
-                            {legalLocale === 'de' ? 'Unveränderliche Vertragsbeschreibung anzeigen' : 'View the immutable agreement descriptor'}
-                        </a>
-                    </p>
-                    <Button disabled={isLoading} onClick={acceptTerms}>
-                        {legalLocale === 'de' ? 'SkyCofl-Vertragspaket annehmen' : 'Accept the SkyCofl agreement package'}
-                    </Button>
-                </Alert>
-            ) : null}
-            {isLoggedIn && !isLoading && !termsStatus ? (
-                <Alert id="terms-acceptance" variant="danger">
-                    {legalLocale === 'de'
-                        ? 'Die Vertragsprüfung ist derzeit nicht verfügbar. Neue Käufe sind deaktiviert.'
-                        : 'The agreement check is currently unavailable. New purchases are disabled.'}
-                </Alert>
-            ) : null}
-            {isLoggedIn && canPurchase && (!hasPremium || showUpgradeWizard) ? (
-                <div id="buyPremium" style={{ marginBottom: '40px' }}>
-                    <hr />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                        <h2>{showSlots ? 'Get slots' : hasPremium && showUpgradeWizard ? 'Upgrade Premium' : 'Get Premium'}</h2>
-                        {hasPremium && showUpgradeWizard && (
-                            <Button variant="secondary" size="sm" onClick={returnToPremiumManagement}>
-                                ← Back to Premium Management
-                            </Button>
-                        )}
-                    </div>
-                    <PremiumPurchaseWizard
-                        showSlots={showSlots}
-                        activePremiumProduct={activePremiumProduct!}
-                        premiumSubscriptions={premiumSubscriptions}
-                        onNewActivePremiumProduct={() => {
-                            returnToPremiumManagement()
-                            void loadPremiumProducts()
-                        }}
-                    />
-                </div>
-            ) : null}
-            {isLoggedIn && !isLoading && canPurchase && hasPremium && !showUpgradeWizard ? (
-                <div style={{ marginBottom: '20px' }}>
-                    <hr />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                        <h2>Extend Premium</h2>
-                        {!hasSubscriptionLoadingError && activeSubscriptions.length > 0 ? (
-                            <div>
-                                {activeSubscriptions.map(subscription => (
-                                    <div key={subscription.externalId}>
-                                        {activeSubscriptions.length > 1 && <span>{getPremiumLabelForSubscription(subscription)} — renews {getLocalDateAndTime(subscription.renewsAt)} </span>}
-                                        <UpgradeSubscription subscription={subscription} upgradeOnly />
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <Button variant="success" disabled={hasSubscriptionLoadingError} onClick={() => setShowUpgradeWizard(true)}>
-                                🚀 Upgrade to Higher Tier
-                            </Button>
-                        )}
-                    </div>
-                    <p style={{ marginBottom: '30px' }} className="text-muted">
-                        Already have premium? You can extend your subscription, add more time, or upgrade to a higher tier.
-                    </p>
-                    <Card className="mb-4">
-                        <Card.Body>
-                            <h4>Premium for friends</h4>
-                            <p>Give your friends Premium access with a single slot or a four-slot bundle.</p>
-                            <Button as="a" href="/premium?slots=true#buyPremium" variant="success">Explore slots & bundles</Button>
-                        </Card.Body>
-                    </Card>
-                    <details>
-                        <summary style={{ cursor: 'pointer', marginBottom: '20px' }}>
-                            <strong>Advanced Options</strong>
-                        </summary>
-                        <div style={{ marginLeft: '20px' }}>
-                            <div style={{ marginBottom: '20px' }}>
-                                <h4>Subscriptions</h4>
-                                <BuySubscription activePremiumProduct={activePremiumProduct!} />
-                            </div>
-                            <div style={{ marginBottom: '20px' }}>
-                                <h4>Prepaid</h4>
-                                <BuyPremium
-                                    activePremiumProduct={activePremiumProduct!}
-                                    premiumSubscriptions={premiumSubscriptions}
-                                    onNewActivePremiumProduct={loadPremiumProducts}
-                                />
-                            </div>
-                        </div>
-                    </details>
-                </div>
-            ) : null}
+            <PremiumSignIn account={account} />
+            <TermsAlerts account={account} />
+            <PurchaseWizardSection account={account} />
+            <ExtendPremiumSection account={account} showFriendsCard />
             {isLoggedIn ? (
                 <div style={{ marginBottom: '20px' }}>
                     <hr />
-                    <h2>
-                        CoflCoins
-                        <Button
-                            className={styles.sendCoflCoinsButton}
-                            onClick={() => {
-                                setShowSendCoflCoins(true)
-                            }}
-                        >
-                            Send CoflCoins
-                        </Button>
-                        <Modal
-                            size={'lg'}
-                            show={showSendCoflCoins}
-                            onHide={() => {
-                                setShowSendCoflCoins(false)
-                            }}
-                        >
-                            <Modal.Header closeButton>
-                                <Modal.Title>Send CoflCoins</Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body>
-                                <TransferCoflCoins
-                                    onFinish={() => {
-                                        setShowSendCoflCoins(false)
-                                    }}
-                                />
-                            </Modal.Body>
-                        </Modal>
-                    </h2>
-                    {canPurchase ? (
-                        <div id="coflcoins-purchase">
-                            <CoinsSaleNote />
-                            <CoflCoinsPurchase />
-                        </div>
-                    ) : null}
+                    <h2>CoflCoins</h2>
+                    <CoflCoinsPurchaseBlock account={account} />
                 </div>
             ) : null}
             <hr />

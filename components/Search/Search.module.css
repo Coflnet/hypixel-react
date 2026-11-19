@@ -52,3 +52,29 @@
     display: inline-flex;
     align-items: center;
 }
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 16px;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9a9a9a;
+    border: 0;
+    pointer-events: none;
+}
+
+.pageResultIcon {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    vertical-align: middle;
+}
+
+.pageDescription {
+    margin-left: 10px;
+    font-size: 0.8rem;
+    color: #9a9a9a;
+}

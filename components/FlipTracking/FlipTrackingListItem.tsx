@@ -1,7 +1,7 @@
 'use client'
 import { Badge, Button, Card, ListGroup, Table } from 'react-bootstrap'
 import styles from './FlipTracking.module.css'
-import { MouseEventHandler, Suspense, useState } from 'react'
+import { MouseEventHandler, Suspense } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { getMinecraftColorCodedElement, getStyleForTier } from '../../utils/Formatter'
@@ -23,12 +23,12 @@ interface Props {
 }
 
 export function FlipTrackingListItem(props: Props) {
-    let router = useRouter()
+    const router = useRouter()
 
     function convertMilliSecondsIntoLegibleString(milliSecondsIn: number) {
-        var secsIn = milliSecondsIn / 1000
+        const secsIn = milliSecondsIn / 1000
 
-        var days = Math.floor(secsIn / 86400),
+        const days = Math.floor(secsIn / 86400),
             remainderAfterDays = secsIn % 86400,
             hours = Math.floor(remainderAfterDays / 3600),
             remainderAfterHours = remainderAfterDays % 3600,

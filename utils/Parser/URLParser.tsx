@@ -1,8 +1,8 @@
 import { atobUnicode } from '../Base64Utils'
+import { NON_FILTER_PARAMS, itemFilterFromEntries } from './ItemFilterParams'
 import { isClientSideRendering } from '../SSRUtils'
 import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime'
 
-const NON_FILTER_PARAMS = ['range', 'refId', 'conId']
 const LEGACY_ITEM_FILTER_PARAM = 'itemFilter'
 const PET_LEVEL_FILTER = 'PetLevel'
 const RARITY_FILTER = 'Rarity'
@@ -61,14 +61,7 @@ export function getItemFilterFromUrl(): ItemFilter {
         return parseItemFilter(itemFilterBase64)
     }
 
-    let searchParams = new URLSearchParams(window.location.search)
-    let itemFilter: ItemFilter = {}
-    searchParams.forEach((value, key) => {
-        if (NON_FILTER_PARAMS.indexOf(key) === -1) {
-            itemFilter[key] = value
-        }
-    })
-    return itemFilter
+    return itemFilterFromEntries(Array.from(new URLSearchParams(window.location.search).entries()))
 }
 
 /**

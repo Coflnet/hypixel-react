@@ -22,8 +22,8 @@ interface Props {
 }
 
 function MarketAnalysis(props: Props) {
-    let [expanded, setExpanded] = useState(false)
-    let [days, setDays] = useState(DEFAULT_MARKET_ANALYSIS_DAYS)
+    const [expanded, setExpanded] = useState(false)
+    const [days, setDays] = useState(DEFAULT_MARKET_ANALYSIS_DAYS)
 
     const { sold, live } = useMarketAnalysis({ tag: props.tag, itemFilter: props.itemFilter, days, expanded })
 

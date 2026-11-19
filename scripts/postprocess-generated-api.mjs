@@ -23,6 +23,7 @@ const withHelper = withoutHelper.replace(
 
 const replaced = withHelper
   .replaceAll('body ? JSON.parse(body) : {}', 'parseGeneratedResponseBody(body)')
+  .replaceAll('body ? JSON.parse(body) : undefined', 'parseGeneratedResponseBody(body)')
   .replaceAll("body ? (contentType.includes('json') ? JSON.parse(body) : body) : {}", 'parseGeneratedResponseBody(body)')
   .replaceAll("body ? (contentType.includes('json') ? JSON.parse(body) : body) : undefined", 'parseGeneratedResponseBody(body)')
 
@@ -32,6 +33,13 @@ if (!replaced.includes(helperMarker)) {
 
 if (!replaced.includes('parseGeneratedResponseBody(body)')) {
   throw new Error('Failed to replace generated JSON body parsing in skyApi.ts')
+}
+
+// orval changes the shape of its parsing line between versions and response types;
+// a form that is not listed above would throw on every plain text body
+const unguardedParsers = replaced.replace(helperBlock, '').match(/JSON\.parse\(/g)
+if (unguardedParsers) {
+  throw new Error(`${unguardedParsers.length} generated response parsers still call JSON.parse directly, add their form to the replacements above`)
 }
 
 writeFileSync(targetPath, replaced)
