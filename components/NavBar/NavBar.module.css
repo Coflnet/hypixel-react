@@ -47,6 +47,8 @@
     left: 0;
     top: 0;
     min-height: 100vh;
+    /* the visible height on phones (100vh is the height without the browser bars), so the menu scrolls to its last link */
+    min-height: 100dvh;
     border: none;
 }
 
@@ -56,4 +58,23 @@
 
 .menuItem {
     display: block !important
+}
+
+.cancelContract {
+    margin-top: auto;
+    /* no wrapping while the sidebar widens on hover */
+    white-space: nowrap;
+    padding: 16px 24px 24px;
+    font-size: 0.85rem;
+}
+
+.cancelContractLink {
+    color: #fff;
+    text-decoration: none;
+}
+
+.cancelContractLink:hover,
+.cancelContractLink:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 3px;
 }

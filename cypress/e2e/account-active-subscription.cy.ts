@@ -422,17 +422,35 @@ describe('Contract cancellation link', () => {
         cy.get('footer[data-testid="site-footer"]').should('have.css', 'padding-bottom', '16px')
     })
 
-    it('is next to the subscription cancel actions of the account page', () => {
+    it('is in the opened sidebar on a phone, in plain white text in the footer', () => {
+        cy.viewport('iphone-x')
+        cy.visit('/about')
+        cy.get('footer [data-testid="cancel-contract-link"]').should('have.css', 'color', 'rgb(255, 255, 255)').and('have.css', 'font-weight', '400')
+        cy.get('#hamburgerIcon').click()
+        // the menu scrolls on a short phone; the link sits at its end, above the cookie banner
+        cy.get('#pro-sidebar [data-testid="cancel-contract-link"]')
+            .scrollIntoView()
+            .should('be.visible')
+            .and('have.attr', 'href', 'https://coflnet.com/cancel-contract')
+            .and('have.text', 'Cancel contracts here')
+    })
+
+    // the account page cancels in place with its own buttons; the footer and the sidebar carry the legal link
+    it('is not repeated next to the subscription cancel actions of the account page', () => {
         stubProducts()
         stubSubscriptions({ statusCode: 200, body: [activeSubscription] })
         visitAuthenticatedPage()
         cy.wait('@subscriptions')
-        cy.contains('p', "You can also cancel on Coflnet's cancellation page")
-            .find('[data-testid="cancel-contract-link"]')
-            .should('be.visible')
-            .and('have.attr', 'href', 'https://coflnet.com/cancel-contract')
+        cy.contains('button', 'Cancel subscription').should('be.visible')
+        cy.contains("You can also cancel on Coflnet's cancellation page").should('not.exist')
+        cy.get('[data-testid="cancel-contract-link"]').should(links => {
+            const inPage = links.toArray().filter(link => !link.closest('footer, #pro-sidebar'))
+            expect(inPage, 'cancellation links outside the footer and the sidebar').to.have.length(0)
+        })
         cy.contains('button', 'Cancel subscription').click()
-        cy.get('.modal [data-testid="cancel-contract-link"]').should('be.visible').and('have.attr', 'href', 'https://coflnet.com/cancel-contract')
+        cy.get('.modal').should('contain.text', 'Feedback is optional.')
+        cy.get('.modal [data-testid="cancel-contract-link"]').should('not.exist')
+        cy.get('footer [data-testid="cancel-contract-link"]').should('exist')
     })
 })
 

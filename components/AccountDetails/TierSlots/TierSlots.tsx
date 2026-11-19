@@ -5,7 +5,6 @@ import { toast } from 'react-toastify'
 import { getApiPremiumSlots, putApiPremiumSlotsIdAssignment } from '../../../api/_generated/skyApi'
 import type { OwnedTierSlot, SlotRecipient } from '../../../api/_generated/skyApi.schemas'
 import { GOOGLE_EMAIL, getSetting } from '../../../utils/SettingsUtils'
-import CancelContractLink from '../../Legal/CancelContractLink'
 
 function recipientName(slot: OwnedTierSlot) {
     return (
@@ -110,7 +109,7 @@ export default function TierSlots({ subscriptions, onCancelSubscription }: Props
             {fromCheckout ? <Alert variant="info">Assign your purchased slots below. Payment confirmation can take a moment; refresh the slots if your new purchase has not appeared yet.</Alert> : null}
             <p>Assign slots to yourself or friends. You keep control of billing and assignments.</p>
             <p>
-                Release slot removes its assignment and keeps billing active. To stop renewal, use Cancel slot subscription below or <CancelContractLink />.
+                Release slot removes its assignment and keeps billing active. To stop renewal, use Cancel slot subscription below.
             </p>
             {error && !editing ? (
                 <Alert variant="danger" role="alert">
