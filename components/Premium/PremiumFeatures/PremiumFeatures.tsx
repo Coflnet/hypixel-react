@@ -6,6 +6,7 @@ import Number from '../../Number/Number'
 import Tooltip from '../../Tooltip/Tooltip'
 import styles from './PremiumFeatures.module.css'
 import Image from 'next/image'
+import { getBazaarHistoryYears } from '../../../utils/DataHistory'
 
 function ReceiveTimeCell({ measured, path }: { measured: string; path: string }) {
     return (
@@ -369,7 +370,7 @@ function PremiumFeatures() {
                         {xIconElement}
                         {xIconElement}
                         <td className={styles.premiumProductColumn}>180 days</td>
-                        <td className={styles.premiumProductColumn}>~6 years</td>
+                        <td className={styles.premiumProductColumn}>~{getBazaarHistoryYears()} years</td>
                     </tr>
                     <tr>
                         <td className={styles.featureColumn}>

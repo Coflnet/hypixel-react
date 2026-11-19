@@ -21,7 +21,11 @@ const planPricing = loadModule('../components/PremiumLanding/content/planPricing
     '../../../utils/PricingUtils': pricing,
     '../../../utils/SubscriptionCheckout': checkout
 })
-const plans = loadModule('../components/PremiumLanding/content/plans.ts', { '../../Premium/PremiumPurchaseWizard/types': types })
+const dataHistory = loadModule('../utils/DataHistory.ts')
+const plans = loadModule('../components/PremiumLanding/content/plans.ts', {
+    '../../Premium/PremiumPurchaseWizard/types': types,
+    '../../../utils/DataHistory': dataHistory
+})
 const highlights = loadModule('../components/PremiumLanding/content/tierHighlights.ts', {
     '../../Premium/PremiumPurchaseWizard/types': types,
     './plans': plans
@@ -568,7 +572,7 @@ test('the upsell lists what the next tier adds and nothing for the top tier', ()
     assert.deepEqual(highlights.getUpgradeHighlights(PremiumTier.STARTER), highlights.getTierHighlights(PremiumTier.PREMIUM))
     assert.deepEqual(highlights.getUpgradeHighlights(PremiumTier.PREMIUM), highlights.getTierHighlights(PremiumTier.PREMIUM_PLUS))
     assert.equal(highlights.getUpgradeHighlights(PremiumTier.PREMIUM_PLUS).length, 0)
-    assert.ok(highlights.getUpgradeHighlights(PremiumTier.PREMIUM).includes('Archive, CSV exports and about 6 years of bazaar data'))
+    assert.ok(highlights.getUpgradeHighlights(PremiumTier.PREMIUM).includes(`Archive, CSV exports and about ${dataHistory.getBazaarHistoryYears()} years of bazaar data`))
 })
 
 const WEEK = 7 * 24 * 3600
@@ -597,4 +601,11 @@ test('words the saving on prices that are already known', () => {
     assert.equal(checkout.formatUpgradeSavings(base), 'With TEST90: €2.97 for the first 4 weeks instead of €29.69 (you save €26.72)')
     assert.equal(checkout.formatUpgradeSavings({ ...base, net: true, firstOnly: false }), 'With TEST90: €2.97 (+tax) per 4 weeks instead of €29.69 (you save €26.72)')
     assert.equal(checkout.formatUpgradeSavings({ ...base, weeks: 13, firstOnly: false }), 'With TEST90: €2.97 for the first 13 weeks instead of €29.69 (you save €26.72)')
+})
+
+// regression: the bazaar export range read "~6 years" in November 2026 although the data starts in early November 2019
+test('counts the years of bazaar history from November 2019', () => {
+    assert.equal(dataHistory.getBazaarHistoryYears(Date.UTC(2026, 9, 31)), 6)
+    assert.equal(dataHistory.getBazaarHistoryYears(Date.UTC(2026, 10, 19)), 7)
+    assert.equal(dataHistory.getBazaarHistoryYears(Date.UTC(2027, 10, 2)), 8)
 })

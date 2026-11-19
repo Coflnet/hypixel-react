@@ -3,6 +3,7 @@
 // features.ts; the row gets a Preview button when that feature has media.
 
 import { PerTier } from './tiers'
+import { getBazaarHistoryYears } from '../../../utils/DataHistory'
 
 export type CompareCell = boolean | string
 
@@ -70,7 +71,7 @@ export const COMPARE_GROUPS: CompareGroup[] = [
             { label: 'List of low supply items', cells: [N, N, Y, Y] },
             { label: 'Access to archive', cells: [N, N, N, Y], clipId: 'archive' },
             { label: 'CSV file exports', cells: [N, N, N, Y], clipId: 'archive' },
-            { label: 'Bazaar data export (JSON)', cells: [N, N, '180 days', '~6 years'], clipId: 'archive' },
+            { label: 'Bazaar data export (JSON)', cells: [N, N, '180 days', `~${getBazaarHistoryYears()} years`], clipId: 'archive' },
             { label: 'Access to BazaarPro (pro.skyblock.bz)', cells: [N, N, N, Y] },
             { label: 'API: lift an IP rate-limit ban', cells: [N, N, N, Y] }
         ]

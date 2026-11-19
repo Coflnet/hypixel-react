@@ -5,6 +5,7 @@
 
 import { clip, FeatureMedia } from '../../../utils/FeatureMedia'
 import { PerTier, TierName } from './tiers'
+import { getBazaarHistoryYears } from '../../../utils/DataHistory'
 
 export type FeatureTab = 'web' | 'mod'
 
@@ -112,7 +113,7 @@ export const PREMIUM_FEATURES: PremiumFeature[] = [
         long: 'Filter through years of data to get exactly the auction or bazaar data you need, then export it as CSV. Bazaar history also exports as JSON.',
         minTier: 'Premium+',
         metric: 'BAZAAR EXPORT RANGE',
-        values: ['No', 'No', '180 days', '~6 years']
+        values: ['No', 'No', '180 days', `~${getBazaarHistoryYears()} years`]
     },
     {
         id: 'tooltip',

@@ -2,6 +2,7 @@
 // (see planPricing.ts) so country and VAT handling match the purchase wizard.
 
 import { PremiumTier } from '../../Premium/PremiumPurchaseWizard/types'
+import { getBazaarHistoryYears } from '../../../utils/DataHistory'
 
 export interface PlanCard {
     tier: PremiumTier
@@ -50,7 +51,7 @@ export const PLAN_CARDS: PlanCard[] = [
         bullets: [
             'Every flip first, before the API lists it',
             'Replay flips you missed while offline',
-            'Archive, CSV exports and about 6 years of bazaar data',
+            `Archive, CSV exports and about ${getBazaarHistoryYears()} years of bazaar data`,
             '3 years of profit history and endgame task gear paths'
         ]
     }

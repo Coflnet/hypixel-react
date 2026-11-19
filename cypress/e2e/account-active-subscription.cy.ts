@@ -1,5 +1,8 @@
 import { pageText, tickUntil } from '../support/clock'
 import { formatMoney } from '../../utils/PricingUtils'
+import { getBazaarHistoryYears } from '../../utils/DataHistory'
+
+const BAZAAR_ARCHIVE_BULLET = `Archive, CSV exports and about ${getBazaarHistoryYears()} years of bazaar data`
 
 beforeEach(() => {
     cy.then(() => Cypress.automation('remote:debugger:protocol', { command: 'Network.clearBrowserCache' }))
@@ -1843,7 +1846,7 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
             `With TEST90: ${formatMoney(35.42, 'EUR')} for the first 52 weeks instead of ${formatMoney(354.2, 'EUR')} (you save ${formatMoney(318.78, 'EUR')})`
         )
         // the bullets are the /premium plan card's features of the tier the upgrade adds
-        cy.get('#buyPremium').should('contain.text', 'Archive, CSV exports and about 6 years of bazaar data')
+        cy.get('#buyPremium').should('contain.text', BAZAAR_ARCHIVE_BULLET)
         cy.get('#buyPremium').should('contain.text', 'In-game lowball helper').and('not.contain.text', 'Up to 1s slower')
     })
 
@@ -1901,7 +1904,7 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         openYearlyPremium()
         cy.get('[data-testid="upsell-price"]').should('have.text', `${formatMoney(354.2, 'EUR')} for the first 52 weeks, then every 4 weeks`)
         cy.get('[data-testid="upsell-code-savings"]').should('not.exist')
-        cy.get('#buyPremium').should('contain.text', 'Step up to Premium Plus').and('contain.text', 'Archive, CSV exports and about 6 years of bazaar data')
+        cy.get('#buyPremium').should('contain.text', 'Step up to Premium Plus').and('contain.text', BAZAAR_ARCHIVE_BULLET)
         // the lower tier says it includes the one below, from its plan card
         cy.get('#buyPremium').should('contain.text', 'All Starter features plus advanced tools:')
     })
@@ -2427,7 +2430,7 @@ describe('Slot subscriptions with Stripe, PayPal and the promotion', () => {
         cy.get('[data-testid="slot-upsell"]').should('have.length', 2)
         cy.get('[data-testid="slot-upsell"]').eq(0).should('contain.text', 'Step up to 4 slots').and('contain.text', '29.69 every 4 weeks for all 4 slots').and('contain.text', '7.42 per slot instead of')
         cy.get('[data-testid="slot-upsell-savings"]').eq(0).should('contain.text', 'With TEST90: €2.97 for the first 4 weeks instead of €29.69 (you save €26.72)')
-        cy.get('[data-testid="slot-upsell"]').eq(1).should('contain.text', 'Step up to Premium+').and('contain.text', '35.69 every 4 weeks for this slot').and('contain.text', 'Archive, CSV exports and about 6 years of bazaar data')
+        cy.get('[data-testid="slot-upsell"]').eq(1).should('contain.text', 'Step up to Premium+').and('contain.text', '35.69 every 4 weeks for this slot').and('contain.text', BAZAAR_ARCHIVE_BULLET)
         cy.get('[data-testid="slot-upsell"]').eq(1).contains('button', 'Upgrade to Premium+').click()
         cy.get('[data-testid="slot-offer"]').should('contain.text', '35.69')
         cy.get('[data-testid="slot-upsell"]').should('have.length', 1).and('contain.text', 'Step up to 4 slots')
