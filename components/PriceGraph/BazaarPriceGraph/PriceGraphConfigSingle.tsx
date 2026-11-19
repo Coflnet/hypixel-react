@@ -1,3 +1,4 @@
+import { gapSafe, isChartGap } from '../../../utils/BazaarChartValues'
 import { formatAsCoins, getLocalDateAndTime, numberWithThousandsSeparators } from '../../../utils/Formatter'
 
 const ANIMATION_THRESHOLD = 200
@@ -117,7 +118,7 @@ function getPriceGraphConfigSingle() {
                 tooltip: {
                     show: true,
                     valueFormatter: value => {
-                        if (!value || (value && value.length === 0)) {
+                        if (isChartGap(value)) {
                             return ''
                         }
                         return `${numberWithThousandsSeparators(value)} Coins`
@@ -141,7 +142,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: formatAsCoins
+                    valueFormatter: gapSafe(formatAsCoins)
                 },
                 data: [] as (number | string | (number | string)[])[]
             },
@@ -154,7 +155,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: formatAsCoins
+                    valueFormatter: gapSafe(formatAsCoins)
                 },
                 data: [] as (number | string | (number | string)[])[]
             },
@@ -167,7 +168,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeparators
+                    valueFormatter: gapSafe(numberWithThousandsSeparators)
                 },
                 data: [] as (number | string | (number | string)[])[]
             },
@@ -179,7 +180,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeparators
+                    valueFormatter: gapSafe(numberWithThousandsSeparators)
                 },
                 data: [] as (number | string | (number | string)[])[]
             },
@@ -197,7 +198,7 @@ function getPriceGraphConfigSingle() {
                 tooltip: {
                     show: true,
                     valueFormatter: value => {
-                        if (!value || (value && value.length === 0)) {
+                        if (isChartGap(value)) {
                             return ''
                         }
                         return `${numberWithThousandsSeparators(value)} Coins`
@@ -215,7 +216,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: formatAsCoins
+                    valueFormatter: gapSafe(formatAsCoins)
                 },
                 data: [] as (number | string | (number | string)[])[]
             },
@@ -229,7 +230,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: formatAsCoins
+                    valueFormatter: gapSafe(formatAsCoins)
                 },
                 data: [] as (number | string | (number | string)[])[]
             },
@@ -243,7 +244,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeparators
+                    valueFormatter: gapSafe(numberWithThousandsSeparators)
                 },
                 data: [] as (number | string | (number | string)[])[]
             },
@@ -256,7 +257,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeparators
+                    valueFormatter: gapSafe(numberWithThousandsSeparators)
                 },
                 data: [] as (number | string | (number | string)[])[]
             },
@@ -270,7 +271,7 @@ function getPriceGraphConfigSingle() {
                 animationThreshold: ANIMATION_THRESHOLD,
                 tooltip: {
                     show: true,
-                    valueFormatter: numberWithThousandsSeparators
+                    valueFormatter: gapSafe(numberWithThousandsSeparators)
                 },
                 data: [] as (number | string | (number | string)[])[]
             }

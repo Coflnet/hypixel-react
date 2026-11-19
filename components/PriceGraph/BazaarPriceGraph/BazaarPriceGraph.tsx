@@ -7,6 +7,7 @@ import { Form } from 'react-bootstrap'
 import api from '../../../api/ApiHelper'
 import { CUSTOM_EVENTS } from '../../../api/ApiTypes.d'
 import { getLoadingElement } from '../../../utils/LoadingUtils'
+import { toCandle, toChartValue } from '../../../utils/BazaarChartValues'
 import { getURLSearchParam } from '../../../utils/Parser/URLParser'
 import { BAZAAR_GRAPH_LEGEND_SELECTION, BAZAAR_GRAPH_TYPE } from '../../../utils/SettingsUtils'
 import { isClientSideRendering } from '../../../utils/SSRUtils'
@@ -37,6 +38,11 @@ let currentLoadingString
 
 // Boolean if the component is mounted. Set to false in useEffect cleanup function
 let mounted = true
+
+function getAveragePositive(values: number[]): number {
+    const positive = values.filter(v => v > 0)
+    return positive.length > 0 ? positive.reduce((sum, v) => sum + v, 0) / positive.length : 0
+}
 
 function BazaarPriceGraph(props: Props) {
     const [initialFetchspan, setFetchspan] = useState(DEFAULT_DATE_RANGE)
@@ -348,52 +354,37 @@ function BazaarPriceGraph(props: Props) {
         // A candle closes on the next historic price only: the live point is a separate observation and
         // must not rewrite the close of the last aggregated candle.
         prices.forEach((item, i) => {
+            const nextBuy = history[i + 1]?.buyData.price
+            const nextSell = history[i + 1]?.sellData.price
+            const buyClose = nextBuy > 0 ? nextBuy : item.buyData.price
+            const sellClose = nextSell > 0 ? nextSell : item.sellData.price
+
             chartOptionsPrimary.series[0].data.push(
                 fetchspan === DateRange.HOUR
-                    ? item.buyData.price
-                    : [item.buyData.price, history[i + 1] ? history[i + 1].buyData.price : item.buyData.price, item.buyData.min, item.buyData.max]
+                    ? toChartValue(item.buyData.price)
+                    : toCandle(item.buyData.price, buyClose, item.buyData.min, item.buyData.max)
             )
+            const sellCandle = fetchspan === DateRange.HOUR
+                ? toChartValue(item.sellData.price)
+                : toCandle(item.sellData.price, sellClose, item.sellData.min, item.sellData.max)
+
+            chartOptionsPrimary.series[1].data.push(toChartValue(item.buyData.min))
+            chartOptionsPrimary.series[2].data.push(toChartValue(item.buyData.max))
+            chartOptionsPrimary.series[3].data.push(toChartValue(item.buyData.volume))
+            chartOptionsPrimary.series[4].data.push(toChartValue(item.buyData.moving))
 
             if (graphType === GRAPH_TYPE.SINGLE) {
-                chartOptionsPrimary.series[1].data.push(item.buyData.min?.toFixed(2))
-                chartOptionsPrimary.series[2].data.push(item.buyData.max?.toFixed(2))
-                chartOptionsPrimary.series[3].data.push(item.buyData.volume?.toFixed(2))
-                chartOptionsPrimary.series[4].data.push(item.buyData.moving?.toFixed(2))
-
-                chartOptionsPrimary.series[5].data.push(
-                    fetchspan === DateRange.HOUR
-                        ? item.sellData.price?.toFixed(2)
-                        : [
-                            item.sellData.price?.toFixed(2),
-                            history[i + 1] ? history[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
-                            item.sellData.min?.toFixed(2),
-                            item.sellData.max?.toFixed(2)
-                        ]
-                )
-                chartOptionsPrimary.series[6].data.push(item.sellData.min?.toFixed(2))
-                chartOptionsPrimary.series[7].data.push(item.sellData.max?.toFixed(2))
-                chartOptionsPrimary.series[8].data.push(item.sellData.volume?.toFixed(2))
-                chartOptionsPrimary.series[9].data.push(item.sellData.moving?.toFixed(2))
+                chartOptionsPrimary.series[5].data.push(sellCandle)
+                chartOptionsPrimary.series[6].data.push(toChartValue(item.sellData.min))
+                chartOptionsPrimary.series[7].data.push(toChartValue(item.sellData.max))
+                chartOptionsPrimary.series[8].data.push(toChartValue(item.sellData.volume))
+                chartOptionsPrimary.series[9].data.push(toChartValue(item.sellData.moving))
             } else {
-                chartOptionsPrimary.series[1].data.push(item.buyData.min?.toFixed(2))
-                chartOptionsPrimary.series[2].data.push(item.buyData.max?.toFixed(2))
-                chartOptionsPrimary.series[3].data.push(item.buyData.volume?.toFixed(2))
-                chartOptionsPrimary.series[4].data.push(item.buyData.moving?.toFixed(2))
-
-                chartOptionsSecondary.series[0].data.push(
-                    fetchspan === DateRange.HOUR
-                        ? item.sellData.price?.toFixed(2)
-                        : [
-                            item.sellData.price?.toFixed(2),
-                            history[i + 1] ? history[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
-                            item.sellData.min?.toFixed(2),
-                            item.sellData.max?.toFixed(2)
-                        ]
-                )
-                chartOptionsSecondary.series[1].data.push(item.sellData.min?.toFixed(2))
-                chartOptionsSecondary.series[2].data.push(item.sellData.max?.toFixed(2))
-                chartOptionsSecondary.series[3].data.push(item.sellData.volume?.toFixed(2))
-                chartOptionsSecondary.series[4].data.push(item.sellData.moving?.toFixed(2))
+                chartOptionsSecondary.series[0].data.push(sellCandle)
+                chartOptionsSecondary.series[1].data.push(toChartValue(item.sellData.min))
+                chartOptionsSecondary.series[2].data.push(toChartValue(item.sellData.max))
+                chartOptionsSecondary.series[3].data.push(toChartValue(item.sellData.volume))
+                chartOptionsSecondary.series[4].data.push(toChartValue(item.sellData.moving))
             }
         })
 
@@ -407,8 +398,8 @@ function BazaarPriceGraph(props: Props) {
         setChartOptionsPrimary(chartOptionsPrimary)
         setChartOptionsSecondary(chartOptionsSecondary)
         // The averages describe the loaded history; the live point would only make them drift on every poll.
-        setAvgBuyPrice(history.reduce((sum, item) => sum + item.buyData.price, 0) / history.length)
-        setAvgSellPrice(history.reduce((sum, item) => sum + item.sellData.price, 0) / history.length)
+        setAvgBuyPrice(getAveragePositive(history.map(item => item.buyData.price)))
+        setAvgSellPrice(getAveragePositive(history.map(item => item.sellData.price)))
     }
 
     function setXAxisData(chartOptions, prices: BazaarPrice[]) {

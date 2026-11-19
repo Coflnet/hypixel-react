@@ -9,6 +9,7 @@ import { getClientErrorLog, recordClientError } from '../utils/ClientErrorUtils'
 import { errorJsonReplacer, serializeError } from '../utils/ErrorDiagnostics'
 import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { enchantmentAndReforgeCompare, toVariantItemTag } from '../utils/Formatter'
+import { filterBazaarPriceOutliers } from '../utils/BazaarPriceFilter'
 import {
     parseAccountInfo,
     parseArchivedAuctions,
@@ -439,25 +440,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
         return getApiBazaarItemTagHistory(itemTag, { start: startDateIso, end: endDateIso })
             .then(response => {
-                let data = (response.data as any).filter(d => d.sell !== undefined && d.buy !== undefined)
-
-                let buySort = [...data].sort((a, b) => a.buy - b.buy)
-                let sellSort = [...data].sort((a, b) => a.sell - b.sell)
-
-                let medianBuy = buySort.length > 0 ? buySort[Math.floor(buySort.length / 2)].buy : 0
-                let medianSell = sellSort.length > 0 ? sellSort[Math.floor(sellSort.length / 2)].sell : 0
-
-                let bazaarData: BazaarPrice[] = data
+                let bazaarData: BazaarPrice[] = (response.data as any[])
                     .map(parseBazaarPrice)
                     .sort((a: BazaarPrice, b: BazaarPrice) => a.timestamp.getTime() - b.timestamp.getTime())
-                let normalizer = 8
-                return bazaarData.filter(
-                    b =>
-                        b.buyData.max < medianBuy * normalizer &&
-                        b.sellData.max < medianSell * normalizer &&
-                        b.buyData.min > medianBuy / normalizer &&
-                        b.sellData.min > medianSell / normalizer
-                )
+                return filterBazaarPriceOutliers(bazaarData)
             })
             .catch(error => {
                 apiErrorHandler(RequestType.BAZAAR_PRICES, error, {
