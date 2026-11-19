@@ -54,6 +54,80 @@ export interface AccountDeletionResult {
   retained?: string[] | null;
 }
 
+/**
+ * @nullable
+ */
+export type ActiveAuctionPreviewHighlights = {[key: string]: string | null} | null;
+
+export type Tier = typeof Tier[keyof typeof Tier];
+
+
+export const Tier = {
+  UNKNOWN: 'UNKNOWN',
+  COMMON: 'COMMON',
+  UNCOMMON: 'UNCOMMON',
+  RARE: 'RARE',
+  EPIC: 'EPIC',
+  LEGENDARY: 'LEGENDARY',
+  SPECIAL: 'SPECIAL',
+  VERY_SPECIAL: 'VERY_SPECIAL',
+  MYTHIC: 'MYTHIC',
+  DIVINE: 'DIVINE',
+  ULTIMATE: 'ULTIMATE',
+} as const;
+
+export interface ActiveAuctionPreview {
+  /** @nullable */
+  uuid?: string | null;
+  /** @nullable */
+  tag?: string | null;
+  /** @nullable */
+  itemName?: string | null;
+  tier: Tier;
+  bin: boolean;
+  startingBid: number;
+  highestBidAmount: number;
+  start: string;
+  end: string;
+  count: number;
+  /** @nullable */
+  auctioneerId?: string | null;
+  /** @nullable */
+  playerName?: string | null;
+  /** @nullable */
+  highlights?: ActiveAuctionPreviewHighlights;
+}
+
+/**
+ * @nullable
+ */
+export type ActiveAuctionQueryResultTagCounts = {[key: string]: number} | null;
+
+export interface ActiveQuerySuggestion {
+  /** @nullable */
+  kind?: string | null;
+  /** @nullable */
+  key?: string | null;
+  /** @nullable */
+  label?: string | null;
+  /** @nullable */
+  tags?: string[] | null;
+}
+
+export interface ActiveAuctionQueryResult {
+  /** @nullable */
+  items?: ActiveAuctionPreview[] | null;
+  totalCount: number;
+  /** @nullable */
+  tagCounts?: ActiveAuctionQueryResultTagCounts;
+  fromStore: boolean;
+  snapshotAt: string;
+  /** @nullable */
+  resolvedTags?: string[] | null;
+  /** @nullable */
+  suggestions?: ActiveQuerySuggestion[] | null;
+}
+
 export interface ActivePet {
   /** @nullable */
   name?: string | null;
@@ -396,6 +470,7 @@ export const EnchantmentType = {
   magmarizer: 'magmarizer',
   petalfall: 'petalfall',
   karma: 'karma',
+  looting_new: 'looting_new',
 } as const;
 
 export interface Enchantment {
@@ -406,7 +481,7 @@ export interface Enchantment {
 /**
  * @nullable
  */
-export type NbtDataData = {[key: string]:  | null} | null;
+export type NbtDataData = {[key: string]: unknown} | null;
 
 export interface NbtData {
   /** @nullable */
@@ -611,23 +686,6 @@ export const Category = {
   dyes: 'dyes',
 } as const;
 
-export type Tier = typeof Tier[keyof typeof Tier];
-
-
-export const Tier = {
-  UNKNOWN: 'UNKNOWN',
-  COMMON: 'COMMON',
-  UNCOMMON: 'UNCOMMON',
-  RARE: 'RARE',
-  EPIC: 'EPIC',
-  LEGENDARY: 'LEGENDARY',
-  SPECIAL: 'SPECIAL',
-  VERY_SPECIAL: 'VERY_SPECIAL',
-  MYTHIC: 'MYTHIC',
-  DIVINE: 'DIVINE',
-  ULTIMATE: 'ULTIMATE',
-} as const;
-
 export interface ApiSaveAuction {
   /** @nullable */
   flatNbt: ApiSaveAuctionFlatNbt;
@@ -771,6 +829,31 @@ export interface AuctionResult {
 }
 
 /**
+ * @nullable
+ */
+export type AutoDiscountPeriodAmounts = {[key: string]: number} | null;
+
+export interface AutoDiscount {
+  /** @nullable */
+  code?: string | null;
+  /** @nullable */
+  name?: string | null;
+  /** @nullable */
+  amountType?: string | null;
+  amount: number;
+  /** @nullable */
+  periodAmounts?: AutoDiscountPeriodAmounts;
+  /** @nullable */
+  duration?: string | null;
+  /** @nullable */
+  startsAt?: string | null;
+  /** @nullable */
+  expiresAt?: string | null;
+  /** @nullable */
+  providers?: string[] | null;
+}
+
+/**
  * Represents an autopet.
  */
 export interface Autopet {
@@ -815,6 +898,43 @@ export interface BagContents {
 export interface Banking {
   /** Gets or sets the balance. */
   balance: number;
+}
+
+/**
+ * @nullable
+ */
+export type BaseStatsReadingStats = {[key: string]: number} | null;
+
+/**
+ * @nullable
+ */
+export type BaseStatsReadingHeldStats = {[key: string]: number} | null;
+
+/**
+ * @nullable
+ */
+export type GearPetStats = {[key: string]: number} | null;
+
+export interface GearPet {
+  /** @nullable */
+  type?: string | null;
+  /** @nullable */
+  tier?: string | null;
+  level: number;
+  /** @nullable */
+  heldItem?: string | null;
+  /** @nullable */
+  stats?: GearPetStats;
+}
+
+export interface BaseStatsReading {
+  /** @nullable */
+  stats?: BaseStatsReadingStats;
+  at: string;
+  profileId: string;
+  /** @nullable */
+  heldStats?: BaseStatsReadingHeldStats;
+  pet?: GearPet;
 }
 
 export interface ProviderPricingOption {
@@ -868,6 +988,431 @@ export interface BazaarFlip {
   estimatedSellFillSeconds: number;
 }
 
+/**
+ * Account state the plan was computed with.
+ */
+export interface BazaarPlanAccountState {
+  /** True when open orders could not be read or only estimates are known. */
+  openOrdersEstimated: boolean;
+  /**
+     * Items with an open buy order.
+     * @nullable
+     */
+  openBuyItemTags?: string[] | null;
+  /**
+     * Items held through sell orders or unclaimed buys.
+     * @nullable
+     */
+  heldItemTags?: string[] | null;
+  /**
+     * Free bazaar order slots.
+     * @nullable
+     */
+  freeOrderSlots?: number | null;
+  /**
+     * Revision of the account state.
+     * @nullable
+     */
+  revision?: string | null;
+}
+
+/**
+ * Confidence that the full original quantity is bought and sold by the deadline.
+ */
+export interface BazaarPlanConfidence {
+  /**
+     * Identifier of the evaluated event.
+     * @nullable
+     */
+  eventId?: string | null;
+  /**
+     * Fraction between 0 and 1; null means unknown and is never a sentinel for 0 or 1.
+     * @nullable
+     */
+  probability?: number | null;
+  /**
+     * Lower confidence bound of the probability as fraction; null when unknown.
+     * @nullable
+     */
+  lowerBound?: number | null;
+  /** Confidence level the bound refers to. */
+  confidenceLevel: number;
+  /**
+     * Domain the evidence covers.
+     * @nullable
+     */
+  supportDomainId?: string | null;
+  /**
+     * Probability bar (fraction) the engine used to qualify the order; null when not reported.
+     * @nullable
+     */
+  qualifyThreshold?: number | null;
+  /**
+     * Where the evidence comes from: "simulation" or "prospective"; null when not reported.
+     * @nullable
+     */
+  evidenceSource?: string | null;
+  /**
+     * Identifier of the model.
+     * @nullable
+     */
+  modelId?: string | null;
+  /**
+     * Identifier of the calibration.
+     * @nullable
+     */
+  calibrationId?: string | null;
+  /**
+     * Qualified, NotQualified, SimulationOnly, InsufficientEvidence, UnsupportedDomain, StaleInputs, Unavailable or NotApplicable.
+     * @nullable
+     */
+  status?: string | null;
+  /**
+     * Machine readable reasons for the status.
+     * @nullable
+     */
+  reasonCodes?: string[] | null;
+}
+
+export type BazaarPlanMode = typeof BazaarPlanMode[keyof typeof BazaarPlanMode];
+
+
+export const BazaarPlanMode = {
+  NUMBER_0: 0,
+  NUMBER_1: 1,
+  NUMBER_2: 2,
+} as const;
+
+/**
+ * One planned order, mapped one to one from the engine recommendation.
+ */
+export interface BazaarPlanOrder {
+  /**
+     * Tag of the item.
+     * @nullable
+     */
+  itemTag?: string | null;
+  /**
+     * Display name of the item.
+     * @nullable
+     */
+  itemName?: string | null;
+  /** True for a sell offer. */
+  isSell: boolean;
+  /** Price per unit of this order. */
+  pricePerUnit: number;
+  /** Amount of this order. */
+  amount: number;
+  /**
+     * Active or Investing.
+     * @nullable
+     */
+  mode?: string | null;
+  /** Quantity of the complete buy and sell cycle. */
+  originalQuantity: number;
+  /** Planned buy price per unit. */
+  entryPrice: number;
+  /**
+     * Planned sell price per unit.
+     * @nullable
+     */
+  exitPrice?: number | null;
+  /** Sell tax fraction used for the profit. */
+  sellTaxRate: number;
+  /**
+     * Where the tax rate comes from, AccountAttested or Assumption.
+     * @nullable
+     */
+  taxSource?: string | null;
+  /** Estimated profit after tax in coins. */
+  estimatedNetProfit: number;
+  /** Hours the capital stays locked at most. */
+  capitalLockHorizonHours: number;
+  /**
+     * Rule that fixes the deadline.
+     * @nullable
+     */
+  deadlineSemantics?: string | null;
+  confidence?: BazaarPlanConfidence;
+}
+
+/**
+ * Budget and slot accounting of a plan.
+ */
+export interface BazaarPlanPortfolio {
+  /** Budget the engine planned with, after open buy orders were deducted. */
+  budgetCoins: number;
+  /** Coins committed by the planned orders. */
+  spentCoins: number;
+  /** Budget that stays unspent. */
+  remainingBudgetCoins: number;
+  /**
+     * Coins held back by the caller.
+     * @nullable
+     */
+  reserveCoins?: number | null;
+  /**
+     * Who owns the reserve.
+     * @nullable
+     */
+  reserveOwner?: string | null;
+  /** Free order slots before the plan. */
+  freeSlotsBefore: number;
+  /** Free order slots after the plan. */
+  freeSlotsAfter: number;
+  /**
+     * Free inventory slots before the plan, null when unknown.
+     * @nullable
+     */
+  freeInventorySlotsBefore?: number | null;
+  /**
+     * Free inventory slots after the plan, null when unknown.
+     * @nullable
+     */
+  freeInventorySlotsAfter?: number | null;
+  /** Coins already bound in held items. */
+  heldExposureCoins: number;
+  /**
+     * Items left out because they are already held, ordered or pending.
+     * @nullable
+     */
+  suppressedItemTags?: string[] | null;
+}
+
+/**
+ * Identity and validity of the quote an allocation was computed from.
+ */
+export interface BazaarPlanQuote {
+  /**
+     * Identifier of the quote.
+     * @nullable
+     */
+  quoteId?: string | null;
+  /**
+     * Identifier of the request the quote answers.
+     * @nullable
+     */
+  requestId?: string | null;
+  /**
+     * Identifier of the market snapshot the plan was computed from.
+     * @nullable
+     */
+  marketFrameId?: string | null;
+  /** When the plan was computed. */
+  generatedAt: string;
+  /** Until when the plan may be acted on. */
+  expiresAt: string;
+  /**
+     * Identifier of the allocation policy.
+     * @nullable
+     */
+  policyId?: string | null;
+  /** Version of the allocation policy. */
+  policyVersion: number;
+  /**
+     * Version of the fill model, null when none was used.
+     * @nullable
+     */
+  modelVersion?: string | null;
+  /**
+     * Version of the planning engine.
+     * @nullable
+     */
+  engineVersion?: string | null;
+  /**
+     * Rule that decided which orders were admitted.
+     * @nullable
+     */
+  admissionRule?: string | null;
+}
+
+/**
+ * Optional overrides of the personal bazaar plan; every field has a smart default.
+ */
+export interface BazaarPlanRequest {
+  /**
+     * Requested modes "active" and/or "investing" (case-insensitive); defaults to active only.
+     * @nullable
+     */
+  modes?: string[] | null;
+  /**
+     * Hold horizon for investing in hours, required when investing is requested, greater than 0 and at most 48. Never clamped.
+     * @nullable
+     */
+  investingHorizonHours?: number | null;
+  /**
+     * Hold horizon of active orders in hours, defaults to 1.
+     * @nullable
+     */
+  activeHorizonHours?: number | null;
+  /**
+     * Coins to plan with; defaults to two thirds of the purse of the verified account.
+     * @nullable
+     */
+  budgetCoins?: number | null;
+  /**
+     * Attested sell tax as fraction (for example 0.0125); the engine assumes a rate when omitted.
+     * @nullable
+     */
+  sellTaxRate?: number | null;
+}
+
+/**
+ * A personal bazaar plan.
+ */
+export interface BazaarPlanResponse {
+  quote?: BazaarPlanQuote;
+  /**
+     * Overall engine status.
+     * @nullable
+     */
+  status?: string | null;
+  /**
+     * Investing status, for example EmptyQualified or Unavailable; null when investing was not requested.
+     * @nullable
+     */
+  investingStatus?: string | null;
+  /**
+     * Reasons for the investing status.
+     * @nullable
+     */
+  investingReasonCodes?: string[] | null;
+  portfolio?: BazaarPlanPortfolio;
+  /**
+     * Planned orders.
+     * @nullable
+     */
+  orders?: BazaarPlanOrder[] | null;
+  /**
+     * Advisory investing candidates that are not part of the plan; empty for free users.
+     * @nullable
+     */
+  unqualifiedInvestingCandidates?: BazaarPlanOrder[] | null;
+  /**
+     * Canonical modes that were planned.
+     * @nullable
+     */
+  modes?: string[] | null;
+  /**
+     * Investing horizon that was used.
+     * @nullable
+     */
+  investingHorizonHours?: number | null;
+  /** Budget before open buy orders were deducted. */
+  budgetCoins: number;
+  /**
+     * "request" or "purse-estimate".
+     * @nullable
+     */
+  budgetSource?: string | null;
+  accountState?: BazaarPlanAccountState;
+  /**
+     * Tier of the user.
+     * @nullable
+     */
+  tier?: string | null;
+  /** Number of orders only visible with Starter Premium. */
+  hiddenCount: number;
+  /**
+     * Where to get Starter Premium, set when orders are hidden.
+     * @nullable
+     */
+  premiumUrl?: string | null;
+  /**
+     * Non fatal problems such as orders_unavailable.
+     * @nullable
+     */
+  warnings?: string[] | null;
+}
+
+/**
+ * Request to re-plan and track the buy order of one item in game, without a quote of this service.
+ */
+export interface BazaarPlanTrackItemRequest {
+  /**
+     * Tag of the item to track, required.
+     * @nullable
+     */
+  itemTag?: string | null;
+  /**
+     * Requested modes, same as for the plan.
+     * @nullable
+     */
+  modes?: string[] | null;
+  /**
+     * Investing horizon in hours, same rules as for the plan.
+     * @nullable
+     */
+  investingHorizonHours?: number | null;
+  /**
+     * Coins to plan with, same rules as for the plan.
+     * @nullable
+     */
+  budgetCoins?: number | null;
+  /**
+     * Attested sell tax fraction.
+     * @nullable
+     */
+  sellTaxRate?: number | null;
+  /**
+     * Entry price the caller saw; a different fresh entry is flagged in the response.
+     * @nullable
+     */
+  expectedEntryPrice?: number | null;
+}
+
+/**
+ * Terms an item was tracked with.
+ */
+export interface BazaarPlanTrackItemResponse {
+  /**
+     * Tag of the item.
+     * @nullable
+     */
+  itemTag?: string | null;
+  /**
+     * Display name of the item.
+     * @nullable
+     */
+  itemName?: string | null;
+  /** Quantity of the tracked cycle. */
+  originalQuantity: number;
+  /** Fresh buy price per unit. */
+  entryPrice: number;
+  /**
+     * Fresh sell price per unit.
+     * @nullable
+     */
+  exitPrice?: number | null;
+  /** Estimated profit after tax in coins. */
+  estimatedNetProfit: number;
+  /** Hours the capital stays locked at most. */
+  capitalLockHorizonHours: number;
+  /**
+     * Quote the tracked terms come from.
+     * @nullable
+     */
+  quoteId?: string | null;
+  /** True when the fresh entry price differs from the expected one by more than max(0.1, 2%). */
+  priceChanged: boolean;
+}
+
+/**
+ * Request to track one order of a previously returned plan in game.
+ */
+export interface BazaarPlanTrackRequest {
+  /**
+     * Identifier of the quote the order was returned with.
+     * @nullable
+     */
+  quoteId?: string | null;
+  /**
+     * Tag of the planned order to track.
+     * @nullable
+     */
+  itemTag?: string | null;
+}
+
 export interface Fill {
   /** @nullable */
   playerName?: string | null;
@@ -894,6 +1439,9 @@ export interface BazaarPlayerOrder {
   amount: number;
   pricePerUnit: number;
   created: string;
+  pendingObservedClaims: number;
+  /** @nullable */
+  closedAt?: string | null;
   /** @nullable */
   customers?: Fill[] | null;
 }
@@ -1141,6 +1689,17 @@ export interface Cost {
   amount: number;
   /** @nullable */
   itemTag?: string | null;
+}
+
+/**
+ * The country of the caller
+ */
+export interface CountryResponse {
+  /**
+     * Two letter upper case ISO country, null when unknown
+     * @nullable
+     */
+  country?: string | null;
 }
 
 /**
@@ -1407,7 +1966,6 @@ export interface DiscordMessage {
   attachments?: DiscordMessageAttachments;
   /** @nullable */
   authorName?: string | null;
-  authorId: number;
   updateAt: string;
 }
 
@@ -1453,25 +2011,41 @@ export const ExportStatus = {
   InProgress: 'InProgress',
   Done: 'Done',
   Failed: 'Failed',
-  Cancelled: 'Cancelled',
+  Aborted: 'Aborted',
+  Deleted: 'Deleted',
 } as const;
 
 export interface ExportRequest {
   flags?: ExportFlags;
   status?: ExportStatus;
+  jobId: string;
   /** @nullable */
   byEmail?: string | null;
-  /** @nullable */
-  discordWebhookUrl?: string | null;
   requestedAt: string;
   /** @nullable */
   itemTag?: string | null;
+  start: string;
+  end: string;
   /** @nullable */
   filters?: ExportRequestFilters;
   /** @nullable */
+  users?: string[] | null;
+  /** @nullable */
   columns?: string[] | null;
   /** @nullable */
-  s3Url?: string | null;
+  s3Key?: string | null;
+  /** @nullable */
+  signedUrl?: string | null;
+  /** @nullable */
+  signedUrlExpiresAt?: string | null;
+  rowCount: number;
+  abortRequested: boolean;
+  /** @nullable */
+  completedAt?: string | null;
+  /** @nullable */
+  error?: string | null;
+  /** @nullable */
+  discordWebhookUrl?: string | null;
 }
 
 /**
@@ -1506,6 +2080,26 @@ export type ExtractedInfoShardCounts = {[key: string]: number} | null;
  * @nullable
  */
 export type ExtractedInfoAttributeLevel = {[key: string]: number} | null;
+
+/**
+ * @nullable
+ */
+export type ExtractedInfoPendingPurchaseDiscounts = {[key: string]: number} | null;
+
+/**
+ * @nullable
+ */
+export type ExtractedInfoPlayerStats = {[key: string]: number} | null;
+
+/**
+ * @nullable
+ */
+export type ExtractedInfoPlayerStatSetAt = {[key: string]: string} | null;
+
+/**
+ * @nullable
+ */
+export type ExtractedInfoLiveStats = {[key: string]: number} | null;
 
 /**
  * @nullable
@@ -1582,7 +2176,111 @@ export interface PlayerElectionVote {
 /**
  * @nullable
  */
+export type GearPieceEnchants = {[key: string]: number} | null;
+
+/**
+ * @nullable
+ */
+export type GearPieceGems = {[key: string]: string} | null;
+
+/**
+ * @nullable
+ */
+export type GearPieceParts = {[key: string]: string} | null;
+
+/**
+ * @nullable
+ */
+export type GearPieceCounters = {[key: string]: number} | null;
+
+/**
+ * @nullable
+ */
+export type GearPieceApplied = {[key: string]: number} | null;
+
+/**
+ * @nullable
+ */
+export type GearPieceStats = {[key: string]: number} | null;
+
+export interface GearPiece {
+  /** @nullable */
+  tag?: string | null;
+  /** @nullable */
+  rarity?: string | null;
+  /** @nullable */
+  reforge?: string | null;
+  /** @nullable */
+  stars?: number | null;
+  /** @nullable */
+  hotPotatoCount?: number | null;
+  /** @nullable */
+  recombobulated?: boolean | null;
+  /** @nullable */
+  enchants?: GearPieceEnchants;
+  /** @nullable */
+  gems?: GearPieceGems;
+  /** @nullable */
+  parts?: GearPieceParts;
+  /** @nullable */
+  counters?: GearPieceCounters;
+  /** @nullable */
+  itemType?: string | null;
+  /** @nullable */
+  applied?: GearPieceApplied;
+  /** @nullable */
+  stats?: GearPieceStats;
+}
+
+/**
+ * @nullable
+ */
+export type GearSnapshotSlots = {[key: string]: GearPiece} | null;
+
+export interface GearSnapshot {
+  /** @nullable */
+  slots?: GearSnapshotSlots;
+  pet?: GearPet;
+  /** @nullable */
+  toolEvidence?: string | null;
+  armorAt: string;
+  equipmentAt: string;
+  toolAt: string;
+  petAt: string;
+  /** @nullable */
+  bait?: string[] | null;
+  baitAt: string;
+  /** @nullable */
+  heldKey?: string | null;
+  offhand?: GearPiece;
+  /** @nullable */
+  toolCandidates?: GearPiece[] | null;
+}
+
+/**
+ * @nullable
+ */
 export type TaskSessionItems = {[key: string]: number} | null;
+
+/**
+ * @nullable
+ */
+export type TaskSessionZoneSeconds = {[key: string]: number} | null;
+
+/**
+ * @nullable
+ */
+export type TaskSessionZoneValue = {[key: string]: number} | null;
+
+/**
+ * @nullable
+ */
+export type TaskSessionStatSums = {[key: string]: number} | null;
+
+/**
+ * @nullable
+ */
+export type TaskSessionStatSamples = {[key: string]: number} | null;
 
 export interface TaskSession {
   /** @nullable */
@@ -1595,6 +2293,53 @@ export interface TaskSession {
   location?: string | null;
   /** @nullable */
   items?: TaskSessionItems;
+  /** @nullable */
+  zoneSeconds?: TaskSessionZoneSeconds;
+  /** @nullable */
+  zoneValue?: TaskSessionZoneValue;
+  gear?: GearSnapshot;
+  /** @nullable */
+  gearFingerprint?: string | null;
+  gearChanged: boolean;
+  /** @nullable */
+  statSums?: TaskSessionStatSums;
+  /** @nullable */
+  statSamples?: TaskSessionStatSamples;
+  lastStatSampleAt: string;
+  gearSince: string;
+}
+
+/**
+ * @nullable
+ */
+export type PendingDungeonChestChargeEssences = {[key: string]: number} | null;
+
+export interface PendingDungeonChestCharge {
+  /** @nullable */
+  chestType?: string | null;
+  costCoins: number;
+  purseAtOpen: number;
+  seenAt: string;
+  /** @nullable */
+  floor?: string | null;
+  /** @nullable */
+  essences?: PendingDungeonChestChargeEssences;
+}
+
+export interface NucleusRunState {
+  start: string;
+  /** @nullable */
+  profile?: string | null;
+  lastEvidenceAt: string;
+  crystalsFound: number;
+  claimAt: string;
+  claimedRunStart: string;
+  /** @nullable */
+  held?: TaskSession[] | null;
+  claimPending: boolean;
+  claimProcessedAt: string;
+  bundleSeen: boolean;
+  pendingClaims: number;
 }
 
 export interface KatStatus {
@@ -1643,6 +2388,69 @@ export interface ExtractedInfo {
   currentSession?: TaskSession;
   purse: number;
   bits: number;
+  /** @nullable */
+  currentIsland?: string | null;
+  currentIslandAt: string;
+  currentLocationSince: string;
+  currentLocationSeenAt: string;
+  /** @nullable */
+  lastDungeonFloor?: string | null;
+  lastDungeonFloorAt: string;
+  /** @nullable */
+  lastKuudraTier?: string | null;
+  lastKuudraTierAt: string;
+  kuudraPendingRunSeconds: number;
+  pendingDungeonChestCharge?: PendingDungeonChestCharge;
+  lastTransferViewAt: string;
+  lastCraftViewAt: string;
+  /** @nullable */
+  lastCraftIngredients?: string[] | null;
+  periodSplitPending: boolean;
+  /** @nullable */
+  lastLateRewardTask?: string | null;
+  lastLateRewardTaskAt: string;
+  /** @nullable */
+  lastLateRewardTaskLocation?: string | null;
+  /** @nullable */
+  wornGearTags?: string[] | null;
+  lastDungeonRunCompletedAt: string;
+  lastKuudraRunCompletedAt: string;
+  /** @nullable */
+  unrecordedRunKey?: string | null;
+  unrecordedRunSeconds: number;
+  unrecordedRunEndedAt: string;
+  /** @nullable */
+  bazaarProductTag?: string | null;
+  bazaarProductSeenAt: string;
+  bazaarGuardSkipped: number;
+  /** @nullable */
+  pendingPurchaseDiscounts?: ExtractedInfoPendingPurchaseDiscounts;
+  pendingPurchaseDiscountAt: string;
+  safariInventorySeen: boolean;
+  onAlphaNetwork: boolean;
+  onAlphaNetworkSeenAt: string;
+  /** @nullable */
+  playerStats?: ExtractedInfoPlayerStats;
+  playerStatsAt: string;
+  /** @nullable */
+  playerStatSetAt?: ExtractedInfoPlayerStatSetAt;
+  copper: number;
+  copperSeenAt: string;
+  currentProfileId: string;
+  /** @nullable */
+  currentProfileName?: string | null;
+  currentGear?: GearSnapshot;
+  /** @nullable */
+  liveStats?: ExtractedInfoLiveStats;
+  liveStatsAt: string;
+  baseStats?: BaseStatsReading;
+  livePet?: GearPet;
+  gemstonePowder: number;
+  glacitePowder: number;
+  /** @nullable */
+  powderProfile?: string | null;
+  powderSeenAt: string;
+  nucleusRun?: NucleusRunState;
   boosterCookieExpires: string;
   kuudraStart: string;
   katStatus?: KatStatus;
@@ -1844,6 +2652,9 @@ export interface ModSettings {
   useSellerProfileButton: boolean;
   /** @nullable */
   hotkeys: ModSettingsHotkeys;
+  bazaarMode: BazaarPlanMode;
+  bazaarHorizonHours: number;
+  bazaarBudget: number;
 }
 
 export interface FlipSettings {
@@ -1897,6 +2708,7 @@ export interface Ingredient {
   craftCost: number;
   /** @nullable */
   type?: string | null;
+  forgeDuration: number;
   npcCapacity: number;
   npcUnitPrice: number;
   buyOrderCapacity: number;
@@ -2084,15 +2896,6 @@ export interface InventoryBatchLookup {
 }
 
 /**
- * Nbt formatted as json like mineflayer does it
- */
-export type InventoryDataJsonNbt = typeof InventoryDataJsonNbt[keyof typeof InventoryDataJsonNbt] | null;
-
-
-export const InventoryDataJsonNbt = {
-} as const;
-
-/**
  * Representation of an inventory
  */
 export interface InventoryData {
@@ -2108,7 +2911,7 @@ export interface InventoryData {
   fullInventoryNbt: string | null;
   position: BlockPos;
   /** Nbt formatted as json like mineflayer does it */
-  jsonNbt: InventoryDataJsonNbt;
+  jsonNbt: unknown;
   /**
      * Id of the sender to identify and or contact
      * @nullable
@@ -2119,16 +2922,12 @@ export interface InventoryData {
      * @nullable
      */
   server: string | null;
+  /**
+     * Optional index into the slot list of Coflnet.Sky.Api.Models.Mod.InventoryData.FullInventoryNbt of the item the player holds, sent by newer mods
+     * @nullable
+     */
+  heldSlot: number | null;
 }
-
-/**
- * Nbt formatted as json like mineflayer does it
- */
-export type InventoryDataWithSettingsJsonNbt = typeof InventoryDataWithSettingsJsonNbt[keyof typeof InventoryDataWithSettingsJsonNbt] | null;
-
-
-export const InventoryDataWithSettingsJsonNbt = {
-} as const;
 
 /**
  * Representation of an inventory with settings
@@ -2146,7 +2945,7 @@ export interface InventoryDataWithSettings {
   fullInventoryNbt: string | null;
   position: BlockPos;
   /** Nbt formatted as json like mineflayer does it */
-  jsonNbt: InventoryDataWithSettingsJsonNbt;
+  jsonNbt: unknown;
   /**
      * Id of the sender to identify and or contact
      * @nullable
@@ -2157,9 +2956,16 @@ export interface InventoryDataWithSettings {
      * @nullable
      */
   server: string | null;
+  /**
+     * Optional index into the slot list of Coflnet.Sky.Api.Models.Mod.InventoryData.FullInventoryNbt of the item the player holds, sent by newer mods
+     * @nullable
+     */
+  heldSlot: number | null;
   settings?: DescriptionSetting;
   /** Incremental version of the client library to know supported features */
   version: number;
+  /** Restores goal HUD and command guidance after a backend reconnect. */
+  forceGoalRefresh: boolean;
 }
 
 export type ItemCategory = typeof ItemCategory[keyof typeof ItemCategory];
@@ -2649,7 +3455,7 @@ export interface Rift {
  * Gets or sets the extra.
  * @nullable
  */
-export type PetExtra = {[key: string]:  | null} | null;
+export type PetExtra = {[key: string]: unknown} | null;
 
 /**
  * Gets or sets the milestone.
@@ -3199,6 +4005,15 @@ export interface PremiumSubscription {
   renewsAt: string;
   /** Gets or sets the created at. */
   createdAt: string;
+  /**
+     * Payment provider that bills this subscription (lemonsqueezy, stripe, paypal).
+     * @nullable
+     */
+  providerSlug?: string | null;
+  /** Whether a cancelled subscription can be reactivated; false for example for PayPal. */
+  canResume: boolean;
+  /** Whether the plan can be switched to another tier. */
+  canChangePlan: boolean;
 }
 
 /**
@@ -3381,6 +4196,705 @@ export interface Profile {
   created_at?: number | null;
 }
 
+/**
+ * An auction to buy right away
+ */
+export interface PublicDirectPurchase {
+  /** BIN price */
+  price: number;
+  /**
+     * Auction uuid, 32 hex characters
+     * @nullable
+     */
+  auctionUuid?: string | null;
+  /**
+     * In game command that opens the auction, eg. /viewauction <uuid>
+     * @nullable
+     */
+  command?: string | null;
+}
+
+/**
+ * One upgrade to apply to a base item
+ */
+export interface PublicAcquisitionUpgrade {
+  /**
+     * enchant, stars, hotPotato, recombobulator, reforge, gem, gemSlot, part, applied, petItem or unsupported
+     * @nullable
+     */
+  kind?: string | null;
+  /**
+     * Enchant name, gem slot, part key or modifier key
+     * @nullable
+     */
+  name?: string | null;
+  /**
+     * Level on the base
+     * @nullable
+     */
+  fromLevel?: number | null;
+  /**
+     * Target level
+     * @nullable
+     */
+  toLevel?: number | null;
+  /**
+     * Item to buy, null when unknown
+     * @nullable
+     */
+  itemTag?: string | null;
+  /** How many of the item */
+  amount: number;
+  /** Coins for this upgrade, 0 when not priced */
+  cost: number;
+  /** False when no price was found */
+  priced: boolean;
+}
+
+/**
+ * An earned modifier a base item lacks
+ */
+export interface PublicGrindRequirement {
+  /**
+     * counter, enchant or petLevel
+     * @nullable
+     */
+  kind?: string | null;
+  /**
+     * Counter key, enchant name or pet type
+     * @nullable
+     */
+  name?: string | null;
+  /** Value on the base */
+  have: number;
+  /** Value the setup has */
+  need: number;
+  /** How much is missing */
+  deficit: number;
+}
+
+/**
+ * The cheapest item to start from and what to apply to it
+ */
+export interface PublicCheapestBase {
+  /**
+     * Auction of the base item, null when it is a clean item at its clean price
+     * @nullable
+     */
+  auctionUuid?: string | null;
+  /**
+     * In game command that opens the base auction, null without an auction
+     * @nullable
+     */
+  command?: string | null;
+  /** Price of the base item */
+  basePrice: number;
+  /**
+     * Upgrades to buy and apply
+     * @nullable
+     */
+  upgrades?: PublicAcquisitionUpgrade[] | null;
+  /** Base price plus the priced upgrades */
+  total: number;
+  /**
+     * Earned modifiers the base lacks, they have to be ground
+     * @nullable
+     */
+  grindRequired?: PublicGrindRequirement[] | null;
+  /** True when an upgrade has no price, the total is then too low */
+  incomplete: boolean;
+}
+
+/**
+ * How to get a measured item: buy one that already matches, or buy the cheapest base and upgrade it
+ */
+export interface PublicAcquisition {
+  /**
+     * Coins the setup cost counts for this item, null when no price is known
+     * @nullable
+     */
+  cost?: number | null;
+  /**
+     * Where Coflnet.Sky.Api.Models.Tasks.PublicAcquisition.Cost comes from: direct, base or market (recent sales, when nothing is listed)
+     * @nullable
+     */
+  costSource?: string | null;
+  direct?: PublicDirectPurchase;
+  /**
+     * Why Coflnet.Sky.Api.Models.Tasks.PublicAcquisition.Direct is null, eg. no_matching_listing
+     * @nullable
+     */
+  directUnavailableReason?: string | null;
+  cheapestBase?: PublicCheapestBase;
+  /**
+     * Why Coflnet.Sky.Api.Models.Tasks.PublicAcquisition.CheapestBase is null
+     * @nullable
+     */
+  baseUnavailableReason?: string | null;
+}
+
+/**
+ * One changed part of a setup, eg. tool.enchants.harvesting from 5 to 6
+ */
+export interface PublicGearChange {
+  /**
+     * tool, armor, pet, equipment, tool.reforge, tool.enchants.<name>, ...
+     * @nullable
+     */
+  component?: string | null;
+  /**
+     * Null when the part was absent
+     * @nullable
+     */
+  from?: string | null;
+  /**
+     * Null when the part was removed
+     * @nullable
+     */
+  to?: string | null;
+}
+
+/**
+ * Enchant name to level
+ * @nullable
+ */
+export type PublicGearSpecEnchants = {[key: string]: number} | null;
+
+/**
+ * Gem slot to gem item tag
+ * @nullable
+ */
+export type PublicGearSpecGems = {[key: string]: string | null} | null;
+
+/**
+ * Part key (drill_part_engine, hook, ...) to the part item tag
+ * @nullable
+ */
+export type PublicGearSpecParts = {[key: string]: string | null} | null;
+
+/**
+ * Earned counter (eg. farmed_cultivating) to its value, can only be ground, not bought
+ * @nullable
+ */
+export type PublicGearSpecCounters = {[key: string]: number} | null;
+
+/**
+ * Applied item (eg. farming_for_dummies_count) to its count
+ * @nullable
+ */
+export type PublicGearSpecApplied = {[key: string]: number} | null;
+
+/**
+ * Rate relevant stats of the item, eg. Farming Fortune
+ * @nullable
+ */
+export type PublicGearSpecStats = {[key: string]: number} | null;
+
+/**
+ * Modifiers of a measured gear piece or pet, every level is a minimum
+ */
+export interface PublicGearSpec {
+  /**
+     * Rarity of the item (recombobulator included) or of the pet
+     * @nullable
+     */
+  rarity?: string | null;
+  /**
+     * Reforge, eg. blessed
+     * @nullable
+     */
+  reforge?: string | null;
+  /**
+     * Dungeon stars
+     * @nullable
+     */
+  stars?: number | null;
+  /**
+     * Hot and fuming potato books
+     * @nullable
+     */
+  hotPotatoCount?: number | null;
+  /**
+     * True when recombobulated
+     * @nullable
+     */
+  recombobulated?: boolean | null;
+  /**
+     * Enchant name to level
+     * @nullable
+     */
+  enchants?: PublicGearSpecEnchants;
+  /**
+     * Gem slot to gem item tag
+     * @nullable
+     */
+  gems?: PublicGearSpecGems;
+  /**
+     * Part key (drill_part_engine, hook, ...) to the part item tag
+     * @nullable
+     */
+  parts?: PublicGearSpecParts;
+  /**
+     * Earned counter (eg. farmed_cultivating) to its value, can only be ground, not bought
+     * @nullable
+     */
+  counters?: PublicGearSpecCounters;
+  /**
+     * Applied item (eg. farming_for_dummies_count) to its count
+     * @nullable
+     */
+  applied?: PublicGearSpecApplied;
+  /**
+     * Item type from the lore, eg. FARMING TOOL
+     * @nullable
+     */
+  itemType?: string | null;
+  /**
+     * Rate relevant stats of the item, eg. Farming Fortune
+     * @nullable
+     */
+  stats?: PublicGearSpecStats;
+  /**
+     * Pets only: minimum pet level
+     * @nullable
+     */
+  petLevel?: number | null;
+  /**
+     * Pets only: held pet item tag
+     * @nullable
+     */
+  heldItem?: string | null;
+}
+
+/**
+ * One gear piece of a setup
+ */
+export interface PublicGearItem {
+  /**
+     * Slot, eg. helmet or tool
+     * @nullable
+     */
+  slot?: string | null;
+  /**
+     * Item tag
+     * @nullable
+     */
+  itemTag?: string | null;
+  /**
+     * Display name
+     * @nullable
+     */
+  itemName?: string | null;
+  /**
+     * Why the piece is in the setup
+     * @nullable
+     */
+  reason?: string | null;
+  /** False for items that can't be traded, they are excluded from all costs */
+  tradeable: boolean;
+  /**
+     * Measured only, locked: null. False when too few players share the modifiers, the item is then priced without any
+     * @nullable
+     */
+  modifiersMeasured?: boolean | null;
+  /**
+     * Measured only, locked: null. Always false: there is no measured baseline whose items would be owned
+     * @nullable
+     */
+  owned?: boolean | null;
+  /**
+     * Measured only, locked: null. The score the piece adds, its share of the full set bonus included
+     * @nullable
+     */
+  scoreContribution?: number | null;
+  /**
+     * Measured only, locked: null. Median score percentile (0 .. 100) of the measured builds using the piece, null when unknown
+     * @nullable
+     */
+  usedAtScorePercentile?: number | null;
+  /**
+     * Measured only, locked: null. Distinct players seen with the piece, a minimum when Coflnet.Sky.Api.Models.Tasks.PublicGearItem.PlayersAtLeast is true
+     * @nullable
+     */
+  players?: number | null;
+  /**
+     * Measured only, locked: null. True below 5 players: Coflnet.Sky.Api.Models.Tasks.PublicGearItem.Players is a minimum ("2+")
+     * @nullable
+     */
+  playersAtLeast?: boolean | null;
+  /**
+     * Measured only, locked: null. Player count for display, eg. "2+" when rounded
+     * @nullable
+     */
+  playersLabel?: string | null;
+  spec?: PublicGearSpec;
+  acquisition?: PublicAcquisition;
+  /**
+     * Locked: null. Price to buy, null for untradeable items and for owned items of estimated setups
+     * @nullable
+     */
+  buyPrice?: number | null;
+  /**
+     * Measured only, locked: null. True when Coflnet.Sky.Api.Models.Tasks.PublicGearItem.BuyPrice is only a lower bound
+     * @nullable
+     */
+  priceLowerBound?: boolean | null;
+  /**
+     * Locked: null. What the item sells for after fees
+     * @nullable
+     */
+  resaleValue?: number | null;
+  /**
+     * Locked: null. Market stability label
+     * @nullable
+     */
+  stability?: string | null;
+  /**
+     * Locked: null. Coefficient of variation of the daily price over 30 days
+     * @nullable
+     */
+  cv?: number | null;
+  /**
+     * Locked: null. Relative price change per week
+     * @nullable
+     */
+  trendPerWeek?: number | null;
+  /**
+     * Locked: null. 10th percentile of the daily price
+     * @nullable
+     */
+  p10?: number | null;
+  /**
+     * Locked: null. Sales per day
+     * @nullable
+     */
+  volumePerDay?: number | null;
+}
+
+/**
+ * Details only, measured endgame only: median stats of the late game cohort's players, eg. Farming Fortune
+ * @nullable
+ */
+export type PublicGearSetupStatMedians = {[key: string]: number} | null;
+
+/**
+ * Median stats of the cohort's players, eg. Farming Fortune
+ * @nullable
+ */
+export type PublicLateGameStatMedians = {[key: string]: number} | null;
+
+/**
+ * Premium plus only, endgame only: the late game cohort, each player's best build from the 90th score percentile
+ * (widened down to at least two players, never below the 75th). Its rate is measured, the endgame's own rate is
+ * predicted for the endgame build's score.
+ */
+export interface PublicLateGame {
+  /** Gear score from which builds belong to the cohort */
+  scoreFrom: number;
+  /** True when the cohort had to be widened below the 90th percentile to reach two players */
+  widened: boolean;
+  /** Distinct players, a minimum when Coflnet.Sky.Api.Models.Tasks.PublicLateGame.PlayersAtLeast is true */
+  players: number;
+  /** True below 5 players: the numbers are rounded and Coflnet.Sky.Api.Models.Tasks.PublicLateGame.Players is a minimum ("2+") */
+  playersAtLeast: boolean;
+  /**
+     * Player count for display, eg. "2+" when rounded
+     * @nullable
+     */
+  playersLabel?: string | null;
+  /** Hours played, 2 significant digits (a band lower bound below 5 players) */
+  hours: number;
+  /** Median over the players of their common coins per hour */
+  commonCoinsPerHour: number;
+  /** Rare drop value per hour, pooled */
+  rareCoinsPerHour: number;
+  coinsPerHour: number;
+  /**
+     * 25th / 75th percentile of the players' common rates, null below 5 players
+     * @nullable
+     */
+  commonP25?: number | null;
+  /** @nullable */
+  commonP75?: number | null;
+  /**
+     * low, medium or high; always low below 5 players
+     * @nullable
+     */
+  confidence?: string | null;
+  /**
+     * Median stats of the cohort's players, eg. Farming Fortune
+     * @nullable
+     */
+  statMedians?: PublicLateGameStatMedians;
+}
+
+/**
+ * One gear setup
+ */
+export interface PublicGearSetup {
+  /** True when the numbers of this setup are withheld (mid and endgame on the public endpoint) */
+  locked: boolean;
+  /**
+     * Only set on the endgame placeholder: the tier needed to see this setup, premium_plus. The placeholder has nothing but locked, id, tier and this
+     * @nullable
+     */
+  requiredTier?: string | null;
+  /**
+     * Id of the setup within the task
+     * @nullable
+     */
+  id?: string | null;
+  /**
+     * Display name
+     * @nullable
+     */
+  name?: string | null;
+  /**
+     * Price tier, eg. budget, mid or endgame
+     * @nullable
+     */
+  tier?: string | null;
+  /**
+     * baseline, upgrade or reached
+     * @nullable
+     */
+  status?: string | null;
+  /**
+     * measured (from players using this gear) or estimate (modelled, shown where nothing is measured)
+     * @nullable
+     */
+  basis?: string | null;
+  /**
+     * low, medium or high; measured setups: locked: null, low below 5 players or when extrapolated, composed budget and mid at most medium
+     * @nullable
+     */
+  confidence?: string | null;
+  /**
+     * What the numbers assume
+     * @nullable
+     */
+  assumptions?: string[] | null;
+  /**
+     * https sources the setup is based on
+     * @nullable
+     */
+  sources?: string[] | null;
+  /**
+     * Slug of the task this setup unlocks, if any
+     * @nullable
+     */
+  unlocksTask?: string | null;
+  /**
+     * The gear pieces
+     * @nullable
+     */
+  items?: PublicGearItem[] | null;
+  /**
+     * Measured endgame only (its late game cohort), locked: null. Distinct players, a minimum when Coflnet.Sky.Api.Models.Tasks.PublicGearSetup.PlayersAtLeast is true; null for the composed budget and mid builds
+     * @nullable
+     */
+  players?: number | null;
+  /**
+     * Measured only, locked: null. True below 5 players: the rates are rounded and Coflnet.Sky.Api.Models.Tasks.PublicGearSetup.Players is a minimum ("2+")
+     * @nullable
+     */
+  playersAtLeast?: boolean | null;
+  /**
+     * Measured only, locked: null. Player count for display, eg. "2+" when rounded, else the exact count
+     * @nullable
+     */
+  playersLabel?: string | null;
+  /**
+     * Not filled for setups of the gear score model (kept for older clients). Number of play sessions
+     * @nullable
+     */
+  observations?: number | null;
+  /**
+     * Not filled for setups of the gear score model (kept for older clients). Play sessions for display
+     * @nullable
+     */
+  observationsLabel?: string | null;
+  /**
+     * Measured endgame only (its late game cohort), locked: null. Hours played, 2 significant digits when rounded
+     * @nullable
+     */
+  hours?: number | null;
+  /**
+     * Measured only, locked: null. 25th percentile of the players' common coins per hour, null below 5 players
+     * @nullable
+     */
+  commonP25?: number | null;
+  /**
+     * Measured only, locked: null. 75th percentile of the players' common coins per hour, null below 5 players
+     * @nullable
+     */
+  commonP75?: number | null;
+  /**
+     * Details only, measured endgame only: median stats of the late game cohort's players, eg. Farming Fortune
+     * @nullable
+     */
+  statMedians?: PublicGearSetupStatMedians;
+  /**
+     * Locked: null. Coins per hour with this setup
+     * @nullable
+     */
+  coinsPerHour?: number | null;
+  /**
+     * Locked: null. Coins per hour gained over the baseline
+     * @nullable
+     */
+  deltaCoinsPerHour?: number | null;
+  /**
+     * Locked: null. Coins per hour relative to the community average
+     * @nullable
+     */
+  multiplier?: number | null;
+  /**
+     * Locked: null. Price of the items that are not owned yet
+     * @nullable
+     */
+  buyCost?: number | null;
+  /**
+     * Locked: null. What the bought items can be sold for after fees
+     * @nullable
+     */
+  resaleValue?: number | null;
+  /**
+     * Locked: null. Coins lost when buying and later selling the items
+     * @nullable
+     */
+  borrowCost?: number | null;
+  /**
+     * Locked: null. Resale value divided by buy cost
+     * @nullable
+     */
+  resaleRatio?: number | null;
+  /**
+     * Locked: null. Hours until the extra income covers the borrow cost
+     * @nullable
+     */
+  paybackHoursBorrow?: number | null;
+  /**
+     * Locked: null. Hours until the extra income covers the full buy cost
+     * @nullable
+     */
+  paybackHoursFull?: number | null;
+  /**
+     * Locked or unknown payback: null. True when full buy cost takes more than 150 hours to recover; budget upgrades with this flag are omitted
+     * @nullable
+     */
+  paybackTooLong?: boolean | null;
+  /**
+     * Locked: null. Income gain after 10 hours minus the borrow cost
+     * @nullable
+     */
+  netGain10h?: number | null;
+  /**
+     * Locked: null. Income gain after 50 hours minus the borrow cost
+     * @nullable
+     */
+  netGain50h?: number | null;
+  /**
+     * Locked: null. Stable, moderate, volatile, illiquid or unknown market for the bought items
+     * @nullable
+     */
+  stability?: string | null;
+  /**
+     * Locked: null. True when a price was missing: the resale and payback numbers are then null, and so is buyCost unless every buy price is known
+     * @nullable
+     */
+  priceIncomplete?: boolean | null;
+  /**
+     * Measured only, locked: null. True when an item's price is only a lower bound (its plain item's or a base that still needs grinding), the real cost may be higher
+     * @nullable
+     */
+  priceLowerBound?: boolean | null;
+  /**
+     * Locked: null. True when the setup does not earn more than the baseline, so there is no payback
+     * @nullable
+     */
+  noProfitGain?: boolean | null;
+  /**
+     * Measured only, locked: null. Gear score of the build (see Coflnet.Sky.Api.Models.Tasks.PublicTaskSetups.ScoreFormula), set bonuses of full sets included
+     * @nullable
+     */
+  score?: number | null;
+  /**
+     * Measured only, locked: null. Where the score lies among the measured builds of the task (0 .. 100), null without a score distribution
+     * @nullable
+     */
+  scorePercentile?: number | null;
+  /**
+     * Measured only, locked: null. curve: the rate is predicted from the measured rate curve at the score; cohort: the measured rate of the late game cohort (endgame without a curve)
+     * @nullable
+     */
+  rateBasis?: string | null;
+  /**
+     * Measured only, locked: null. True when the score is outside the observed score range: budget and mid take the curve's rate at the range edge, the endgame reads the curve at most 20 % beyond it
+     * @nullable
+     */
+  extrapolated?: boolean | null;
+  /**
+     * Measured only, locked: null. Endgame: true when the rate predicted from the curve was above the late game cohort's published rate and was capped there; false for budget and mid
+     * @nullable
+     */
+  capped?: boolean | null;
+  lateGame?: PublicLateGame;
+}
+
+/**
+ * Measured effect of changing part of a setup, from players who played the task with both
+ */
+export interface PublicModifierEffect {
+  /**
+     * What differs between the two setups
+     * @nullable
+     */
+  changes?: PublicGearChange[] | null;
+  /** Distinct players, a minimum when Coflnet.Sky.Api.Models.Tasks.PublicModifierEffect.PlayersAtLeast is true */
+  players: number;
+  /** True below 5 players: the numbers are rounded, Coflnet.Sky.Api.Models.Tasks.PublicModifierEffect.Players and Coflnet.Sky.Api.Models.Tasks.PublicModifierEffect.Pairs are minimums */
+  playersAtLeast: boolean;
+  /**
+     * Player count for display, eg. "2+" when rounded
+     * @nullable
+     */
+  playersLabel?: string | null;
+  /** Before and after pairs over all players, a minimum when Coflnet.Sky.Api.Models.Tasks.PublicModifierEffect.PlayersAtLeast is true */
+  pairs: number;
+  /** Common coins per hour after divided by before */
+  ratio: number;
+  /** (Ratio - 1) * 100 */
+  percentChange: number;
+}
+
+/**
+ * Stat name to weight (for the damage product each listed stat is a factor)
+ * @nullable
+ */
+export type PublicScoreFormulaWeights = {[key: string]: number} | null;
+
+/**
+ * The gear score: the task category's formula over the stats of tool, armor, equipment and pet plus approximate special effects
+ */
+export interface PublicScoreFormula {
+  /**
+     * weighted-sum (Σ weight × stat total) or log-damage-product (combat, a log scale)
+     * @nullable
+     */
+  kind?: string | null;
+  /**
+     * Readable formula, eg. "1 × Farming Fortune + 1 × Wheat Fortune"
+     * @nullable
+     */
+  expression?: string | null;
+  /**
+     * Stat name to weight (for the damage product each listed stat is a factor)
+     * @nullable
+     */
+  weights?: PublicScoreFormulaWeights;
+}
+
 export type SourceType = typeof SourceType[keyof typeof SourceType];
 
 
@@ -3392,6 +4906,7 @@ export const SourceType = {
   Subscription: 'Subscription',
   Purchase: 'Purchase',
   McVerify: 'McVerify',
+  Lowball: 'Lowball',
 } as const;
 
 export interface TargetLink {
@@ -3409,6 +4924,238 @@ export interface PublicSubscription {
   sourceSubIdRegex?: string | null;
   /** @nullable */
   targets?: TargetLink[] | null;
+}
+
+/**
+ * An item dropped by a task
+ */
+export interface PublicTaskDrop {
+  /**
+     * Item tag
+     * @nullable
+     */
+  itemTag?: string | null;
+  /**
+     * Display name, null if unknown
+     * @nullable
+     */
+  itemName?: string | null;
+  /** Drops per hour */
+  ratePerHour: number;
+  /** Price of one item */
+  priceEach: number;
+  /** Coins per hour this drop contributes */
+  contributionPerHour: number;
+}
+
+/**
+ * A step of a task
+ */
+export interface PublicTaskStep {
+  /** Step number */
+  number: number;
+  /**
+     * Instruction text
+     * @nullable
+     */
+  text?: string | null;
+}
+
+/**
+ * A requirement of a task, the same for every player
+ */
+export interface PublicTaskRequirement {
+  /**
+     * Human readable name, for example "Catacombs 36"
+     * @nullable
+     */
+  label?: string | null;
+  /**
+     * Kind of requirement, for example skill_level, catacombs_level or slayer_tier
+     * @nullable
+     */
+  kind?: string | null;
+  /**
+     * Sub selector of the kind (skill name, slayer family, dungeon mode), null if it has none
+     * @nullable
+     */
+  key?: string | null;
+  /** Level, floor or tier to reach */
+  target: number;
+  /** True when the game blocks the task without it, false when only recommended */
+  hard: boolean;
+}
+
+/**
+ * A zone and its earnings
+ */
+export interface PublicTaskZone {
+  /**
+     * Zone name
+     * @nullable
+     */
+  zone?: string | null;
+  /** Coins per hour in the zone */
+  coinsPerHour: number;
+  /** Players tracked in the zone */
+  players: number;
+}
+
+/**
+ * A community money making task estimate for the website
+ */
+export interface PublicTaskEstimate {
+  /**
+     * Display name
+     * @nullable
+     */
+  name?: string | null;
+  /**
+     * Url safe unique identifier
+     * @nullable
+     */
+  slug?: string | null;
+  /**
+     * Category of the task
+     * @nullable
+     */
+  category?: string | null;
+  /**
+     * Short description
+     * @nullable
+     */
+  description?: string | null;
+  /**
+     * active, passive or limited
+     * @nullable
+     */
+  type?: string | null;
+  /** Estimated coins per hour */
+  coinsPerHour: number;
+  /**
+     * Where the estimate comes from (stat_bucket, global, formula)
+     * @nullable
+     */
+  source?: string | null;
+  /** Hours of community tracking behind the estimate */
+  communityTrackedHours: number;
+  /** Number of players that contributed */
+  contributors: number;
+  /** Players currently doing the task */
+  currentDoers: number;
+  /** Change of current doers over the last 20 minutes */
+  doersChange20m: number;
+  /**
+     * Island the task takes place on
+     * @nullable
+     */
+  island?: string | null;
+  /**
+     * Location description
+     * @nullable
+     */
+  where?: string | null;
+  /**
+     * Warp command
+     * @nullable
+     */
+  warp?: string | null;
+  /**
+     * Wiki page of the task
+     * @nullable
+     */
+  wikiUrl?: string | null;
+  /**
+     * Wiki page of the location
+     * @nullable
+     */
+  whereWikiUrl?: string | null;
+  /**
+     * Steps to perform
+     * @nullable
+     */
+  steps?: PublicTaskStep[] | null;
+  /**
+     * Items dropped
+     * @nullable
+     */
+  drops?: PublicTaskDrop[] | null;
+  /**
+     * What a player needs for this task, hard ones block it, the others are recommended
+     * @nullable
+     */
+  requirements?: PublicTaskRequirement[] | null;
+  /**
+     * Best zones for this task
+     * @nullable
+     */
+  bestZones?: PublicTaskZone[] | null;
+}
+
+/**
+ * Gear setups of a task. The baseline and budget setups carry their numbers for everyone; the mid and endgame setups
+ * are locked on the public endpoint (their numbers are null) and open on the details endpoint (premium).
+ * "Locked: null" below means the field is null while its setup is locked. "Details only" fields are null on the public endpoint.
+ * The endgame setup is only described for premium plus on the details endpoint, everyone else gets a placeholder with
+ * locked, id, tier "endgame" and requiredTier "premium_plus" and no other field filled in (not even the name or the items).
+ * A setup is either measured or a labelled estimate for a tier nothing is measured for. Measured setups come from the
+ * task's gear score model (every number from at least two distinct players): budget and mid are composed from the
+ * measured pieces within their cost band (budget up to 10M, mid up to 100M) and their rate is predicted from the
+ * measured rate curve at the build's gear score (rateBasis "curve"); they stay below the late game cohort's score and
+ * never earn as much as the endgame. The endgame is the "maximum achievable" build of the best measured piece per slot
+ * with the rate of the curve or, without one, of the late game cohort (rateBasis "cohort"), plus the cohort's numbers. There is no measured baseline: the baseline is the curated estimate,
+ * else the community average.
+ */
+export interface PublicTaskSetups {
+  /**
+     * Slug of the task
+     * @nullable
+     */
+  slug?: string | null;
+  /**
+     * Display name of the task
+     * @nullable
+     */
+  taskName?: string | null;
+  /**
+     * Name of the gear profile the setups come from, eg. Crop farming
+     * @nullable
+     */
+  profileName?: string | null;
+  /**
+     * Gear category of the task, eg. farming, null when unknown
+     * @nullable
+     */
+  category?: string | null;
+  /**
+     * When the measured setups were derived, null when nothing is measured yet
+     * @nullable
+     */
+  measuredAt?: string | null;
+  /** True when any setup is locked, so its numbers are withheld */
+  locked: boolean;
+  /**
+     * Coins per hour with the baseline gear
+     * @nullable
+     */
+  baselineCoinsPerHour?: number | null;
+  baseline?: PublicGearSetup;
+  /**
+     * Upgrade setups, usually budget, mid and endgame
+     * @nullable
+     */
+  setups?: PublicGearSetup[] | null;
+  /**
+     * Rate the measured setups' gain is relative to: the measured baseline's, else the community average
+     * @nullable
+     */
+  comparisonCoinsPerHour?: number | null;
+  /**
+     * Premium plus only: measured effect of changing one modifier, eg. Harvesting 5 to 6
+     * @nullable
+     */
+  modifierEffects?: PublicModifierEffect[] | null;
+  scoreFormula?: PublicScoreFormula;
 }
 
 /**
@@ -3567,6 +5314,26 @@ export interface ResidualEntryDto {
   remainingCapacityUnits: number;
   spreadPerUnit: number;
   pricePerUnit: number;
+}
+
+/**
+ * @nullable
+ */
+export type ResolvedActiveQueryFilters = {[key: string]: string | null} | null;
+
+export interface ResolvedActiveQuery {
+  /** @nullable */
+  tags?: string[] | null;
+  /** @nullable */
+  armorSet?: string | null;
+  /** @nullable */
+  filters?: ResolvedActiveQueryFilters;
+  /** @nullable */
+  itemNameContains?: string | null;
+  /** @nullable */
+  description?: string | null;
+  /** @nullable */
+  suggestions?: ActiveQuerySuggestion[] | null;
 }
 
 export interface ReverseNpcFlip {
@@ -3792,6 +5559,38 @@ export interface SubscriptionChangeResult {
   redirectUrl?: string | null;
 }
 
+/**
+ * The user's early performance declaration for a subscription checkout. Same fields as the
+ * declaration of Coflnet.Sky.Api.Models.PurchaseArgs; the legal texts are filled in by the server.
+ */
+export interface SubscriptionDeclarationArgs {
+  /**
+     * Whether the user expressly requested early performance for this order.
+     * @nullable
+     */
+  immediatePerformanceRequested?: boolean | null;
+  /**
+     * Whether the user acknowledged the consequence of complete performance.
+     * @nullable
+     */
+  withdrawalConsequenceAcknowledged?: boolean | null;
+  /**
+     * Hash-verified declaration version shown to the user.
+     * @nullable
+     */
+  declarationVersion?: string | null;
+  /**
+     * Locale in which the declaration was shown.
+     * @nullable
+     */
+  legalLocale?: string | null;
+  /**
+     * Idempotency identifier (a GUID) for this declaration and order.
+     * @nullable
+     */
+  declarationRequestId?: string | null;
+}
+
 export interface SubscriptionPlan {
   /** @nullable */
   productSlug?: string | null;
@@ -3803,6 +5602,13 @@ export interface SubscriptionPlan {
   ownershipSeconds: number;
   slotCount: number;
   isUpgrade: boolean;
+}
+
+export interface SubscriptionProviderOption {
+  /** @nullable */
+  provider?: string | null;
+  /** @nullable */
+  mode?: string | null;
 }
 
 /**
@@ -3891,6 +5697,8 @@ export interface TierSlotAccess {
   minecraftUuid?: string | null;
   version: number;
   canManage: boolean;
+  /** @nullable */
+  subscriptionId?: string | null;
 }
 
 /**
@@ -4020,12 +5828,19 @@ export interface TradeRequest {
   timestamp: string;
 }
 
+/**
+ * @nullable
+ */
+export type ValidatedDiscountPeriodAmounts = {[key: string]: number} | null;
+
 export interface ValidatedDiscount {
   /** @nullable */
   code?: string | null;
   /** @nullable */
   id?: string | null;
   amount: number;
+  /** @nullable */
+  periodAmounts?: ValidatedDiscountPeriodAmounts;
   /** @nullable */
   amountType?: string | null;
   /** @nullable */
@@ -4036,340 +5851,6 @@ export interface ValidatedDiscount {
   /** @nullable */
   duration?: string | null;
   durationInMonths: number;
-}
-
-/**
- * Account state the plan was computed with.
- */
-export interface BazaarPlanAccountState {
-  /** True when open orders could not be read or only estimates are known. */
-  openOrdersEstimated: boolean;
-  /**
-     * Items with an open buy order.
-     * @nullable
-     */
-  openBuyItemTags?: string[] | null;
-  /**
-     * Items held through sell orders or unclaimed buys.
-     * @nullable
-     */
-  heldItemTags?: string[] | null;
-  /**
-     * Free bazaar order slots.
-     * @nullable
-     */
-  freeOrderSlots?: number | null;
-  /**
-     * Revision of the account state.
-     * @nullable
-     */
-  revision?: string | null;
-}
-
-/**
- * Confidence that the full original quantity is bought and sold by the deadline.
- */
-export interface BazaarPlanConfidence {
-  /**
-     * Identifier of the evaluated event.
-     * @nullable
-     */
-  eventId?: string | null;
-  /**
-     * Fraction between 0 and 1; null means unknown and is never a sentinel for 0 or 1.
-     * @nullable
-     */
-  probability?: number | null;
-  /**
-     * Lower confidence bound of the probability as fraction; null when unknown.
-     * @nullable
-     */
-  lowerBound?: number | null;
-  /** Confidence level the bound refers to. */
-  confidenceLevel: number;
-  /**
-     * Domain the evidence covers.
-     * @nullable
-     */
-  supportDomainId?: string | null;
-  /**
-     * Identifier of the model.
-     * @nullable
-     */
-  modelId?: string | null;
-  /**
-     * Identifier of the calibration.
-     * @nullable
-     */
-  calibrationId?: string | null;
-  /**
-     * Qualified, NotQualified, SimulationOnly, InsufficientEvidence, UnsupportedDomain, StaleInputs, Unavailable or NotApplicable.
-     * @nullable
-     */
-  status?: string | null;
-  /**
-     * Machine readable reasons for the status.
-     * @nullable
-     */
-  reasonCodes?: string[] | null;
-}
-
-/**
- * One planned order, mapped one to one from the engine recommendation.
- */
-export interface BazaarPlanOrder {
-  /**
-     * Tag of the item.
-     * @nullable
-     */
-  itemTag?: string | null;
-  /**
-     * Display name of the item.
-     * @nullable
-     */
-  itemName?: string | null;
-  /** True for a sell offer. */
-  isSell: boolean;
-  /** Price per unit of this order. */
-  pricePerUnit: number;
-  /** Amount of this order. */
-  amount: number;
-  /**
-     * Active or Investing.
-     * @nullable
-     */
-  mode?: string | null;
-  /** Quantity of the complete buy and sell cycle. */
-  originalQuantity: number;
-  /** Planned buy price per unit. */
-  entryPrice: number;
-  /**
-     * Planned sell price per unit.
-     * @nullable
-     */
-  exitPrice?: number | null;
-  /** Sell tax fraction used for the profit. */
-  sellTaxRate: number;
-  /**
-     * Where the tax rate comes from, AccountAttested or Assumption.
-     * @nullable
-     */
-  taxSource?: string | null;
-  /** Estimated profit after tax in coins. */
-  estimatedNetProfit: number;
-  /** Hours the capital stays locked at most. */
-  capitalLockHorizonHours: number;
-  /**
-     * Rule that fixes the deadline.
-     * @nullable
-     */
-  deadlineSemantics?: string | null;
-  confidence?: BazaarPlanConfidence;
-}
-
-/**
- * Budget and slot accounting of a plan.
- */
-export interface BazaarPlanPortfolio {
-  /** Budget the engine planned with, after open buy orders were deducted. */
-  budgetCoins: number;
-  /** Coins committed by the planned orders. */
-  spentCoins: number;
-  /** Budget that stays unspent. */
-  remainingBudgetCoins: number;
-  /**
-     * Coins held back by the caller.
-     * @nullable
-     */
-  reserveCoins?: number | null;
-  /**
-     * Who owns the reserve.
-     * @nullable
-     */
-  reserveOwner?: string | null;
-  /** Free order slots before the plan. */
-  freeSlotsBefore: number;
-  /** Free order slots after the plan. */
-  freeSlotsAfter: number;
-  /**
-     * Free inventory slots before the plan, null when unknown.
-     * @nullable
-     */
-  freeInventorySlotsBefore?: number | null;
-  /**
-     * Free inventory slots after the plan, null when unknown.
-     * @nullable
-     */
-  freeInventorySlotsAfter?: number | null;
-  /** Coins already bound in held items. */
-  heldExposureCoins: number;
-  /**
-     * Items left out because they are already held, ordered or pending.
-     * @nullable
-     */
-  suppressedItemTags?: string[] | null;
-}
-
-/**
- * Identity and validity of the quote an allocation was computed from.
- */
-export interface BazaarPlanQuote {
-  /**
-     * Identifier of the quote.
-     * @nullable
-     */
-  quoteId?: string | null;
-  /**
-     * Identifier of the request the quote answers.
-     * @nullable
-     */
-  requestId?: string | null;
-  /**
-     * Identifier of the market snapshot the plan was computed from.
-     * @nullable
-     */
-  marketFrameId?: string | null;
-  /** When the plan was computed. */
-  generatedAt: string;
-  /** Until when the plan may be acted on. */
-  expiresAt: string;
-  /**
-     * Identifier of the allocation policy.
-     * @nullable
-     */
-  policyId?: string | null;
-  /** Version of the allocation policy. */
-  policyVersion: number;
-  /**
-     * Version of the fill model, null when none was used.
-     * @nullable
-     */
-  modelVersion?: string | null;
-  /**
-     * Version of the planning engine.
-     * @nullable
-     */
-  engineVersion?: string | null;
-  /**
-     * Rule that decided which orders were admitted.
-     * @nullable
-     */
-  admissionRule?: string | null;
-}
-
-/**
- * Optional overrides of the personal bazaar plan; every field has a smart default.
- */
-export interface BazaarPlanRequest {
-  /**
-     * Requested modes "active" and/or "investing" (case-insensitive); defaults to active only.
-     * @nullable
-     */
-  modes?: string[] | null;
-  /**
-     * Hold horizon for investing in hours, required when investing is requested, greater than 0 and at most 48. Never clamped.
-     * @nullable
-     */
-  investingHorizonHours?: number | null;
-  /**
-     * Hold horizon of active orders in hours, defaults to 1.
-     * @nullable
-     */
-  activeHorizonHours?: number | null;
-  /**
-     * Coins to plan with; defaults to two thirds of the purse of the verified account.
-     * @nullable
-     */
-  budgetCoins?: number | null;
-  /**
-     * Attested sell tax as fraction (for example 0.0125); the engine assumes a rate when omitted.
-     * @nullable
-     */
-  sellTaxRate?: number | null;
-}
-
-/**
- * A personal bazaar plan.
- */
-export interface BazaarPlanResponse {
-  quote?: BazaarPlanQuote;
-  /**
-     * Overall engine status.
-     * @nullable
-     */
-  status?: string | null;
-  /**
-     * Investing status, for example EmptyQualified or Unavailable; null when investing was not requested.
-     * @nullable
-     */
-  investingStatus?: string | null;
-  /**
-     * Reasons for the investing status.
-     * @nullable
-     */
-  investingReasonCodes?: string[] | null;
-  portfolio?: BazaarPlanPortfolio;
-  /**
-     * Planned orders.
-     * @nullable
-     */
-  orders?: BazaarPlanOrder[] | null;
-  /**
-     * Advisory investing candidates that are not part of the plan; empty for free users.
-     * @nullable
-     */
-  unqualifiedInvestingCandidates?: BazaarPlanOrder[] | null;
-  /**
-     * Canonical modes that were planned.
-     * @nullable
-     */
-  modes?: string[] | null;
-  /**
-     * Investing horizon that was used.
-     * @nullable
-     */
-  investingHorizonHours?: number | null;
-  /** Budget before open buy orders were deducted. */
-  budgetCoins: number;
-  /**
-     * "request" or "purse-estimate".
-     * @nullable
-     */
-  budgetSource?: string | null;
-  accountState?: BazaarPlanAccountState;
-  /**
-     * Tier of the user.
-     * @nullable
-     */
-  tier?: string | null;
-  /** Number of orders only visible with Starter Premium. */
-  hiddenCount: number;
-  /**
-     * Where to get Starter Premium, set when orders are hidden.
-     * @nullable
-     */
-  premiumUrl?: string | null;
-  /**
-     * Non fatal problems such as orders_unavailable.
-     * @nullable
-     */
-  warnings?: string[] | null;
-}
-
-/**
- * Request to track one order of a previously returned plan in game.
- */
-export interface BazaarPlanTrackRequest {
-  /**
-     * Identifier of the quote the order was returned with.
-     * @nullable
-     */
-  quoteId?: string | null;
-  /**
-     * Tag of the planned order to track.
-     * @nullable
-     */
-  itemTag?: string | null;
 }
 
 export type GetApiAuctionRandomParams = {
@@ -4385,9 +5866,16 @@ query?: {[key: string]: string};
 
 export type GetApiAuctionsActiveFilterParams = {
 /**
- * Filter dictionary, plus optional `page`, `pageSize` and `orderBy`.
+ * All query parameters
  */
 query?: {[key: string]: string};
+};
+
+export type GetApiAuctionsActiveResolveParams = {
+/**
+ * Search text like "final destination 7 sharpness"
+ */
+q?: string;
 };
 
 export type GetApiAuctionsTagItemTagSoldParams = {
@@ -4774,6 +6262,11 @@ export type PostApiTopupRates401One = {
   message?: string;
 };
 
+export type GetApiDiscountCodeParams = {
+isSubscription?: boolean;
+provider?: string;
+};
+
 export type PostApiTopupLemonsqueezyProductSlug401One = {
   message?: string;
 };
@@ -4816,13 +6309,48 @@ export type GetApiPremiumTransactions401One = {
 };
 
 export type PostApiPremiumSubscriptionSubscriptionSlugParams = {
+/**
+ * Optional creator code
+ */
 creatorCode?: string;
+/**
+ * Optional discount code
+ */
 discountcode?: string;
+/**
+ * Return to the slot management page after checkout
+ */
 assignSlots?: boolean;
+/**
+ * stripe, paypal or lemonsqueezy; defaults to lemonsqueezy
+ */
+provider?: string;
+/**
+ * Optional ISO country the buyer selected; defaults to the request country
+ */
+country?: string;
 };
 
 export type PostApiPremiumSubscriptionSubscriptionSlug401One = {
   message?: string;
+};
+
+export type GetApiPremiumSubscriptionProvidersParams = {
+/**
+ * ISO country of the buyer
+ */
+country?: string;
+/**
+ * Optional plan slug; PayPal is only offered for plans it supports
+ */
+productSlug?: string;
+};
+
+export type GetApiPremiumDiscountAutoParams = {
+/**
+ * ISO country of the buyer
+ */
+country?: string;
 };
 
 export type GetApiPremiumSubscription401One = {

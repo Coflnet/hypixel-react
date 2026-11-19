@@ -555,7 +555,7 @@ function SubscriptionList() {
                 <div className="alert alert-info d-flex align-items-center justify-content-between flex-wrap gap-3" style={{ marginTop: '20px' }}>
                     <span>
                         <strong>Want more notifiers?</strong> You have reached the free limit of 3. Unlock more notifiers with{' '}
-                        <strong>Starter Premium</strong> for under <strong>2€/month</strong>.
+                        <strong>Starter Premium</strong>, from <strong>€16.69 for the first 52 weeks</strong> (plus VAT).
                     </span>
                     <Link href="/premium" className="btn btn-primary" style={{ flexShrink: 0 }}>
                         Upgrade Now

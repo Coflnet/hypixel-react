@@ -21,6 +21,7 @@ import { FixedSizeList as List } from 'react-window'
 import type { DiscordMessage } from '../../api/_generated/skyApi.schemas'
 import { getApiDataUpdatesYearMonth } from '../../api/_generated/skyApi'
 import { SubscriptionSalesBanner } from '../Discounts/DiscountBanners'
+import { getBazaarHistoryYears } from '../../utils/DataHistory'
 
 function Startpage() {
     const { trackEvent } = useMatomo()
@@ -332,8 +333,8 @@ function Startpage() {
                         What's more is that you can see what auctions were used as reference to determine if a flip is profitable.
                     </p>
                     <p>
-                        We have the longest bazaar history database and you can browser through our hypixel skyblock bazaar tracker just as easily as through
-                        the auction house. See the full orderbook of any point in the last 5 years and discover profitable{' '}
+                        We have the longest bazaar history database and you can browse through our hypixel skyblock bazaar tracker just as easily as through
+                        the auction house. See the full orderbook of any point in the last {getBazaarHistoryYears()} years and discover profitable{' '}
                         <Link href="/bazaar" style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px', padding: '0 4px' }}>
                             Bazaar Flips ↗️
                         </Link>{' '}

@@ -406,8 +406,7 @@ export function parseAccountInfo(accountInfo): AccountInfo {
     return {
         email: accountInfo.email,
         mcId: accountInfo.mcId,
-        mcName: accountInfo.mcName,
-        token: accountInfo.token
+        mcName: accountInfo.mcName
     }
 }
 
@@ -561,13 +560,6 @@ export function parseItemSummary(price): ItemPriceSummary {
         mode: price.mode,
         volume: price.volume
     }
-}
-
-export function parsePaymentResponse(payment): PaymentResponse {
-    return {
-        id: payment.id,
-        directLink: payment.dirctLink
-    } as PaymentResponse
 }
 
 export function parseKatFlip(katFlip): KatFlip {
@@ -807,7 +799,10 @@ export function parsePremiumSubscription(subscription: any): PremiumSubscription
         slotCount: subscription.slotCount,
         paymentAmount: subscription.paymentAmount,
         renewsAt: parseDate(subscription.renewsAt),
-        createdAt: parseDate(subscription.createdAt)
+        createdAt: parseDate(subscription.createdAt),
+        providerSlug: subscription.providerSlug ?? undefined,
+        canResume: typeof subscription.canResume === 'boolean' ? subscription.canResume : undefined,
+        canChangePlan: typeof subscription.canChangePlan === 'boolean' ? subscription.canChangePlan : undefined
     }
 }
 

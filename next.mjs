@@ -14,6 +14,11 @@ if (process.env.TEST_RUNNER === 'true' && (command === 'build' || command === 's
     }
 }
 
+if (command === 'build') {
+    const { generateItemTaskSources } = await import('./utils/generateItemTaskSources.mjs')
+    await generateItemTaskSources()
+}
+
 const require = createRequire(import.meta.url)
 process.argv[1] = require.resolve('next/dist/bin/next')
 require('next/dist/bin/next')

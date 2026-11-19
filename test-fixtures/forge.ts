@@ -1,7 +1,7 @@
 import type { ForgeFlip, Ingredient, ProfitableCraft } from '../api/_generated/skyApi.schemas'
 
 const mithril: Ingredient = {
-    itemId: 'MITHRIL', count: 10, cost: 100, buyOrderCost: 80, craftCost: 0,
+    itemId: 'MITHRIL', count: 10, cost: 100, buyOrderCost: 80, craftCost: 0, forgeDuration: 0,
     npcCapacity: 5, npcUnitPrice: 5,
     buyOrderCapacity: 1000, buyOrderUnitPrice: 8,
     instaBuyCapacity: 1000, instaBuyUnitPrice: 10

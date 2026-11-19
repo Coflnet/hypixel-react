@@ -78,7 +78,8 @@ describe('Search', () => {
         cy.wait('@itemSearch')
         cy.contains('.list-group-item', 'Hyperion').should('be.visible')
         cy.contains('Technoblade').should('not.exist')
-        cy.then(() => expect(full.requested).to.equal(true))
+        // both searches start together, but the proxy may report the full search after the item response
+        cy.wrap(null).should(() => expect(full.requested).to.equal(true))
         cy.then(() => full.release())
         cy.contains('.list-group-item', /^Players$/).should('be.visible')
         cy.contains('.list-group-item', 'Technoblade').should('be.visible')

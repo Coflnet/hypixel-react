@@ -1,5 +1,23 @@
 import { NextFetchEvent, NextRequest, NextResponse } from 'next/server'
 import api from './api/ApiHelper'
+import { getVariantHeaderValue, PREMIUM_VARIANT_HEADER, PREMIUM_VARIANT_QUERY, resolvePremiumVariant } from './utils/PremiumExperiment'
+
+// Assigns the /premium A/B variant on the server from the user agent and the current UTC day, so the page renders the
+// right variant without a flash. A visitor keeps the variant within a UTC day; the split rotates daily (see utils/PremiumExperiment.ts).
+// Nothing is stored on the device. The HTML differs per user agent while the CDN caches by url only:
+// the page is dynamic and `private, no-store` keeps a shared cache (Cloudflare) from pinning one variant for everyone.
+function premiumExperimentResponse(req: NextRequest): NextResponse {
+    const decision = resolvePremiumVariant({
+        queryOverride: req.nextUrl.searchParams.get(PREMIUM_VARIANT_QUERY),
+        userAgent: req.headers.get('user-agent'),
+        now: new Date()
+    })
+    const requestHeaders = new Headers(req.headers)
+    requestHeaders.set(PREMIUM_VARIANT_HEADER, getVariantHeaderValue(decision))
+    const response = NextResponse.next({ request: { headers: requestHeaders } })
+    response.headers.set('Cache-Control', 'private, no-store')
+    return response
+}
 
 export async function middleware(req: NextRequest, ev: NextFetchEvent) {
     // Handle player redirects (existing functionality)
@@ -37,7 +55,7 @@ export async function middleware(req: NextRequest, ev: NextFetchEvent) {
         }
     }
 
-    const response = NextResponse.next()
+    const response = req.nextUrl.pathname === '/premium' ? premiumExperimentResponse(req) : NextResponse.next()
     const url = req.nextUrl.clone();
     if (!req.cookies.get('CCPAOPTOUT')) {
         response.cookies.set('CCPAOPTOUT', '1');
@@ -82,5 +100,5 @@ export async function middleware(req: NextRequest, ev: NextFetchEvent) {
 }
 
 export const config = {
-    matcher: ['/', '/player/:path*', '/item/:path*', '/flipper/:path*', '/auction/:path*', '/bazaar/:path*', '/(.*sitemap.*\\.xml)']
+    matcher: ['/', '/premium', '/player/:path*', '/item/:path*', '/flipper/:path*', '/auction/:path*', '/bazaar/:path*', '/(.*sitemap.*\\.xml)']
 }

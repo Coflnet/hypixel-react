@@ -1,4 +1,5 @@
 const itemPath = '/item/ENCHANTMENT_SHARPNESS_6'
+const PAGE_READY_TIMEOUT = 30000
 
 describe('DOM translation protection', () => {
     it('opts out of DOM translation in the server HTML before hydration', () => {
@@ -13,17 +14,19 @@ describe('DOM translation protection', () => {
 
     it('survives replaced loading text when Bazaar prices finish loading', () => {
         let releaseHistory: () => void
+        let historyRequested = false
         const historyReady = new Promise<void>(resolve => {
             releaseHistory = resolve
         })
-        cy.intercept('GET', '**/api/bazaar/ENCHANTMENT_SHARPNESS_6/history/*', request =>
-            historyReady.then(() =>
+        cy.intercept('GET', '**/api/bazaar/ENCHANTMENT_SHARPNESS_6/history/*', request => {
+            historyRequested = true
+            return historyReady.then(() =>
                 request.reply([
                     { timestamp: '2026-09-01T12:00:00Z', buy: 800000, sell: 790000 },
                     { timestamp: '2026-09-01T12:05:00Z', buy: 800000, sell: 790000 }
                 ])
             )
-        ).as('history')
+        }).as('history')
         cy.intercept('GET', '**/api/bazaar/ENCHANTMENT_SHARPNESS_6/snapshot*', { body: null })
         cy.intercept('GET', '**/api/mayor*', [])
         cy.visit(itemPath, {
@@ -32,6 +35,10 @@ describe('DOM translation protection', () => {
             }
         })
 
+        // The server renders "0 Coins". The loading text replaces it only once the page has hydrated and
+        // its chart timers have requested the history, which takes a while on a starved runner. The
+        // request is the readiness gate, the translation itself is asserted after it.
+        cy.wrap(null, { timeout: PAGE_READY_TIMEOUT }).should(() => expect(historyRequested, 'history requested').to.equal(true))
         for (const label of ['Avg Sell Price:', 'Avg Buy Price:']) {
             cy.contains('b', label)
                 .parent()

@@ -151,3 +151,35 @@ export const parseTierFromUrl = (tierParam: string | null): PremiumTier | null =
  *     // Show upsell banner with link
  * }
  */
+
+/** the tier of an owned Premium product (e.g. "premium_plus"), null for no product or an unknown slug */
+export const getTierOfProduct = (product: { productSlug: string } | null | undefined): PremiumTier | null => {
+    const slug = product?.productSlug
+    if (!slug) return null
+    if (slug.includes('starter')) return PremiumTier.STARTER
+    if (slug.includes('premium_plus') || slug.includes('premium+')) return PremiumTier.PREMIUM_PLUS
+    if (slug.includes('premium')) return PremiumTier.PREMIUM
+    return null
+}
+
+/** the tier of a subscription from its product name (a slug like "premium_plus" or a title like "Premium+ 4 weeks"), null when unknown */
+export const getTierOfSubscription = (subscription: { productName?: string | null }): PremiumTier | null => {
+    const name = subscription.productName?.toLowerCase()
+    if (!name) return null
+    if (name.includes('starter')) return PremiumTier.STARTER
+    if (['premium_plus', 'premium+', 'premium plus', 'prem_plus'].some(plus => name.includes(plus))) return PremiumTier.PREMIUM_PLUS
+    if (name.includes('premium')) return PremiumTier.PREMIUM
+    return null
+}
+
+/**
+ * The owner's own subscription of `tier` that still renews (not canceled); another subscription for the same tier would be
+ * billed in addition to it. Slot subscriptions are for friends and do not count.
+ */
+export const findRenewingSubscription = <T extends { endsAt?: Date | string | null; slotCount?: number | null; productName?: string | null }>(
+    subscriptions: T[],
+    tier: PremiumTier | null
+): T | undefined => {
+    if (!tier) return undefined
+    return subscriptions.find(subscription => !subscription.endsAt && !subscription.slotCount && getTierOfSubscription(subscription) === tier)
+}

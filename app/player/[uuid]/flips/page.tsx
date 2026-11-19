@@ -1,4 +1,4 @@
-import { Suspense } from 'react'
+import { cache, Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { initAPI } from '../../../../api/ApiHelper'
@@ -8,6 +8,7 @@ import { numberWithThousandsSeparators, removeMinecraftColorCoding } from '../..
 import { parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser/APIResponseParser'
 import { getHeadMetadata, getCanonicalUrl, applyPlayerRobots } from '../../../../utils/SSRUtils'
 import { Container } from 'react-bootstrap'
+import { getFlipListEmbedDescription, getPlayerEmbedOptions, getPlayerHeadRenderUrl } from '../../../../utils/EmbedUtils'
 
 export default async function Page(props) {
     const params = await props.params
@@ -72,7 +73,8 @@ export default async function Page(props) {
     )
 }
 
-async function getFlipData(uuid) {
+// cache() shares the player name and tracked flips between generateMetadata and the page
+const getFlipData = cache(async (uuid: string) => {
     const api = initAPI(true)
     const apiResponses = await Promise.all([api.getPlayerName(uuid), api.getTrackedFlipsForPlayer(uuid)].map(p => p.catch(() => null)))
 
@@ -84,7 +86,7 @@ async function getFlipData(uuid) {
         flipTrackingResponse: apiResponses[1] || { flips: [], totalProfit: 0 },
         loadError: apiResponses[1] === null ? 'Could not load tracked flips. Please try again.' : undefined
     }
-}
+})
 
 export async function generateMetadata(props) {
     const params = await props.params
@@ -93,64 +95,14 @@ export async function generateMetadata(props) {
 
     const metadata = getHeadMetadata(
         `Tracked flips of ${parsedPlayer.name}`,
-        loadError || getEmbedDescription(parseFlipTrackingResponse(flipTrackingResponse), parsedPlayer),
-        parsedPlayer.iconUrl?.split('?')[0],
+        loadError || getFlipListEmbedDescription(parseFlipTrackingResponse(flipTrackingResponse), parsedPlayer.name),
+        getPlayerHeadRenderUrl(params.uuid),
         ['tracker'],
-        `Tracked flips of ${parsedPlayer.name}`,
-        getCanonicalUrl(`/player/${params.uuid}/flips`)
+        `${parsedPlayer.name} | Tracked Flips`,
+        getCanonicalUrl(`/player/${params.uuid}/flips`),
+        getPlayerEmbedOptions(parsedPlayer.name)
     )
     return applyPlayerRobots(metadata, params.uuid)
-}
-
-export function getEmbedDescription(flipTrackingResponse: FlipTrackingResponse, player: Player) {
-    if (!flipTrackingResponse.flips || flipTrackingResponse.flips.length === 0) {
-        return `There were no flips found for ${player.name}`
-    }
-
-    const profitByFinder = {}
-    flipTrackingResponse.flips.forEach(flip => {
-        if (!flip.finder.label) {
-            return
-        }
-        if (!profitByFinder[flip.finder.label]) {
-            profitByFinder[flip.finder.label] = 0
-        }
-        profitByFinder[flip.finder.label] += flip.profit
-    })
-
-    let finderByGroupArray: { label: string; profit: number }[] = []
-    Object.keys(profitByFinder).forEach(key => {
-        finderByGroupArray.push({
-            label: key,
-            profit: profitByFinder[key]
-        })
-    })
-    finderByGroupArray = finderByGroupArray.sort((a, b) => b.profit - a.profit)
-
-    let profitByFinderEmbed = ''
-    finderByGroupArray.forEach(finderGroup => {
-        if (finderGroup.profit > 0) {
-            profitByFinderEmbed += `${finderGroup.label}: ${numberWithThousandsSeparators(finderGroup.profit)} Coins \n`
-        }
-    })
-
-    const sortedFlips = flipTrackingResponse.flips.sort((a, b) => b.profit - a.profit)
-
-    const highestProfitFlip = sortedFlips[0]
-    const highestProfitFlipText = `Highest Profit Flip: ${numberWithThousandsSeparators(highestProfitFlip.profit)} Coins \n ${numberWithThousandsSeparators(
-        highestProfitFlip.pricePaid
-    )} Coins ➞ ${numberWithThousandsSeparators(highestProfitFlip.soldFor)} Coins (${removeMinecraftColorCoding(highestProfitFlip.item.name)})`
-
-    const lowestProfitFlip = sortedFlips[sortedFlips.length - 1]
-    const lowestProfitFlipText = `Lowest Profit Flip: ${numberWithThousandsSeparators(lowestProfitFlip.profit)} Coins \n ${numberWithThousandsSeparators(
-        lowestProfitFlip.pricePaid
-    )} Coins ➞ ${numberWithThousandsSeparators(lowestProfitFlip.soldFor)} Coins (${removeMinecraftColorCoding(lowestProfitFlip.item.name)})`
-
-    return `Found Flips: ${flipTrackingResponse.flips.length} 
-            Total Profit: ${numberWithThousandsSeparators(flipTrackingResponse.totalProfit)} Coins
-            \n${profitByFinderEmbed} 
-            ${highestProfitFlipText}
-            \n${lowestProfitFlipText}`
 }
 
 export const revalidate = 0

@@ -71,7 +71,7 @@ export default async function Page() {
 export const metadata: Metadata = getHeadMetadata(
     seoContent.metadataTitle,
     seoContent.metadataDescription,
-    'https://sky.coflnet.com/logo192.png',
+    'https://sky.coflnet.com/logo512.png',
     [
         'premium bazaar',
         'bazaar flips',

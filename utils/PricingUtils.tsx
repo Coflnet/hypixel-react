@@ -2,11 +2,12 @@ import { PremiumTier } from '../components/Premium/PremiumPurchaseWizard/types'
 import { BatchProductPricingResponse, ProviderPricingOption } from '../api/_generated/skyApi.schemas'
 import { Duration } from '../components/Premium/PremiumPurchaseWizard/types'
 
-// Base prices in EUR (before tax)
+// Base prices in EUR (before tax) of the plan cards: Starter per 52 weeks, Premium per 4 weeks, Premium+ per 4 weeks billed for 52 weeks.
+// Fallback for the server-rendered page; checkouts show the backend's quote (SUBSCRIPTION_PRICES).
 export const BASE_PRICES = {
-    [PremiumTier.STARTER]: 16.99, // yearly
-    [PremiumTier.PREMIUM]: 9.69, // monthly
-    [PremiumTier.PREMIUM_PLUS]: 354.2 / 12 // monthly (yearly)
+    [PremiumTier.STARTER]: 16.69, // every 52 weeks
+    [PremiumTier.PREMIUM]: 9.69, // every 4 weeks
+    [PremiumTier.PREMIUM_PLUS]: 354.2 / 13 // per 4 weeks, billed every 52 weeks
 }
 
 // Standard VAT rates used for estimates; checkout resolves regional rates and exemptions.
@@ -73,47 +74,14 @@ export interface PriceInfo {
     vatAmount: number
     totalPrice: number
     currency: string
-    displayText: string
 }
 
+/** the plan card price of a tier (see BASE_PRICES) after `discountPercent`, with the country's VAT estimate */
 export function calculatePrice(tier: PremiumTier, countryCode?: string, discountPercent: number = 0): PriceInfo {
-    let basePrice = BASE_PRICES[tier]
-    basePrice *= 1 - discountPercent / 100
+    const basePrice = BASE_PRICES[tier] * (1 - discountPercent / 100)
     const vatRate = countryCode ? VAT_RATES[countryCode.toUpperCase()] || 0 : 0
     const vatAmount = basePrice * vatRate
-    const totalPrice = basePrice + vatAmount
-
-    // Determine if we should show (+VAT) text
-    const isUSOrUnknown = !countryCode || countryCode.toUpperCase() === 'US' || !VAT_RATES[countryCode.toUpperCase()]
-
-    let displayText: string
-    if (isUSOrUnknown) {
-        displayText = `€${basePrice.toFixed(2)} (+VAT)`
-    } else {
-        displayText = `€${totalPrice.toFixed(2)}`
-    }
-
-    // Add billing period info
-    switch (tier) {
-        case PremiumTier.STARTER:
-            displayText += '/year'
-            break
-        case PremiumTier.PREMIUM:
-            displayText += '/month'
-            break
-        case PremiumTier.PREMIUM_PLUS:
-            displayText += '/month'
-            break
-    }
-
-    return {
-        basePrice,
-        vatRate,
-        vatAmount,
-        totalPrice,
-        currency: 'EUR',
-        displayText
-    }
+    return { basePrice, vatRate, vatAmount, totalPrice: basePrice + vatAmount, currency: 'EUR' }
 }
 
 export const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -222,7 +190,7 @@ export const getTierApiProductId = (tier: PremiumTier, isYearlyOrDuration: boole
 export const SUBSCRIPTION_PRICES: Record<string, { monthly: number; quarterly: number; yearly: number; weekly?: number; daily?: number }> = {
     'premium': { monthly: 9.69, quarterly: 27.69, yearly: 96.69 },
     'premium_plus': { monthly: 35.69, quarterly: 99.69, yearly: 354.2, weekly: 10.71, daily: 2.38 },
-    'starter_premium': { monthly: 16.99, quarterly: 16.99, yearly: 16.99 }
+    'starter_premium': { monthly: 2.69, quarterly: 9.69, yearly: 16.69 }
 }
 
 export const getFallbackSubscriptionPrice = (productId: string, isYearly: boolean | Duration = false): number => {
@@ -259,4 +227,12 @@ export const getPriceWithVAT = (basePrice: number, countryCode?: string): number
     }
     const vatRate = VAT_RATES[countryCode!.toUpperCase()] ?? 0
     return basePrice * (1 + vatRate)
+}
+/** a price with its currency in the visitor's locale, always with cents, e.g. "€421.50"; unknown codes fall back to "421.50 XYZ" */
+export function formatMoney(value: number, currencyCode: string): string {
+    try {
+        return new Intl.NumberFormat(undefined, { style: 'currency', currency: currencyCode, minimumFractionDigits: 2 }).format(value)
+    } catch {
+        return `${value.toFixed(2)} ${currencyCode}`
+    }
 }

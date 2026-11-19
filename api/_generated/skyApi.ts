@@ -27,6 +27,7 @@ import type {
 import type {
   AcceptTermsRequest,
   AccountDeletionResult,
+  ActiveAuctionQueryResult,
   AdvancedAnalysisResult,
   AiChatRequest,
   AiChatResponse,
@@ -34,10 +35,13 @@ import type {
   AttributeFlip,
   AuctionPreview,
   AuctionResult,
+  AutoDiscount,
   AveragePrice,
   BatchProductPricingResponse,
   BazaarPlanRequest,
   BazaarPlanResponse,
+  BazaarPlanTrackItemRequest,
+  BazaarPlanTrackItemResponse,
   BazaarPlanTrackRequest,
   BazaarPlayerOrder,
   BidResult,
@@ -49,6 +53,7 @@ import type {
   CommandListEntry,
   CompletedBazaarFlip,
   CopperFlip,
+  CountryResponse,
   CraftInstruction,
   CurrentPrice,
   DeleteApiLowballOfferOfferId401One,
@@ -74,6 +79,7 @@ import type {
   FuseFlip,
   GetApiAuctionRandomParams,
   GetApiAuctionsActiveFilterParams,
+  GetApiAuctionsActiveResolveParams,
   GetApiAuctionsBatchParams,
   GetApiAuctionsTagItemTagActiveBinParams,
   GetApiAuctionsTagItemTagActiveOverviewParams,
@@ -86,6 +92,7 @@ import type {
   GetApiCraftAcquisitionItemTagParams,
   GetApiCraftProfitParams,
   GetApiDataAiParams,
+  GetApiDiscountCodeParams,
   GetApiFilterOptionsParams,
   GetApiFlipAttribute401One,
   GetApiFlipAttributeParams,
@@ -127,11 +134,13 @@ import type {
   GetApiPlayerPlayerUuidAuctionsExport401One,
   GetApiPlayerPlayerUuidAuctionsParams,
   GetApiPlayerPlayerUuidBidsParams,
+  GetApiPremiumDiscountAutoParams,
   GetApiPremiumSlots401One,
   GetApiPremiumSlotsAssigned401One,
   GetApiPremiumSlotsProducts401One,
   GetApiPremiumSubscription401One,
   GetApiPremiumSubscriptionExternalIdPlans401One,
+  GetApiPremiumSubscriptionProvidersParams,
   GetApiPremiumTransactions401One,
   GetApiPriceAttributes200One,
   GetApiPriceAttributes200Three,
@@ -240,6 +249,8 @@ import type {
   Profile,
   ProfitableCraft,
   PublicSubscription,
+  PublicTaskEstimate,
+  PublicTaskSetups,
   PurchaseArgs,
   PurchaseableProduct,
   PutApiNotificationsSubscriptions401One,
@@ -253,6 +264,7 @@ import type {
   ReferralInfo,
   ReferredBy,
   ResidualEntryDto,
+  ResolvedActiveQuery,
   ReverseNpcFlip,
   SaveAuction,
   SearchResultItem,
@@ -262,7 +274,9 @@ import type {
   SpreadFlip,
   StorageQuickStatus,
   SubscriptionChangeResult,
+  SubscriptionDeclarationArgs,
   SubscriptionPlan,
+  SubscriptionProviderOption,
   SupplyElement,
   TermsStatus,
   TierSlotAccess,
@@ -849,17 +863,17 @@ export function useGetApiAuctionsTagItemTagActiveBin<TData = Awaited<ReturnType<
 
 
 export type getApiAuctionsActiveFilterResponse200TextPlain = {
-  data: SaveAuction[]
+  data: ActiveAuctionQueryResult
   status: 200
 }
 
 export type getApiAuctionsActiveFilterResponse200ApplicationJson = {
-  data: SaveAuction[]
+  data: ActiveAuctionQueryResult
   status: 200
 }
 
 export type getApiAuctionsActiveFilterResponse200TextJson = {
-  data: SaveAuction[]
+  data: ActiveAuctionQueryResult
   status: 200
 }
 
@@ -886,9 +900,14 @@ export const getGetApiAuctionsActiveFilterUrl = (params?: GetApiAuctionsActiveFi
 }
 
 /**
- * @summary Filter all currently active auctions across every item.
-Intended for offer research (e.g. find every active auction matching a given filter set).
-Backed by a separate active-only database that stays in sync with the live auction house.
+ * @summary Explore all currently active auctions across every item (served from memory).
+Query parameters: `page` (0 based), `pageSize` (1-100, default 50),
+`orderBy` (LOWEST_PRICE, HIGHEST_PRICE, ENDING_SOON, NEWEST), `tags` (comma separated item tags),
+`armorSet`, `categories` (comma separated), `itemNameContains`, `perTagLimit`,
+`q` (free text like "final destination 7 sharpness", searched as item name contains plus filters).
+With `q` the response also carries `suggestions`: array of `{kind: "armorSet"|"item", key, label, tags}`
+that can be selected by repeating the request with `armorSet` or `tags` set (`q` then stays as name predicate).
+Every other parameter is an item filter.
  */
 export const getApiAuctionsActiveFilter = async (params?: GetApiAuctionsActiveFilterParams, options?: RequestInit): Promise<getApiAuctionsActiveFilterResponse> => {
 
@@ -966,9 +985,14 @@ export function useGetApiAuctionsActiveFilter<TData = Awaited<ReturnType<typeof 
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary Filter all currently active auctions across every item.
-Intended for offer research (e.g. find every active auction matching a given filter set).
-Backed by a separate active-only database that stays in sync with the live auction house.
+ * @summary Explore all currently active auctions across every item (served from memory).
+Query parameters: `page` (0 based), `pageSize` (1-100, default 50),
+`orderBy` (LOWEST_PRICE, HIGHEST_PRICE, ENDING_SOON, NEWEST), `tags` (comma separated item tags),
+`armorSet`, `categories` (comma separated), `itemNameContains`, `perTagLimit`,
+`q` (free text like "final destination 7 sharpness", searched as item name contains plus filters).
+With `q` the response also carries `suggestions`: array of `{kind: "armorSet"|"item", key, label, tags}`
+that can be selected by repeating the request with `armorSet` or `tags` set (`q` then stays as name predicate).
+Every other parameter is an item filter.
  */
 
 export function useGetApiAuctionsActiveFilter<TData = Awaited<ReturnType<typeof getApiAuctionsActiveFilter>>, TError = unknown>(
@@ -977,6 +1001,263 @@ export function useGetApiAuctionsActiveFilter<TData = Awaited<ReturnType<typeof 
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetApiAuctionsActiveFilterQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type getApiAuctionsActiveCountResponse200 = {
+  data: void
+  status: 200
+}
+
+export type getApiAuctionsActiveCountResponseSuccess = (getApiAuctionsActiveCountResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAuctionsActiveCountResponse = (getApiAuctionsActiveCountResponseSuccess)
+
+export const getGetApiAuctionsActiveCountUrl = () => {
+
+
+
+
+  return `https://sky.coflnet.com/api/auctions/active/count`
+}
+
+/**
+ * @summary Number of active auctions the explorer knows about
+ */
+export const getApiAuctionsActiveCount = async ( options?: RequestInit): Promise<getApiAuctionsActiveCountResponse> => {
+
+  const res = await fetch(getGetApiAuctionsActiveCountUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiAuctionsActiveCountResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiAuctionsActiveCountResponse
+}
+
+
+
+
+
+export const getGetApiAuctionsActiveCountQueryKey = () => {
+    return [
+    `https://sky.coflnet.com/api/auctions/active/count`
+    ] as const;
+    }
+
+
+export const getGetApiAuctionsActiveCountQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsActiveCount>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsActiveCount>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiAuctionsActiveCountQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsActiveCount>>> = ({ signal }) => getApiAuctionsActiveCount({ signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsActiveCount>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiAuctionsActiveCountQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAuctionsActiveCount>>>
+export type GetApiAuctionsActiveCountQueryError = unknown
+
+
+export function useGetApiAuctionsActiveCount<TData = Awaited<ReturnType<typeof getApiAuctionsActiveCount>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsActiveCount>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAuctionsActiveCount>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAuctionsActiveCount>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiAuctionsActiveCount<TData = Awaited<ReturnType<typeof getApiAuctionsActiveCount>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsActiveCount>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAuctionsActiveCount>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAuctionsActiveCount>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiAuctionsActiveCount<TData = Awaited<ReturnType<typeof getApiAuctionsActiveCount>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsActiveCount>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Number of active auctions the explorer knows about
+ */
+
+export function useGetApiAuctionsActiveCount<TData = Awaited<ReturnType<typeof getApiAuctionsActiveCount>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsActiveCount>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiAuctionsActiveCountQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type getApiAuctionsActiveResolveResponse200TextPlain = {
+  data: ResolvedActiveQuery
+  status: 200
+}
+
+export type getApiAuctionsActiveResolveResponse200ApplicationJson = {
+  data: ResolvedActiveQuery
+  status: 200
+}
+
+export type getApiAuctionsActiveResolveResponse200TextJson = {
+  data: ResolvedActiveQuery
+  status: 200
+}
+
+export type getApiAuctionsActiveResolveResponseSuccess = (getApiAuctionsActiveResolveResponse200TextPlain | getApiAuctionsActiveResolveResponse200ApplicationJson | getApiAuctionsActiveResolveResponse200TextJson) & {
+  headers: Headers;
+};
+;
+
+export type getApiAuctionsActiveResolveResponse = (getApiAuctionsActiveResolveResponseSuccess)
+
+export const getGetApiAuctionsActiveResolveUrl = (params?: GetApiAuctionsActiveResolveParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/auctions/active/resolve?${stringifiedParams}` : `https://sky.coflnet.com/api/auctions/active/resolve`
+}
+
+/**
+ * @summary Shows how a free text search is interpreted by the explorer (tags, filters, name)
+ */
+export const getApiAuctionsActiveResolve = async (params?: GetApiAuctionsActiveResolveParams, options?: RequestInit): Promise<getApiAuctionsActiveResolveResponse> => {
+
+  const res = await fetch(getGetApiAuctionsActiveResolveUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiAuctionsActiveResolveResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiAuctionsActiveResolveResponse
+}
+
+
+
+
+
+export const getGetApiAuctionsActiveResolveQueryKey = (params?: GetApiAuctionsActiveResolveParams,) => {
+    return [
+    `https://sky.coflnet.com/api/auctions/active/resolve`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetApiAuctionsActiveResolveQueryOptions = <TData = Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>, TError = unknown>(params?: GetApiAuctionsActiveResolveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiAuctionsActiveResolveQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>> = ({ signal }) => getApiAuctionsActiveResolve(params, { signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiAuctionsActiveResolveQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>>
+export type GetApiAuctionsActiveResolveQueryError = unknown
+
+
+export function useGetApiAuctionsActiveResolve<TData = Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>, TError = unknown>(
+ params: undefined |  GetApiAuctionsActiveResolveParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiAuctionsActiveResolve<TData = Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>, TError = unknown>(
+ params?: GetApiAuctionsActiveResolveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiAuctionsActiveResolve<TData = Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>, TError = unknown>(
+ params?: GetApiAuctionsActiveResolveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Shows how a free text search is interpreted by the explorer (tags, filters, name)
+ */
+
+export function useGetApiAuctionsActiveResolve<TData = Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>, TError = unknown>(
+ params?: GetApiAuctionsActiveResolveParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAuctionsActiveResolve>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiAuctionsActiveResolveQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -4064,6 +4345,461 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
         TContext
       > => {
       return useMutation(getPostApiFilterMutationOptions(options), queryClient);
+    }
+
+export type postApiFlipBazaarPlanResponse200TextPlain = {
+  data: BazaarPlanResponse
+  status: 200
+}
+
+export type postApiFlipBazaarPlanResponse200ApplicationJson = {
+  data: BazaarPlanResponse
+  status: 200
+}
+
+export type postApiFlipBazaarPlanResponse200TextJson = {
+  data: BazaarPlanResponse
+  status: 200
+}
+
+export type postApiFlipBazaarPlanResponse400TextPlain = {
+  data: ProblemDetails
+  status: 400
+}
+
+export type postApiFlipBazaarPlanResponse400ApplicationJson = {
+  data: ProblemDetails
+  status: 400
+}
+
+export type postApiFlipBazaarPlanResponse400TextJson = {
+  data: ProblemDetails
+  status: 400
+}
+
+export type postApiFlipBazaarPlanResponse401TextPlain = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type postApiFlipBazaarPlanResponse401ApplicationJson = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type postApiFlipBazaarPlanResponse401TextJson = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type postApiFlipBazaarPlanResponse403 = {
+  data: void
+  status: 403
+}
+
+export type postApiFlipBazaarPlanResponse503 = {
+  data: void
+  status: 503
+}
+
+export type postApiFlipBazaarPlanResponseSuccess = (postApiFlipBazaarPlanResponse200TextPlain | postApiFlipBazaarPlanResponse200ApplicationJson | postApiFlipBazaarPlanResponse200TextJson) & {
+  headers: Headers;
+};
+export type postApiFlipBazaarPlanResponseError = (postApiFlipBazaarPlanResponse400TextPlain | postApiFlipBazaarPlanResponse400ApplicationJson | postApiFlipBazaarPlanResponse400TextJson | postApiFlipBazaarPlanResponse401TextPlain | postApiFlipBazaarPlanResponse401ApplicationJson | postApiFlipBazaarPlanResponse401TextJson | postApiFlipBazaarPlanResponse403 | postApiFlipBazaarPlanResponse503) & {
+  headers: Headers;
+};
+
+export type postApiFlipBazaarPlanResponse = (postApiFlipBazaarPlanResponseSuccess | postApiFlipBazaarPlanResponseError)
+
+export const getPostApiFlipBazaarPlanUrl = () => {
+
+
+
+
+  return `https://sky.coflnet.com/api/flip/bazaar/plan`
+}
+
+/**
+ * @summary Personal bazaar plan for the verified account of the caller: Active, Investing or both from one budget.
+Free users get three sampled rows and the number of hidden ones.
+ */
+export const postApiFlipBazaarPlan = async (bazaarPlanRequest?: BazaarPlanRequest, options?: RequestInit): Promise<postApiFlipBazaarPlanResponse> => {
+
+  const res = await fetch(getPostApiFlipBazaarPlanUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(bazaarPlanRequest)
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postApiFlipBazaarPlanResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as postApiFlipBazaarPlanResponse
+}
+
+
+
+
+
+export const getPostApiFlipBazaarPlanMutationOptions = <TError = ProblemDetails | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlan>>, TError,{data?: BazaarPlanRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlan>>, TError,{data?: BazaarPlanRequest}, TContext> => {
+
+const mutationKey = ['postApiFlipBazaarPlan'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiFlipBazaarPlan>>, {data?: BazaarPlanRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiFlipBazaarPlan(data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiFlipBazaarPlanMutationResult = NonNullable<Awaited<ReturnType<typeof postApiFlipBazaarPlan>>>
+    export type PostApiFlipBazaarPlanMutationBody = BazaarPlanRequest | undefined
+    export type PostApiFlipBazaarPlanMutationError = ProblemDetails | void
+
+    /**
+ * @summary Personal bazaar plan for the verified account of the caller: Active, Investing or both from one budget.
+Free users get three sampled rows and the number of hidden ones.
+ */
+export const usePostApiFlipBazaarPlan = <TError = ProblemDetails | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlan>>, TError,{data?: BazaarPlanRequest}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiFlipBazaarPlan>>,
+        TError,
+        {data?: BazaarPlanRequest},
+        TContext
+      > => {
+      return useMutation(getPostApiFlipBazaarPlanMutationOptions(options), queryClient);
+    }
+
+export type postApiFlipBazaarPlanTrackResponse204 = {
+  data: void
+  status: 204
+}
+
+export type postApiFlipBazaarPlanTrackResponse400TextPlain = {
+  data: ProblemDetails
+  status: 400
+}
+
+export type postApiFlipBazaarPlanTrackResponse400ApplicationJson = {
+  data: ProblemDetails
+  status: 400
+}
+
+export type postApiFlipBazaarPlanTrackResponse400TextJson = {
+  data: ProblemDetails
+  status: 400
+}
+
+export type postApiFlipBazaarPlanTrackResponse401TextPlain = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type postApiFlipBazaarPlanTrackResponse401ApplicationJson = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type postApiFlipBazaarPlanTrackResponse401TextJson = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type postApiFlipBazaarPlanTrackResponse403 = {
+  data: void
+  status: 403
+}
+
+export type postApiFlipBazaarPlanTrackResponse404TextPlain = {
+  data: ProblemDetails
+  status: 404
+}
+
+export type postApiFlipBazaarPlanTrackResponse404ApplicationJson = {
+  data: ProblemDetails
+  status: 404
+}
+
+export type postApiFlipBazaarPlanTrackResponse404TextJson = {
+  data: ProblemDetails
+  status: 404
+}
+
+export type postApiFlipBazaarPlanTrackResponse409TextPlain = {
+  data: ProblemDetails
+  status: 409
+}
+
+export type postApiFlipBazaarPlanTrackResponse409ApplicationJson = {
+  data: ProblemDetails
+  status: 409
+}
+
+export type postApiFlipBazaarPlanTrackResponse409TextJson = {
+  data: ProblemDetails
+  status: 409
+}
+
+export type postApiFlipBazaarPlanTrackResponseSuccess = (postApiFlipBazaarPlanTrackResponse204) & {
+  headers: Headers;
+};
+export type postApiFlipBazaarPlanTrackResponseError = (postApiFlipBazaarPlanTrackResponse400TextPlain | postApiFlipBazaarPlanTrackResponse400ApplicationJson | postApiFlipBazaarPlanTrackResponse400TextJson | postApiFlipBazaarPlanTrackResponse401TextPlain | postApiFlipBazaarPlanTrackResponse401ApplicationJson | postApiFlipBazaarPlanTrackResponse401TextJson | postApiFlipBazaarPlanTrackResponse403 | postApiFlipBazaarPlanTrackResponse404TextPlain | postApiFlipBazaarPlanTrackResponse404ApplicationJson | postApiFlipBazaarPlanTrackResponse404TextJson | postApiFlipBazaarPlanTrackResponse409TextPlain | postApiFlipBazaarPlanTrackResponse409ApplicationJson | postApiFlipBazaarPlanTrackResponse409TextJson) & {
+  headers: Headers;
+};
+
+export type postApiFlipBazaarPlanTrackResponse = (postApiFlipBazaarPlanTrackResponseSuccess | postApiFlipBazaarPlanTrackResponseError)
+
+export const getPostApiFlipBazaarPlanTrackUrl = () => {
+
+
+
+
+  return `https://sky.coflnet.com/api/flip/bazaar/plan/track`
+}
+
+/**
+ * @summary Tracks one order of a returned plan in game as a guided bazaar flip goal.
+ */
+export const postApiFlipBazaarPlanTrack = async (bazaarPlanTrackRequest?: BazaarPlanTrackRequest, options?: RequestInit): Promise<postApiFlipBazaarPlanTrackResponse> => {
+
+  const res = await fetch(getPostApiFlipBazaarPlanTrackUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(bazaarPlanTrackRequest)
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postApiFlipBazaarPlanTrackResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as postApiFlipBazaarPlanTrackResponse
+}
+
+
+
+
+
+export const getPostApiFlipBazaarPlanTrackMutationOptions = <TError = ProblemDetails | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>, TError,{data?: BazaarPlanTrackRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>, TError,{data?: BazaarPlanTrackRequest}, TContext> => {
+
+const mutationKey = ['postApiFlipBazaarPlanTrack'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>, {data?: BazaarPlanTrackRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiFlipBazaarPlanTrack(data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiFlipBazaarPlanTrackMutationResult = NonNullable<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>>
+    export type PostApiFlipBazaarPlanTrackMutationBody = BazaarPlanTrackRequest | undefined
+    export type PostApiFlipBazaarPlanTrackMutationError = ProblemDetails | void
+
+    /**
+ * @summary Tracks one order of a returned plan in game as a guided bazaar flip goal.
+ */
+export const usePostApiFlipBazaarPlanTrack = <TError = ProblemDetails | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>, TError,{data?: BazaarPlanTrackRequest}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>,
+        TError,
+        {data?: BazaarPlanTrackRequest},
+        TContext
+      > => {
+      return useMutation(getPostApiFlipBazaarPlanTrackMutationOptions(options), queryClient);
+    }
+
+export type postApiFlipBazaarPlanTrackItemResponse200TextPlain = {
+  data: BazaarPlanTrackItemResponse
+  status: 200
+}
+
+export type postApiFlipBazaarPlanTrackItemResponse200ApplicationJson = {
+  data: BazaarPlanTrackItemResponse
+  status: 200
+}
+
+export type postApiFlipBazaarPlanTrackItemResponse200TextJson = {
+  data: BazaarPlanTrackItemResponse
+  status: 200
+}
+
+export type postApiFlipBazaarPlanTrackItemResponse400TextPlain = {
+  data: ProblemDetails
+  status: 400
+}
+
+export type postApiFlipBazaarPlanTrackItemResponse400ApplicationJson = {
+  data: ProblemDetails
+  status: 400
+}
+
+export type postApiFlipBazaarPlanTrackItemResponse400TextJson = {
+  data: ProblemDetails
+  status: 400
+}
+
+export type postApiFlipBazaarPlanTrackItemResponse401TextPlain = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type postApiFlipBazaarPlanTrackItemResponse401ApplicationJson = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type postApiFlipBazaarPlanTrackItemResponse401TextJson = {
+  data: ProblemDetails
+  status: 401
+}
+
+export type postApiFlipBazaarPlanTrackItemResponse409TextPlain = {
+  data: ProblemDetails
+  status: 409
+}
+
+export type postApiFlipBazaarPlanTrackItemResponse409ApplicationJson = {
+  data: ProblemDetails
+  status: 409
+}
+
+export type postApiFlipBazaarPlanTrackItemResponse409TextJson = {
+  data: ProblemDetails
+  status: 409
+}
+
+export type postApiFlipBazaarPlanTrackItemResponse503 = {
+  data: void
+  status: 503
+}
+
+export type postApiFlipBazaarPlanTrackItemResponseSuccess = (postApiFlipBazaarPlanTrackItemResponse200TextPlain | postApiFlipBazaarPlanTrackItemResponse200ApplicationJson | postApiFlipBazaarPlanTrackItemResponse200TextJson) & {
+  headers: Headers;
+};
+export type postApiFlipBazaarPlanTrackItemResponseError = (postApiFlipBazaarPlanTrackItemResponse400TextPlain | postApiFlipBazaarPlanTrackItemResponse400ApplicationJson | postApiFlipBazaarPlanTrackItemResponse400TextJson | postApiFlipBazaarPlanTrackItemResponse401TextPlain | postApiFlipBazaarPlanTrackItemResponse401ApplicationJson | postApiFlipBazaarPlanTrackItemResponse401TextJson | postApiFlipBazaarPlanTrackItemResponse409TextPlain | postApiFlipBazaarPlanTrackItemResponse409ApplicationJson | postApiFlipBazaarPlanTrackItemResponse409TextJson | postApiFlipBazaarPlanTrackItemResponse503) & {
+  headers: Headers;
+};
+
+export type postApiFlipBazaarPlanTrackItemResponse = (postApiFlipBazaarPlanTrackItemResponseSuccess | postApiFlipBazaarPlanTrackItemResponseError)
+
+export const getPostApiFlipBazaarPlanTrackItemUrl = () => {
+
+
+
+
+  return `https://sky.coflnet.com/api/flip/bazaar/plan/track-item`
+}
+
+/**
+ * @summary Re-plans for the caller and tracks the buy order of one item in game. Accepts the Google token or the
+SkyCofl api key in the x-api-key header (only this route accepts the key alone).
+ */
+export const postApiFlipBazaarPlanTrackItem = async (bazaarPlanTrackItemRequest?: BazaarPlanTrackItemRequest, options?: RequestInit): Promise<postApiFlipBazaarPlanTrackItemResponse> => {
+
+  const res = await fetch(getPostApiFlipBazaarPlanTrackItemUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(bazaarPlanTrackItemRequest)
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postApiFlipBazaarPlanTrackItemResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as postApiFlipBazaarPlanTrackItemResponse
+}
+
+
+
+
+
+export const getPostApiFlipBazaarPlanTrackItemMutationOptions = <TError = ProblemDetails | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrackItem>>, TError,{data?: BazaarPlanTrackItemRequest}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrackItem>>, TError,{data?: BazaarPlanTrackItemRequest}, TContext> => {
+
+const mutationKey = ['postApiFlipBazaarPlanTrackItem'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrackItem>>, {data?: BazaarPlanTrackItemRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  postApiFlipBazaarPlanTrackItem(data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiFlipBazaarPlanTrackItemMutationResult = NonNullable<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrackItem>>>
+    export type PostApiFlipBazaarPlanTrackItemMutationBody = BazaarPlanTrackItemRequest | undefined
+    export type PostApiFlipBazaarPlanTrackItemMutationError = ProblemDetails | void
+
+    /**
+ * @summary Re-plans for the caller and tracks the buy order of one item in game. Accepts the Google token or the
+SkyCofl api key in the x-api-key header (only this route accepts the key alone).
+ */
+export const usePostApiFlipBazaarPlanTrackItem = <TError = ProblemDetails | void,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrackItem>>, TError,{data?: BazaarPlanTrackItemRequest}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiFlipBazaarPlanTrackItem>>,
+        TError,
+        {data?: BazaarPlanTrackItemRequest},
+        TContext
+      > => {
+      return useMutation(getPostApiFlipBazaarPlanTrackItemMutationOptions(options), queryClient);
     }
 
 export type getApiFlipUpdateWhenResponse200TextPlain = {
@@ -14194,20 +14930,29 @@ export type getApiDiscountCodeResponseSuccess = (getApiDiscountCodeResponse200Te
 
 export type getApiDiscountCodeResponse = (getApiDiscountCodeResponseSuccess)
 
-export const getGetApiDiscountCodeUrl = (code: string,) => {
+export const getGetApiDiscountCodeUrl = (code: string,
+    params?: GetApiDiscountCodeParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `https://sky.coflnet.com/api/discount/${code}`
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/discount/${code}?${stringifiedParams}` : `https://sky.coflnet.com/api/discount/${code}`
 }
 
 /**
  * @summary Gets discount code details.
  */
-export const getApiDiscountCode = async (code: string, options?: RequestInit): Promise<getApiDiscountCodeResponse> => {
+export const getApiDiscountCode = async (code: string,
+    params?: GetApiDiscountCodeParams, options?: RequestInit): Promise<getApiDiscountCodeResponse> => {
 
-  const res = await fetch(getGetApiDiscountCodeUrl(code),
+  const res = await fetch(getGetApiDiscountCodeUrl(code,params),
   {
     ...options,
     method: 'GET'
@@ -14227,23 +14972,25 @@ export const getApiDiscountCode = async (code: string, options?: RequestInit): P
 
 
 
-export const getGetApiDiscountCodeQueryKey = (code: string,) => {
+export const getGetApiDiscountCodeQueryKey = (code: string,
+    params?: GetApiDiscountCodeParams,) => {
     return [
-    `https://sky.coflnet.com/api/discount/${code}`
+    `https://sky.coflnet.com/api/discount/${code}`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetApiDiscountCodeQueryOptions = <TData = Awaited<ReturnType<typeof getApiDiscountCode>>, TError = unknown>(code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiDiscountCodeQueryOptions = <TData = Awaited<ReturnType<typeof getApiDiscountCode>>, TError = unknown>(code: string,
+    params?: GetApiDiscountCodeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiDiscountCodeQueryKey(code);
+  const queryKey =  queryOptions?.queryKey ?? getGetApiDiscountCodeQueryKey(code,params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiDiscountCode>>> = ({ signal }) => getApiDiscountCode(code, { signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiDiscountCode>>> = ({ signal }) => getApiDiscountCode(code,params, { signal, ...fetchOptions });
 
 
 
@@ -14257,7 +15004,8 @@ export type GetApiDiscountCodeQueryError = unknown
 
 
 export function useGetApiDiscountCode<TData = Awaited<ReturnType<typeof getApiDiscountCode>>, TError = unknown>(
- code: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData>> & Pick<
+ code: string,
+    params: undefined |  GetApiDiscountCodeParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiDiscountCode>>,
           TError,
@@ -14267,7 +15015,8 @@ export function useGetApiDiscountCode<TData = Awaited<ReturnType<typeof getApiDi
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiDiscountCode<TData = Awaited<ReturnType<typeof getApiDiscountCode>>, TError = unknown>(
- code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData>> & Pick<
+ code: string,
+    params?: GetApiDiscountCodeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiDiscountCode>>,
           TError,
@@ -14277,7 +15026,8 @@ export function useGetApiDiscountCode<TData = Awaited<ReturnType<typeof getApiDi
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiDiscountCode<TData = Awaited<ReturnType<typeof getApiDiscountCode>>, TError = unknown>(
- code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData>>, fetch?: RequestInit}
+ code: string,
+    params?: GetApiDiscountCodeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
@@ -14285,11 +15035,12 @@ export function useGetApiDiscountCode<TData = Awaited<ReturnType<typeof getApiDi
  */
 
 export function useGetApiDiscountCode<TData = Awaited<ReturnType<typeof getApiDiscountCode>>, TError = unknown>(
- code: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData>>, fetch?: RequestInit}
+ code: string,
+    params?: GetApiDiscountCodeParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiDiscountCode>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiDiscountCodeQueryOptions(code,options)
+  const queryOptions = getGetApiDiscountCodeQueryOptions(code,params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -15107,14 +15858,15 @@ export const getPostApiPremiumSubscriptionSubscriptionSlugUrl = (subscriptionSlu
  * @summary Purchase a service
  */
 export const postApiPremiumSubscriptionSubscriptionSlug = async (subscriptionSlug: string,
+    subscriptionDeclarationArgs?: SubscriptionDeclarationArgs,
     params?: PostApiPremiumSubscriptionSubscriptionSlugParams, options?: RequestInit): Promise<postApiPremiumSubscriptionSubscriptionSlugResponse> => {
 
   const res = await fetch(getPostApiPremiumSubscriptionSubscriptionSlugUrl(subscriptionSlug,params),
   {
     ...options,
-    method: 'POST'
-
-
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(subscriptionDeclarationArgs)
   }
 )
 
@@ -15130,8 +15882,8 @@ export const postApiPremiumSubscriptionSubscriptionSlug = async (subscriptionSlu
 
 
 export const getPostApiPremiumSubscriptionSubscriptionSlugMutationOptions = <TError = PostApiPremiumSubscriptionSubscriptionSlug401One | string | void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string;data?: SubscriptionDeclarationArgs;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string;data?: SubscriptionDeclarationArgs;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}, TContext> => {
 
 const mutationKey = ['postApiPremiumSubscriptionSubscriptionSlug'];
 const {mutation: mutationOptions, fetch: fetchOptions} = options ?
@@ -15143,10 +15895,10 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, {subscriptionSlug: string;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}> = (props) => {
-          const {subscriptionSlug,params} = props ?? {};
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, {subscriptionSlug: string;data?: SubscriptionDeclarationArgs;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}> = (props) => {
+          const {subscriptionSlug,data,params} = props ?? {};
 
-          return  postApiPremiumSubscriptionSubscriptionSlug(subscriptionSlug,params,fetchOptions)
+          return  postApiPremiumSubscriptionSubscriptionSlug(subscriptionSlug,data,params,fetchOptions)
         }
 
 
@@ -15157,22 +15909,431 @@ const {mutation: mutationOptions, fetch: fetchOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type PostApiPremiumSubscriptionSubscriptionSlugMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>>
-
+    export type PostApiPremiumSubscriptionSubscriptionSlugMutationBody = SubscriptionDeclarationArgs | undefined
     export type PostApiPremiumSubscriptionSubscriptionSlugMutationError = PostApiPremiumSubscriptionSubscriptionSlug401One | string | void
 
     /**
  * @summary Purchase a service
  */
 export const usePostApiPremiumSubscriptionSubscriptionSlug = <TError = PostApiPremiumSubscriptionSubscriptionSlug401One | string | void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}, TContext>, fetch?: RequestInit}
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>, TError,{subscriptionSlug: string;data?: SubscriptionDeclarationArgs;params?: PostApiPremiumSubscriptionSubscriptionSlugParams}, TContext>, fetch?: RequestInit}
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiPremiumSubscriptionSubscriptionSlug>>,
         TError,
-        {subscriptionSlug: string;params?: PostApiPremiumSubscriptionSubscriptionSlugParams},
+        {subscriptionSlug: string;data?: SubscriptionDeclarationArgs;params?: PostApiPremiumSubscriptionSubscriptionSlugParams},
         TContext
       > => {
       return useMutation(getPostApiPremiumSubscriptionSubscriptionSlugMutationOptions(options), queryClient);
     }
+
+export type getApiPremiumCountryResponse200TextPlain = {
+  data: CountryResponse
+  status: 200
+}
+
+export type getApiPremiumCountryResponse200ApplicationJson = {
+  data: CountryResponse
+  status: 200
+}
+
+export type getApiPremiumCountryResponse200TextJson = {
+  data: CountryResponse
+  status: 200
+}
+
+export type getApiPremiumCountryResponseSuccess = (getApiPremiumCountryResponse200TextPlain | getApiPremiumCountryResponse200ApplicationJson | getApiPremiumCountryResponse200TextJson) & {
+  headers: Headers;
+};
+;
+
+export type getApiPremiumCountryResponse = (getApiPremiumCountryResponseSuccess)
+
+export const getGetApiPremiumCountryUrl = () => {
+
+
+
+
+  return `https://sky.coflnet.com/api/premium/country`
+}
+
+/**
+ * @summary Gets the country of the caller as seen by Cloudflare; never cached.
+ */
+export const getApiPremiumCountry = async ( options?: RequestInit): Promise<getApiPremiumCountryResponse> => {
+
+  const res = await fetch(getGetApiPremiumCountryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiPremiumCountryResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiPremiumCountryResponse
+}
+
+
+
+
+
+export const getGetApiPremiumCountryQueryKey = () => {
+    return [
+    `https://sky.coflnet.com/api/premium/country`
+    ] as const;
+    }
+
+
+export const getGetApiPremiumCountryQueryOptions = <TData = Awaited<ReturnType<typeof getApiPremiumCountry>>, TError = unknown>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumCountry>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiPremiumCountryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPremiumCountry>>> = ({ signal }) => getApiPremiumCountry({ signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumCountry>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiPremiumCountryQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPremiumCountry>>>
+export type GetApiPremiumCountryQueryError = unknown
+
+
+export function useGetApiPremiumCountry<TData = Awaited<ReturnType<typeof getApiPremiumCountry>>, TError = unknown>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumCountry>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPremiumCountry>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPremiumCountry>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPremiumCountry<TData = Awaited<ReturnType<typeof getApiPremiumCountry>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumCountry>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPremiumCountry>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPremiumCountry>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPremiumCountry<TData = Awaited<ReturnType<typeof getApiPremiumCountry>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumCountry>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Gets the country of the caller as seen by Cloudflare; never cached.
+ */
+
+export function useGetApiPremiumCountry<TData = Awaited<ReturnType<typeof getApiPremiumCountry>>, TError = unknown>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumCountry>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiPremiumCountryQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type getApiPremiumSubscriptionProvidersResponse200TextPlain = {
+  data: SubscriptionProviderOption[]
+  status: 200
+}
+
+export type getApiPremiumSubscriptionProvidersResponse200ApplicationJson = {
+  data: SubscriptionProviderOption[]
+  status: 200
+}
+
+export type getApiPremiumSubscriptionProvidersResponse200TextJson = {
+  data: SubscriptionProviderOption[]
+  status: 200
+}
+
+export type getApiPremiumSubscriptionProvidersResponseSuccess = (getApiPremiumSubscriptionProvidersResponse200TextPlain | getApiPremiumSubscriptionProvidersResponse200ApplicationJson | getApiPremiumSubscriptionProvidersResponse200TextJson) & {
+  headers: Headers;
+};
+;
+
+export type getApiPremiumSubscriptionProvidersResponse = (getApiPremiumSubscriptionProvidersResponseSuccess)
+
+export const getGetApiPremiumSubscriptionProvidersUrl = (params?: GetApiPremiumSubscriptionProvidersParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/premium/subscription/providers?${stringifiedParams}` : `https://sky.coflnet.com/api/premium/subscription/providers`
+}
+
+/**
+ * @summary Gets the subscription providers the buyer can choose for a plan.
+ */
+export const getApiPremiumSubscriptionProviders = async (params?: GetApiPremiumSubscriptionProvidersParams, options?: RequestInit): Promise<getApiPremiumSubscriptionProvidersResponse> => {
+
+  const res = await fetch(getGetApiPremiumSubscriptionProvidersUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiPremiumSubscriptionProvidersResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiPremiumSubscriptionProvidersResponse
+}
+
+
+
+
+
+export const getGetApiPremiumSubscriptionProvidersQueryKey = (params?: GetApiPremiumSubscriptionProvidersParams,) => {
+    return [
+    `https://sky.coflnet.com/api/premium/subscription/providers`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetApiPremiumSubscriptionProvidersQueryOptions = <TData = Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>, TError = unknown>(params?: GetApiPremiumSubscriptionProvidersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiPremiumSubscriptionProvidersQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>> = ({ signal }) => getApiPremiumSubscriptionProviders(params, { signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiPremiumSubscriptionProvidersQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>>
+export type GetApiPremiumSubscriptionProvidersQueryError = unknown
+
+
+export function useGetApiPremiumSubscriptionProviders<TData = Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>, TError = unknown>(
+ params: undefined |  GetApiPremiumSubscriptionProvidersParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPremiumSubscriptionProviders<TData = Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>, TError = unknown>(
+ params?: GetApiPremiumSubscriptionProvidersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPremiumSubscriptionProviders<TData = Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>, TError = unknown>(
+ params?: GetApiPremiumSubscriptionProvidersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Gets the subscription providers the buyer can choose for a plan.
+ */
+
+export function useGetApiPremiumSubscriptionProviders<TData = Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>, TError = unknown>(
+ params?: GetApiPremiumSubscriptionProvidersParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscriptionProviders>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiPremiumSubscriptionProvidersQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type getApiPremiumDiscountAutoResponse200TextPlain = {
+  data: AutoDiscount
+  status: 200
+}
+
+export type getApiPremiumDiscountAutoResponse200ApplicationJson = {
+  data: AutoDiscount
+  status: 200
+}
+
+export type getApiPremiumDiscountAutoResponse200TextJson = {
+  data: AutoDiscount
+  status: 200
+}
+
+export type getApiPremiumDiscountAutoResponse204 = {
+  data: void
+  status: 204
+}
+
+export type getApiPremiumDiscountAutoResponseSuccess = (getApiPremiumDiscountAutoResponse200TextPlain | getApiPremiumDiscountAutoResponse200ApplicationJson | getApiPremiumDiscountAutoResponse200TextJson | getApiPremiumDiscountAutoResponse204) & {
+  headers: Headers;
+};
+;
+
+export type getApiPremiumDiscountAutoResponse = (getApiPremiumDiscountAutoResponseSuccess)
+
+export const getGetApiPremiumDiscountAutoUrl = (params?: GetApiPremiumDiscountAutoParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/premium/discount/auto?${stringifiedParams}` : `https://sky.coflnet.com/api/premium/discount/auto`
+}
+
+/**
+ * @summary Gets the promotion applied automatically to new subscriptions.
+ */
+export const getApiPremiumDiscountAuto = async (params?: GetApiPremiumDiscountAutoParams, options?: RequestInit): Promise<getApiPremiumDiscountAutoResponse> => {
+
+  const res = await fetch(getGetApiPremiumDiscountAutoUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiPremiumDiscountAutoResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiPremiumDiscountAutoResponse
+}
+
+
+
+
+
+export const getGetApiPremiumDiscountAutoQueryKey = (params?: GetApiPremiumDiscountAutoParams,) => {
+    return [
+    `https://sky.coflnet.com/api/premium/discount/auto`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetApiPremiumDiscountAutoQueryOptions = <TData = Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>, TError = unknown>(params?: GetApiPremiumDiscountAutoParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiPremiumDiscountAutoQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>> = ({ signal }) => getApiPremiumDiscountAuto(params, { signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiPremiumDiscountAutoQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>>
+export type GetApiPremiumDiscountAutoQueryError = unknown
+
+
+export function useGetApiPremiumDiscountAuto<TData = Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>, TError = unknown>(
+ params: undefined |  GetApiPremiumDiscountAutoParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPremiumDiscountAuto<TData = Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>, TError = unknown>(
+ params?: GetApiPremiumDiscountAutoParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPremiumDiscountAuto<TData = Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>, TError = unknown>(
+ params?: GetApiPremiumDiscountAutoParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Gets the promotion applied automatically to new subscriptions.
+ */
+
+export function useGetApiPremiumDiscountAuto<TData = Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>, TError = unknown>(
+ params?: GetApiPremiumDiscountAutoParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumDiscountAuto>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiPremiumDiscountAutoQueryOptions(params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export type getApiPremiumSubscriptionResponse200TextPlain = {
   data: PremiumSubscription[]
@@ -19226,6 +20387,679 @@ export function useGetApiSearchPlayerPlayerName<TData = Awaited<ReturnType<typeo
 
 
 
+export type getApiTasksResponse200TextPlain = {
+  data: PublicTaskEstimate[]
+  status: 200
+}
+
+export type getApiTasksResponse200ApplicationJson = {
+  data: PublicTaskEstimate[]
+  status: 200
+}
+
+export type getApiTasksResponse200TextJson = {
+  data: PublicTaskEstimate[]
+  status: 200
+}
+
+export type getApiTasksResponse503TextPlain = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksResponse503ApplicationJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksResponse503TextJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksResponseSuccess = (getApiTasksResponse200TextPlain | getApiTasksResponse200ApplicationJson | getApiTasksResponse200TextJson) & {
+  headers: Headers;
+};
+export type getApiTasksResponseError = (getApiTasksResponse503TextPlain | getApiTasksResponse503ApplicationJson | getApiTasksResponse503TextJson) & {
+  headers: Headers;
+};
+
+export type getApiTasksResponse = (getApiTasksResponseSuccess | getApiTasksResponseError)
+
+export const getGetApiTasksUrl = () => {
+
+
+
+
+  return `https://sky.coflnet.com/api/tasks`
+}
+
+/**
+ * @summary All task estimates sorted by coins per hour, best first
+ */
+export const getApiTasks = async ( options?: RequestInit): Promise<getApiTasksResponse> => {
+
+  const res = await fetch(getGetApiTasksUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiTasksResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiTasksResponse
+}
+
+
+
+
+
+export const getGetApiTasksQueryKey = () => {
+    return [
+    `https://sky.coflnet.com/api/tasks`
+    ] as const;
+    }
+
+
+export const getGetApiTasksQueryOptions = <TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiTasksQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTasks>>> = ({ signal }) => getApiTasks({ signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiTasksQueryResult = NonNullable<Awaited<ReturnType<typeof getApiTasks>>>
+export type GetApiTasksQueryError = ErrorResponse
+
+
+export function useGetApiTasks<TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasks>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasks>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasks<TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasks>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasks>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasks<TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary All task estimates sorted by coins per hour, best first
+ */
+
+export function useGetApiTasks<TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiTasksQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type getApiTasksSlugResponse200TextPlain = {
+  data: PublicTaskEstimate
+  status: 200
+}
+
+export type getApiTasksSlugResponse200ApplicationJson = {
+  data: PublicTaskEstimate
+  status: 200
+}
+
+export type getApiTasksSlugResponse200TextJson = {
+  data: PublicTaskEstimate
+  status: 200
+}
+
+export type getApiTasksSlugResponse404TextPlain = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugResponse404ApplicationJson = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugResponse404TextJson = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugResponse503TextPlain = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugResponse503ApplicationJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugResponse503TextJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugResponseSuccess = (getApiTasksSlugResponse200TextPlain | getApiTasksSlugResponse200ApplicationJson | getApiTasksSlugResponse200TextJson) & {
+  headers: Headers;
+};
+export type getApiTasksSlugResponseError = (getApiTasksSlugResponse404TextPlain | getApiTasksSlugResponse404ApplicationJson | getApiTasksSlugResponse404TextJson | getApiTasksSlugResponse503TextPlain | getApiTasksSlugResponse503ApplicationJson | getApiTasksSlugResponse503TextJson) & {
+  headers: Headers;
+};
+
+export type getApiTasksSlugResponse = (getApiTasksSlugResponseSuccess | getApiTasksSlugResponseError)
+
+export const getGetApiTasksSlugUrl = (slug: string,) => {
+
+
+
+
+  return `https://sky.coflnet.com/api/tasks/${slug}`
+}
+
+/**
+ * @summary A single task estimate
+ */
+export const getApiTasksSlug = async (slug: string, options?: RequestInit): Promise<getApiTasksSlugResponse> => {
+
+  const res = await fetch(getGetApiTasksSlugUrl(slug),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiTasksSlugResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiTasksSlugResponse
+}
+
+
+
+
+
+export const getGetApiTasksSlugQueryKey = (slug: string,) => {
+    return [
+    `https://sky.coflnet.com/api/tasks/${slug}`
+    ] as const;
+    }
+
+
+export const getGetApiTasksSlugQueryOptions = <TData = Awaited<ReturnType<typeof getApiTasksSlug>>, TError = ErrorResponse>(slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlug>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiTasksSlugQueryKey(slug);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTasksSlug>>> = ({ signal }) => getApiTasksSlug(slug, { signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: slug !== null && slug !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlug>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiTasksSlugQueryResult = NonNullable<Awaited<ReturnType<typeof getApiTasksSlug>>>
+export type GetApiTasksSlugQueryError = ErrorResponse
+
+
+export function useGetApiTasksSlug<TData = Awaited<ReturnType<typeof getApiTasksSlug>>, TError = ErrorResponse>(
+ slug: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlug>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasksSlug>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasksSlug>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasksSlug<TData = Awaited<ReturnType<typeof getApiTasksSlug>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlug>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasksSlug>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasksSlug>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasksSlug<TData = Awaited<ReturnType<typeof getApiTasksSlug>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlug>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary A single task estimate
+ */
+
+export function useGetApiTasksSlug<TData = Awaited<ReturnType<typeof getApiTasksSlug>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlug>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiTasksSlugQueryOptions(slug,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type getApiTasksSlugSetupsResponse200TextPlain = {
+  data: PublicTaskSetups
+  status: 200
+}
+
+export type getApiTasksSlugSetupsResponse200ApplicationJson = {
+  data: PublicTaskSetups
+  status: 200
+}
+
+export type getApiTasksSlugSetupsResponse200TextJson = {
+  data: PublicTaskSetups
+  status: 200
+}
+
+export type getApiTasksSlugSetupsResponse404TextPlain = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugSetupsResponse404ApplicationJson = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugSetupsResponse404TextJson = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugSetupsResponse503TextPlain = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugSetupsResponse503ApplicationJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugSetupsResponse503TextJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugSetupsResponseSuccess = (getApiTasksSlugSetupsResponse200TextPlain | getApiTasksSlugSetupsResponse200ApplicationJson | getApiTasksSlugSetupsResponse200TextJson) & {
+  headers: Headers;
+};
+export type getApiTasksSlugSetupsResponseError = (getApiTasksSlugSetupsResponse404TextPlain | getApiTasksSlugSetupsResponse404ApplicationJson | getApiTasksSlugSetupsResponse404TextJson | getApiTasksSlugSetupsResponse503TextPlain | getApiTasksSlugSetupsResponse503ApplicationJson | getApiTasksSlugSetupsResponse503TextJson) & {
+  headers: Headers;
+};
+
+export type getApiTasksSlugSetupsResponse = (getApiTasksSlugSetupsResponseSuccess | getApiTasksSlugSetupsResponseError)
+
+export const getGetApiTasksSlugSetupsUrl = (slug: string,) => {
+
+
+
+
+  return `https://sky.coflnet.com/api/tasks/${slug}/setups`
+}
+
+/**
+ * @summary Gear setups of a task: which armor, tools and pets to use at different price points.
+The baseline and budget setups include their numbers, the mid and endgame setups are locked
+(numbers are null) and available with premium on the details endpoint. The endgame setup is never described here:
+it is a placeholder (tier endgame, locked, requiredTier premium_plus) without items, name or numbers.
+ */
+export const getApiTasksSlugSetups = async (slug: string, options?: RequestInit): Promise<getApiTasksSlugSetupsResponse> => {
+
+  const res = await fetch(getGetApiTasksSlugSetupsUrl(slug),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiTasksSlugSetupsResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiTasksSlugSetupsResponse
+}
+
+
+
+
+
+export const getGetApiTasksSlugSetupsQueryKey = (slug: string,) => {
+    return [
+    `https://sky.coflnet.com/api/tasks/${slug}/setups`
+    ] as const;
+    }
+
+
+export const getGetApiTasksSlugSetupsQueryOptions = <TData = Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError = ErrorResponse>(slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiTasksSlugSetupsQueryKey(slug);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTasksSlugSetups>>> = ({ signal }) => getApiTasksSlugSetups(slug, { signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: slug !== null && slug !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiTasksSlugSetupsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiTasksSlugSetups>>>
+export type GetApiTasksSlugSetupsQueryError = ErrorResponse
+
+
+export function useGetApiTasksSlugSetups<TData = Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError = ErrorResponse>(
+ slug: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasksSlugSetups>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasksSlugSetups>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasksSlugSetups<TData = Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasksSlugSetups>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasksSlugSetups>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasksSlugSetups<TData = Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Gear setups of a task: which armor, tools and pets to use at different price points.
+The baseline and budget setups include their numbers, the mid and endgame setups are locked
+(numbers are null) and available with premium on the details endpoint. The endgame setup is never described here:
+it is a placeholder (tier endgame, locked, requiredTier premium_plus) without items, name or numbers.
+ */
+
+export function useGetApiTasksSlugSetups<TData = Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetups>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiTasksSlugSetupsQueryOptions(slug,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type getApiTasksSlugSetupsDetailsResponse200TextPlain = {
+  data: PublicTaskSetups
+  status: 200
+}
+
+export type getApiTasksSlugSetupsDetailsResponse200ApplicationJson = {
+  data: PublicTaskSetups
+  status: 200
+}
+
+export type getApiTasksSlugSetupsDetailsResponse200TextJson = {
+  data: PublicTaskSetups
+  status: 200
+}
+
+export type getApiTasksSlugSetupsDetailsResponse401TextPlain = {
+  data: ErrorResponse
+  status: 401
+}
+
+export type getApiTasksSlugSetupsDetailsResponse401ApplicationJson = {
+  data: ErrorResponse
+  status: 401
+}
+
+export type getApiTasksSlugSetupsDetailsResponse401TextJson = {
+  data: ErrorResponse
+  status: 401
+}
+
+export type getApiTasksSlugSetupsDetailsResponse403TextPlain = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type getApiTasksSlugSetupsDetailsResponse403ApplicationJson = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type getApiTasksSlugSetupsDetailsResponse403TextJson = {
+  data: ErrorResponse
+  status: 403
+}
+
+export type getApiTasksSlugSetupsDetailsResponse404TextPlain = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugSetupsDetailsResponse404ApplicationJson = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugSetupsDetailsResponse404TextJson = {
+  data: ErrorResponse
+  status: 404
+}
+
+export type getApiTasksSlugSetupsDetailsResponse503TextPlain = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugSetupsDetailsResponse503ApplicationJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugSetupsDetailsResponse503TextJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type getApiTasksSlugSetupsDetailsResponseSuccess = (getApiTasksSlugSetupsDetailsResponse200TextPlain | getApiTasksSlugSetupsDetailsResponse200ApplicationJson | getApiTasksSlugSetupsDetailsResponse200TextJson) & {
+  headers: Headers;
+};
+export type getApiTasksSlugSetupsDetailsResponseError = (getApiTasksSlugSetupsDetailsResponse401TextPlain | getApiTasksSlugSetupsDetailsResponse401ApplicationJson | getApiTasksSlugSetupsDetailsResponse401TextJson | getApiTasksSlugSetupsDetailsResponse403TextPlain | getApiTasksSlugSetupsDetailsResponse403ApplicationJson | getApiTasksSlugSetupsDetailsResponse403TextJson | getApiTasksSlugSetupsDetailsResponse404TextPlain | getApiTasksSlugSetupsDetailsResponse404ApplicationJson | getApiTasksSlugSetupsDetailsResponse404TextJson | getApiTasksSlugSetupsDetailsResponse503TextPlain | getApiTasksSlugSetupsDetailsResponse503ApplicationJson | getApiTasksSlugSetupsDetailsResponse503TextJson) & {
+  headers: Headers;
+};
+
+export type getApiTasksSlugSetupsDetailsResponse = (getApiTasksSlugSetupsDetailsResponseSuccess | getApiTasksSlugSetupsDetailsResponseError)
+
+export const getGetApiTasksSlugSetupsDetailsUrl = (slug: string,) => {
+
+
+
+
+  return `https://sky.coflnet.com/api/tasks/${slug}/setups/details`
+}
+
+/**
+ * @summary Gear setups with coins per hour, buy cost, resale value and payback hours. Premium and premium plus only.
+The endgame setup is only included for premium plus, premium gets a placeholder (tier endgame, locked,
+requiredTier premium_plus) without items, name or numbers. The answer depends on the tier and is never cached by shared caches.
+ */
+export const getApiTasksSlugSetupsDetails = async (slug: string, options?: RequestInit): Promise<getApiTasksSlugSetupsDetailsResponse> => {
+
+  const res = await fetch(getGetApiTasksSlugSetupsDetailsUrl(slug),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiTasksSlugSetupsDetailsResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiTasksSlugSetupsDetailsResponse
+}
+
+
+
+
+
+export const getGetApiTasksSlugSetupsDetailsQueryKey = (slug: string,) => {
+    return [
+    `https://sky.coflnet.com/api/tasks/${slug}/setups/details`
+    ] as const;
+    }
+
+
+export const getGetApiTasksSlugSetupsDetailsQueryOptions = <TData = Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError = ErrorResponse>(slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiTasksSlugSetupsDetailsQueryKey(slug);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>> = ({ signal }) => getApiTasksSlugSetupsDetails(slug, { signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: slug !== null && slug !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiTasksSlugSetupsDetailsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>>
+export type GetApiTasksSlugSetupsDetailsQueryError = ErrorResponse
+
+
+export function useGetApiTasksSlugSetupsDetails<TData = Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError = ErrorResponse>(
+ slug: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasksSlugSetupsDetails<TData = Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>,
+          TError,
+          Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiTasksSlugSetupsDetails<TData = Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Gear setups with coins per hour, buy cost, resale value and payback hours. Premium and premium plus only.
+The endgame setup is only included for premium plus, premium gets a placeholder (tier endgame, locked,
+requiredTier premium_plus) without items, name or numbers. The answer depends on the tier and is never cached by shared caches.
+ */
+
+export function useGetApiTasksSlugSetupsDetails<TData = Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError = ErrorResponse>(
+ slug: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasksSlugSetupsDetails>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiTasksSlugSetupsDetailsQueryOptions(slug,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export type getApiPremiumSlotsProductsResponse200TextPlain = {
   data: PurchaseableProduct[]
   status: 200
@@ -21082,306 +22916,5 @@ export const useDeleteApiUserMe = <TError = DeleteApiUserMe401One | string | voi
         TContext
       > => {
       return useMutation(getDeleteApiUserMeMutationOptions(options), queryClient);
-    }
-
-export type postApiFlipBazaarPlanResponse200TextPlain = {
-  data: BazaarPlanResponse
-  status: 200
-}
-
-export type postApiFlipBazaarPlanResponse200ApplicationJson = {
-  data: BazaarPlanResponse
-  status: 200
-}
-
-export type postApiFlipBazaarPlanResponse200TextJson = {
-  data: BazaarPlanResponse
-  status: 200
-}
-
-export type postApiFlipBazaarPlanResponse400TextPlain = {
-  data: ProblemDetails
-  status: 400
-}
-
-export type postApiFlipBazaarPlanResponse400ApplicationJson = {
-  data: ProblemDetails
-  status: 400
-}
-
-export type postApiFlipBazaarPlanResponse400TextJson = {
-  data: ProblemDetails
-  status: 400
-}
-
-export type postApiFlipBazaarPlanResponse401TextPlain = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type postApiFlipBazaarPlanResponse401ApplicationJson = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type postApiFlipBazaarPlanResponse401TextJson = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type postApiFlipBazaarPlanResponse403 = {
-  data: void
-  status: 403
-}
-
-export type postApiFlipBazaarPlanResponse503 = {
-  data: void
-  status: 503
-}
-
-export type postApiFlipBazaarPlanResponseSuccess = (postApiFlipBazaarPlanResponse200TextPlain | postApiFlipBazaarPlanResponse200ApplicationJson | postApiFlipBazaarPlanResponse200TextJson) & {
-  headers: Headers;
-};
-export type postApiFlipBazaarPlanResponseError = (postApiFlipBazaarPlanResponse400TextPlain | postApiFlipBazaarPlanResponse400ApplicationJson | postApiFlipBazaarPlanResponse400TextJson | postApiFlipBazaarPlanResponse401TextPlain | postApiFlipBazaarPlanResponse401ApplicationJson | postApiFlipBazaarPlanResponse401TextJson | postApiFlipBazaarPlanResponse403 | postApiFlipBazaarPlanResponse503) & {
-  headers: Headers;
-};
-
-export type postApiFlipBazaarPlanResponse = (postApiFlipBazaarPlanResponseSuccess | postApiFlipBazaarPlanResponseError)
-
-export const getPostApiFlipBazaarPlanUrl = () => {
-
-
-
-
-  return `https://sky.coflnet.com/api/flip/bazaar/plan`
-}
-
-/**
- * @summary Personal bazaar plan for the verified account of the caller: Active, Investing or both from one budget.
-Free users get three sampled rows and the number of hidden ones.
- */
-export const postApiFlipBazaarPlan = async (bazaarPlanRequest?: BazaarPlanRequest, options?: RequestInit): Promise<postApiFlipBazaarPlanResponse> => {
-
-  const res = await fetch(getPostApiFlipBazaarPlanUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
-    body: JSON.stringify(bazaarPlanRequest)
-  }
-)
-
-  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: postApiFlipBazaarPlanResponse['data'] = parseGeneratedResponseBody(body)
-  return { data, status: res.status, headers: res.headers } as postApiFlipBazaarPlanResponse
-}
-
-
-
-
-
-export const getPostApiFlipBazaarPlanMutationOptions = <TError = ProblemDetails | void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlan>>, TError,{data?: BazaarPlanRequest}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlan>>, TError,{data?: BazaarPlanRequest}, TContext> => {
-
-const mutationKey = ['postApiFlipBazaarPlan'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiFlipBazaarPlan>>, {data?: BazaarPlanRequest}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postApiFlipBazaarPlan(data,fetchOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostApiFlipBazaarPlanMutationResult = NonNullable<Awaited<ReturnType<typeof postApiFlipBazaarPlan>>>
-    export type PostApiFlipBazaarPlanMutationBody = BazaarPlanRequest | undefined
-    export type PostApiFlipBazaarPlanMutationError = ProblemDetails | void
-
-    /**
- * @summary Personal bazaar plan for the verified account of the caller: Active, Investing or both from one budget.
-Free users get three sampled rows and the number of hidden ones.
- */
-export const usePostApiFlipBazaarPlan = <TError = ProblemDetails | void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlan>>, TError,{data?: BazaarPlanRequest}, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postApiFlipBazaarPlan>>,
-        TError,
-        {data?: BazaarPlanRequest},
-        TContext
-      > => {
-      return useMutation(getPostApiFlipBazaarPlanMutationOptions(options), queryClient);
-    }
-
-export type postApiFlipBazaarPlanTrackResponse204 = {
-  data: void
-  status: 204
-}
-
-export type postApiFlipBazaarPlanTrackResponse400TextPlain = {
-  data: ProblemDetails
-  status: 400
-}
-
-export type postApiFlipBazaarPlanTrackResponse400ApplicationJson = {
-  data: ProblemDetails
-  status: 400
-}
-
-export type postApiFlipBazaarPlanTrackResponse400TextJson = {
-  data: ProblemDetails
-  status: 400
-}
-
-export type postApiFlipBazaarPlanTrackResponse401TextPlain = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type postApiFlipBazaarPlanTrackResponse401ApplicationJson = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type postApiFlipBazaarPlanTrackResponse401TextJson = {
-  data: ProblemDetails
-  status: 401
-}
-
-export type postApiFlipBazaarPlanTrackResponse403 = {
-  data: void
-  status: 403
-}
-
-export type postApiFlipBazaarPlanTrackResponse404TextPlain = {
-  data: ProblemDetails
-  status: 404
-}
-
-export type postApiFlipBazaarPlanTrackResponse404ApplicationJson = {
-  data: ProblemDetails
-  status: 404
-}
-
-export type postApiFlipBazaarPlanTrackResponse404TextJson = {
-  data: ProblemDetails
-  status: 404
-}
-
-export type postApiFlipBazaarPlanTrackResponse409TextPlain = {
-  data: ProblemDetails
-  status: 409
-}
-
-export type postApiFlipBazaarPlanTrackResponse409ApplicationJson = {
-  data: ProblemDetails
-  status: 409
-}
-
-export type postApiFlipBazaarPlanTrackResponse409TextJson = {
-  data: ProblemDetails
-  status: 409
-}
-
-export type postApiFlipBazaarPlanTrackResponseSuccess = (postApiFlipBazaarPlanTrackResponse204) & {
-  headers: Headers;
-};
-export type postApiFlipBazaarPlanTrackResponseError = (postApiFlipBazaarPlanTrackResponse400TextPlain | postApiFlipBazaarPlanTrackResponse400ApplicationJson | postApiFlipBazaarPlanTrackResponse400TextJson | postApiFlipBazaarPlanTrackResponse401TextPlain | postApiFlipBazaarPlanTrackResponse401ApplicationJson | postApiFlipBazaarPlanTrackResponse401TextJson | postApiFlipBazaarPlanTrackResponse403 | postApiFlipBazaarPlanTrackResponse404TextPlain | postApiFlipBazaarPlanTrackResponse404ApplicationJson | postApiFlipBazaarPlanTrackResponse404TextJson | postApiFlipBazaarPlanTrackResponse409TextPlain | postApiFlipBazaarPlanTrackResponse409ApplicationJson | postApiFlipBazaarPlanTrackResponse409TextJson) & {
-  headers: Headers;
-};
-
-export type postApiFlipBazaarPlanTrackResponse = (postApiFlipBazaarPlanTrackResponseSuccess | postApiFlipBazaarPlanTrackResponseError)
-
-export const getPostApiFlipBazaarPlanTrackUrl = () => {
-
-
-
-
-  return `https://sky.coflnet.com/api/flip/bazaar/plan/track`
-}
-
-/**
- * @summary Tracks one order of a returned plan in game as a guided bazaar flip goal.
- */
-export const postApiFlipBazaarPlanTrack = async (bazaarPlanTrackRequest?: BazaarPlanTrackRequest, options?: RequestInit): Promise<postApiFlipBazaarPlanTrackResponse> => {
-
-  const res = await fetch(getPostApiFlipBazaarPlanTrackUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
-    body: JSON.stringify(bazaarPlanTrackRequest)
-  }
-)
-
-  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-
-  const data: postApiFlipBazaarPlanTrackResponse['data'] = parseGeneratedResponseBody(body)
-  return { data, status: res.status, headers: res.headers } as postApiFlipBazaarPlanTrackResponse
-}
-
-
-
-
-
-export const getPostApiFlipBazaarPlanTrackMutationOptions = <TError = ProblemDetails | void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>, TError,{data?: BazaarPlanTrackRequest}, TContext>, fetch?: RequestInit}
-): UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>, TError,{data?: BazaarPlanTrackRequest}, TContext> => {
-
-const mutationKey = ['postApiFlipBazaarPlanTrack'];
-const {mutation: mutationOptions, fetch: fetchOptions} = options ?
-      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
-      options
-      : {...options, mutation: {...options.mutation, mutationKey}}
-      : {mutation: { mutationKey, }, fetch: undefined};
-
-
-
-
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>, {data?: BazaarPlanTrackRequest}> = (props) => {
-          const {data} = props ?? {};
-
-          return  postApiFlipBazaarPlanTrack(data,fetchOptions)
-        }
-
-
-
-
-
-
-  return  { mutationFn, ...mutationOptions }}
-
-    export type PostApiFlipBazaarPlanTrackMutationResult = NonNullable<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>>
-    export type PostApiFlipBazaarPlanTrackMutationBody = BazaarPlanTrackRequest | undefined
-    export type PostApiFlipBazaarPlanTrackMutationError = ProblemDetails | void
-
-    /**
- * @summary Tracks one order of a returned plan in game as a guided bazaar flip goal.
- */
-export const usePostApiFlipBazaarPlanTrack = <TError = ProblemDetails | void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>, TError,{data?: BazaarPlanTrackRequest}, TContext>, fetch?: RequestInit}
- , queryClient?: QueryClient): UseMutationResult<
-        Awaited<ReturnType<typeof postApiFlipBazaarPlanTrack>>,
-        TError,
-        {data?: BazaarPlanTrackRequest},
-        TContext
-      > => {
-      return useMutation(getPostApiFlipBazaarPlanTrackMutationOptions(options), queryClient);
     }
 

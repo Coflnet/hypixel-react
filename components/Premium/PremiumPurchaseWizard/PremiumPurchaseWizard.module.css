@@ -1,290 +1,231 @@
+/* the wizard panel fills the page column; its tokens match the /premium page cards */
 .wizard {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.wizardCard {
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-    border: none;
-    border-radius: 12px;
-    overflow: hidden;
-}
-
-.wizardHeader {
-    /* darker gradient so white text meets contrast */
-    background-color: var(--bs-primary);
-    color: white;
-    text-align: center;
-    padding: 30px 20px;
-    border-bottom: none;
-}
-
-.wizardHeader h3 {
-    margin-bottom: 15px;
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: var(--bs-white);
-}
-
-.progressBar {
-    margin: 15px 0 10px 0;
-    height: 8px;
-    border-radius: 4px;
-    background-color: rgba(255, 255, 255, 0.2);
-}
-
-.stepIndicator {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.9rem;
-}
-
-.wizardBody {
-    padding: 40px 30px;
-    min-height: 400px;
-    overflow-wrap: break-word;
-    word-break: break-word;
-}
-
-.stepContent {
     display: flex;
     flex-direction: column;
-    gap: 30px;
-}
-
-.stepQuestion {
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 1.3rem;
-    font-weight: 500;
-    color: var(--bs-body-color);
-}
-
-.optionsGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     gap: 20px;
-    justify-items: center;
-}
-
-.optionCard {
-    cursor: pointer;
-    border: 2px solid var(--bs-border-color, #d1d7de);
-    border-radius: 12px;
-    transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
-    width: 100%;
-    max-width: 280px;
-    position: relative;
-}
-
-.optionCard:hover {
-    border-color: var(--bs-primary);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0, 86, 179, 0.18);
-}
-
-.optionCard.selected {
-    border-color: var(--bs-primary);
-    background-color: transparent;
-    box-shadow: 0 6px 20px rgba(0, 86, 179, 0.3);
-}
-
-.optionBody {
-    text-align: center;
-    padding: 25px 20px;
-    position: relative;
-}
-
-.optionIcon {
-    font-size: 2.5rem;
-    margin-bottom: 15px;
-    display: block;
-}
-
-.optionBody h5 {
-    margin-bottom: 10px;
-    font-weight: 600;
-    color: var(--bs-gray);
-}
-
-.optionBody p {
-    color: var(--bs-gray);
-    margin-bottom: 10px;
-    font-size: 0.9rem;
-}
-
-.recommendation {
-    background-color: var(--bs-success);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-}
-
-.infoBox {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    background-color: transparent;
-    border: 1px solid var(--bs-border-color, #d1d7de);
-    border-radius: 8px;
-    padding: 20px;
-    margin: 20px 0;
-}
-
-.checkIcon {
-    color: var(--bs-success);
-    font-size: 1.5rem;
-}
-
-.summaryBox {
-    background-color: transparent;
-    border: 1px solid var(--bs-border-color, #d1d7de);
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 30px;
-}
-
-.summaryBox h6 {
-    margin-bottom: 15px;
-    font-weight: 600;
-    color: var(--bs-body-color);
-}
-
-.summaryBox p {
-    margin-bottom: 8px;
-    color: var(--bs-gray);
-}
-
-.purchaseComponent {
-    border-top: 1px solid var(--bs-border-color, #d1d7de);
-    padding-top: 30px;
-}
-
-.wizardFooter {
-    background-color: transparent;
-    border-top: 1px solid var(--bs-border-color, #d1d7de);
-    padding: 20px 30px;
-}
-
-.navigationButtons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.backButton, .nextButton {
-    color: var(--bs-gray);
-    background-color: transparent;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 25px;
-    font-weight: 500;
+    padding: 24px;
+    color: #fff;
+    background: #303030;
+    border: 1px solid #444;
     border-radius: 6px;
-    transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    overflow-wrap: break-word;
 }
 
-.backButton:hover {
-    background-color: transparent;
-    border-color: var(--bs-border-color, #d1d7de);
+.visuallyHidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
 }
 
-.nextButton {
-    background-color: var(--bs-primary);
-    border: none;
+.header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.nextButton:hover:not(:disabled) {
-    background-color: var(--bs-primary);
-    transform: translateY(-1px);
+.progress {
+    display: flex;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
-.nextButton:disabled {
-    opacity: 0.6;
+.segment,
+.segmentDone {
+    flex: 1 1 0;
+    height: 4px;
+    border-radius: 800px;
+    background: #444;
+}
+
+.segmentDone {
+    background: #00bc8c;
+}
+
+.heading {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.eyebrow {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: #adb5bd;
+}
+
+.title {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: 500;
+    color: #fff;
+    scroll-margin-top: 16px;
+}
+
+/* focused by script after a step change; a ring would suggest it is interactive */
+.title:focus {
+    outline: none;
+}
+
+.helper {
+    margin: 0;
+    color: #adb5bd;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 32px;
+    box-sizing: border-box;
+    padding: 0 12px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    background: #222;
+    border: 1px solid #444;
+    border-radius: 800px;
+}
+
+.chipStarter {
+    color: #fff;
+}
+
+.chipPremium {
+    color: #00bc8c;
+}
+
+.chipPremiumPlus {
+    color: #f39c12;
+}
+
+.chipButton {
+    cursor: pointer;
+}
+
+.chipButton:hover {
+    border-color: #adb5bd;
+}
+
+.chipButton:focus-visible,
+.backButton:focus-visible,
+.continueButton:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.chipIcon {
+    stroke: #adb5bd;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid #444;
+}
+
+.spacer {
+    flex-grow: 1;
+}
+
+.backButton,
+.continueButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    font: inherit;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.backButton {
+    padding: 6px 16px 6px 10px;
+    color: #fff;
+    background: #444;
+    border: 1px solid #444;
+}
+
+.backButton:hover:not(:disabled) {
+    border-color: #adb5bd;
+}
+
+.backButton svg {
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.continueButton {
+    padding: 6px 20px;
+    font-weight: 700;
+    color: #fff;
+    background: #375a7f;
+    border: 1px solid #375a7f;
+}
+
+.continueButton:hover:not(:disabled) {
+    background: #2f4d6d;
+}
+
+.backButton:disabled,
+.continueButton:disabled {
+    color: #adb5bd;
+    background: #444;
+    border-color: #444;
     cursor: not-allowed;
 }
 
-.finalStep {
-    text-align: center;
-    color: var(--bs-gray);
-    font-style: italic;
-}
-
-/* Mobile responsiveness */
-@media (max-width: 768px) {
-    .wizard {
-        padding: 10px;
-    }
-    
-    .wizardHeader {
-        padding: 20px 15px;
-    }
-    
-    .wizardBody {
-        padding: 30px 20px;
-        min-height: 350px;
-    }
-    
-    .optionsGrid {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .stepQuestion {
-        font-size: 1.2rem;
-    }
-    
-    .navigationButtons {
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .backButton, .nextButton {
-        width: 100%;
-        justify-content: center;
+@media (prefers-reduced-motion: no-preference) {
+    .chipButton,
+    .backButton,
+    .continueButton {
+        transition: border-color 0.1s ease, background-color 0.1s ease;
     }
 }
 
-/* Small phones - keep the wizard comfortable on narrow screens */
-@media (max-width: 480px) {
+@media (max-width: 576px) {
     .wizard {
-        padding: 6px;
+        padding: 16px;
     }
 
-    .wizardCard {
-        border-radius: 8px;
+    .backButton,
+    .continueButton {
+        flex: 1 1 100%;
     }
 
-    .wizardHeader {
-        padding: 18px 12px;
+    .spacer {
+        display: none;
     }
+}
 
-    .wizardHeader h3 {
-        font-size: 1.2rem;
-        margin-bottom: 10px;
-    }
-
-    .stepIndicator {
-        font-size: 0.8rem;
-    }
-
-    .wizardBody {
-        padding: 20px 12px;
-        min-height: 0;
-    }
-
-    .stepContent {
-        gap: 20px;
-    }
-
-    .wizardFooter {
-        padding: 15px 12px;
-    }
+.chipButton:disabled {
+    color: #adb5bd;
+    cursor: not-allowed;
 }

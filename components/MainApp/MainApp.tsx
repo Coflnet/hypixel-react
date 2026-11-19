@@ -21,6 +21,7 @@ import GlobalSearchShortcut from '../Search/GlobalSearchShortcut'
 import { initCoflCoinManager } from '../../utils/CoflCoinsUtils'
 import properties from '../../properties'
 import { isStaleChunkError, recoverFromStaleChunks } from '../../utils/StaleChunkUtils'
+import SiteFooter from '../SiteFooter/SiteFooter'
 
 initCoflCoinManager()
 
@@ -64,7 +65,8 @@ export function MainApp(props: { children: ReactNode }) {
     }, [])
 
     useEffect(() => {
-        pushInstruction('requireConsent')
+        // `requireConsent` is set when the Matomo instance is created (Providers.tsx), before any event; pushing it
+        // again here made Matomo log "registered more than once"
         const hasGpc = hasGlobalPrivacyControl()
         setPrivacySignal(hasGpc)
 
@@ -222,6 +224,7 @@ export function MainApp(props: { children: ReactNode }) {
             <TopLoadingAnimation />
             <GlobalSearchShortcut />
             {props.children}
+            <SiteFooter />
             {!properties.isTestRunner && !hasNitroCMP && privacySignal === false ? (
                 <CookieConsent
                     enableDeclineButton
