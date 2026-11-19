@@ -1,6 +1,6 @@
 'use client'
 import moment from 'moment'
-import { type JSX } from 'react'
+import { type JSX, useEffect } from 'react'
 import Card from 'react-bootstrap/Card'
 import { Alert, Button, Table } from 'react-bootstrap'
 import { useBazaarSnapshot } from '../../../../hooks/useBazaarSnapshot'
@@ -9,10 +9,18 @@ import styles from './BazaarSnapshot.module.css'
 
 interface Props {
     item: Item
+    // Called with the snapshot while it shows the live order book, and with undefined for a historic one.
+    onLiveSnapshotChange?: (snapshot: BazaarSnapshot | undefined) => void
 }
 
 function BazaarSnapshot(props: Props) {
-    const { snapshot: bazaarSnapshot, hasError: hasSnapshotError, retry: retrySnapshot } = useBazaarSnapshot(props.item.tag)
+    const { snapshot: bazaarSnapshot, isLive, hasError: hasSnapshotError, retry: retrySnapshot } = useBazaarSnapshot(props.item.tag)
+
+    useEffect(() => {
+        props.onLiveSnapshotChange?.(isLive ? bazaarSnapshot : undefined)
+        // Only a new snapshot is worth reporting, not a new callback identity from the parent's render.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [bazaarSnapshot, isLive])
 
     function getInformationBody(data: BazaarSnapshotData, type: string): JSX.Element {
         return (

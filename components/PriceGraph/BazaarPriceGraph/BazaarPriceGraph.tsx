@@ -18,7 +18,7 @@ import styles from './BazaarPriceGraph.module.css'
 import BazaarSnapshot from './BazaarSnapshot/BazaarSnapshot'
 import getPriceGraphConfigSingle from './PriceGraphConfigSingle'
 import getPriceGraphConfigSplit from './PriceGraphConfigSplit'
-import { applyMayorDataToChart, getChartZoomTimestamp } from '../../../utils/GraphUtils'
+import { appendLiveSnapshotPoint, applyMayorDataToChart, getChartZoomTimestamp } from '../../../utils/GraphUtils'
 import SubscribeButton from '../../SubscribeButton/SubscribeButton'
 import NitroAdSlot from '../../Ads/NitroAdSlot'
 
@@ -57,6 +57,9 @@ function BazaarPriceGraph(props: Props) {
 
     const primaryChartRef = useRef<ReactECharts>(null)
     const secondaryChartRef = useRef<ReactECharts>(null)
+    // Kept in a ref so the ~25s snapshot poll never re-renders (and thereby re-zooms) the charts.
+    const liveSnapshotRef = useRef<BazaarSnapshot | undefined>(undefined)
+    const appliedLivePointKeyRef = useRef('')
 
     useEffect(() => {
         mounted = true
@@ -227,7 +230,7 @@ function BazaarPriceGraph(props: Props) {
         setFetchspan(timespan)
         fetchspan = timespan
         updateChart(timespan)
-        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, { detail: { timestamp: new Date() } }))
+        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, { detail: { timestamp: new Date(), isLive: true } }))
     }
 
     function setSelectedLegendOptionsFromLocalStorage() {
@@ -290,7 +293,50 @@ function BazaarPriceGraph(props: Props) {
         setChartOptionsSecondary(chartOptionsSecondary)
     }
 
-    function setChartData(prices: BazaarPrice[], mayorData: MayorData[]) {
+    function onLiveSnapshotChange(snapshot: BazaarSnapshot | undefined) {
+        liveSnapshotRef.current = snapshot
+        if (isLoading || prices.length === 0) {
+            return
+        }
+        // Most polls return an unchanged book (or one that cannot be appended) - leave the chart alone then.
+        if (getLivePointKey(getPricesWithLivePoint(prices), prices) === appliedLivePointKeyRef.current) {
+            return
+        }
+        setChartData(prices, mayorData)
+        pushChartDataToChart(primaryChartRef, chartOptionsPrimary, graphType === GRAPH_TYPE.SINGLE ? 10 : 5)
+        if (graphType === GRAPH_TYPE.SPLIT) {
+            pushChartDataToChart(secondaryChartRef, chartOptionsSecondary, 5)
+        }
+    }
+
+    // Merges the new data into the mounted chart instead of re-rendering it, which keeps the user's zoom.
+    function pushChartDataToChart(chartRef: RefObject<ReactECharts | null>, chartOptions, mayorSeriesIndex: number) {
+        const chart = chartRef.current?.getEchartsInstance()
+        // A chart that has not received its first option yet picks the new data up when it does.
+        const currentOption = chart?.getOption()
+        if (!chart || !currentOption) return
+        const zoom = (currentOption.dataZoom as { start: number; end: number }[] | undefined)?.[0]
+        if (zoom && isFinite(zoom.start) && isFinite(zoom.end)) {
+            applyMayorDataToChart(chartOptions, mayorData, mayorSeriesIndex, zoom)
+        }
+        chart.setOption({ xAxis: chartOptions.xAxis, series: chartOptions.series })
+    }
+
+    function getPricesWithLivePoint(history: BazaarPrice[]): BazaarPrice[] {
+        // The snapshot panel keeps the previous item's order book until the new one has loaded.
+        const liveSnapshot = liveSnapshotRef.current?.item.tag === props.item.tag ? liveSnapshotRef.current : undefined
+        return appendLiveSnapshotPoint(history, liveSnapshot, fetchspan !== DateRange.ACTIVE)
+    }
+
+    // Identifies the appended live point (empty when there is none) to tell whether a redraw is needed.
+    function getLivePointKey(prices: BazaarPrice[], history: BazaarPrice[]): string {
+        return prices.length > history.length ? JSON.stringify(prices[prices.length - 1]) : ''
+    }
+
+    function setChartData(history: BazaarPrice[], mayorData: MayorData[]) {
+        const prices = getPricesWithLivePoint(history)
+        appliedLivePointKeyRef.current = getLivePointKey(prices, history)
+
         clearChartData()
 
         setXAxisData(chartOptionsPrimary, prices)
@@ -299,17 +345,13 @@ function BazaarPriceGraph(props: Props) {
             setXAxisData(chartOptionsSecondary, prices)
         }
 
-        let sellPriceSum = 0
-        let buyPriceSum = 0
-
+        // A candle closes on the next historic price only: the live point is a separate observation and
+        // must not rewrite the close of the last aggregated candle.
         prices.forEach((item, i) => {
-            sellPriceSum += item.sellData.price
-            buyPriceSum += item.buyData.price
-
             chartOptionsPrimary.series[0].data.push(
                 fetchspan === DateRange.HOUR
                     ? item.buyData.price
-                    : [item.buyData.price, prices[i + 1] ? prices[i + 1].buyData.price : item.buyData.price, item.buyData.min, item.buyData.max]
+                    : [item.buyData.price, history[i + 1] ? history[i + 1].buyData.price : item.buyData.price, item.buyData.min, item.buyData.max]
             )
 
             if (graphType === GRAPH_TYPE.SINGLE) {
@@ -323,7 +365,7 @@ function BazaarPriceGraph(props: Props) {
                         ? item.sellData.price?.toFixed(2)
                         : [
                             item.sellData.price?.toFixed(2),
-                            prices[i + 1] ? prices[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
+                            history[i + 1] ? history[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
                             item.sellData.min?.toFixed(2),
                             item.sellData.max?.toFixed(2)
                         ]
@@ -343,7 +385,7 @@ function BazaarPriceGraph(props: Props) {
                         ? item.sellData.price?.toFixed(2)
                         : [
                             item.sellData.price?.toFixed(2),
-                            prices[i + 1] ? prices[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
+                            history[i + 1] ? history[i + 1].sellData.price?.toFixed(2) : item.sellData.price?.toFixed(2),
                             item.sellData.min?.toFixed(2),
                             item.sellData.max?.toFixed(2)
                         ]
@@ -364,8 +406,9 @@ function BazaarPriceGraph(props: Props) {
 
         setChartOptionsPrimary(chartOptionsPrimary)
         setChartOptionsSecondary(chartOptionsSecondary)
-        setAvgBuyPrice(buyPriceSum / prices.length)
-        setAvgSellPrice(sellPriceSum / prices.length)
+        // The averages describe the loaded history; the live point would only make them drift on every poll.
+        setAvgBuyPrice(history.reduce((sum, item) => sum + item.buyData.price, 0) / history.length)
+        setAvgSellPrice(history.reduce((sum, item) => sum + item.sellData.price, 0) / history.length)
     }
 
     function setXAxisData(chartOptions, prices: BazaarPrice[]) {
@@ -503,7 +546,7 @@ function BazaarPriceGraph(props: Props) {
                     }}
                 />
                 <hr />
-                <BazaarSnapshot item={props.item} />
+                <BazaarSnapshot item={props.item} onLiveSnapshotChange={onLiveSnapshotChange} />
             </div>
         </div>
     )
