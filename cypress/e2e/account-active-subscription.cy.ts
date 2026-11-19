@@ -1919,6 +1919,88 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
     })
 
     // regression: the upsell said "per 52 weeks" although card and PayPal plans continue every 4 weeks; Lemon Squeezy renews every 52 weeks
+    function openYearlyStarter(path: string) {
+        visitAuthenticatedPage(path)
+        wizardOption(/^Subscription$/).click()
+        wizardOption(/^Yearly$/).click()
+        cy.contains('#buyPremium h3', 'Complete Purchase').should('be.visible')
+    }
+
+    const starterPrices = { 'l_starter_premium-year': 16.69, l_starter_premium: 2.69 }
+
+    // regression: the second upgrade passed "no preference" and the link's code came back on Premium+
+    it('keeps a cleared link code cleared through two upgrades', () => {
+        stubUpgradeRates(starterPrices)
+        cy.intercept('GET', '**/api/discount/TEST90*', { body: test90Code }).as('test90')
+        stubProviders(directProviders)
+        openYearlyStarter('/premium?tier=starter&code=TEST90')
+        cy.wait('@test90')
+        cy.get('#buyPremium').should('contain.text', 'Discount code valid!')
+        discountInput().closest('div').parent().contains('button', 'Clear').click()
+        cy.get('#buyPremium').contains('button', /^Upgrade to Premium$/).click()
+        discountInput().should('have.value', '')
+        cy.get('#buyPremium').contains('button', 'Upgrade to Premium Plus').click()
+        discountInput().should('have.value', '')
+        cy.get('#buyPremium').should('not.contain.text', 'Discount code valid!')
+    })
+
+    // regression: the remounted checkout applied the running promotion again after the buyer cleared it
+    it('keeps a cleared automatic promotion cleared after an upgrade', () => {
+        stubUpgradeRates()
+        stubPromotion()
+        stubProviders(directProviders)
+        openYearlyPremium()
+        cy.wait('@promotionCode')
+        cy.get('#buyPremium').should('contain.text', 'Discount code valid!')
+        discountInput().closest('div').parent().contains('button', 'Clear').click()
+        cy.get('#buyPremium').contains('button', 'Upgrade to Premium Plus').click()
+        cy.contains('#buyPremium', 'Premium Plus').should('be.visible')
+        // give the remounted checkout the time to apply the promotion again, were it going to
+        cy.wait(1500)
+        discountInput().should('have.value', '')
+        cy.get('#buyPremium').should('not.contain.text', 'Discount code valid!')
+        cy.get('@promotionCode.all').should('have.length', 1)
+    })
+
+    // regression: an upgrade while the link's code was still being checked dropped it
+    it('carries a link code that is still being checked into the upgraded checkout', () => {
+        stubUpgradeRates()
+        cy.intercept('GET', '**/api/discount/TEST90*', { body: test90Code, delay: 2500 }).as('test90')
+        stubProviders(directProviders)
+        openYearlyPremium('/premium?tier=premium&code=TEST90')
+        cy.get('#buyPremium').should('not.contain.text', 'Discount code valid!')
+        cy.get('#buyPremium').contains('button', 'Upgrade to Premium Plus').click()
+        discountInput().should('have.value', 'TEST90')
+        cy.get('#buyPremium', { timeout: 10000 }).should('contain.text', 'Discount code valid!')
+    })
+
+    // regression: the next tier's quote kept the carried creator code after the main quote had dropped it
+    it('quotes the next tier without a creator code whose quote failed after the upgrade', () => {
+        const prices: Record<string, number> = { ...starterPrices, 'l_premium-year': 96.69, 'l_prem_plus-year': 354.2 }
+        cy.intercept('POST', '**/api/topup/rates', request => {
+            const slugs = request.body.productSlugs as string[]
+            const creator = request.body.creatorCode === 'friend'
+            if (creator && slugs.includes('l_premium-year')) return request.reply({ statusCode: 400, body: { error: 'Invalid or expired creator code' } })
+            request.reply({
+                body: {
+                    products: slugs.map(slug => ({
+                        productSlug: slug, discountPercent: creator ? 10 : 0,
+                        providers: [{ providerSlug: 'lemonsqueezy', currencyCode: 'EUR', originalPrice: prices[slug], discountedPrice: creator ? Math.round(prices[slug] * 90) / 100 : prices[slug] }]
+                    }))
+                }
+            })
+        })
+        stubProviders(directProviders)
+        openYearlyStarter('/premium?tier=starter')
+        cy.get('#buyPremium').contains('button', 'Have a discount or creator code?').click()
+        cy.get('#buyPremium input[placeholder="Enter creator code"]').type('friend')
+        cy.get('#buyPremium input[placeholder="Enter creator code"]').closest('div').parent().contains('button', 'Apply').click()
+        cy.get('#buyPremium').should('contain.text', 'Creator code applied')
+        cy.get('#buyPremium').contains('button', /^Upgrade to Premium$/).click()
+        cy.get('#buyPremium').should('contain.text', 'Failed to load pricing information')
+        cy.get('[data-testid="upsell-price"]').should('have.text', `${formatMoney(354.2, 'EUR')} for the first 52 weeks, then every 4 weeks`)
+    })
+
     it('keeps "per 52 weeks" on the upsell price while only Lemon Squeezy takes payments', () => {
         stubUpgradeRates()
         stubProviders({}, 404)

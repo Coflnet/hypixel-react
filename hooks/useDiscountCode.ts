@@ -75,7 +75,8 @@ export default function useDiscountCode(initialCode?: string | null, { weeks, va
     const [validating, setValidating] = useState(false)
     const [error, setError] = useState<string | null>(null)
     // the visitor entered, applied or cleared a code: automatic codes no longer replace it
-    const touched = useRef(false)
+    // an empty initial code is the buyer's "cleared" carried over from another checkout: the promotion stays out too
+    const touched = useRef(initialCode === '')
     // the code the checkout opened with holds the promotion back until it turns out invalid
     const holdsInitialCode = useRef(!!initialCode?.trim())
     const latestRequest = useRef(0)
@@ -187,7 +188,9 @@ export default function useDiscountCode(initialCode?: string | null, { weeks, va
         setError(null)
     }
 
-    return { code, validated, pendingYearly, validating, error, validate, changeCode, clear, applyPendingYearly }
+    /** the buyer entered, applied or cleared a code (or arrived with a cleared one): automatic codes no longer apply */
+    const isTouched = () => touched.current
+    return { code, validated, pendingYearly, validating, error, validate, changeCode, clear, applyPendingYearly, isTouched }
 }
 
 export type DiscountCodeState = ReturnType<typeof useDiscountCode>

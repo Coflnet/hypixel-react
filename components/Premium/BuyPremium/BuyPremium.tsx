@@ -11,6 +11,7 @@ import Number from '../../Number/Number'
 import styles from './BuyPremium.module.css'
 import BuyPremiumConfirmationDialog from '../BuyPremiumConfirmationDialog/BuyPremiumConfirmationDialog'
 import { PremiumTier, Duration, getTierDisplayName } from '../PremiumPurchaseWizard/types'
+import { findMatchingPremiumOption, findUpgradeOption } from '../../../utils/PremiumDurationOptions'
 import { TierUpsellPanel } from '../../Discounts/DiscountBanners'
 import discountStyles from '../../Discounts/Discounts.module.css'
 import { usePremiumVariant } from '../PremiumVariantContext'
@@ -39,37 +40,6 @@ interface Props {
     initialDiscountCode?: string | null
     onUpgradeTier?: (tier: PremiumTier) => void
 }
-
-/** whether a coins option has the length of the wizard's billing period; the label decides, never the raw `value` (3 weeks is not 3 months) */
-function isOptionOfDuration(premiumType: PremiumType, option: PremiumTypeOption, wizardDuration: Duration): boolean {
-    const label = (typeof option.label === 'string' ? option.label : String(option.label)).toLowerCase()
-    switch (wizardDuration) {
-        case Duration.HOUR:
-            return label.includes('hour')
-        case Duration.DAY:
-            return label.includes('day') && !label.includes('week')
-        case Duration.WEEK:
-            return label.includes('week') && !label.includes('month')
-        case Duration.MONTHLY:
-            return label.includes('month') || label.includes('4 weeks')
-        case Duration.QUARTER:
-            // Starter's quarter step is its half year; the other tiers' is 3 months (Premium+: 11 weeks)
-            if (premiumType.productId === 'starter_premium') return label.includes('6 months')
-            return label.includes('3 month') || label.includes('11 weeks')
-        case Duration.YEARLY:
-            return label.includes('year') || label.includes('12 months')
-        default:
-            return false
-    }
-}
-
-/** the option of the wizard's duration, undefined when the type has none */
-const findOptionOfDuration = (premiumType: PremiumType, wizardDuration: Duration | null | undefined): PremiumTypeOption | undefined =>
-    wizardDuration ? premiumType.options.find(option => isOptionOfDuration(premiumType, option, wizardDuration)) : undefined
-
-// Helper function to find the best matching premium option based on wizard duration
-const findMatchingPremiumOption = (premiumType: PremiumType, wizardDuration: Duration | null | undefined): PremiumTypeOption =>
-    findOptionOfDuration(premiumType, wizardDuration) || premiumType.options[0]
 
 function BuyPremium(props: Props) {
     const variant = usePremiumVariant()
@@ -176,9 +146,7 @@ function BuyPremium(props: Props) {
     function getUpgradePrice(): string | null {
         const next = props.selectedTier ? getNextHigherTier(props.selectedTier) : null
         const type = PREMIUM_TYPES.find(premiumType => premiumType.productId === next)
-        // Starter's quarter is a half year, no other tier sells that length
-        if (!type || (props.selectedTier === PremiumTier.STARTER && props.selectedDuration === Duration.QUARTER)) return null
-        const option = findOptionOfDuration(type, props.selectedDuration)
+        const option = props.selectedTier ? findUpgradeOption(props.selectedTier, type, props.selectedDuration) : undefined
         if (!option) return null
         const length = String(option.label).replace(/\s*\(.*\)/, '')
         return `${(option.value * option.price).toLocaleString()} CoflCoins for ${length}, paid once`

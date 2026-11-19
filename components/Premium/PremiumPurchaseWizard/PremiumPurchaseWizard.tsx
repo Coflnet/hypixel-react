@@ -292,7 +292,7 @@ function PremiumPurchaseWizard(props: Props) {
         setSelectedTier(tier)
         setUpgradeCreatorCode(codes?.creatorCode ?? null)
         // an empty code is the buyer's "cleared": neither the link's code nor the sale code comes back
-        setUpgradeDiscountCode(codes?.discountCode === null ? '' : (codes?.discountCode ?? getActiveSubscriptionDiscount()?.code ?? null))
+        setUpgradeDiscountCode(codes?.discountCode ?? getActiveSubscriptionDiscount()?.code ?? null)
     }
 
     const renderCurrentStep = () => {

@@ -78,7 +78,7 @@ function getSubscriptionDurationOptions(tier: PremiumTier, continues: boolean) {
 
 /** the codes of a checkout that an in-place upgrade to another tier carries over, as the buyer applied them */
 export interface CheckoutCodes {
-    /** the applied code; null: the buyer cleared the prefilled one, undefined: no opinion */
+    /** the applied code, or the code text still being checked; '' the buyer cleared it (it stays cleared through further upgrades), undefined: no preference */
     discountCode?: string | null
     creatorCode?: string | null
 }

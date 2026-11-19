@@ -181,7 +181,7 @@ function BuySubscription(props: Props) {
     // the next tier's quote with the same creator code, so its price is what its own checkout would charge
     const nextTier = getNextHigherTier(tier)
     const upgradeSlug = nextTier && !offer.loading ? getTierApiProductId(nextTier, duration) : null
-    const upgradePlanPrice = useRenewalPrice(upgradeSlug, buyerCountry, pricing.appliedCreatorCode ?? props.initialCreatorCode ?? null)
+    const upgradePlanPrice = useRenewalPrice(upgradeSlug, buyerCountry, pricing.appliedCreatorCode ?? (pricing.error ? null : (props.initialCreatorCode ?? null)))
 
     const money = (value: number): string => formatMoney(value, getProviderCurrencyCode(pricingData, productSlug, 'lemonsqueezy'))
 
@@ -216,6 +216,14 @@ function BuySubscription(props: Props) {
             promotion: offer.promotion,
             money
         })
+    }
+
+    /** the discount code the upgraded checkout starts with: the applied one, the one still being checked, '' once cleared, nothing otherwise */
+    function getCarriedDiscountCode(): string | undefined {
+        if (validatedDiscount?.code) return validatedDiscount.code
+        if (isValidatingDiscount && discountCode.trim()) return discountCode.trim()
+        if (discount.isTouched() || props.initialDiscountCode === '') return ''
+        return undefined
     }
 
     /** what the next tier costs for this billing period, with the tax wording of the page; null until its quote is known */
@@ -507,7 +515,7 @@ function BuySubscription(props: Props) {
                     currentTier={tier}
                     price={getUpgradePrice()}
                     codeSavings={getUpgradeSavings()}
-                    onUpgrade={nextTier => props.onUpgradeTier?.(nextTier, { discountCode: validatedDiscount?.code ?? (props.initialDiscountCode ? null : undefined), creatorCode: pricing.appliedCreatorCode })}
+                    onUpgrade={nextTier => props.onUpgradeTier?.(nextTier, { discountCode: getCarriedDiscountCode(), creatorCode: pricing.appliedCreatorCode })}
                 />
             </div>
         </CheckoutLayout>
