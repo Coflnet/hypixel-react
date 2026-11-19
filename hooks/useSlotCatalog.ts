@@ -1,45 +1,50 @@
 import { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { getApiPremiumSlotsProducts, postApiTopupRates } from '../api/_generated/skyApi'
 import type { BatchProductPricingResponse, PurchaseableProduct } from '../api/_generated/skyApi.schemas'
 import { applyPercent, getDirectPrice, getRenewalPrice } from '../utils/SubscriptionCheckout'
 import { getDiscountPercent, getProvider, getPriceWithVAT } from '../utils/PricingUtils'
 
+const NO_PRODUCTS: PurchaseableProduct[] = []
+
+function isOfferedSlotProduct(product: PurchaseableProduct): boolean {
+    return (
+        !!product.slug &&
+        [1, 4].includes(product.slotCount || 0) &&
+        ['premium', 'premium_plus'].includes(product.slotTier || '') &&
+        (product.ownershipSeconds || 0) > 0
+    )
+}
+
+async function fetchSlotProducts(): Promise<PurchaseableProduct[]> {
+    const response = await getApiPremiumSlotsProducts({ cache: 'no-store' })
+    if (response.status !== 200 || !Array.isArray(response.data)) throw new Error('Could not load the slot catalog')
+    return response.data.filter(isOfferedSlotProduct)
+}
+
+/**
+ * The slot products on offer, loaded once per mount. The query dedupes the request, so React's development double mount
+ * does not load the catalog twice. It takes no abort signal: one would make the double mount cancel and repeat the request.
+ */
+function useSlotProducts() {
+    return useQuery({
+        queryKey: ['slotCatalog'],
+        queryFn: fetchSlotProducts,
+        staleTime: 0,
+        retry: false,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: false
+    })
+}
+
 export default function useSlotCatalog(countryCode?: string) {
-    const [products, setProducts] = useState<PurchaseableProduct[]>([])
-    const [loading, setLoading] = useState(true)
-    const [catalogError, setCatalogError] = useState(false)
+    const catalog = useSlotProducts()
+    const products = catalog.data ?? NO_PRODUCTS
     const [pricing, setPricing] = useState<BatchProductPricingResponse>()
     const [pricingKey, setPricingKey] = useState('')
     const [creatorCode, setCreatorCode] = useState('')
     const [rejectedCreatorCode, setRejectedCreatorCode] = useState('')
     const [pricingError, setPricingError] = useState(false)
-    const [reload, setReload] = useState(0)
-
-    useEffect(() => {
-        const controller = new AbortController()
-        setLoading(true)
-        setCatalogError(false)
-        getApiPremiumSlotsProducts({ signal: controller.signal, cache: 'no-store' })
-            .then(response => {
-                if (response.status !== 200 || !Array.isArray(response.data)) throw new Error()
-                setProducts(
-                    response.data.filter(
-                        product =>
-                            product.slug &&
-                            [1, 4].includes(product.slotCount || 0) &&
-                            ['premium', 'premium_plus'].includes(product.slotTier || '') &&
-                            (product.ownershipSeconds || 0) > 0
-                    )
-                )
-            })
-            .catch(() => {
-                if (!controller.signal.aborted) setCatalogError(true)
-            })
-            .finally(() => {
-                if (!controller.signal.aborted) setLoading(false)
-            })
-        return () => controller.abort()
-    }, [reload])
 
     useEffect(() => {
         const subscriptions = products.filter(product => product.slug?.startsWith('l_'))
@@ -116,13 +121,13 @@ export default function useSlotCatalog(countryCode?: string) {
     }
 
     function retry() {
-        setReload(value => value + 1)
+        void catalog.refetch()
     }
 
     return {
         products,
-        loading,
-        catalogError,
+        loading: catalog.isFetching,
+        catalogError: catalog.isError && !catalog.isFetching,
         pricingError,
         canUsePrices,
         price,
