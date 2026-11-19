@@ -6,7 +6,7 @@ import SettingsIcon from '@mui/icons-material/Settings'
 
 interface Props {
     flips: FlipTrackingFlip[]
-    ignoreProfitMap: {}
+    ignoreProfitMap: Record<string, boolean>
 }
 
 enum TotalProfitType {
@@ -16,7 +16,7 @@ enum TotalProfitType {
 }
 
 export function FlipTrackingTotalProfitCalculation(props: Props) {
-    let [totalProfitCalculationType, setTotalProfitCalculationType] = useState(TotalProfitType.ALL)
+    const [totalProfitCalculationType, setTotalProfitCalculationType] = useState(TotalProfitType.ALL)
     let totalProfit = 0
     props.flips.forEach(flip => {
         if (props.ignoreProfitMap[flip.uId.toString(16)]) {

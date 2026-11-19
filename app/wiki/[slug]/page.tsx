@@ -9,6 +9,7 @@ import matter from 'gray-matter'
 import { getHeadMetadata, getCanonicalUrl } from '../../../utils/SSRUtils'
 import TimezoneDetect from '../../../components/TimezoneDetect/TimezoneDetect'
 import ApiAccessStatus from '../../../components/ApiAccessStatus/ApiAccessStatus'
+import ColorFilterDemo from '../../../components/FilterElement/FilterElements/ColorFilterDemo'
 
 const docsDirectory = path.join(process.cwd(), 'app/wiki/docs')
 
@@ -18,14 +19,14 @@ async function getDoc(slug: string) {
         const fileContent = await fs.readFile(filePath, 'utf8')
         const { content, data } = matter(fileContent)
         return { content, data, slug }
-    } catch (error) {
+    } catch {
         return null
     }
 }
 
 export default async function WikiPage(props) {
     const params = await props.params
-    let slug = params.slug
+    const slug = params.slug
     const doc = await getDoc(slug)
 
     if (!doc) {
@@ -43,7 +44,7 @@ export default async function WikiPage(props) {
                         rehypePlugins: [rehypeSlug, rehypeAutolinkHeadings]
                     }
                 }}
-                components={{ TimezoneDetect, ApiAccessStatus }}
+                components={{ TimezoneDetect, ApiAccessStatus, ColorFilterDemo }}
             />
         </article>
     )

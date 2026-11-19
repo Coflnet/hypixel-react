@@ -2,7 +2,6 @@ import { Container } from 'react-bootstrap'
 import FlippingHub from '../../components/FlippingHub/FlippingHub'
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import Search from '../../components/Search/Search'
-import NavBar from '../../components/NavBar/NavBar'
 import Link from 'next/link'
 
 export default function FlippingHubPage() {

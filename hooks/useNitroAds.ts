@@ -2,20 +2,11 @@
 
 import { useEffect, useRef, useCallback } from 'react'
 
-interface NitroAdsWindow extends Window {
-    nitroAds?: {
-        createAd: (slotId: string, config: Record<string, any>) => void
-        removeAd: (slotId: string) => void
-    }
-}
-
-declare const window: NitroAdsWindow
-
 /**
  * Hook to manage NitroAds lifecycle for a specific ad slot
  * Handles ad creation with retry logic and cleanup
  */
-export function useNitroAds(slotId: string, config: Record<string, any>, enabled: boolean) {
+export function useNitroAds(slotId: string, config: Record<string, unknown>, enabled: boolean) {
     const configRef = useRef(config)
     const hasRequestedRef = useRef(false)
     const retryTimeoutRef = useRef<number | undefined>(undefined)

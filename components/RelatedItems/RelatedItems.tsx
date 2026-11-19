@@ -15,8 +15,8 @@ interface Props {
 }
 
 function RelatedItems(props: Props) {
-    let [relatedItems, setRelatedItems] = useState<Item[]>([])
-    let [hide, setHide] = useState<boolean>(getSetting(HIDE_RELATED_ITEMS, 'false') === 'true')
+    const [relatedItems, setRelatedItems] = useState<Item[]>([])
+    const [hide, setHide] = useState<boolean>(getSetting(HIDE_RELATED_ITEMS, 'false') === 'true')
 
     useEffect(() => {
         api.getRelatedItems(props.tag).then(items => {
@@ -25,7 +25,7 @@ function RelatedItems(props: Props) {
     }, [props.tag])
 
     function toggleHide() {
-        let newHide = !hide
+        const newHide = !hide
         setHide(newHide)
         setSetting(HIDE_RELATED_ITEMS, newHide.toString())
     }
@@ -38,9 +38,9 @@ function RelatedItems(props: Props) {
     if (props.isBazaarItem && relatedItems.length === 0) {
         return (
             <div style={{ paddingBottom: '25px' }}>
-                <h3>Similar items</h3>
+                <h3>Related items</h3>
                 <p style={{ color: '#6c757d', fontStyle: 'italic' }}>
-                    No similar items found. Looking for flip opportunities?{' '}
+                    No related items found. Looking for flip opportunities?{' '}
                     <Link href="/bazaar" style={{ textDecoration: 'none' }}>
                         Check out Bazaar Flips →
                     </Link>
@@ -59,8 +59,8 @@ function RelatedItems(props: Props) {
             {!hide ? (
                 <div style={{ paddingBottom: '25px' }}>
                     <h3>
-                        Similar items
-                        <span className={styles.hideIcon} title="Hide similar items" onClick={toggleHide}>
+                        Related items
+                        <span className={styles.hideIcon} title="Hide related items" onClick={toggleHide}>
                             <VisibilityOff />
                         </span>
                     </h3>
@@ -93,8 +93,8 @@ function RelatedItems(props: Props) {
                 </div>
             ) : (
                 <p style={{ cursor: 'pointer' }} onClick={toggleHide}>
-                    Show similar items{' '}
-                    <span className={styles.hideIcon} title="Show similar items" onClick={toggleHide}>
+                    Show related items{' '}
+                    <span className={styles.hideIcon} title="Show related items" onClick={toggleHide}>
                         <Visibility />
                     </span>
                 </p>

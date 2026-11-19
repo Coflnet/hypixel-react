@@ -28,17 +28,17 @@ interface Props {
 }
 
 function WhitelistSubscribeButton(props: Props) {
-    let { trackEvent } = useMatomo()
-    let router = useRouter()
-    let [showDialog, setShowDialog] = useState(false)
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
-    let [notificationTargets, setNotificationTargets] = useState<NotificationTarget[]>([])
-    let [channelSelection, setChannelSelection] = useState<ChannelSelection>({ inGame: true, push: false, newDiscordUrl: null, existingTargetIds: [] })
-    let [isLoadingNotificationTargets, setIsLoadingNotificationTargets] = useState(false)
-    let [hasPremium, setHasPremium] = useState(false)
-    let [isPremiumLoading, setIsPremiumLoading] = useState(false)
-    let [isSubmitting, setIsSubmitting] = useState(false)
+    const { trackEvent } = useMatomo()
+    const router = useRouter()
+    const [showDialog, setShowDialog] = useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const [notificationTargets, setNotificationTargets] = useState<NotificationTarget[]>([])
+    const [channelSelection, setChannelSelection] = useState<ChannelSelection>({ inGame: true, push: false, newDiscordUrl: null, existingTargetIds: [] })
+    const [isLoadingNotificationTargets, setIsLoadingNotificationTargets] = useState(false)
+    const [hasPremium, setHasPremium] = useState(false)
+    const [isPremiumLoading, setIsPremiumLoading] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
     async function onSubscribe() {
         if (!hasPremium) {
@@ -110,7 +110,7 @@ function WhitelistSubscribeButton(props: Props) {
         setShowDialog(true)
     }
 
-    let dialog = (
+    const dialog = (
         <Modal show={showDialog} onHide={closeDialog} className={styles.subscribeDialog}>
             <Modal.Header closeButton>
                 <Modal.Title>Create a Whitelist Notifier</Modal.Title>

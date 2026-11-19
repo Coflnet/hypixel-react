@@ -90,6 +90,14 @@ export const SITEMAP_CONFIG = {
             keywords: ['low supply items', 'high demand', 'trading opportunities', 'market analysis']
         },
         {
+            url: '/auctions',
+            priority: 0.8,
+            changefreq: 'hourly' as const,
+            title: 'Active Auction Explorer - Search All Live SkyBlock Auctions',
+            description: 'Filter all currently active Hypixel SkyBlock auctions across items with live updates.',
+            keywords: ['active auctions', 'auction search', 'auction explorer', 'skyblock auction house']
+        },
+        {
             url: '/recentFlips',
             priority: 0.8,
             changefreq: 'hourly' as const,
@@ -184,6 +192,14 @@ export const SITEMAP_CONFIG = {
             title: 'SkyBlock Flipping Profit Leaderboard',
             description: 'Compare tracked SkyCofl flipping profit and long-run player performance.',
             keywords: ['profit leaderboard', 'flipping profit', 'skycofl leaderboard']
+        },
+        {
+            url: '/tasks',
+            priority: 0.8,
+            changefreq: 'hourly' as const,
+            title: 'Hypixel SkyBlock Money Making Methods – Live Coins per Hour',
+            description: 'Live coins per hour for Hypixel SkyBlock money making methods based on community-tracked SkyCofl mod data.',
+            keywords: ['money making methods', 'coins per hour', 'skyblock money making', 'skycofl tasks']
         },
         {
             url: '/mayor',

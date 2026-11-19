@@ -2,7 +2,7 @@
 import ArrowDownIcon from '@mui/icons-material/ArrowDownward'
 import ArrowUpIcon from '@mui/icons-material/ArrowUpward'
 import SortIcon from '@mui/icons-material/Sort'
-import { useEffect, useState } from 'react'
+import { useState, type ChangeEvent } from 'react'
 import { Card, Form, Table } from 'react-bootstrap'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { NumericFormat } from 'react-number-format'
@@ -10,44 +10,34 @@ import styles from './LowSupplyList.module.css'
 import Image from 'next/image'
 import Number from '../Number/Number'
 
-let mounted = true
-
 interface Props {
     lowSupplyItems?: LowSupplyItem[]
 }
 
 function LowSupplyList(props: Props) {
-    let [lowSupplyItems, setLowSupplyItems] = useState<LowSupplyItem[]>(props.lowSupplyItems || [])
-    let [orderBy, setOrderBy] = useState('-supply')
-    let [nameFilter, setNameFilter] = useState<string | null>()
-    let [volumeFilter, setVolumeFilter] = useState<number | null>()
-    let [medianPriceFilter, setMedianPriceFilter] = useState<number | null>()
-
-    useEffect(() => {
-        mounted = true
-        return () => {
-            mounted = false
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    const [lowSupplyItems, setLowSupplyItems] = useState<LowSupplyItem[]>(props.lowSupplyItems || [])
+    const [orderBy, setOrderBy] = useState('-supply')
+    const [nameFilter, setNameFilter] = useState<string | null>()
+    const [volumeFilter, setVolumeFilter] = useState<number | null>()
+    const [medianPriceFilter, setMedianPriceFilter] = useState<number | null>()
 
     function onSupplyClick() {
-        let o = orderBy === 'supply' ? '-supply' : 'supply'
+        const o = orderBy === 'supply' ? '-supply' : 'supply'
         onOrderChange(o)
     }
 
     function onMedianClick() {
-        let o = orderBy === 'medianPrice' ? '-medianPrice' : 'medianPrice'
+        const o = orderBy === 'medianPrice' ? '-medianPrice' : 'medianPrice'
         onOrderChange(o)
     }
 
     function onVolumeClick() {
-        let o = orderBy === 'volume' ? '-volume' : 'volume'
+        const o = orderBy === 'volume' ? '-volume' : 'volume'
         onOrderChange(o)
     }
 
     function onNameClick() {
-        let o = orderBy === 'name' ? '-name' : 'name'
+        const o = orderBy === 'name' ? '-name' : 'name'
         onOrderChange(o)
     }
 
@@ -55,9 +45,9 @@ function LowSupplyList(props: Props) {
         if (!lowSupplyItems) {
             return
         }
-        let key = order.startsWith('-') ? order.substring(1) : order
+        const key = order.startsWith('-') ? order.substring(1) : order
 
-        let compareFunction = (a, b) => {
+        const compareFunction = (a, b) => {
             let erg = 0
             if (a[key] < b[key]) {
                 erg = -1
@@ -70,12 +60,12 @@ function LowSupplyList(props: Props) {
             }
             return erg
         }
-        let ordered = lowSupplyItems.sort(compareFunction)
+        const ordered = lowSupplyItems.sort(compareFunction)
         setLowSupplyItems(ordered)
         setOrderBy(order)
     }
 
-    function onNameChange(e: any) {
+    function onNameChange(e: ChangeEvent<HTMLInputElement>) {
         if (e.target.value) {
             setNameFilter(e.target.value)
         } else {
@@ -83,8 +73,8 @@ function LowSupplyList(props: Props) {
         }
     }
 
-    let lowSupplyItemsTableBody = lowSupplyItems
-        ? lowSupplyItems.map((item, i) => {
+    const lowSupplyItemsTableBody = lowSupplyItems
+        ? lowSupplyItems.map(item => {
               if (nameFilter && item.name?.toLowerCase().indexOf(nameFilter.toLowerCase()) === -1) {
                   return ''
               }

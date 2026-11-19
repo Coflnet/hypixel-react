@@ -1,0 +1,204 @@
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tab {
+    min-height: 44px;
+    padding: 8px 20px;
+    font: inherit;
+    font-weight: 600;
+    color: #fff;
+    background: var(--card-bg);
+    border: 1px solid var(--bs-secondary);
+    border-radius: 800px;
+    cursor: pointer;
+}
+
+.tab[aria-pressed='true'] {
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+/* row-reverse + wrap: the stage stays on top when the list wraps below it */
+.explorer {
+    display: flex;
+    flex-direction: row-reverse;
+    flex-wrap: wrap;
+    gap: 32px;
+    align-items: flex-start;
+}
+
+.stage {
+    flex: 999 1 560px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.caption {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px 32px;
+    align-items: flex-start;
+}
+
+.captionText {
+    flex: 1 1 300px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.captionText p {
+    margin: 0;
+}
+
+.stageTitle {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: 500;
+}
+
+.tierInfo {
+    flex: 0 1 348px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.metric {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #adb5bd;
+}
+
+.tierCells {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.tierCell {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px;
+    font-size: 14px;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+    background: var(--card-bg);
+    border: 1px solid var(--bs-secondary);
+    border-radius: 6px;
+}
+
+.tierName {
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.valueNo {
+    color: #adb5bd;
+}
+
+.featureList {
+    flex: 1 1 400px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.featureButton {
+    display: block;
+    width: 100%;
+    min-height: 44px;
+    padding: 12px 14px;
+    text-align: left;
+    font: inherit;
+    color: #fff;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.featureButton:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.featureButton[aria-pressed='true'] {
+    background: var(--card-bg);
+    border-color: var(--bs-primary);
+}
+
+.featureButton:focus-visible,
+.tab:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.featureHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.featureTitle {
+    font-weight: 600;
+}
+
+.featureShort {
+    display: block;
+    margin-top: 2px;
+    font-size: 14px;
+    color: #adb5bd;
+}
+
+@media (max-width: 576px) {
+    .tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .tab {
+        padding: 8px 12px;
+    }
+
+    .explorer {
+        gap: 16px;
+    }
+
+    .stage {
+        flex-basis: 100%;
+    }
+
+    .stageTitle {
+        font-size: 20px;
+    }
+
+    .captionText p {
+        font-size: 14px;
+    }
+
+    .featureButton {
+        padding: 10px 12px;
+    }
+
+    .tierCells {
+        gap: 4px;
+    }
+
+    .tierCell {
+        padding: 8px 5px;
+    }
+}

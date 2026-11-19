@@ -9,7 +9,7 @@ import moment from 'moment'
 import api from '../../api/ApiHelper'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import { PREMIUM_RANK, PREMIUM_TYPES, hasHighEnoughPremium } from '../../utils/PremiumTypeUtils'
+import { PREMIUM_RANK, hasHighEnoughPremium } from '../../utils/PremiumTypeUtils'
 import DatePicker from 'react-datepicker'
 import ItemFilter from '../ItemFilter/ItemFilter'
 import Tooltip from '../Tooltip/Tooltip'
@@ -23,25 +23,25 @@ interface Props {
 }
 
 const ArchivedAuctionsList = (props: Props) => {
-    let [archivedAuctions, setArchivedAuctions] = useState<ArchivedAuction[]>([])
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [premiumProducts, setPremiumProducts] = useState<PremiumProduct[]>([])
-    let [from, setFrom] = useState(new Date(Date.now() - 1000 * 60 * 60 * 24 * 1000))
-    let [to, setTo] = useState(new Date())
-    let [filters, setFilters] = useState<FilterOptions[]>([])
-    let [selectedFilter, setSelectedFilter] = useState<ItemFilter>()
-    let [isLoading, setIsLoading] = useState(false)
-    let [currentPage, setCurrentPage] = useState(0)
-    let [allElementsLoaded, setAllElementsLoaded] = useState(false)
-    let [noResults, setNoResults] = useState(false)
-    let [showExportDataDialog, setShowExportDataDialog] = useState(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const [archivedAuctions, setArchivedAuctions] = useState<ArchivedAuction[]>([])
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [premiumProducts, setPremiumProducts] = useState<PremiumProduct[]>([])
+    const [from, setFrom] = useState(new Date(Date.now() - 1000 * 60 * 60 * 24 * 1000))
+    const [to, setTo] = useState(new Date())
+    const [filters, setFilters] = useState<FilterOptions[]>([])
+    const [selectedFilter, setSelectedFilter] = useState<ItemFilter>()
+    const [isLoading, setIsLoading] = useState(false)
+    const [currentPage, setCurrentPage] = useState(0)
+    const [allElementsLoaded, setAllElementsLoaded] = useState(false)
+    const [noResults, setNoResults] = useState(false)
+    const [showExportDataDialog, setShowExportDataDialog] = useState(false)
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
-    let currentPageRef = useRef(currentPage)
+    const currentPageRef = useRef(currentPage)
     currentPageRef.current = currentPage
-    let allElementsLoadedRef = useRef(allElementsLoaded)
+    const allElementsLoadedRef = useRef(allElementsLoaded)
     allElementsLoadedRef.current = allElementsLoaded
-    let archivedAuctionsRef = useRef(archivedAuctions)
+    const archivedAuctionsRef = useRef(archivedAuctions)
     archivedAuctionsRef.current = archivedAuctions
 
     function handleDateChange(date: Date, type: 'from' | 'to') {
@@ -57,19 +57,19 @@ const ArchivedAuctionsList = (props: Props) => {
 
     function loadFilters(): Promise<FilterOptions[]> {
         return Promise.all([api.getFilters(props.item?.tag || '*'), api.flipFilters(props.item?.tag || '*')]).then(filters => {
-            let result = [...(filters[0] || []), ...(filters[1] || [])]
+            const result = [...(filters[0] || []), ...(filters[1] || [])]
             return result
         })
     }
 
     async function onAfterLogin() {
         try {
-            let [products, filters] = await Promise.all([api.getPremiumProducts(), loadFilters()])
+            const [products, filters] = await Promise.all([api.getPremiumProducts(), loadFilters()])
             setIsLoggedIn(true)
             setPremiumProducts(products)
             setFilters(filters)
-        } catch (e) {
-            let filters = await loadFilters()
+        } catch {
+            const filters = await loadFilters()
             setIsLoggedIn(false)
             setPremiumProducts([
                 {
@@ -96,13 +96,12 @@ const ArchivedAuctionsList = (props: Props) => {
 
         setIsLoading(true)
         try {
-            let filter = (selectedFilter as any) || {}
-            const data = await api.requestArchivedAuctions(props.item.tag, {
-                ...filter,
+            const filter: ItemFilter = selectedFilter || {}
+            const data = await api.requestArchivedAuctions(props.item.tag, Object.assign({}, filter, {
                 EndAfter: Math.floor(from.getTime() / 1000).toString(),
                 EndBefore: Math.floor(to.getTime() / 1000).toString(),
-                page: reset ? 0 : currentPageRef.current.toString()
-            })
+                page: reset ? '0' : currentPageRef.current.toString()
+            }))
 
             if (data.queryStatus === 'Pending') {
                 setTimeout(() => {
@@ -111,10 +110,10 @@ const ArchivedAuctionsList = (props: Props) => {
                 return
             }
 
-            let newAuctions = [...archivedAuctionsRef.current, ...data.auctions]
+            const newAuctions = [...archivedAuctionsRef.current, ...data.auctions]
             archivedAuctionsRef.current = newAuctions
             setArchivedAuctions(newAuctions)
-            let newPage = currentPageRef.current + 1
+            const newPage = currentPageRef.current + 1
             currentPageRef.current = newPage
             setCurrentPage(newPage)
 
@@ -161,7 +160,7 @@ const ArchivedAuctionsList = (props: Props) => {
         )
     }
 
-    let archivedAuctionsList = archivedAuctions.map(auction => {
+    const archivedAuctionsList = archivedAuctions.map(auction => {
         return (
             <div key={auction.uuid} className={styles.cardWrapper}>
                 <span className="disableLinkStyle">
@@ -206,11 +205,11 @@ const ArchivedAuctionsList = (props: Props) => {
         )
     })
 
-    let exportFilterProp: ItemFilter = { ...selectedFilter }
+    const exportFilterProp: ItemFilter = { ...selectedFilter }
     exportFilterProp['EndBefore'] = Math.floor(to.getTime() / 1000).toString()
     exportFilterProp['EndAfter'] = Math.floor(from.getTime() / 1000).toString()
 
-    let exportArchivedDataDialog = (
+    const exportArchivedDataDialog = (
         <ExportArchivedData itemTag={props.item.tag} filter={exportFilterProp} show={showExportDataDialog} onShowChange={setShowExportDataDialog} />
     )
 

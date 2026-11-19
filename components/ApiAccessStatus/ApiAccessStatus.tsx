@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react'
 import { Alert, Button, Card, Spinner, Tab, Tabs } from 'react-bootstrap'
 import { toast } from 'react-toastify'
+import api from '../../api/ApiHelper'
 import { CopyButton } from '../CopyButton/CopyButton'
 
 const API_BASE = 'https://sky.coflnet.com/api'
@@ -50,16 +51,8 @@ export default function ApiAccessStatus() {
     const checkPremiumPlus = async () => {
         if (!token) return
         try {
-            const res = await fetch(`${API_BASE}/premium/user/owns`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify(['premium_plus'])
-            })
-            if (res.ok) {
-                const data: Record<string, string> = await res.json()
-                const expiry = data['premium_plus']
-                setHasPremiumPlus(expiry ? new Date(expiry) > new Date() : false)
-            }
+            const products = await api.getPremiumProducts()
+            setHasPremiumPlus(products.some(product => product.productSlug === 'premium_plus' && product.expires > new Date()))
         } catch {
             setHasPremiumPlus(false)
         }

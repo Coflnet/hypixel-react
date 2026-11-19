@@ -18,7 +18,7 @@ export enum FilterType {
  * @param flag the flag to test against
  * @returns true if the enum contains the flag
  */
-export function hasFlag(full?: any, flag?: any) {
-    let result = full && flag && (full & flag) === flag
-    return result === null ? false : result
+export function hasFlag(full?: number, flag?: number) {
+    const result = full && flag && (full & flag) === flag
+    return Boolean(result)
 }

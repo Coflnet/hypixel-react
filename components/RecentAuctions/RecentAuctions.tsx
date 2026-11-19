@@ -3,7 +3,7 @@ import moment from 'moment'
 import Image from 'next/image'
 import Link from 'next/link'
 import { ChangeEvent, useEffect, useRef, useState } from 'react'
-import { Button, Card, Form } from 'react-bootstrap'
+import { Alert, Button, Card, Form } from 'react-bootstrap'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import api from '../../api/ApiHelper'
 import { useStateWithRef, useWasAlreadyLoggedIn } from '../../utils/Hooks'
@@ -12,9 +12,9 @@ import { getMoreAuctionsElement } from '../../utils/ListUtils'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { RECENT_AUCTIONS_FETCH_TYPE_KEY } from '../../utils/SettingsUtils'
+import { buildArchiveUrl } from '../../utils/Parser/URLParser'
 import Number from '../Number/Number'
 import styles from './RecentAuctions.module.css'
-import { useSearchParams } from 'next/navigation'
 
 interface Props {
     item: Item
@@ -33,46 +33,41 @@ enum RECENT_AUCTIONS_FETCH_TYPE {
 
 const FETCH_RESULT_SIZE = 12
 
-// Boolean if the component is mounted. Set to false in useEffect cleanup function
-let mounted = true
-
 function RecentAuctions(props: Props) {
-    let [recentAuctions, setRecentAuctions, recentAuctionsRef] = useStateWithRef<RecentAuction[]>([])
-    let [isSSR, setIsSSR] = useState(true)
-    let [allElementsLoaded, setAllElementsLoaded] = useState(false)
-    let [premiumType, setPremiumType] = useState<PremiumType>()
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [noResults, setNoResults] = useState(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
-    let searchParams = useSearchParams()
+    const [recentAuctions, setRecentAuctions, recentAuctionsRef] = useStateWithRef<RecentAuction[]>([])
+    const [isSSR, setIsSSR] = useState(true)
+    const [allElementsLoaded, setAllElementsLoaded] = useState(false)
+    const [premiumTypeState, setPremiumType] = useState<PremiumType>()
+    let premiumType = premiumTypeState
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [noResults, setNoResults] = useState(false)
+    const [hasLoadError, setHasLoadError] = useState(false)
+    const [isLoading, setIsLoading, isLoadingRef] = useStateWithRef(false)
+    const mounted = useRef(false)
+    const requestId = useRef(0)
+    const nextPage = useRef(0)
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
-    let itemFilterRef = useRef<ItemFilter>(props.itemFilter)
+    const itemFilterRef = useRef<ItemFilter>(props.itemFilter)
     itemFilterRef.current = props.itemFilter
 
     useEffect(() => {
-        mounted = true
+        mounted.current = true
         setIsSSR(false)
         return () => {
-            mounted = false
+            mounted.current = false
+            requestId.current++
         }
     }, [])
 
     useEffect(() => {
-        if (props.yearRecentSamples && props.isYearView) {
-            const samples = props.yearRecentSamples || []
-            const initial = samples.slice(0, FETCH_RESULT_SIZE)
-            setRecentAuctions(initial)
-            setAllElementsLoaded(initial.length >= samples.length)
-            setNoResults(samples.length === 0)
-        } else {
-            loadRecentAuctions(true)
-        }
+        void loadRecentAuctions(true)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [props.item.tag, JSON.stringify(props.itemFilter), props.yearRecentSamples, props.isYearView])
 
     // subscribe to live sold auctions so newly sold auctions show up without a page refresh
     function onSoldAuction(auction: RecentAuction) {
-        if (!mounted) {
+        if (!mounted.current) {
             return
         }
         // skip duplicates and keep the newest auction on top
@@ -80,8 +75,9 @@ function RecentAuctions(props: Props) {
             return
         }
         setRecentAuctions([auction, ...recentAuctionsRef.current])
+        setNoResults(false)
     }
-    let resubscribeSoldAuctions = useLiveAuctionSubscription(
+    const resubscribeSoldAuctions = useLiveAuctionSubscription(
         () => api.subscribeSoldAuctions(props.item.tag, getEffectiveItemFilter(), onSoldAuction),
         [props.item.tag, JSON.stringify(props.itemFilter)],
         !props.isYearView
@@ -89,9 +85,9 @@ function RecentAuctions(props: Props) {
 
     // builds the filter actually used to fetch/subscribe, applying the Sold/Expired/All toggle as a HighestBid filter
     function getEffectiveItemFilter(): ItemFilter {
-        let itemFilter = { ...itemFilterRef.current } as ItemFilter
+        const itemFilter = { ...itemFilterRef.current } as ItemFilter
         if (!props.itemFilter || props.itemFilter['HighestBid'] === undefined) {
-            let fetchType = localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY)
+            const fetchType = localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY)
             switch (fetchType) {
                 case RECENT_AUCTIONS_FETCH_TYPE.UNSOLD:
                     itemFilter['HighestBid'] = '0'
@@ -107,33 +103,18 @@ function RecentAuctions(props: Props) {
         return itemFilter
     }
 
-    function loadRecentAuctions(reset: boolean = false) {
-        let recentAuctions = reset ? [] : recentAuctionsRef.current
+    async function loadRecentAuctions(reset: boolean = false) {
+        if (!reset && isLoadingRef.current) return
+        const currentRequest = ++requestId.current
         if (reset) {
+            nextPage.current = 0
             setRecentAuctions([])
             setNoResults(false)
+            setAllElementsLoaded(false)
         }
 
-        let itemFilter = { ...itemFilterRef.current }
-        let currentLoadingString = JSON.stringify({ tag: props.item.tag, filter: itemFilter })
-
-        if (!props.itemFilter || props.itemFilter['HighestBid'] === undefined) {
-            let fetchType = localStorage.getItem(RECENT_AUCTIONS_FETCH_TYPE_KEY)
-
-            switch (fetchType) {
-                case RECENT_AUCTIONS_FETCH_TYPE.UNSOLD:
-                    itemFilter['HighestBid'] = '0'
-                    break
-                case RECENT_AUCTIONS_FETCH_TYPE.ALL:
-                    break
-                case RECENT_AUCTIONS_FETCH_TYPE.SOLD:
-                default:
-                    itemFilter['HighestBid'] = '>0'
-                    break
-            }
-        }
-
-        let page = Math.ceil(recentAuctions.length / FETCH_RESULT_SIZE)
+        const page = nextPage.current
+        const samples = props.isYearView ? props.yearRecentSamples : undefined
         let maxPages = 10
         switch (premiumType?.priority) {
             case PREMIUM_RANK.STARTER:
@@ -148,50 +129,31 @@ function RecentAuctions(props: Props) {
                 break
         }
 
-        if (!(props.isYearView && props.yearRecentSamples) && page >= maxPages) {
+        if (!samples && page >= maxPages) {
             setAllElementsLoaded(true)
             return
         }
-        itemFilter['page'] = page.toString()
-        if (props.isYearView && props.yearRecentSamples) {
-            const samples = props.yearRecentSamples || []
-            const start = page * FETCH_RESULT_SIZE
-            const end = start + FETCH_RESULT_SIZE
-            const newRecentAuctions = samples.slice(start, end)
+        setIsLoading(true)
+        setHasLoadError(false)
+        try {
+            const itemFilter = getEffectiveItemFilter()
+            itemFilter.page = page.toString()
+            const newRecentAuctions = samples
+                ? samples.slice(page * FETCH_RESULT_SIZE, (page + 1) * FETCH_RESULT_SIZE)
+                : await api.getRecentAuctions(props.item.tag, itemFilter)
+            if (!mounted.current || currentRequest !== requestId.current) return
 
-            if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
-                return
-            }
-
-            if (newRecentAuctions.length === 0) {
-                setNoResults(true)
-            }
-            if (end >= samples.length) {
-                setAllElementsLoaded(true)
-            }
-            setRecentAuctions([...recentAuctions, ...newRecentAuctions])
-            return
+            const current = recentAuctionsRef.current
+            setNoResults(current.length === 0 && newRecentAuctions.length === 0)
+            setAllElementsLoaded(newRecentAuctions.length < FETCH_RESULT_SIZE || (!!samples && (page + 1) * FETCH_RESULT_SIZE >= samples.length))
+            // Live sales can arrive during a request; keep them without duplicating rows or skipping pages.
+            setRecentAuctions([...current, ...newRecentAuctions.filter(auction => !auction.uuid || !current.some(existing => existing.uuid === auction.uuid))])
+            nextPage.current = page + 1
+        } catch {
+            if (mounted.current && currentRequest === requestId.current) setHasLoadError(true)
+        } finally {
+            if (mounted.current && currentRequest === requestId.current) setIsLoading(false)
         }
-
-        api.getRecentAuctions(props.item.tag, itemFilter)
-            .then(newRecentAuctions => {
-                if (!mounted || currentLoadingString !== JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
-                    return
-                }
-                if (newRecentAuctions.length === 0) {
-                    setNoResults(true)
-                }
-                if (newRecentAuctions.length < FETCH_RESULT_SIZE) {
-                    setAllElementsLoaded(true)
-                }
-                setRecentAuctions([...recentAuctions, ...newRecentAuctions])
-            })
-            .catch(() => {
-                if (mounted && currentLoadingString === JSON.stringify({ tag: props.item.tag, filter: itemFilterRef.current })) {
-                    setNoResults(true)
-                    setAllElementsLoaded(true)
-                }
-            })
     }
 
     function onFetchTypeChange(e: ChangeEvent<HTMLSelectElement>) {
@@ -207,23 +169,17 @@ function RecentAuctions(props: Props) {
     }
 
     function onAfterLogin() {
-        let onAfterPremiumProductsLoaded = (products: PremiumProduct[]) => {
+        const onAfterPremiumProductsLoaded = (products: PremiumProduct[]) => {
             setIsLoggedIn(true)
-            let activePremium = getHighestPriorityPremiumProduct(products)
+            const activePremium = getHighestPriorityPremiumProduct(products)
             if (!activePremium) {
                 return
             }
-            let highestPremium = getPremiumType(activePremium)
+            const highestPremium = getPremiumType(activePremium)
             premiumType = highestPremium
-            setPremiumType(() => {
-                setAllElementsLoaded(() => {
-                    if (highestPremium !== null) {
-                        loadRecentAuctions()
-                    }
-                    return false
-                })
-                return highestPremium
-            })
+            setPremiumType(highestPremium)
+            setAllElementsLoaded(false)
+            void loadRecentAuctions()
         }
 
         api.getPremiumProducts()
@@ -240,7 +196,7 @@ function RecentAuctions(props: Props) {
             })
     }
 
-    let recentAuctionList = recentAuctions.map(recentAuction => {
+    const recentAuctionList = recentAuctions.map(recentAuction => {
         return (
             <div key={recentAuction.uuid} className={styles.cardWrapper}>
                 <span className="disableLinkStyle">
@@ -303,6 +259,15 @@ function RecentAuctions(props: Props) {
                 ) : null}
             </h3>
             <div>
+                {hasLoadError ? (
+                    <Alert variant="warning">
+                        Could not load recent auctions.{' '}
+                        <Button variant="outline-secondary" size="sm" onClick={() => void loadRecentAuctions()}>
+                            Retry past sales
+                        </Button>
+                    </Alert>
+                ) : null}
+                {isLoading && recentAuctions.length === 0 ? getLoadingElement(<p>Loading recent auctions...</p>) : null}
                 {recentAuctions.length > 0 ? (
                     <InfiniteScroll
                         style={{ overflow: 'clip' }}
@@ -310,12 +275,13 @@ function RecentAuctions(props: Props) {
                         next={() => {
                             loadRecentAuctions()
                         }}
-                        hasMore={!allElementsLoaded}
+                        hasMore={!allElementsLoaded && !hasLoadError}
                         loader={
                             <div style={{ display: 'flex', justifyContent: 'center' }}>
                                 <div>
                                     <div>{getLoadingElement()}</div>
                                     <Button
+                                        disabled={isLoading}
                                         onClick={() => {
                                             loadRecentAuctions()
                                         }}
@@ -333,10 +299,7 @@ function RecentAuctions(props: Props) {
                     <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                         <p style={{ textAlign: 'center' }}>No {!noResults ? 'more ' : ''} recent auctions found.</p>
                         {premiumType?.priority >= PREMIUM_RANK.PREMIUM_PLUS ? (
-                            <Link
-                                style={{ textAlign: 'center', marginBottom: '15px' }}
-                                href={`/item/${props.item.tag}/archive?${searchParams.has('itemFilter') ? `?${searchParams.get('itemFilter')}` : ''}`}
-                            >
+                            <Link style={{ textAlign: 'center', marginBottom: '15px' }} href={buildArchiveUrl(props.item.tag, props.itemFilter)}>
                                 <Button>Archived Auctions</Button>
                             </Link>
                         ) : (
@@ -348,6 +311,7 @@ function RecentAuctions(props: Props) {
                 ) : null}
             </div>
             {!noResults &&
+                !hasLoadError &&
                 getMoreAuctionsElement(
                     'recent-auctions-load-more',
                     isLoggedIn,

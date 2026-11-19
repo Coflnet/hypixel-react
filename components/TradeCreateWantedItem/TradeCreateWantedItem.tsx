@@ -1,4 +1,5 @@
 'use client'
+import { getPickedItemName, splitSearchResultId } from '../../utils/Search/FilterResultId'
 import { getHeadMetadata } from '../../utils/SSRUtils'
 import { Button } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
@@ -11,9 +12,9 @@ interface Props {
 }
 
 export default function TradeCreateWantedItem(props: Props) {
-    let [selectedItem, setSelectedItem] = useState<Item>()
-    let [selectedFilter, setSelectedFilter] = useState<ItemFilter>()
-    let [filterOptions, setFilterOptions] = useState<FilterOptions[]>([])
+    const [selectedItem, setSelectedItem] = useState<Item>()
+    const [selectedFilter, setSelectedFilter] = useState<ItemFilter>()
+    const [filterOptions, setFilterOptions] = useState<FilterOptions[]>([])
 
     useEffect(() => {
         loadFilters()
@@ -21,7 +22,7 @@ export default function TradeCreateWantedItem(props: Props) {
 
     function loadFilters(): Promise<FilterOptions[]> {
         return Promise.all([api.getFilters(selectedItem?.tag || '*'), api.flipFilters(selectedItem?.tag || '*')]).then(filters => {
-            let result = [...(filters[0] || []), ...(filters[1] || [])]
+            const result = [...(filters[0] || []), ...(filters[1] || [])]
             setFilterOptions(result)
             return result
         })
@@ -31,7 +32,7 @@ export default function TradeCreateWantedItem(props: Props) {
         <>
             <Search
                 onSearchresultClick={result => {
-                    setSelectedItem({ tag: result.id, ...result.dataItem })
+                    setSelectedItem({ ...result.dataItem, tag: splitSearchResultId(result.id).tag, name: getPickedItemName(result, splitSearchResultId(result.id).filter) })
                 }}
                 placeholder="Search for an item..."
                 selected={selectedItem}

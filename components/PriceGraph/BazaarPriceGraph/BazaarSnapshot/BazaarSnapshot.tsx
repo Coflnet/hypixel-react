@@ -1,11 +1,9 @@
 'use client'
 import moment from 'moment'
-import { useEffect, useRef, useState, type JSX } from 'react'
+import { type JSX } from 'react'
 import Card from 'react-bootstrap/Card'
-import { Table } from 'react-bootstrap'
-import api from '../../../../api/ApiHelper'
-import { CUSTOM_EVENTS } from '../../../../api/ApiTypes.d'
-import { useDebounce } from '../../../../utils/Hooks'
+import { Alert, Button, Table } from 'react-bootstrap'
+import { useBazaarSnapshot } from '../../../../hooks/useBazaarSnapshot'
 import Number from '../../../Number/Number'
 import styles from './BazaarSnapshot.module.css'
 
@@ -14,77 +12,7 @@ interface Props {
 }
 
 function BazaarSnapshot(props: Props) {
-    let [timestamp, setTimestamp] = useState<Date>(new Date())
-    let [bazaarSnapshot, setBazaarSnapshot] = useState<BazaarSnapshot>()
-    const [isPageVisible, setIsPageVisible] = useState(true)
-
-    let debouncedTimestamp = useDebounce(timestamp, 100)
-    let bazaarSnapshotDateRef = useRef(null)
-
-    useEffect(() => {
-        const handleVisibilityChange = () => setIsPageVisible(!document.hidden)
-        document.addEventListener('visibilitychange', handleVisibilityChange)
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange)
-        }
-    }, [])
-
-    useEffect(() => {
-        if (!bazaarSnapshot || !isPageVisible) {
-            return
-        }
-
-        // Only auto-refresh if the user is looking at recent data (less than an hour old)
-        if (new Date().getTime() - timestamp.getTime() > 60000 * 60) {
-            return
-        }
-
-        const lastUpdate = new Date(bazaarSnapshot.timeStamp).getTime()
-        const nextUpdate = lastUpdate + 25000
-        const timeoutDuration = Math.max(5_000, nextUpdate - Date.now())
-
-        const timer = setTimeout(() => {
-            setTimestamp(new Date())
-        }, timeoutDuration)
-
-        return () => clearTimeout(timer)
-    }, [bazaarSnapshot, isPageVisible])
-
-    useEffect(() => {
-        document.addEventListener(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, onTimestampChangeEvent)
-
-        return () => {
-            document.removeEventListener(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, onTimestampChangeEvent)
-        }
-    }, [])
-
-    useEffect(() => {
-        loadBazaarSnapshot()
-    }, [props.item.tag])
-
-    useEffect(() => {
-        loadBazaarSnapshot()
-    }, [debouncedTimestamp])
-
-    function onTimestampChangeEvent(e) {
-        if ((e as any).detail?.timestamp) {
-            let t = (e as any).detail?.timestamp
-            setTimestamp(t)
-        }
-    }
-
-    function loadBazaarSnapshot() {
-        bazaarSnapshotDateRef.current = typeof debouncedTimestamp?.getTime === 'function' ? (debouncedTimestamp as Date).getTime() : debouncedTimestamp
-
-        api.getBazaarSnapshot(props.item.tag, debouncedTimestamp).then(snapshot => {
-            if (
-                bazaarSnapshotDateRef.current ===
-                (typeof debouncedTimestamp?.getTime === 'function' ? (debouncedTimestamp as Date).getTime() : debouncedTimestamp)
-            ) {
-                setBazaarSnapshot(snapshot)
-            }
-        })
-    }
+    const { snapshot: bazaarSnapshot, hasError: hasSnapshotError, retry: retrySnapshot } = useBazaarSnapshot(props.item.tag)
 
     function getInformationBody(data: BazaarSnapshotData, type: string): JSX.Element {
         return (
@@ -150,15 +78,23 @@ function BazaarSnapshot(props: Props) {
         )
     }
 
-    if (!bazaarSnapshot) {
-        return null
-    }
+    const errorNotice = hasSnapshotError ? (
+        <Alert variant="warning">
+            Could not update Bazaar order data.{' '}
+            <Button variant="outline-secondary" size="sm" onClick={() => retrySnapshot()}>
+                Retry snapshot
+            </Button>
+        </Alert>
+    ) : null
+
+    if (!bazaarSnapshot) return errorNotice
 
     const allOrders = [...bazaarSnapshot.buyOrders, ...bazaarSnapshot.sellOrders]
     const maxAmount = Math.max(...allOrders.map(o => o.amount), 0)
 
     return (
         <>
+            {errorNotice}
             <h3 className={styles.headline}>
                 {bazaarSnapshot.item.name}Bazaar Snaphot ({moment(bazaarSnapshot.timeStamp).format('MMMM Do YYYY, h:mm:ss a')})
             </h3>

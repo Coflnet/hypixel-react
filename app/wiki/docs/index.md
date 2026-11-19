@@ -26,6 +26,7 @@ Welcome to the comprehensive guide for SkyCofl's Hypixel SkyBlock tools and feat
 ## Tools & Utilities
 
 - [Minecraft Mod](./mod)
+- [Expert Configs](./expert-configs)
 - [Complete Mod Command Reference](./mod-commands)
 - [Mod Settings Reference](./settings)
 - [Profitable Crafts](/crafts)

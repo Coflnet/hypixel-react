@@ -13,6 +13,7 @@ import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList as List } from 'react-window'
 import { v4 as generateUUID } from 'uuid'
 import api from '../../api/ApiHelper'
+import { isSocketReady, SOCKET_STATE_CHANGED } from '../../api/WebsocketHelper'
 import { CUSTOM_EVENTS } from '../../api/ApiTypes.d'
 import { DEFAULT_FLIP_SETTINGS, DEMO_FLIP, getFlipCustomizeSettings } from '../../utils/FlipUtils'
 import { useReferralRewardsEligibility, useWasAlreadyLoggedIn } from '../../utils/Hooks'
@@ -51,59 +52,65 @@ let missedInfo: FreeFlipperMissInformation = {
     totalProfit: 0
 }
 
-let mounted = true
-
 const FLIP_CONEXT_MENU_ID = 'flip-context-menu'
 
 interface Props {
-    flips?: any[]
+    flips?: Parameters<typeof parseFlipAuction>[0][]
 }
 
 function Flipper(props: Props) {
-    let [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
-    let [flips, setFlips] = useState<FlipAuction[]>(
+    const [flipperFilter, setFlipperFilter] = useState<FlipperFilter>(getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {}))
+    const [flips, setFlips] = useState<FlipAuction[]>(
         props.flips
             ? props.flips.map(parseFlipAuction).filter(flip => {
-                return flipperFilter.onlyUnsold ? !flip.sold : true
-            })
+                  return flipperFilter.onlyUnsold ? !flip.sold : true
+              })
             : []
     )
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [autoscroll, setAutoscroll] = useState(false)
-    let [hasPremium, setHasPremium] = useState(false)
-    let [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
-    let [enabledScroll, setEnabledScroll] = useState(false)
-    let [isLoading, setIsLoading] = useState(false)
-    let [refInfo, setRefInfo] = useState<RefInfo>()
-    let [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null)
-    let [lastFlipFetchTimeSeconds, setLastFlipFetchTimeSeconds] = useState<number>()
-    let [lastFlipFetchTimeLoading, setLastFlipFetchTimeLoading] = useState<boolean>(false)
-    let [countdownDateObject, setCountdownDateObject] = useState<Date>()
-    let [isSmall, setIsSmall] = useState(false)
-    let [selectedAuctionUUID, setSelectedAuctionUUID] = useState('')
-    let [isSSR, setIsSSR] = useState(true)
-    let [showResetToDefaultDialog, setShowResetToDefaultDialog] = useState(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
-    let isReferralEligible = useReferralRewardsEligibility()
-    let router = useRouter()
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [currentAutoscroll, setAutoscroll] = useState(false)
+    let autoscroll = currentAutoscroll
+    const [hasPremium, setHasPremium] = useState(false)
+    const [activePremiumProduct, setActivePremiumProduct] = useState<PremiumProduct>()
+    const [currentEnabledScroll, setEnabledScroll] = useState(false)
+    let enabledScroll = currentEnabledScroll
+    const [isReconnecting, setIsReconnecting] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
+    const [refInfo, setRefInfo] = useState<RefInfo>()
+    const [basedOnAuction, setBasedOnAuction] = useState<FlipAuction | null>(null)
+    const [lastFlipFetchTimeSeconds, setLastFlipFetchTimeSeconds] = useState<number>()
+    const [lastFlipFetchTimeLoading, setLastFlipFetchTimeLoading] = useState<boolean>(false)
+    const [countdownDateObject, setCountdownDateObject] = useState<Date>()
+    const [isSmall, setIsSmall] = useState(false)
+    const [selectedAuctionUUID, setSelectedAuctionUUID] = useState('')
+    const [currentIsSSR, setIsSSR] = useState(true)
+    let isSSR = currentIsSSR
+    const [showResetToDefaultDialog, setShowResetToDefaultDialog] = useState(false)
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const isReferralEligible = useReferralRewardsEligibility()
+    const router = useRouter()
 
-    let [flipperFilterKey, setFlipperFilterKey] = useState<string>(generateUUID())
+    const [flipperFilterKey, setFlipperFilterKey] = useState<string>(generateUUID())
 
     const { show } = useContextMenu({
         id: FLIP_CONEXT_MENU_ID
     })
 
-    const listRef = useRef(null)
+    const listRef = useRef<List>(null)
 
     const autoscrollRef = useRef(autoscroll)
     autoscrollRef.current = autoscroll
 
-    const flipLookup = {}
+    const flipLookup = useRef(new Set(flips.map(flip => flip.uuid)))
+    const mounted = useRef(false)
+    const filterRef = useRef(flipperFilter)
+    filterRef.current = flipperFilter
+    const subscriptionTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
     useEffect(() => {
         setIsSSR(false)
 
-        mounted = true
+        mounted.current = true
         _setAutoScroll(true)
         attachScrollEvent()
         isSSR = false
@@ -116,13 +123,22 @@ function Flipper(props: Props) {
             onNextFlipNotification
         )
         getLastFlipFetchTime()
+        setIsReconnecting(!isSocketReady())
+        const onSocketStateChange = (event: Event) => {
+            setIsReconnecting(!isSocketReady())
+            if ((event as CustomEvent<boolean>).detail) getLastFlipFetchTime()
+        }
+        window.addEventListener(SOCKET_STATE_CHANGED, onSocketStateChange)
 
-        const debounceSubFlipAnonymFunction = (function () {
-            let timerId
-
-            return () => {
-                clearTimeout(timerId)
-                timerId = setTimeout(() => {
+        const onFlipSettingsChange = e => {
+            filterRef.current = getSettingsObject(FLIPPER_FILTER_KEY, {})
+            setFlipperFilter(filterRef.current)
+            if ((e as CustomEvent<{ apiUpdate?: boolean }>).detail?.apiUpdate) {
+                setFlipperFilterKey(generateUUID())
+            }
+            if (sessionStorage.getItem('googleId') === null) {
+                clearTimeout(subscriptionTimer.current)
+                subscriptionTimer.current = setTimeout(() => {
                     api.subscribeFlipsAnonym(
                         getSettingsObject(RESTRICTIONS_SETTINGS_KEY, []) || [],
                         getSettingsObject(FLIPPER_FILTER_KEY, {}),
@@ -133,22 +149,15 @@ function Flipper(props: Props) {
                     )
                 }, 1000)
             }
-        })()
-
-        let onFlipSettingsChange = e => {
-            if ((e as any).detail?.apiUpdate) {
-                setFlipperFilterKey(generateUUID())
-            }
-            if (sessionStorage.getItem('googleId') === null) {
-                debounceSubFlipAnonymFunction()
-            }
         }
         document.addEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, onFlipSettingsChange)
 
         setIsSmall(document.body.clientWidth < 1000)
 
         return () => {
-            mounted = false
+            window.removeEventListener(SOCKET_STATE_CHANGED, onSocketStateChange)
+            mounted.current = false
+            clearTimeout(subscriptionTimer.current)
             document.removeEventListener(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, onFlipSettingsChange)
             api.unsubscribeFlips()
         }
@@ -157,7 +166,7 @@ function Flipper(props: Props) {
 
     useEffect(() => {
         if (sessionStorage.getItem('googleId') !== null && !isLoggedIn) {
-            setFlips([])
+            clearFlips()
             setIsLoading(true)
         }
     }, [wasAlreadyLoggedIn, isLoggedIn])
@@ -172,8 +181,9 @@ function Flipper(props: Props) {
         })
     }
 
-    let loadHasPremium = () => {
-        let onAfterPremiumProductsLoaded = (products: PremiumProduct[]) => {
+    const loadHasPremium = () => {
+        const onAfterPremiumProductsLoaded = (products: PremiumProduct[]) => {
+            if (!mounted.current) return
             setHasPremium(hasHighEnoughPremium(products, PREMIUM_RANK.STARTER))
             setActivePremiumProduct(getHighestPriorityPremiumProduct(products))
             // subscribe to the premium flips
@@ -203,7 +213,8 @@ function Flipper(props: Props) {
     }
 
     function onLogin() {
-        setFlips([])
+        clearTimeout(subscriptionTimer.current)
+        clearFlips()
         setIsLoggedIn(true)
         setIsLoading(true)
         loadHasPremium()
@@ -218,7 +229,7 @@ function Flipper(props: Props) {
 
     function onArrowRightClick() {
         if (listRef.current) {
-            ; (listRef.current as any).scrollToItem(flips.length - 1)
+            ;listRef.current.scrollToItem(flips.length - 1)
         }
     }
 
@@ -241,7 +252,7 @@ function Flipper(props: Props) {
             scrollContainer.addEventListener('wheel', evt => {
                 evt.preventDefault()
                 let scrollAmount = 0
-                var slideTimer = setInterval(() => {
+                const slideTimer = setInterval(() => {
                     scrollContainer!.scrollLeft += (evt as WheelEvent).deltaY / 10
                     scrollAmount += Math.abs((evt as WheelEvent).deltaY) / 10
                     if (scrollAmount >= Math.abs((evt as WheelEvent).deltaY)) {
@@ -255,34 +266,33 @@ function Flipper(props: Props) {
     }
 
     function clearFlips() {
+        flipLookup.current.clear()
         setFlips([])
     }
 
     function onAuctionSold(uuid: string) {
-        if (!mounted) {
+        if (!mounted.current) {
             return
         }
         setFlips(flips => {
-            let index = flips.findIndex(a => a.uuid === uuid)
+            const index = flips.findIndex(a => a.uuid === uuid)
             if (index === -1) {
                 return flips
             }
 
-            flips[index].sold = true
-            if (flips[index] && flipperFilter.onlyUnsold) {
-                flips.splice(index, 1)
-                return flips
+            if (filterRef.current.onlyUnsold) {
+                return flips.filter(flip => flip.uuid !== uuid)
             }
-            return flips
+            return flips.map(flip => (flip.uuid === uuid ? { ...flip, sold: true } : flip))
         })
     }
 
     function getLastFlipFetchTime() {
         setLastFlipFetchTimeLoading(true)
-        api.getFlipUpdateTime().then(date => {
-            setLastFlipFetchTimeSeconds(date.getSeconds() % 60)
-            setLastFlipFetchTimeLoading(false)
-        })
+        api.getFlipUpdateTime()
+            .then(date => setLastFlipFetchTimeSeconds(date.getSeconds() % 60))
+            .catch(() => setLastFlipFetchTimeSeconds(undefined))
+            .finally(() => setLastFlipFetchTimeLoading(false))
     }
 
     function onNextFlipNotification() {
@@ -294,7 +304,7 @@ function Flipper(props: Props) {
     }
 
     function getCountdownDateObject(): Date {
-        let d = new Date()
+        const d = new Date()
         if (countdownDateObject && countdownDateObject.getTime() > new Date().getTime() && countdownDateObject.getSeconds() === lastFlipFetchTimeSeconds) {
             return countdownDateObject
         }
@@ -320,16 +330,15 @@ function Flipper(props: Props) {
     }
 
     function onNewFlip(newFlipAuction: FlipAuction) {
-        if (flipLookup[newFlipAuction.uuid] || !mounted) {
+        if (flipLookup.current.has(newFlipAuction.uuid) || !mounted.current) {
             return
         }
 
-        if (flipperFilter.onlyUnsold && newFlipAuction.sold) {
+        if (filterRef.current.onlyUnsold && newFlipAuction.sold) {
             return
         }
 
-        flipLookup[newFlipAuction.uuid] = newFlipAuction
-
+        flipLookup.current.add(newFlipAuction.uuid)
         newFlipAuction.item.iconUrl = api.getItemImageUrl(newFlipAuction.item)
         newFlipAuction.showLink = true
 
@@ -342,10 +351,10 @@ function Flipper(props: Props) {
         }
 
         setFlips(flips => {
-            let newFlips = [...flips, newFlipAuction]
+            const newFlips = [...flips, newFlipAuction]
             if (autoscrollRef.current && listRef.current) {
                 setTimeout(() => {
-                    let element =
+                    const element =
                         document.getElementsByClassName(styles.flipperScrollList).length > 0
                             ? document.getElementsByClassName(styles.flipperScrollList).item(0)
                             : null
@@ -360,24 +369,25 @@ function Flipper(props: Props) {
     }
 
     function onFilterChange(newFilter) {
+        filterRef.current = newFilter
         setFlipperFilter(newFilter)
-        setFlips([])
+        document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE))
+        clearFlips()
         if (listRef.current) {
-            ; (listRef.current as any)?.scrollToItem(flips.length - 1)
+            ;listRef.current.scrollToItem(flips.length - 1)
         }
     }
 
     function onCopyFlip(flip: FlipAuction) {
-        let settings = getFlipCustomizeSettings()
-        let currentMissedInfo = missedInfo
+        const currentMissedInfo = missedInfo
         currentMissedInfo.estimatedProfitCopiedAuctions += flip.profit
         flip.isCopied = true
         setFlips(flips)
     }
 
     function getFlipForList(listData) {
-        let { data, index, style } = listData
-        let { flips } = data
+        const { data, index, style } = listData
+        const { flips } = data
 
         return (
             <div key={'flip-' + index} id={'flip-' + index}>
@@ -387,7 +397,7 @@ function Flipper(props: Props) {
     }
 
     function addItemToBlacklist(flip: FlipAuction) {
-        let restrictions = getSetting(RESTRICTIONS_SETTINGS_KEY, '[]')
+        const restrictions = getSetting(RESTRICTIONS_SETTINGS_KEY, '[]')
         let parsed: FlipRestriction[]
         try {
             parsed = JSON.parse(restrictions)
@@ -408,7 +418,7 @@ function Flipper(props: Props) {
     }
 
     function relaxLimitingFilters() {
-        let relaxedFilter: FlipperFilter = { ...flipperFilter }
+        const relaxedFilter: FlipperFilter = { ...flipperFilter }
         if ((relaxedFilter.minProfit || 0) > 3_000_000) {
             relaxedFilter.minProfit = 3_000_000
         }
@@ -429,8 +439,8 @@ function Flipper(props: Props) {
         api.setFlipSetting('maxCost', relaxedFilter.maxCost || 0)
 
         // drop all blacklist rules, keep whitelist entries
-        let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
-        let remainingRestrictions = restrictions.filter(restriction => restriction.type !== 'blacklist')
+        const restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+        const remainingRestrictions = restrictions.filter(restriction => restriction.type !== 'blacklist')
         setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(getCleanRestrictionsForApi(remainingRestrictions)))
         api.setFlipSetting('blacklist', mapRestrictionsToApiFormat([]))
 
@@ -456,13 +466,13 @@ function Flipper(props: Props) {
             () => {
                 window.location.reload()
             },
-            () => { },
+            () => {},
             true
         )
         localStorage.removeItem('userSettings')
     }
 
-    let getFlipElement = (flipAuction: FlipAuction, style) => {
+    const getFlipElement = (flipAuction: FlipAuction, style) => {
         if (!flipAuction) {
             return <div />
         }
@@ -492,7 +502,7 @@ function Flipper(props: Props) {
             return <h2>Free Auction Flipper</h2>
         }
         if (hasPremium) {
-            let type = getPremiumType(activePremiumProduct!)
+            const type = getPremiumType(activePremiumProduct!)
             if (!type) {
                 return null
             }
@@ -513,7 +523,7 @@ function Flipper(props: Props) {
         }
         return (
             <span>
-                These auctions are delayed by about one minute. Please purchase{' '}
+                These auctions are delayed compared to premium users. Please purchase{' '}
                 <a target="_blank" rel="noreferrer" href="/premium">
                     premium
                 </a>{' '}
@@ -524,9 +534,9 @@ function Flipper(props: Props) {
 
     function onDrop(e) {
         e.preventDefault()
-        var output = '' //placeholder for text output
-        let reader = new FileReader()
-        let file = e.dataTransfer.items[0].getAsFile()
+        let output = '' //placeholder for text output
+        const reader = new FileReader()
+        const file = e.dataTransfer.items[0].getAsFile()
         if (file) {
             reader.onload = function (e) {
                 output = e.target!.result!.toString()
@@ -541,7 +551,7 @@ function Flipper(props: Props) {
         e.preventDefault()
     }
 
-    let basedOnDialog =
+    const basedOnDialog =
         basedOnAuction === null ? null : (
             <Modal
                 size={'xl'}
@@ -559,7 +569,7 @@ function Flipper(props: Props) {
             </Modal>
         )
 
-    let flipContextMenu = (
+    const flipContextMenu = (
         <div>
             <Menu id={FLIP_CONEXT_MENU_ID} theme={'dark'}>
                 <Item
@@ -581,7 +591,7 @@ function Flipper(props: Props) {
         </div>
     )
 
-    let resetSettingsElement = (
+    const resetSettingsElement = (
         <span>
             Reset Flipper settings back to default
             <Button
@@ -699,11 +709,17 @@ function Flipper(props: Props) {
                             ) : null}
                         </Form>
                         <hr />
+                        {isReconnecting && (
+                            <Alert variant="secondary" role="status" className="py-2">
+                                Reconnecting…
+                            </Alert>
+                        )}
                         {flips.length === 0 && !isLoading ? (
-                            <Alert variant="info" style={{ position: 'absolute', marginRight: 15 }}>
+                            <Alert variant="info">
                                 <Alert.Heading style={{ fontSize: '1rem' }}>Waiting for new auctions</Alert.Heading>
                                 <p style={{ marginBottom: 10 }}>
-                                    Your filter settings are limiting results. New flips probably show up soon. If they don't in 1-2 Minutes try making your settings less strict, eg reduce your minimum profit or remove blacklist filter rules.
+                                    New flips may take a few minutes to arrive. If none appear, check your connection or try less strict filters, such as a
+                                    lower minimum profit or fewer blacklist rules.
                                 </p>
                                 <Tooltip
                                     type="hover"

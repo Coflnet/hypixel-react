@@ -13,7 +13,8 @@ import {
     getMinecraftColorCodedElement,
     getStyleForTier
 } from '../../utils/Formatter'
-import { useForceUpdate } from '../../utils/Hooks'
+import { formatDateAndTime } from '../../utils/DateFormatUtils'
+import { useForceUpdate, useIsMounted } from '../../utils/Hooks'
 import { useLiveAuctionSubscription } from '../../hooks/useLiveAuctionSubscription'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { isClientSideRendering } from '../../utils/SSRUtils'
@@ -31,21 +32,22 @@ import ItemHistory from '../OwnerHistory/OwnerHistory'
 
 interface Props {
     auctionUUID: string
-    auctionDetails?: any
+    auctionDetails?: Parameters<typeof parseAuctionDetails>[0]
     retryCounter?: number
-    unparsedAuctionDetails?: any
+    unparsedAuctionDetails?: Parameters<typeof parseAuctionDetails>[0]
     copyButtonValue: 'ingame' | 'web'
 }
 
 function AuctionDetails(props: Props) {
-    let [isNoAuctionFound, setIsNoAuctionFound] = useState(false)
-    let [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
-    let [unparsedAuctionDetails, setUnparsedAuctionDetails] = useState(props.unparsedAuctionDetails)
-    let [isLoading, setIsLoading] = useState(false)
-    let [showBasedOnDialog, setShowBasedOnDialog] = useState(false)
-    let [showFilterChecker, setShowFilterChecker] = useState(false)
-    let [showItemHistoryDialog, setShowItemHistoryDialog] = useState(false)
-    let forceUpdate = useForceUpdate()
+    const [isNoAuctionFound, setIsNoAuctionFound] = useState(false)
+    const [auctionDetails, setAuctionDetails] = useState<AuctionDetails | undefined>(props.auctionDetails ? parseAuctionDetails(props.auctionDetails) : undefined)
+    const [unparsedAuctionDetails, setUnparsedAuctionDetails] = useState(props.unparsedAuctionDetails)
+    const [isLoading, setIsLoading] = useState(false)
+    const [showBasedOnDialog, setShowBasedOnDialog] = useState(false)
+    const [showFilterChecker, setShowFilterChecker] = useState(false)
+    const [showItemHistoryDialog, setShowItemHistoryDialog] = useState(false)
+    const forceUpdate = useForceUpdate()
+    const isMounted = useIsMounted()
 
     useEffect(() => {
         // Dont load auction details if
@@ -65,16 +67,16 @@ function AuctionDetails(props: Props) {
         newAuctionDetails.auction.item.iconUrl = api.getItemImageUrl(newAuctionDetails.auction.item)
         setAuctionDetails(newAuctionDetails)
 
-        let namePromises: Promise<void>[] = []
+        const namePromises: Promise<void>[] = []
         newAuctionDetails.bids.forEach(bid => {
             namePromises.push(
-                api.getPlayerName(bid.bidder.uuid).then(name => {
+                api.getPlayerName(bid.bidder.uuid).catch(() => '').then(name => {
                     bid.bidder.name = name
                 })
             )
         })
         namePromises.push(
-            api.getPlayerName(newAuctionDetails.auctioneer.uuid).then(name => {
+            api.getPlayerName(newAuctionDetails.auctioneer.uuid).catch(() => '').then(name => {
                 newAuctionDetails.auctioneer.name = name
             })
         )
@@ -92,7 +94,7 @@ function AuctionDetails(props: Props) {
         api.getAuctionDetails(auctionUUID)
             .then(result => {
                 setUnparsedAuctionDetails(result.original)
-                let auctionDetails = result.parsed
+                const auctionDetails = result.parsed
                 auctionDetails.bids.sort((a, b) => b.amount - a.amount)
                 auctionDetails.auction.item.iconUrl = api.getItemImageUrl(auctionDetails.auction.item)
                 setAuctionDetails(auctionDetails)
@@ -104,15 +106,15 @@ function AuctionDetails(props: Props) {
                     forceUpdate()
                 })
 
-                let namePromises: Promise<void>[] = []
+                const namePromises: Promise<void>[] = []
                 auctionDetails.bids.forEach(bid => {
-                    let promise = api.getPlayerName(bid.bidder.uuid).then(name => {
+                    const promise = api.getPlayerName(bid.bidder.uuid).catch(() => '').then(name => {
                         bid.bidder.name = name
                     })
                     namePromises.push(promise)
                 })
                 namePromises.push(
-                    api.getPlayerName(auctionDetails.auctioneer.uuid).then(name => {
+                    api.getPlayerName(auctionDetails.auctioneer.uuid).catch(() => '').then(name => {
                         auctionDetails.auctioneer.name = name
                     })
                 )
@@ -137,11 +139,11 @@ function AuctionDetails(props: Props) {
             })
     }
 
-    let isRunning = (auctionDetails: AuctionDetails) => {
+    const isRunning = (auctionDetails: AuctionDetails) => {
         return auctionDetails.auction.end.getTime() >= Date.now() && !(auctionDetails.auction.bin && auctionDetails.bids.length > 0)
     }
 
-    let getTimeToolTipString = () => {
+    const getTimeToolTipString = () => {
         if (!auctionDetails) {
             return ''
         }
@@ -159,7 +161,7 @@ function AuctionDetails(props: Props) {
         return (
             <div className={styles.detailContainer}>
                 {Object.keys(auctionDetails?.nbtData).map(key => {
-                    let currentNBT = auctionDetails?.nbtData[key]
+                    const currentNBT = auctionDetails?.nbtData[key]
                     return (
                         <div className={styles.detailRow} key={key}>
                             <span className={styles.label}>
@@ -190,8 +192,8 @@ function AuctionDetails(props: Props) {
         return convertTagToName(key)
     }
 
-    function formatNBTValue(key: string, value: any, auctionDetails?: AuctionDetails) {
-        let tagNbt = [
+    function formatNBTValue(key: string, value: string, auctionDetails?: AuctionDetails) {
+        const tagNbt = [
             'heldItem',
             'personal_compact_0',
             'personal_compact_1',
@@ -238,8 +240,8 @@ function AuctionDetails(props: Props) {
         }
 
         if (key === 'color') {
-            let decSplits = value ? value.split(':') : []
-            let hexSplits: string[] = []
+            const decSplits = value ? value.split(':') : []
+            const hexSplits: string[] = []
             decSplits.forEach(split => {
                 hexSplits.push(parseInt(split).toString(16).padStart(2, '0'))
             })
@@ -264,22 +266,22 @@ function AuctionDetails(props: Props) {
                             ></span>
                         </span>
                     }
-                    tooltipContent={value}
+                    tooltipContent={<span>{value}</span>}
                 />
             )
         }
 
         if (key === 'date') {
-            let date = new Date(parseInt(value))
-            return date.toLocaleDateString() + ' ' + date.toLocaleTimeString()
+            const date = new Date(parseInt(value))
+            return formatDateAndTime(date, isMounted)
         }
 
         // Don't use the number formating if it includes a 'e' as it is then treated as an exponential number resulting in displaying "∞"
-        if (!isNaN(value) && !value.toString().includes('e')) {
+        if (!isNaN(globalThis.Number(value)) && !value.toString().includes('e')) {
             return <Number number={value} />
         }
 
-        let index = tagNbt.findIndex(tag => tag === key)
+        const index = tagNbt.findIndex(tag => tag === key)
         if (index !== -1) {
             if (key === 'skin' && auctionDetails?.auction?.item?.tag?.startsWith('PET_')) {
                 return <Link href={'/item/PET_SKIN_' + value}>{convertTagToName(value)}</Link>
@@ -298,7 +300,7 @@ function AuctionDetails(props: Props) {
     const binBadgeVariant = 'success'
     const countBadgeVariant = 'dark'
 
-    let basedOnDialog = showBasedOnDialog ? (
+    const basedOnDialog = showBasedOnDialog ? (
         <Modal
             size={'xl'}
             show={showBasedOnDialog}
@@ -313,7 +315,7 @@ function AuctionDetails(props: Props) {
         </Modal>
     ) : null
 
-    let previousOwnersDialog = showItemHistoryDialog ? (
+    const previousOwnersDialog = showItemHistoryDialog ? (
         <Modal
             size={'xl'}
             show={showItemHistoryDialog}
@@ -330,7 +332,7 @@ function AuctionDetails(props: Props) {
         </Modal>
     ) : null
 
-    let auctionCardContent = !auctionDetails ? (
+    const auctionCardContent = !auctionDetails ? (
         getLoadingElement()
     ) : (
         <div>
@@ -378,14 +380,16 @@ function AuctionDetails(props: Props) {
                             <div>
                                 {isRunning(auctionDetails) ? (
                                     <span>
-                                        End: {auctionDetails?.auction.end ? <Countdown date={auctionDetails.auction.end} onComplete={forceUpdate} /> : '-'}
+                                        End: {auctionDetails?.auction.end && isMounted ? <Countdown date={auctionDetails.auction.end} onComplete={forceUpdate} /> : '-'}
                                     </span>
                                 ) : (
                                     <span>
                                         Auction ended{' '}
-                                        {auctionDetails.auction.bin && auctionDetails.bids.length > 0
-                                            ? moment(auctionDetails.bids[0].timestamp).fromNow()
-                                            : moment(auctionDetails.auction.end).fromNow()}
+                                        <span suppressHydrationWarning>
+                                            {auctionDetails.auction.bin && auctionDetails.bids.length > 0
+                                                ? moment(auctionDetails.bids[0].timestamp).fromNow()
+                                                : moment(auctionDetails.auction.end).fromNow()}
+                                        </span>
                                     </span>
                                 )}
                             </div>
@@ -405,6 +409,7 @@ function AuctionDetails(props: Props) {
                     <CopyButton
                         buttonVariant="primary"
                         copyValue={getCopyButtonValue(auctionDetails)}
+                        runInGame={!!getCopyButtonValue(auctionDetails)?.startsWith('/viewauction')}
                         successMessage={
                             getCopyButtonValue(auctionDetails)?.startsWith('/viewauction') ? (
                                 <p>
@@ -481,7 +486,19 @@ function AuctionDetails(props: Props) {
                         <span className={styles.label}>
                             <Badge bg={labelBadgeVariant}>Auction Created:</Badge>
                         </span>
-                        <span className="ellipse">{auctionDetails?.start.toLocaleDateString() + ' ' + auctionDetails.start.toLocaleTimeString()}</span>
+                        {auctionDetails.start.getUTCFullYear() < 2000 ? (
+                            <Tooltip
+                                type="hover"
+                                content={<span tabIndex={0}>No start available</span>}
+                                tooltipContent={
+                                    <span>
+                                        This auction was never seen active on the auction house; only its sale was recorded, which is also why the starting bid shows 0. This usually means it started within one minute before it ended.
+                                    </span>
+                                }
+                            />
+                        ) : (
+                            <span className="ellipse">{formatDateAndTime(auctionDetails.start, isMounted)}</span>
+                        )}
                     </div>
                     {auctionDetails?.itemCreatedAt?.getTime() > 0 ? (
                         <div className={styles.detailRow}>
@@ -489,7 +506,7 @@ function AuctionDetails(props: Props) {
                                 <Badge bg={labelBadgeVariant}>Item Created:</Badge>
                             </span>
                             <span className="ellipse">
-                                {auctionDetails?.itemCreatedAt.toLocaleDateString() + ' ' + auctionDetails.itemCreatedAt.toLocaleTimeString()}
+                                {formatDateAndTime(auctionDetails.itemCreatedAt, isMounted)}
                             </span>
                         </div>
                     ) : null}
@@ -522,12 +539,12 @@ function AuctionDetails(props: Props) {
         </div>
     )
 
-    let bidList =
+    const bidList =
         auctionDetails?.bids.length === 0 ? (
             <p>No bids</p>
         ) : (
             auctionDetails?.bids.map((bid, i) => {
-                let headingStyle = i === 0 ? { color: 'green' } : { color: 'red' }
+                const headingStyle = i === 0 ? { color: 'green' } : { color: 'red' }
                 return (
                     <Link href={`/player/${bid.bidder.uuid}`} key={'bid-' + i} className="disableLinkStyle">
                         <ListGroup.Item key={bid.amount} action>
@@ -546,7 +563,7 @@ function AuctionDetails(props: Props) {
                             </h6>
                             <span>{bid.bidder.name}</span>
                             <br />
-                            <span>{moment(bid.timestamp).fromNow()}</span>
+                            <span suppressHydrationWarning>{moment(bid.timestamp).fromNow()}</span>
                         </ListGroup.Item>
                     </Link>
                 )

@@ -2,6 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
+import { USER_CHANGED_SLUG, websocketHelper } from '../../api/WebsocketHelper'
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import { useForceUpdate } from '../../utils/Hooks'
 import { isClientSideRendering } from '../../utils/SSRUtils'
@@ -11,54 +12,59 @@ import styles from './GoogleSignIn.module.css'
 import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, setSetting } from '../../utils/SettingsUtils'
 import { atobUnicode } from '../../utils/Base64Utils'
 import { Button, Modal } from 'react-bootstrap'
+import AgreementDocumentList from '../Legal/AgreementDocumentList'
+import { isTermsReminderPostponed, postponeTermsReminder } from '../../utils/TermsReminderUtils'
+import { usePremiumVariant } from '../Premium/PremiumVariantContext'
+import { formatEventName } from '../../utils/PremiumTracking'
+
+const USER_CHANGED_RELOAD_KEY = 'userChangedReload'
+// a closing dialog gives the focus back to the control that opened it; without preventScroll the browser scrolls
+// there and undoes a scroll the page made meanwhile (e.g. to the purchase an action continued with)
+const RESTORE_FOCUS_WITHOUT_SCROLL = { preventScroll: true }
 
 interface Props {
     onAfterLogin?(): void
+    /** the login was rejected (invalid or expired token, failed agreement check); the visitor is logged out */
     onLoginFail?(): void
     onManualLoginClick?(): void
     rerenderFlip?: number
+    /**
+     * Opens the sign-in dialog from outside, e.g. for an action that needs a signed in account. The dialog shows
+     * while this is true or the own "Sign in" button opened it; the parent sets it back to false in
+     * `onDialogClose` (dismissed) or `onLoginStart` (Google returned a credential).
+     */
+    showDialog?: boolean
+    /** the visitor closed the sign-in dialog without signing in */
+    onDialogClose?(): void
+    /** a login has started: with a stored token on mount, or after Google returned a credential */
+    onLoginStart?(): void
 }
 
 function GoogleSignIn(props: Props) {
-    let [wasAlreadyLoggedInThisSession, setWasAlreadyLoggedInThisSession] = useState(
+    const [wasAlreadyLoggedInThisSession, setWasAlreadyLoggedInThisSession] = useState(
         isClientSideRendering() ? isValidTokenAvailable(localStorage.getItem('googleId')) : false
     )
 
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [isSSR, setIsSSR] = useState(true)
-    let [isLoginNotShowing, setIsLoginNotShowing] = useState(false)
-    let [showButtonNotRenderingModal, setShowButtonNotRenderingModal] = useState(false)
-    let [showTermsModal, setShowTermsModal] = useState(false)
-    let [termsStatus, setTermsStatus] = useState<TermsStatus>()
-    let [termsLoading, setTermsLoading] = useState(false)
-    let [pendingLoginToken, setPendingLoginToken] = useState<string>()
-    let completedLogin = useRef(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [isSSR, setIsSSR] = useState(true)
+    const [showSignInModal, setShowSignInModal] = useState(false)
+    const [showTermsModal, setShowTermsModal] = useState(false)
+    const [termsStatus, setTermsStatus] = useState<TermsStatus>()
+    const [termsLoading, setTermsLoading] = useState(false)
+    const [pendingLoginToken, setPendingLoginToken] = useState<string>()
+    const completedLogin = useRef(false)
     const legalLocale = typeof navigator !== 'undefined' && navigator.language.toLowerCase().startsWith('de') ? 'de' : 'en'
-    let { trackEvent } = useMatomo()
-    let forceUpdate = useForceUpdate()
+    const { trackEvent } = useMatomo()
+    const premiumVariant = usePremiumVariant()
+    const forceUpdate = useForceUpdate()
 
     useEffect(() => {
         setIsSSR(false)
         if (wasAlreadyLoggedInThisSession) {
-            let token = localStorage.getItem('googleId')!
-            let userObject = JSON.parse(atobUnicode(token.split('.')[1]))
+            const token = localStorage.getItem('googleId')!
+            const userObject = JSON.parse(atobUnicode(token.split('.')[1]))
             setSetting(GOOGLE_EMAIL, userObject.email)
-            onLoginSucces(token)
-        } else {
-            setTimeout(() => {
-                let isShown = false
-                document.querySelectorAll('iframe').forEach(e => {
-                    if (e.src && e.src.includes('accounts.google.com')) {
-                        isShown = true
-                    }
-                })
-                if (!isShown) {
-                    setIsLoggedIn(false)
-                    setIsLoginNotShowing(true)
-                    sessionStorage.removeItem('googleId')
-                    localStorage.removeItem('googleId')
-                }
-            }, 5000)
+            onLoginSucces(token, false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -83,40 +89,60 @@ function GoogleSignIn(props: Props) {
         props.onAfterLogin?.()
     }
 
-    async function finishLogin(loginToken: string) {
+    /** forgets the rejected token and tells the parent, which shows the logged out state again */
+    function failLogin() {
+        setIsLoggedIn(false)
+        setWasAlreadyLoggedInThisSession(false)
+        sessionStorage.removeItem('googleId')
+        localStorage.removeItem('googleId')
+        props.onLoginFail?.()
+    }
+
+    async function finishLogin(loginToken: string): Promise<void> {
         setTermsLoading(true)
         try {
             const token = await api.loginWithToken(loginToken)
             localStorage.setItem('googleId', token)
             sessionStorage.setItem('googleId', token)
-            let refId = (window as any).refId
-            if (refId) api.setRef(refId)
+            sessionStorage.removeItem(USER_CHANGED_RELOAD_KEY)
+            const refId = window.refId
+            if (refId) api.setRef(refId, 'new-user-100-v1', document.documentElement.lang || navigator.language || 'en')
             completeLogin()
-        } catch (error: any) {
-            if (error?.slug === 'terms_acceptance_required') {
+        } catch (error) {
+            const slug = error && typeof error === 'object' && 'slug' in error ? error.slug : undefined
+            if (slug === USER_CHANGED_SLUG && sessionStorage.getItem(USER_CHANGED_RELOAD_KEY) === null) {
+                // The socket is bound to the previously logged in account and components hold that account's state.
+                // Store the new token and reload (like onLogout) so the page logs in as the new account on a fresh
+                // socket. The marker allows this once; it is cleared by the next successful login.
+                sessionStorage.setItem(USER_CHANGED_RELOAD_KEY, '1')
+                sessionStorage.setItem('googleId', loginToken)
+                localStorage.setItem('googleId', loginToken)
+                websocketHelper.disconnect()
+                location.reload()
+                return
+            }
+            sessionStorage.removeItem(USER_CHANGED_RELOAD_KEY)
+            if (slug === 'terms_acceptance_required') {
                 setTermsStatus(status => (status ? { ...status, canContinueWithoutAccepting: false } : status))
                 setShowTermsModal(true)
                 return
             }
-            if (error?.slug !== 'invalid_token')
-                toast.error(`An error occoured while trying to sign in with Google. ${error ? error.slug || JSON.stringify(error) : null}`)
+            if (slug !== 'invalid_token')
+                toast.error(`An error occoured while trying to sign in with Google. ${error ? slug || JSON.stringify(error) : null}`)
             else console.warn('setGoogle: Invalid token error', error)
-            setIsLoggedIn(false)
-            setWasAlreadyLoggedInThisSession(false)
-            sessionStorage.removeItem('googleId')
-            localStorage.removeItem('googleId')
+            failLogin()
         } finally {
             setTermsLoading(false)
         }
     }
 
-    async function requestTermsAcceptance(loginToken: string) {
+    async function requestTermsAcceptance(loginToken: string, forceRefresh: boolean) {
         setPendingLoginToken(loginToken)
         setTermsLoading(true)
         try {
-            const status = await api.getTermsStatus(legalLocale, loginToken)
+            const status = await api.getTermsStatus(legalLocale, loginToken, forceRefresh)
             setTermsStatus(status)
-            if (status.required) setShowTermsModal(true)
+            if (status.required && !(status.canContinueWithoutAccepting && isTermsReminderPostponed(status.agreementHash, loginToken))) setShowTermsModal(true)
             else await finishLogin(loginToken)
         } catch {
             toast.error(
@@ -124,10 +150,7 @@ function GoogleSignIn(props: Props) {
                     ? 'Die aktuellen Vertragsbedingungen konnten nicht geprüft werden. Bitte versuchen Sie es erneut.'
                     : 'The current agreement could not be checked. Please try again.'
             )
-            setIsLoggedIn(false)
-            setWasAlreadyLoggedInThisSession(false)
-            sessionStorage.removeItem('googleId')
-            localStorage.removeItem('googleId')
+            failLogin()
         } finally {
             setTermsLoading(false)
         }
@@ -146,112 +169,127 @@ function GoogleSignIn(props: Props) {
             await finishLogin(pendingLoginToken)
         } catch {
             toast.error(legalLocale === 'de' ? 'Die Annahme konnte nicht gespeichert werden.' : 'The acceptance could not be saved.')
+            if (termsStatus.canContinueWithoutAccepting) {
+                postponeTermsReminder(termsStatus.agreementHash, pendingLoginToken)
+                await finishLogin(pendingLoginToken)
+            }
         } finally {
             setTermsLoading(false)
         }
     }
 
-    function onLoginSucces(token: string) {
+    function onLoginSucces(token: string, forceRefresh = true) {
+        setShowSignInModal(false)
         setIsLoggedIn(true)
-        void requestTermsAcceptance(token)
+        props.onLoginStart?.()
+        void requestTermsAcceptance(token, forceRefresh)
     }
 
-    function onLoginFail() {
+    function closeSignInDialog() {
+        setShowSignInModal(false)
+        props.onDialogClose?.()
+    }
+
+    function continueUnderPreviousTerms() {
+        if (!termsStatus || !pendingLoginToken) return
+        postponeTermsReminder(termsStatus.agreementHash, pendingLoginToken)
+        void finishLogin(pendingLoginToken)
+    }
+
+    /** the Google button reported an error; the dialog stays open for another try */
+    function onGoogleError() {
         toast.error('Something went wrong, please try again.', { autoClose: 20000 })
     }
 
     function onLoginClick() {
+        setShowSignInModal(true)
         if (props.onManualLoginClick) {
             props.onManualLoginClick()
         }
+        // on /premium the A/B variant is added, so sign-in clicks can be compared between the variants
         trackEvent({
             category: 'login',
-            action: 'click'
+            action: 'click',
+            name: formatEventName({ variant: premiumVariant })
         })
     }
-
-    let style: React.CSSProperties = isLoggedIn
-        ? {
-              visibility: 'collapse',
-              height: 0
-          }
-        : {}
 
     if (isSSR) {
         return null
     }
 
-    let buttonNotRenderingModal = (
-        <Modal
-            show={showButtonNotRenderingModal}
-            onHide={() => {
-                setShowButtonNotRenderingModal(false)
-            }}
-        >
-            <Modal.Header>
-                <Modal.Title>Google Login button not showing up?</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <p>This is most likely caused by either an external software like an anti virus or your browser/extension blocking it.</p>
-                <hr />
-                <p>Known issues:</p>
-                <ul>
-                    <li>Kaspersky's "Secure Browse" feature seems to block the Google login.</li>
-                    <li>Opera GX seems to sometimes blocks the login button. The specific setting or reason on when it blocks it is unknown.</li>
-                </ul>
-            </Modal.Body>
-        </Modal>
-    )
-
     return (
-        <div style={style} onClickCapture={onLoginClick}>
-            {!wasAlreadyLoggedInThisSession ? (
-                <>
-                    <div className={styles.googleButton}>
-                        {!isSSR ? (
-                            <GoogleLogin
-                                onSuccess={response => {
-                                    try {
-                                        let userObject = JSON.parse(atobUnicode(response.credential!.split('.')[1]))
-                                        setSetting(GOOGLE_PROFILE_PICTURE_URL, userObject.picture)
-                                        setSetting(GOOGLE_EMAIL, userObject.email)
-                                        setSetting(GOOGLE_NAME, userObject.name)
-                                    } catch {
-                                        toast.warn('Parsing issue with the google token. There might be issues when displaying details on the account page!')
-                                    }
-                                    onLoginSucces(response.credential!)
-                                }}
-                                onError={onLoginFail}
-                                theme={'filled_blue'}
-                                size={'large'}
-                                useOneTap
-                                auto_select
-                            />
-                        ) : null}
-                    </div>
-                    <p>
-                        I have read and agree to the <a href="https://coflnet.com/privacy">Privacy Policy</a>
-                    </p>
-                    {isLoginNotShowing ? (
-                        <p>
-                            Login button not showing? Click{' '}
-                            <span
-                                style={{ color: '#007bff', cursor: 'pointer' }}
-                                onClick={() => {
-                                    setShowButtonNotRenderingModal(true)
-                                }}
-                            >
-                                here
-                            </span>
-                            .
-                        </p>
-                    ) : null}
-                </>
+        <>
+            {!isLoggedIn && !wasAlreadyLoggedInThisSession ? (
+                <Button className="px-4 py-2" onClick={onLoginClick} aria-haspopup="dialog">
+                    Sign in
+                </Button>
             ) : null}
-            {buttonNotRenderingModal}
-            <Modal show={showTermsModal} backdrop="static" keyboard={false}>
+            <Modal
+                show={showSignInModal || props.showDialog === true}
+                onHide={closeSignInDialog}
+                centered
+                contentClassName={styles.agreementModal}
+                restoreFocusOptions={RESTORE_FOCUS_WITHOUT_SCROLL}
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title>Sign in to SkyCofl</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className={styles.googleButton}>
+                        <GoogleLogin
+                            onSuccess={response => {
+                                try {
+                                    const userObject = JSON.parse(atobUnicode(response.credential!.split('.')[1]))
+                                    setSetting(GOOGLE_PROFILE_PICTURE_URL, userObject.picture)
+                                    setSetting(GOOGLE_EMAIL, userObject.email)
+                                    setSetting(GOOGLE_NAME, userObject.name)
+                                } catch {
+                                    toast.warn('Parsing issue with the google token. There might be issues when displaying details on the account page!')
+                                }
+                                onLoginSucces(response.credential!)
+                            }}
+                            onError={onGoogleError}
+                            theme="filled_blue"
+                            size="large"
+                            shape="pill"
+                        />
+                    </div>
+                    <p className={styles.signInNotice}>
+                        Read our{' '}
+                        <a href="https://coflnet.com/privacy" target="_blank" rel="noreferrer">
+                            Privacy Policy
+                        </a>{' '}
+                        and{' '}
+                        <a href="https://coflnet.com/terms-of-service" target="_blank" rel="noreferrer">
+                            Terms of Service
+                        </a>
+                        . We’ll ask you to accept the current terms after signing in, if needed.
+                    </p>
+                    <details className={styles.signInHelp}>
+                        <summary>Google button not showing?</summary>
+                        <p>Your browser, an extension or antivirus software may be blocking Google sign-in. Check your blocking settings and try again.</p>
+                    </details>
+                </Modal.Body>
+            </Modal>
+            {termsLoading && !showTermsModal ? (
+                <span className={styles.progress} role="status">
+                    {legalLocale === 'de' ? 'Anmeldung wird abgeschlossen…' : 'Finishing sign-in…'}
+                </span>
+            ) : null}
+            <Modal
+                show={showTermsModal}
+                backdrop="static"
+                keyboard={false}
+                centered
+                contentClassName={styles.agreementModal}
+                restoreFocusOptions={RESTORE_FOCUS_WITHOUT_SCROLL}
+            >
                 <Modal.Header>
-                    <Modal.Title>{legalLocale === 'de' ? 'SkyCofl-Vertrag prüfen' : 'Review the SkyCofl agreement'}</Modal.Title>
+                    <div>
+                        <span className={styles.eyebrow}>{legalLocale === 'de' ? 'BEDINGUNGEN & DATENSCHUTZ' : 'TERMS & PRIVACY'}</span>
+                        <Modal.Title>{legalLocale === 'de' ? 'SkyCofl-Vertrag prüfen' : 'Review the SkyCofl agreement'}</Modal.Title>
+                    </div>
                 </Modal.Header>
                 <Modal.Body>
                     <p>
@@ -263,24 +301,25 @@ function GoogleSignIn(props: Props) {
                               ? 'Bitte prüfen Sie das vollständige Vertragspaket. Sie können unter den zuvor angenommenen Bedingungen fortfahren; neue Käufe erfordern die aktuelle Annahme.'
                               : 'Please review the complete agreement package. You may continue under previously accepted terms; new purchases require current acceptance.'}
                     </p>
-                    <ul>
-                        {termsStatus?.documents.map(document => (
-                            <li key={document.key}>
-                                <a href={document.url} target="_blank" rel="noreferrer">
-                                    {document.title} ({document.version})
-                                </a>
-                            </li>
-                        ))}
-                    </ul>
+                    {termsStatus ? <AgreementDocumentList documents={termsStatus.documents} locale={legalLocale} /> : null}
+                    <p className={styles.legalNotice}>
+                        {legalLocale === 'de'
+                            ? 'Mit „Vertragspaket annehmen“ stimmen Sie den oben aufgeführten Bedingungen zu. Informationen zur Verarbeitung Ihrer Daten finden Sie in unserer '
+                            : 'Selecting “Accept agreement package” confirms your acceptance of the terms listed above. Learn how we handle your data in our '}
+                        <a href="https://coflnet.com/privacy" target="_blank" rel="noreferrer">
+                            {legalLocale === 'de' ? 'Datenschutzerklärung' : 'Privacy Policy'}
+                        </a>
+                        .
+                    </p>
                     {termsStatus ? (
-                        <a href={termsStatus.agreementUrl} target="_blank" rel="noreferrer">
-                            {legalLocale === 'de' ? 'Unveränderliche Vertragsbeschreibung' : 'Immutable agreement descriptor'}
+                        <a className={styles.agreementDetails} href={termsStatus.agreementUrl} target="_blank" rel="noreferrer">
+                            {legalLocale === 'de' ? 'Details zur Vertragsversion' : 'Agreement version details'}
                         </a>
                     ) : null}
                 </Modal.Body>
-                <Modal.Footer>
+                <Modal.Footer className={styles.agreementActions}>
                     {termsStatus?.canContinueWithoutAccepting !== false && pendingLoginToken ? (
-                        <Button variant="secondary" disabled={termsLoading} onClick={() => void finishLogin(pendingLoginToken)}>
+                        <Button variant="secondary" disabled={termsLoading} onClick={continueUnderPreviousTerms}>
                             {legalLocale === 'de' ? 'Unter bisherigen Bedingungen fortfahren' : 'Continue under previous terms'}
                         </Button>
                     ) : null}
@@ -289,7 +328,7 @@ function GoogleSignIn(props: Props) {
                     </Button>
                 </Modal.Footer>
             </Modal>
-        </div>
+        </>
     )
 }
 
@@ -300,10 +339,10 @@ export function isValidTokenAvailable(token?: string | null) {
         return
     }
     try {
-        let details = JSON.parse(atobUnicode(token.split('.')[1]))
-        let expirationDate = new Date(parseInt(details.exp) * 1000)
+        const details = JSON.parse(atobUnicode(token.split('.')[1]))
+        const expirationDate = new Date(parseInt(details.exp) * 1000)
         return expirationDate.getTime() - 10000 > new Date().getTime()
-    } catch (e) {
+    } catch {
         toast.warn("Parsing issue with the google token. Can't automatically login!")
         return false
     }

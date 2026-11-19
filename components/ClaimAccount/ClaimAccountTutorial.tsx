@@ -8,8 +8,7 @@ function ClaimAccountTutorial() {
             <Card style={{ marginBottom: '10px' }}>
                 <Card.Header>Referrals</Card.Header>
                 <Card.Body>
-                    The referral bonus for inviting someone is only awarded after verifying with a minecraft account. You receive free test premium after you
-                    verified your account. This is to prevent people from abusing the ref system by creating new emails.
+                    An invited user receives a free Premium trial after verifying a Minecraft account. This prevents abuse through newly created accounts.
                 </Card.Body>
             </Card>
             <Card style={{ marginBottom: '10px' }}>

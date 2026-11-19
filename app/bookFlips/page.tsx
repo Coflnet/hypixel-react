@@ -1,6 +1,5 @@
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import NavBar from '../../components/NavBar/NavBar'
-import AuthMod from '../../components/AuthMod/AuthMod'
 import { Container } from 'react-bootstrap'
 import { getGetApiFlipBazaarBooksQueryOptions } from '../../api/_generated/skyApi'
 import { getQueryClient } from '../../utils/QueryUtils'

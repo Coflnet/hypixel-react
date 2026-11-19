@@ -1,9 +1,11 @@
+import type { AveragePrice, ItemMetadataElement, SkyblockItem } from '../../../api/_generated/skyApi.schemas'
 import { redirect } from 'next/navigation'
+import { cache } from 'react'
 import type { Metadata } from 'next'
 import { isRedirectError } from 'next/dist/client/components/redirect-error'
 import { parseItem } from '../../../utils/Parser/APIResponseParser'
 import { getHeadMetadata, getCanonicalUrl } from '../../../utils/SSRUtils'
-import { convertTagToName, numberWithThousandsSeparators } from '../../../utils/Formatter'
+import { convertTagToName } from '../../../utils/Formatter'
 import api, { initAPI } from '../../../api/ApiHelper'
 import { atobUnicode } from '../../../utils/Base64Utils'
 import dynamic from 'next/dynamic'
@@ -11,8 +13,21 @@ import { ItemPageClient } from './ItemPageClient'
 import { hasFlag } from '../../../components/FilterElement/FilterType'
 import { getCachedItemInfo, ItemFlagsNumeric, hasItemFlag, parseFlags } from '../../../utils/ItemsCache'
 import { normalizeItemFilter } from '../../../utils/Parser/URLParser'
+import { itemFilterFromEntries } from '../../../utils/Parser/ItemFilterParams'
+import { getResultNavigationUrl } from '../../../utils/Search/FilterResultId'
 import { getEnchantmentRename } from '../../../utils/EnchantmentRenames'
 import { getCustomItemRedirectPath } from '../../../utils/ItemRedirectUtils'
+import type { CachedItemInfo } from '../../../utils/ItemsCache'
+import { getBuiltTaskLinks } from '../../../utils/ItemTaskSourcesData'
+import { getAuctionItemEmbedDescription, getBazaarItemEmbedDescription, getItemFilterEmbedText, joinEmbedParts } from '../../../utils/EmbedUtils'
+
+interface ItemPageData {
+    item: Omit<Partial<SkyblockItem>, 'flags'> & { itemName?: string | null; flags?: number | string }
+    prices: (AveragePrice | BazaarPrice)[]
+    range: string | null
+    filter: ItemFilter | null
+    itemFlags: CachedItemInfo | null
+}
 
 const BazaarPriceGraph = dynamic(() => import('../../../components/PriceGraph/BazaarPriceGraph/BazaarPriceGraph'), {
     loading: () => <div style={{ minHeight: '300px' }}>Loading chart...</div>
@@ -30,6 +45,10 @@ const ItemFAQ = dynamic(() => import('../../../components/ItemFAQ/ItemFAQ'), {
     loading: () => <div style={{ minHeight: '200px' }}>Loading...</div>
 })
 
+const RelatedItems = dynamic(() => import('../../../components/RelatedItems/RelatedItems'), {
+    loading: () => <div style={{ minHeight: '100px' }} />
+})
+
 // Revalidate every 600 seconds (10 minutes) for price data freshness
 // Note: Shorter revalidation times can cause hydration mismatches in some cases
 export const revalidate = 600
@@ -40,10 +59,10 @@ export const dynamicParams = true
 export default async function Page(props) {
     const params = await props.params
     const searchParams = await props.searchParams
-    let tag = params.tag as string
+    const tag = params.tag as string
 
-    let data = await getItemData(searchParams, params)
-    let item = parseItem(data.item)
+    const data = await getItemData(searchParams, params)
+    const item = parseItem(data.item)
 
     const isBazaar = data.itemFlags?.isBazaar ?? false
     const enchantmentRename = getEnchantmentRename(tag)
@@ -90,13 +109,15 @@ export default async function Page(props) {
                     }}
                 />
                 <ItemFAQ
-                    item={getItem() as any}
+                    item={getItem()}
                     tag={tag}
                     range={data.range}
                     prices={data.prices}
                     isBazaar={isBazaar}
                     itemFlags={data.itemFlags || null}
+                    taskSources={getBuiltTaskLinks(tag)}
                 />
+                <RelatedItems tag={tag} isBazaarItem={isBazaar} />
             </ItemPageClient>
             <NitroAdSlot
                 slotId="below-faq"
@@ -117,37 +138,15 @@ export default async function Page(props) {
 export async function generateMetadata(props): Promise<Metadata> {
     const searchParams = await props.searchParams
     const params = await props.params
-    function getAvgPrice(prices) {
-        let priceSum = 0
-
-        prices.forEach(item => {
-            priceSum += item.avg
-        })
-
-        return Math.round(priceSum / prices.length)
-    }
-
-    function getFiltersText(filter) {
-        if (!filter) {
-            return ' '
-        }
-        return `${Object.keys(filter)
-            .map(key => `➡️ ${key}: ${filter[key]}`)
-            .join('\n')}`
-    }
-
-    let tag = params?.tag as string
-    let { item, filter, prices, range } = await getItemData(searchParams, params)
+    const tag = params?.tag as string
+    const { item, filter, prices, range, itemFlags } = await getItemData(searchParams, params)
     const enchantmentRename = getEnchantmentRename(tag)
-    const itemName = item.name || convertTagToName(tag)
+    const itemName = item.name || item.itemName || itemFlags?.name || convertTagToName(tag)
     const metadataName = enchantmentRename
         ? `${enchantmentRename.currentName} ${enchantmentRename.level} (legacy ${enchantmentRename.previousName} ${enchantmentRename.level})`
         : itemName
-    const renameDescription = enchantmentRename
-        ? `${enchantmentRename.currentName} ${enchantmentRename.level} uses the legacy/internal item name ${enchantmentRename.previousName} ${enchantmentRename.level} in Hypixel SkyBlock. `
-        : ''
     const keywords = [
-        convertTagToName(item.tag),
+        convertTagToName(item.tag ?? undefined),
         ...(enchantmentRename
             ? [
                   enchantmentRename.currentName,
@@ -157,56 +156,59 @@ export async function generateMetadata(props): Promise<Metadata> {
               ]
             : [])
     ]
-    if (hasFlag(item.flags, 1)) {
-        let sellPriceSum = 0
-        let buyPriceSum = 0
-
-        prices.forEach(p => {
-            sellPriceSum += p.sellData.price
-            buyPriceSum += p.buyData.price
-        })
-
-        return getHeadMetadata(
-            `${metadataName} price`,
-            `${renameDescription}🕑 ${range ? `Range: ${range}` : null}
-            Avg Sell Price: ${sellPriceSum ? numberWithThousandsSeparators(Math.round(sellPriceSum / prices.length)) : '---'} 
-            Avg Buy Price: ${buyPriceSum ? numberWithThousandsSeparators(Math.round(buyPriceSum / prices.length)) : '---'}`,
-            item.iconUrl,
-            keywords,
-            `${metadataName} price | Hypixel SkyBlock AH history tracker`,
-            getCanonicalUrl(`/item/${tag}`)
-        )
-    }
+    // same decision as the page, which also picked the fetched price type by it
+    const isBazaar = itemFlags?.isBazaar ?? hasFlag(Number(item.flags), 1)
     return getHeadMetadata(
         `${metadataName} price`,
-        `${renameDescription}💰 Price: ${getAvgPrice(prices) ? numberWithThousandsSeparators(Math.round(getAvgPrice(prices))) : '---'} Coins
-        🕑 ${range ? `Range: ${range}` : null}
-
-         ${filter ? `Filters: 
-${getFiltersText(filter)}` : ''}`,
-        item.iconUrl,
+        getItemDescription(itemName, isBazaar, prices, range, filter, enchantmentRename),
+        item.iconUrl || api.getItemImageUrl({ tag }),
         keywords,
-        `${metadataName} price | Hypixel SkyBlock AH history tracker`,
-        getCanonicalUrl(`/item/${tag}`)
+        `${metadataName} | ${isBazaar ? 'Bazaar' : 'SkyBlock'} Price`,
+        getCanonicalUrl(`/item/${tag}`),
+        // item icons are 16x16 to 64x64 depending on the item, so no size is claimed
+        { imageAlt: `${itemName} icon` }
     )
 }
 
-async function getItemData(searchParams, params) {
-    let validRanges = ['active', 'hour', 'day', 'week', 'month', 'year', 'full']
-    let range = validRanges.includes(searchParams.range) ? searchParams.range : 'day'
-    let tag = params.tag as string
-    let customItemRedirect = getCustomItemRedirectPath(tag, searchParams)
+function getItemDescription(
+    itemName: string,
+    isBazaar: boolean,
+    prices: ItemPageData['prices'],
+    range: string | null,
+    filter: ItemFilter | null,
+    enchantmentRename: ReturnType<typeof getEnchantmentRename>
+): string {
+    const renameDescription = enchantmentRename
+        ? `${enchantmentRename.currentName} ${enchantmentRename.level} uses the legacy/internal item name ${enchantmentRename.previousName} ${enchantmentRename.level} in Hypixel SkyBlock. `
+        : ''
+    const stats = isBazaar ? getBazaarItemEmbedDescription(prices as BazaarPrice[]) : getAuctionItemEmbedDescription(prices as AveragePrice[], range)
+    const details = joinEmbedParts([stats, getItemFilterEmbedText(filter)])
+    return `${renameDescription}${details || `Price history of ${itemName} in Hypixel SkyBlock.`}`
+}
+
+// cache() needs primitive arguments to share the item data between generateMetadata and the page
+const getCachedItemData = cache((tag: string, searchParamsKey: string) => loadItemData(JSON.parse(searchParamsKey), { tag }))
+
+function getItemData(searchParams, params): Promise<ItemPageData> {
+    return getCachedItemData(params.tag as string, JSON.stringify(searchParams ?? {}))
+}
+
+async function loadItemData(searchParams, params): Promise<ItemPageData> {
+    const validRanges = ['active', 'hour', 'day', 'week', 'month', 'year', 'full']
+    const range = validRanges.includes(searchParams.range) ? searchParams.range : 'day'
+    const tag = params.tag as string
+    const customItemRedirect = getCustomItemRedirectPath(tag, searchParams)
     if (customItemRedirect) redirect(customItemRedirect)
 
-    let api = initAPI(true)
-    let itemFilter = await normalizeServerItemFilter(api, tag, getItemFilterFromUrl(searchParams))
+    const api = initAPI(true)
+    const itemFilter = await normalizeServerItemFilter(api, tag, getItemFilterFromUrl(searchParams))
     try {
         const cachedInfo = await getCachedItemInfo(tag)
         const isBazaarFromCache = cachedInfo?.isBazaar ?? null
 
         if (isBazaarFromCache !== null && range !== 'active') {
             const [itemDetails, prices] = await Promise.all([
-                api.getItemDetails(tag) as Promise<any>,
+                api.getItemDetails(tag) as Promise<SkyblockItem>,
                 fetchPrices(api, tag, range, isBazaarFromCache, itemFilter).catch(e => {
                     logPriceFetchError(tag, range, itemFilter, e)
                     return []
@@ -214,9 +216,9 @@ async function getItemData(searchParams, params) {
             ])
 
             if (!itemDetails || !itemDetails.name) {
-                let searchResults = await api.itemSearch(tag)
+                const searchResults = await api.itemSearch(tag)
                 if (searchResults && searchResults[0] && searchResults[0].id !== tag) {
-                    redirect(`/item/${searchResults[0].id}`)
+                    redirect(getResultNavigationUrl(searchResults[0]))
                 } else {
                     return {
                         item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
@@ -237,12 +239,12 @@ async function getItemData(searchParams, params) {
             }
         }
 
-        let itemDetails = (await api.getItemDetails(tag)) as any
+        const itemDetails = (await api.getItemDetails(tag)) as SkyblockItem
 
         if (!itemDetails || !itemDetails.name) {
-            let searchResults = await api.itemSearch(tag)
+            const searchResults = await api.itemSearch(tag)
             if (searchResults && searchResults[0] && searchResults[0].id !== tag) {
-                redirect(`/item/${searchResults[0].id}`)
+                redirect(getResultNavigationUrl(searchResults[0]))
             } else {
                 return {
                     item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
@@ -283,8 +285,8 @@ async function getItemData(searchParams, params) {
             }
         }
 
-        let isBazaar = hasFlag(itemDetails.flags, 1)
-        let prices = await fetchPrices(api, tag, range, isBazaar, itemFilter).catch(e => {
+        const isBazaar = hasFlag(Number(itemDetails.flags), 1)
+        const prices = await fetchPrices(api, tag, range, isBazaar, itemFilter).catch(e => {
             logPriceFetchError(tag, range, itemFilter, e)
             return []
         })
@@ -307,8 +309,8 @@ async function getItemData(searchParams, params) {
             try {
                 const apiBase = process.env.API_ENDPOINT || 'https://sky.coflnet.com/api'
                 const itemsResponse = await fetch(`${apiBase}/items`, { next: { revalidate: 3600 } })
-                const items = await itemsResponse.json()
-                const item = items.find((i: any) => i.tag === tag)
+                const items: ItemMetadataElement[] = await itemsResponse.json()
+                const item = items.find(i => i.tag === tag)
                 if (item) {
                     const numericFlags = parseFlags(item.flags)
                     cachedInfo = {
@@ -365,24 +367,25 @@ function logPriceFetchError(tag: string, range: string, itemFilter: ItemFilter |
 /**
  * Fetch prices based on item type (bazaar or auction house)
  */
-async function fetchPrices(api: API, tag: string, range: string, isBazaar: boolean, itemFilter: any): Promise<any> {
+async function fetchPrices(api: API, tag: string, range: string, isBazaar: boolean, itemFilter: ItemFilter | null): Promise<AveragePrice[] | BazaarPrice[]> {
     if (isBazaar) {
         if (range === 'full') {
             return api.getBazaarPricesByRange(tag, new Date(0), new Date())
         } else if (range === 'month') {
-            let monthAgo = new Date()
+            const monthAgo = new Date()
             monthAgo.setMonth(monthAgo.getMonth() - 1)
             return api.getBazaarPricesByRange(tag, monthAgo, new Date())
         } else {
-            return api.getBazaarPrices(tag, range as any)
+            return api.getBazaarPrices(tag, range as DateRange)
         }
     } else {
-        return api.getItemPrices(tag, range as DateRange, itemFilter ? itemFilter : {}) as any
+        // initAPI(true) returns the generated raw prices instead of the client-side parsed dates.
+        return (await api.getItemPrices(tag, range as DateRange, itemFilter ? itemFilter : {})) as unknown as AveragePrice[]
     }
 }
 
 function getItemFilterFromUrl(searchParams) {
-    let itemFilterBase64 = searchParams.itemFilter
+    const itemFilterBase64 = searchParams.itemFilter
     if (itemFilterBase64) {
         try {
             return JSON.parse(atobUnicode(itemFilterBase64))
@@ -392,12 +395,6 @@ function getItemFilterFromUrl(searchParams) {
         }
     }
 
-    let nonFilterParams = ['range', 'refId', 'conId']
-    let itemFilter = {}
-    for (const [key, value] of Object.entries(searchParams)) {
-        if (nonFilterParams.indexOf(key) === -1) {
-            itemFilter[key] = value
-        }
-    }
+    const itemFilter = itemFilterFromEntries(Object.entries(searchParams))
     return Object.keys(itemFilter).length > 0 ? itemFilter : null
 }

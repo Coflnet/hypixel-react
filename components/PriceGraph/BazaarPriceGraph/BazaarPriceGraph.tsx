@@ -13,13 +13,12 @@ import { isClientSideRendering } from '../../../utils/SSRUtils'
 import { DateRange, DEFAULT_DATE_RANGE, ItemPriceRange } from '../../ItemPriceRange/ItemPriceRange'
 import { getValidatedRange } from '../../../hooks/useValidRange'
 import Number from '../../Number/Number'
-import RelatedItems from '../../RelatedItems/RelatedItems'
 import ShareButton from '../../ShareButton/ShareButton'
 import styles from './BazaarPriceGraph.module.css'
 import BazaarSnapshot from './BazaarSnapshot/BazaarSnapshot'
 import getPriceGraphConfigSingle from './PriceGraphConfigSingle'
 import getPriceGraphConfigSplit from './PriceGraphConfigSplit'
-import { applyMayorDataToChart } from '../../../utils/GraphUtils'
+import { applyMayorDataToChart, getChartZoomTimestamp } from '../../../utils/GraphUtils'
 import SubscribeButton from '../../SubscribeButton/SubscribeButton'
 import NitroAdSlot from '../../Ads/NitroAdSlot'
 
@@ -40,21 +39,24 @@ let currentLoadingString
 let mounted = true
 
 function BazaarPriceGraph(props: Props) {
-    let [fetchspan, setFetchspan] = useState(DEFAULT_DATE_RANGE)
-    let [isLoading, setIsLoading] = useState(false)
-    let [noDataFound, setNoDataFound] = useState(false)
-    let [avgBuyPrice, setAvgBuyPrice] = useState(0)
-    let [avgSellPrice, setAvgSellPrice] = useState(0)
-    let [graphType, setGraphType] = useState(DEFAULT_GRAPH_TYPE)
-    let [chartOptionsPrimary, setChartOptionsPrimary] = useState(graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit())
-    let [chartOptionsSecondary, setChartOptionsSecondary] = useState(getPriceGraphConfigSplit())
-    let [prices, setPrices] = useState<BazaarPrice[]>([])
-    let [mayorData, setMayorData] = useState<MayorData[]>([])
-    let [isSSR, setIsSSR] = useState(true)
-    let { trackEvent } = useMatomo()
+    const [initialFetchspan, setFetchspan] = useState(DEFAULT_DATE_RANGE)
+    const [isLoading, setIsLoading] = useState(false)
+    const [noDataFound, setNoDataFound] = useState(false)
+    const [avgBuyPrice, setAvgBuyPrice] = useState(0)
+    const [avgSellPrice, setAvgSellPrice] = useState(0)
+    const [initialGraphType, setGraphType] = useState(DEFAULT_GRAPH_TYPE)
+    const [initialChartOptionsPrimary, setChartOptionsPrimary] = useState(initialGraphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit())
+    let fetchspan = initialFetchspan
+    let graphType = initialGraphType
+    let chartOptionsPrimary = initialChartOptionsPrimary
+    const [chartOptionsSecondary, setChartOptionsSecondary] = useState(getPriceGraphConfigSplit())
+    const [prices, setPrices] = useState<BazaarPrice[]>([])
+    const [mayorData, setMayorData] = useState<MayorData[]>([])
+    const [isSSR, setIsSSR] = useState(true)
+    const { trackEvent } = useMatomo()
 
-    let primaryChartRef = useRef<ReactECharts>(null)
-    let secondaryChartRef = useRef<ReactECharts>(null)
+    const primaryChartRef = useRef<ReactECharts>(null)
+    const secondaryChartRef = useRef<ReactECharts>(null)
 
     useEffect(() => {
         mounted = true
@@ -80,7 +82,7 @@ function BazaarPriceGraph(props: Props) {
 
     useEffect(() => {
         if (prices.length > 0) {
-            let chartOptions = graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit()
+            const chartOptions = graphType === GRAPH_TYPE.SINGLE ? getPriceGraphConfigSingle() : getPriceGraphConfigSplit()
 
             chartOptionsPrimary = chartOptions
 
@@ -131,7 +133,7 @@ function BazaarPriceGraph(props: Props) {
         currentLoadingString = JSON.stringify({ tag: props.item.tag, fetchspan })
 
         try {
-            let prices = await loadBazaarPrices(props.item.tag, fetchspan)
+            const prices = await loadBazaarPrices(props.item.tag, fetchspan)
             let mayorData
             try {
                 mayorData = await api.getMayorData(prices[0].timestamp, prices[prices.length - 1].timestamp)
@@ -156,7 +158,7 @@ function BazaarPriceGraph(props: Props) {
     }
 
     function setSeriesType(chartOptions, seriesName: string, type: string) {
-        let series = chartOptions.series.find(series => series.name === seriesName)
+        const series = chartOptions.series.find(series => series.name === seriesName)
         if (series) {
             series.type = type
         }
@@ -166,7 +168,7 @@ function BazaarPriceGraph(props: Props) {
         if (fetchspan === DateRange.HOUR) {
             chartOptionsPrimary.legend.data = chartOptionsPrimary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
             chartOptionsSecondary.legend.data = chartOptionsSecondary.legend.data.filter(s => !s.includes('Min') && !s.includes('Max'))
-            chartOptionsPrimary.series.forEach((s, i) => {
+            chartOptionsPrimary.series.forEach(s => {
                 s.type = 'line'
                 if (s.name === 'Min' || s.name === 'Max') {
                     s.tooltip.show = false
@@ -209,11 +211,11 @@ function BazaarPriceGraph(props: Props) {
         if (fetchspan === DateRange.ALL) {
             return api.getBazaarPricesByRange(tag, new Date(0), new Date())
         } else if (fetchspan === DateRange.MONTH) {
-            let monthAgo = new Date()
+            const monthAgo = new Date()
             monthAgo.setMonth(monthAgo.getMonth() - 1)
             return api.getBazaarPricesByRange(tag, monthAgo, new Date())
         } else {
-            return api.getBazaarPrices(tag, fetchspan as any)
+            return api.getBazaarPrices(tag, fetchspan as unknown as globalThis.DateRange)
         }
     }
 
@@ -229,7 +231,7 @@ function BazaarPriceGraph(props: Props) {
     }
 
     function setSelectedLegendOptionsFromLocalStorage() {
-        let legendSelected = localStorage.getItem(BAZAAR_GRAPH_LEGEND_SELECTION)
+        const legendSelected = localStorage.getItem(BAZAAR_GRAPH_LEGEND_SELECTION)
         if (graphType === GRAPH_TYPE.SPLIT) {
             chartOptionsPrimary.legend.selected = legendSelected
                 ? JSON.parse(legendSelected)[getLegendLocalStorageKey(true)]
@@ -246,23 +248,27 @@ function BazaarPriceGraph(props: Props) {
         setChartOptionsSecondary(chartOptionsSecondary)
     }
 
-    function onChartsEvents(chartOptions, localStorageKey: string, chartRef: RefObject<ReactECharts | null>): Record<string, Function> {
+    function onChartsEvents(localStorageKey: string, chartRef: RefObject<ReactECharts | null>) {
         return {
-            datazoom: e => {
-                let newChartOptions = { ...chartRef.current?.getEchartsInstance().getOption() }
-                applyMayorDataToChart(newChartOptions, mayorData, graphType === GRAPH_TYPE.SINGLE ? 10 : 5, e)
-                chartRef.current?.getEchartsInstance().setOption({
+            datazoom: (e: { start: number; end: number; batch?: { start: number; end: number }[] }) => {
+                const chart = chartRef.current?.getEchartsInstance()
+                if (!chart) return
+                const newChartOptions = { ...chart.getOption() }
+                const zoom = e.batch?.[0] ?? e
+                const timestamps = (newChartOptions.xAxis as { data: number[] }[])[0].data
+                const midDate = getChartZoomTimestamp(timestamps, zoom)
+                if (!midDate) return
+                applyMayorDataToChart(newChartOptions, mayorData, graphType === GRAPH_TYPE.SINGLE ? 10 : 5, zoom)
+                chart.setOption({
                     series: newChartOptions.series
                 })
 
-                let midPercentage = (e.start + e.end) / 2 / 100
-                let midDate = new Date(+chartOptions.xAxis[0].data[Math.ceil(chartOptions.xAxis[0].data.length * midPercentage)])
                 setTimeout(() => {
                     document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.BAZAAR_SNAPSHOT_UPDATE, { detail: { timestamp: midDate } }))
                 }, 100)
             },
-            legendselectchanged: e => {
-                let current = JSON.parse(localStorage.getItem(BAZAAR_GRAPH_LEGEND_SELECTION) || '{}')
+            legendselectchanged: (e: { selected: Record<string, boolean> }) => {
+                const current = JSON.parse(localStorage.getItem(BAZAAR_GRAPH_LEGEND_SELECTION) || '{}')
                 current[localStorageKey] = e.selected
                 localStorage.setItem(BAZAAR_GRAPH_LEGEND_SELECTION, JSON.stringify(current))
             }
@@ -367,7 +373,7 @@ function BazaarPriceGraph(props: Props) {
     }
 
     function onGraphTypeChange(e: ChangeEvent<HTMLSelectElement>) {
-        let graphType = e.target.value
+        const graphType = e.target.value
         setGraphType(graphType as GRAPH_TYPE)
         localStorage.setItem(BAZAAR_GRAPH_TYPE, graphType)
 
@@ -377,7 +383,7 @@ function BazaarPriceGraph(props: Props) {
         })
     }
 
-    let graphOverlayElement = isLoading ? (
+    const graphOverlayElement = isLoading ? (
         <div className={styles.graphOverlay}>{getLoadingElement()}</div>
     ) : noDataFound && !isLoading ? (
         <div className={styles.graphOverlay}>
@@ -409,7 +415,7 @@ function BazaarPriceGraph(props: Props) {
                                         ref={primaryChartRef}
                                         option={chartOptionsPrimary}
                                         className={styles.chart}
-                                        onEvents={onChartsEvents(chartOptionsPrimary, getLegendLocalStorageKey(true), primaryChartRef)}
+                                        onEvents={onChartsEvents(getLegendLocalStorageKey(true), primaryChartRef)}
                                     />
                                 ) : (
                                     graphOverlayElement
@@ -423,7 +429,7 @@ function BazaarPriceGraph(props: Props) {
                                             ref={secondaryChartRef}
                                             option={chartOptionsSecondary}
                                             className={styles.chart}
-                                            onEvents={onChartsEvents(chartOptionsSecondary, getLegendLocalStorageKey(false), secondaryChartRef)}
+                                            onEvents={onChartsEvents(getLegendLocalStorageKey(false), secondaryChartRef)}
                                         />
                                     ) : (
                                         graphOverlayElement
@@ -437,7 +443,7 @@ function BazaarPriceGraph(props: Props) {
                     <span className={styles.avgPrice}>
                         <b>Avg Sell Price:</b>{' '}
                         {isLoading ? (
-                            '-'
+                            <span>-</span>
                         ) : (
                             <span>
                                 <Number number={+avgSellPrice.toFixed(1)} /> Coins
@@ -447,7 +453,7 @@ function BazaarPriceGraph(props: Props) {
                     <span className={styles.avgPrice}>
                         <b>Avg Buy Price:</b>{' '}
                         {isLoading ? (
-                            '-'
+                            <span>-</span>
                         ) : (
                             <span>
                                 <Number number={+avgBuyPrice.toFixed(1)} /> Coins
@@ -497,7 +503,6 @@ function BazaarPriceGraph(props: Props) {
                     }}
                 />
                 <hr />
-                <RelatedItems tag={props.item.tag} isBazaarItem={true} />
                 <BazaarSnapshot item={props.item} />
             </div>
         </div>

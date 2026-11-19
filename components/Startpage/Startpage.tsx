@@ -18,17 +18,15 @@ import styles from './Startpage.module.css'
 import MarkdownIt from 'markdown-it'
 import api from '../../api/ApiHelper'
 import { FixedSizeList as List } from 'react-window'
+import type { DiscordMessage } from '../../api/_generated/skyApi.schemas'
 import { getApiDataUpdatesYearMonth } from '../../api/_generated/skyApi'
 import { SubscriptionSalesBanner } from '../Discounts/DiscountBanners'
+import { getBazaarHistoryYears } from '../../utils/DataHistory'
 
-interface Props {
-    // No props needed as we fetch client side
-}
-
-function Startpage(props: Props) {
-    let { trackEvent } = useMatomo()
+function Startpage() {
+    const { trackEvent } = useMatomo()
     const { favorites } = useFavorites()
-    const [recentUpdate, setRecentUpdate] = useState<any | null>(null)
+    const [recentUpdate, setRecentUpdate] = useState<DiscordMessage | null>(null)
     const [newItems, setNewItems] = useState<Item[]>([])
     const [updatesFailed, setUpdatesFailed] = useState(false)
     const [newItemsFailed, setNewItemsFailed] = useState(false)
@@ -86,14 +84,14 @@ function Startpage(props: Props) {
     }
 
     function attachScrollEvent(className: string) {
-        let scrollContainers = document.getElementsByClassName(className)
-        for (var i = 0; i < scrollContainers.length; i++) {
-            let container = scrollContainers.item(i)
+        const scrollContainers = document.getElementsByClassName(className)
+        for (let i = 0; i < scrollContainers.length; i++) {
+            const container = scrollContainers.item(i)
             if (container) {
                 container.addEventListener('wheel', evt => {
                     evt.preventDefault()
                     let scrollAmount = 0
-                    var slideTimer = setInterval(() => {
+                    const slideTimer = setInterval(() => {
                         container!.scrollLeft += (evt as WheelEvent).deltaY / 10
                         scrollAmount += Math.abs((evt as WheelEvent).deltaY) / 10
                         if (scrollAmount >= Math.abs((evt as WheelEvent).deltaY)) {
@@ -236,7 +234,7 @@ function Startpage(props: Props) {
         </div>
     )
 
-    let newItemsElement = (
+    const newItemsElement = (
         <div className={`${styles.cardsWrapper} ${styles.newItems}`} style={{ marginBottom: '30px' }}>
             <List
                 className={styles.startpageListElementWrapper}
@@ -279,7 +277,7 @@ function Startpage(props: Props) {
                             <div style={{ marginBottom: '15px' }}>
                                 <div
                                     className={styles.markdownContent}
-                                    dangerouslySetInnerHTML={{ __html: mdRenderer.render(recentUpdate.content) }}
+                                    dangerouslySetInnerHTML={{ __html: mdRenderer.render(recentUpdate.content as string) }}
                                 />
                             </div>
                         ) : <p>Check out what's new this month!</p>}
@@ -335,8 +333,8 @@ function Startpage(props: Props) {
                         What's more is that you can see what auctions were used as reference to determine if a flip is profitable.
                     </p>
                     <p>
-                        We have the longest bazaar history database and you can browser through our hypixel skyblock bazaar tracker just as easily as through
-                        the auction house. See the full orderbook of any point in the last 5 years and discover profitable{' '}
+                        We have the longest bazaar history database and you can browse through our hypixel skyblock bazaar tracker just as easily as through
+                        the auction house. See the full orderbook of any point in the last {getBazaarHistoryYears()} years and discover profitable{' '}
                         <Link href="/bazaar" style={{ backgroundColor: 'white', textDecoration: 'none', color: 'black', borderRadius: '3px', padding: '0 4px' }}>
                             Bazaar Flips ↗️
                         </Link>{' '}

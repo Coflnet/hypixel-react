@@ -2,14 +2,16 @@ import { PremiumTier } from '../components/Premium/PremiumPurchaseWizard/types'
 import { BatchProductPricingResponse, ProviderPricingOption } from '../api/_generated/skyApi.schemas'
 import { Duration } from '../components/Premium/PremiumPurchaseWizard/types'
 
-// Base prices in EUR (before tax)
+// Base prices in EUR (before tax) of the plan cards: Starter per 52 weeks, Premium per 4 weeks, Premium+ per 4 weeks billed for 52 weeks.
+// Fallback for the server-rendered page; checkouts show the backend's quote (SUBSCRIPTION_PRICES).
 export const BASE_PRICES = {
-    [PremiumTier.STARTER]: 16.99, // yearly
-    [PremiumTier.PREMIUM]: 9.69, // monthly
-    [PremiumTier.PREMIUM_PLUS]: 354.2 / 12 // monthly (yearly)
+    [PremiumTier.STARTER]: 16.69, // every 52 weeks
+    [PremiumTier.PREMIUM]: 9.69, // every 4 weeks
+    [PremiumTier.PREMIUM_PLUS]: 354.2 / 13 // per 4 weeks, billed every 52 weeks
 }
 
-// VAT rates by country code
+// Standard VAT rates used for estimates; checkout resolves regional rates and exemptions.
+// EU rates: https://europa.eu/youreurope/business/finance-and-tax/vat/vat-rules-rates/index_en.htm
 export const VAT_RATES: { [countryCode: string]: number } = {
     DE: 0.19, // Germany 19%
     AT: 0.2, // Austria 20%
@@ -19,8 +21,8 @@ export const VAT_RATES: { [countryCode: string]: number } = {
     CY: 0.19, // Cyprus 19%
     CZ: 0.21, // Czech Republic 21%
     DK: 0.25, // Denmark 25%
-    EE: 0.2, // Estonia 20%
-    FI: 0.24, // Finland 24%
+    EE: 0.24, // Estonia 24%
+    FI: 0.255, // Finland 25.5%
     FR: 0.2, // France 20%
     GR: 0.24, // Greece 24%
     HU: 0.27, // Hungary 27%
@@ -33,28 +35,28 @@ export const VAT_RATES: { [countryCode: string]: number } = {
     NL: 0.21, // Netherlands 21%
     PL: 0.23, // Poland 23%
     PT: 0.23, // Portugal 23%
-    RO: 0.19, // Romania 19%
-    SK: 0.2, // Slovakia 20%
+    RO: 0.21, // Romania 21%
+    SK: 0.23, // Slovakia 23%
     SI: 0.22, // Slovenia 22%
     ES: 0.21, // Spain 21%
     SE: 0.25, // Sweden 25%
     GB: 0.2, // United Kingdom 20%
     NO: 0.25, // Norway 25%
-    CH: 0.077, // Switzerland 7.7%
+    CH: 0.081, // Switzerland 8.1% (estv.admin.ch/en/vat-rates-switzerland)
     CA: 0.13, // Canada (average HST/GST+PST) 13%
     AU: 0.1, // Australia 10%
     NZ: 0.15, // New Zealand 15%
     JP: 0.1, // Japan 10%
-    SG: 0.08, // Singapore 8%
+    SG: 0.09, // Singapore 9% (mof.gov.sg/policies/taxes/goods-and-services-tax/)
     IN: 0.18, // India 18%
     BR: 0.17, // Brazil (ICMS average) 17%
     MX: 0.16, // Mexico 16%
     KR: 0.1, // South Korea 10%
     ZA: 0.15, // South Africa 15%
-    TR: 0.18, // Turkey 18%
-    IL: 0.17, // Israel 17%
+    TR: 0.2, // Turkey 20%
+    IL: 0.18, // Israel 18% from 2025
     TH: 0.07, // Thailand 7%
-    MY: 0.06, // Malaysia 6%
+    MY: 0.08, // Malaysia digital services 8% (mystods.customs.gov.my)
     PH: 0.12, // Philippines 12%
     VN: 0.1, // Vietnam 10%
     ID: 0.11, // Indonesia 11%
@@ -63,7 +65,7 @@ export const VAT_RATES: { [countryCode: string]: number } = {
     CO: 0.19, // Colombia 19%
     PE: 0.18, // Peru 18%
     UY: 0.22, // Uruguay 22%
-    EC: 0.12 // Ecuador 12%
+    EC: 0.15 // Ecuador 15% (sri.gob.ec/impuesto-al-valor-agregado-iva)
 }
 
 export interface PriceInfo {
@@ -72,47 +74,14 @@ export interface PriceInfo {
     vatAmount: number
     totalPrice: number
     currency: string
-    displayText: string
 }
 
+/** the plan card price of a tier (see BASE_PRICES) after `discountPercent`, with the country's VAT estimate */
 export function calculatePrice(tier: PremiumTier, countryCode?: string, discountPercent: number = 0): PriceInfo {
-    let basePrice = BASE_PRICES[tier]
-    basePrice *= 1 - discountPercent / 100
+    const basePrice = BASE_PRICES[tier] * (1 - discountPercent / 100)
     const vatRate = countryCode ? VAT_RATES[countryCode.toUpperCase()] || 0 : 0
     const vatAmount = basePrice * vatRate
-    const totalPrice = basePrice + vatAmount
-
-    // Determine if we should show (+VAT) text
-    const isUSOrUnknown = !countryCode || countryCode.toUpperCase() === 'US' || !VAT_RATES[countryCode.toUpperCase()]
-
-    let displayText: string
-    if (isUSOrUnknown) {
-        displayText = `€${basePrice.toFixed(2)} (+VAT)`
-    } else {
-        displayText = `€${totalPrice.toFixed(2)}`
-    }
-
-    // Add billing period info
-    switch (tier) {
-        case PremiumTier.STARTER:
-            displayText += '/year'
-            break
-        case PremiumTier.PREMIUM:
-            displayText += '/month'
-            break
-        case PremiumTier.PREMIUM_PLUS:
-            displayText += '/month'
-            break
-    }
-
-    return {
-        basePrice,
-        vatRate,
-        vatAmount,
-        totalPrice,
-        currency: 'EUR',
-        displayText
-    }
+    return { basePrice, vatRate, vatAmount, totalPrice: basePrice + vatAmount, currency: 'EUR' }
 }
 
 export const CURRENCY_SYMBOLS: Record<string, string> = {
@@ -221,7 +190,7 @@ export const getTierApiProductId = (tier: PremiumTier, isYearlyOrDuration: boole
 export const SUBSCRIPTION_PRICES: Record<string, { monthly: number; quarterly: number; yearly: number; weekly?: number; daily?: number }> = {
     'premium': { monthly: 9.69, quarterly: 27.69, yearly: 96.69 },
     'premium_plus': { monthly: 35.69, quarterly: 99.69, yearly: 354.2, weekly: 10.71, daily: 2.38 },
-    'starter_premium': { monthly: 16.99, quarterly: 16.99, yearly: 16.99 }
+    'starter_premium': { monthly: 2.69, quarterly: 9.69, yearly: 16.69 }
 }
 
 export const getFallbackSubscriptionPrice = (productId: string, isYearly: boolean | Duration = false): number => {
@@ -244,20 +213,26 @@ export const getFallbackSubscriptionPrice = (productId: string, isYearly: boolea
     return (isYearly as boolean) ? prices.yearly : prices.monthly
 }
 
-// Whether the price charged for this country already includes VAT (known VAT country, not US).
-// US/unknown countries are charged the base price plus VAT added later ("+VAT"), so VAT is not
-// part of the amount we display or discount here.
+// Whether a country-level tax estimate is available. US/unknown-country taxes are resolved at checkout.
 export const shouldIncludeVAT = (countryCode?: string): boolean => {
     if (!countryCode) return false
     const upperCode = countryCode.toUpperCase()
     return upperCode !== 'US' && VAT_RATES[upperCode] !== undefined
 }
 
-// Add the country's VAT to a base price when that country is charged VAT-inclusive prices.
+// Add the country's tax estimate to a before-tax price for display.
 export const getPriceWithVAT = (basePrice: number, countryCode?: string): number => {
     if (!shouldIncludeVAT(countryCode)) {
         return basePrice
     }
     const vatRate = VAT_RATES[countryCode!.toUpperCase()] ?? 0
     return basePrice * (1 + vatRate)
+}
+/** a price with its currency in the visitor's locale, always with cents, e.g. "€421.50"; unknown codes fall back to "421.50 XYZ" */
+export function formatMoney(value: number, currencyCode: string): string {
+    try {
+        return new Intl.NumberFormat(undefined, { style: 'currency', currency: currencyCode, minimumFractionDigits: 2 }).format(value)
+    } catch {
+        return `${value.toFixed(2)} ${currencyCode}`
+    }
 }

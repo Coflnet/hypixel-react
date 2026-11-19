@@ -8,7 +8,6 @@ import {
     postApiTopupPaypalProductSlug,
     postApiTopupLemonsqueezyProductSlug
 } from '../../api/_generated/skyApi'
-import type { TopUpArguments } from '../../api/_generated/skyApi.schemas'
 import { useCoflCoins } from '../../utils/Hooks'
 import CoflCoinPurchaseWizard from './CoflCoinPurchaseWizard'
 import type { PurchaseCodes } from './CoflCoinPaymentSelection'
@@ -17,22 +16,25 @@ import CountrySelect from '../CountrySelect/CountrySelect'
 import { useCountryDetection } from '../../hooks/useCountryDetection'
 import { getGeneratedApiErrorMessage } from '../../utils/GeneratedApiResponseUtils'
 import styles from './CoflCoinsPurchase.module.css'
+import { usePremiumVariant } from '../Premium/PremiumVariantContext'
+import { trackPremiumFunnelEvent } from '../../utils/PremiumTracking'
 
 const PAYMENT_REDIRECT_ERROR = 'Something went wrong. Please try again.'
 
 function Payment() {
-    let [loadingId, setLoadingId] = useState('')
-    let [currentRedirectLink, setCurrentRedirectLink] = useState('')
-    let [showAll, setShowAll] = useState(false)
+    const variant = usePremiumVariant()
+    const [loadingId, setLoadingId] = useState('')
+    const [currentRedirectLink, setCurrentRedirectLink] = useState('')
+    const [showAll, setShowAll] = useState(false)
     const { selectedCountry, handleCountryChange } = useCountryDetection()
-    let [useWizard, setUseWizard] = useState(true)
-    let [isGooglePlayAvailable, setIsGooglePlayAvailable] = useState(false)
-    let coflCoins = useCoflCoins()
-    let isDisabled = !selectedCountry
+    const [useWizard, setUseWizard] = useState(true)
+    const [isGooglePlayAvailable, setIsGooglePlayAvailable] = useState(false)
+    const coflCoins = useCoflCoins()
+    const isDisabled = !selectedCountry
 
     // Initialize billing on first render
-    if (typeof window !== 'undefined' && !(window as any).__billingInitialized) {
-        (window as any).__billingInitialized = true
+    if (typeof window !== 'undefined' && !window.__billingInitialized) {
+        window.__billingInitialized = true
         initializeBilling()
     }
 
@@ -161,7 +163,7 @@ function Payment() {
     }
 
     function startTopUp(
-        topUpCall: (productSlug: string, args: TopUpArguments, options?: RequestInit) => Promise<any>,
+        topUpCall: typeof postApiTopupPaypalProductSlug | typeof postApiTopupStripeProductSlug | typeof postApiTopupLemonsqueezyProductSlug,
         productId: string,
         coflCoins?: number,
         codes?: PurchaseCodes
@@ -185,7 +187,7 @@ function Payment() {
             { headers: { GoogleToken: googleId } }
         )
             .then(response => {
-                const directLink = response?.data?.directLink ?? response?.data?.dirctLink
+                const directLink = response?.status === 200 ? response.data?.directLink ?? response.data?.dirctLink : undefined
                 if (response?.status !== 200 || !directLink) {
                     onPaymentRedirectFail(getGeneratedApiErrorMessage(response, null, PAYMENT_REDIRECT_ERROR))
                     return
@@ -197,18 +199,22 @@ function Payment() {
     }
 
     function onPayPaypal(productId: string, coflCoins?: number, codes?: PurchaseCodes) {
+        trackPremiumFunnelEvent('coflcoins purchase click', variant, { product: productId, provider: 'paypal' })
         startTopUp(postApiTopupPaypalProductSlug, productId, coflCoins, codes)
     }
 
     function onPayStripe(productId: string, coflCoins?: number, codes?: PurchaseCodes) {
+        trackPremiumFunnelEvent('coflcoins purchase click', variant, { product: productId, provider: 'stripe' })
         startTopUp(postApiTopupStripeProductSlug, productId, coflCoins, codes)
     }
 
     function onPayLemonSqueezy(productId: string, coflCoins?: number, codes?: PurchaseCodes) {
+        trackPremiumFunnelEvent('coflcoins purchase click', variant, { product: productId, provider: 'lemonsqueezy' })
         startTopUp(postApiTopupLemonsqueezyProductSlug, productId, coflCoins, codes)
     }
 
     function onPayGooglePlay(productId: string, coflCoins?: number) {
+        trackPremiumFunnelEvent('coflcoins purchase click', variant, { product: productId, provider: 'googleplay' })
         setLoadingId(coflCoins ? `${productId}_${coflCoins}` : productId)
         console.log('[Billing] onPayGooglePlay called', { productId, coflCoins })
 
@@ -247,7 +253,7 @@ function Payment() {
 
     function navigateTo(url: string) {
         // Enable mock by setting window.__mockDeepLink = true in the browser console
-        if ((window as any).__mockDeepLink) {
+        if ((window as Window & { __mockDeepLink?: boolean }).__mockDeepLink) {
             console.log('[Billing] MOCK navigate to', url)
             return
         }
@@ -267,7 +273,7 @@ function Payment() {
         return undefined
     }
 
-    let disabledTooltip = getDisabledPaymentTooltip()
+    const disabledTooltip = getDisabledPaymentTooltip()
 
     if (!selectedCountry) {
         return (

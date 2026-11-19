@@ -12,6 +12,7 @@ import { SimpleEqualFilterElement } from './FilterElements/SimpleEqualFilterElem
 import { EqualFilterElement } from './FilterElements/EqualFilterElement'
 import { PlayerWithRankFilterElement } from './FilterElements/PlayerWithRankFilterElement'
 import { ColorFilterElement } from './FilterElements/ColorFilterElement'
+import { previewColorFilter } from './FilterElements/ColorFilterUtils'
 import { BooleanFilterElement } from './FilterElements/BooleanFilterElement'
 import styles from './FilterElement.module.css'
 import { NumericalFilterElement } from './FilterElements/NumericalFilterElement'
@@ -19,37 +20,42 @@ import { NumberRangeFilterElement } from './FilterElements/NumberRangeFilterElem
 import { validateFilterNumber, validateFilterRange } from '../../utils/NumberValidationUtils'
 import Tooltip from '../Tooltip/Tooltip'
 import HelpIcon from '@mui/icons-material/Help'
+import ItemCategoryCheck from './ItemCategoryCheck/ItemCategoryCheck'
 
 interface Props {
     onFilterChange?(filter?: ItemFilter): void
     options?: FilterOptions
-    defaultValue: any
+    defaultValue: string
     onIsValidChange?(newIsValid: boolean)
 }
 
 function FilterElement(props: Props) {
-    let [value, _setValue] = useState<any>()
-    let [isValid, _setIsValid] = useState(true)
-    let [errorText, setErrorText] = useState('')
+    const [value, _setValue] = useState<string | number>()
+    const [isValid, _setIsValid] = useState(true)
+    const [errorText, setErrorText] = useState('')
+    // Bumped whenever the ItemCategory checker switches the filter value programmatically, forcing the
+    // (otherwise uncontrolled) EqualFilterElement/SimpleEqualFilterElement to remount with the new value
+    // so the select visibly reflects the switch.
+    const [itemCategorySwitchCount, setItemCategorySwitchCount] = useState(0)
 
     useEffect(() => {
         if (value) {
             return
         }
-        let parsedDefaultValue = parseValue(props.defaultValue)
+        const parsedDefaultValue = parseValue(props.defaultValue)
         updateValue(parsedDefaultValue)
         setValue(parsedDefaultValue)
     }, [])
 
-    function parseValue(newValue?: any) {
+    function parseValue(newValue?: string | number) {
         if (props.options && hasFlag(props.options.type, FilterType.DATE)) {
             if (!newValue) {
                 return Math.round(new Date().getTime() / 1000)
             }
-            if (!isNaN(newValue)) {
+            if (!isNaN(Number(newValue))) {
                 return newValue
             }
-            let date = Math.round(Date.parse(newValue) / 1000)
+            const date = Math.round(Date.parse(String(newValue)) / 1000)
             if (!isNaN(date)) {
                 return date
             }
@@ -62,7 +68,7 @@ function FilterElement(props: Props) {
         }
     }
 
-    function onFilterElementChange(value?: any) {
+    function onFilterElementChange(value?: string | number) {
         if (!value) {
             setValue('')
             updateValue('')
@@ -72,19 +78,28 @@ function FilterElement(props: Props) {
         }
     }
 
-    function updateValue(value: string) {
+    function updateValue(value: string | number) {
+        if (['Color', 'HexColorList'].includes(props.options?.name || '')) value = String(value).trim()
         if (!validate(value)) {
             return
         }
 
-        let newFilter = {}
+        const newFilter = {}
         newFilter[props.options!.name] = value.toString()
 
         props.onFilterChange!(newFilter)
     }
 
-    function setValue(value?: any) {
+    function setValue(value?: string | number) {
         _setValue(parseValue(value))
+    }
+
+    // Programmatically switches the ItemCategory filter to the given category (used by the "Switch to X" /
+    // "Use X" buttons in ItemCategoryCheck). Goes through the same onFilterElementChange path a manual
+    // selection would, and additionally forces the rendered select to remount so it visibly updates.
+    function onItemCategorySwitch(category: string) {
+        onFilterElementChange(category)
+        setItemCategorySwitchCount(count => count + 1)
     }
 
     function setIsValid(newValue: boolean) {
@@ -94,14 +109,20 @@ function FilterElement(props: Props) {
         _setIsValid(newValue)
     }
 
-    function validate(value?: any) {
+    function validate(value?: string | number) {
         if (!value && value !== 0) {
             setErrorText('Please fill the filter or remove it')
             setIsValid(false)
             return false
         }
+        if (['Color', 'HexColorList'].includes(props.options?.name || '')) {
+            const error = previewColorFilter(value.toString()).error
+            setIsValid(!error)
+            setErrorText(error || '')
+            return !error
+        }
         if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL) && hasFlag(props.options.type, FilterType.RANGE)) {
-            let validationResult = validateFilterRange(value.toString(), props.options)
+            const validationResult = validateFilterRange(value.toString(), props.options)
             setIsValid(validationResult[0])
             if (!validationResult[0]) {
                 setErrorText(validationResult[1] || '')
@@ -110,7 +131,7 @@ function FilterElement(props: Props) {
             return true
         }
         if (props.options && hasFlag(props.options.type, FilterType.DATE)) {
-            let date = new Date(value * 1000)
+            const date = new Date(Number(value) * 1000)
             if (date < new Date(props.options.options[0])) {
                 setErrorText(`Date needs to be after ${props.options.options[0]}`)
                 setIsValid(false)
@@ -126,7 +147,7 @@ function FilterElement(props: Props) {
         }
         if (props.options && hasFlag(props.options.type, FilterType.RANGE)) {
             if (props.options?.options.length === 2 && props.options.options[0] === '000000000000' && props.options.options[1] === 'ffffffffffff') {
-                let result = new RegExp(/^[0-9A-Fa-f]{12}$/).test(value)
+                const result = new RegExp(/^[0-9A-Fa-f]{12}$/).test(String(value))
                 setIsValid(result)
                 if (!isValid) {
                     setErrorText('This field needs to be 12 characters long and must only include hex characters.')
@@ -135,7 +156,7 @@ function FilterElement(props: Props) {
             }
         }
         if (props.options && hasFlag(props.options.type, FilterType.NUMERICAL)) {
-            let validationResult = validateFilterNumber(value.toString(), props.options)
+            const validationResult = validateFilterNumber(value.toString(), props.options)
             setIsValid(validationResult[0])
             if (!validationResult[0]) {
                 setErrorText(validationResult[1] || '')
@@ -149,8 +170,8 @@ function FilterElement(props: Props) {
 
     function getFilterElement(type: FilterType, options: FilterOptions): JSX.Element {
         // Special case for the color filter, as there is no FilterType on the backend for that
-        if (options.name === 'Color') {
-            return <ColorFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
+        if (['Color', 'HexColorList'].includes(options.name)) {
+            return <ColorFilterElement key={options.name} value={String(value ?? props.defaultValue ?? '')} onChange={onFilterElementChange} />
         }
         if (
             hasFlag(type, FilterType.NUMERICAL) &&
@@ -171,7 +192,7 @@ function FilterElement(props: Props) {
             )
         }
         if (hasFlag(type, FilterType.DATE)) {
-            return <DateFilterElement key={options.name} selected={value ? new Date(value * 1000) : new Date()} onChange={onFilterElementChange} />
+            return <DateFilterElement key={options.name} selected={value ? new Date(Number(value) * 1000) : new Date()} onChange={onFilterElementChange} />
         }
         if (hasFlag(type, FilterType.RANGE)) {
             return <RangeFilterElement isValid={isValid} key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
@@ -186,7 +207,7 @@ function FilterElement(props: Props) {
                     defaultValue={props.defaultValue}
                     isValid={isValid}
                     returnType="uuid"
-                    onChange={onFilterElementChange}
+                    onChange={value => onFilterElementChange(value as string)}
                 />
             )
         }
@@ -194,12 +215,20 @@ function FilterElement(props: Props) {
             return <BooleanFilterElement key={options.name} defaultValue={props.defaultValue} onChange={onFilterElementChange} />
         }
         if (hasFlag(type, FilterType.EQUAL)) {
+            // For ItemCategory, the value can also be switched programmatically (by the item category
+            // checker below). Since these elements are otherwise uncontrolled, key on the switch count and
+            // seed the new default from `value` so the select remounts and visibly shows the switched-to
+            // category. For every other filter this is equivalent to the previous static key/defaultValue.
+            const isItemCategory = options.name === 'ItemCategory'
+            const elementKey = isItemCategory ? `${options.name}-${itemCategorySwitchCount}` : options.name
+            const elementDefaultValue = isItemCategory && itemCategorySwitchCount > 0 ? value : props.defaultValue
+
             if (hasFlag(options.type, FilterType.SIMPLE)) {
                 return (
                     <SimpleEqualFilterElement
-                        key={options.name}
+                        key={elementKey}
                         options={options.options}
-                        defaultValue={props.defaultValue}
+                        defaultValue={elementDefaultValue?.toString()}
                         isValid={isValid}
                         onChange={onFilterElementChange}
                     />
@@ -207,10 +236,10 @@ function FilterElement(props: Props) {
             } else {
                 return (
                     <EqualFilterElement
-                        key={options.name}
+                        key={elementKey}
                         isValid={isValid}
                         options={options}
-                        defaultValue={props.defaultValue}
+                        defaultValue={elementDefaultValue?.toString()}
                         onChange={onFilterElementChange}
                         showIcon={hasFlag(options.type, FilterType.SHOW_ICON)}
                     />
@@ -234,7 +263,7 @@ function FilterElement(props: Props) {
                             {props.options.name[0].toLowerCase() === props.options.name[0]
                                 ? convertTagToName(props.options.name)
                                 : camelCaseToSentenceCase(props.options.name)}
-                            {props.options.name === 'Skin' || props.options.name === 'PetSkin' ? ' (applied)' : ''}
+                            {['Skin', 'PetSkin', 'DyeItem'].includes(props.options.name) ? ' (applied)' : ''}
                         </b>
                         {props.options.description ? (
                             <Tooltip
@@ -245,6 +274,15 @@ function FilterElement(props: Props) {
                         ) : null}
                     </Form.Label>
                     {getFilterElement(props.options.type, props.options)}
+                    {props.options.name === 'ItemCategory' ? (
+                        <ItemCategoryCheck selectedCategory={value?.toString()} onCategorySelect={onItemCategorySwitch} />
+                    ) : null}
+                    {props.options.name === 'DyeItem' ? (
+                        <Form.Text>
+                            Matches dye applied to another item. Any matches items with any dye applied, not standalone dye items. To blacklist
+                            a standalone dye, select the dye itself as the blacklist item.
+                        </Form.Text>
+                    ) : null}
                     {!isValid ? (
                         <div>
                             <span style={{ color: 'red' }}>{errorText}</span>

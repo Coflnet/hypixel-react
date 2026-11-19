@@ -14,27 +14,41 @@ import { getLoadingElement } from '../../utils/LoadingUtils'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
 import NavBar from '../NavBar/NavBar'
 import Number from '../Number/Number'
+import CancelSubscriptionFeedbackDialog from '../Premium/CancelSubscriptionFeedbackDialog/CancelSubscriptionFeedbackDialog'
 import PremiumStatus from '../Premium/PremiumStatus/PremiumStatus'
 import Tooltip from '../Tooltip/Tooltip'
-import TransferCoflCoins from '../TransferCoflCoins/TransferCoflCoins'
 import styles from './AccountDetails.module.css'
 import PrivacySettings from './PrivacySettings/PrivacySettings'
 import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, getSetting, removeSettings } from '../../utils/SettingsUtils'
 import TransactionHistory from './TransactionHistory/TransactionHistory'
+import TierSlots from './TierSlots/TierSlots'
+import usePremiumRefresh from '../../hooks/usePremiumRefresh'
 
 function AccountDetails() {
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [isLoading, setIsLoading] = useState(true)
-    let [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(0)
-    let [products, setProducts] = useState<PremiumProduct[]>([])
-    let [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
-    let [showSendcoflcoins, setShowSendCoflcoins] = useState(false)
-    let [hasLoadingPremiumError, setHasLoadingPremiumError] = useState(false)
-    let [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
-    let [deleteConfirmationInput, setDeleteConfirmationInput] = useState('')
-    let [isDeletingAccount, setIsDeletingAccount] = useState(false)
-    let coflCoins = useCoflCoins()
-    let { pushInstruction } = useMatomo()
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
+    const [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(0)
+    const [products, setProducts] = useState<PremiumProduct[]>([])
+    const [premiumSubscriptions, setPremiumSubscriptions] = useState<PremiumSubscription[]>([])
+    const [hasLoadingPremiumProductsError, setHasLoadingPremiumProductsError] = useState(false)
+    const [subscriptionLookupStatus, setSubscriptionLookupStatus] = useState<'loading' | 'succeeded' | 'failed'>('loading')
+    const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
+    const [deleteConfirmationInput, setDeleteConfirmationInput] = useState('')
+    const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+    const [subscriptionToCancel, setSubscriptionToCancel] = useState<PremiumSubscription>()
+    const coflCoins = useCoflCoins()
+    const { pushInstruction } = useMatomo()
+
+    usePremiumRefresh(isLoggedIn, () =>
+        Promise.all([
+            loadPremiumProducts()
+                .then(() => setHasLoadingPremiumProductsError(false))
+                .catch(() => setHasLoadingPremiumProductsError(true)),
+            loadPremiumSubscriptions()
+                .then(() => setSubscriptionLookupStatus('succeeded'))
+                .catch(() => setSubscriptionLookupStatus('failed'))
+        ])
+    )
 
     useEffect(() => {
         if (sessionStorage.getItem('googleId') === null) {
@@ -44,11 +58,11 @@ function AccountDetails() {
     }, [])
 
     function getAccountElement(): JSX.Element {
-        let picture = getSetting(GOOGLE_PROFILE_PICTURE_URL)
-        let email = getSetting(GOOGLE_EMAIL)
-        let name = getSetting(GOOGLE_NAME)
+        const picture = getSetting(GOOGLE_PROFILE_PICTURE_URL)
+        const email = getSetting(GOOGLE_EMAIL)
+        const name = getSetting(GOOGLE_NAME)
 
-        let imageElement = picture ? <Image src={picture} height={24} width={24} alt="" /> : <span />
+        const imageElement = picture ? <Image src={picture} height={24} width={24} alt="" /> : <span />
         return (
             <span>
                 {imageElement} {`${name} (${email})`}
@@ -57,17 +71,8 @@ function AccountDetails() {
     }
 
     function loadPremiumProducts(): Promise<void> {
-        return new Promise((resolve, reject) => {
-            api.refreshLoadPremiumProducts(
-                products => {
-                    products = products.filter(product => product.expires.getTime() > new Date().getTime())
-                    setProducts(products)
-                    resolve()
-                },
-                () => {
-                    reject()
-                }
-            )
+        return api.getPremiumProducts(true).then(products => {
+            setProducts(products.filter(product => product.expires.getTime() > Date.now()))
         })
     }
 
@@ -101,18 +106,22 @@ function AccountDetails() {
     }
 
     function onLogin() {
-        let googleId = sessionStorage.getItem('googleId')
+        const googleId = sessionStorage.getItem('googleId')
         setIsLoading(true)
         if (googleId) {
-            Promise.all([loadPremiumProducts(), loadPremiumSubscriptions()])
-                .then(() => {
-                    setIsLoading(false)
-                })
+            setHasLoadingPremiumProductsError(false)
+            setSubscriptionLookupStatus('loading')
+            const productsRequest = loadPremiumProducts().catch(() => {
+                setHasLoadingPremiumProductsError(true)
+                toast.error('Error loading premium products')
+            })
+            const subscriptionsRequest = loadPremiumSubscriptions()
+                .then(() => setSubscriptionLookupStatus('succeeded'))
                 .catch(() => {
-                    setIsLoading(false)
-                    setHasLoadingPremiumError(true)
-                    toast.error('Error loading premium products or subscriptionss')
+                    setSubscriptionLookupStatus('failed')
+                    toast.error('Error loading premium subscriptions')
                 })
+            Promise.all([productsRequest, subscriptionsRequest]).then(() => setIsLoading(false))
             setIsLoggedIn(true)
         }
     }
@@ -131,7 +140,7 @@ function AccountDetails() {
     }
 
     function setTrackingAllowed(event: ChangeEvent<HTMLInputElement>) {
-        let val = event.target.checked
+        const val = event.target.checked
         if (val && (navigator as Navigator & { globalPrivacyControl?: boolean }).globalPrivacyControl === true) {
             event.target.checked = false
             pushInstruction('forgetConsentGiven')
@@ -157,21 +166,26 @@ function AccountDetails() {
         ) {
             return false
         }
-        let cookie = Cookies.get('nonEssentialCookiesAllowed')
+        const cookie = Cookies.get('nonEssentialCookiesAllowed')
         return cookie === 'true'
     }
 
     function deleteGoogleToken() {
+        // a socket stays bound to the account it logged in as, and components keep that account's state,
+        // so drop the socket and reload (like onLogout). Without a stored token the sign-in button shows again.
+        websocketHelper.disconnect()
         sessionStorage.removeItem('googleId')
         localStorage.removeItem('googleId')
+        removeSettings([GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL])
         setIsLoggedIn(false)
         setRerenderGoogleSignIn(rerenderGoogleSignIn + 1)
+        location.reload()
     }
 
     function onSubscriptionCancel(subscription: PremiumSubscription) {
-        api.cancelPremiumSubscription(subscription.externalId).then(() => {
+        return api.cancelPremiumSubscription(subscription.externalId).then(() => {
             toast.success('Subscription cancelled')
-            loadPremiumSubscriptions()
+            return loadPremiumSubscriptions()
         })
     }
 
@@ -181,6 +195,10 @@ function AccountDetails() {
     }
 
     function onDeleteAccount() {
+        if (!canDeleteAccount) {
+            toast.error('Your subscription status must be loaded and have no active subscriptions before deleting your account.')
+            return
+        }
         setIsDeletingAccount(true)
         api.deleteAccount()
             .then(result => {
@@ -194,6 +212,8 @@ function AccountDetails() {
                 toast.error('Failed to delete your account. Please try again or contact support.')
             })
     }
+
+    const canDeleteAccount = subscriptionLookupStatus === 'succeeded' && premiumSubscriptions.length === 0
 
     return (
         <>
@@ -211,8 +231,10 @@ function AccountDetails() {
                         subscriptions={premiumSubscriptions}
                         onSubscriptionCancel={onSubscriptionCancel}
                         labelStyle={{ width: '300px', fontWeight: 'bold' }}
-                        hasLoadingError={hasLoadingPremiumError}
+                        hasProductLoadingError={hasLoadingPremiumProductsError}
+                        hasSubscriptionLoadingError={subscriptionLookupStatus === 'failed'}
                     />
+                    <TierSlots subscriptions={premiumSubscriptions} onCancelSubscription={setSubscriptionToCancel} />
                     <p>
                         <span className={styles.label}>CoflCoins:</span>{' '}
                         {coflCoins === -1 ? (
@@ -230,32 +252,6 @@ function AccountDetails() {
                         ) : (
                             <Number number={coflCoins} />
                         )}
-                        <Button
-                            className={styles.sendCoflCoinsButton}
-                            onClick={() => {
-                                setShowSendCoflcoins(true)
-                            }}
-                        >
-                            Send CoflCoins
-                        </Button>
-                        <Modal
-                            size={'lg'}
-                            show={showSendcoflcoins}
-                            onHide={() => {
-                                setShowSendCoflcoins(false)
-                            }}
-                        >
-                            <Modal.Header closeButton>
-                                <Modal.Title>Send CoflCoins</Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body>
-                                <TransferCoflCoins
-                                    onFinish={() => {
-                                        setShowSendCoflcoins(false)
-                                    }}
-                                />
-                            </Modal.Body>
-                        </Modal>
                     </p>
                     <p>
                         <span className={styles.label}>Transaction history:</span>
@@ -330,12 +326,31 @@ function AccountDetails() {
                 <div style={{ paddingBottom: '1rem' }}>
                     <hr />
                     <h2 style={{ marginBottom: '30px' }}>Danger Zone</h2>
+                    {premiumSubscriptions
+                        .filter(subscription => !subscription.endsAt)
+                        .map(subscription => (
+                            <div key={subscription.externalId} style={{ paddingBottom: '1rem' }}>
+                                <p>{subscription.productName} · Subscription #{subscription.externalId}</p>
+                                <Button variant="outline-danger" onClick={() => setSubscriptionToCancel(subscription)}>
+                                    Cancel subscription
+                                </Button>
+                            </div>
+                        ))}
                     <span className={styles.label}>Delete account:</span>
                     <div>
-                        <Button variant="danger" onClick={() => setShowDeleteAccountModal(true)}>
+                        <Button variant="danger" disabled={!canDeleteAccount} onClick={() => setShowDeleteAccountModal(true)}>
                             Delete account
                         </Button>
+                        {!canDeleteAccount ? (
+                            <p>Account deletion is unavailable until subscription status loads successfully and there are no active subscriptions.</p>
+                        ) : null}
                     </div>
+                    <CancelSubscriptionFeedbackDialog
+                        show={!!subscriptionToCancel}
+                        subscription={subscriptionToCancel}
+                        onCancel={() => subscriptionToCancel ? onSubscriptionCancel(subscriptionToCancel) : undefined}
+                        onClose={() => setSubscriptionToCancel(undefined)}
+                    />
                     <Modal show={showDeleteAccountModal} onHide={closeDeleteAccountModal}>
                         <Modal.Header closeButton>
                             <Modal.Title>Delete account</Modal.Title>
@@ -362,7 +377,7 @@ function AccountDetails() {
                             </Button>
                             <Button
                                 variant="danger"
-                                disabled={deleteConfirmationInput !== 'DELETE' || isDeletingAccount}
+                                disabled={deleteConfirmationInput !== 'DELETE' || isDeletingAccount || !canDeleteAccount}
                                 onClick={onDeleteAccount}
                             >
                                 Permanently delete my account

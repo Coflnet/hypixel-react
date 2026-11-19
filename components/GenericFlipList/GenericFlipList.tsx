@@ -24,7 +24,7 @@ export interface FlipListProps<T> {
     clickMessage?: string
     showColumns?: boolean
     customFilters?: React.ReactNode
-    sortFunctionArgs?: any[]
+    sortFunctionArgs?: unknown[]
     customItemWrapper?: (item: T, blur: boolean, key: string, content: React.ReactNode, flipCardClass: string) => React.ReactNode
     onAfterSignIn?: () => void
     customHeader?: (isLoggedIn: boolean) => React.ReactNode
@@ -38,11 +38,11 @@ export interface FlipListProps<T> {
 export interface SortOption<T> {
     label: string
     value: string
-    sortFunction(items: T[], ...args: any[]): T[]
+    sortFunction(items: T[], ...args: unknown[]): T[]
 }
 
 let observer: MutationObserver
-const EMPTY_SORT_ARGS: any[] = []
+const EMPTY_SORT_ARGS: unknown[] = []
 
 export function GenericFlipList<T>({
     items,
@@ -80,6 +80,9 @@ export function GenericFlipList<T>({
     const shouldShowAds = premiumState.isKnown && !premiumState.hasPremium
 
     const { processedItems, isProcessing } = useSortedAndFilteredItems(items, orderBy, nameFilter, minimumProfit, filterFunction, sortFunctionArgs)
+    // Keep the current cards while a sort or filter runs. Swapping them for the spinner unmounted every card
+    // right after hydration, and with it a detail dialog the visitor had just opened.
+    const showSpinner = isProcessing && processedItems.length === 0
 
     // Batch rendering state to limit DOM nodes for very large lists
     const safeInitial = Math.max(3, initialRenderCount || 0)
@@ -90,7 +93,7 @@ export function GenericFlipList<T>({
     useEffect(() => {
         setTimeout(setBlurObserver, 100)
         if (showColumns) {
-            let columns = parseInt(getSetting(GENRIC_FLIP_LIST_COLUMNS, getDefaultColumns().toString()))
+            const columns = parseInt(getSetting(GENRIC_FLIP_LIST_COLUMNS, getDefaultColumns().toString()))
             setColumns(isNaN(columns) ? getDefaultColumns() : columns.valueOf())
         }
         setRenderedCount(Math.max(3, safeInitial))
@@ -119,8 +122,8 @@ export function GenericFlipList<T>({
 
     useEffect(() => {
         if (listRef.current && listRef.current.children) {
-            let height = listRef.current.children[0]?.clientHeight - 15 || 0
-            let width = listRef.current.children[0]?.clientWidth - 15 || 0
+            const height = listRef.current.children[0]?.clientHeight - 15 || 0
+            const width = listRef.current.children[0]?.clientWidth - 15 || 0
             setListElementSizes({ width: width, height: height })
         }
     }, [listRef.current, columns, showColumns])
@@ -133,9 +136,9 @@ export function GenericFlipList<T>({
             setShowTechSavvyMessage(true)
         })
 
-        var targets = document.getElementsByClassName('blur')
-        for (var i = 0; i < targets.length; i++) {
-            var config = {
+        const targets = document.getElementsByClassName('blur')
+        for (let i = 0; i < targets.length; i++) {
+            const config = {
                 attributes: true,
                 childList: true,
                 characterData: true,
@@ -201,20 +204,20 @@ export function GenericFlipList<T>({
         return sizes;
     }
 
-    const onNameFilterChange = useCallback((e: any) => {
+    const onNameFilterChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
         setNameFilter(e.target.value)
     }, [])
 
-    const onMinimumProfitChange = useCallback((e: any) => {
-        setMinimumProfit(e.target.value)
+    const onMinimumProfitChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+        setMinimumProfit(Number(e.target.value))
     }, [])
 
     const updateOrderBy = useCallback(
         (event: ChangeEvent<HTMLSelectElement>) => {
             if (!isProcessing) {
-                let selectedIndex = event.target.options.selectedIndex
-                let value = event.target.options[selectedIndex].getAttribute('value')!
-                let sortOption = sortOptions.find(option => option.value === value)
+                const selectedIndex = event.target.options.selectedIndex
+                const value = event.target.options[selectedIndex].getAttribute('value')!
+                const sortOption = sortOptions.find(option => option.value === value)
                 if (sortOption) {
                     setOrderBy(sortOption)
                 }
@@ -353,7 +356,7 @@ export function GenericFlipList<T>({
     }
 
     const list = useMemo(() => {
-        if (isProcessing) {
+        if (showSpinner) {
             return []
         }
 
@@ -370,7 +373,7 @@ export function GenericFlipList<T>({
                         <ListItemAdElement key={getItemKeyAction(item) + '-ad'} slotId={`flip-list-ad-${getItemKeyAction(item)}`} sizes={getAdSizes()} />
                     </div>
                 } else {
-                    ad = <div className={styles.flipCard} key={getItemKeyAction(item)}>
+                    ad = <div className={styles.flipCard} key={getItemKeyAction(item) + '-ad'}>
                         {getListElement(item, true)}
                     </div>
                 }
@@ -410,7 +413,7 @@ export function GenericFlipList<T>({
         })
 
         return list
-    }, [processedItems, hasPremium, shouldShowAds, isProcessing, censoredItemGenerator, customItemWrapper, renderedCount, listElementSizes])
+    }, [processedItems, hasPremium, shouldShowAds, showSpinner, censoredItemGenerator, customItemWrapper, renderedCount, listElementSizes])
 
     const flipListClass = showColumns && columns ? `${styles.flipList} ${styles[`columns-${columns}`]}` : styles.flipList
     return (
@@ -446,7 +449,7 @@ export function GenericFlipList<T>({
             <PremiumModal show={showPremiumModal} onHide={() => setShowPremiumModal(false)} />
             {processedItems.length > 0 ? <p>{clickMessage}</p> : null}
             <div className={flipListClass}>
-                {isProcessing ? (
+                {showSpinner ? (
                     <div
                         className={styles.loadingContainer}
                         style={{
@@ -473,7 +476,7 @@ export function GenericFlipList<T>({
                             const visibleList = list.slice()
                             if (renderedCount < processedItems.length) {
                                 const insertIndex = Math.max(0, visibleList.length - 6)
-                                visibleList.splice(insertIndex, 0, <div key="sentinel" ref={sentinelRef as any} style={{ height: 1 }} />)
+                                visibleList.splice(insertIndex, 0, <div key="sentinel" ref={sentinelRef} style={{ height: 1 }} />)
                             }
                             return <ListGroup ref={listRef} className={styles.list}>{visibleList}</ListGroup>
                         })()}

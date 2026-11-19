@@ -9,20 +9,21 @@ import { CancelOutlined, RestartAlt } from '@mui/icons-material'
 import CancelSubscriptionFeedbackDialog from '../CancelSubscriptionFeedbackDialog/CancelSubscriptionFeedbackDialog'
 import { usePutApiPremiumSubscriptionExternalIdReactivate } from '../../../api/_generated/skyApi'
 import { toast } from 'react-toastify'
+import UpgradeSubscription from '../UpgradeSubscription/UpgradeSubscription'
 
 interface Props {
     products: PremiumProduct[]
     subscriptions: PremiumSubscription[]
     labelStyle?: React.CSSProperties
-    onSubscriptionCancel(subscription: PremiumSubscription): void
-    hasLoadingError?: boolean
+    onSubscriptionCancel(subscription: PremiumSubscription): void | Promise<void>
+    hasProductLoadingError?: boolean
+    hasSubscriptionLoadingError?: boolean
 }
 
 function PremiumStatus(props: Props) {
-    let [highestPriorityProduct, setHighestPriorityProduct] = useState<PremiumProduct>()
-    let [productsToShow, setProductsToShow] = useState<PremiumProductWithtimeDifference[]>()
-    let [showCancelSubscriptionDialogSubscription, setShowCancelSubscriptionDialogSubscription] = useState<PremiumSubscription>()
-    let [reactivatingExternalId, setReactivatingExternalId] = useState<string | null>(null)
+    const [highestPriorityProduct, setHighestPriorityProduct] = useState<PremiumProduct>()
+    const [productsToShow, setProductsToShow] = useState<PremiumProductWithtimeDifference[]>()
+    const [showCancelSubscriptionDialogSubscription, setShowCancelSubscriptionDialogSubscription] = useState<PremiumSubscription>()
 
     // Get Google token for authentication
     const googleToken = typeof window !== 'undefined' 
@@ -41,8 +42,8 @@ function PremiumStatus(props: Props) {
                     if (!response) {
                         toast.error('Resuming failed. Please try again later.')
                     } else {
-                        const status = (response as any).status
-                        const data = (response as any).data
+                        const status: number = response.status
+                        const data: unknown = response.data
 
                         const paypalMessage = 'Updating PayPal subscriptions via API is not currently supporte'
 
@@ -53,7 +54,7 @@ function PremiumStatus(props: Props) {
                             try {
                                 const serialized = JSON.stringify(data)
                                 containsPaypal = serialized.includes(paypalMessage)
-                            } catch (e) {
+                            } catch {
                                 containsPaypal = false
                             }
                         }
@@ -70,16 +71,14 @@ function PremiumStatus(props: Props) {
                             window.location.reload()
                         }
                     }
-                } catch (e) {
+                } catch {
                     toast.error('Failed to reactivate subscription. Please try again.')
                 }
 
-                setReactivatingExternalId(null)
             },
-            onError: (err) => {
+            onError: () => {
                 // Fallback for network/throw errors
                 toast.error('Failed to reactivate subscription. Please try again.')
-                setReactivatingExternalId(null)
             }
         }
     })
@@ -111,13 +110,16 @@ function PremiumStatus(props: Props) {
 
         products = products.filter(product => product.expires > new Date())
         setProductsToShow(products)
-        setHighestPriorityProduct(getHighestPriorityPremiumProduct(props.products))
+        setHighestPriorityProduct(props.products.length > 0 ? getHighestPriorityPremiumProduct(props.products) : undefined)
     }, [props.products])
 
     function getProductListEntry(product: PremiumProductWithtimeDifference) {
         return (
             <>
                 <span>{getPremiumType(product)?.label}</span>
+                {product.canManage === false && (
+                    <span> — Provided by another account. Only the purchaser can change or cancel this slot.</span>
+                )}
                 <Tooltip
                     type="hover"
                     content={
@@ -138,22 +140,19 @@ function PremiumStatus(props: Props) {
         )
     }
 
-    let numberOfEntriesToShow = (productsToShow?.length || 0) + (props.subscriptions?.length || 0)
+    const numberOfEntriesToShow = (productsToShow?.length || 0) + props.subscriptions.length
 
     return (
         <>
             <div>
-                {numberOfEntriesToShow > 1 ? (
+                {props.subscriptions.length > 0 || numberOfEntriesToShow > 1 ? (
                     <div style={{ overflow: 'hidden' }}>
                         <span className={styles.premiumStatusLabel} style={props.labelStyle}>
                             Premium Status:
                         </span>
-                        {props.hasLoadingError === true ? (
-                            'Premium Status could not be loaded'
-                        ) : (
-                            <ul style={{ float: 'left' }}>
-                                {props.subscriptions.map(subscription => (
-                                    <li key={subscription.externalId}>
+                        <ul style={{ float: 'left' }}>
+                            {props.subscriptions.map(subscription => (
+                                <li key={subscription.externalId}>
                                         {' '}
                                         <Tooltip
                                             type="hover"
@@ -173,15 +172,15 @@ function PremiumStatus(props: Props) {
                                                 </span>
                                             }
                                         />
-                                        {subscription.endsAt && (
+                                        {subscription.endsAt && subscription.canResume !== false && (
                                             <Tooltip
                                                 type="hover"
                                                 content={
                                                     <span style={{ color: 'green' }}>
                                                         <RestartAlt
+                                                            data-testid="reactivate-subscription"
                                                             style={{ cursor: 'pointer', color: 'green', marginLeft: 5 }}
                                                             onClick={() => {
-                                                                setReactivatingExternalId(subscription.externalId)
                                                                 reactivateMutation.mutate({ externalId: subscription.externalId })
                                                             }}
                                                         />
@@ -190,29 +189,27 @@ function PremiumStatus(props: Props) {
                                                 tooltipContent={<span>Reactivate subscription</span>}
                                             />
                                         )}
-                                        {!subscription.endsAt && (
-                                            <Tooltip
-                                                type="hover"
-                                                content={
-                                                    <span style={{ color: 'red' }}>
-                                                        <CancelOutlined
-                                                            style={{ cursor: 'pointer', color: 'red', marginLeft: 5 }}
-                                                            onClick={() => {
-                                                                setShowCancelSubscriptionDialogSubscription(subscription)
-                                                            }}
-                                                        />
-                                                    </span>
-                                                }
-                                                tooltipContent={<span>Cancel subscription</span>}
-                                            />
+                                        {!subscription.endsAt && subscription.canChangePlan !== false && (
+                                            <UpgradeSubscription subscription={subscription} />
                                         )}
-                                    </li>
-                                ))}
-                                {productsToShow?.map(product => (
-                                    <li key={product.productSlug}>{getProductListEntry(product)}</li>
-                                ))}
-                            </ul>
-                        )}
+                                        {!subscription.endsAt && (
+                                            <button
+                                                type="button"
+                                                className="btn btn-sm btn-outline-danger"
+                                                style={{ marginLeft: 5 }}
+                                                onClick={() => setShowCancelSubscriptionDialogSubscription(subscription)}
+                                            >
+                                                <CancelOutlined fontSize="small" /> Cancel subscription
+                                            </button>
+                                        )}
+                                </li>
+                            ))}
+                            {productsToShow?.map(product => (
+                                <li key={product.productSlug}>{getProductListEntry(product)}</li>
+                            ))}
+                            {props.hasProductLoadingError ? <li>Premium products could not be loaded</li> : null}
+                            {props.hasSubscriptionLoadingError ? <li>Premium subscriptions could not be loaded</li> : null}
+                        </ul>
                     </div>
                 ) : (
                     <p>
@@ -220,8 +217,10 @@ function PremiumStatus(props: Props) {
                         <span className={styles.premiumStatusLabel} style={props.labelStyle}>
                             Premium Status:
                         </span>
-                        {props.hasLoadingError === true ? (
-                            'Premium Status could not be loaded'
+                        {props.hasSubscriptionLoadingError ? (
+                            'Premium subscriptions could not be loaded'
+                        ) : props.hasProductLoadingError ? (
+                            'Premium products could not be loaded'
                         ) : (
                             <>
                                 {highestPriorityProduct ? getProductListEntry({ ...highestPriorityProduct } as PremiumProductWithtimeDifference) : 'No Premium'}
@@ -232,12 +231,8 @@ function PremiumStatus(props: Props) {
             </div>
             <CancelSubscriptionFeedbackDialog
                 show={!!showCancelSubscriptionDialogSubscription}
-                onCancel={() => {
-                    if (showCancelSubscriptionDialogSubscription) {
-                        props.onSubscriptionCancel(showCancelSubscriptionDialogSubscription)
-                        setShowCancelSubscriptionDialogSubscription(undefined)
-                    }
-                }}
+                subscription={showCancelSubscriptionDialogSubscription}
+                onCancel={() => showCancelSubscriptionDialogSubscription ? props.onSubscriptionCancel(showCancelSubscriptionDialogSubscription) : undefined}
                 onClose={() => {
                     setShowCancelSubscriptionDialogSubscription(undefined)
                 }}

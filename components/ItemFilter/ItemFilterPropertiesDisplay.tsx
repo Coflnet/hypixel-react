@@ -21,9 +21,9 @@ const SKIN_FILTER = 'Skin'
 const PET_SKIN_FILTER = 'PetSkin'
 
 function ItemFilterPropertiesDisplay(props: Props) {
-    let [localFilter, setLocalFilter] = useState(props.filter || {})
+    const [localFilter, setLocalFilter] = useState(props.filter || {})
 
-    let forceUpdate = useForceUpdate()
+    const forceUpdate = useForceUpdate()
 
     useEffect(() => {
         updateLocalFilter()
@@ -33,7 +33,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
         if (!props.filter) {
             return
         }
-        let localFilter = JSON.parse(JSON.stringify(props.filter))
+        const localFilter = JSON.parse(JSON.stringify(props.filter))
         setLocalFilter(localFilter)
         checkForSellerName(localFilter)
     }
@@ -43,7 +43,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
             Object.keys(filter).forEach(key => {
                 if (key === SELLER_FORMAT_FILTER) {
                     filter!._hide = true
-                    api.getPlayerName(filter![key]).then(name => {
+                    api.getPlayerName(filter![key]).catch(() => '').then(name => {
                         filter!._hide = false
                         filter!._label = name || '-'
                         setLocalFilter(filter)
@@ -55,7 +55,7 @@ function ItemFilterPropertiesDisplay(props: Props) {
     }
 
     function onRemoveClick(key) {
-        let newLocalFilter = { ...localFilter }
+        const newLocalFilter = { ...localFilter }
         delete newLocalFilter[key]
         setLocalFilter(newLocalFilter)
         if (props.onAfterEdit) {
@@ -85,18 +85,18 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     }
 
                     // finds ">","<","="" and combinations at the beginning
-                    let beginningSymbolRegexp = new RegExp(/^[<>=]+/)
+                    const beginningSymbolRegexp = new RegExp(/^[<>=]+/)
                     if (!isNaN(Number(display.replace(beginningSymbolRegexp, '')))) {
-                        let symbols = display.match(beginningSymbolRegexp)
-                        let number = display.replace(beginningSymbolRegexp, '')
+                        const symbols = display.match(beginningSymbolRegexp)
+                        const number = display.replace(beginningSymbolRegexp, '')
                         display = numberWithThousandsSeparators(Number(number))
                         display = symbols ? symbols[0] + display : display
                     }
 
                     // finds number ranges (e.g. "10000-999999")
-                    let numberRangeRegex = new RegExp(/^\d+-\d+$/)
+                    const numberRangeRegex = new RegExp(/^\d+-\d+$/)
                     if (display.match(numberRangeRegex)) {
-                        let numbers = display.split('-').map(numberString => numberWithThousandsSeparators(Number(numberString)))
+                        const numbers = display.split('-').map(numberString => numberWithThousandsSeparators(Number(numberString)))
 
                         if (numbers[0] === numbers[1]) {
                             display = numbers[0].toString()
@@ -119,6 +119,11 @@ function ItemFilterPropertiesDisplay(props: Props) {
                     // Special case for skin filter
                     if (key === SKIN_FILTER || key === PET_SKIN_FILTER) {
                         info = 'This filter only works on applied skins on pets/armor. For the items there is the "ItemCategory" filter.'
+                        label += ' (applied)'
+                    }
+
+                    if (key === 'DyeItem') {
+                        info = 'Matches dye applied to another item. Any matches items with any dye applied, not standalone dye items. To blacklist a standalone dye, select the dye itself as the blacklist item.'
                         label += ' (applied)'
                     }
 

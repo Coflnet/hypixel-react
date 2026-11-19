@@ -7,9 +7,9 @@ interface Props {
 }
 
 export default function NumberElement(props: Props) {
-    let [isSSR, setIsSSR] = useState(true)
+    const [isSSR, setIsSSR] = useState(true)
 
-    let value = Number(props.number)
+    const value = Number(props.number)
 
     useEffect(() => {
         setIsSSR(false)

@@ -1,0 +1,137 @@
+{
+  "quote": {
+    "quoteId": "00000000-0000-0000-0000-0000000000a2",
+    "requestId": "11111111-1111-1111-1111-111111111111",
+    "marketFrameId": "2026-10-24T12:00:00.0000000Z|inv-0",
+    "generatedAt": "2026-10-24T12:00:00Z",
+    "expiresAt": "2099-01-01T00:00:00Z",
+    "policyId": "fixed-price-no-reprice",
+    "policyVersion": 1,
+    "modelVersion": null,
+    "engineVersion": "fixture",
+    "admissionRule": null
+  },
+  "status": "Ok",
+  "investingStatus": "Qualified",
+  "investingReasonCodes": [],
+  "portfolio": {
+    "budgetCoins": 4000000,
+    "spentCoins": 148424.0,
+    "remainingBudgetCoins": 3851576.0,
+    "reserveCoins": null,
+    "reserveOwner": "Caller",
+    "freeSlotsBefore": 18,
+    "freeSlotsAfter": 15,
+    "freeInventorySlotsBefore": null,
+    "freeInventorySlotsAfter": null,
+    "heldExposureCoins": 0,
+    "suppressedItemTags": []
+  },
+  "orders": [
+    {
+      "itemTag": "ENCHANTED_IRON",
+      "itemName": "Enchanted Iron",
+      "isSell": false,
+      "pricePerUnit": 350.5,
+      "amount": 128,
+      "mode": "Investing",
+      "originalQuantity": 128,
+      "entryPrice": 350.5,
+      "exitPrice": 420.1,
+      "sellTaxRate": 0.01125,
+      "taxSource": "Assumption",
+      "estimatedNetProfit": 8800,
+      "capitalLockHorizonHours": 24,
+      "deadlineSemantics": "FixedFromFirstAcceptedBuy",
+      "confidence": {
+        "eventId": "full_buy_sell_original_quantity_by_deadline_v1",
+        "probability": null,
+        "lowerBound": null,
+        "confidenceLevel": 0.95,
+        "supportDomainId": null,
+        "modelId": null,
+        "calibrationId": null,
+        "status": "InsufficientEvidence",
+        "reasonCodes": [
+          "NoProspectiveEvidence"
+        ]
+      }
+    },
+    {
+      "itemTag": "ENCHANTED_COAL",
+      "itemName": "Enchanted Coal",
+      "isSell": false,
+      "pricePerUnit": 610,
+      "amount": 96,
+      "mode": "Investing",
+      "originalQuantity": 96,
+      "entryPrice": 610,
+      "exitPrice": 700,
+      "sellTaxRate": 0.01125,
+      "taxSource": "Assumption",
+      "estimatedNetProfit": 5400,
+      "capitalLockHorizonHours": 24,
+      "deadlineSemantics": "FixedFromFirstAcceptedBuy",
+      "confidence": {
+        "eventId": "full_buy_sell_original_quantity_by_deadline_v1",
+        "probability": null,
+        "lowerBound": null,
+        "confidenceLevel": 0.95,
+        "supportDomainId": null,
+        "modelId": null,
+        "calibrationId": null,
+        "status": "SimulationOnly",
+        "reasonCodes": [
+          "SimulationEvidenceOnly"
+        ]
+      }
+    },
+    {
+      "itemTag": "ENCHANTED_LAPIS",
+      "itemName": "Enchanted Lapis Lazuli",
+      "isSell": false,
+      "pricePerUnit": 900,
+      "amount": 50,
+      "mode": "Investing",
+      "originalQuantity": 50,
+      "entryPrice": 900,
+      "exitPrice": 1000,
+      "sellTaxRate": 0.01125,
+      "taxSource": "Assumption",
+      "estimatedNetProfit": 3000,
+      "capitalLockHorizonHours": 24,
+      "deadlineSemantics": "FixedFromFirstAcceptedBuy",
+      "confidence": {
+        "eventId": "full_buy_sell_original_quantity_by_deadline_v1",
+        "probability": null,
+        "lowerBound": null,
+        "confidenceLevel": 0.95,
+        "supportDomainId": null,
+        "modelId": null,
+        "calibrationId": null,
+        "status": "Unavailable",
+        "reasonCodes": [
+          "NoArtifact"
+        ]
+      }
+    }
+  ],
+  "unqualifiedInvestingCandidates": [],
+  "modes": [
+    "Investing"
+  ],
+  "investingHorizonHours": 24,
+  "budgetCoins": 4000000,
+  "budgetSource": "purse-estimate",
+  "accountState": {
+    "openOrdersEstimated": false,
+    "openBuyItemTags": [],
+    "heldItemTags": [],
+    "freeOrderSlots": 18,
+    "revision": null
+  },
+  "tier": "premium",
+  "hiddenCount": 0,
+  "premiumUrl": null,
+  "warnings": []
+}

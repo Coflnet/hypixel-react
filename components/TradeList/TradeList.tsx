@@ -3,7 +3,7 @@ import { getHeadMetadata } from '../../utils/SSRUtils'
 import { Card, Container, Form } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { useEffect, useState } from 'react'
-import { convertTagToName, getMinecraftColorCodedElement, removeMinecraftColorCoding } from '../../utils/Formatter'
+import { convertTagToName, getMinecraftColorCodedElement } from '../../utils/Formatter'
 import ItemFilterPropertiesDisplay from '../ItemFilter/ItemFilterPropertiesDisplay'
 import ItemFilter from '../ItemFilter/ItemFilter'
 import DeleteIcon from '@mui/icons-material/Delete'
@@ -16,11 +16,11 @@ interface Props {
 }
 
 export default function TradeList(props: Props) {
-    let [trades, setTrades] = useState<TradeObject[]>([])
-    let [filterOptions, setFilterOptions] = useState<FilterOptions[]>([])
-    let [filter, setFilter] = useState<ItemFilter>()
-    let [onlyOwnTrades, setOnlyOwnTrades] = useState(false)
-    let [isLoading, setIsLoading] = useState(false)
+    const [trades, setTrades] = useState<TradeObject[]>([])
+    const [filterOptions, setFilterOptions] = useState<FilterOptions[]>([])
+    const [filter, setFilter] = useState<ItemFilter>()
+    const [onlyOwnTrades, setOnlyOwnTrades] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     useEffect(() => {
         loadTrades(onlyOwnTrades, filter)
@@ -34,7 +34,7 @@ export default function TradeList(props: Props) {
 
     function loadFilters(): Promise<FilterOptions[]> {
         return Promise.all([api.getFilters('*'), api.flipFilters('*')]).then(filters => {
-            let result = [...(filters[0] || []), ...(filters[1] || [])]
+            const result = [...(filters[0] || []), ...(filters[1] || [])]
             setFilterOptions(result)
             return result
         })
@@ -50,7 +50,7 @@ export default function TradeList(props: Props) {
 
     function deleteTrade(tradeId: string) {
         api.deleteTradeOffer(tradeId).then(() => {
-            let newTrades = [...trades]
+            const newTrades = [...trades]
             setTrades(newTrades.filter(trade => trade.id !== tradeId))
         })
     }

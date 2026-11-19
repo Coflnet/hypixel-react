@@ -181,7 +181,7 @@ Download raw bazaar snapshots for local analysis.
 
 **Tier gates:**
 - `Premium`: Export up to 180 days back
-- `Premium+`: Export back to October 2019
+- `Premium+`: Export back to 12 March 2020 (when bazaar history starts)
 - `Free`: No export access
 
 **Response:**
@@ -533,7 +533,7 @@ Premium+ users should still send a valid `Authorization: Bearer` token. That tok
 |------|------------|----------------|
 | Free | — | No export access |
 | Premium | 180 days | 20-second increments (last 2 weeks), 5-minute increments |
-| Premium+ | Since October 2019 | 20-second increments (last 2 weeks), 5-minute increments (older) |
+| Premium+ | Since 12 March 2020 | 20-second increments (last 2 weeks), 5-minute increments (older) |
 
 ### Auction Archive Rate Limits
 | Endpoint | Rate Limit | Tier Required |

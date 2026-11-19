@@ -6,6 +6,7 @@ import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils
 import { getGetApiBazaarItemTagExportUrl } from '../../api/_generated/skyApi'
 import styles from './BazaarExportModal.module.css'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
+import { BAZAAR_HISTORY_MIN_DATE, BAZAAR_HISTORY_SINCE, getBazaarHistoryYears } from '../../utils/DataHistory'
 
 interface Props {
     show: boolean
@@ -14,16 +15,16 @@ interface Props {
 }
 
 function BazaarExportModal(props: Props) {
-    let [fullOrderBook, setFullOrderBook] = useState(false)
-    let [startDate, setStartDate] = useState('')
-    let [endDate, setEndDate] = useState('')
-    let [hasPremium, setHasPremium] = useState(false)
-    let [hasPremiumPlus, setHasPremiumPlus] = useState(false)
-    let [isExporting, setIsExporting] = useState(false)
+    const [fullOrderBook, setFullOrderBook] = useState(false)
+    const [startDate, setStartDate] = useState('')
+    const [endDate, setEndDate] = useState('')
+    const [hasPremium, setHasPremium] = useState(false)
+    const [hasPremiumPlus, setHasPremiumPlus] = useState(false)
+    const [isExporting, setIsExporting] = useState(false)
 
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [hasLoadedPremium, setHasLoadedPremium] = useState(false)
-    let [premiumLoadError, setPremiumLoadError] = useState(false)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [hasLoadedPremium, setHasLoadedPremium] = useState(false)
+    const [premiumLoadError, setPremiumLoadError] = useState(false)
 
     function loadPremiumProducts() {
         setPremiumLoadError(false)
@@ -47,7 +48,7 @@ function BazaarExportModal(props: Props) {
     }
 
     function onModalEntered() {
-        let loggedIn = !!(typeof window !== 'undefined' && (sessionStorage.getItem('googleId') || localStorage.getItem('googleId')))
+        const loggedIn = !!(typeof window !== 'undefined' && (sessionStorage.getItem('googleId') || localStorage.getItem('googleId')))
         setIsLoggedIn(loggedIn)
 
         if (!loggedIn) {
@@ -68,10 +69,7 @@ function BazaarExportModal(props: Props) {
     }
 
     function getExportHistoryYears(): string {
-        const dataStart = new Date(2019, 9, 1) // October 2019
-        const now = new Date()
-        const years = Math.floor((now.getTime() - dataStart.getTime()) / (365.25 * 24 * 60 * 60 * 1000))
-        return `~${years} years`
+        return `~${getBazaarHistoryYears()} years`
     }
 
     function getMaxHistoryLabel(): string {
@@ -198,7 +196,7 @@ function BazaarExportModal(props: Props) {
                         {!hasPremium && !hasPremiumPlus && (
                             <Alert variant="info">
                                 Bazaar data export requires at least <strong>Premium</strong>. Exports of the last <strong>180 days</strong> are available with
-                                Premium and data since October 2019 (<strong>{getExportHistoryYears()}</strong>) is available with Premium+.
+                                Premium and data since {BAZAAR_HISTORY_SINCE} (<strong>{getExportHistoryYears()}</strong>) is available with Premium+.
                                 <div className={styles.actionButtonContainer}>
                                     <Button href="/premium?tier=premium" variant="success" className="disableLinkStyle">
                                         Get Premium
@@ -210,7 +208,7 @@ function BazaarExportModal(props: Props) {
                         {hasPremium && !hasPremiumPlus && (
                             <Alert variant="info">
                                 With Premium you can export up to the last <strong>180 days</strong> of data. Upgrade to <strong>Premium+</strong> for up to{' '}
-                                <strong>{getExportHistoryYears()}</strong> of history (data since October 2019).
+                                <strong>{getExportHistoryYears()}</strong> of history (data since {BAZAAR_HISTORY_SINCE}).
                                 <div className={styles.actionButtonContainer}>
                                     <Button href="/premium?tier=premium_plus" variant="primary" className="disableLinkStyle">
                                         Upgrade to Premium+
@@ -221,7 +219,7 @@ function BazaarExportModal(props: Props) {
 
                         {hasPremiumPlus && (
                             <Alert variant="info">
-                                With Premium+ you can export data since October 2019 (<strong>{getExportHistoryYears()}</strong> of bazaar data).
+                                With Premium+ you can export data since {BAZAAR_HISTORY_SINCE} (<strong>{getExportHistoryYears()}</strong> of bazaar data).
                             </Alert>
                         )}
 
@@ -268,7 +266,7 @@ function BazaarExportModal(props: Props) {
                                             type="date" 
                                             value={startDate} 
                                             onChange={e => setStartDate(e.target.value)}
-                                            min="2020-03-10"
+                                            min={BAZAAR_HISTORY_MIN_DATE}
                                         />
                                     </Form.Group>
                                 </div>

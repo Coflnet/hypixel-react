@@ -66,7 +66,7 @@ export default function TopLoadingAnimation() {
                         })(window.history)
                     }
                 }
-            } catch (err) {
+            } catch {
                 // Log the error in development only!
                 // console.log('NextTopLoader error: ', err);
                 NProgress.start()

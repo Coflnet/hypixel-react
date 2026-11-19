@@ -68,7 +68,6 @@ export enum RequestType {
     GET_COFLCOIN_BALANCE = 'getCoflBalance',
     GET_FLIP_SETTINGS = 'getFlipSettings',
     SET_FLIP_SETTING = 'setFlipSetting',
-    TRANSFER_COFLCOINS = 'transferCofl',
     GET_BAZAAR_SNAPSHOT = 'getBazaarSnapshot',
     SUBSCRIBE_FLIPS_ANONYM = 'subFlipAnonym',
     GET_PRIVACY_SETTINGS = 'getPrivacySettings',
@@ -102,7 +101,6 @@ export enum RequestType {
     GET_LINKVERTISE_LINK = 'getLinkvertiseLink',
     CREATE_PREMIUM_SUBSCRIPTION = 'createPremiumSubscription',
     DELETE_PREMIUM_SUBSCRIPTION = 'deletePremiumSubscription',
-    PURCHASE_PREMIUM_SUBSCRIPTION = 'purchasePremiumSubscription',
     GET_CRAFTING_INSTRUCTIONS = 'craft/instructions',
     DELETE_ACCOUNT = 'deleteAccount'
 }

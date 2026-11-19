@@ -1,0 +1,50 @@
+.editor {
+    border: 1px solid var(--bs-border-color, #ced4da);
+    border-radius: 12px;
+    padding: 16px;
+    background: var(--bs-body-bg, #fff);
+    color: var(--bs-body-color, #212529);
+    min-width: 0;
+}
+.modes, .presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.modes button, .presets button {
+    border: 1px solid var(--bs-border-color, #ced4da);
+    background: transparent;
+    color: inherit;
+    border-radius: 7px;
+    padding: 7px 10px;
+    font-size: .875rem;
+    cursor: pointer;
+}
+.modes button[aria-pressed='true'], .presets button[aria-pressed='true'] {
+    background: #0b5ed7;
+    border-color: #0b5ed7;
+    color: #fff;
+}
+.editor button:focus-visible, .editor input:focus-visible { outline: 3px solid #6ea8fe; outline-offset: 2px; }
+.help { font-size: .9rem; margin: 12px 0; }
+.editor label { font-size: .85rem; font-weight: 600; margin-bottom: 6px; }
+.valueRow { display: flex; align-items: center; gap: 8px; }
+.valueRow input:first-child { font-family: monospace; min-width: 0; }
+.valueRow input[type='color'] { width: 42px; height: 38px; padding: 2px; border: 0; background: transparent; flex-shrink: 0; cursor: pointer; }
+.presets, .distance { margin-top: 12px; }
+.presets button { font-size: .8rem; }
+.distance label { display: flex; justify-content: space-between; }
+.distance input { width: 100%; accent-color: #0b5ed7; }
+.distance span { font-size: .75rem; }
+.preview { margin-top: 16px; border-top: 1px solid var(--bs-border-color, #ced4da); padding-top: 12px; }
+.previewHeading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px; font-size: .85rem; }
+.previewHeading span { font-size: .75rem; }
+.swatches { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 10px; }
+.sample { border: 1px solid var(--bs-border-color, #ced4da); border-radius: 8px; overflow: hidden; }
+.swatch { height: 48px; border-bottom: 1px solid var(--bs-border-color, #ced4da); }
+.sample code { display: block; padding: 7px 8px 4px; color: inherit; font-size: .85rem; }
+.sample small { display: block; padding: 0 8px 7px; font-size: .7rem; }
+.footer { font-size: .8rem; margin-top: 14px; }
+.footer p { margin: 0 0 5px; }
+.footer a { color: inherit; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 420px) {
+    .editor { padding: 10px; }
+    .swatches { gap: 5px; }
+    .sample code { font-size: .75rem; padding-left: 4px; }
+}

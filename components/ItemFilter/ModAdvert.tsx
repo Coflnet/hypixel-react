@@ -5,7 +5,7 @@ import { CancelOutlined as CancelIcon } from '@mui/icons-material'
 import { useEffect, useState } from 'react'
 
 export default function ModAdvert() {
-    let [show, setShow] = useState(false)
+    const [show, setShow] = useState(false)
 
     useEffect(() => {
         setShow(localStorage.getItem('hideModAdvertInFilter') !== 'true')

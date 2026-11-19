@@ -1,3 +1,49 @@
 .alertWrapper {
     margin-bottom: 20px;
 }
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: flex-start;
+    margin: 16px 0;
+}
+
+.controlGroup {
+    min-width: 180px;
+}
+
+.controlLabel {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.quoteHeader {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.updating {
+    opacity: 0.7;
+}
+
+.alternatives {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.rowLabel {
+    display: inline-block;
+    width: 130px;
+}
+
+.candidates {
+    margin-top: 20px;
+}

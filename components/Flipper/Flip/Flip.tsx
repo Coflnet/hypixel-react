@@ -2,21 +2,20 @@
 import { useMatomo } from '@jonkoops/matomo-tracker-react'
 import HelpIcon from '@mui/icons-material/Help'
 import Image from 'next/image'
-import { type JSX } from 'react'
+import { type CSSProperties, type JSX } from 'react'
 import { Badge, Card } from 'react-bootstrap'
-import { toast } from 'react-toastify'
 import { getFlipFinders } from '../../../utils/FlipUtils'
 import { formatDungeonStarsInString, formatToPriceToShorten, getMinecraftColorCodedElement, getStyleForTier } from '../../../utils/Formatter'
 import { CopyButton } from '../../CopyButton/CopyButton'
 import Number from '../../Number/Number'
 import styles from './Flip.module.css'
-import { writeToClipboard } from '../../../utils/ClipboardUtils'
+import { copyAndRunInGame } from '../../../utils/InGameCommandUtils'
 import api from '../../../api/ApiHelper'
 import { useFlipSettings } from '../../Providers/FlipSettingsProvider'
 
 interface Props {
     flip: FlipAuction
-    style?: any
+    style?: CSSProperties
     onBasedAuctionClick?(flip: FlipAuction)
     onCardClick?(flip: FlipAuction)
     onCopy?(flip: FlipAuction)
@@ -24,7 +23,7 @@ interface Props {
 
 function Flip(props: Props) {
     const { flipCustomizeSettings: settings } = useFlipSettings()
-    let { trackEvent } = useMatomo()
+    const { trackEvent } = useMatomo()
 
     function getLowestBinLink(itemTag: string) {
         return '/item/' + itemTag + '?range=active&itemFilter=eyJCaW4iOiJ0cnVlIn0%3D'
@@ -48,21 +47,21 @@ function Flip(props: Props) {
             return
         }
 
-        writeToClipboard('/viewauction ' + props.flip.uuid)
-        if (props.onCopy) {
-            props.onCopy(props.flip)
-        }
-        if (!settings.hideCopySuccessMessage) {
-            toast.success(
+        copyAndRunInGame('/viewauction ' + props.flip.uuid, {
+            copiedMessage: (
                 <p>
                     Copied ingame link <br />
                     <i>/viewauction {props.flip.uuid}</i>
-                </p>,
-                {
-                    autoClose: 1500,
-                    pauseOnFocusLoss: false
-                }
-            )
+                </p>
+            ),
+            hideToast: settings.hideCopySuccessMessage,
+            toastOptions: {
+                autoClose: 1500,
+                pauseOnFocusLoss: false
+            }
+        })
+        if (props.onCopy) {
+            props.onCopy(props.flip)
         }
         trackEvent({
             category: 'copyButtonClick',
@@ -71,9 +70,9 @@ function Flip(props: Props) {
     }
 
     function getProfitElement(flip: FlipAuction): JSX.Element {
-        let profit = flip.profit
-        let preSymbol = profit > 0 ? '+' : ''
-        let profitPercentElement = <span>({Math.round((profit / flip.cost) * 100)}%)</span>
+        const profit = flip.profit
+        const preSymbol = profit > 0 ? '+' : ''
+        const profitPercentElement = <span>({Math.round((profit / flip.cost) * 100)}%)</span>
         return (
             <b style={{ color: profit > 0 ? 'lime' : 'white' }}>
                 <span>{preSymbol}</span>
@@ -105,8 +104,8 @@ function Flip(props: Props) {
         return <Number number={price} />
     }
 
-    let stars = props.flip.item.name?.match(/✪+/gm)
-    let itemName = stars && props.flip.item.name ? props.flip.item.name.split(stars[0])[0] : props.flip.item.name
+    const stars = props.flip.item.name?.match(/✪+/gm)
+    const itemName = stars && props.flip.item.name ? props.flip.item.name.split(stars[0])[0] : props.flip.item.name
 
     return (
         <div key={props.flip.uuid} style={props.style}>

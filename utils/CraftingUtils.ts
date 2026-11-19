@@ -1,4 +1,4 @@
-import { AcquisitionMode, getAcquisitionPlan } from './Formatter'
+import { AcquisitionMode, getAcquisitionPlan } from './AcquisitionUtils'
 
 export function getIngredientPath(parentPath: string, index: number, tag: string) {
     return `${parentPath}${parentPath ? '/' : ''}${index}:${tag}`

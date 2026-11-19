@@ -63,6 +63,28 @@ const nextConfig = {
                         value: 'nosniff'
                     }
                 ]
+            },
+            {
+                // icons and the web manifest are served with max-age=0 by default; let browsers keep them for a day
+                source: '/:file(favicon\\.ico|manifest\\.json|logo192\\.png|logo512\\.png)',
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'public, max-age=86400, stale-while-revalidate=604800'
+                    }
+                ]
+            },
+            {
+                // the 307 of validateRSCRequestHeaders must never be stored under a page url by a shared cache
+                source: '/:path*',
+                has: [{ type: 'header', key: 'rsc', value: '1' }],
+                missing: [{ type: 'query', key: '_rsc' }],
+                headers: [
+                    {
+                        key: 'Cache-Control',
+                        value: 'private, no-store'
+                    }
+                ]
             }
         ]
     },
@@ -75,6 +97,8 @@ const nextConfig = {
         }
     },
     experimental: {
+        // answer RSC requests whose _rsc param does not match their headers with a redirect, so a shared cache keyed by URL only (Cloudflare) cannot store a flight payload as the page
+        validateRSCRequestHeaders: true,
         optimizePackageImports: ['echarts-for-react', 'react-bootstrap', '@mui/icons-material']
     }
 }

@@ -1,0 +1,215 @@
+.plans {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+    gap: 16px;
+}
+
+.plan {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cardPremium {
+    padding: 23px;
+    border: 2px solid var(--tier-premium-color);
+}
+
+.planHead {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.planHead p {
+    margin: 0;
+}
+
+.planTitleRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.planTitle {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: 500;
+}
+
+.popular {
+    padding: 5px 9px;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 700;
+    color: var(--bs-body-bg);
+    background: var(--tier-premium-color);
+    border-radius: 800px;
+}
+
+.price {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.priceLine {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 8px;
+}
+
+.amount {
+    font-size: 40px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.small {
+    margin: 0;
+    font-size: 14px;
+    color: var(--muted-text);
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 12px;
+    background: var(--bs-body-bg);
+    border-radius: 6px;
+}
+
+.statValue {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.statLabel {
+    font-size: 12px;
+    color: var(--muted-text);
+}
+
+.bullets {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-grow: 1;
+}
+
+.bullets li {
+    display: flex;
+    gap: 10px;
+}
+
+.check {
+    flex: none;
+    margin-top: 4px;
+    stroke: var(--bs-success);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.planButton {
+    min-height: 46px;
+    padding: 8px 16px;
+    font: inherit;
+    font-weight: 700;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.planButton:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.buttonStarter {
+    font-weight: 600;
+    color: #fff;
+    background: var(--bs-secondary);
+    border: 1px solid var(--muted-text);
+}
+
+.buttonPremium {
+    color: var(--bs-body-bg);
+    background: var(--tier-premium-color);
+    border: 1px solid var(--tier-premium-color);
+}
+
+.buttonPremiumPlus {
+    color: var(--bs-body-bg);
+    background: var(--tier-premium-plus-color);
+    border: 1px solid var(--tier-premium-plus-color);
+}
+
+.planButton:hover {
+    filter: brightness(1.1);
+}
+
+.account {
+    display: flex;
+    flex-direction: column;
+    padding-top: 8px;
+}
+
+.extras {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(360px, 100%), 1fr));
+    gap: 16px;
+}
+
+.extra {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.extra p {
+    margin: 0;
+    flex-grow: 1;
+}
+
+.extraTitle {
+    margin: 0;
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: 500;
+}
+
+.extraButton {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 8px;
+}
+
+@media (max-width: 576px) {
+    .plan,
+    .extra {
+        padding: 16px;
+    }
+
+    .cardPremium {
+        padding: 15px;
+    }
+
+    .amount {
+        font-size: 34px;
+    }
+}

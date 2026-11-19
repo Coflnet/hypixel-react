@@ -199,13 +199,9 @@ export function setSettingsFromServerSide(
 
             if (updateLocalSettings) {
                 let newRestrictionsString = JSON.stringify(newRestrictions)
-                let oldRestrictionsString = getSetting(RESTRICTIONS_SETTINGS_KEY, '[]')
 
-                setSetting(RESTRICTIONS_SETTINGS_KEY, JSON.stringify(newRestrictions))
-
-                if (newRestrictionsString !== oldRestrictionsString) {
-                    document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, { detail: { apiUpdate: true } }))
-                }
+                setSetting(RESTRICTIONS_SETTINGS_KEY, newRestrictionsString)
+                document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.FLIP_SETTINGS_CHANGE, { detail: { apiUpdate: true } }))
             }
             resolve({
                 filter,
@@ -533,7 +529,6 @@ export const HIDE_RELATED_ITEMS = 'hideRelatedItems'
 export const GOOGLE_PROFILE_PICTURE_URL = 'googleProfilePictureUrl'
 export const GOOGLE_EMAIL = 'googleEmail'
 export const GOOGLE_NAME = 'googleName'
-export const USER_COUNTRY_CODE = 'userCountryCode'
 export const ITEM_FILTER_USE_COUNT = 'itemFilterUseCount'
 export const ITEM_FILER_SHOW_ADVANCED = 'itemFilterShowAdvanced'
 export const AUTO_REDIRECT_FROM_LINKVERTISE_EXPLANATION = 'autoRedirectFromLinkvertiseExplanation'
@@ -541,3 +536,7 @@ export const ITEM_ICON_TYPE = 'itemIconType'
 export const ITEM_FAVORITES_KEY = 'favoriteItems'
 export const GENRIC_FLIP_LIST_COLUMNS = 'genericFlipListColumns'
 export const NOTIFIER_LAST_CHANNELS = 'notifierLastChannels'
+export const BAZAAR_PLAN_MODE_KEY = 'bazaarPlanMode'
+export const BAZAAR_PLAN_HORIZON_KEY = 'bazaarPlanHorizonHours'
+export const BAZAAR_PLAN_BUDGET_KEY = 'bazaarPlanBudget'
+export const BAZAAR_PLAN_SELL_TAX_KEY = 'bazaarPlanSellTax'

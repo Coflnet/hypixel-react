@@ -4,21 +4,20 @@ import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import Tooltip from '../Tooltip/Tooltip'
 import styles from './ReloadDialog.module.css'
-import { errorLog } from '../MainApp/MainApp'
 
 interface Props {
     onClose()
 }
 
 function ReloadDialog(props: Props) {
-    let [feedback, setFeedback] = useState<ReloadFeedback>({
+    const [feedback, setFeedback] = useState<ReloadFeedback>({
         loadNewInformation: false,
         otherIssue: false,
         somethingBroke: false,
         additionalInformation: ''
     })
-    let [hasUserInput, setHasUserInput] = useState(false)
-    let [showMissingAdditionalInformation, setShowMissingAdditionalInformation] = useState(false)
+    const [hasUserInput, setHasUserInput] = useState(false)
+    const [showMissingAdditionalInformation, setShowMissingAdditionalInformation] = useState(false)
 
     function onClose() {
         props.onClose()
@@ -29,9 +28,7 @@ function ReloadDialog(props: Props) {
             setShowMissingAdditionalInformation(true)
             return
         }
-        let feedbackToSend: any = { ...feedback }
-        feedbackToSend.errorLog = errorLog
-        feedbackToSend.href = location.href
+        const feedbackToSend = { ...feedback, href: location.href }
 
         api.sendFeedback('reload', feedbackToSend)
             .then(() => {
@@ -50,28 +47,28 @@ function ReloadDialog(props: Props) {
     }
 
     function onLoadNewInformationChange(e: ChangeEvent<HTMLInputElement>) {
-        let newFeedback = { ...feedback }
+        const newFeedback = { ...feedback }
         newFeedback.loadNewInformation = e.target.checked
         setFeedback(newFeedback)
         setHasUserInput(true)
     }
 
     function onSomethingBrokeChange(e: ChangeEvent<HTMLInputElement>) {
-        let newFeedback = { ...feedback }
+        const newFeedback = { ...feedback }
         newFeedback.somethingBroke = e.target.checked
         setFeedback(newFeedback)
         setHasUserInput(true)
     }
 
     function onOtherIssueChange(e: ChangeEvent<HTMLInputElement>) {
-        let newFeedback = { ...feedback }
+        const newFeedback = { ...feedback }
         newFeedback.otherIssue = e.target.checked
         setFeedback(newFeedback)
         setHasUserInput(true)
     }
 
     function onAdditionalInformationChange(e: ChangeEvent<HTMLInputElement>) {
-        let newFeedback = { ...feedback }
+        const newFeedback = { ...feedback }
         newFeedback.additionalInformation = e.target.value
         if (newFeedback.additionalInformation) {
             setShowMissingAdditionalInformation(false)

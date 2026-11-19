@@ -1,36 +1,24 @@
-import Link from 'next/link'
-import Confetti from '../../components/Confetti/Confetti'
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
-import NavBar from '../../components/NavBar/NavBar'
-import { Button, Container } from 'react-bootstrap'
+import { Container } from 'react-bootstrap'
+import PaymentStatusRefresh from '../../components/Premium/PaymentStatusRefresh'
+import PaymentConfirmation from '../../components/Premium/PaymentConfirmation/PaymentConfirmation'
 
 export default function Page() {
     return (
         <>
+            <PaymentStatusRefresh />
             <Container>
-                <h2>
-                    <NavBar />
-                    <span style={{ color: 'lime' }}>Payment successful</span>
-                </h2>
-                <p>Your payment is being handled securely by our payment provider.</p>
-                <p>
-                    Your CoflCoins will be awarded as soon as the money transfer finished. This may take a few minutes up to a few days (depending on your
-                    payment method).
-                </p>
-                <Link href="/premium?tier=premium" className="disableLinkStyle">
-                    <Button>Return to the Premium page</Button>
-                </Link>
+                <PaymentConfirmation />
             </Container>
-            <Confetti recycle={false} />
         </>
     )
 }
 
 export const metadata = getHeadMetadata(
-    'Payment Successful',
-    'Thank you for your purchase! Your premium subscription is now active. Enjoy advanced features, priority support, and enhanced Hypixel SkyBlock tools to maximize your trading profits.',
+    'Thank you for your purchase',
+    'Thank you for your purchase! Your purchase is added to your SkyCofl account as soon as your payment provider confirms the payment.',
     undefined,
     undefined,
-    undefined,
+    'Thank you for your purchase',
     getCanonicalUrl('/success')
 )

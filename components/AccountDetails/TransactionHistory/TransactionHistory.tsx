@@ -7,8 +7,8 @@ import { getLoadingElement } from '../../../utils/LoadingUtils'
 import { PREMIUM_TYPES } from '../../../utils/PremiumTypeUtils'
 
 function TransactionHistory() {
-    let [transactions, setTransactions] = useState<Transaction[]>([])
-    let [isLoading, setIsLoading] = useState(true)
+    const [transactions, setTransactions] = useState<Transaction[]>([])
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         loadTransactions()
@@ -67,7 +67,7 @@ function TransactionHistory() {
 
         const parts = transaction.reference.split('.')
         let suffix = ''
-        if (parts.length === 2 && /^[0-9a-fA-F]{32}$/.test(parts[0]) && /^[0-9a-fA-F\-]{1,}$/.test(parts[1])) {
+        if (parts.length === 2 && /^[0-9a-fA-F]{32}$/.test(parts[0]) && /^[0-9a-fA-F-]{1,}$/.test(parts[1])) {
             suffix = ` (License for ${parts[0]})`
         }
 

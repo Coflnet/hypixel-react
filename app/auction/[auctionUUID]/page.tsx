@@ -1,7 +1,7 @@
-import moment from 'moment'
+import { cache } from 'react'
 import { initAPI } from '../../../api/ApiHelper'
 import { getHeadMetadata, getCanonicalUrl } from '../../../utils/SSRUtils'
-import { numberWithThousandsSeparators } from '../../../utils/Formatter'
+import { cleanName, getAuctionEmbedDescription } from '../../../utils/EmbedUtils'
 import AuctionDetails from '../../../components/AuctionDetails/AuctionDetails'
 import Search from '../../../components/Search/Search'
 import { parseAuctionDetails } from '../../../utils/Parser/APIResponseParser'
@@ -28,22 +28,23 @@ function isValidAuctionIdFormat(id: string): boolean {
     return false
 }
 
-async function getAuctionDetails(auctionUUID: string) {
+// cache() shares the auction and its player names between generateMetadata and the page
+const getAuctionDetails = cache(async (auctionUUID: string) => {
     // Check if the auction ID format is valid before making API request
     if (!isValidAuctionIdFormat(auctionUUID)) {
         console.log('Invalid auction ID format: ' + auctionUUID)
         return null
     }
 
-    let api = initAPI(true)
-    let auctionDetails: any
-    let unparsedAuctionDetails: any
+    const api = initAPI(true)
+    let auctionDetails: Awaited<ReturnType<API['getAuctionDetails']>>['original']
+    let unparsedAuctionDetails = ''
     try {
-        let result = await api.getAuctionDetails(auctionUUID)
+        const result = await api.getAuctionDetails(auctionUUID)
         auctionDetails = result.original
         unparsedAuctionDetails = JSON.stringify(result.original)
     } catch (e) {
-        console.log('ERROR fetching Auction Details: ' + JSON.stringify(e))
+        console.log(`ERROR fetching Auction Details (auctionUUID=${auctionUUID}): ${e instanceof Error ? e.message : JSON.stringify(e)}`)
         console.log('------------------------\n')
         return null
     }
@@ -56,7 +57,7 @@ async function getAuctionDetails(auctionUUID: string) {
 
     auctionDetails.bids.sort((a, b) => b.amount - a.amount)
 
-    let namePromises: Promise<void>[] = []
+    const namePromises: Promise<void>[] = []
     try {
         auctionDetails.iconUrl = api.getItemImageUrl(auctionDetails)
         if (!auctionDetails.name) {
@@ -64,17 +65,17 @@ async function getAuctionDetails(auctionUUID: string) {
         }
 
         auctionDetails.bids.forEach(bid => {
-            let promise = api
+            const promise = api
                 .getPlayerName(bid.bidder)
                 .then(name => {
-                    let newBidder = {
+                    const newBidder = {
                         name: name,
                         uuid: bid.bidder
                     }
                     bid.bidder = newBidder
                 })
                 .catch(e => {
-                    let newBidder = {
+                    const newBidder = {
                         name: '',
                         uuid: bid.bidder
                     }
@@ -95,7 +96,7 @@ async function getAuctionDetails(auctionUUID: string) {
                 })
                 .catch(e => {
                     auctionDetails.auctioneer = {
-                        name: name,
+                        name: '',
                         uuid: auctionDetails.auctioneerId
                     }
                     console.error(`Error fetching playername for auctioneer ${auctionDetails.auctioneerId}. ${JSON.stringify(e)}`)
@@ -113,13 +114,13 @@ async function getAuctionDetails(auctionUUID: string) {
         auctionDetails: auctionDetails,
         unparsedAuctionDetails: unparsedAuctionDetails
     }
-}
+})
 
 export default async function Page(props) {
     const params = await props.params
-    let auctionUUID = params.auctionUUID
-    let auctionDetailsResult = await getAuctionDetails(auctionUUID)
-    let auctionDetails = auctionDetailsResult?.auctionDetails
+    const auctionUUID = params.auctionUUID
+    const auctionDetailsResult = await getAuctionDetails(auctionUUID)
+    const auctionDetails = auctionDetailsResult?.auctionDetails
 
     if (!auctionDetails) {
         const isValidFormat = isValidAuctionIdFormat(auctionUUID)
@@ -193,8 +194,10 @@ export default async function Page(props) {
 
     function getOriginalAuctionDetails() {
         try {
-            return JSON.parse(auctionDetailsResult?.unparsedAuctionDetails)
-        } catch (e) {}
+            return JSON.parse(auctionDetailsResult?.unparsedAuctionDetails || '')
+        } catch {
+            // Invalid original data has no details to display.
+        }
         return null
     }
 
@@ -216,46 +219,28 @@ export default async function Page(props) {
 
 export async function generateMetadata(props) {
     const params = await props.params
-    function getAuctionDescription(auctionDetails): string {
-        if (!auctionDetails) {
-            return 'Browse over 800 million auctions, and the bazaar of Hypixel SkyBlock.'
-        }
+    const auctionUUID = params.auctionUUID as string
+    const rawAuctionDetails = (await getAuctionDetails(auctionUUID))?.auctionDetails
 
-        let description = ''
-        if (auctionDetails.auction.bin) {
-            description += 'BIN '
-        }
-        description += `Auction for ${auctionDetails?.auction?.item?.name?.replaceAll(/§./g, '')} by ${auctionDetails?.auctioneer?.name}`
-        if (!auctionDetails.auction.bin) {
-            description += `| Highest Bid: ${numberWithThousandsSeparators(auctionDetails.auction.highestBid)} Coins with ${auctionDetails.bids.length} Bids`
-        } else if (auctionDetails.bids.length > 0) {
-            description += `| Bought by ${auctionDetails.bids[0].bidder.name} for  ${numberWithThousandsSeparators(auctionDetails.auction.highestBid)} Coins`
-        }
-
-        description += ` | ${auctionDetails.auction.end > new Date() ? 'Ends' : 'Ended'} on ${moment(auctionDetails.auction.end).format(
-            'MMMM Do YYYY, h:mm:ss a'
-        )}`
-        return (description += ` | Category: ${auctionDetails.auction.item.category} | Rarity: ${auctionDetails.auction.item.tier}`)
+    if (!rawAuctionDetails) {
+        // unknown or not yet indexed auction: the generic site embed
+        return getHeadMetadata(undefined, undefined, undefined, [], 'SkyBlock Auction', getCanonicalUrl(`/auction/${auctionUUID}`))
     }
 
-    let auctionUUID = params.auctionUUID as string
-    let auctionDetails = (await getAuctionDetails(auctionUUID))?.auctionDetails
-
-    if (!auctionDetails) {
-        return {}
-    }
-
-    auctionDetails = parseAuctionDetails(auctionDetails)
+    const auctionDetails = parseAuctionDetails(rawAuctionDetails)
+    const itemName = cleanName(auctionDetails.auction.item.name) || auctionDetails.auction.item.tag
+    const seller = auctionDetails.auctioneer?.name
+    const auctionTitle = seller ? `${itemName} by ${seller}` : itemName
 
     return getHeadMetadata(
-        `Auction for ${auctionDetails?.auction?.item?.name?.replaceAll(/§./g, '')} by ${
-            auctionDetails?.auctioneer?.name
-        } | Hypixel SkyBlock AH history tracker`,
-        getAuctionDescription(auctionDetails),
+        `Auction for ${auctionTitle} | Hypixel SkyBlock AH history tracker`,
+        getAuctionEmbedDescription(auctionDetails, Date.now()),
         auctionDetails.auction.item.iconUrl,
-        [auctionDetails.auction.item.name || auctionDetails.auction.item.tag, auctionDetails.auctioneer.name],
-        `Auction for ${auctionDetails?.auction?.item?.name} by ${auctionDetails?.auctioneer?.name} | Hypixel SkyBlock AH history tracker`,
-        getCanonicalUrl(`/auction/${auctionUUID}`)
+        [itemName, seller].filter((keyword): keyword is string => !!keyword),
+        `${auctionTitle} | SkyBlock Auction`,
+        getCanonicalUrl(`/auction/${auctionUUID}`),
+        // item icons are 16x16 to 64x64 depending on the item, so no size is claimed
+        { imageAlt: `${itemName} icon` }
     )
 }
 

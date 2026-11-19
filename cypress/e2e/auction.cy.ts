@@ -1,7 +1,13 @@
 describe('Auction page', () => {
-    afterEach(() => {
-        // Prevents running into the rate limit
-        cy.wait(10000)
+
+    it('finishes rendering an unavailable auction instead of hanging on the API error', () => {
+        cy.request({
+            url: '/auction/00000000000040008000000000000000',
+            timeout: 10000
+        }).then(response => {
+            expect(response.status).to.equal(200)
+            expect(response.body).to.include('Auction Not Found')
+        })
     })
 
     it('contains relevant information', () => {

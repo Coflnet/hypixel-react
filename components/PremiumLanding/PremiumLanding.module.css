@@ -1,0 +1,188 @@
+.landing {
+    /* Darkly's card background; --bs-card-bg only exists inside .card */
+    --card-bg: #303030;
+    --gold: #ffaa00;
+    --muted-text: #adb5bd;
+    color: #fff;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+/* aligned with the content column: from 1500px the site's sidebar is fixed (80px) at the left edge and would cover the title */
+.topBar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 56px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 6px 20px;
+    box-sizing: border-box;
+}
+
+.topBarTitle {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.section {
+    border-top: 1px solid var(--bs-secondary);
+    scroll-margin-top: 16px;
+}
+
+.sectionInner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 48px 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sectionHead {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sectionHead p {
+    margin: 0;
+}
+
+.sectionTitle {
+    margin: 0;
+    font-size: 40px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.muted {
+    color: var(--muted-text);
+}
+
+.primaryLink {
+    display: inline-flex;
+    align-items: center;
+    min-height: 46px;
+    box-sizing: border-box;
+    padding: 8px 20px;
+    font-size: 20px;
+    color: #fff;
+    background: var(--bs-primary);
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.primaryLink:hover,
+.primaryLink:focus-visible {
+    color: #fff;
+    filter: brightness(1.15);
+}
+
+.textLink {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--bs-success);
+}
+
+.textLink:hover {
+    color: #009670;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--bs-secondary);
+    border-radius: 6px;
+}
+
+/* tier colors */
+.tierFree {
+    color: var(--muted-text);
+}
+
+.tierStarter {
+    color: #fff;
+}
+
+.tierPremium {
+    color: var(--tier-premium-color);
+}
+
+.tierPremiumPlus {
+    color: var(--tier-premium-plus-color);
+}
+
+.badge {
+    flex: none;
+    padding: 4px 8px;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 700;
+    border-radius: 800px;
+    border: 1px solid transparent;
+}
+
+.badgetierFree {
+    color: #fff;
+    background: var(--bs-secondary);
+    border-color: var(--bs-secondary);
+}
+
+.badgetierStarter {
+    color: #fff;
+    background: transparent;
+    border-color: var(--muted-text);
+}
+
+.badgetierPremium {
+    color: var(--bs-body-bg);
+    background: var(--tier-premium-color);
+    border-color: var(--tier-premium-color);
+}
+
+.badgetierPremiumPlus {
+    color: var(--bs-body-bg);
+    background: var(--tier-premium-plus-color);
+    border-color: var(--tier-premium-plus-color);
+}
+
+@media (max-width: 576px) {
+    .topBar {
+        padding: 6px 16px;
+    }
+
+    .sectionInner {
+        padding: 32px 16px;
+        gap: 16px;
+    }
+
+    .sectionTitle {
+        font-size: 28px;
+    }
+}
+
+.closing {
+    align-items: center;
+    gap: 8px;
+    padding-top: 56px;
+    padding-bottom: 56px;
+    text-align: center;
+}
+
+.closing p {
+    margin: 0;
+}
+
+.closingTitle {
+    margin: 0;
+    font-size: 32px;
+    line-height: 1.2;
+    font-weight: 700;
+}
+
+.closingLink {
+    margin-top: 12px;
+}

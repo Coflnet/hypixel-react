@@ -3,6 +3,9 @@
   "parser": "@typescript-eslint/parser",
   "plugins": [
     "@typescript-eslint",
+    "@next/next",
+    "react-hooks",
+    "jsx-a11y",
     "prettier"
   ],
   "extends": [

@@ -8,8 +8,8 @@ import styles from './CoflCoinsDisplay.module.css'
 import { toast } from 'react-toastify'
 
 export function CoflCoinsDisplay() {
-    let coflCoins = useCoflCoins()
-    let [isLoading, setIsLoading] = useState(true)
+    const coflCoins = useCoflCoins()
+    const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
         loadCoflCoins()

@@ -3,7 +3,8 @@ import { Alert, Badge } from 'react-bootstrap'
 import Number from '../../Number/Number'
 import { CraftingRecipe } from '../CraftingRecipe/CraftingRecipe'
 import { CostBreakdown } from '../CostBreakdown/CostBreakdown'
-import { toVariantItemTag } from '../../../utils/Formatter'
+import { TrackGoalButton } from '../../Goals/TrackGoalButton'
+import { convertTagToName, toVariantItemTag } from '../../../utils/Formatter'
 
 interface Props {
     craft: ProfitableCraft
@@ -30,7 +31,7 @@ export function CraftDetails(props: Props) {
     const ingredients = props.plan ? props.plan.ingredients.map(toIngredient) : props.craft.ingredients
 
     function openItem(tag: string) {
-        let detailsPath = props.instructions?.detailsPath?.[tag]
+        const detailsPath = props.instructions?.detailsPath?.[tag]
         if (detailsPath) {
             window.open(window.location.origin + detailsPath, '_blank')
         } else {
@@ -47,6 +48,7 @@ export function CraftDetails(props: Props) {
     }
     return (
         <div>
+            <TrackGoalButton kind="craft" itemTag={props.craft.item.tag} itemName={props.craft.item.name ?? convertTagToName(props.craft.item.tag)} />
             <h3>Recipe</h3>
             <div style={{ height: '170px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                 <div style={{ float: 'left' }}>

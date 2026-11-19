@@ -9,16 +9,16 @@ interface Props {
     onChange(n: string)
     min?: number
     max?: number
-    defaultValue: any
+    defaultValue: string
 }
 
 export function NumberRangeFilterElement(props: Props) {
-    let defaultValue = useMemo(() => {
+    const defaultValue = useMemo(() => {
         return parseValue(props.defaultValue)
     }, [props.defaultValue])
 
-    let [value, setValue] = useState(defaultValue)
-    let [textValue, setTextValue] = useState(props.defaultValue)
+    const [value, setValue] = useState(defaultValue)
+    const [textValue, setTextValue] = useState(props.defaultValue)
 
     function parseValue(value: string | number | string[] | number[]): number[] {
         if (!value) {
@@ -29,7 +29,7 @@ export function NumberRangeFilterElement(props: Props) {
             return value.map(v => parseInt(v.toString()))
         }
 
-        let checks = [
+        const checks = [
             {
                 regexp: new RegExp(/^\d+-\d+$/),
                 handler: value => value.split('-').map(v => parseInt(v))
@@ -50,7 +50,7 @@ export function NumberRangeFilterElement(props: Props) {
                 // comma separated list of integers (e.g. "1, 3, 7"); use min/max for slider visualisation
                 regexp: new RegExp(/^\s*\d+(\s*,\s*\d+)+\s*$/),
                 handler: value => {
-                    let nums = value
+                    const nums = value
                         .split(',')
                         .map(v => parseInt(v.trim()))
                         .filter(v => !isNaN(v))
@@ -73,7 +73,7 @@ export function NumberRangeFilterElement(props: Props) {
         if (!e.target.value) {
             return
         }
-        let parsed = parseValue(e.target.value)
+        const parsed = parseValue(e.target.value)
         if (!parsed) {
             return
         }
@@ -96,7 +96,7 @@ export function NumberRangeFilterElement(props: Props) {
         if (props.max === undefined || props.max === null) {
             return undefined
         }
-        let marks = {}
+        const marks = {}
         for (let i = props.min || 0; i <= props.max; i++) {
             marks[i] = i === 0 ? 'None' : i.toString()
         }

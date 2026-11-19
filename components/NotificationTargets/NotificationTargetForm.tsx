@@ -17,20 +17,20 @@ interface Props {
 }
 
 function NotificationTargetForm(props: Props) {
-    let [name, setName] = useState<string>(props.defaultNotificationTarget?.name || '')
-    let [type, setType] = useState<NotificationType | number>(props.defaultNotificationTarget?.type || 'FIREBASE')
-    let [target, setTarget] = useState<string | null>(props.defaultNotificationTarget?.target || null)
-    let [when, setWhen] = useState<NotificationWhen | number>(props.defaultNotificationTarget?.when || 'ALWAYS')
-    let [disabled, setDisabled] = useState(false)
+    const [name, setName] = useState<string>(props.defaultNotificationTarget?.name || '')
+    const [type, setType] = useState<NotificationType | number>(props.defaultNotificationTarget?.type || 'FIREBASE')
+    const [target, setTarget] = useState<string | null>(props.defaultNotificationTarget?.target || null)
+    const [when, setWhen] = useState<NotificationWhen | number>(props.defaultNotificationTarget?.when || 'ALWAYS')
+    const [disabled, setDisabled] = useState(false)
 
-    let discordUrlInvalid = type === 'DiscordWebhook' && !!target && !isValidDiscordWebhookUrl(target)
+    const discordUrlInvalid = type === 'DiscordWebhook' && !!target && !isValidDiscordWebhookUrl(target)
 
     async function addNotificationTarget() {
         let targetToSend = target
 
         if (type === 'FIREBASE') {
             if (localStorage.getItem('fcmToken') === null) {
-                let token = await askForNotificationPermissons()
+                const token = await askForNotificationPermissons()
                 localStorage.setItem('fcmToken', token)
                 targetToSend = token
             } else {
@@ -39,7 +39,7 @@ function NotificationTargetForm(props: Props) {
         }
 
         setDisabled(true)
-        let notificationTarget: NotificationTarget = {
+        const notificationTarget: NotificationTarget = {
             id: props.defaultNotificationTarget?.id,
             name: name,
             type: type,
@@ -48,7 +48,7 @@ function NotificationTargetForm(props: Props) {
             useCount: 0
         }
 
-        let updateOrCreateFunction = props.type === 'CREATE' ? api.addNotificationTarget : api.updateNotificationTarget
+        const updateOrCreateFunction = props.type === 'CREATE' ? api.addNotificationTarget : api.updateNotificationTarget
         updateOrCreateFunction(notificationTarget)
             .then(newTarget => {
                 props.onSubmit(newTarget)
@@ -67,7 +67,7 @@ function NotificationTargetForm(props: Props) {
                 </Form.Group>
                 <Form.Group className="mb-3">
                     <Form.Label>Type</Form.Label>
-                    <Form.Select defaultValue={type} onChange={e => setType(e.target.value as any)}>
+                    <Form.Select defaultValue={type} onChange={e => setType(e.target.value as NotificationType)}>
                         {TYPE_OPTIONS.map(type => (
                             <option value={type} key={type}>
                                 {getNotificationTypeAsString(type)}
@@ -94,7 +94,7 @@ function NotificationTargetForm(props: Props) {
                 ) : null}
                 <Form.Group className="mb-3">
                     <Form.Label>When</Form.Label>
-                    <Form.Select defaultValue={when} onChange={e => setWhen(e.target.value as any)}>
+                    <Form.Select defaultValue={when} onChange={e => setWhen(e.target.value as NotificationWhen)}>
                         {WHEN_OPITIONS.map(when => (
                             <option value={when} key={when}>
                                 {getNotficationWhenEnumAsString(when)}

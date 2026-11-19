@@ -55,7 +55,7 @@ function getSuggestedPrice(props: Props, isPriceAbove: boolean, useSellPrice: bo
     if (props.type !== 'item' && props.type !== 'bazaar') {
         return ''
     }
-    let current = props.type === 'bazaar' && useSellPrice ? props.currentSellPrice : props.currentPrice
+    const current = props.type === 'bazaar' && useSellPrice ? props.currentSellPrice : props.currentPrice
     if (!current) {
         return ''
     }
@@ -63,32 +63,32 @@ function getSuggestedPrice(props: Props, isPriceAbove: boolean, useSellPrice: bo
 }
 
 function NotifierDialog(props: Props) {
-    let { trackEvent } = useMatomo()
-    let router = useRouter()
-    let prefillTypes = (props.prefill?.listener?.types as unknown as string[]) || []
+    const { trackEvent } = useMatomo()
+    const router = useRouter()
+    const prefillTypes = (props.prefill?.listener?.types as unknown as string[]) || []
     // null until the user types a price of their own; until then the suggestion below is what's shown, so it
     // follows the selected direction and a price that only finishes loading while the dialog is already open
-    let [typedPrice, setTypedPrice] = useState<string | null>(null)
-    let [isPriceAbove, setIsPriceAbove] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.PRICE_HIGHER_THAN]))
-    let [onlyInstantBuy, setOnlyInstantBuy] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.BIN]))
-    let [gotOutbid, setGotOutbid] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.OUTBID]))
-    let [isSold, setIsSold] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.SOLD]))
-    let [isPlayerAuctionCreation, setIsPlayerAuctionCreation] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.PLAYER_CREATES_AUCTION]))
-    let [hasPlayerBoughtAnyAuction, setHasPlayerBoughtAnyAuction] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.BOUGHT_ANY_AUCTION]))
-    let [isUseBazaarSellNotBuy, setIsUseBazaarSellNotBuy] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.USE_SELL_NOT_BUY]))
-    let [itemFilter, setItemFilter] = useState<ItemFilter | undefined>(props.prefill?.listener?.filter || props.defaultFilter)
-    let [isItemFilterValid, setIsItemFilterValid] = useState(true)
-    let [isLoggedIn, setIsLoggedIn] = useState(false)
-    let [notificationTargets, setNotificationTargets] = useState<NotificationTarget[]>([])
-    let [isLoadingNotificationTargets, setIsLoadingNotificationTargets] = useState(false)
-    let [channelSelection, setChannelSelection] = useState<ChannelSelection>({ inGame: true, push: false, newDiscordUrl: null, existingTargetIds: [] })
-    let [isSubmitting, setIsSubmitting] = useState(false)
-    let wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const [typedPrice, setTypedPrice] = useState<string | null>(null)
+    const [isPriceAbove, setIsPriceAbove] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.PRICE_HIGHER_THAN]))
+    const [onlyInstantBuy, setOnlyInstantBuy] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.BIN]))
+    const [gotOutbid, setGotOutbid] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.OUTBID]))
+    const [isSold, setIsSold] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.SOLD]))
+    const [isPlayerAuctionCreation, setIsPlayerAuctionCreation] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.PLAYER_CREATES_AUCTION]))
+    const [hasPlayerBoughtAnyAuction, setHasPlayerBoughtAnyAuction] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.BOUGHT_ANY_AUCTION]))
+    const [isUseBazaarSellNotBuy, setIsUseBazaarSellNotBuy] = useState(prefillTypes.includes(SubscriptionType[SubscriptionType.USE_SELL_NOT_BUY]))
+    const [itemFilter, setItemFilter] = useState<ItemFilter | undefined>(props.prefill?.listener?.filter || props.defaultFilter)
+    const [isItemFilterValid, setIsItemFilterValid] = useState(true)
+    const [isLoggedIn, setIsLoggedIn] = useState(false)
+    const [notificationTargets, setNotificationTargets] = useState<NotificationTarget[]>([])
+    const [isLoadingNotificationTargets, setIsLoadingNotificationTargets] = useState(false)
+    const [channelSelection, setChannelSelection] = useState<ChannelSelection>({ inGame: true, push: false, newDiscordUrl: null, existingTargetIds: [] })
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
 
-    let price = typedPrice ?? getSuggestedPrice(props, isPriceAbove, isUseBazaarSellNotBuy)
+    const price = typedPrice ?? getSuggestedPrice(props, isPriceAbove, isUseBazaarSellNotBuy)
 
     function getSubscriptionTypes(): SubscriptionType[] {
-        let types: SubscriptionType[] = []
+        const types: SubscriptionType[] = []
         if (props.type === 'item') {
             types.push(isPriceAbove ? SubscriptionType.PRICE_HIGHER_THAN : SubscriptionType.PRICE_LOWER_THAN)
             if (onlyInstantBuy) {

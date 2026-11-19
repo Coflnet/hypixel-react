@@ -14,7 +14,8 @@ interface FavoritesContextValue {
 const FavoritesContext = createContext<FavoritesContextValue | undefined>(undefined)
 
 export function FavoritesProvider({ children }: { children: React.ReactNode }) {
-    const [favorites, setFavorites] = useState<FavoriteItemEntry[]>(getFavoriteItems)
+    // the favorites are stored in the browser, they are loaded after hydration so the server markup matches
+    const [favorites, setFavorites] = useState<FavoriteItemEntry[]>([])
 
     function reload() {
         setFavorites(getFavoriteItems())
@@ -50,6 +51,7 @@ export function FavoritesProvider({ children }: { children: React.ReactNode }) {
             }
         }
 
+        reload()
         window.addEventListener('storage', onStorage)
         return () => window.removeEventListener('storage', onStorage)
     }, [])

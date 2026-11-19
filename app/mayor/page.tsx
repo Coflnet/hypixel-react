@@ -4,7 +4,6 @@ import NavBar from '../../components/NavBar/NavBar'
 import MayorFlips from '../../components/MayorFlips'
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import { getQueryClient } from '../../utils/QueryUtils'
-import { getApiFlipMayor, getGetApiFlipMayorQueryKey } from '../../api/_generated/skyApi'
 
 export default async function Page() {
     const queryClient = getQueryClient()

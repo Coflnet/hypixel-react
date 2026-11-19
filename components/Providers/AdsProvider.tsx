@@ -8,6 +8,8 @@ import properties from '../../properties'
 
 interface AdsContextValue {
     shouldShowAds: boolean
+    // false until the browser's premium cache has been checked after mount
+    isAdsEligibilityKnown: boolean
     refreshAdsVisibility: () => void
 }
 
@@ -37,12 +39,27 @@ function evaluateShouldShowAds(): boolean {
     }
 }
 
-export function AdsProvider({ children }: { children: React.ReactNode }) {
-    const [shouldShowAds, setShouldShowAds] = useState<boolean>(() => evaluateShouldShowAds())
+interface AdsProviderProps {
+    children: React.ReactNode
+    // decided by the server component rendering the layout, so server and browser hydrate the same tree
+    enabled: boolean
+}
+
+export function AdsProvider({ children, enabled }: AdsProviderProps) {
+    // The premium cache lives in the browser, so the server renders the ads whenever they are enabled. Reading the
+    // cache while rendering made premium visitors hydrate a different tree than the server sent; it is read after mount.
+    const [shouldShowAds, setShouldShowAds] = useState<boolean>(enabled)
+    // the ad script only starts once that check has run, loading it cannot be undone for a premium visitor
+    const [isAdsEligibilityKnown, setIsAdsEligibilityKnown] = useState(false)
 
     const refreshAdsVisibility = useCallback(() => {
         setShouldShowAds(evaluateShouldShowAds())
+        setIsAdsEligibilityKnown(true)
     }, [])
+
+    useEffect(() => {
+        refreshAdsVisibility()
+    }, [refreshAdsVisibility])
 
     useEffect(() => {
         // Listen to premium product updates (this is the ONE global notification event for ads)
@@ -61,7 +78,7 @@ export function AdsProvider({ children }: { children: React.ReactNode }) {
         }
     }, [refreshAdsVisibility])
 
-    return <AdsContext.Provider value={{ shouldShowAds, refreshAdsVisibility }}>{children}</AdsContext.Provider>
+    return <AdsContext.Provider value={{ shouldShowAds, isAdsEligibilityKnown, refreshAdsVisibility }}>{children}</AdsContext.Provider>
 }
 
 export function useAds(): AdsContextValue {

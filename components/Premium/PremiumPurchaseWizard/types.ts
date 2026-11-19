@@ -28,21 +28,9 @@ export const getTierDisplayName = (tier: PremiumTier): string => {
     }
 }
 
-export const getDurationDisplayName = (duration: Duration | null): string => {
-    if (!duration) return ''
-    switch (duration) {
-        case Duration.HOUR: return '1 Hour'
-        case Duration.DAY: return '1 Day'
-        case Duration.WEEK: return '1 Week'
-        case Duration.MONTHLY: return '1 Month'
-        case Duration.QUARTER: return 'Quarterly'
-        case Duration.YEARLY: return 'Yearly'
-        default: return ''
-    }
-}
-
-// Duration options for each tier and purchase type
-export const getDurationOptions = (tier: PremiumTier, type: PurchaseType) => {
+// Duration options for each tier and purchase type. Subscriptions of 13 and 52 weeks continue every 4 weeks after their first term
+// (`continues`, the default: Stripe and PayPal); only Lemon Squeezy renews for the same term again.
+export const getDurationOptions = (tier: PremiumTier, type: PurchaseType, continues = true) => {
     if (type === PurchaseType.COFLCOINS) {
         switch (tier) {
             case PremiumTier.STARTER:
@@ -67,13 +55,30 @@ export const getDurationOptions = (tier: PremiumTier, type: PurchaseType) => {
                 return []
         }
     } else {
-        if (tier === PremiumTier.STARTER)
-            return [{ label: 'Yearly', desc: 'Due to payment fees there is only yearly for starter', icon: '🎯', value: Duration.YEARLY }]
-        // Subscription type
-        return [
-            { label: 'Monthly', desc: 'Flexible monthly subscription', icon: '📅', value: Duration.MONTHLY },
-            { label: 'Quarterly', desc: 'Renewing quarterly - better value', icon: '📆', value: Duration.QUARTER, badge: 'Recommended' },
-            { label: 'Yearly', desc: 'Best value - save with annual billing', icon: '🎯', value: Duration.YEARLY }
-        ]
+        return getSubscriptionDurationOptions(tier, continues)
     }
+}
+
+/** what a subscription of `weeks` does after its first term, in the duration cards' words */
+function describeTerm(weeks: number, continues: boolean): string {
+    if (!continues) return `Renews every ${weeks} weeks`
+    return `First ${weeks} weeks, then every 4 weeks until cancelled. Cancel anytime`
+}
+
+// Subscriptions bill in weeks: every 4 weeks is not a calendar month. Starter is only sold for 52 weeks (payment fees).
+function getSubscriptionDurationOptions(tier: PremiumTier, continues: boolean) {
+    if (tier === PremiumTier.STARTER)
+        return [{ label: 'Yearly', desc: continues ? `${describeTerm(52, continues)}` : `${describeTerm(52, continues)}. Due to payment fees Starter is only billed yearly`, icon: '🎯', value: Duration.YEARLY }]
+    return [
+        { label: '4 weeks', desc: 'Flexible, renews every 4 weeks', icon: '📅', value: Duration.MONTHLY },
+        { label: 'Quarterly', desc: `${describeTerm(13, continues)} - better value`, icon: '📆', value: Duration.QUARTER, badge: 'Recommended' },
+        { label: 'Yearly', desc: `${describeTerm(52, continues)} - best value`, icon: '🎯', value: Duration.YEARLY }
+    ]
+}
+
+/** the codes of a checkout that an in-place upgrade to another tier carries over, as the buyer applied them */
+export interface CheckoutCodes {
+    /** the applied code, or the code text still being checked; '' the buyer cleared it (it stays cleared through further upgrades), undefined: no preference */
+    discountCode?: string | null
+    creatorCode?: string | null
 }

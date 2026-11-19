@@ -4,12 +4,12 @@ import { Form } from 'react-bootstrap'
 
 interface Props {
     defaultValue: string
-    onChange(n: boolean)
+    onChange(n: string)
 }
 
 export function BooleanFilterElement(props: Props) {
     function _onChange(e: ChangeEvent<HTMLSelectElement>) {
-        props.onChange((e.target as any).value)
+        props.onChange(e.target.value)
     }
 
     return (

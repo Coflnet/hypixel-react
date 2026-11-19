@@ -1,9 +1,12 @@
 import { toast } from 'react-toastify'
+import { postFallbackModAuth } from './modAuthFallback'
 import * as notificationApi from './NotificationApi'
 import { getGoogleToken } from './NotificationApi'
 import { v4 as generateUUID } from 'uuid'
 import { atobUnicode } from '../utils/Base64Utils'
 import cacheUtils from '../utils/CacheUtils'
+import { getClientErrorLog, recordClientError } from '../utils/ClientErrorUtils'
+import { errorJsonReplacer, serializeError } from '../utils/ErrorDiagnostics'
 import { getFlipCustomizeSettings } from '../utils/FlipUtils'
 import { enchantmentAndReforgeCompare, toVariantItemTag } from '../utils/Formatter'
 import {
@@ -29,7 +32,6 @@ import {
     parseMayorData,
     parseMinecraftConnectionInfo,
     parseOwnerHistory,
-    parsePaymentResponse,
     parsePlayer,
     parsePopularSearch,
     parsePremiumProducts,
@@ -37,6 +39,10 @@ import {
     parsePrivacySettings,
     parseProfitableCrafts,
     parseRecentAuction,
+    parseActiveAuctionPreview,
+    parseDate,
+    parseActiveAuctionQueryResult,
+    parseResolvedActiveQuery,
     parseRefInfo,
     parseSearchResultItem,
     parseSkyblockProfile,
@@ -59,11 +65,11 @@ import {
 import { isClientSideRendering } from '../utils/SSRUtils'
 import { HttpApi, RequestType, SubscriptionType, CUSTOM_EVENTS, NotificationListener } from './ApiTypes.d'
 import { initHttpHelper } from './HttpHelper'
-import { websocketHelper } from './WebsocketHelper'
+import { USER_CHANGED_SLUG, websocketHelper } from './WebsocketHelper'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
 import properties from '../properties'
 import { getCurrentCoflCoins } from '../utils/CoflCoinsUtils'
-import { unwrapGeneratedApiArrayResponse } from '../utils/GeneratedApiResponseUtils'
+import { getGeneratedApiMessage, unwrapGeneratedApiArrayResponse, unwrapGeneratedApiPlayerNameResponse } from '../utils/GeneratedApiResponseUtils'
 import {
     getApiSearchSearchVal,
     getApiItemItemTagDetails,
@@ -117,7 +123,6 @@ import {
     getApiAuctionsTagItemTagArchiveOverview,
     postApiAuctionsTagItemTagArchiveExport,
     getApiLinkvertise,
-    postApiPremiumSubscriptionSubscriptionSlug,
     getApiPremiumSubscription,
     deleteApiPremiumSubscriptionExternalId,
     getApiCraftItemTagInstructions
@@ -131,7 +136,7 @@ import {
  * 1. Websocket command-channel calls (via `websocketHelper.sendRequest`/`.subscribe`) -
  *    live subscriptions, push updates and request/response pairs that only exist on the
  *    persistent websocket connection (e.g. subscribeFlips, getAccountInfo, setFlipSetting,
- *    transferCoflCoins, loadConfig/updateConfig). There is no REST equivalent.
+ *    loadConfig/updateConfig). There is no REST equivalent.
  * 2. The deprecated HTTP fallback for that same command channel (`httpApi.sendRequest` /
  *    `httpApi.sendLimitedCacheRequest`, see HttpHelper.tsx). It POSTs a base64-encoded
  *    command payload to `${commandEndpoint}/command/...` so server-side rendering (which
@@ -141,8 +146,11 @@ import {
  *    flipFilters). These routes aren't documented in SkyApi's OpenAPI/swagger spec, so the
  *    generated client has no matching function - only the real REST endpoints under
  *    `${apiEndpoint}` (via `httpApi.sendApiRequest`) show up there.
- * 3. Calls to services other than SkyApi: sendFeedback (feedback.coflnet.com) and checkRat
- *    (isthisarat.com).
+ * 3. sendFeedback (feedback.coflnet.com) - a real call to a different service.
+ *    checkRat goes through SkyApi's own `/mod/ratcheck/{hash}` (same-origin, via
+ *    `httpApi.sendApiRequest` + `customRequestURL`, like getItemPrices'/getBazaarPrices' fallback
+ *    branches below) because isthisarat.com can't be called cross-origin from the browser. Not yet
+ *    in the generated client - move it over once `npm run generate_api` picks up the route.
  *
  * A couple of `sendApiRequest`-based methods also stay hand-rolled for now because SkyApi's
  * generated client doesn't (yet) cover them: deleteAccount (`DELETE /user/me` isn't in the
@@ -189,6 +197,39 @@ function requireGoogleToken(actionDescription: string): string | null {
     return token
 }
 
+const AUTH_RESPONSE_CACHE_TTL_MS = 5 * 60 * 1000
+
+function authenticatedCacheKey(type: string, token: string) {
+    try {
+        const encodedClaims = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+        const claims = JSON.parse(atobUnicode(encodedClaims.padEnd(Math.ceil(encodedClaims.length / 4) * 4, '=')))
+        const user = String(claims.sub ?? claims.email ?? '').toLowerCase()
+        return user ? `skycoflApiCache:${type}:${encodeURIComponent(user)}` : undefined
+    } catch {
+        return undefined
+    }
+}
+
+function getAuthenticatedCache<T>(key?: string, persistent = false): T | undefined {
+    if (!key || !isClientSideRendering()) return undefined
+    try {
+        const storage = persistent ? localStorage : sessionStorage
+        const entry = JSON.parse(storage.getItem(key) ?? '') as { expiresAt: number; value: T }
+        if (entry.expiresAt > Date.now()) return entry.value
+        storage.removeItem(key)
+    } catch {}
+    return undefined
+}
+
+function setAuthenticatedCache<T>(key: string | undefined, value: T, persistent = false) {
+    if (!key || !isClientSideRendering()) return
+    try {
+        const storage = persistent ? localStorage : sessionStorage
+        const ttl = persistent ? 60 * 60 * 1000 : AUTH_RESPONSE_CACHE_TTL_MS
+        storage.setItem(key, JSON.stringify({ expiresAt: Date.now() + ttl, value }))
+    } catch {}
+}
+
 export function initAPI(returnSSRResponse: boolean = false): API {
     let httpApi: HttpApi
     if (isClientSideRendering()) {
@@ -205,41 +246,46 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         }
     }, 20000)
 
+    const termsStatusRequests = new Map<string, Promise<TermsStatus>>()
+    const premiumProductsRequests = new Map<string, Promise<any>>()
+
     let apiErrorHandler = (requestType: RequestType, error: any, requestData: any = null) => {
         if (!error || !error.message) {
             return
         }
         if (isClientSideRendering()) {
-            toast.error(
-                <span>
-                    <div>{error.message}</div>
-                    <div style={{ fontSize: '0.85em', marginTop: '4px', opacity: 0.9 }}>
-                        Request-Type: {requestType}
-                    </div>
-                </span>,
-                {
-                    onClick: () => {
-                        if (error.traceId && canUseClipBoard()) {
-                            writeToClipboard(error.traceId)
-                            toast.success(
-                                <span>
-                                    Copied the error trace to the clipboard. Please use this to ask for help on our{' '}
-                                    <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
-                                        Discord
-                                    </a>
-                                    .
-                                </span>
-                            )
+            recordClientError(error, 'api', { requestType })
+            // RatChecker already shows a per-file "scanner unavailable"/"rate limited" message inline
+            // with a link to isthisarat.com - the generic toast would just duplicate that on top of it.
+            // The error-log entry above (used for feedback diagnostics) is still recorded either way.
+            if (requestType !== RequestType.CHECK_FOR_RAT) {
+                toast.error(
+                    <span>
+                        <div>{error.message}</div>
+                        <div style={{ fontSize: '0.85em', marginTop: '4px', opacity: 0.9 }}>
+                            Request-Type: {requestType}
+                        </div>
+                    </span>,
+                    {
+                        onClick: () => {
+                            if (error.traceId && canUseClipBoard()) {
+                                writeToClipboard(error.traceId)
+                                toast.success(
+                                    <span>
+                                        Copied the error trace to the clipboard. Please use this to ask for help on our{' '}
+                                        <a target="_blank" rel="noreferrer" href="https://discord.gg/wvKXfTgCfb">
+                                            Discord
+                                        </a>
+                                        .
+                                    </span>
+                                )
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         }
-        console.log('RequestType: ' + requestType)
-        console.log('ErrorMessage: ' + error.message)
-        console.log('RequestData: ')
-        console.log(requestData)
-        console.log('------------------------------\n')
+        console.error(JSON.stringify({ event: 'web.api.error', requestType, error: serializeError(error) }))
     }
 
     let search = (searchText: string): Promise<SearchResultItem[]> => {
@@ -496,41 +542,25 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getAuctionDetails = (auctionUUID: string): Promise<{ parsed: AuctionDetails; original: any }> => {
-        return new Promise((resolve, reject) => {
-            getApiAuctionAuctionUuid(auctionUUID)
-                .then(response => {
-                    let auctionDetails = response.data as any
-                    if (!auctionDetails) {
-                        reject()
-                        return
-                    }
-                    if (!auctionDetails.auctioneer) {
-                        api.getPlayerName(auctionDetails.auctioneerId)
-                            .then(name => {
-                                auctionDetails.auctioneer = {
-                                    name,
-                                    uuid: auctionDetails.auctioneerId
-                                }
-                            })
-                            .catch(e => {
-                                console.error(`Error fetching playername for ${auctionDetails.auctioneerId}. ${JSON.stringify(e)}`)
-                                auctionDetails.auctioneer = {
-                                    name: '',
-                                    uuid: auctionDetails.auctioneerId
-                                }
-                            })
-                            .finally(() => {
-                                resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
-                            })
-                    } else {
-                        resolve({ parsed: parseAuctionDetails(auctionDetails), original: auctionDetails })
-                    }
-                })
-                .catch(error => {
-                    reject(error)
-                })
-        })
+    let getAuctionDetails = async (auctionUUID: string): Promise<{ parsed: AuctionDetails; original: any }> => {
+        const response = await getApiAuctionAuctionUuid(auctionUUID)
+        if (response.status < 200 || response.status >= 300) {
+            throw new Error(`Auction lookup failed: HTTP ${response.status}`)
+        }
+        const auctionDetails = response.data as any
+        if (!auctionDetails) {
+            throw new Error('Auction details not found')
+        }
+        if (!auctionDetails.auctioneer) {
+            let name = ''
+            try {
+                name = await api.getPlayerName(auctionDetails.auctioneerId)
+            } catch (e) {
+                console.error(`Error fetching playername for ${auctionDetails.auctioneerId}. ${JSON.stringify(e)}`)
+            }
+            auctionDetails.auctioneer = { name, uuid: auctionDetails.auctioneerId }
+        }
+        return { parsed: parseAuctionDetails(auctionDetails), original: auctionDetails }
     }
 
     let getPlayerName = (uuid: string): Promise<string> => {
@@ -542,7 +572,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             return Promise.resolve('')
         }
         return getApiPlayerPlayerUuidName(uuid)
-            .then(response => response.data as any)
+            .then(response => unwrapGeneratedApiPlayerNameResponse(response, 'Player name lookup failed'))
             .catch(error => {
                 apiErrorHandler(RequestType.PLAYER_NAME, error, uuid)
                 throw error
@@ -602,7 +632,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let subscribe = (topic: string, types: SubscriptionType[], targets: NotificationTarget[], price?: number, filter?: ItemFilter): Promise<void> => {
+    let subscribe = (topic: string, types: SubscriptionType[], targets: Pick<NotificationTarget, 'id' | 'name' | 'isDisabled'>[], price?: number, filter?: ItemFilter): Promise<void> => {
         return notificationApi.createNotifier(topic, types, targets, price, filter)
     }
 
@@ -623,7 +653,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                     resolve(token)
                 },
                 reject: (error: any) => {
-                    apiErrorHandler(RequestType.LOGIN_WITH_TOKEN, error)
+                    // a server error reply for user_changed carries a message; the sign-in flow handles it, so no toast
+                    if (error?.slug !== USER_CHANGED_SLUG) apiErrorHandler(RequestType.LOGIN_WITH_TOKEN, error)
                     reject(error)
                 }
             })
@@ -671,6 +702,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 },
                 reject: (error: any) => {
                     apiErrorHandler(RequestType.GET_FLIPS, error, '')
+                    reject(error)
                 }
             })
         })
@@ -688,6 +720,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         forceSettingsUpdate: boolean = false
     ) => {
         websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS_ANONYM)
 
         storeUsedTagsInLocalStorage(restrictionList)
 
@@ -770,74 +803,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    const debounceSubFlipAnonymFunction = (function () {
-        let timerId
-
-        return (
-            restrictionList: FlipRestriction[],
-            filter: FlipperFilter,
-            flipSettings: FlipCustomizeSettings,
-            flipCallback?: Function,
-            soldCallback?: Function,
-            nextUpdateNotificationCallback?: Function,
-            onSubscribeSuccessCallback?: Function
-        ) => {
-            clearTimeout(timerId)
-            timerId = setTimeout(() => {
-                websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
-
-                let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)
-
-                websocketHelper.subscribe({
-                    type: RequestType.SUBSCRIBE_FLIPS_ANONYM,
-                    data: requestData,
-                    callback: function (response) {
-                        switch (response.type) {
-                            case 'flip':
-                                if (flipCallback) {
-                                    flipCallback(parseFlipAuction(response.data))
-                                }
-                                break
-                            case 'nextUpdate':
-                                if (nextUpdateNotificationCallback) {
-                                    nextUpdateNotificationCallback()
-                                }
-                                break
-                            case 'sold':
-                                if (soldCallback) {
-                                    soldCallback(response.data)
-                                }
-                                break
-                            case 'ok':
-                                if (onSubscribeSuccessCallback) {
-                                    onSubscribeSuccessCallback()
-                                }
-                                break
-                            default:
-                                break
-                        }
-                    },
-                    resubscribe: function (subscription) {
-                        let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
-                        let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
-                        subscribeFlipsAnonym(
-                            restrictions,
-                            filter,
-                            getFlipCustomizeSettings(),
-                            flipCallback,
-                            soldCallback,
-                            nextUpdateNotificationCallback,
-                            undefined
-                        )
-                    },
-                    onError: function (message) {
-                        toast.error(message)
-                    }
-                })
-            }, 2000)
-        }
-    })()
-
     let subscribeFlipsAnonym = (
         restrictionList: FlipRestriction[],
         filter: FlipperFilter,
@@ -847,18 +812,62 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         nextUpdateNotificationCallback?: Function,
         onSubscribeSuccessCallback?: Function
     ) => {
-        debounceSubFlipAnonymFunction(
-            restrictionList,
-            filter,
-            flipSettings,
-            flipCallback,
-            soldCallback,
-            nextUpdateNotificationCallback,
-            onSubscribeSuccessCallback
-        )
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS_ANONYM)
+
+        let requestData = mapSettingsToApiFormat(filter, flipSettings, restrictionList)
+
+        websocketHelper.subscribe({
+            type: RequestType.SUBSCRIBE_FLIPS_ANONYM,
+            data: requestData,
+            callback: function (response) {
+                switch (response.type) {
+                    case 'flip':
+                        if (flipCallback) {
+                            flipCallback(parseFlipAuction(response.data))
+                        }
+                        break
+                    case 'nextUpdate':
+                        if (nextUpdateNotificationCallback) {
+                            nextUpdateNotificationCallback()
+                        }
+                        break
+                    case 'sold':
+                        if (soldCallback) {
+                            soldCallback(response.data)
+                        }
+                        break
+                    case 'ok':
+                        if (onSubscribeSuccessCallback) {
+                            onSubscribeSuccessCallback()
+                        }
+                        break
+                    default:
+                        break
+                }
+            },
+            resubscribe: function (subscription) {
+                let filter = getSettingsObject<FlipperFilter>(FLIPPER_FILTER_KEY, {})
+                let restrictions = getSettingsObject<FlipRestriction[]>(RESTRICTIONS_SETTINGS_KEY, [])
+                subscribeFlipsAnonym(
+                    restrictions,
+                    filter,
+                    getFlipCustomizeSettings(),
+                    flipCallback,
+                    soldCallback,
+                    nextUpdateNotificationCallback,
+                    undefined
+                )
+            },
+            onError: function (message) {
+                toast.error(message)
+            }
+        })
     }
 
     let unsubscribeFlips = (): Promise<void> => {
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS)
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_FLIPS_ANONYM)
         return new Promise((resolve, reject) => {
             websocketHelper.sendRequest({
                 type: RequestType.UNSUBSCRIBE_FLIPS,
@@ -1070,19 +1079,35 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     let termsRequest = async (
         locale: 'en' | 'de',
         request?: { version: string; hash: string; source: string },
-        tokenOverride?: string
+        tokenOverride?: string,
+        forceRefresh = false
     ): Promise<TermsStatus> => {
         const token = tokenOverride ?? requireGoogleToken('manage agreement acceptance')
         if (!token) throw new Error('Not logged in')
-        const response = request
-            ? await postApiUserTerms(request, { locale }, googleTokenHeaders(token))
-            : await getApiUserTerms({ locale }, googleTokenHeaders(token))
-        if (response.status !== 200)
-            throw new Error(typeof response.data === 'string' ? response.data : JSON.stringify(response.data) || 'Agreement request failed')
-        return response.data
+        const cacheKey = authenticatedCacheKey(`terms:${locale}`, token)
+        const requestKey = cacheKey ?? `${locale}:${token}`
+        const cached = request || forceRefresh ? undefined : getAuthenticatedCache<TermsStatus>(cacheKey, true)
+        if (cached) return cached
+
+        const send = async () => {
+            const response = request
+                ? await postApiUserTerms(request, { locale }, googleTokenHeaders(token))
+                : await getApiUserTerms({ locale }, googleTokenHeaders(token))
+            if (response.status !== 200)
+                throw new Error(typeof response.data === 'string' ? response.data : JSON.stringify(response.data) || 'Agreement request failed')
+            setAuthenticatedCache(cacheKey, response.data, true)
+            return response.data
+        }
+        if (request) return send()
+
+        const pending = termsStatusRequests.get(requestKey)
+        if (pending) return pending
+        const promise = send().finally(() => termsStatusRequests.delete(requestKey))
+        termsStatusRequests.set(requestKey, promise)
+        return promise
     }
 
-    let getTermsStatus = (locale: 'en' | 'de', token?: string) => termsRequest(locale, undefined, token)
+    let getTermsStatus = (locale: 'en' | 'de', token?: string, forceRefresh = false) => termsRequest(locale, undefined, token, forceRefresh)
     let acceptTerms = (version: string, hash: string, source: string, locale: 'en' | 'de', token?: string) =>
         termsRequest(locale, { version, hash, source }, token)
 
@@ -1181,7 +1206,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let setRef = (refId: string): Promise<void> => {
+    let setRef = (refId: string, programVersion: string, locale: string): Promise<void> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
             if (!googleId) {
@@ -1190,7 +1215,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 return
             }
 
-            postApiReferralReferredBy({ refCode: refId }, googleTokenHeaders(googleId))
+            postApiReferralReferredBy({ refCode: refId, programVersion, locale }, googleTokenHeaders(googleId))
                 .then(() => {
                     resolve()
                 })
@@ -1217,6 +1242,86 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 })
                 throw error
             })
+    }
+
+    /** GET against the sky-api with flat query params; errors carry the http `status` so pages can show "not ready" states */
+    let fetchActiveAuctionEndpoint = async (path: string, params: { [key: string]: string | number | undefined } = {}, noStore: boolean = false): Promise<any> => {
+        const query = new URLSearchParams()
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null && value !== '') {
+                query.append(key, String(value))
+            }
+        })
+        const queryString = query.toString()
+        const response = await fetch(`${getApiEndpoint()}${path}${queryString ? '?' + queryString : ''}`, noStore ? { method: 'GET', cache: 'no-store' } : { method: 'GET' })
+        if (!response.ok) {
+            let message = ''
+            try {
+                message = (await response.text()).slice(0, 300)
+            } catch {}
+            const error = new Error(message || `HTTP ${response.status}`) as Error & { status?: number }
+            error.status = response.status
+            throw error
+        }
+        return response.json()
+    }
+
+    let searchActiveAuctions = (params: { [key: string]: string | number | undefined }): Promise<ActiveAuctionQueryResult> => {
+        return fetchActiveAuctionEndpoint('/auctions/active/filter', params, true).then(parseActiveAuctionQueryResult)
+    }
+
+    let getActiveAuctionCount = (): Promise<ActiveAuctionCount> => {
+        return fetchActiveAuctionEndpoint('/auctions/active/count', {}, true).then(data => ({
+            count: Number(data?.count) || 0,
+            ready: !!data?.ready,
+            snapshotAt: data?.snapshotAt ? parseDate(data.snapshotAt) : undefined
+        }))
+    }
+
+    let resolveActiveQuery = (q: string): Promise<ResolvedActiveQuery> => {
+        return fetchActiveAuctionEndpoint('/auctions/active/resolve', { q }).then(parseResolvedActiveQuery)
+    }
+
+    /**
+     * Subscribes to live pushes of active auctions matching the given tags/filter. `onAuction` receives new matching auctions
+     * and price updates of already known ones, `onGone` auctions that were sold, ended or cancelled.
+     * Only one live-update subscription can be active per connection; this replaces any previous one.
+     */
+    let subscribeActiveAuctions = (
+        tags: string[],
+        filter: { [key: string]: string },
+        knownUuids: string[],
+        onAuction: (auction: ActiveAuctionPreview) => void,
+        onGone: (gone: { uuid: string; reason: string }) => void,
+        onErrorCallback?: Function
+    ): void => {
+        websocketHelper.removeOldSubscriptionByType(RequestType.SUBSCRIBE_UPDATES)
+        const cleanFilter = { ...(filter || {}) } as { [key: string]: any }
+        delete cleanFilter._hide
+        delete cleanFilter._sellerName
+        websocketHelper.subscribe({
+            type: RequestType.SUBSCRIBE_UPDATES,
+            data: {
+                topic: tags.length > 0 ? `active/${tags.join(',')}` : 'active/*',
+                filter: cleanFilter,
+                knownUuids: knownUuids.slice(0, 200)
+            },
+            callback: function (response) {
+                if (response.type === 'activeAuction') {
+                    onAuction(parseActiveAuctionPreview(response.data))
+                } else if (response.type === 'auctionGone') {
+                    onGone(response.data)
+                }
+            },
+            resubscribe: function () {
+                subscribeActiveAuctions(tags, filter, knownUuids, onAuction, onGone, onErrorCallback)
+            },
+            onError: function (message) {
+                if (onErrorCallback) {
+                    onErrorCallback(message)
+                }
+            }
+        })
     }
 
     let connectMinecraftAccount = (playerUUID: string): Promise<MinecraftConnectionInfo> => {
@@ -1279,7 +1384,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 </span>
             )
         }, 10000)
-        return postApiModAuth({ newId: conId }, googleTokenHeaders(googleToken))
+        const request = (typeof window !== 'undefined' && postFallbackModAuth(window.location.origin, conId, googleTokenHeaders(googleToken)))
+            || postApiModAuth({ newId: conId }, googleTokenHeaders(googleToken))
+        return request
             .then(() => {
                 clearTimeout(timeout)
             })
@@ -1324,17 +1431,19 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let sendFeedback = (feedbackKey: string, feedback: any): Promise<void> => {
         return new Promise((resolve, reject) => {
-            let googleId = sessionStorage.getItem('googleId')
             let user
             let email
-            if (googleId) {
-                let parts = googleId.split('.')
-                if (parts.length > 2) {
-                    let obj = JSON.parse(atobUnicode(parts[1]))
-                    user = obj.sub
-                    email = obj.email
+            try {
+                const googleId = sessionStorage.getItem('googleId')
+                if (googleId) {
+                    let parts = googleId.split('.')
+                    if (parts.length > 2) {
+                        let obj = JSON.parse(atobUnicode(parts[1]))
+                        user = obj.sub
+                        email = obj.email
+                    }
                 }
-            }
+            } catch {}
 
             // Mask last 2 characters of email local part if user ID isn't available
             let maskedEmail = ''
@@ -1366,6 +1475,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
             let feedbackWithUserInfo = {
                 ...feedback,
+                errorLog: getClientErrorLog(),
+                userAgent: navigator.userAgent,
                 _userEmail: maskedEmail,
                 _userId: user || '',
                 _premiumTier: premiumTier
@@ -1374,7 +1485,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             let requestData = {
                 Context: 'Skyblock',
                 User: user || '',
-                Feedback: JSON.stringify(feedbackWithUserInfo),
+                Feedback: JSON.stringify(feedbackWithUserInfo, errorJsonReplacer),
                 FeedbackName: feedbackKey
             }
 
@@ -1603,6 +1714,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         return getApiFlipStatsPlayerPlayerUuid(playerUUID, params, requestOptions)
             .then(response => {
                 let data = response.data as any
+                if (response.status < 200 || response.status >= 300 || !Array.isArray(data?.flips)) {
+                    throw new Error(getGeneratedApiMessage(data) || 'Could not load tracked flips. Please try again.')
+                }
                 return returnSSRResponse ? data : parseFlipTrackingResponse(data)
             })
             .catch(error => {
@@ -1611,35 +1725,25 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             })
     }
 
-    let transferCoflCoins = (email: string | undefined, mcId: string | undefined, amount: number, reference: string): Promise<void> => {
-        return new Promise((resolve, reject) => {
-            let data = {
-                email: email,
-                mcId: mcId,
-                amount: amount,
-                reference: reference
-            }
-
-            websocketHelper.sendRequest({
-                type: RequestType.TRANSFER_COFLCOINS,
-                data: data,
-                resolve: function () {
-                    resolve()
-                },
-                reject: function (error) {
-                    apiErrorHandler(RequestType.TRANSFER_COFLCOINS, error, data)
-                    reject(error)
-                }
-            })
-        })
-    }
-
-    let getBazaarSnapshot = (itemTag: string, timestamp: string | number | Date): Promise<BazaarSnapshot> => {
+    let getBazaarSnapshot = async (
+        itemTag: string,
+        timestamp: string | number | Date,
+        shouldReportError: (error: any) => boolean = () => true
+    ): Promise<BazaarSnapshot> => {
         let isoTimestamp = new Date(Math.round(new Date(timestamp).getTime() / 1000) * 1000).toISOString()
 
         return getApiBazaarItemTagSnapshot(itemTag, isoTimestamp ? { timestamp: isoTimestamp } : undefined)
             .then(response => {
                 let data = response.data as any
+                let status = response.status as number
+                // The generated fetch wrapper only ever resolves (it never checks `res.ok`), so a 5xx
+                // from the gateway would otherwise only surface once parseBazaarSnapshot throws on the
+                // malformed body below - with no status attached. Attach it explicitly so callers
+                // (useBazaarSnapshot's quiet retry) can tell a transient 5xx/network failure apart from
+                // a real 4xx, the same way HttpHelper's sendApiRequest already does for other requests.
+                if (status >= 400) {
+                    throw Object.assign(new Error((data && data.message) || `HTTP ${status}`), { status })
+                }
                 if (!data) {
                     return {
                         item: {
@@ -1665,7 +1769,9 @@ export function initAPI(returnSSRResponse: boolean = false): API {
                 return parseBazaarSnapshot(data)
             })
             .catch(error => {
-                apiErrorHandler(RequestType.GET_BAZAAR_SNAPSHOT, error, { itemTag, timestamp: isoTimestamp })
+                if (shouldReportError(error)) {
+                    apiErrorHandler(RequestType.GET_BAZAAR_SNAPSHOT, error, { itemTag, timestamp: isoTimestamp })
+                }
                 throw error
             })
     }
@@ -1712,10 +1818,13 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
     let checkRat = (hash: string): Promise<RatCheckingResponse> => {
         return new Promise((resolve, reject) => {
+            // Same-origin proxy through SkyApi (see migration note above) - isthisarat.com can't be
+            // called cross-origin from the browser.
             httpApi.sendApiRequest({
                 type: RequestType.CHECK_FOR_RAT,
                 data: '',
-                customRequestURL: `https://isthisarat.com/api/signature/${hash}`,
+                customRequestURL: `${getApiEndpoint()}/mod/ratcheck/${hash}`,
+                requestMethod: 'GET',
                 resolve: (data: RatCheckingResponse) => {
                     resolve(data)
                 },
@@ -1727,49 +1836,44 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let getPremiumProducts = (): Promise<PremiumProduct[]> => {
-        return new Promise((resolve, reject) => {
-            let googleId = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId')
-            if (!googleId) {
-                toast.error('You need to be logged in to load premium products.')
-                reject()
-                return
-            }
+    let getPremiumProducts = async (forceRefresh = false): Promise<PremiumProduct[]> => {
+        const googleId = sessionStorage.getItem('googleId') ?? localStorage.getItem('googleId')
+        if (!googleId) {
+            toast.error('You need to be logged in to load premium products.')
+            throw new Error('Not logged in')
+        }
 
-            postApiPremiumUserOwns(
+        const cacheKey = authenticatedCacheKey('premium-products', googleId)
+        const requestKey = cacheKey ?? googleId
+        const cached = forceRefresh ? undefined : getAuthenticatedCache<any>(cacheKey)
+        if (cached) return parsePremiumProducts(cached)
+
+        let pending = premiumProductsRequests.get(requestKey)
+        if (!pending) {
+            pending = postApiPremiumUserOwns(
                 PREMIUM_TYPES.map(type => type.productId),
                 googleTokenHeaders(googleId)
             )
                 .then(response => {
-                    let products = response.data as any
+                    const products = response.data as any
+                    setAuthenticatedCache(cacheKey, products)
                     localStorage.setItem(LAST_PREMIUM_PRODUCTS, JSON.stringify(products))
-                    if (typeof window !== 'undefined') {
-                        try {
-                            window.dispatchEvent(new CustomEvent('premium.products.updated'))
-                        } catch (e) { }
-                    }
-                    resolve(parsePremiumProducts(products))
+                    try {
+                        window.dispatchEvent(new CustomEvent('premium.products.updated'))
+                    } catch {}
+                    return products
                 })
                 .catch(error => {
                     apiErrorHandler(RequestType.GET_PREMIUM_PRODUCTS, error, '')
-                    reject(error)
+                    throw error
                 })
-        })
+                .finally(() => premiumProductsRequests.delete(requestKey))
+            premiumProductsRequests.set(requestKey, pending)
+        }
+        return parsePremiumProducts(await pending)
     }
 
-    /**
-     * Uses the last loaded premium products (if available) to instantly call the callback function
-     * The newest premium products are loaded after that and the callback is executed again
-     */
     let refreshLoadPremiumProducts = (callback: (products: PremiumProduct[]) => void, onError: () => void) => {
-        let lastPremiumProducts = localStorage.getItem(LAST_PREMIUM_PRODUCTS)
-        if (lastPremiumProducts) {
-            try {
-                callback(parsePremiumProducts(JSON.parse(lastPremiumProducts)))
-            } catch {
-                callback([])
-            }
-        }
         getPremiumProducts().then(prodcuts => {
             callback(prodcuts)
         }).catch(() => {
@@ -2170,15 +2274,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         })
     }
 
-    let purchasePremiumSubscription = (productSlug: string, googleToken: string): Promise<PaymentResponse> => {
-        return postApiPremiumSubscriptionSubscriptionSlug(productSlug, undefined, googleTokenHeaders(googleToken))
-            .then(response => parsePaymentResponse(response.data))
-            .catch(error => {
-                apiErrorHandler(RequestType.PURCHASE_PREMIUM_SUBSCRIPTION, error)
-                throw error
-            })
-    }
-
     let getPremiumSubscriptions = (): Promise<PremiumSubscription[]> => {
         return new Promise((resolve, reject) => {
             let googleId = sessionStorage.getItem('googleId')
@@ -2210,7 +2305,8 @@ export function initAPI(returnSSRResponse: boolean = false): API {
             }
 
             deleteApiPremiumSubscriptionExternalId(id, googleTokenHeaders(googleId))
-                .then(() => {
+                .then(response => {
+                    if (response.status !== 200) throw new Error('Cancellation failed. Your subscription has not been canceled. Please try again.')
                     resolve()
                 })
                 .catch(error => {
@@ -2264,6 +2360,10 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getItemDetails,
         getItemPrices,
         getAuctions,
+        searchActiveAuctions,
+        getActiveAuctionCount,
+        resolveActiveQuery,
+        subscribeActiveAuctions,
         getBids,
         getEnchantments,
         getAuctionDetails,
@@ -2320,7 +2420,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         setFlipSetting,
         getKatFlips,
         getTrackedFlipsForPlayer,
-        transferCoflCoins,
         getBazaarSnapshot,
         getBazaarPrices,
         getBazaarPricesByRange,
@@ -2356,7 +2455,6 @@ export function initAPI(returnSSRResponse: boolean = false): API {
         getLinkvertiseLink,
         getPremiumSubscriptions,
         cancelPremiumSubscription,
-        purchasePremiumSubscription,
         getCraftInstructions,
         deleteAccount
     }
