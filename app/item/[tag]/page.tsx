@@ -1,10 +1,11 @@
 import type { AveragePrice, ItemMetadataElement, SkyblockItem } from '../../../api/_generated/skyApi.schemas'
 import { redirect } from 'next/navigation'
+import { cache } from 'react'
 import type { Metadata } from 'next'
 import { isRedirectError } from 'next/dist/client/components/redirect-error'
 import { parseItem } from '../../../utils/Parser/APIResponseParser'
 import { getHeadMetadata, getCanonicalUrl } from '../../../utils/SSRUtils'
-import { convertTagToName, numberWithThousandsSeparators } from '../../../utils/Formatter'
+import { convertTagToName } from '../../../utils/Formatter'
 import api, { initAPI } from '../../../api/ApiHelper'
 import { atobUnicode } from '../../../utils/Base64Utils'
 import dynamic from 'next/dynamic'
@@ -18,6 +19,7 @@ import { getEnchantmentRename } from '../../../utils/EnchantmentRenames'
 import { getCustomItemRedirectPath } from '../../../utils/ItemRedirectUtils'
 import type { CachedItemInfo } from '../../../utils/ItemsCache'
 import { getBuiltTaskLinks } from '../../../utils/ItemTaskSourcesData'
+import { getAuctionItemEmbedDescription, getBazaarItemEmbedDescription, getItemFilterEmbedText, joinEmbedParts } from '../../../utils/EmbedUtils'
 
 interface ItemPageData {
     item: Omit<Partial<SkyblockItem>, 'flags'> & { itemName?: string | null; flags?: number | string }
@@ -136,35 +138,13 @@ export default async function Page(props) {
 export async function generateMetadata(props): Promise<Metadata> {
     const searchParams = await props.searchParams
     const params = await props.params
-    function getAvgPrice(prices) {
-        let priceSum = 0
-
-        prices.forEach(item => {
-            priceSum += item.avg
-        })
-
-        return Math.round(priceSum / prices.length)
-    }
-
-    function getFiltersText(filter) {
-        if (!filter) {
-            return ' '
-        }
-        return `${Object.keys(filter)
-            .map(key => `➡️ ${key}: ${filter[key]}`)
-            .join('\n')}`
-    }
-
     const tag = params?.tag as string
-    const { item, filter, prices, range } = await getItemData(searchParams, params)
+    const { item, filter, prices, range, itemFlags } = await getItemData(searchParams, params)
     const enchantmentRename = getEnchantmentRename(tag)
-    const itemName = item.name || convertTagToName(tag)
+    const itemName = item.name || item.itemName || itemFlags?.name || convertTagToName(tag)
     const metadataName = enchantmentRename
         ? `${enchantmentRename.currentName} ${enchantmentRename.level} (legacy ${enchantmentRename.previousName} ${enchantmentRename.level})`
         : itemName
-    const renameDescription = enchantmentRename
-        ? `${enchantmentRename.currentName} ${enchantmentRename.level} uses the legacy/internal item name ${enchantmentRename.previousName} ${enchantmentRename.level} in Hypixel SkyBlock. `
-        : ''
     const keywords = [
         convertTagToName(item.tag ?? undefined),
         ...(enchantmentRename
@@ -176,42 +156,44 @@ export async function generateMetadata(props): Promise<Metadata> {
               ]
             : [])
     ]
-    if (hasFlag(Number(item.flags), 1)) {
-        let sellPriceSum = 0
-        let buyPriceSum = 0
-
-        prices.forEach(p => {
-            if (!('sellData' in p)) return
-            sellPriceSum += p.sellData.price
-            buyPriceSum += p.buyData.price
-        })
-
-        return getHeadMetadata(
-            `${metadataName} price`,
-            `${renameDescription}🕑 ${range ? `Range: ${range}` : null}
-            Avg Sell Price: ${sellPriceSum ? numberWithThousandsSeparators(Math.round(sellPriceSum / prices.length)) : '---'} 
-            Avg Buy Price: ${buyPriceSum ? numberWithThousandsSeparators(Math.round(buyPriceSum / prices.length)) : '---'}`,
-            item.iconUrl ?? undefined,
-            keywords,
-            `${metadataName} price | Hypixel SkyBlock AH history tracker`,
-            getCanonicalUrl(`/item/${tag}`)
-        )
-    }
+    // same decision as the page, which also picked the fetched price type by it
+    const isBazaar = itemFlags?.isBazaar ?? hasFlag(Number(item.flags), 1)
     return getHeadMetadata(
         `${metadataName} price`,
-        `${renameDescription}💰 Price: ${getAvgPrice(prices) ? numberWithThousandsSeparators(Math.round(getAvgPrice(prices))) : '---'} Coins
-        🕑 ${range ? `Range: ${range}` : null}
-
-         ${filter ? `Filters: 
-${getFiltersText(filter)}` : ''}`,
-        item.iconUrl ?? undefined,
+        getItemDescription(itemName, isBazaar, prices, range, filter, enchantmentRename),
+        item.iconUrl || api.getItemImageUrl({ tag }),
         keywords,
-        `${metadataName} price | Hypixel SkyBlock AH history tracker`,
-        getCanonicalUrl(`/item/${tag}`)
+        `${metadataName} | ${isBazaar ? 'Bazaar' : 'SkyBlock'} Price`,
+        getCanonicalUrl(`/item/${tag}`),
+        // item icons are 16x16 to 64x64 depending on the item, so no size is claimed
+        { imageAlt: `${itemName} icon` }
     )
 }
 
-async function getItemData(searchParams, params): Promise<ItemPageData> {
+function getItemDescription(
+    itemName: string,
+    isBazaar: boolean,
+    prices: ItemPageData['prices'],
+    range: string | null,
+    filter: ItemFilter | null,
+    enchantmentRename: ReturnType<typeof getEnchantmentRename>
+): string {
+    const renameDescription = enchantmentRename
+        ? `${enchantmentRename.currentName} ${enchantmentRename.level} uses the legacy/internal item name ${enchantmentRename.previousName} ${enchantmentRename.level} in Hypixel SkyBlock. `
+        : ''
+    const stats = isBazaar ? getBazaarItemEmbedDescription(prices as BazaarPrice[]) : getAuctionItemEmbedDescription(prices as AveragePrice[], range)
+    const details = joinEmbedParts([stats, getItemFilterEmbedText(filter)])
+    return `${renameDescription}${details || `Price history of ${itemName} in Hypixel SkyBlock.`}`
+}
+
+// cache() needs primitive arguments to share the item data between generateMetadata and the page
+const getCachedItemData = cache((tag: string, searchParamsKey: string) => loadItemData(JSON.parse(searchParamsKey), { tag }))
+
+function getItemData(searchParams, params): Promise<ItemPageData> {
+    return getCachedItemData(params.tag as string, JSON.stringify(searchParams ?? {}))
+}
+
+async function loadItemData(searchParams, params): Promise<ItemPageData> {
     const validRanges = ['active', 'hour', 'day', 'week', 'month', 'year', 'full']
     const range = validRanges.includes(searchParams.range) ? searchParams.range : 'day'
     const tag = params.tag as string
