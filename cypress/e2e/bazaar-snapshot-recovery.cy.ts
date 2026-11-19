@@ -260,13 +260,25 @@ describe('Bazaar snapshot recovery', () => {
     })
 })
 
+// The parts of the echarts instance the live graph point tests read or wrap.
+interface LiveChart {
+    getOption(): { xAxis: { data: unknown[] }[]; series: { data: (number | string)[][] }[]; dataZoom: { start: number }[] }
+    setOption(...args: unknown[]): unknown
+    dispatchAction(action: object): void
+}
+
+interface ChartFiber {
+    stateNode?: { getEchartsInstance?: () => LiveChart }
+    return?: ChartFiber
+}
+
 describe('Bazaar live graph point', () => {
     // The canvas cannot be queried, so read what the chart was given from its echarts-for-react instance.
-    function getChart(element: HTMLElement) {
+    function getChart(element: HTMLElement): LiveChart {
         const fiberKey = Object.keys(element).find(key => key.startsWith('__reactFiber$'))!
-        let fiber = (element as any)[fiberKey]
+        let fiber = (element as unknown as Record<string, ChartFiber | undefined>)[fiberKey]
         while (fiber && !fiber.stateNode?.getEchartsInstance) fiber = fiber.return
-        return fiber.stateNode.getEchartsInstance()
+        return fiber!.stateNode!.getEchartsInstance!()
     }
     const candle = (data: (number | string)[]) => data.map(value => +value)
 

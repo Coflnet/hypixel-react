@@ -324,7 +324,7 @@ function BazaarPriceGraph(props: Props) {
 
     function getPricesWithLivePoint(history: BazaarPrice[]): BazaarPrice[] {
         // The snapshot panel keeps the previous item's order book until the new one has loaded.
-        let liveSnapshot = liveSnapshotRef.current?.item.tag === props.item.tag ? liveSnapshotRef.current : undefined
+        const liveSnapshot = liveSnapshotRef.current?.item.tag === props.item.tag ? liveSnapshotRef.current : undefined
         return appendLiveSnapshotPoint(history, liveSnapshot, fetchspan !== DateRange.ACTIVE)
     }
 
@@ -334,7 +334,7 @@ function BazaarPriceGraph(props: Props) {
     }
 
     function setChartData(history: BazaarPrice[], mayorData: MayorData[]) {
-        let prices = getPricesWithLivePoint(history)
+        const prices = getPricesWithLivePoint(history)
         appliedLivePointKeyRef.current = getLivePointKey(prices, history)
 
         clearChartData()
