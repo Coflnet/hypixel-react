@@ -138,7 +138,8 @@ export function TierUpsellPanel({ currentTier, price, codeSavings, onUpgrade }: 
             <p className={styles.upsellTier}>
                 Step up to <strong>{nextTierName}</strong>
             </p>
-            {price ? <p data-testid="upsell-price">{price}</p> : null}
+            {/* with a code the savings line states the price, so the full price is not repeated above it */}
+            {price && !codeSavings ? <p data-testid="upsell-price">{price}</p> : null}
             {codeSavings && (
                 <p className={styles.upsellSavings} data-testid="upsell-code-savings">
                     {codeSavings}

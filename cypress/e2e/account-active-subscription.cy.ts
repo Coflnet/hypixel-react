@@ -235,7 +235,8 @@ describe('Premium refresh after checkout', () => {
         cy.wait('@products')
         cy.tick(0)
         cy.wrap(null).should(() => expect(updates).to.equal(1))
-        cy.contains('Return to the Premium page').closest('a').should('have.attr', 'href', '/premium')
+        // the page waits for the booked payment (cypress/e2e/payment-success.cy.ts) while the ownership cache refreshes
+        cy.contains('h2', 'Waiting for payment confirmation…').should('be.visible')
         cy.window().then(window => Object.defineProperty(window.document, 'visibilityState', { configurable: true, value: 'hidden' }))
         cy.tick(15000)
         cy.get('@products.all').should('have.length', 1)
@@ -1889,7 +1890,8 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         discountInput().type('TEST90')
         discountInput().closest('div').parent().contains('button', 'Apply').click()
         cy.wait('@test90')
-        cy.get('[data-testid="upsell-price"]').should('have.text', `${formatMoney(318.78, 'EUR')} for the first 52 weeks, then every 4 weeks`)
+        // regression: the full price was stated twice, above and inside the code's savings line
+        cy.get('[data-testid="upsell-price"]').should('not.exist')
         cy.get('[data-testid="upsell-code-savings"]').should('have.text', `With TEST90: ${formatMoney(31.88, 'EUR')} for the first 52 weeks instead of ${formatMoney(318.78, 'EUR')} (you save ${formatMoney(286.9, 'EUR')})`)
         cy.get('#buyPremium').contains('button', 'Upgrade to Premium Plus').click()
         cy.get('#buyPremium').should('contain.text', 'Creator code applied').and('contain.text', 'Discount code valid!')
@@ -2428,9 +2430,11 @@ describe('Slot subscriptions with Stripe, PayPal and the promotion', () => {
         cy.get('[data-testid="premium-package"]').contains(OPTION_TITLE, 'One assignable slot').click()
         cy.wait('@test90')
         cy.get('[data-testid="slot-upsell"]').should('have.length', 2)
-        cy.get('[data-testid="slot-upsell"]').eq(0).should('contain.text', 'Step up to 4 slots').and('contain.text', '29.69 every 4 weeks for all 4 slots').and('contain.text', '7.42 per slot instead of')
+        cy.get('[data-testid="slot-upsell"]').eq(0).should('contain.text', 'Step up to 4 slots').and('not.contain.text', '29.69 every 4 weeks for all 4 slots').and('contain.text', '7.42 per slot instead of')
         cy.get('[data-testid="slot-upsell-savings"]').eq(0).should('contain.text', 'With TEST90: €2.97 for the first 4 weeks instead of €29.69 (you save €26.72)')
-        cy.get('[data-testid="slot-upsell"]').eq(1).should('contain.text', 'Step up to Premium+').and('contain.text', '35.69 every 4 weeks for this slot').and('contain.text', BAZAAR_ARCHIVE_BULLET)
+        // with a code the savings line states the price, the full price is not repeated above it
+        cy.get('[data-testid="slot-upsell"]').eq(1).should('contain.text', 'Step up to Premium+').and('not.contain.text', '35.69 every 4 weeks for this slot').and('contain.text', BAZAAR_ARCHIVE_BULLET)
+        cy.get('[data-testid="slot-upsell-savings"]').eq(1).should('contain.text', 'With TEST90: €3.57 for the first 4 weeks instead of €35.69 (you save €32.12)')
         cy.get('[data-testid="slot-upsell"]').eq(1).contains('button', 'Upgrade to Premium+').click()
         cy.get('[data-testid="slot-offer"]').should('contain.text', '35.69')
         cy.get('[data-testid="slot-upsell"]').should('have.length', 1).and('contain.text', 'Step up to 4 slots')

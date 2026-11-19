@@ -84,7 +84,10 @@ function SlotUpsellEntry({ upsell, ...props }: Props & { upsell: Upsell }) {
             <p className={discountStyles.upsellTier}>
                 Step up to <strong>{target}</strong>
             </p>
-            {price ? <p>{comparison ? `${price} (${comparison})` : price}</p> : null}
+            {/* with a code the savings line states the price; only the per-slot comparison stays */}
+            {price && !savings ? <p>{comparison ? `${price} (${comparison})` : price}</p> : null}
+            {price && savings && comparison ? <p>{direct === 'net' ? `${comparison} (+tax)` : comparison}</p> : null}
+            {/* gross prices keep their VAT note, also when only the savings line states the price */}
             {price && props.recurring && direct !== 'net' ? <small>{props.taxLabel}</small> : null}
             {savings ? (
                 <p className={discountStyles.upsellSavings} data-testid="slot-upsell-savings">
