@@ -610,4 +610,6 @@ test('counts the years of bazaar history from 12 March 2020 and of auctions from
     assert.equal(dataHistory.getBazaarHistoryYears(Date.UTC(2027, 2, 14)), 7)
     assert.equal(dataHistory.getAuctionHistoryYears(Date.UTC(2026, 9, 30)), 6)
     assert.equal(dataHistory.getAuctionHistoryYears(Date.UTC(2026, 10, 19)), 7)
+    // regression: the export date picker allowed 10 March 2020, two days before bazaar collection started
+    assert.equal(dataHistory.BAZAAR_HISTORY_MIN_DATE, '2020-03-12')
 })

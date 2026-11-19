@@ -6,7 +6,7 @@ import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils
 import { getGetApiBazaarItemTagExportUrl } from '../../api/_generated/skyApi'
 import styles from './BazaarExportModal.module.css'
 import GoogleSignIn from '../GoogleSignIn/GoogleSignIn'
-import { BAZAAR_HISTORY_SINCE, getBazaarHistoryYears } from '../../utils/DataHistory'
+import { BAZAAR_HISTORY_MIN_DATE, BAZAAR_HISTORY_SINCE, getBazaarHistoryYears } from '../../utils/DataHistory'
 
 interface Props {
     show: boolean
@@ -266,7 +266,7 @@ function BazaarExportModal(props: Props) {
                                             type="date" 
                                             value={startDate} 
                                             onChange={e => setStartDate(e.target.value)}
-                                            min="2020-03-10"
+                                            min={BAZAAR_HISTORY_MIN_DATE}
                                         />
                                     </Form.Group>
                                 </div>

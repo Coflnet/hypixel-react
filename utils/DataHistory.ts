@@ -5,8 +5,11 @@ export const BAZAAR_HISTORY_START = Date.UTC(2020, 2, 12)
 /** The auction archive starts in early November 2019 */
 export const AUCTION_HISTORY_START = Date.UTC(2019, 10, 1)
 
-/** month and year the bazaar history starts, for texts like "data since March 2020" */
-export const BAZAAR_HISTORY_SINCE = 'March 2020'
+/** the first day of bazaar history as a date input value (yyyy-mm-dd), the earliest export start */
+export const BAZAAR_HISTORY_MIN_DATE = new Date(BAZAAR_HISTORY_START).toISOString().slice(0, 10)
+
+/** the day the bazaar history starts, for texts like "data since 12 March 2020" */
+export const BAZAAR_HISTORY_SINCE = '12 March 2020'
 
 const YEAR_MS = 365.25 * 24 * 60 * 60 * 1000
 
