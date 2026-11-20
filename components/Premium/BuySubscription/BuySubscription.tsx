@@ -61,6 +61,8 @@ import {
     CheckoutLayout,
     CreatorCodeMessage,
     DiscountCodeMessage,
+    LinkCodeReplacedNote,
+    getDiscountCodeAction,
     CodeDisclosure,
     CodeField,
     PaymentActions,
@@ -153,6 +155,8 @@ function BuySubscription(props: Props) {
         weeks: billingWeeks,
         validateInitial: true,
         autoCode: offer.promotion?.code,
+        // the plan price before tax, after the creator code: the sale and a code from the link are weighed on this payment
+        weighing: { promotion: offer.promotion, planPrice: getProviderPrice(pricing.pricingData, productSlug, 'lemonsqueezy'), providers: offer.providers },
         isSubscription: true,
         provider: offer.codeProvider
     })
@@ -440,11 +444,10 @@ function BuySubscription(props: Props) {
                     value={discountCode}
                     onChange={discount.changeCode}
                     disabled={isValidatingDiscount}
-                    actionLabel={validatedDiscount ? 'Clear' : isValidatingDiscount ? <Spinner size="sm" animation="border" /> : 'Apply'}
-                    onAction={validatedDiscount ? discount.clear : () => discount.validate()}
-                    actionDisabled={isValidatingDiscount || (!validatedDiscount && !discountCode.trim())}
+                    {...getDiscountCodeAction(discount)}
                 >
                     {renderDiscountCodeMessage()}
+                    <LinkCodeReplacedNote replacement={discount.replacedLinkCode} promotion={offer.promotion} weeks={billingWeeks} />
                 </CodeField>
             </CodeDisclosure>
         )
@@ -469,15 +472,16 @@ function BuySubscription(props: Props) {
                     Loading payment options...
                 </CheckoutButton>
             )
-        const notConfirmed = !declaration.confirmed
+        // a discount code still being checked (e.g. the promotion standing in for the link's code) would be left out of the checkout
+        const blocked = !declaration.confirmed || isValidatingDiscount
         if (offer.providers.length > 0)
-            return <ProviderButtons tier={tier} providers={offer.providers} busyProvider={busyCheckout} disabled={notConfirmed} onPay={onSubscribeClick} />
+            return <ProviderButtons tier={tier} providers={offer.providers} busyProvider={busyCheckout} disabled={blocked} onPay={onSubscribeClick} />
         return (
             <CheckoutButton
                 tier={tier}
                 busy={busyCheckout !== null}
                 busyLabel="Redirecting to payment provider..."
-                disabled={notConfirmed}
+                disabled={blocked}
                 onClick={() => onSubscribeClick('lemonsqueezy')}
             >
                 Continue to our secure payment processor

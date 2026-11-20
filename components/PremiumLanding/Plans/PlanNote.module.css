@@ -8,6 +8,7 @@
 }
 
 .badge {
-    color: #f76b1c;
+    /* 5.6:1 on the card background (#303030) */
+    color: #ff8a3d;
     font-weight: 700;
 }

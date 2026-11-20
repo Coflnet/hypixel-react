@@ -18,12 +18,17 @@ import styles from './Startpage.module.css'
 import MarkdownIt from 'markdown-it'
 import api from '../../api/ApiHelper'
 import { FixedSizeList as List } from 'react-window'
-import type { DiscordMessage } from '../../api/_generated/skyApi.schemas'
+import type { AutoDiscount, DiscordMessage } from '../../api/_generated/skyApi.schemas'
 import { getApiDataUpdatesYearMonth } from '../../api/_generated/skyApi'
 import { SubscriptionSalesBanner } from '../Discounts/DiscountBanners'
 import { getBazaarHistoryYears } from '../../utils/DataHistory'
 
-function Startpage() {
+interface Props {
+    /** the promotion most visitors get, from the server: the sale banner reserves its space while the visitor's own loads */
+    likelyPromotion?: AutoDiscount | null
+}
+
+function Startpage({ likelyPromotion }: Props) {
     const { trackEvent } = useMatomo()
     const { favorites } = useFavorites()
     const [recentUpdate, setRecentUpdate] = useState<DiscordMessage | null>(null)
@@ -253,7 +258,7 @@ function Startpage() {
 
     return (
         <div className={styles.startpageContainer}>
-            <SubscriptionSalesBanner />
+            <SubscriptionSalesBanner likelyPromotion={likelyPromotion} />
 
             {favorites.length === 0 ? (
                 <div style={{ textAlign: 'center', marginBottom: '40px', marginTop: '20px' }}>

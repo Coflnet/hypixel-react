@@ -1,6 +1,7 @@
 .salesBanner {
     display: block;
-    background: linear-gradient(90deg, #ff9d2f 0%, #f76b1c 100%);
+    /* white text needs at least 4.5:1 over the whole gradient: #c2410c gives 5.2:1, #9a3412 7.3:1 */
+    background: linear-gradient(90deg, #c2410c 0%, #9a3412 100%);
     color: #fff;
     padding: 15px;
     text-align: center;
@@ -127,7 +128,8 @@
     margin-top: 8px;
     font-size: 0.8em;
     font-weight: 600;
-    color: #f76b1c;
+    /* 4.5:1 on the dark page */
+    color: #ff8a3d;
     word-break: break-word;
 }
 
@@ -160,4 +162,10 @@
 
 .bannerLink {
     text-decoration: underline;
+}
+
+/* holds the banner's place while the visitor's promotion loads */
+.reserved {
+    visibility: hidden;
+    cursor: default;
 }

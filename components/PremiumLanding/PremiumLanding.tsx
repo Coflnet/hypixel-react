@@ -1,5 +1,6 @@
 import NavBar from '../NavBar/NavBar'
 import { PromotionBanner } from '../Discounts/DiscountBanners'
+import type { AutoDiscount } from '../../api/_generated/skyApi.schemas'
 import ComparePlans from './Compare/ComparePlans'
 import FeatureExplorer from './FeatureExplorer/FeatureExplorer'
 import PremiumHero from './Hero/PremiumHero'
@@ -24,7 +25,8 @@ function ClosingCallToAction() {
 }
 
 /** the redesigned /premium page (variant "new" of the premium page A/B test) */
-export default function PremiumLanding() {
+/** `likelyPromotion`: the promotion most visitors get, from the server; the sale banner reserves its space with it while loading */
+export default function PremiumLanding({ likelyPromotion }: { likelyPromotion?: AutoDiscount | null }) {
     return (
         <div className={styles.landing}>
             <div className={styles.topBar}>
@@ -32,7 +34,7 @@ export default function PremiumLanding() {
                 <span className={styles.topBarTitle}>Premium</span>
             </div>
             <div className={styles.promotion}>
-                <PromotionBanner href="#plans" />
+                <PromotionBanner href="#plans" likelyPromotion={likelyPromotion} />
             </div>
             <PremiumHero />
             <FeatureExplorer />

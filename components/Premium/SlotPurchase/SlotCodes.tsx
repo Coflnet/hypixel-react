@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Spinner } from 'react-bootstrap'
 import type { DiscountCodeState } from '../../../hooks/useDiscountCode'
 import type { SlotCatalog } from '../../../hooks/useSlotCatalog'
-import { CheckoutError, CodeDisclosure, CodeField, CreatorCodeMessage, DiscountCodeMessage } from '../Checkout/CheckoutParts'
+import { CheckoutError, CodeDisclosure, CodeField, CreatorCodeMessage, DiscountCodeMessage, getDiscountCodeAction } from '../Checkout/CheckoutParts'
 
 interface Props {
     catalog: SlotCatalog
@@ -49,9 +49,7 @@ export default function SlotCodes({ catalog, discount, creatorPercent, weeks }: 
                 value={discount.code}
                 onChange={discount.changeCode}
                 disabled={validating}
-                actionLabel={validated ? 'Clear' : validating ? <Spinner size="sm" animation="border" /> : 'Apply'}
-                onAction={validated ? discount.clear : () => discount.validate()}
-                actionDisabled={validating || (!validated && !discount.code.trim())}
+                {...getDiscountCodeAction(discount)}
             >
                 <DiscountCodeMessage error={discount.error} discount={validated} weeks={weeks} />
             </CodeField>

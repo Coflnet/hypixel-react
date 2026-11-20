@@ -41,6 +41,8 @@ export interface PriceTag {
 export interface PeriodOffer extends PriceTag {
     /** e.g. "for the first 13 weeks" or "every 4 weeks" */
     period: string
+    /** the price covers a first term only, after which the plan continues every 4 weeks at the regular 4-week price */
+    firstTermOnly: boolean
 }
 
 /** the note under a plan price: text and further prices of the same tier */
@@ -123,10 +125,10 @@ class PlanPricer {
     }
 
     /** the term of a price: Lemon Squeezy renews the same term; card/PayPal plans run their first term, a 4-week one simply repeats */
-    private term(weeks: number, discounted: boolean): string {
-        if (!this.billing.continues) return `every ${weeks} weeks`
-        if (weeks > RENEWAL_WEEKS) return `for the first ${weeks} weeks`
-        return discounted && isFirstPaymentOnly(this.activePromotion) ? `for the first ${weeks} weeks` : `every ${weeks} weeks`
+    private term(weeks: number, discounted: boolean): Pick<PeriodOffer, 'period' | 'firstTermOnly'> {
+        if (!this.billing.continues) return { period: `every ${weeks} weeks`, firstTermOnly: false }
+        const firstTermOnly = weeks > RENEWAL_WEEKS || (discounted && isFirstPaymentOnly(this.activePromotion))
+        return { period: firstTermOnly ? `for the first ${weeks} weeks` : `every ${weeks} weeks`, firstTermOnly }
     }
 
     offer(product: ProductId, weeks: number): PeriodOffer {
@@ -138,7 +140,7 @@ class PlanPricer {
             amount: euro(amount),
             original: discounted ? euro(original) : null,
             badge: discounted ? `-${percent}%` : null,
-            period: this.term(weeks, discounted)
+            ...this.term(weeks, discounted)
         }
     }
 
@@ -158,12 +160,12 @@ class PlanPricer {
 
 /** a headline that covers only a first term is followed by what the plan charges after it */
 function thenRenewal(headline: PeriodOffer, renewal: string): string[] {
-    return headline.period.startsWith('for the first') ? [`then ${renewal}every ${RENEWAL_WEEKS} weeks until cancelled. `] : []
+    return headline.firstTermOnly ? [`then ${renewal}every ${RENEWAL_WEEKS} weeks until cancelled. `] : []
 }
 
-/** the 4-week plan offered beside a longer headline plan: "for the first 4 weeks" on sale, otherwise "every 4 weeks from the start" */
+/** a repeating 4-week plan offered beside a longer headline plan: "every 4 weeks from the start" */
 function fromTheStart(offer: PeriodOffer): PeriodOffer {
-    return offer.period === `every ${RENEWAL_WEEKS} weeks` ? { ...offer, period: `${offer.period} from the start` } : offer
+    return { ...offer, period: `${offer.period} from the start` }
 }
 
 /** Stripe and PayPal: the 13 and 52 week plans continue every 4 weeks at the 4-week price after their first term */
@@ -189,10 +191,10 @@ function getContinuationNote(tier: PremiumTier, pricer: PlanPricer, headline: Pe
 
 function getPremiumPlusOptions(pricer: PlanPricer, renewal: string, then: string[]): NotePart[] {
     const quarter = pricer.offer('premium_plus', 13)
-    const fourWeeks = fromTheStart(pricer.offer('premium_plus', RENEWAL_WEEKS))
+    const fourWeeks = pricer.offer('premium_plus', RENEWAL_WEEKS)
     const continuation = `then ${renewal}every ${RENEWAL_WEEKS} weeks`
     // without a sale the 4-week plan simply repeats, so the continuation belongs to the 13-week plan alone
-    if (fourWeeks.period.endsWith('from the start')) return [...then, 'Or ', quarter, `, ${continuation}, or `, fourWeeks, `. ${CANCEL_ANYTIME}`]
+    if (!fourWeeks.firstTermOnly) return [...then, 'Or ', quarter, `, ${continuation}, or `, fromTheStart(fourWeeks), `. ${CANCEL_ANYTIME}`]
     return [...then, 'Or ', quarter, ', or ', fourWeeks, `, ${continuation}. ${CANCEL_ANYTIME}`]
 }
 
@@ -212,9 +214,9 @@ export function getPlanPrice(
     promotion: AutoDiscount | null = null
 ): PlanPrice {
     const pricer = new PlanPricer(countryCode, billing, promotion)
-    const { period, ...headline } = pricer.offer(PRODUCT_OF[tier], HEADLINE_WEEKS[tier])
-    const note = billing.continues ? getContinuationNote(tier, pricer, { period, ...headline }) : getRenewsSameTermNote(tier, pricer)
-    return { ...headline, unit: pricer.unit(period), note }
+    const offer = pricer.offer(PRODUCT_OF[tier], HEADLINE_WEEKS[tier])
+    const note = billing.continues ? getContinuationNote(tier, pricer, offer) : getRenewsSameTermNote(tier, pricer)
+    return { amount: offer.amount, original: offer.original, badge: offer.badge, unit: pricer.unit(offer.period), note }
 }
 
 /** a plan note as plain text, a struck price in brackets, e.g. "Or €19.77 (instead of €32.95) for the first 13 weeks (-40%)" */

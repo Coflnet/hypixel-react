@@ -25,7 +25,16 @@ import { PREMIUM_FEATURES } from '../../components/PremiumLanding/content/featur
 import { COMPARE_GROUPS } from '../../components/PremiumLanding/content/comparison'
 import { PLAN_CARDS } from '../../components/PremiumLanding/content/plans'
 import { getPlanNoteText, getPlanPrice, PlanPrice } from '../../components/PremiumLanding/content/planPricing'
-import { describeBestAmount, describePromotionEnd, formatPromotionEnd, getMaxPercent } from '../../utils/SubscriptionCheckout'
+import {
+    describeBestAmount,
+    describeCodeTerms,
+    describePromotionEnd,
+    formatPromotionEnd,
+    getMaxPercent,
+    getPaymentSavingCents,
+    isHonouredByAll,
+    weighLinkCode
+} from '../../utils/SubscriptionCheckout'
 import { getPurchaseTarget, getSignInActionTarget, getSignInStep } from '../../components/Premium/purchaseTarget'
 import { ANONYMOUS_AUTHOR, formatQuoteDate, getQuoteAuthor } from '../../components/PremiumLanding/SocialProof/quoteFormat'
 import { COMMUNITY_QUOTES } from '../../components/PremiumLanding/content/quotes'
@@ -613,6 +622,63 @@ describe('Plan cards', () => {
         expect(describePromotionEnd('2026-11-30T23:00:00Z', 'Europe/Berlin')).to.equal('Offer runs through November 30.')
         expect(describePromotionEnd(blackweek.expiresAt, 'Europe/Berlin')).to.match(/^Offer ends November 30, 11:59\sPM GMT\+1\.$/)
         expect(formatPromotionEnd(null)).to.equal(null)
+    })
+
+    // regression: the end time could use U+202F before AM/PM on one side and a plain space on the other (hydration mismatch)
+    it('formats the end time with plain spaces only', () => {
+        expect(formatPromotionEnd(blackweek.expiresAt, 'Europe/Berlin')).not.to.match(/[\u202f\u00a0]/)
+    })
+
+    describe('weighing a code from the link against the sale', () => {
+        const both = ['stripe', 'paypal'] as ('stripe' | 'paypal')[]
+        const weighing = { promotion: blackweek, planPrice: 9.69, providers: both }
+        const percent = (amounts: Record<number, number>, duration = 'once') => ({
+            code: 'LINK',
+            amount: Math.max(...Object.values(amounts)),
+            amountType: 'percent',
+            periodAmounts: amounts,
+            duration
+        })
+        const fixed = (cents: number) => ({ code: 'LINK', amount: cents, amountType: 'fixed', duration: 'once' })
+
+        it('takes what a code saves on one payment like the payment backend', () => {
+            // 25% of €9.69: 969 - round_half_even(726.75) = 242 cents
+            expect(getPaymentSavingCents(blackweek, 9.69, 4)).to.equal(242)
+            expect(getPaymentSavingCents(fixed(200), 9.69, 4)).to.equal(200)
+            // a fixed amount never saves more than the price
+            expect(getPaymentSavingCents(fixed(5000), 9.69, 4)).to.equal(969)
+            expect(getPaymentSavingCents(blackweek, null, 4)).to.equal(null)
+        })
+
+        it('keeps the code where it saves at least as much on this payment', () => {
+            expect(weighLinkCode(percent({ 4: 10, 13: 10, 52: 60 }), true, 4, weighing)).to.equal('saving')
+            expect(weighLinkCode(percent({ 4: 10, 13: 10, 52: 60 }), true, 52, weighing)).to.equal('link')
+            expect(weighLinkCode(percent({ 4: 25, 13: 25, 52: 25 }), true, 4, weighing)).to.equal('link')
+            // fixed amounts by the price: €2.00 < €2.42, €5.00 > €2.42
+            expect(weighLinkCode(fixed(200), true, 4, weighing)).to.equal('saving')
+            expect(weighLinkCode(fixed(500), true, 4, weighing)).to.equal('link')
+            // without a price only percent codes are compared; a fixed amount is kept
+            expect(weighLinkCode(fixed(200), true, 4, { ...weighing, planPrice: null })).to.equal('link')
+            expect(weighLinkCode(percent({ 4: 10, 13: 10, 52: 10 }), true, 4, { ...weighing, planPrice: null })).to.equal('saving')
+        })
+
+        it('replaces a code that does not cover the period, only where every provider honours the sale', () => {
+            expect(weighLinkCode(percent({ 4: 0, 13: 0, 52: 30 }), false, 4, weighing)).to.equal('period')
+            const stripeOnlySale = { ...blackweek, providers: ['paypal'] }
+            expect(isHonouredByAll(stripeOnlySale, both)).to.equal(false)
+            expect(isHonouredByAll(stripeOnlySale, ['paypal'])).to.equal(true)
+            expect(isHonouredByAll({ ...blackweek, providers: null }, both)).to.equal(true)
+            expect(weighLinkCode(percent({ 4: 10, 13: 10, 52: 10 }), true, 4, { ...weighing, promotion: stripeOnlySale })).to.equal('link')
+            expect(weighLinkCode(percent({ 4: 0, 13: 0, 52: 30 }), false, 4, { ...weighing, promotion: stripeOnlySale })).to.equal('link')
+            // the sale's own code is not weighed against itself
+            expect(weighLinkCode({ ...percent({ 4: 25 }), code: 'gta6' }, true, 4, weighing)).to.equal('link')
+        })
+
+        it('names a code\'s terms for the period', () => {
+            expect(describeCodeTerms(blackweek, 52)).to.equal('50% off your first payment')
+            expect(describeCodeTerms(percent({ 4: 10, 13: 10, 52: 10 }, 'forever'), 4)).to.equal('10% off every payment')
+            expect(describeCodeTerms(fixed(500), 4)).to.equal('€5.00 off your first payment')
+        })
     })
 
     it('sends visitors to the step that blocks the purchase', () => {

@@ -225,13 +225,15 @@
     font-size: 14px;
     line-height: 1;
     font-weight: 700;
+    /* white on #c2410c: 5.2:1 */
     color: #fff;
-    background: #f76b1c;
+    background: #c2410c;
     border-radius: 800px;
 }
 
 .saleLine {
     margin: 8px 0 0;
     font-weight: 700;
-    color: #f76b1c;
+    /* 4.5:1 on the dark page and cards */
+    color: #ff8a3d;
 }

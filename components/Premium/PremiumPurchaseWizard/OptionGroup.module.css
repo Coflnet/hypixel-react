@@ -159,9 +159,17 @@
 }
 
 .amount {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 4px;
     font-size: 20px;
     line-height: 1.2;
     font-weight: 700;
+}
+
+/* after the price in the text (screen readers), before it on screen */
+.originalWrap {
+    order: -1;
 }
 
 .original {

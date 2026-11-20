@@ -9,7 +9,6 @@ import {
     describeRenewal,
     getDirectPrice,
     getEveryPeriodLabel,
-    getFirstPeriodLabel,
     getRenewalPrice,
     getPerFourWeeks,
     getPerPeriodLabel,
@@ -82,11 +81,9 @@ function getPeriodTotal(price: number, percent: number, props: Props, direct: bo
     return price * (1 - percent / 100) * (1 + getVATRate(props.countryCode))
 }
 
-/** a subscription bills every 4, 13 or 52 weeks and is shown per 4 weeks, never per calendar month; CoflCoins per month */
-function getUnitPrice(props: Props, duration: Duration, percent: number, direct: boolean): number {
-    const total = getPeriodTotal(getPlanPrice(props.selectedTier, duration), percent, props, direct)
-    if (isSubscription(props)) return getPerFourWeeks(total, getBillingWeeks(duration))
-    return total / getCoflCoinsMonths(props.selectedTier, duration)
+/** CoflCoins durations are shown per month */
+function getCoflCoinsMonthPrice(props: Props, duration: Duration, direct: boolean): number {
+    return getPeriodTotal(getPlanPrice(props.selectedTier, duration), 0, props, direct) / getCoflCoinsMonths(props.selectedTier, duration)
 }
 
 function getBadge(option: { badge?: string; value: Duration }): string | undefined {
@@ -102,42 +99,79 @@ function getVatText(props: Props, direct: boolean, net: boolean): string {
     return props.countryCode ? ` ${note}` : `, ${note}`
 }
 
-interface PeriodPrice {
-    /** the promotion's percent for this billing period, 0 without one */
-    percent: number
-    /** the promotion covers only the first payment */
-    firstOnly: boolean
-    /** the promotion, for the renewal it applies to */
-    promotion?: AutoDiscount | null
-    /** a 13/52 week plan continues every 4 weeks after its first term (Stripe/PayPal, and until the offer settles) */
-    continues?: boolean
+/** how the subscription prices of the duration options are charged and which promotion they get */
+interface SubscriptionBilling {
+    /** exact (direct checkout) or net (Managed Payments): the amounts are the charge as the backend computes it */
+    direct: boolean
     /** Managed Payments: the amounts are net, Stripe adds the tax */
-    net?: boolean
+    net: boolean
+    /** a 13/52 week plan continues every 4 weeks after its first term (Stripe/PayPal, and until the offer settles) */
+    continues: boolean
     /** the offer settled, so the renewal price may be named (its tax depends on the provider's mode) */
-    settled?: boolean
+    settled: boolean
+    promotion: AutoDiscount | null
 }
 
-/** the 4-week price of the tier after the promotion's renewal percent, "" while the offer is not settled (left out, not guessed) */
-function getRenewalText(props: Props, { promotion, settled }: PeriodPrice): string {
-    if (!settled) return ''
+/** an exact charge as it is; an estimate with "~" */
+function formatCharge(value: number, direct: boolean): string {
+    return direct ? euro(value, true) : `~${euro(value, false)}`
+}
+
+/** the 4-week price of the tier after the promotion's renewal percent, null while the offer is not settled (left out, not guessed) */
+function getRenewalText(props: Props, { promotion, settled }: SubscriptionBilling): string | null {
+    if (!settled) return null
     const renewal = getRenewalPrice(getPlanPrice(props.selectedTier, Duration.MONTHLY), promotion, props.countryCode)
-    return renewal === null ? '' : euro(renewal, true)
+    return renewal === null ? null : euro(renewal, true)
 }
 
-/**
- * e.g. "per 4 weeks · €96.69 every 52 weeks": the amount is per 4 weeks, the period total says what is billed;
- * a first-payment promotion says what it covers ("· €48.34 for the first year", "per 4 weeks, first 4 weeks")
- */
-function getSubscriptionUnit(props: Props, duration: Duration, direct: boolean, periodPrice: PeriodPrice): string {
-    const { percent, firstOnly } = periodPrice
+/** what the charge covers: Lemon Squeezy renews the same term, a card/PayPal plan its first term (a 4-week one simply repeats) */
+function isFirstTerm(weeks: number, firstOnly: boolean, billing: SubscriptionBilling): boolean {
+    return billing.continues && (hasRenewalTerm(weeks) || firstOnly)
+}
+
+/** e.g. "for the first 52 weeks, then €11.53 every 4 weeks" or "every 4 weeks (+VAT)" */
+function getSubscriptionTerm(props: Props, weeks: number, firstOnly: boolean, billing: SubscriptionBilling): string {
+    const vat = getVatText(props, billing.direct, billing.net)
+    if (!isFirstTerm(weeks, firstOnly, billing)) return `${getEveryPeriodLabel(weeks)}${vat}`
+    return `for the first ${weeks} weeks${vat}, ${describeRenewal(weeks, getRenewalText(props, billing), true)}`
+}
+
+/** the 4-week share of a longer plan, e.g. "≈ €4.42 per 4 weeks in year 1"; only a comparison, never what is charged */
+function getFourWeekShare(total: number, weeks: number, billing: SubscriptionBilling): string | null {
+    if (weeks <= 4) return null
+    const share = euro(getPerFourWeeks(total, weeks), billing.direct)
+    if (!billing.continues) return `≈ ${share} ${getPerPeriodLabel(4)}`
+    return `≈ ${share} ${getPerPeriodLabel(4)} ${weeks === 52 ? 'in year 1' : `in the first ${weeks} weeks`}`
+}
+
+function SubscriptionUnit({ term, share }: { term: string; share: string | null }) {
+    if (!share) return <>{term}</>
+    return (
+        <>
+            {term}
+            <br />
+            <span className={styles.share} data-testid="four-week-share">
+                {share}
+            </span>
+        </>
+    )
+}
+
+/** the charged total of the billing period (struck and discounted while a promotion covers it), its term and its 4-week share */
+function getSubscriptionPrices(props: Props, duration: Duration, billing: SubscriptionBilling): OptionPrices {
     const weeks = getBillingWeeks(duration)
-    const unit = `${getPerPeriodLabel(4)}${getVatText(props, direct, !!periodPrice.net)}`
-    if (weeks === 4) return firstOnly ? `${unit}, ${getFirstPeriodLabel(weeks)}` : unit
-    const total = euro(getPeriodTotal(getPlanPrice(props.selectedTier, duration), percent, props, direct), direct)
-    if (periodPrice.continues && hasRenewalTerm(weeks)) {
-        return `${unit} · ${total} for the ${getFirstPeriodLabel(weeks)}, ${describeRenewal(weeks, getRenewalText(props, periodPrice) || null, true)}`
+    const plan = getPlanPrice(props.selectedTier, duration)
+    const percent = getPeriodPercent(billing.promotion, weeks)
+    const regular = getPeriodTotal(plan, 0, props, billing.direct)
+    const total = getPeriodTotal(plan, percent, props, billing.direct)
+    const discounted = percent > 0 && total < regular
+    const firstOnly = discounted && isFirstPaymentOnly(billing.promotion)
+    return {
+        price: formatCharge(total, billing.direct),
+        originalPrice: discounted ? formatCharge(regular, billing.direct) : undefined,
+        discountBadge: discounted ? `-${percent}%` : undefined,
+        unit: <SubscriptionUnit term={getSubscriptionTerm(props, weeks, firstOnly, billing)} share={getFourWeekShare(total, weeks, billing)} />
     }
-    return `${unit} · ${total} ${firstOnly ? `for the ${getFirstPeriodLabel(weeks)}` : getEveryPeriodLabel(weeks)}`
 }
 
 function getCoflCoinsUnit(props: Props, duration: Duration, direct: boolean): string {
@@ -148,31 +182,17 @@ function getCoflCoinsUnit(props: Props, duration: Duration, direct: boolean): st
     return `per month${vatSuffix} · ${total}${vatSuffix} total for 1,800 CoflCoins`
 }
 
-function getUnit(props: Props, duration: Duration, direct: boolean, periodPrice: PeriodPrice): string {
-    if (isSubscription(props)) return getSubscriptionUnit(props, duration, direct, periodPrice)
-    return getCoflCoinsUnit(props, duration, direct)
-}
-
 type OptionPrices = Pick<WizardOption<Duration>, 'price' | 'originalPrice' | 'discountBadge' | 'unit'>
 
-/** the price per 4 weeks (CoflCoins: per month), struck through and discounted while a promotion covers the billing period */
+/** a subscription shows the charged total of its billing period, CoflCoins the price per month */
 function getOptionPrices(props: Props, duration: Duration, offer: CheckoutOffer): OptionPrices {
     const net = isNetCharge(offer.providers, offer.mode)
     // exact or net: the page shows the charge as the backend computes it; Managed Payments shows net prices, so no VAT is added
     const direct = isExactCharge(offer.providers, props.countryCode, offer.mode) || net
     const taxProps = net ? { ...props, countryCode: undefined } : props
-    const continues = isFourWeekContinuation(offer)
-    const state = { continues, net, settled: !offer.loading }
-    const promotion = offer.promotion
-    const percent = promotion ? getPeriodPercent(promotion, getBillingWeeks(duration)) : 0
-    const regular = getUnitPrice(taxProps, duration, 0, direct)
-    if (!promotion || !percent) return { price: `~${euro(regular, direct)}`, unit: getUnit(taxProps, duration, direct, { percent: 0, firstOnly: false, promotion, ...state }) }
-    return {
-        price: `~${euro(getUnitPrice(taxProps, duration, percent, direct), direct)}`,
-        originalPrice: `~${euro(regular, direct)}`,
-        discountBadge: `-${percent}%`,
-        unit: getUnit(taxProps, duration, direct, { percent, firstOnly: isFirstPaymentOnly(promotion), promotion, ...state })
-    }
+    if (!isSubscription(props)) return { price: `~${euro(getCoflCoinsMonthPrice(taxProps, duration, direct), direct)}`, unit: getCoflCoinsUnit(taxProps, duration, direct) }
+    const billing = { direct, net, continues: isFourWeekContinuation(offer), settled: !offer.loading, promotion: offer.promotion }
+    return getSubscriptionPrices(taxProps, duration, billing)
 }
 
 /** the running promotion only applies to subscriptions paid with a provider that honours it */

@@ -1,8 +1,10 @@
 'use client'
 import { ReactNode, useId } from 'react'
+import { Spinner } from 'react-bootstrap'
 import type { AutoDiscount, ValidatedDiscount } from '../../../api/_generated/skyApi.schemas'
 import {
     PaymentProvider,
+    describeCodeTerms,
     describeFixedAmount,
     describePromotion,
     getFirstPeriodLabel,
@@ -11,6 +13,7 @@ import {
     isPercentDiscount
 } from '../../../utils/SubscriptionCheckout'
 import { PremiumTier } from '../PremiumPurchaseWizard/types'
+import type { DiscountCodeState, LinkCodeReplacement } from '../../../hooks/useDiscountCode'
 import styles from './Checkout.module.css'
 
 // Building blocks of the wizard's last step, shared by the subscription and the CoflCoins checkout.
@@ -120,6 +123,23 @@ interface CodeFieldProps {
     children?: ReactNode
 }
 
+/**
+ * The discount code field's button: Apply, then Clear once a code is applied. While a code is being checked it shows a spinner and
+ * still clears, so a check that hangs never blocks the field.
+ */
+export function getDiscountCodeAction(discount: Pick<DiscountCodeState, 'validated' | 'validating' | 'code' | 'clear' | 'validate'>) {
+    const { validated, validating } = discount
+    if (!validated && !validating) return { actionLabel: 'Apply', onAction: () => void discount.validate(), actionDisabled: !discount.code.trim() }
+    const label = validating ? (
+        <>
+            <Spinner size="sm" animation="border" aria-hidden="true" /> Clear
+        </>
+    ) : (
+        'Clear'
+    )
+    return { actionLabel: label, onAction: discount.clear, actionDisabled: false }
+}
+
 export function CodeField({ label, placeholder, value, onChange, disabled, actionLabel, onAction, actionDisabled, children }: CodeFieldProps) {
     const inputId = useId()
     return (
@@ -188,6 +208,32 @@ export function DiscountCodeMessage({ error, discount, weeks, errorAction }: Dis
             {describeDiscountScope(discount, weeks)}
         </CheckoutSuccess>
     )
+}
+
+interface LinkCodeReplacedNoteProps {
+    replacement: LinkCodeReplacement | null
+    promotion: AutoDiscount | null
+    weeks: number
+}
+
+/**
+ * Why the code from the link is not used, with both codes' terms (they cannot be combined): it does not cover the billing period,
+ * or the sale saves more on this payment. A code that applies to every payment may still save more over time; that is said too.
+ */
+export function LinkCodeReplacedNote({ replacement, promotion, weeks }: LinkCodeReplacedNoteProps) {
+    if (!replacement || !promotion) return null
+    return (
+        <p className={styles.note} data-testid="link-code-replaced">
+            {describeLinkCodeReplacement(replacement, promotion, weeks)}
+        </p>
+    )
+}
+
+function describeLinkCodeReplacement({ code, reason, link }: LinkCodeReplacement, promotion: AutoDiscount, weeks: number): string {
+    const sale = `the ${promotion.name || 'sale'} (${describeCodeTerms(promotion, weeks)})`
+    if (reason === 'period') return `Code ${code} does not apply to ${weeks}-week billing, so ${sale} applies. Codes can't be combined.`
+    const overTime = isFirstPaymentOnly(promotion) && !isFirstPaymentOnly(link) ? ` Code ${code} applies to every payment, so over time it can save more.` : ''
+    return `For ${weeks}-week billing ${sale} saves more on this payment than code ${code} (${describeCodeTerms(link, weeks)}), so the sale applies.${overTime} Codes can't be combined; enter ${code} again to use it instead.`
 }
 
 /** the running promotion's terms (amount, first payment only, end date); `weeks` names the amount of that billing period */

@@ -38,6 +38,20 @@ interface RowProps<T extends string | number> {
     onChoose(value: T, advance: boolean): void
 }
 
+/**
+ * The price before a discount, struck through. It follows the price in the text, so screen readers (which do not read the
+ * strike) hear "€8.65 instead of €11.53"; the layout shows it first.
+ */
+function StruckOriginal({ original }: { original: ReactNode }) {
+    if (original == null) return null
+    return (
+        <span className={styles.originalWrap}>
+            <span className="visually-hidden"> instead of </span>
+            <s className={styles.original}>{original}</s>
+        </span>
+    )
+}
+
 type OptionPriceProps = Pick<WizardOption<string>, 'price' | 'originalPrice' | 'discountBadge' | 'unit'>
 
 function OptionPrice({ price, originalPrice, discountBadge, unit }: OptionPriceProps) {
@@ -49,7 +63,8 @@ function OptionPrice({ price, originalPrice, discountBadge, unit }: OptionPriceP
                 <span className={styles.priceLine}>
                     {discountBadge ? <span className={styles.discountBadge}>{discountBadge}</span> : null}{' '}
                     <span className={styles.amount}>
-                        {originalPrice != null ? <s className={styles.original}>{originalPrice}</s> : null} {price}
+                        <span>{price}</span>
+                        <StruckOriginal original={originalPrice} />
                     </span>
                 </span>
             ) : null}{' '}

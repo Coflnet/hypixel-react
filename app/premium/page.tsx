@@ -6,6 +6,7 @@ import PremiumLanding from '../../components/PremiumLanding/PremiumLanding'
 import { PremiumVariantProvider } from '../../components/Premium/PremiumVariantContext'
 import { BOT_VARIANT_VALUE, CONTROL_VARIANT, isPremiumVariant, PREMIUM_VARIANT_HEADER, PremiumVariant } from '../../utils/PremiumExperiment'
 import { Container } from 'react-bootstrap'
+import { COUNTRY_HEADER, getLikelyPromotion } from '../../utils/PromotionHint'
 
 // The A/B variant is derived from the user agent by the middleware, so this page must never be cached as one shared HTML.
 export const dynamic = 'force-dynamic'
@@ -18,14 +19,16 @@ async function getExperimentVariant(): Promise<PremiumVariant | undefined> {
 }
 
 export default async function Page() {
-    const variant = await getExperimentVariant()
+    // the page is rendered per request: the banner's space is reserved only where the visitor's country gets the sale
+    const country = (await headers()).get(COUNTRY_HEADER)
+    const [variant, likelyPromotion] = await Promise.all([getExperimentVariant(), getLikelyPromotion(country)])
     return (
         <PremiumVariantProvider variant={variant}>
             {variant === 'new' ? (
-                <PremiumLanding />
+                <PremiumLanding likelyPromotion={likelyPromotion} />
             ) : (
                 <Container>
-                    <Premium />
+                    <Premium likelyPromotion={likelyPromotion} />
                 </Container>
             )}
         </PremiumVariantProvider>
