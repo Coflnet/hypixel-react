@@ -802,8 +802,27 @@ export function parsePremiumSubscription(subscription: any): PremiumSubscription
         createdAt: parseDate(subscription.createdAt),
         providerSlug: subscription.providerSlug ?? undefined,
         canResume: typeof subscription.canResume === 'boolean' ? subscription.canResume : undefined,
-        canChangePlan: typeof subscription.canChangePlan === 'boolean' ? subscription.canChangePlan : undefined
+        canChangePlan: typeof subscription.canChangePlan === 'boolean' ? subscription.canChangePlan : undefined,
+        currency: subscription.currency ?? undefined,
+        termWeeks: typeof subscription.termWeeks === 'number' ? subscription.termWeeks : undefined,
+        currentTermEndsAt: parseRealDate(subscription.currentTermEndsAt),
+        canExtendLongTerm: typeof subscription.canExtendLongTerm === 'boolean' ? subscription.canExtendLongTerm : undefined,
+        extensionPrice: typeof subscription.extensionPrice === 'number' ? subscription.extensionPrice : undefined,
+        extensionTaxTreatment: parseTaxTreatment(subscription.extensionTaxTreatment),
+        renewalPrice: typeof subscription.renewalPrice === 'number' ? subscription.renewalPrice : undefined,
+        extendedUntil: parseRealDate(subscription.extendedUntil)
     }
+}
+
+/** a date the backend really set: its "not set" value 0001-01-01 and anything before 2000 is undefined */
+function parseRealDate(value: unknown): Date | undefined {
+    if (!value) return undefined
+    const date = parseDate(value as string)
+    return date.getFullYear() < 2000 ? undefined : date
+}
+
+function parseTaxTreatment(value: unknown): PremiumSubscription['extensionTaxTreatment'] {
+    return value === 'included' || value === 'net' || value === 'none' ? value : undefined
 }
 
 export function parseCraftingInstructions(craftingInstructions: any): CraftingInstructions {

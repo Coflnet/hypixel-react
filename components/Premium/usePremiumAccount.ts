@@ -195,6 +195,7 @@ export function usePremiumAccount() {
         requestTier,
         requestSlots,
         loadPremiumProducts,
+        loadPremiumSubscriptions,
         acceptTerms,
         onSubscriptionCancel,
         onLogin,

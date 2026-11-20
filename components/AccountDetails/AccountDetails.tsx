@@ -4,7 +4,7 @@ import { googleLogout } from '@react-oauth/google'
 import Cookies from 'js-cookie'
 import Image from 'next/image'
 import { ChangeEvent, useEffect, useState, type JSX } from 'react'
-import { Button, Form, Modal } from 'react-bootstrap'
+import { Alert, Button, Form, Modal } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import api from '../../api/ApiHelper'
 import { websocketHelper } from '../../api/WebsocketHelper'
@@ -23,6 +23,7 @@ import { GOOGLE_EMAIL, GOOGLE_NAME, GOOGLE_PROFILE_PICTURE_URL, getSetting, remo
 import TransactionHistory from './TransactionHistory/TransactionHistory'
 import TierSlots from './TierSlots/TierSlots'
 import usePremiumRefresh from '../../hooks/usePremiumRefresh'
+import { useExtensionLinks } from '../../hooks/useExtensionLinks'
 
 function AccountDetails() {
     const [isLoggedIn, setIsLoggedIn] = useState(false)
@@ -49,6 +50,9 @@ function AccountDetails() {
                 .catch(() => setSubscriptionLookupStatus('failed'))
         ])
     )
+
+    const subscriptionsLoaded = isLoggedIn && !isLoading && subscriptionLookupStatus === 'succeeded'
+    const extensionLinks = useExtensionLinks(subscriptionsLoaded)
 
     useEffect(() => {
         if (sessionStorage.getItem('googleId') === null) {
@@ -233,7 +237,14 @@ function AccountDetails() {
                         labelStyle={{ width: '300px', fontWeight: 'bold' }}
                         hasProductLoadingError={hasLoadingPremiumProductsError}
                         hasSubscriptionLoadingError={subscriptionLookupStatus === 'failed'}
+                        linkedSubscriptionId={extensionLinks.extendId}
+                        onSubscriptionsChanged={loadPremiumSubscriptions}
                     />
+                    {extensionLinks.paypalReturned && (
+                        <Alert variant="info" dismissible onClose={extensionLinks.dismissPaypalReturned} data-testid="extended-paypal-notice">
+                            Thanks — PayPal confirmed your approval. The renewal shows here once PayPal notifies us (usually within a minute).
+                        </Alert>
+                    )}
                     <TierSlots subscriptions={premiumSubscriptions} onCancelSubscription={setSubscriptionToCancel} />
                     <p>
                         <span className={styles.label}>CoflCoins:</span>{' '}

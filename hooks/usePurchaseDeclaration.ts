@@ -15,6 +15,8 @@ export interface PurchaseDeclarationState {
     declaration?: LegalDeclaration
     /** the declaration could not be loaded: purchasing is unavailable */
     error: boolean
+    /** it could not be loaded because the buyer has to accept the current agreement first */
+    agreementRequired: boolean
     /** the buyer ticked the declaration of this order */
     accepted: boolean
     /** accepted, loaded and not being reloaded: the purchase may start */
@@ -28,9 +30,13 @@ function getQueryKey(locale: LegalLocale) {
     return ['premiumPurchaseDeclaration', locale] as const
 }
 
+/** the buyer has not accepted the current agreement yet, so no new contract can start */
+class AgreementRequiredError extends Error {}
+
 async function loadDeclaration(locale: LegalLocale, forceRefresh = false): Promise<LegalDeclaration> {
     const status = await api.getTermsStatus(locale, undefined, forceRefresh)
-    if (!status.canStartNewContract || !status.premiumPurchaseDeclaration) throw new Error('Declaration unavailable')
+    if (!status.canStartNewContract) throw new AgreementRequiredError('Agreement not accepted')
+    if (!status.premiumPurchaseDeclaration) throw new Error('Declaration unavailable')
     return status.premiumPurchaseDeclaration
 }
 
@@ -63,5 +69,5 @@ export function usePurchaseDeclaration(active: boolean, orderKey: string): Purch
         await queryClient.fetchQuery({ queryKey: getQueryKey(locale), queryFn: () => loadDeclaration(locale, true), staleTime: 0 }).catch(() => undefined)
     }
 
-    return { locale, declaration, error: query.isError, accepted, confirmed: accepted && !!declaration && !query.isFetching, setAccepted, reload }
+    return { locale, declaration, error: query.isError, agreementRequired: query.error instanceof AgreementRequiredError, accepted, confirmed: accepted && !!declaration && !query.isFetching, setAccepted, reload }
 }

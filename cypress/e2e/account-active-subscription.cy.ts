@@ -1,5 +1,6 @@
 import { pageText, tickUntil } from '../support/clock'
 import { formatMoney } from '../../utils/PricingUtils'
+import { withVariantOverride } from '../../utils/PremiumExperiment'
 import { getBazaarHistoryYears } from '../../utils/DataHistory'
 
 const BAZAAR_ARCHIVE_BULLET = `Archive, CSV exports and about ${getBazaarHistoryYears()} years of bazaar data`
@@ -94,6 +95,11 @@ function installAuthenticatedWebSocket(window: Cypress.AUTWindow) {
     window.document.cookie = 'nonEssentialCookiesAllowed=false; path=/'
 }
 
+/** the /premium page is an A/B test whose variant follows the user agent and the day: these specs test the control page */
+function withControlVariant(path: string): string {
+    return path.startsWith('/premium') && !path.includes('premiumVariant=') ? withVariantOverride(path, 'current') : path
+}
+
 function visitAuthenticatedPage(path = '/account', setup?: (window: Cypress.AUTWindow) => void) {
     cy.intercept('GET', '**/api/user/terms*', {
         statusCode: 200,
@@ -113,7 +119,7 @@ function visitAuthenticatedPage(path = '/account', setup?: (window: Cypress.AUTW
         }
     })
     cy.intercept('GET', '**/api/premium/transactions', { statusCode: 200, body: [] })
-    cy.visit(path, {
+    cy.visit(withControlVariant(path), {
         onBeforeLoad(window) {
             installAuthenticatedWebSocket(window)
             setup?.(window)
@@ -1933,7 +1939,8 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
     it('starts the slot flow fresh when slots are opened from a personal checkout', () => {
         stubUpgradeRates()
         stubProviders(directProviders)
-        openYearlyPremium()
+        // the "Explore Slots and Bundles" link belongs to the new page
+        openYearlyPremium('/premium?tier=premium&premiumVariant=new')
         cy.get('[data-testid="checkout-payment"]').should('exist')
         cy.contains('a', 'Explore Slots and Bundles').click()
         cy.contains('Choose the tier your friends will receive.').should('be.visible')

@@ -218,6 +218,7 @@ import type {
   PostApiPlayerNames200Three,
   PostApiPlayerNames200Two,
   PostApiPremiumPricesAdjusted401One,
+  PostApiPremiumSubscriptionExternalIdExtend401One,
   PostApiPremiumSubscriptionSubscriptionSlug401One,
   PostApiPremiumSubscriptionSubscriptionSlugParams,
   PostApiPremiumUserOwns200One,
@@ -275,6 +276,7 @@ import type {
   StorageQuickStatus,
   SubscriptionChangeResult,
   SubscriptionDeclarationArgs,
+  SubscriptionExtensionResponse,
   SubscriptionPlan,
   SubscriptionProviderOption,
   SupplyElement,
@@ -16694,6 +16696,146 @@ export const usePutApiPremiumSubscriptionExternalIdReactivate = <TError = PutApi
         TContext
       > => {
       return useMutation(getPutApiPremiumSubscriptionExternalIdReactivateMutationOptions(options), queryClient);
+    }
+
+export type postApiPremiumSubscriptionExternalIdExtendResponse200TextPlain = {
+  data: SubscriptionExtensionResponse
+  status: 200
+}
+
+export type postApiPremiumSubscriptionExternalIdExtendResponse200ApplicationJson = {
+  data: SubscriptionExtensionResponse
+  status: 200
+}
+
+export type postApiPremiumSubscriptionExternalIdExtendResponse200TextJson = {
+  data: SubscriptionExtensionResponse
+  status: 200
+}
+
+export type postApiPremiumSubscriptionExternalIdExtendResponse401ApplicationJson = {
+  data: PostApiPremiumSubscriptionExternalIdExtend401One
+  status: 401
+}
+
+export type postApiPremiumSubscriptionExternalIdExtendResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiPremiumSubscriptionExternalIdExtendResponse403 = {
+  data: void
+  status: 403
+}
+
+export type postApiPremiumSubscriptionExternalIdExtendResponse428TextPlain = {
+  data: ProblemDetails
+  status: 428
+}
+
+export type postApiPremiumSubscriptionExternalIdExtendResponse428ApplicationJson = {
+  data: ProblemDetails
+  status: 428
+}
+
+export type postApiPremiumSubscriptionExternalIdExtendResponse428TextJson = {
+  data: ProblemDetails
+  status: 428
+}
+
+export type postApiPremiumSubscriptionExternalIdExtendResponse503 = {
+  data: void
+  status: 503
+}
+
+export type postApiPremiumSubscriptionExternalIdExtendResponseSuccess = (postApiPremiumSubscriptionExternalIdExtendResponse200TextPlain | postApiPremiumSubscriptionExternalIdExtendResponse200ApplicationJson | postApiPremiumSubscriptionExternalIdExtendResponse200TextJson) & {
+  headers: Headers;
+};
+export type postApiPremiumSubscriptionExternalIdExtendResponseError = (postApiPremiumSubscriptionExternalIdExtendResponse401ApplicationJson | postApiPremiumSubscriptionExternalIdExtendResponse401TextPlain | postApiPremiumSubscriptionExternalIdExtendResponse403 | postApiPremiumSubscriptionExternalIdExtendResponse428TextPlain | postApiPremiumSubscriptionExternalIdExtendResponse428ApplicationJson | postApiPremiumSubscriptionExternalIdExtendResponse428TextJson | postApiPremiumSubscriptionExternalIdExtendResponse503) & {
+  headers: Headers;
+};
+
+export type postApiPremiumSubscriptionExternalIdExtendResponse = (postApiPremiumSubscriptionExternalIdExtendResponseSuccess | postApiPremiumSubscriptionExternalIdExtendResponseError)
+
+export const getPostApiPremiumSubscriptionExternalIdExtendUrl = (externalId: string,) => {
+
+
+
+
+  return `https://sky.coflnet.com/api/premium/subscription/${externalId}/extend`
+}
+
+/**
+ * @summary Renews a 13 or 52 week subscription for another term instead of continuing every 4 weeks.
+Stripe extends immediately, PayPal returns an approval url the buyer has to be redirected to.
+ */
+export const postApiPremiumSubscriptionExternalIdExtend = async (externalId: string,
+    subscriptionDeclarationArgs?: SubscriptionDeclarationArgs, options?: RequestInit): Promise<postApiPremiumSubscriptionExternalIdExtendResponse> => {
+
+  const res = await fetch(getPostApiPremiumSubscriptionExternalIdExtendUrl(externalId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(subscriptionDeclarationArgs)
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postApiPremiumSubscriptionExternalIdExtendResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as postApiPremiumSubscriptionExternalIdExtendResponse
+}
+
+
+
+
+
+export const getPostApiPremiumSubscriptionExternalIdExtendMutationOptions = <TError = PostApiPremiumSubscriptionExternalIdExtend401One | string | void | ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionExternalIdExtend>>, TError,{externalId: string;data?: SubscriptionDeclarationArgs}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionExternalIdExtend>>, TError,{externalId: string;data?: SubscriptionDeclarationArgs}, TContext> => {
+
+const mutationKey = ['postApiPremiumSubscriptionExternalIdExtend'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPremiumSubscriptionExternalIdExtend>>, {externalId: string;data?: SubscriptionDeclarationArgs}> = (props) => {
+          const {externalId,data} = props ?? {};
+
+          return  postApiPremiumSubscriptionExternalIdExtend(externalId,data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiPremiumSubscriptionExternalIdExtendMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPremiumSubscriptionExternalIdExtend>>>
+    export type PostApiPremiumSubscriptionExternalIdExtendMutationBody = SubscriptionDeclarationArgs | undefined
+    export type PostApiPremiumSubscriptionExternalIdExtendMutationError = PostApiPremiumSubscriptionExternalIdExtend401One | string | void | ProblemDetails
+
+    /**
+ * @summary Renews a 13 or 52 week subscription for another term instead of continuing every 4 weeks.
+Stripe extends immediately, PayPal returns an approval url the buyer has to be redirected to.
+ */
+export const usePostApiPremiumSubscriptionExternalIdExtend = <TError = PostApiPremiumSubscriptionExternalIdExtend401One | string | void | ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionExternalIdExtend>>, TError,{externalId: string;data?: SubscriptionDeclarationArgs}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiPremiumSubscriptionExternalIdExtend>>,
+        TError,
+        {externalId: string;data?: SubscriptionDeclarationArgs},
+        TContext
+      > => {
+      return useMutation(getPostApiPremiumSubscriptionExternalIdExtendMutationOptions(options), queryClient);
     }
 
 export type putApiPremiumSubscriptionExternalIdSwitchResponse200TextPlain = {

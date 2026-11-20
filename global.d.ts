@@ -925,6 +925,21 @@ interface PremiumSubscription {
     canResume?: boolean
     /** false when the plan cannot be switched; undefined keeps plan changes available */
     canChangePlan?: boolean
+    /** currency (ISO code) of the prices below */
+    currency?: string
+    /** length of the current term in weeks (4, 13 or 52); undefined when unknown */
+    termWeeks?: number
+    /** end of the term that is currently paid for; undefined from an older backend */
+    currentTermEndsAt?: Date
+    /** a 13 or 52 week subscription that can be renewed for one more term */
+    canExtendLongTerm?: boolean
+    extensionPrice?: number
+    /** whether extensionPrice includes tax (included), is net (net) or carries none */
+    extensionTaxTreatment?: 'included' | 'net' | 'none'
+    /** price of the 4 week continuation after the long term */
+    renewalPrice?: number
+    /** an extension is booked until this date */
+    extendedUntil?: Date
 }
 
 interface CraftingInstructions {

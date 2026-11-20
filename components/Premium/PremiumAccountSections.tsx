@@ -65,7 +65,7 @@ export function PremiumStatusLine({ account }: AccountProps) {
  * open the sign-in dialog and continue after the login; without it the inline "Sign in" is the only entry point.
  */
 export function PremiumSignIn({ account, dialog }: AccountProps & { dialog?: SignInDialogControl }) {
-    const { isLoggedIn, isLoading, products, premiumSubscriptions, onSubscriptionCancel, hasSubscriptionLoadingError, onLogin, onLoginFail } = account
+    const { isLoggedIn, isLoading, products, premiumSubscriptions, onSubscriptionCancel, hasSubscriptionLoadingError, loadPremiumSubscriptions, onLogin, onLoginFail } = account
     return (
         <div id={SIGN_IN_TARGET} style={{ marginBottom: '20px' }}>
             {isLoggedIn ? (
@@ -74,6 +74,7 @@ export function PremiumSignIn({ account, dialog }: AccountProps & { dialog?: Sig
                     subscriptions={premiumSubscriptions}
                     onSubscriptionCancel={onSubscriptionCancel}
                     hasSubscriptionLoadingError={hasSubscriptionLoadingError}
+                    onSubscriptionsChanged={loadPremiumSubscriptions}
                 />
             ) : null}
             {dialog ? <GoogleSignIn {...dialog} /> : <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />}

@@ -10,6 +10,7 @@ import CancelSubscriptionFeedbackDialog from '../CancelSubscriptionFeedbackDialo
 import { usePutApiPremiumSubscriptionExternalIdReactivate } from '../../../api/_generated/skyApi'
 import { toast } from 'react-toastify'
 import UpgradeSubscription from '../UpgradeSubscription/UpgradeSubscription'
+import ExtendSubscription from '../ExtendSubscription/ExtendSubscription'
 
 interface Props {
     products: PremiumProduct[]
@@ -18,6 +19,14 @@ interface Props {
     onSubscriptionCancel(subscription: PremiumSubscription): void | Promise<void>
     hasProductLoadingError?: boolean
     hasSubscriptionLoadingError?: boolean
+    /** the subscription a reminder mail links to (/account?extend=id): it is scrolled into view */
+    linkedSubscriptionId?: string
+    /** refreshes the subscriptions after one was renewed */
+    onSubscriptionsChanged?(): void | Promise<unknown>
+}
+
+function scrollIntoView(element: HTMLElement | null) {
+    element?.scrollIntoView({ block: 'center' })
 }
 
 function PremiumStatus(props: Props) {
@@ -152,7 +161,11 @@ function PremiumStatus(props: Props) {
                         </span>
                         <ul style={{ float: 'left' }}>
                             {props.subscriptions.map(subscription => (
-                                <li key={subscription.externalId}>
+                                <li
+                                    key={subscription.externalId}
+                                    id={`subscription-${subscription.externalId}`}
+                                    ref={subscription.externalId === props.linkedSubscriptionId ? scrollIntoView : undefined}
+                                >
                                         {' '}
                                         <Tooltip
                                             type="hover"
@@ -201,6 +214,13 @@ function PremiumStatus(props: Props) {
                                             >
                                                 <CancelOutlined fontSize="small" /> Cancel subscription
                                             </button>
+                                        )}
+                                        {!subscription.endsAt && (
+                                            <ExtendSubscription
+                                                subscription={subscription}
+                                                linked={subscription.externalId === props.linkedSubscriptionId}
+                                                onExtended={props.onSubscriptionsChanged ?? (() => undefined)}
+                                            />
                                         )}
                                 </li>
                             ))}

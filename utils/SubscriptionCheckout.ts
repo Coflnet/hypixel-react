@@ -258,6 +258,11 @@ function readSlug(data: unknown): string {
     return [slug, message].filter(value => typeof value === 'string').join(' ')
 }
 
+/** whether an error response names `slug` (as its slug or inside its message) */
+export function hasErrorSlug(data: unknown, slug: string): boolean {
+    return readSlug(data).includes(slug)
+}
+
 /** the declaration error of a failed checkout response (its slug, or the slug in its message), null for other errors */
 export function getDeclarationErrorSlug(data: unknown): DeclarationErrorSlug | null {
     const text = readSlug(data)

@@ -4014,6 +4014,34 @@ export interface PremiumSubscription {
   canResume: boolean;
   /** Whether the plan can be switched to another tier. */
   canChangePlan: boolean;
+  /**
+     * Currency of the prices of this subscription (ISO code).
+     * @nullable
+     */
+  currency?: string | null;
+  /** When the term that is currently paid for ends. */
+  currentTermEndsAt: string;
+  /** Whether the subscription can be renewed for another long term (13 or 52 weeks). */
+  canExtendLongTerm: boolean;
+  /** Price of renewing for another term, in the subscription currency. */
+  extensionPrice: number;
+  /**
+     * Whether the extension price includes tax: included, net or none.
+     * @nullable
+     */
+  extensionTaxTreatment?: string | null;
+  /** Price of the 4 week continuation, in the subscription currency. */
+  renewalPrice: number;
+  /**
+     * Until when the subscription is already extended, null when it is not.
+     * @nullable
+     */
+  extendedUntil?: string | null;
+  /**
+     * Length of the current term in weeks (4, 13 or 52), null when unknown.
+     * @nullable
+     */
+  termWeeks?: number | null;
 }
 
 /**
@@ -5591,6 +5619,23 @@ export interface SubscriptionDeclarationArgs {
   declarationRequestId?: string | null;
 }
 
+/**
+ * Result of renewing a subscription for another term.
+ */
+export interface SubscriptionExtensionResponse {
+  /** True when the term was extended immediately (Stripe). */
+  extended: boolean;
+  /**
+     * Url to redirect the buyer to for approval (PayPal), null when already extended.
+     * @nullable
+     */
+  approvalUrl?: string | null;
+  /** When the current term ends. */
+  termEndsAt: string;
+  /** Until when the subscription is paid after the extension. */
+  extendedUntil: string;
+}
+
 export interface SubscriptionPlan {
   /** @nullable */
   productSlug?: string | null;
@@ -6362,6 +6407,10 @@ export type DeleteApiPremiumSubscriptionExternalId401One = {
 };
 
 export type PutApiPremiumSubscriptionExternalIdReactivate401One = {
+  message?: string;
+};
+
+export type PostApiPremiumSubscriptionExternalIdExtend401One = {
   message?: string;
 };
 
