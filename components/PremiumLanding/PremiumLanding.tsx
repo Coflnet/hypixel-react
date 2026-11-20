@@ -1,4 +1,5 @@
 import NavBar from '../NavBar/NavBar'
+import { PromotionBanner } from '../Discounts/DiscountBanners'
 import ComparePlans from './Compare/ComparePlans'
 import FeatureExplorer from './FeatureExplorer/FeatureExplorer'
 import PremiumHero from './Hero/PremiumHero'
@@ -29,6 +30,9 @@ export default function PremiumLanding() {
             <div className={styles.topBar}>
                 <NavBar />
                 <span className={styles.topBarTitle}>Premium</span>
+            </div>
+            <div className={styles.promotion}>
+                <PromotionBanner href="#plans" />
             </div>
             <PremiumHero />
             <FeatureExplorer />

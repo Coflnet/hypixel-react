@@ -142,3 +142,22 @@
         font-size: 0.92rem;
     }
 }
+
+.bannerTitle {
+    font-size: 1.1em;
+}
+
+.salesBanner .highlight {
+    font-size: 1.25em;
+    font-weight: 800;
+}
+
+.bannerAction {
+    display: block;
+    margin-top: 4px;
+    font-weight: 600;
+}
+
+.bannerLink {
+    text-decoration: underline;
+}

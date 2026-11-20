@@ -1,0 +1,13 @@
+.struck {
+    font-weight: 400;
+    color: var(--muted-text, #adb5bd);
+}
+
+.saleOffer {
+    font-weight: 600;
+}
+
+.badge {
+    color: #f76b1c;
+    font-weight: 700;
+}

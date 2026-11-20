@@ -2,14 +2,6 @@ import { PremiumTier } from '../components/Premium/PremiumPurchaseWizard/types'
 import { BatchProductPricingResponse, ProviderPricingOption } from '../api/_generated/skyApi.schemas'
 import { Duration } from '../components/Premium/PremiumPurchaseWizard/types'
 
-// Base prices in EUR (before tax) of the plan cards: Starter per 52 weeks, Premium per 4 weeks, Premium+ per 4 weeks billed for 52 weeks.
-// Fallback for the server-rendered page; checkouts show the backend's quote (SUBSCRIPTION_PRICES).
-export const BASE_PRICES = {
-    [PremiumTier.STARTER]: 16.69, // every 52 weeks
-    [PremiumTier.PREMIUM]: 9.69, // every 4 weeks
-    [PremiumTier.PREMIUM_PLUS]: 354.2 / 13 // per 4 weeks, billed every 52 weeks
-}
-
 // Standard VAT rates used for estimates; checkout resolves regional rates and exemptions.
 // EU rates: https://europa.eu/youreurope/business/finance-and-tax/vat/vat-rules-rates/index_en.htm
 export const VAT_RATES: { [countryCode: string]: number } = {
@@ -66,22 +58,6 @@ export const VAT_RATES: { [countryCode: string]: number } = {
     PE: 0.18, // Peru 18%
     UY: 0.22, // Uruguay 22%
     EC: 0.15 // Ecuador 15% (sri.gob.ec/impuesto-al-valor-agregado-iva)
-}
-
-export interface PriceInfo {
-    basePrice: number
-    vatRate: number
-    vatAmount: number
-    totalPrice: number
-    currency: string
-}
-
-/** the plan card price of a tier (see BASE_PRICES) after `discountPercent`, with the country's VAT estimate */
-export function calculatePrice(tier: PremiumTier, countryCode?: string, discountPercent: number = 0): PriceInfo {
-    const basePrice = BASE_PRICES[tier] * (1 - discountPercent / 100)
-    const vatRate = countryCode ? VAT_RATES[countryCode.toUpperCase()] || 0 : 0
-    const vatAmount = basePrice * vatRate
-    return { basePrice, vatRate, vatAmount, totalPrice: basePrice + vatAmount, currency: 'EUR' }
 }
 
 export const CURRENCY_SYMBOLS: Record<string, string> = {

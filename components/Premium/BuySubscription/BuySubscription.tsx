@@ -52,7 +52,6 @@ import {
 } from '../../../utils/SubscriptionCheckout'
 import { usePremiumVariant } from '../PremiumVariantContext'
 import { trackPremiumFunnelEvent } from '../../../utils/PremiumTracking'
-import { formatDiscountEndDate, getActiveSubscriptionDiscount } from '../../../utils/DiscountUtils'
 import checkoutStyles from '../Checkout/Checkout.module.css'
 import { useBackForwardRestore } from '../Checkout/useBackForwardRestore'
 import CountrySelect from '../../CountrySelect/CountrySelect'
@@ -148,7 +147,6 @@ function BuySubscription(props: Props) {
     const buyerCountry = props.countryCode
     const billingWeeks = getBillingWeeks(props.selectedDuration)
     const productSlug = getTierApiProductId(tier, duration)
-    const summerDiscount = getActiveSubscriptionDiscount()
     const pricing = useSubscriptionPricing(productSlug, buyerCountry, props.initialCreatorCode)
     const offer = useCheckoutOffer(buyerCountry, productSlug)
     const discount = useDiscountCode(props.initialDiscountCode, {
@@ -368,16 +366,6 @@ function BuySubscription(props: Props) {
         )
     }
 
-    function renderSummerDiscount() {
-        if (!summerDiscount || validatedDiscount) return null
-        return (
-            <SummaryNote>
-                <strong>{summerDiscount.label}:</strong> use code <code>{summerDiscount.code}</code> at checkout for <strong>{summerDiscount.percentage}% off</strong>{' '}
-                until {formatDiscountEndDate(summerDiscount.endsAt)}.
-            </SummaryNote>
-        )
-    }
-
     /** the same tax wording as the price: an exact direct charge includes VAT (or none is added, US), estimates say so */
     function renderTaxNote() {
         if (!buyerCountry) return <SummaryNote>Prices are before VAT until you choose your country. VAT is added where applicable.</SummaryNote>
@@ -407,7 +395,6 @@ function BuySubscription(props: Props) {
                 </SummaryTotal>
                 {offer.promotion && validatedDiscount?.code === offer.promotion.code ? <PromotionNote promotion={offer.promotion} weeks={billingWeeks} /> : null}
                 {pricing.error ? <CheckoutError>{pricing.error}</CheckoutError> : null}
-                {renderSummerDiscount()}
                 {renderTaxNote()}
             </>
         )

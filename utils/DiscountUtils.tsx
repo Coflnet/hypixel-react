@@ -1,12 +1,10 @@
 /**
  * Centralized discount / promotional sale handling.
  *
- * All active discount codes, their percentages, what they apply to and their
- * validity windows live here so the sales banner, the premium wizard, the
- * flip-list premium notes and the CoflCoins shop all stay in sync.
- *
- * To start, change or end a sale, edit the constants below - nothing else in
- * the UI hardcodes a code, percentage or end date.
+ * The CoflCoins sale codes, their percentages and validity windows live here so
+ * the start page banner and the CoflCoins shop stay in sync. Subscription sales
+ * come from the backend's automatic promotion (GET /api/premium/discount/auto,
+ * see useCheckoutOffer) and need no code.
  */
 
 export type DiscountTarget = 'subscription' | 'coins'
@@ -26,16 +24,6 @@ export interface Discount {
     endsAt: Date
 }
 
-/** 30% off any premium subscription, until October 18th, code FALL. */
-export const FALL_SALE: Discount = {
-    id: 'fall-sale-2026',
-    label: 'Fall Sale',
-    code: 'FALL',
-    percentage: 30,
-    target: 'subscription',
-    endsAt: new Date('2026-10-18T23:59:59.999Z')
-}
-
 /** 10% off CoflCoins, until July 31st, code SUMMERCOINS. */
 export const SUMMER_COINS_SALE: Discount = {
     id: 'summer-coins-2026',
@@ -47,16 +35,11 @@ export const SUMMER_COINS_SALE: Discount = {
 }
 
 /** Every discount known to the frontend. */
-export const ALL_DISCOUNTS: Discount[] = [FALL_SALE, SUMMER_COINS_SALE]
+export const ALL_DISCOUNTS: Discount[] = [SUMMER_COINS_SALE]
 
 /** True while `now` is on or before the discount's end date. */
 export function isDiscountActive(discount: Discount, now: Date = new Date()): boolean {
     return now.getTime() <= discount.endsAt.getTime()
-}
-
-/** The currently running subscription discount, or null if none is active. */
-export function getActiveSubscriptionDiscount(now: Date = new Date()): Discount | null {
-    return isDiscountActive(FALL_SALE, now) ? FALL_SALE : null
 }
 
 /** The currently running CoflCoins discount, or null if none is active. */

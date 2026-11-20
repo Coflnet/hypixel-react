@@ -3,12 +3,10 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { Button } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
-import {
-    Discount,
-    formatDiscountEndDate,
-    getActiveCoinsDiscount,
-    getActiveSubscriptionDiscount
-} from '../../utils/DiscountUtils'
+import { Discount, formatDiscountEndDate, getActiveCoinsDiscount } from '../../utils/DiscountUtils'
+import { useVisitorPromotion } from '../../hooks/useCheckoutOffer'
+import { describeBestAmount, describePromotionScope, formatPromotionEnd } from '../../utils/SubscriptionCheckout'
+import type { AutoDiscount } from '../../api/_generated/skyApi.schemas'
 import { PremiumTier, getTierDisplayName } from '../Premium/PremiumPurchaseWizard/types'
 import { getNextTierUp } from '../../utils/PremiumUpgradeUtils'
 import { hasHighEnoughPremium, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
@@ -50,40 +48,53 @@ function useHasPremiumPlus(): boolean {
     return hasPremiumPlus
 }
 
+/** where the sale banners send visitors: the plans of either /premium variant (both pages have the #plans anchor) */
+export const PLANS_HREF = '/premium#plans'
+
+/**
+ * Full-width banner of the automatic promotion the visitor's country gets (GET /api/premium/discount/auto), e.g.
+ * "Blackweek sale: up to 50% OFF your first payment — ends November 30, 11:59 PM GMT+1". Links to the plans; no code is needed.
+ * Renders nothing on the server, while the country or providers load and when no promotion runs for them.
+ * `href` is "#plans" on /premium itself, so the page (and its query, e.g. the QA variant override) stays.
+ */
+export function PromotionBanner({ href = PLANS_HREF }: { href?: string }) {
+    const promotion = useVisitorPromotion()
+    if (!promotion) return null
+    const end = formatPromotionEnd(promotion.expiresAt)
+    const name = promotion.name || 'Sale'
+    return (
+        <Link href={href} className={styles.salesBanner} data-testid="promotion-banner">
+            <span className={styles.bannerTitle}>🎮 {name}:</span> <span className={styles.highlight}>{getPromotionHeadline(promotion)}</span>{' '}
+            {describePromotionScope(promotion)}
+            {end ? ` — ends ${end}` : ''}
+            <span className={styles.bannerAction}>
+                Applied automatically — <span className={styles.bannerLink}>See the plans →</span>
+            </span>
+        </Link>
+    )
+}
+
+/** "up to 50% OFF" (or "€5.00 OFF" for a fixed amount) */
+function getPromotionHeadline(promotion: AutoDiscount): string {
+    return describeBestAmount(promotion).replace(/ off$/, ' OFF')
+}
+
 /**
  * Full-width promotional banner shown at the top of the start page.
  *
- * Advertises the running subscription sale, except for users who already own the top (Premium+)
- * tier — a subscription discount is useless to them, so they instead see the CoflCoins sale (or
- * nothing when no coins sale is running). Renders nothing while no relevant discount is active.
+ * Advertises the running subscription promotion, except for users who already own the top (Premium+) tier — a subscription
+ * discount is useless to them, so they instead see the CoflCoins sale (or nothing when no coins sale is running).
  */
 export function SubscriptionSalesBanner() {
     const hasPremiumPlus = useHasPremiumPlus()
-    const subscriptionDiscount = getActiveSubscriptionDiscount()
     const coinsDiscount = getActiveCoinsDiscount()
 
-    if (hasPremiumPlus) {
-        if (!coinsDiscount) {
-            return null
-        }
-        return (
-            <Link href="/premium" className={styles.salesBanner} role="button" aria-label={`${coinsDiscount.label} promo`}>
-                <span style={{ fontSize: '1.1em' }}>🪙 {coinsDiscount.label}</span> Get{' '}
-                <span className={styles.highlight}>{coinsDiscount.percentage}% OFF</span> CoflCoins with code{' '}
-                <span className={styles.code}>{coinsDiscount.code}</span> until {formatDiscountEndDate(coinsDiscount.endsAt)} — Click to redeem!
-            </Link>
-        )
-    }
-
-    if (!subscriptionDiscount) {
-        return null
-    }
-
+    if (!hasPremiumPlus) return <PromotionBanner />
+    if (!coinsDiscount) return null
     return (
-        <Link href={`/premium?code=${subscriptionDiscount.code}`} className={styles.salesBanner} role="button" aria-label={`${subscriptionDiscount.label} promo`}>
-            <span style={{ fontSize: '1.1em' }}>☀️ {subscriptionDiscount.label}</span> Get{' '}
-            <span className={styles.highlight}>{subscriptionDiscount.percentage}% OFF</span> any subscription with code{' '}
-            <span className={styles.code}>{subscriptionDiscount.code}</span> until {formatDiscountEndDate(subscriptionDiscount.endsAt)} — Click to redeem!
+        <Link href="/premium" className={styles.salesBanner} role="button" aria-label={`${coinsDiscount.label} promo`}>
+            <span style={{ fontSize: '1.1em' }}>🪙 {coinsDiscount.label}</span> Get <span className={styles.highlight}>{coinsDiscount.percentage}% OFF</span>{' '}
+            CoflCoins with code <span className={styles.code}>{coinsDiscount.code}</span> until {formatDiscountEndDate(coinsDiscount.endsAt)} — Click to redeem!
         </Link>
     )
 }
@@ -160,18 +171,15 @@ export function TierUpsellPanel({ currentTier, price, codeSavings, onUpgrade }: 
 }
 
 /**
- * Short discount line appended to the premium note over locked flips.
- * Renders nothing while no subscription discount is active.
+ * Short line about the running promotion, appended to the premium note over locked flips.
+ * Renders nothing while no promotion runs for the visitor.
  */
 export function FlipListDiscountNote() {
-    const discount = getActiveSubscriptionDiscount()
-    if (!discount) {
-        return null
-    }
-
+    const promotion = useVisitorPromotion()
+    if (!promotion) return null
     return (
-        <span className={styles.flipNote}>
-            ☀️ {discount.label}: {discount.percentage}% off with code {discount.code}
+        <span className={styles.flipNote} data-testid="flip-promotion-note">
+            🎮 {promotion.name || 'Sale'}: {describeBestAmount(promotion)} {describePromotionScope(promotion)} of Premium, applied automatically
         </span>
     )
 }

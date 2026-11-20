@@ -1,30 +1,55 @@
-// Prices for the plan cards, built from the same functions the purchase wizard's tier cards use.
-// Subscriptions bill every 4, 13 or 52 weeks, so prices are labelled per 4 weeks (or 52 weeks), never per month.
+// Prices for the plan cards and the purchase wizard's tier cards.
+// Subscriptions bill every 4, 13 or 52 weeks, so prices name their term in weeks, never months. Every headline is a price that is
+// actually charged: Starter and Premium+ show their 52-week plan, Premium its 4-week plan.
 // The billing (PlanBilling) says how the checkout will charge: `exact` (a direct Stripe/PayPal checkout bills the buyer's country)
 // prices like the checkout, the exact charge with no "+ VAT" where none is added (the US); `net` (Stripe Managed Payments) shows net
 // prices, Stripe adds the tax; otherwise the tax estimate of the buyer's country (Lemon Squeezy). Until the offer settles
 // (loading, server-rendered page) the card/PayPal wording is used, as Lemon Squeezy is only the fallback.
+// A running promotion (the checkout offer's automatic discount) is shown only where the charge is known (exact or net): the sale
+// price, the struck price without it and a badge with its percent, per billing period.
 
 import { PremiumTier } from '../../Premium/PremiumPurchaseWizard/types'
-import { calculatePrice, getPriceWithVAT, SUBSCRIPTION_PRICES } from '../../../utils/PricingUtils'
+import { getPriceWithVAT, SUBSCRIPTION_PRICES } from '../../../utils/PricingUtils'
 import {
     CANCEL_ANYTIME,
     getDirectPrice,
+    getPeriodPercent,
+    getRenewalPercent,
     getTaxLabel,
     isExactCharge,
+    isFirstPaymentOnly,
     isFourWeekContinuation,
     isNetCharge,
+    RENEWAL_WEEKS,
     showsVatSuffix,
     UNKNOWN_COUNTRY_VAT_NOTE
 } from '../../../utils/SubscriptionCheckout'
+import type { AutoDiscount } from '../../../api/_generated/skyApi.schemas'
 import type { CheckoutOffer } from '../../../hooks/useCheckoutOffer'
 
-export interface PlanPrice {
-    /** e.g. "€9.69" */
+/** a charged price, with the price before the promotion when one applies */
+export interface PriceTag {
+    /** what is charged, e.g. "€8.65" */
     amount: string
-    /** the period with the VAT that is not in the amount, e.g. "+ VAT per 4 weeks" or "per 4 weeks" when it is included */
+    /** the price without the promotion, shown struck through; null when no promotion lowers it */
+    original: string | null
+    /** the promotion's percent, e.g. "-25%"; null when no promotion lowers it */
+    badge: string | null
+}
+
+/** a price with its term, e.g. "€19.77 (€32.95 struck) for the first 13 weeks (-40%)" */
+export interface PeriodOffer extends PriceTag {
+    /** e.g. "for the first 13 weeks" or "every 4 weeks" */
+    period: string
+}
+
+/** the note under a plan price: text and further prices of the same tier */
+export type NotePart = string | PeriodOffer
+
+export interface PlanPrice extends PriceTag {
+    /** the term with the tax that is not in the amount, e.g. "for the first 52 weeks", "+ VAT every 4 weeks" */
     unit: string
-    note: string
+    note: NotePart[]
 }
 
 /** how the plan prices will be charged, see the top of this file */
@@ -51,65 +76,156 @@ export function getPlanBilling(offer: Pick<CheckoutOffer, 'loading' | 'providers
     }
 }
 
+type ProductId = 'starter_premium' | 'premium' | 'premium_plus'
+type Period = 'monthly' | 'quarterly' | 'yearly'
+
+const PRODUCT_OF: Record<PremiumTier, ProductId> = {
+    [PremiumTier.STARTER]: 'starter_premium',
+    [PremiumTier.PREMIUM]: 'premium',
+    [PremiumTier.PREMIUM_PLUS]: 'premium_plus'
+}
+
+const PERIOD_OF_WEEKS: Record<number, Period> = { 4: 'monthly', 13: 'quarterly', 52: 'yearly' }
+
+/** the plan each card's headline shows: Premium's 4-week plan, the 52-week plan of Starter (sold only so) and Premium+ */
+const HEADLINE_WEEKS: Record<PremiumTier, number> = {
+    [PremiumTier.STARTER]: 52,
+    [PremiumTier.PREMIUM]: 4,
+    [PremiumTier.PREMIUM_PLUS]: 52
+}
+
 function euro(value: number): string {
     return `€${value.toFixed(2)}`
 }
 
-/** a before-tax price as the buyer pays it: the exact charge of a direct checkout, the net price of Managed Payments, otherwise the country's tax estimate */
-function withTax(price: number, countryCode: string | undefined, billing: PlanBilling): number {
-    if (billing.exact) return getDirectPrice(price, 0, countryCode)
-    if (billing.net) return getDirectPrice(price, 0, undefined)
-    return getPriceWithVAT(price, countryCode)
+/** everything a card's prices depend on */
+class PlanPricer {
+    constructor(
+        private readonly countryCode: string | undefined,
+        private readonly billing: PlanBilling,
+        private readonly promotion: AutoDiscount | null
+    ) {}
+
+    /** the promotion is applied only where the charge is known exactly (direct checkout or Managed Payments) */
+    private get activePromotion(): AutoDiscount | null {
+        return this.billing.exact || this.billing.net ? this.promotion : null
+    }
+
+    /** a before-tax price as the buyer pays it: the exact charge of a direct checkout, the net price of Managed Payments, otherwise the country's tax estimate */
+    private charge(price: number, percent: number): number {
+        if (this.billing.exact) return getDirectPrice(price, percent, this.countryCode)
+        if (this.billing.net) return getDirectPrice(price, percent, undefined)
+        return getPriceWithVAT(price, this.countryCode)
+    }
+
+    private planPrice(product: ProductId, weeks: number): number {
+        return SUBSCRIPTION_PRICES[product][PERIOD_OF_WEEKS[weeks]]
+    }
+
+    /** the term of a price: Lemon Squeezy renews the same term; card/PayPal plans run their first term, a 4-week one simply repeats */
+    private term(weeks: number, discounted: boolean): string {
+        if (!this.billing.continues) return `every ${weeks} weeks`
+        if (weeks > RENEWAL_WEEKS) return `for the first ${weeks} weeks`
+        return discounted && isFirstPaymentOnly(this.activePromotion) ? `for the first ${weeks} weeks` : `every ${weeks} weeks`
+    }
+
+    offer(product: ProductId, weeks: number): PeriodOffer {
+        const percent = getPeriodPercent(this.activePromotion, weeks)
+        const original = this.charge(this.planPrice(product, weeks), 0)
+        const amount = this.charge(this.planPrice(product, weeks), percent)
+        const discounted = percent > 0 && amount < original
+        return {
+            amount: euro(amount),
+            original: discounted ? euro(original) : null,
+            badge: discounted ? `-${percent}%` : null,
+            period: this.term(weeks, discounted)
+        }
+    }
+
+    /** the 4-week price a plan continues with and a trailing space, named only once the offer is settled (it is not guessed before) */
+    renewal(product: ProductId): string {
+        if (!this.billing.settled) return ''
+        return `${euro(this.charge(this.planPrice(product, RENEWAL_WEEKS), getRenewalPercent(this.activePromotion)))} `
+    }
+
+    /** the term with the tax that is not in the amount */
+    unit(period: string): string {
+        if (this.billing.net) return `+ tax ${period}`
+        if (!this.countryCode) return `${period}, ${UNKNOWN_COUNTRY_VAT_NOTE}`
+        return showsVatSuffix(this.countryCode, this.billing.exact) ? `+ VAT ${period}` : period
+    }
 }
 
-type Period = 'monthly' | 'quarterly' | 'yearly'
-type PriceOf = (productId: string, period: Period) => string
-
-/** the 4-week price a 13/52 week plan continues with, named only once the offer is settled (it is not guessed before) */
-function renewalPhrase(price: PriceOf, productId: string, billing: PlanBilling): string {
-    return billing.settled ? `${price(productId, 'monthly')} ` : ''
+/** a headline that covers only a first term is followed by what the plan charges after it */
+function thenRenewal(headline: PeriodOffer, renewal: string): string[] {
+    return headline.period.startsWith('for the first') ? [`then ${renewal}every ${RENEWAL_WEEKS} weeks until cancelled. `] : []
 }
 
-/**
- * The note under a plan card for Stripe and PayPal: the 13 and 52 week plans continue every 4 weeks at the 4-week price after
- * their first term.
- */
-function getContinuationNote(tier: PremiumTier, price: PriceOf, billing: PlanBilling): string {
+/** the 4-week plan offered beside a longer headline plan: "for the first 4 weeks" on sale, otherwise "every 4 weeks from the start" */
+function fromTheStart(offer: PeriodOffer): PeriodOffer {
+    return offer.period === `every ${RENEWAL_WEEKS} weeks` ? { ...offer, period: `${offer.period} from the start` } : offer
+}
+
+/** Stripe and PayPal: the 13 and 52 week plans continue every 4 weeks at the 4-week price after their first term */
+function getContinuationNote(tier: PremiumTier, pricer: PlanPricer, headline: PeriodOffer): NotePart[] {
+    const product = PRODUCT_OF[tier]
+    const renewal = pricer.renewal(product)
+    const then = thenRenewal(headline, renewal)
+    if (tier === PremiumTier.STARTER) return [...then, CANCEL_ANYTIME]
     if (tier === PremiumTier.PREMIUM) {
-        return `Or ${price('premium', 'quarterly')} for 13 weeks or ${price('premium', 'yearly')} for 52 weeks, then ${renewalPhrase(price, 'premium', billing)}every 4 weeks until cancelled. ${CANCEL_ANYTIME}`
+        // "until cancelled" is said once: after the headline's first term when it has one, otherwise here
+        const after = then.length > 0 ? '.' : ' until cancelled.'
+        return [
+            ...then,
+            'Or ',
+            pricer.offer(product, 13),
+            ' or ',
+            pricer.offer(product, 52),
+            `, then ${renewal}every ${RENEWAL_WEEKS} weeks${after} ${CANCEL_ANYTIME}`
+        ]
     }
-    if (tier === PremiumTier.STARTER) {
-        return `${price('starter_premium', 'yearly')} for the first 52 weeks, then ${renewalPhrase(price, 'starter_premium', billing)}every 4 weeks until cancelled. ${CANCEL_ANYTIME}`
-    }
-    return `${price('premium_plus', 'yearly')} for the first 52 weeks, then ${renewalPhrase(price, 'premium_plus', billing)}every 4 weeks until cancelled. Or ${price('premium_plus', 'monthly')} every 4 weeks from the start. ${CANCEL_ANYTIME}`
+    return getPremiumPlusOptions(pricer, renewal, then)
+}
+
+function getPremiumPlusOptions(pricer: PlanPricer, renewal: string, then: string[]): NotePart[] {
+    const quarter = pricer.offer('premium_plus', 13)
+    const fourWeeks = fromTheStart(pricer.offer('premium_plus', RENEWAL_WEEKS))
+    const continuation = `then ${renewal}every ${RENEWAL_WEEKS} weeks`
+    // without a sale the 4-week plan simply repeats, so the continuation belongs to the 13-week plan alone
+    if (fourWeeks.period.endsWith('from the start')) return [...then, 'Or ', quarter, `, ${continuation}, or `, fourWeeks, `. ${CANCEL_ANYTIME}`]
+    return [...then, 'Or ', quarter, ', or ', fourWeeks, `, ${continuation}. ${CANCEL_ANYTIME}`]
 }
 
 /** Lemon Squeezy renews for the same term again */
-function getRenewsSameTermNote(tier: PremiumTier, price: PriceOf): string {
-    if (tier === PremiumTier.PREMIUM) return `Or ${price('premium', 'quarterly')} every 13 weeks, ${price('premium', 'yearly')} every 52 weeks`
-    if (tier === PremiumTier.STARTER) return 'Billed every 52 weeks only, because of payment fees'
-    return `Billed every 52 weeks at ${price('premium_plus', 'yearly')}, or ${price('premium_plus', 'monthly')} every 4 weeks`
+function getRenewsSameTermNote(tier: PremiumTier, pricer: PlanPricer): NotePart[] {
+    if (tier === PremiumTier.STARTER) return ['Billed every 52 weeks only, because of payment fees']
+    const product = PRODUCT_OF[tier]
+    const other = tier === PremiumTier.PREMIUM ? 52 : RENEWAL_WEEKS
+    return ['Or ', pricer.offer(product, 13), ', ', pricer.offer(product, other)]
 }
 
-function getPriceNote(tier: PremiumTier, countryCode: string | undefined, billing: PlanBilling): string {
-    const price: PriceOf = (productId, period) => euro(withTax(SUBSCRIPTION_PRICES[productId][period], countryCode, billing))
-    return billing.continues ? getContinuationNote(tier, price, billing) : getRenewsSameTermNote(tier, price)
+/** the card price of `tier`: its headline plan with the promotion, the term and tax, and the tier's other plans in the note */
+export function getPlanPrice(
+    tier: PremiumTier,
+    countryCode?: string,
+    billing: PlanBilling = UNSETTLED_BILLING,
+    promotion: AutoDiscount | null = null
+): PlanPrice {
+    const pricer = new PlanPricer(countryCode, billing, promotion)
+    const { period, ...headline } = pricer.offer(PRODUCT_OF[tier], HEADLINE_WEEKS[tier])
+    const note = billing.continues ? getContinuationNote(tier, pricer, { period, ...headline }) : getRenewsSameTermNote(tier, pricer)
+    return { ...headline, unit: pricer.unit(period), note }
 }
 
-function getUnit(tier: PremiumTier, countryCode: string | undefined, billing: PlanBilling): string {
-    const period = tier === PremiumTier.STARTER ? 'per 52 weeks' : 'per 4 weeks'
-    if (billing.net) return `+ tax ${period}`
-    if (!countryCode) return `${period}, ${UNKNOWN_COUNTRY_VAT_NOTE}`
-    return showsVatSuffix(countryCode, billing.exact) ? `+ VAT ${period}` : period
+/** a plan note as plain text, a struck price in brackets, e.g. "Or €19.77 (instead of €32.95) for the first 13 weeks (-40%)" */
+export function getPlanNoteText(note: NotePart[]): string {
+    return note.map(part => (typeof part === 'string' ? part : getOfferText(part))).join('')
 }
 
-export function getPlanPrice(tier: PremiumTier, countryCode?: string, billing: PlanBilling = UNSETTLED_BILLING): PlanPrice {
-    const price = calculatePrice(tier, countryCode)
-    return {
-        amount: euro(withTax(price.basePrice, countryCode, billing)),
-        unit: getUnit(tier, countryCode, billing),
-        note: getPriceNote(tier, countryCode, billing)
-    }
+function getOfferText(offer: PeriodOffer): string {
+    const original = offer.original ? ` (instead of ${offer.original})` : ''
+    const badge = offer.badge ? ` (${offer.badge})` : ''
+    return `${offer.amount}${original} ${offer.period}${badge}`
 }
 
 /** the tax sentence under the plan cards, with the same wording as the checkout (getTaxLabel) */

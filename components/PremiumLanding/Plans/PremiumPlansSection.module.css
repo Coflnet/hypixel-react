@@ -213,3 +213,25 @@
         font-size: 34px;
     }
 }
+
+.original {
+    font-size: 20px;
+    line-height: 1.2;
+}
+
+.saleBadge {
+    align-self: center;
+    padding: 5px 9px;
+    font-size: 14px;
+    line-height: 1;
+    font-weight: 700;
+    color: #fff;
+    background: #f76b1c;
+    border-radius: 800px;
+}
+
+.saleLine {
+    margin: 8px 0 0;
+    font-weight: 700;
+    color: #f76b1c;
+}

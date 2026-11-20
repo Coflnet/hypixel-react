@@ -8,6 +8,18 @@
     line-height: 1.5;
 }
 
+/* the sale banner above the hero, aligned with the content column; empty (no height) while no promotion runs */
+.promotion {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.promotion > * {
+    margin: 8px 0 0;
+}
+
 /* aligned with the content column: from 1500px the site's sidebar is fixed (80px) at the left edge and would cover the title */
 .topBar {
     display: flex;

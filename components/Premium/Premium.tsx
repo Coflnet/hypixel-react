@@ -1,6 +1,7 @@
 'use client'
 import { Card } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
+import { PromotionBanner } from '../Discounts/DiscountBanners'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
 import styles from './Premium.module.css'
 import { usePremiumAccount } from './usePremiumAccount'
@@ -25,11 +26,15 @@ function Premium() {
                 Premium
             </h2>
             <hr />
+            <PromotionBanner href="#plans" />
             <PremiumStatusLine account={account} />
             <hr />
-            <PremiumSignIn account={account} />
-            <TermsAlerts account={account} />
-            <PurchaseWizardSection account={account} />
+            {/* the target of the sale banners' "/premium#plans", like the redesign's plans section */}
+            <div id="plans">
+                <PremiumSignIn account={account} />
+                <TermsAlerts account={account} />
+                <PurchaseWizardSection account={account} />
+            </div>
             <ExtendPremiumSection account={account} showFriendsCard />
             {isLoggedIn ? (
                 <div style={{ marginBottom: '20px' }}>

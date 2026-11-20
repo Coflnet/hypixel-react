@@ -470,7 +470,7 @@ describe('Premium redesign', () => {
         cy.intercept('GET', '**/api/premium/country', { body: { country: 'US' } })
         cy.intercept('GET', '**/api/premium/subscription/providers*', { body: [{ provider: 'stripe' }, { provider: 'paypal' }] })
         visitSignedOut()
-        cy.get('[data-testid="plan-premium"]').should('contain', '€9.69').and('contain', 'per 4 weeks').and('not.contain', 'VAT')
+        cy.get('[data-testid="plan-premium"]').should('contain', '€9.69').and('contain', 'every 4 weeks').and('not.contain', 'VAT')
         // card and PayPal continue a 13 or 52 week plan every 4 weeks at the 4-week price
         cy.get('[data-testid="plan-premium"]').should('contain', 'then €9.69 every 4 weeks until cancelled').and('contain', 'Cancel anytime').and('not.contain', 'every 52 weeks')
         cy.get('[data-testid="plan-tax-note"]').should('contain.text', 'No tax added.').and('not.contain.text', 'VAT is added')
@@ -626,7 +626,8 @@ describe('Premium redesign', () => {
         stubAccount()
         visitNewPage('/premium?premiumVariant=new', true)
         cy.wait(['@products', '@subscriptions', '@terms'])
-        cy.get('[data-testid="plan-premium_plus"]').should('contain', '€').and('contain', 'per 4 weeks').and('not.contain', 'month')
+        // Premium+ is headed by its 52-week plan, a price that is charged, not that price divided into 4-week shares
+        cy.get('[data-testid="plan-premium_plus"]').should('contain', '€').and('contain', '52 weeks').and('not.contain', 'per 4 weeks').and('not.contain', 'month')
         cy.contains('button', 'Get Premium+').click()
         cy.get('#buyPremium').should('be.visible').and('contain', 'Choose Your Plan Type')
         cy.location('search').should('contain', 'tier=premium_plus').and('contain', 'premiumVariant=new')
@@ -674,5 +675,89 @@ describe('Premium redesign', () => {
         visitNewPage('/premium?premiumVariant=new&tier=premium_plus', true)
         cy.wait(['@products', '@subscriptions'])
         cy.get('#buyPremium').should('contain', 'Choose Your Plan Type')
+    })
+})
+
+// the live Blackweek sale of Germany: Stripe and PayPal honour it, so the page shows the sale prices of the direct checkout
+const blackweek = {
+    code: 'GTA6',
+    name: 'Blackweek sale',
+    amountType: 'percent',
+    amount: 25,
+    periodAmounts: { 4: 25, 13: 40, 52: 50 },
+    duration: 'once',
+    startsAt: '2026-11-19T23:00:00Z',
+    expiresAt: '2099-11-30T22:59:59Z',
+    providers: ['stripe', 'paypal']
+}
+const directProviders = [
+    { provider: 'stripe', mode: 'direct' },
+    { provider: 'paypal', mode: 'direct' }
+]
+
+describe('Automatic promotion on /premium', () => {
+    beforeEach(() => {
+        cy.intercept('GET', '**/api/premium/subscription/providers*', { body: directProviders }).as('providers')
+    })
+
+    function stubSale() {
+        cy.intercept('GET', '**/api/premium/discount/auto*', { body: blackweek }).as('promotion')
+    }
+
+    function expectBanner() {
+        cy.get('[data-testid="promotion-banner"]')
+            .should('be.visible')
+            .and('contain.text', 'Blackweek sale:')
+            .and('contain.text', 'up to 50% OFF')
+            .and('contain.text', 'your first payment — ends November 30')
+            .and('contain.text', 'Applied automatically')
+            .and('have.attr', 'href', '#plans')
+    }
+
+    it('advertises the sale and strikes the regular prices on the redesign', () => {
+        stubSale()
+        visitSignedOut()
+        expectBanner()
+        cy.get('[data-testid="plan-sale-line"]').should('contain.text', 'Blackweek sale · up to 50% off your first payment · ends November 30').and('contain.text', '· applied automatically')
+        cy.get('[data-testid="plan-price-premium"]').should('contain.text', '€8.65').and('contain.text', '-25%').and('contain.text', 'for the first 4 weeks')
+        cy.get('[data-testid="plan-price-premium"] s').first().should('have.text', '€11.53')
+        cy.get('[data-testid="plan-price-premium"]')
+            .should('contain.text', 'then €11.53 every 4 weeks until cancelled')
+            .and('contain.text', '€19.77')
+            .and('contain.text', '(-40%)')
+            .and('contain.text', '€57.52')
+            .and('contain.text', '(-50%)')
+        cy.get('[data-testid="plan-price-starter"]').should('contain.text', '€9.92').and('contain.text', '-50%').find('s').should('have.text', '€19.86')
+        cy.get('[data-testid="plan-price-premium_plus"]').should('contain.text', '€210.75').and('contain.text', 'for the first 52 weeks').find('s').first().should('have.text', '€421.50')
+        // the banner scrolls to the plans and keeps the page (and its QA override)
+        cy.get('[data-testid="promotion-banner"]').click()
+        cy.location('hash').should('equal', '#plans')
+        cy.location('search').should('contain', 'premiumVariant=new')
+    })
+
+    it('advertises the sale on the current page and links to its purchase area', () => {
+        stubSale()
+        visitNewPage('/premium?premiumVariant=current')
+        expectBanner()
+        cy.get('#plans #premium-sign-in').should('exist')
+    })
+
+    it('shows no banner and regular prices while no promotion runs', () => {
+        visitSignedOut()
+        cy.get('[data-testid="plan-price-premium"]').should('contain.text', '€11.53').and('contain.text', 'every 4 weeks').and('contain.text', 'then €11.53 every 4 weeks')
+        cy.get('[data-testid="plan-price-premium"] s').should('not.exist')
+        cy.get('[data-testid="promotion-banner"]').should('not.exist')
+        cy.get('[data-testid="plan-sale-line"]').should('not.exist')
+    })
+
+    it('shows no banner when the promotion is not valid for the country\'s providers', () => {
+        cy.intercept('GET', '**/api/premium/discount/auto*', { body: { ...blackweek, providers: ['paypal'] } }).as('promotion')
+        cy.intercept('GET', '**/api/premium/subscription/providers*', { body: [{ provider: 'stripe', mode: 'direct' }] }).as('stripeOnly')
+        visitSignedOut()
+        cy.wait(['@promotion', '@stripeOnly'])
+        // the offer settled on the exact direct charge, where a valid promotion would show
+        cy.get('[data-testid="plan-tax-note"]').should('contain.text', 'Includes VAT.')
+        cy.get('[data-testid="plan-price-premium"]').should('contain.text', '€11.53').and('not.contain.text', '-25%')
+        cy.get('[data-testid="promotion-banner"]').should('not.exist')
     })
 })

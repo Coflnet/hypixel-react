@@ -6,7 +6,6 @@ import { getStepDisplay } from './stepDisplay'
 import { TierSelectionStep, PaymentMethodStep, DurationSelectionStep, PurchaseCompletionStep } from './Steps'
 import { PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
 import { getTierOfProduct, parseTierFromUrl } from '../../../utils/PremiumUpgradeUtils'
-import { getActiveSubscriptionDiscount } from '../../../utils/DiscountUtils'
 import { useCountryDetection } from '../../../hooks/useCountryDetection'
 import SlotPurchase from '../SlotPurchase/SlotPurchase'
 import PackageSelectionStep from './Steps/PackageSelectionStep'
@@ -284,15 +283,15 @@ function PremiumPurchaseWizard(props: Props) {
         goToStep(previousStep)
     }
 
-    // Upgrade to a higher tier in place (from the "What you could get" panel). The codes the buyer applied go along; without
-    // an applied discount code the active sale code is filled in.
+    // Upgrade to a higher tier in place (from the "What you could get" panel). The codes the buyer applied go along; a running
+    // promotion needs no code, the checkout applies it automatically.
     const handleTierUpgrade = (tier: PremiumTier, codes?: CheckoutCodes) => {
         // Starter never showed the package step; the upgraded flow keeps leaving it out (personal access)
         if (selectedTier === PremiumTier.STARTER) setPackageSkipped(true)
         setSelectedTier(tier)
         setUpgradeCreatorCode(codes?.creatorCode ?? null)
-        // an empty code is the buyer's "cleared": neither the link's code nor the sale code comes back
-        setUpgradeDiscountCode(codes?.discountCode ?? getActiveSubscriptionDiscount()?.code ?? null)
+        // an empty code is the buyer's "cleared": the link's code does not come back
+        setUpgradeDiscountCode(codes?.discountCode ?? null)
     }
 
     const renderCurrentStep = () => {

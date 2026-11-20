@@ -23,16 +23,8 @@
     color: var(--tier-premium-plus-color);
 }
 
-.struck {
-    margin-right: 4px;
-    font-size: 14px;
-    font-weight: 400;
-    color: #adb5bd;
-}
-
 .saving {
     color: #00bc8c;
-    cursor: help;
 }
 
 .features {

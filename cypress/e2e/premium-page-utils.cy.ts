@@ -24,7 +24,8 @@ import { DEFAULT_FEATURE_MEDIA_BASE, formatClipLength, getFeatureMediaUrls } fro
 import { PREMIUM_FEATURES } from '../../components/PremiumLanding/content/features'
 import { COMPARE_GROUPS } from '../../components/PremiumLanding/content/comparison'
 import { PLAN_CARDS } from '../../components/PremiumLanding/content/plans'
-import { getPlanPrice } from '../../components/PremiumLanding/content/planPricing'
+import { getPlanNoteText, getPlanPrice, PlanPrice } from '../../components/PremiumLanding/content/planPricing'
+import { describeBestAmount, describePromotionEnd, formatPromotionEnd, getMaxPercent } from '../../utils/SubscriptionCheckout'
 import { getPurchaseTarget, getSignInActionTarget, getSignInStep } from '../../components/Premium/purchaseTarget'
 import { ANONYMOUS_AUTHOR, formatQuoteDate, getQuoteAuthor } from '../../components/PremiumLanding/SocialProof/quoteFormat'
 import { COMMUNITY_QUOTES } from '../../components/PremiumLanding/content/quotes'
@@ -512,29 +513,106 @@ describe('Plan cards', () => {
     const lemonSqueezy = { exact: false, net: false, continues: false, settled: true }
     const direct = { exact: true, net: false, continues: true, settled: true }
 
+    const net = { exact: false, net: true, continues: true, settled: true }
+    // the live Blackweek sale of Germany (and, with Stripe only, the US)
+    const blackweek = {
+        code: 'GTA6',
+        name: 'Blackweek sale',
+        amountType: 'percent',
+        amount: 25,
+        periodAmounts: { 4: 25, 13: 40, 52: 50 },
+        duration: 'once',
+        startsAt: '2026-11-19T23:00:00Z',
+        expiresAt: '2026-11-30T22:59:59Z',
+        providers: ['stripe', 'paypal']
+    }
+
+    /** a card price as one line, a struck price as "(instead of …)" */
+    function text(price: PlanPrice): string {
+        const original = price.original ? ` (instead of ${price.original})` : ''
+        const badge = price.badge ? ` [${price.badge}]` : ''
+        return `${price.amount}${original} ${price.unit}${badge} | ${getPlanNoteText(price.note)}`
+    }
+
     it('shows prices from the pricing utilities, with VAT for known countries', () => {
         // Starter is sold for 52 weeks only (payment fees)
         expect(getPlanPrice(PremiumTier.STARTER, 'US', lemonSqueezy)).to.deep.equal({
             amount: '€16.69',
-            unit: '+ VAT per 52 weeks',
-            note: 'Billed every 52 weeks only, because of payment fees'
+            original: null,
+            badge: null,
+            unit: '+ VAT every 52 weeks',
+            note: ['Billed every 52 weeks only, because of payment fees']
         })
         // an unknown country is not priced as the US: before VAT, and it says so
-        expect(getPlanPrice(PremiumTier.PREMIUM, undefined, lemonSqueezy)).to.deep.include({
-            amount: '€9.69',
-            unit: 'per 4 weeks, plus VAT where applicable',
-            note: 'Or €27.69 every 13 weeks, €96.69 every 52 weeks'
-        })
-        // billed every 52 weeks: 354.20 / 13 per 4 weeks, not / 12 per month
-        expect(getPlanPrice(PremiumTier.PREMIUM_PLUS, undefined, lemonSqueezy)).to.deep.include({ amount: '€27.25', note: 'Billed every 52 weeks at €354.20, or €35.69 every 4 weeks' })
-        expect(getPlanPrice(PremiumTier.PREMIUM, 'DE', lemonSqueezy)).to.deep.include({ amount: '€11.53', unit: 'per 4 weeks' })
+        expect(text(getPlanPrice(PremiumTier.PREMIUM, undefined, lemonSqueezy))).to.equal(
+            '€9.69 every 4 weeks, plus VAT where applicable | Or €27.69 every 13 weeks, €96.69 every 52 weeks'
+        )
+        expect(text(getPlanPrice(PremiumTier.PREMIUM_PLUS, undefined, lemonSqueezy))).to.equal(
+            '€354.20 every 52 weeks, plus VAT where applicable | Or €99.69 every 13 weeks, €35.69 every 4 weeks'
+        )
+        expect(getPlanPrice(PremiumTier.PREMIUM, 'DE', lemonSqueezy)).to.deep.include({ amount: '€11.53', unit: 'every 4 weeks' })
         // card and PayPal: the 52 week plan continues every 4 weeks, also the default before the offer is known
-        expect(getPlanPrice(PremiumTier.PREMIUM_PLUS, 'US', direct).note).to.equal(
-            '€354.20 for the first 52 weeks, then €35.69 every 4 weeks until cancelled. Or €35.69 every 4 weeks from the start. Cancel anytime'
+        expect(text(getPlanPrice(PremiumTier.PREMIUM_PLUS, 'US', direct))).to.equal(
+            '€354.20 for the first 52 weeks | then €35.69 every 4 weeks until cancelled. Or €99.69 for the first 13 weeks, then €35.69 every 4 weeks, or €35.69 every 4 weeks from the start. Cancel anytime'
         )
-        expect(getPlanPrice(PremiumTier.PREMIUM_PLUS).note).to.equal(
-            '€354.20 for the first 52 weeks, then every 4 weeks until cancelled. Or €35.69 every 4 weeks from the start. Cancel anytime'
+        expect(getPlanNoteText(getPlanPrice(PremiumTier.PREMIUM_PLUS).note)).to.equal(
+            'then every 4 weeks until cancelled. Or €99.69 for the first 13 weeks, then every 4 weeks, or €35.69 every 4 weeks from the start. Cancel anytime'
         )
+    })
+
+    // regression: the Premium+ headline was the 52-week price divided by 13 ("€32.43 per 4 weeks"), a price nobody is charged
+    it('heads every card with a price that is charged, exact for a German direct checkout', () => {
+        expect(text(getPlanPrice(PremiumTier.STARTER, 'DE', direct))).to.equal('€19.86 for the first 52 weeks | then €3.20 every 4 weeks until cancelled. Cancel anytime')
+        expect(text(getPlanPrice(PremiumTier.PREMIUM, 'DE', direct))).to.equal(
+            '€11.53 every 4 weeks | Or €32.95 for the first 13 weeks or €115.06 for the first 52 weeks, then €11.53 every 4 weeks until cancelled. Cancel anytime'
+        )
+        expect(text(getPlanPrice(PremiumTier.PREMIUM_PLUS, 'DE', direct))).to.equal(
+            '€421.50 for the first 52 weeks | then €42.47 every 4 weeks until cancelled. Or €118.63 for the first 13 weeks, then €42.47 every 4 weeks, or €42.47 every 4 weeks from the start. Cancel anytime'
+        )
+    })
+
+    it('strikes the regular price of every period during a promotion, with the backend rounding', () => {
+        expect(getPlanPrice(PremiumTier.STARTER, 'DE', direct, blackweek)).to.deep.include({ amount: '€9.92', original: '€19.86', badge: '-50%', unit: 'for the first 52 weeks' })
+        expect(text(getPlanPrice(PremiumTier.STARTER, 'DE', direct, blackweek))).to.contain('| then €3.20 every 4 weeks until cancelled.')
+        expect(text(getPlanPrice(PremiumTier.PREMIUM, 'DE', direct, blackweek))).to.equal(
+            '€8.65 (instead of €11.53) for the first 4 weeks [-25%] | then €11.53 every 4 weeks until cancelled. Or €19.77 (instead of €32.95) for the first 13 weeks (-40%) or €57.52 (instead of €115.06) for the first 52 weeks (-50%), then €11.53 every 4 weeks. Cancel anytime'
+        )
+        expect(text(getPlanPrice(PremiumTier.PREMIUM_PLUS, 'DE', direct, blackweek))).to.equal(
+            '€210.75 (instead of €421.50) for the first 52 weeks [-50%] | then €42.47 every 4 weeks until cancelled. Or €71.17 (instead of €118.63) for the first 13 weeks (-40%), or €31.86 (instead of €42.47) for the first 4 weeks (-25%), then €42.47 every 4 weeks. Cancel anytime'
+        )
+    })
+
+    it('shows net sale prices for Managed Payments and exact ones for the US, where no tax is added', () => {
+        expect(text(getPlanPrice(PremiumTier.PREMIUM, 'BR', net, blackweek))).to.equal(
+            '€7.27 (instead of €9.69) + tax for the first 4 weeks [-25%] | then €9.69 every 4 weeks until cancelled. Or €16.61 (instead of €27.69) for the first 13 weeks (-40%) or €48.34 (instead of €96.69) for the first 52 weeks (-50%), then €9.69 every 4 weeks. Cancel anytime'
+        )
+        expect(getPlanPrice(PremiumTier.PREMIUM, 'US', direct, blackweek)).to.deep.include({ amount: '€7.27', original: '€9.69', badge: '-25%', unit: 'for the first 4 weeks' })
+    })
+
+    it('leaves the promotion out where the charge is not known exactly', () => {
+        expect(getPlanPrice(PremiumTier.PREMIUM, 'DE', lemonSqueezy, blackweek)).to.deep.include({ amount: '€11.53', original: null, badge: null })
+        expect(getPlanPrice(PremiumTier.PREMIUM, 'DE', undefined, blackweek)).to.deep.include({ amount: '€11.53', original: null, badge: null })
+        expect(getPlanNoteText(getPlanPrice(PremiumTier.PREMIUM, 'DE', lemonSqueezy, blackweek).note)).not.to.contain('instead of')
+    })
+
+    it('discounts the renewal too when the promotion covers every payment', () => {
+        const everyPayment = { ...blackweek, duration: 'forever' }
+        // the 4-week plan simply repeats at the sale price, so it is not "for the first 4 weeks"
+        expect(text(getPlanPrice(PremiumTier.PREMIUM, 'DE', direct, everyPayment))).to.equal(
+            '€8.65 (instead of €11.53) every 4 weeks [-25%] | Or €19.77 (instead of €32.95) for the first 13 weeks (-40%) or €57.52 (instead of €115.06) for the first 52 weeks (-50%), then €8.65 every 4 weeks until cancelled. Cancel anytime'
+        )
+    })
+
+    it('names the best percent and the end of a promotion for the sale banners', () => {
+        expect(getMaxPercent(blackweek)).to.equal(50)
+        expect(describeBestAmount(blackweek)).to.equal('up to 50% off')
+        expect(describeBestAmount({ ...blackweek, amountType: 'fixed', amount: 500, periodAmounts: null })).to.equal('€5.00 off')
+        expect(getMaxPercent({ ...blackweek, amountType: 'fixed' })).to.equal(0)
+        expect(formatPromotionEnd(blackweek.expiresAt, 'Europe/Berlin')).to.match(/^November 30, 11:59\sPM GMT\+1$/)
+        expect(formatPromotionEnd('2026-11-30T23:00:00Z', 'Europe/Berlin')).to.equal('November 30')
+        expect(describePromotionEnd('2026-11-30T23:00:00Z', 'Europe/Berlin')).to.equal('Offer runs through November 30.')
+        expect(describePromotionEnd(blackweek.expiresAt, 'Europe/Berlin')).to.match(/^Offer ends November 30, 11:59\sPM GMT\+1\.$/)
+        expect(formatPromotionEnd(null)).to.equal(null)
     })
 
     it('sends visitors to the step that blocks the purchase', () => {

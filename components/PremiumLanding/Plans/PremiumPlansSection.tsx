@@ -18,6 +18,9 @@ import { PremiumTier } from '../../Premium/PremiumPurchaseWizard/types'
 import { PLAN_BUTTON_LABEL, PLAN_CARDS, PlanCard } from '../content/plans'
 import { PlanBilling, getPlanBilling, getPlanPrice, getPlanTaxNote } from '../content/planPricing'
 import { useCheckoutOffer } from '../../../hooks/useCheckoutOffer'
+import type { AutoDiscount } from '../../../api/_generated/skyApi.schemas'
+import { describeBestAmount, describePromotionScope, formatPromotionEnd } from '../../../utils/SubscriptionCheckout'
+import { PlanNote, StruckPrice } from './PlanNote'
 import page from '../PremiumLanding.module.css'
 import { COFLCOINS_TARGET, getSignInActionTarget, PurchaseReadiness, SIGN_IN_TARGET, SignInAction } from '../../Premium/purchaseTarget'
 import { useSignInPrompt } from '../../Premium/useSignInPrompt'
@@ -41,26 +44,48 @@ interface PlanPricing {
     countryCode?: string
     /** how the cards' prices are charged (exact, net, estimate) and which renewal wording applies */
     billing: PlanBilling
+    /** the automatic promotion of the buyer's providers, null when none runs */
+    promotion: AutoDiscount | null
 }
 
-/** the buyer's country and how the plan prices will be charged */
+/** the buyer's country, how the plan prices will be charged and the promotion they get */
 function usePlanPricing(): PlanPricing {
     const countryCode = useCountryDetection().selectedCountry?.value
     const offer = useCheckoutOffer(countryCode)
     // the previous country's providers are kept while this country's load: they do not decide its prices
-    return { countryCode, billing: getPlanBilling(offer, countryCode) }
+    return { countryCode, billing: getPlanBilling(offer, countryCode), promotion: offer.loading ? null : offer.promotion }
 }
 
 function PlanPrice({ tier, pricing }: { tier: PremiumTier; pricing: PlanPricing }) {
-    const price = getPlanPrice(tier, pricing.countryCode, pricing.billing)
+    const price = getPlanPrice(tier, pricing.countryCode, pricing.billing, pricing.promotion)
     return (
-        <div className={styles.price}>
+        <div className={styles.price} data-testid={`plan-price-${tier}`}>
             <div className={styles.priceLine}>
                 <span className={styles.amount}>{price.amount}</span>
+                {price.original ? (
+                    <span className={styles.original}>
+                        <StruckPrice original={price.original} />
+                    </span>
+                ) : null}
+                {price.badge ? <span className={styles.saleBadge}>{price.badge}</span> : null}
                 <span className={page.muted}>{price.unit}</span>
             </div>
-            <span className={styles.small}>{price.note}</span>
+            <span className={styles.small}>
+                <PlanNote note={price.note} />
+            </span>
         </div>
+    )
+}
+
+/** "Blackweek sale · up to 50% off your first payment · ends November 30, 11:59 PM GMT+1 · applied automatically" */
+function PlanSaleLine({ promotion }: { promotion: AutoDiscount | null }) {
+    if (!promotion) return null
+    const end = formatPromotionEnd(promotion.expiresAt)
+    const parts = [promotion.name || 'Sale', `${describeBestAmount(promotion)} ${describePromotionScope(promotion)}`, end ? `ends ${end}` : null, 'applied automatically']
+    return (
+        <p className={styles.saleLine} data-testid="plan-sale-line">
+            {parts.filter(Boolean).join(' · ')}
+        </p>
     )
 }
 
@@ -163,6 +188,7 @@ export default function PremiumPlansSection({ communityQuotes }: { communityQuot
                 <div className={page.sectionHead}>
                     <h2 className={page.sectionTitle}>Choose Your Plan</h2>
                     <p className={page.muted}>Higher tiers include all features from lower tiers plus additional benefits.</p>
+                    <PlanSaleLine promotion={pricing.promotion} />
                 </div>
                 <div className={styles.plans}>
                     {PLAN_CARDS.map(plan => (

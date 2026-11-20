@@ -12,6 +12,7 @@ import {
     getPromotionFor,
     isPromotionRunning
 } from '../utils/SubscriptionCheckout'
+import { useCountryDetection } from './useCountryDetection'
 
 const PROVIDERS_STALE_TIME = 10 * 60 * 1000
 /** setTimeout fires at once for longer delays; a later change is scheduled again when this one fires */
@@ -82,4 +83,15 @@ export function useCheckoutOffer(country?: string, productSlug?: string): Checko
         codeProvider: providers.codeProvider,
         loading: providers.loading || auto.loading
     }
+}
+
+/**
+ * The promotion the visitor's country gets right now, for banners outside a checkout. Null while it is unknown (server-rendered
+ * page, country or providers still loading) and when none runs for the country's providers.
+ */
+export function useVisitorPromotion(): AutoDiscount | null {
+    const countryCode = useCountryDetection().selectedCountry?.value
+    const offer = useCheckoutOffer(countryCode)
+    // after a country change the previous country's promotion is kept until this country's answers arrived
+    return offer.loading ? null : offer.promotion
 }

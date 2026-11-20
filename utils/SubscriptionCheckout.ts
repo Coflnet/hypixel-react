@@ -417,12 +417,26 @@ function formatDay(date: Date, timeZone?: string): string {
  * e.g. "Offer ends December 1, 12:59 AM GMT+1."; null without a valid end.
  */
 export function describePromotionEnd(expiresAt: string | null | undefined, timeZone?: string): string | null {
+    const end = getPromotionEnd(expiresAt, timeZone)
+    if (!end) return null
+    return end.endOfDay ? `Offer runs through ${end.text}.` : `Offer ends ${end.text}.`
+}
+
+/**
+ * When the promotion ends, in the viewer's time zone: the last day ("November 30") for an end at local midnight, otherwise the
+ * date and time ("December 1, 12:59 AM GMT+1"); null without a valid end.
+ */
+export function formatPromotionEnd(expiresAt: string | null | undefined, timeZone?: string): string | null {
+    return getPromotionEnd(expiresAt, timeZone)?.text ?? null
+}
+
+function getPromotionEnd(expiresAt: string | null | undefined, timeZone?: string): { text: string; endOfDay: boolean } | null {
     if (!expiresAt) return null
     const date = new Date(expiresAt)
     if (Number.isNaN(date.getTime())) return null
-    if (isMidnight(date, timeZone)) return `Offer runs through ${formatDay(new Date(date.getTime() - 1), timeZone)}.`
+    if (isMidnight(date, timeZone)) return { text: formatDay(new Date(date.getTime() - 1), timeZone), endOfDay: true }
     const time = date.toLocaleTimeString('en-US', { timeZone, hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })
-    return `Offer ends ${formatDay(date, timeZone)}, ${time}.`
+    return { text: `${formatDay(date, timeZone)}, ${time}`, endOfDay: false }
 }
 
 /** a fixed discount amount, given in cents like the payment backend stores it, e.g. "€5.00 off" */
@@ -430,11 +444,27 @@ export function describeFixedAmount(cents: number): string {
     return `€${(cents / 100).toFixed(2)} off`
 }
 
-function describeAmount(promotion: AutoDiscount, weeks?: number): string {
+/** the highest percent a percent promotion takes off any billing period, e.g. 50 for 25/40/50; 0 for fixed amounts */
+export function getMaxPercent(promotion: PeriodDiscount | null | undefined): number {
+    if (!promotion || !isPercentDiscount(promotion)) return 0
+    return Math.max(0, promotion.amount, ...Object.values(promotion.periodAmounts ?? {}))
+}
+
+/** the best a promotion offers before a billing period is chosen, e.g. "up to 50% off" or "€5.00 off" */
+export function describeBestAmount(promotion: AutoDiscount): string {
     if (!isPercentDiscount(promotion)) return describeFixedAmount(promotion.amount)
-    if (weeks !== undefined) return `${getPeriodPercent(promotion, weeks)}% off`
-    const amounts = [promotion.amount, ...Object.values(promotion.periodAmounts ?? {})]
-    return `up to ${Math.max(...amounts)}% off`
+    return `up to ${getMaxPercent(promotion)}% off`
+}
+
+function describeAmount(promotion: AutoDiscount, weeks?: number): string {
+    if (weeks === undefined) return describeBestAmount(promotion)
+    if (!isPercentDiscount(promotion)) return describeFixedAmount(promotion.amount)
+    return `${getPeriodPercent(promotion, weeks)}% off`
+}
+
+/** what a promotion's discount covers: "your first payment" or "every payment" */
+export function describePromotionScope(promotion: AutoDiscount): string {
+    return describeScope(promotion)
 }
 
 function describeScope(promotion: AutoDiscount, weeks?: number): string {
