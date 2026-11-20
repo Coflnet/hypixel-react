@@ -11,6 +11,7 @@ import { usePutApiPremiumSubscriptionExternalIdReactivate } from '../../../api/_
 import { toast } from 'react-toastify'
 import UpgradeSubscription from '../UpgradeSubscription/UpgradeSubscription'
 import ExtendSubscription from '../ExtendSubscription/ExtendSubscription'
+import SwitchSubscriptionTerm from '../SwitchSubscriptionTerm/SwitchSubscriptionTerm'
 
 interface Props {
     products: PremiumProduct[]
@@ -21,12 +22,19 @@ interface Props {
     hasSubscriptionLoadingError?: boolean
     /** the subscription a reminder mail links to (/account?extend=id): it is scrolled into view */
     linkedSubscriptionId?: string
-    /** refreshes the subscriptions after one was renewed */
+    /** the subscription whose switch to a longer term was left without paying (/account?switch=id): its dialog opens again */
+    linkedSwitchSubscriptionId?: string
+    /** refreshes the subscriptions after one was renewed or switched */
     onSubscriptionsChanged?(): void | Promise<unknown>
 }
 
 function scrollIntoView(element: HTMLElement | null) {
     element?.scrollIntoView({ block: 'center' })
+}
+
+/** whether a mail or payment link points at this subscription: it is scrolled into view */
+function isLinked(subscription: PremiumSubscription, props: Props): boolean {
+    return subscription.externalId === props.linkedSubscriptionId || subscription.externalId === props.linkedSwitchSubscriptionId
 }
 
 function PremiumStatus(props: Props) {
@@ -164,7 +172,7 @@ function PremiumStatus(props: Props) {
                                 <li
                                     key={subscription.externalId}
                                     id={`subscription-${subscription.externalId}`}
-                                    ref={subscription.externalId === props.linkedSubscriptionId ? scrollIntoView : undefined}
+                                    ref={isLinked(subscription, props) ? scrollIntoView : undefined}
                                 >
                                         {' '}
                                         <Tooltip
@@ -222,6 +230,11 @@ function PremiumStatus(props: Props) {
                                                 onExtended={props.onSubscriptionsChanged ?? (() => undefined)}
                                             />
                                         )}
+                                        <SwitchSubscriptionTerm
+                                            subscription={subscription}
+                                            linked={subscription.externalId === props.linkedSwitchSubscriptionId}
+                                            onSubscriptionsChanged={props.onSubscriptionsChanged ?? (() => undefined)}
+                                        />
                                 </li>
                             ))}
                             {productsToShow?.map(product => (

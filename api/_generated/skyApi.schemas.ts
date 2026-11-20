@@ -5657,6 +5657,185 @@ export interface SubscriptionProviderOption {
 }
 
 /**
+ * A promotion applied to the first charge of a switch.
+ */
+export interface SubscriptionTermPromotionResponse {
+  /**
+     * Promotion code.
+     * @nullable
+     */
+  code?: string | null;
+  /**
+     * Display name.
+     * @nullable
+     */
+  name?: string | null;
+  /**
+     * percent or fixed (cents).
+     * @nullable
+     */
+  amountType?: string | null;
+  /** The amount, percent or cents depending on the amount type. */
+  amount: number;
+  /**
+     * When the promotion ends, null when it does not.
+     * @nullable
+     */
+  expiresAt?: string | null;
+}
+
+/**
+ * One longer term: what it costs now and how it continues afterwards.
+ */
+export interface SubscriptionTermOptionResponse {
+  /** Length of the term in weeks. */
+  weeks: number;
+  /**
+     * Slug of the plan the term is.
+     * @nullable
+     */
+  productSlug?: string | null;
+  /**
+     * Display title of the plan.
+     * @nullable
+     */
+  title?: string | null;
+  /** Price of the term without a promotion. */
+  regularPrice: number;
+  /** What is charged now, the regular price or the lower promotion price. */
+  chargedNow: number;
+  /**
+     * Currency of the prices (ISO code).
+     * @nullable
+     */
+  currency?: string | null;
+  /**
+     * How tax relates to the prices: included, net or none.
+     * @nullable
+     */
+  taxTreatment?: string | null;
+  promotion?: SubscriptionTermPromotionResponse;
+  /** When the access paid so far ends; these days are kept. */
+  currentAccessEndsAt: string;
+  /** When the access ends after the switch. */
+  newAccessEndsAt: string;
+  /** Whole days of the current term carried over on top of the new term. */
+  carriedOverDays: number;
+  /** When the first 4 week cycle after the new term is charged. */
+  firstRenewalAt: string;
+  /**
+     * Slug of the 4 week plan the subscription continues as.
+     * @nullable
+     */
+  renewsAsProductSlug?: string | null;
+  /** What each 4 week cycle after the new term charges. */
+  renewalPrice: number;
+  /** Length of the continuation cycle in weeks. */
+  renewalWeeks: number;
+}
+
+/**
+ * Outcome of a switch to a longer term.
+ */
+export interface SubscriptionTermSwitchResponse {
+  /** True once the new term is paid and granted. */
+  switched: boolean;
+  /**
+     * completed, payment_required, approval_required or processing.
+     * @nullable
+     */
+  status?: string | null;
+  /**
+     * Where to send the buyer to pay or approve (Stripe or PayPal), null otherwise.
+     * @nullable
+     */
+  approvalUrl?: string | null;
+  /** Length of the new term in weeks. */
+  weeks: number;
+  /**
+     * Slug of the new plan.
+     * @nullable
+     */
+  productSlug?: string | null;
+  /** What is charged now. */
+  chargedNow: number;
+  /**
+     * Currency of the prices (ISO code).
+     * @nullable
+     */
+  currency?: string | null;
+  /**
+     * How tax relates to the prices: included, net or none.
+     * @nullable
+     */
+  taxTreatment?: string | null;
+  /**
+     * Code of the promotion applied, null without one.
+     * @nullable
+     */
+  promotionCode?: string | null;
+  /** When the access ends once the switch is paid. */
+  accessUntil: string;
+  /** When the first 4 week cycle after the new term is charged. */
+  firstRenewalAt: string;
+  /**
+     * Slug of the 4 week plan the subscription continues as.
+     * @nullable
+     */
+  renewsAsProductSlug?: string | null;
+  /** What each 4 week cycle after the new term charges. */
+  renewalPrice: number;
+  /** Length of the continuation cycle in weeks. */
+  renewalWeeks: number;
+}
+
+/**
+ * The longer terms a subscription can switch to now.
+ */
+export interface SubscriptionTermOptionsResponse {
+  /**
+     * External id of the subscription.
+     * @nullable
+     */
+  subscriptionId?: string | null;
+  /**
+     * Length of the current term in weeks.
+     * @nullable
+     */
+  currentWeeks?: number | null;
+  /**
+     * When the access paid so far ends.
+     * @nullable
+     */
+  currentAccessEndsAt?: string | null;
+  /**
+     * Why no term is offered, null when there are terms.
+     * @nullable
+     */
+  unavailableReason?: string | null;
+  pending?: SubscriptionTermSwitchResponse;
+  /**
+     * The terms that can be switched to.
+     * @nullable
+     */
+  terms?: SubscriptionTermOptionResponse[] | null;
+}
+
+/**
+ * Body of a request to switch a subscription to a longer term.
+ */
+export interface SubscriptionTermSwitchArgs {
+  /** The new term in weeks (13 or 52), one of the offered terms. */
+  weeks: number;
+  declaration?: SubscriptionDeclarationArgs;
+  /**
+     * The price shown to the buyer (chargedNow of the chosen term). A switch that would charge another amount is refused.
+     * @nullable
+     */
+  expectedChargedNow?: number | null;
+}
+
+/**
  * Element for the /lowSupply page
  */
 export interface SupplyElement {
@@ -6411,6 +6590,14 @@ export type PutApiPremiumSubscriptionExternalIdReactivate401One = {
 };
 
 export type PostApiPremiumSubscriptionExternalIdExtend401One = {
+  message?: string;
+};
+
+export type GetApiPremiumSubscriptionExternalIdTerms401One = {
+  message?: string;
+};
+
+export type PostApiPremiumSubscriptionExternalIdTerm401One = {
   message?: string;
 };
 

@@ -140,6 +140,7 @@ import type {
   GetApiPremiumSlotsProducts401One,
   GetApiPremiumSubscription401One,
   GetApiPremiumSubscriptionExternalIdPlans401One,
+  GetApiPremiumSubscriptionExternalIdTerms401One,
   GetApiPremiumSubscriptionProvidersParams,
   GetApiPremiumTransactions401One,
   GetApiPriceAttributes200One,
@@ -219,6 +220,7 @@ import type {
   PostApiPlayerNames200Two,
   PostApiPremiumPricesAdjusted401One,
   PostApiPremiumSubscriptionExternalIdExtend401One,
+  PostApiPremiumSubscriptionExternalIdTerm401One,
   PostApiPremiumSubscriptionSubscriptionSlug401One,
   PostApiPremiumSubscriptionSubscriptionSlugParams,
   PostApiPremiumUserOwns200One,
@@ -279,6 +281,9 @@ import type {
   SubscriptionExtensionResponse,
   SubscriptionPlan,
   SubscriptionProviderOption,
+  SubscriptionTermOptionsResponse,
+  SubscriptionTermSwitchArgs,
+  SubscriptionTermSwitchResponse,
   SupplyElement,
   TermsStatus,
   TierSlotAccess,
@@ -16836,6 +16841,299 @@ export const usePostApiPremiumSubscriptionExternalIdExtend = <TError = PostApiPr
         TContext
       > => {
       return useMutation(getPostApiPremiumSubscriptionExternalIdExtendMutationOptions(options), queryClient);
+    }
+
+export type getApiPremiumSubscriptionExternalIdTermsResponse200TextPlain = {
+  data: SubscriptionTermOptionsResponse
+  status: 200
+}
+
+export type getApiPremiumSubscriptionExternalIdTermsResponse200ApplicationJson = {
+  data: SubscriptionTermOptionsResponse
+  status: 200
+}
+
+export type getApiPremiumSubscriptionExternalIdTermsResponse200TextJson = {
+  data: SubscriptionTermOptionsResponse
+  status: 200
+}
+
+export type getApiPremiumSubscriptionExternalIdTermsResponse401ApplicationJson = {
+  data: GetApiPremiumSubscriptionExternalIdTerms401One
+  status: 401
+}
+
+export type getApiPremiumSubscriptionExternalIdTermsResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type getApiPremiumSubscriptionExternalIdTermsResponse403 = {
+  data: void
+  status: 403
+}
+
+export type getApiPremiumSubscriptionExternalIdTermsResponseSuccess = (getApiPremiumSubscriptionExternalIdTermsResponse200TextPlain | getApiPremiumSubscriptionExternalIdTermsResponse200ApplicationJson | getApiPremiumSubscriptionExternalIdTermsResponse200TextJson) & {
+  headers: Headers;
+};
+export type getApiPremiumSubscriptionExternalIdTermsResponseError = (getApiPremiumSubscriptionExternalIdTermsResponse401ApplicationJson | getApiPremiumSubscriptionExternalIdTermsResponse401TextPlain | getApiPremiumSubscriptionExternalIdTermsResponse403) & {
+  headers: Headers;
+};
+
+export type getApiPremiumSubscriptionExternalIdTermsResponse = (getApiPremiumSubscriptionExternalIdTermsResponseSuccess | getApiPremiumSubscriptionExternalIdTermsResponseError)
+
+export const getGetApiPremiumSubscriptionExternalIdTermsUrl = (externalId: string,) => {
+
+
+
+
+  return `https://sky.coflnet.com/api/premium/subscription/${externalId}/terms`
+}
+
+/**
+ * @summary Lists the longer terms (13 or 52 weeks of the same tier) a running subscription can switch to now:
+what each charges now, how the paid days left are kept and how it continues every 4 weeks afterwards.
+An empty list comes with an unavailableReason.
+ */
+export const getApiPremiumSubscriptionExternalIdTerms = async (externalId: string, options?: RequestInit): Promise<getApiPremiumSubscriptionExternalIdTermsResponse> => {
+
+  const res = await fetch(getGetApiPremiumSubscriptionExternalIdTermsUrl(externalId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: getApiPremiumSubscriptionExternalIdTermsResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as getApiPremiumSubscriptionExternalIdTermsResponse
+}
+
+
+
+
+
+export const getGetApiPremiumSubscriptionExternalIdTermsQueryKey = (externalId: string,) => {
+    return [
+    `https://sky.coflnet.com/api/premium/subscription/${externalId}/terms`
+    ] as const;
+    }
+
+
+export const getGetApiPremiumSubscriptionExternalIdTermsQueryOptions = <TData = Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>, TError = GetApiPremiumSubscriptionExternalIdTerms401One | string | void>(externalId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>, TError, TData>>, fetch?: RequestInit}
+) => {
+
+const {query: queryOptions, fetch: fetchOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApiPremiumSubscriptionExternalIdTermsQueryKey(externalId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>> = ({ signal }) => getApiPremiumSubscriptionExternalIdTerms(externalId, { signal, ...fetchOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: externalId !== null && externalId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiPremiumSubscriptionExternalIdTermsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>>
+export type GetApiPremiumSubscriptionExternalIdTermsQueryError = GetApiPremiumSubscriptionExternalIdTerms401One | string | void
+
+
+export function useGetApiPremiumSubscriptionExternalIdTerms<TData = Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>, TError = GetApiPremiumSubscriptionExternalIdTerms401One | string | void>(
+ externalId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPremiumSubscriptionExternalIdTerms<TData = Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>, TError = GetApiPremiumSubscriptionExternalIdTerms401One | string | void>(
+ externalId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>
+        > , 'initialData'
+      >, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPremiumSubscriptionExternalIdTerms<TData = Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>, TError = GetApiPremiumSubscriptionExternalIdTerms401One | string | void>(
+ externalId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+/**
+ * @summary Lists the longer terms (13 or 52 weeks of the same tier) a running subscription can switch to now:
+what each charges now, how the paid days left are kept and how it continues every 4 weeks afterwards.
+An empty list comes with an unavailableReason.
+ */
+
+export function useGetApiPremiumSubscriptionExternalIdTerms<TData = Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>, TError = GetApiPremiumSubscriptionExternalIdTerms401One | string | void>(
+ externalId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPremiumSubscriptionExternalIdTerms>>, TError, TData>>, fetch?: RequestInit}
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApiPremiumSubscriptionExternalIdTermsQueryOptions(externalId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export type postApiPremiumSubscriptionExternalIdTermResponse200TextPlain = {
+  data: SubscriptionTermSwitchResponse
+  status: 200
+}
+
+export type postApiPremiumSubscriptionExternalIdTermResponse200ApplicationJson = {
+  data: SubscriptionTermSwitchResponse
+  status: 200
+}
+
+export type postApiPremiumSubscriptionExternalIdTermResponse200TextJson = {
+  data: SubscriptionTermSwitchResponse
+  status: 200
+}
+
+export type postApiPremiumSubscriptionExternalIdTermResponse401ApplicationJson = {
+  data: PostApiPremiumSubscriptionExternalIdTerm401One
+  status: 401
+}
+
+export type postApiPremiumSubscriptionExternalIdTermResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiPremiumSubscriptionExternalIdTermResponse403 = {
+  data: void
+  status: 403
+}
+
+export type postApiPremiumSubscriptionExternalIdTermResponse428TextPlain = {
+  data: ProblemDetails
+  status: 428
+}
+
+export type postApiPremiumSubscriptionExternalIdTermResponse428ApplicationJson = {
+  data: ProblemDetails
+  status: 428
+}
+
+export type postApiPremiumSubscriptionExternalIdTermResponse428TextJson = {
+  data: ProblemDetails
+  status: 428
+}
+
+export type postApiPremiumSubscriptionExternalIdTermResponse503 = {
+  data: void
+  status: 503
+}
+
+export type postApiPremiumSubscriptionExternalIdTermResponseSuccess = (postApiPremiumSubscriptionExternalIdTermResponse200TextPlain | postApiPremiumSubscriptionExternalIdTermResponse200ApplicationJson | postApiPremiumSubscriptionExternalIdTermResponse200TextJson) & {
+  headers: Headers;
+};
+export type postApiPremiumSubscriptionExternalIdTermResponseError = (postApiPremiumSubscriptionExternalIdTermResponse401ApplicationJson | postApiPremiumSubscriptionExternalIdTermResponse401TextPlain | postApiPremiumSubscriptionExternalIdTermResponse403 | postApiPremiumSubscriptionExternalIdTermResponse428TextPlain | postApiPremiumSubscriptionExternalIdTermResponse428ApplicationJson | postApiPremiumSubscriptionExternalIdTermResponse428TextJson | postApiPremiumSubscriptionExternalIdTermResponse503) & {
+  headers: Headers;
+};
+
+export type postApiPremiumSubscriptionExternalIdTermResponse = (postApiPremiumSubscriptionExternalIdTermResponseSuccess | postApiPremiumSubscriptionExternalIdTermResponseError)
+
+export const getPostApiPremiumSubscriptionExternalIdTermUrl = (externalId: string,) => {
+
+
+
+
+  return `https://sky.coflnet.com/api/premium/subscription/${externalId}/term`
+}
+
+/**
+ * @summary Switches a running subscription to a longer term, charged now; the paid days left are kept on top.
+Stripe completes it or returns the page to confirm the payment at, PayPal returns an approval url.
+Rejections carry a slug such as term_switch_price_changed when the price shown is no longer the price charged.
+ */
+export const postApiPremiumSubscriptionExternalIdTerm = async (externalId: string,
+    subscriptionTermSwitchArgs?: SubscriptionTermSwitchArgs, options?: RequestInit): Promise<postApiPremiumSubscriptionExternalIdTermResponse> => {
+
+  const res = await fetch(getPostApiPremiumSubscriptionExternalIdTermUrl(externalId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json-patch+json', ...options?.headers },
+    body: JSON.stringify(subscriptionTermSwitchArgs)
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postApiPremiumSubscriptionExternalIdTermResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as postApiPremiumSubscriptionExternalIdTermResponse
+}
+
+
+
+
+
+export const getPostApiPremiumSubscriptionExternalIdTermMutationOptions = <TError = PostApiPremiumSubscriptionExternalIdTerm401One | string | void | ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionExternalIdTerm>>, TError,{externalId: string;data?: SubscriptionTermSwitchArgs}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionExternalIdTerm>>, TError,{externalId: string;data?: SubscriptionTermSwitchArgs}, TContext> => {
+
+const mutationKey = ['postApiPremiumSubscriptionExternalIdTerm'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPremiumSubscriptionExternalIdTerm>>, {externalId: string;data?: SubscriptionTermSwitchArgs}> = (props) => {
+          const {externalId,data} = props ?? {};
+
+          return  postApiPremiumSubscriptionExternalIdTerm(externalId,data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiPremiumSubscriptionExternalIdTermMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPremiumSubscriptionExternalIdTerm>>>
+    export type PostApiPremiumSubscriptionExternalIdTermMutationBody = SubscriptionTermSwitchArgs | undefined
+    export type PostApiPremiumSubscriptionExternalIdTermMutationError = PostApiPremiumSubscriptionExternalIdTerm401One | string | void | ProblemDetails
+
+    /**
+ * @summary Switches a running subscription to a longer term, charged now; the paid days left are kept on top.
+Stripe completes it or returns the page to confirm the payment at, PayPal returns an approval url.
+Rejections carry a slug such as term_switch_price_changed when the price shown is no longer the price charged.
+ */
+export const usePostApiPremiumSubscriptionExternalIdTerm = <TError = PostApiPremiumSubscriptionExternalIdTerm401One | string | void | ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionExternalIdTerm>>, TError,{externalId: string;data?: SubscriptionTermSwitchArgs}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiPremiumSubscriptionExternalIdTerm>>,
+        TError,
+        {externalId: string;data?: SubscriptionTermSwitchArgs},
+        TContext
+      > => {
+      return useMutation(getPostApiPremiumSubscriptionExternalIdTermMutationOptions(options), queryClient);
     }
 
 export type putApiPremiumSubscriptionExternalIdSwitchResponse200TextPlain = {
