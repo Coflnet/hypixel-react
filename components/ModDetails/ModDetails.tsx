@@ -18,36 +18,41 @@ function ModDetails() {
                         Say goodbye to window switching! The SkyCofl mod provides you with data directly in Hypixel Skyblock. You can access price paid, the
                         Auction Flipper, median price, lowest BIN, bazaar prices and more!
                     </p>
-                    <h3>Recommended Installation</h3>
+                    <h3>Installation</h3>
                     <p>
-                        We recommend installing the mod from{' '}
+                        The mod runs on <b>Fabric</b> with the current Hypixel-supported Minecraft version and needs Fabric API, like most SkyBlock mods. It
+                        is available on{' '}
                         <a href="https://modrinth.com/mod/skycofl" target="_blank" rel="noopener noreferrer">
                             Modrinth
                         </a>
-                        . It is available for Forge 1.8.9 and <b>Fabric 1.21.5+</b>. For more information see our <a href="/wiki/mod">SkyCofl wiki</a>.
+                        . For more information see our <a href="/wiki/mod">SkyCofl wiki</a>.
                     </p>
-
-                    <h3>Alternative for 1.8.9</h3>
-                    <p>
-                        Use{' '}
-                        <a href="https://skyclient.co/" rel="nofollow noopener noreferrer">
-                            SkyClient
-                        </a>{' '}
-                        and add our mod (easiest)
-                    </p>
-
-                    <h3>Legacy-Installation</h3>
                     <ol>
-                        <li>Get and install Forge 1.8.9 (if you don't have already watch the video below)</li>
                         <li>
-                            Download and put the mod into your <span className={styles.modMono}>.minecraft/mods</span> folder
+                            Install{' '}
+                            <a href="https://prismlauncher.org/" target="_blank" rel="noopener noreferrer">
+                                Prism Launcher
+                            </a>
                         </li>
-                        <li>Launch Minecraft and join Skyblock</li>
+                        <li>
+                            Click <span className={styles.modMono}>Create Instance</span>, select the current Minecraft version and Fabric as the mod loader,
+                            then create it
+                        </li>
+                        <li>
+                            Select the new instance, click <span className={styles.modMono}>Edit Instance</span> and then{' '}
+                            <span className={styles.modMono}>Mods</span> → <span className={styles.modMono}>Download mods</span>
+                        </li>
+                        <li>
+                            Search for and select <span className={styles.modMono}>Fabric API</span> and <span className={styles.modMono}>SkyCofl</span>, then
+                            click <span className={styles.modMono}>Download and Install</span>
+                        </li>
+                        <li>Click Play and join SkyBlock</li>
                         <li>
                             Get a list of commands with <span className={styles.modMono}>/cofl help</span> or watch the{' '}
                             <a href="https://www.youtube.com/watch?v=dv66Y_cra8U&list=PLDpPmxIcq9tAssQlyJMBlSmSg5JOpq699">YouTube playlist</a> explaining them
                         </li>
                     </ol>
+                    <p>The old Forge 1.8.9 version can no longer be used for SkyBlock, because Hypixel does not let 1.8.9 clients join SkyBlock.</p>
                     <hr />
                     <div className={styles.modEmbedContainer}>
                         <iframe
