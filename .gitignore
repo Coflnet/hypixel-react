@@ -35,6 +35,7 @@ package-lock.json
 cypress/screenshots/*
 cypress/videos/*
 .next
+.next-cypress
 /test-results/
 /playwright-report/
 /playwright/.cache/
