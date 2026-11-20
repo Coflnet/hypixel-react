@@ -238,11 +238,18 @@ function AccountDetails() {
                         hasProductLoadingError={hasLoadingPremiumProductsError}
                         hasSubscriptionLoadingError={subscriptionLookupStatus === 'failed'}
                         linkedSubscriptionId={extensionLinks.extendId}
+                        linkedSwitchSubscriptionId={extensionLinks.switchId}
                         onSubscriptionsChanged={loadPremiumSubscriptions}
                     />
                     {extensionLinks.paypalReturned && (
                         <Alert variant="info" dismissible onClose={extensionLinks.dismissPaypalReturned} data-testid="extended-paypal-notice">
                             Thanks — PayPal confirmed your approval. The renewal shows here once PayPal notifies us (usually within a minute).
+                        </Alert>
+                    )}
+                    {extensionLinks.switchReturned && (
+                        <Alert variant="info" dismissible onClose={extensionLinks.dismissSwitchReturned} data-testid="switched-notice">
+                            Thanks — your payment for the longer term was received. The new term shows here once the payment provider confirms it
+                            (usually within a minute).
                         </Alert>
                     )}
                     <TierSlots subscriptions={premiumSubscriptions} onCancelSubscription={setSubscriptionToCancel} />
