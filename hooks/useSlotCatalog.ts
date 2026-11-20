@@ -93,6 +93,13 @@ export default function useSlotCatalog(countryCode?: string) {
         return { ...provider, originalPrice: taxed(provider.originalPrice, 0, direct), discountedPrice: taxed(provider.discountedPrice, 0, direct) }
     }
 
+    /** the product's plan price before tax, after the creator code (what a discount code is taken off); null while unknown */
+    function planPrice(product: PurchaseableProduct | undefined): number | null {
+        if (!product || !canUsePrices) return null
+        const provider = getProvider(pricing || null, product.slug!, 'lemonsqueezy')
+        return provider ? (provider.discountedPrice ?? provider.originalPrice) : null
+    }
+
     /** the product's price with tax after a discount code's percent; the creator code is already in the provider's discounted price */
     function priceWithCode(product: PurchaseableProduct, percent: number, direct: boolean | 'net') {
         if (!canUsePrices) return undefined
@@ -132,6 +139,7 @@ export default function useSlotCatalog(countryCode?: string) {
         canUsePrices,
         price,
         priceWithCode,
+        planPrice,
         renewalPrice,
         creatorCode,
         /** the last creator code the prices could not be loaded with, empty otherwise */

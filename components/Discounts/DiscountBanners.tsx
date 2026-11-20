@@ -51,26 +51,48 @@ function useHasPremiumPlus(): boolean {
 /** where the sale banners send visitors: the plans of either /premium variant (both pages have the #plans anchor) */
 export const PLANS_HREF = '/premium#plans'
 
+interface PromotionBannerProps {
+    /** "#plans" on /premium itself, so the page (and its query, e.g. the QA variant override) stays */
+    href?: string
+    /** the promotion most visitors get (fetched on the server, see getLikelyPromotion): reserves the banner's space while loading */
+    likelyPromotion?: AutoDiscount | null
+}
+
 /**
  * Full-width banner of the automatic promotion the visitor's country gets (GET /api/premium/discount/auto), e.g.
  * "Blackweek sale: up to 50% OFF your first payment — ends November 30, 11:59 PM GMT+1". Links to the plans; no code is needed.
- * Renders nothing on the server, while the country or providers load and when no promotion runs for them.
- * `href` is "#plans" on /premium itself, so the page (and its query, e.g. the QA variant override) stays.
+ * While the visitor's promotion loads, an invisible copy of the likely promotion's banner holds its place, so the page does not
+ * shift when it appears; it collapses only for visitors who turn out to get none. Without a likely promotion nothing is reserved.
  */
-export function PromotionBanner({ href = PLANS_HREF }: { href?: string }) {
-    const promotion = useVisitorPromotion()
-    if (!promotion) return null
-    const end = formatPromotionEnd(promotion.expiresAt)
-    const name = promotion.name || 'Sale'
+export function PromotionBanner({ href = PLANS_HREF, likelyPromotion }: PromotionBannerProps) {
+    const { promotion, loading } = useVisitorPromotion()
+    if (promotion) {
+        return (
+            <Link href={href} className={styles.salesBanner} data-testid="promotion-banner">
+                <PromotionBannerText promotion={promotion} />
+            </Link>
+        )
+    }
+    if (!loading || !likelyPromotion) return null
+    // UTC: the server and the first client render show the same (invisible) text
     return (
-        <Link href={href} className={styles.salesBanner} data-testid="promotion-banner">
-            <span className={styles.bannerTitle}>🎮 {name}:</span> <span className={styles.highlight}>{getPromotionHeadline(promotion)}</span>{' '}
-            {describePromotionScope(promotion)}
+        <div className={`${styles.salesBanner} ${styles.reserved}`} aria-hidden="true" data-testid="promotion-banner-placeholder">
+            <PromotionBannerText promotion={likelyPromotion} timeZone="UTC" />
+        </div>
+    )
+}
+
+function PromotionBannerText({ promotion, timeZone }: { promotion: AutoDiscount; timeZone?: string }) {
+    const end = formatPromotionEnd(promotion.expiresAt, timeZone)
+    return (
+        <>
+            <span className={styles.bannerTitle}>🎮 {promotion.name || 'Sale'}:</span>{' '}
+            <span className={styles.highlight}>{getPromotionHeadline(promotion)}</span> {describePromotionScope(promotion)}
             {end ? ` — ends ${end}` : ''}
             <span className={styles.bannerAction}>
                 Applied automatically — <span className={styles.bannerLink}>See the plans →</span>
             </span>
-        </Link>
+        </>
     )
 }
 
@@ -85,11 +107,11 @@ function getPromotionHeadline(promotion: AutoDiscount): string {
  * Advertises the running subscription promotion, except for users who already own the top (Premium+) tier — a subscription
  * discount is useless to them, so they instead see the CoflCoins sale (or nothing when no coins sale is running).
  */
-export function SubscriptionSalesBanner() {
+export function SubscriptionSalesBanner({ likelyPromotion }: { likelyPromotion?: AutoDiscount | null }) {
     const hasPremiumPlus = useHasPremiumPlus()
     const coinsDiscount = getActiveCoinsDiscount()
 
-    if (!hasPremiumPlus) return <PromotionBanner />
+    if (!hasPremiumPlus) return <PromotionBanner likelyPromotion={likelyPromotion} />
     if (!coinsDiscount) return null
     return (
         <Link href="/premium" className={styles.salesBanner} role="button" aria-label={`${coinsDiscount.label} promo`}>
@@ -175,7 +197,7 @@ export function TierUpsellPanel({ currentTier, price, codeSavings, onUpgrade }: 
  * Renders nothing while no promotion runs for the visitor.
  */
 export function FlipListDiscountNote() {
-    const promotion = useVisitorPromotion()
+    const { promotion } = useVisitorPromotion()
     if (!promotion) return null
     return (
         <span className={styles.flipNote} data-testid="flip-promotion-note">

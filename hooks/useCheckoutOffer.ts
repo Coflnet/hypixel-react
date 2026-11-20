@@ -54,9 +54,11 @@ export function useAutoPromotion(country?: string) {
         { country },
         { query: { enabled: !!country, staleTime: Infinity, retry: false, placeholderData: keepPreviousData } }
     )
-    const promotion: AutoDiscount | null = query.data?.status === 200 ? query.data.data : null
+    // another country's answer is kept while this country's loads: it is never shown as this country's promotion
+    const loading = !country || query.isLoading || query.isPlaceholderData
+    const promotion: AutoDiscount | null = !loading && query.data?.status === 200 ? query.data.data : null
     const now = usePromotionClock(promotion)
-    return { promotion: isPromotionRunning(promotion, now) ? promotion : null, loading: !country || query.isLoading }
+    return { promotion: isPromotionRunning(promotion, now) ? promotion : null, loading }
 }
 
 export interface CheckoutOffer {
@@ -86,12 +88,15 @@ export function useCheckoutOffer(country?: string, productSlug?: string): Checko
 }
 
 /**
- * The promotion the visitor's country gets right now, for banners outside a checkout. Null while it is unknown (server-rendered
- * page, country or providers still loading) and when none runs for the country's providers.
+ * The promotion the visitor's country gets right now, for banners outside a checkout: null while it is unknown and when none runs
+ * for the country's providers. `loading` is true until that is known (server-rendered page, country, providers or promotion still
+ * loading); a country that cannot be detected settles on no promotion.
  */
-export function useVisitorPromotion(): AutoDiscount | null {
-    const countryCode = useCountryDetection().selectedCountry?.value
+export function useVisitorPromotion(): { promotion: AutoDiscount | null; loading: boolean } {
+    const country = useCountryDetection()
+    const countryCode = country.selectedCountry?.value
     const offer = useCheckoutOffer(countryCode)
     // after a country change the previous country's promotion is kept until this country's answers arrived
-    return offer.loading ? null : offer.promotion
+    const loading = country.isDetecting || (!!countryCode && offer.loading)
+    return { promotion: loading ? null : offer.promotion, loading }
 }

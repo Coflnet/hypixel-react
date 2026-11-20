@@ -2,6 +2,7 @@
 import { Card } from 'react-bootstrap'
 import NavBar from '../NavBar/NavBar'
 import { PromotionBanner } from '../Discounts/DiscountBanners'
+import type { AutoDiscount } from '../../api/_generated/skyApi.schemas'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
 import styles from './Premium.module.css'
 import { usePremiumAccount } from './usePremiumAccount'
@@ -15,7 +16,8 @@ import {
 } from './PremiumAccountSections'
 
 /** the current /premium page; the control of the premium page A/B test */
-function Premium() {
+/** `likelyPromotion`: the promotion most visitors get, from the server; the sale banner reserves its space with it while loading */
+function Premium({ likelyPromotion }: { likelyPromotion?: AutoDiscount | null }) {
     const account = usePremiumAccount()
     const { isLoggedIn, hasPremium } = account
 
@@ -26,7 +28,7 @@ function Premium() {
                 Premium
             </h2>
             <hr />
-            <PromotionBanner href="#plans" />
+            <PromotionBanner href="#plans" likelyPromotion={likelyPromotion} />
             <PremiumStatusLine account={account} />
             <hr />
             {/* the target of the sale banners' "/premium#plans", like the redesign's plans section */}

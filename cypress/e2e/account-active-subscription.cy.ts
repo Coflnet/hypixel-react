@@ -1810,15 +1810,20 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         openDurations()
         // regression: the end was formatted in UTC; a Berlin visitor's offer runs until 00:59 on December 1
         cy.get('[data-testid="promotion-note"]').invoke('text').should('match', /^Black Friday: up to 50% off your first payment\. Offer ends December 1, 12:59\sAM GMT\+1\./)
-        durationRow('4 weeks').should('contain.text', '-25%').find('s').should('have.text', '~€9.69')
+        durationRow('4 weeks').should('contain.text', '-25%').find('s').should('have.text', '€9.69')
         // regression: the badge sat beside the title and wrapped onto its own line next to "Recommended"; it belongs to the price
         for (const [title, badge] of [['4 weeks', '-25%'], ['Quarterly', '-50%'], ['Yearly', '-50%']]) {
             durationRow(title).contains('span', badge).parent().find('s').should('exist')
         }
-        // regression: prices read "per month" for 4-week periods; 13 and 52 weeks are spread over 4-week periods with their total
-        durationRow('4 weeks').should('contain.text', '~€7.27').and('contain.text', 'per 4 weeks, first 4 weeks')
-        durationRow('Quarterly').should('contain.text', '-50%').and('contain.text', '~€4.26').and('contain.text', '€13.84 for the first 13 weeks, then €9.69 every 4 weeks').find('s').should('have.text', '~€8.52')
-        durationRow('Yearly').should('contain.text', '-50%').and('contain.text', '~€3.72').and('contain.text', '€48.34 for the first year, then €9.69 every 4 weeks').find('s').should('have.text', '~€7.44')
+        // regression: prices read "per month" for 4-week periods; later 13 and 52 weeks were headed by a 4-week share nobody is charged:
+        // the headline is the exact charge of the period (no "~"), the 4-week share only a comparison under it
+        durationRow('4 weeks').should('contain.text', '€7.27').and('contain.text', 'for the first 4 weeks, then €9.69 every 4 weeks').and('not.contain.text', '~')
+        durationRow('Quarterly').should('contain.text', '-50%').and('contain.text', '€13.84').and('contain.text', 'for the first 13 weeks, then €9.69 every 4 weeks').find('s').should('have.text', '€27.69')
+        durationRow('Quarterly').find('[data-testid="four-week-share"]').should('have.text', '≈ €4.26 per 4 weeks in the first 13 weeks')
+        durationRow('Yearly').should('contain.text', '-50%').and('contain.text', '€48.34').and('contain.text', 'for the first 52 weeks, then €9.69 every 4 weeks').find('s').should('have.text', '€96.69')
+        durationRow('Yearly').find('[data-testid="four-week-share"]').should('have.text', '≈ €3.72 per 4 weeks in year 1')
+        // the struck price follows the charge in the text, for screen readers
+        durationRow('Yearly').find('[class*="amount"]').invoke('text').should('equal', '€48.34 instead of €96.69')
         cy.get('#buyPremium').should('not.contain.text', 'month')
         cy.get('#buyPremium').screenshot('promotion-durations')
         wizardOption(/^Yearly$/).click()
@@ -2114,7 +2119,7 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         stubProviders(directProviders)
         visitAuthenticatedPage('/premium?tier=starter')
         wizardOption(/^Subscription$/).click()
-        durationRow('Yearly').should('contain.text', 'First 52 weeks, then every 4 weeks until cancelled').and('contain.text', '€16.69 for the first year, then €2.69 every 4 weeks')
+        durationRow('Yearly').should('contain.text', 'First 52 weeks, then every 4 weeks until cancelled').and('contain.text', '€16.69').and('contain.text', 'for the first 52 weeks, then €2.69 every 4 weeks')
         durationRow('Yearly').should('contain.text', 'then €2.69 every 4 weeks').and('not.contain.text', 'renews every 52')
         wizardOption(/^Yearly$/).click()
         cy.contains('#buyPremium h3', 'Complete Purchase').should('be.visible')
@@ -2170,7 +2175,7 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         cy.intercept('GET', '**/api/premium/country', { forceNetworkError: true })
         stubProviders(directProviders)
         openDurations()
-        durationRow('4 weeks').should('contain.text', '~€9.69').and('contain.text', 'per 4 weeks, plus VAT where applicable')
+        durationRow('4 weeks').should('contain.text', '~€9.69').and('contain.text', 'every 4 weeks, plus VAT where applicable')
         wizardOption(/^4 weeks$/).click()
         cy.contains('#buyPremium h3', 'Complete Purchase').should('be.visible')
         cy.get('#buyPremium').should('contain.text', formatMoney(9.69, 'EUR')).and('contain.text', 'per 4 weeks, plus VAT where applicable')
@@ -2255,7 +2260,8 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
             request.reply({ body: request.query.provider === 'lemonsqueezy' ? { code: 'BF2026', isValid: false, amount: 0 } : blackFridayCode })
         }).as('typedCode')
         openCheckout('4 weeks')
-        cy.wait('@checkoutProviders')
+        // the single Lemon Squeezy button shows once the checkout's providers settled (a response alone may not be rendered yet)
+        cy.contains('button', 'Continue to our secure payment processor').should('be.visible')
         cy.get('#buyPremium').contains('button', 'Have a discount or creator code?').click()
         discountInput().type('BF2026')
         discountInput().closest('div').parent().contains('button', 'Apply').click()
@@ -2283,6 +2289,190 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         cy.wait(2500)
         discountInput().should('have.value', 'BF2026')
         cy.get('#buyPremium').should('not.contain.text', 'Summer').and('contain.text', formatMoney(7.27, 'EUR'))
+        stubCheckout('l_premium')
+        confirmDeclaration()
+        cy.contains('button', 'Pay with card').click()
+        cy.wait('@checkout').its('request.query').should('deep.equal', { discountcode: 'BF2026', provider: 'stripe', country: 'US' })
+    })
+
+    /** a valid code from a partner link with `periodAmounts` per billing period (percent, or cents for a fixed amount) */
+    function stubLinkCode(code: string, periodAmounts: Record<number, number>, terms: { amountType?: string; duration?: string } = {}) {
+        const amount = Math.max(...Object.values(periodAmounts))
+        const { amountType = 'percent', duration = 'once' } = terms
+        cy.intercept('GET', `**/api/discount/${code}*`, {
+            body: { code, name: 'Partner', amount, amountType, periodAmounts, duration, isValid: true, durationInMonths: 0 }
+        }).as('linkCode')
+    }
+
+    function payWithCard() {
+        stubCheckout('l_premium')
+        confirmDeclaration()
+        cy.contains('button', 'Pay with card').click()
+        return cy.wait('@checkout').its('request.query')
+    }
+
+    function openLinkCheckout(code: string, duration: '4 weeks' | 'Yearly') {
+        visitAuthenticatedPage(`/premium?tier=premium&code=${code}`)
+        wizardOption(/^Subscription$/).click()
+        wizardOption('Just for me').click()
+        wizardOption(new RegExp(`^${duration}$`)).click()
+        cy.contains('#buyPremium h3', 'Complete Purchase').should('be.visible')
+    }
+
+    // regression: a partner link's code held the promotion back even when the promotion gave more
+    it('charges the sale price when the code from the link gives less, and keeps the code where it gives more', () => {
+        stubProviders(directProviders)
+        stubPromotion()
+        // 10% on 4 weeks (the sale gives 25%), 60% on 52 weeks (the sale gives 50%)
+        stubLinkCode('PARTNER', { 4: 10, 13: 10, 52: 60 })
+        openLinkCheckout('PARTNER', '4 weeks')
+        cy.wait(['@linkCode', '@promotion'])
+        discountInput().should('have.value', 'BF2026')
+        cy.get('#buyPremium').should('contain.text', formatMoney(7.27, 'EUR'))
+        cy.get('[data-testid="link-code-replaced"]').should(
+            'have.text',
+            "For 4-week billing the Black Friday (25% off your first payment) saves more on this payment than code PARTNER (10% off your first payment), so the sale applies. Codes can't be combined; enter PARTNER again to use it instead."
+        )
+        stubCheckout('l_premium')
+        confirmDeclaration()
+        cy.contains('button', 'Pay with card').click()
+        cy.wait('@checkout').its('request.query').should('deep.equal', { discountcode: 'BF2026', provider: 'stripe', country: 'US' })
+        // yearly the code gives more: it is weighed again for the new period and kept (60% of €96.69)
+        cy.window().then(window => window.dispatchEvent(new window.PageTransitionEvent('pageshow', { persisted: true })))
+        cy.get('#buyPremium [aria-label="Change duration: 4 weeks"]').click()
+        wizardOption(/^Yearly$/).click()
+        discountInput().should('have.value', 'PARTNER')
+        cy.get('#buyPremium').should('contain.text', 'Discount code valid!').and('contain.text', formatMoney(38.68, 'EUR'))
+        cy.get('[data-testid="link-code-replaced"]').should('not.exist')
+    })
+
+    it('keeps the code from the link when it gives at least as much as the sale', () => {
+        stubProviders(directProviders)
+        stubPromotion()
+        stubLinkCode('BIG60', { 4: 60, 13: 60, 52: 60 })
+        openLinkCheckout('BIG60', '4 weeks')
+        cy.wait(['@linkCode', '@promotion'])
+        discountInput().should('have.value', 'BIG60')
+        // 60% of €9.69 (US, no tax)
+        cy.get('#buyPremium').should('contain.text', 'Discount code valid!').and('contain.text', formatMoney(3.88, 'EUR')).and('not.contain.text', formatMoney(7.27, 'EUR'))
+        cy.get('[data-testid="link-code-replaced"]').should('not.exist')
+        stubCheckout('l_premium')
+        confirmDeclaration()
+        cy.contains('button', 'Pay with card').click()
+        cy.wait('@checkout').its('request.query').should('deep.equal', { discountcode: 'BIG60', provider: 'stripe', country: 'US' })
+    })
+
+    // regression: a fixed amount code from the link was always kept, also where the sale saved more on the payment
+    it('weighs a fixed amount code from the link by what it saves on this payment', () => {
+        stubProviders(directProviders)
+        stubPromotion()
+        // €2.00 off; 25% of €9.69 saves €2.42
+        stubLinkCode('FIXED2', { 4: 200, 13: 200, 52: 200 }, { amountType: 'fixed' })
+        openLinkCheckout('FIXED2', '4 weeks')
+        cy.wait(['@linkCode', '@promotion'])
+        discountInput().should('have.value', 'BF2026')
+        cy.get('[data-testid="link-code-replaced"]').should('contain.text', 'than code FIXED2 (€2.00 off your first payment)')
+        payWithCard().should('deep.equal', { discountcode: 'BF2026', provider: 'stripe', country: 'US' })
+    })
+
+    it('keeps a fixed amount code from the link that saves more on this payment', () => {
+        stubProviders(directProviders)
+        stubPromotion()
+        stubLinkCode('FIXED5', { 4: 500, 13: 500, 52: 500 }, { amountType: 'fixed' })
+        openLinkCheckout('FIXED5', '4 weeks')
+        cy.wait(['@linkCode', '@promotion'])
+        discountInput().should('have.value', 'FIXED5')
+        cy.get('#buyPremium').should('contain.text', 'Discount code valid!')
+        cy.get('[data-testid="link-code-replaced"]').should('not.exist')
+        payWithCard().should('deep.equal', { discountcode: 'FIXED5', provider: 'stripe', country: 'US' })
+    })
+
+    // regression: the sale replaced the link's code although the card checkout does not honour the sale, so neither code applied
+    it('keeps the code from the link when not every payment provider honours the sale', () => {
+        stubProviders(directProviders)
+        cy.intercept('GET', '**/api/premium/discount/auto*', { body: { ...blackFriday, providers: ['paypal'] } }).as('promotion')
+        cy.intercept('GET', '**/api/discount/BF2026*', { body: blackFridayCode }).as('promotionCode')
+        stubLinkCode('PARTNER', { 4: 10, 13: 10, 52: 10 })
+        openLinkCheckout('PARTNER', '4 weeks')
+        cy.wait(['@linkCode', '@promotion'])
+        discountInput().should('have.value', 'PARTNER')
+        cy.get('#buyPremium').should('contain.text', 'Discount code valid!')
+        cy.get('[data-testid="link-code-replaced"]').should('not.exist')
+        payWithCard().should('deep.equal', { discountcode: 'PARTNER', provider: 'stripe', country: 'US' })
+    })
+
+    // the note says when the replaced code applies to every payment: it may save more over time
+    it('says that a code for every payment can save more over time when the sale replaces it', () => {
+        stubProviders(directProviders)
+        stubPromotion()
+        stubLinkCode('LOYAL', { 4: 10, 13: 10, 52: 10 }, { duration: 'forever' })
+        openLinkCheckout('LOYAL', 'Yearly')
+        cy.wait(['@linkCode', '@promotion'])
+        discountInput().should('have.value', 'BF2026')
+        cy.get('[data-testid="link-code-replaced"]').should(
+            'have.text',
+            "For 52-week billing the Black Friday (50% off your first payment) saves more on this payment than code LOYAL (10% off every payment), so the sale applies. Code LOYAL applies to every payment, so over time it can save more. Codes can't be combined; enter LOYAL again to use it instead."
+        )
+    })
+
+    // regression: the sale's code carried in from the link was accepted again after the sale ended
+    it('drops the sale code from the link when the sale ends while the checkout is open', () => {
+        stubProviders(directProviders)
+        cy.intercept('GET', '**/api/premium/discount/auto*', request => {
+            request.reply({ body: { ...blackFriday, expiresAt: new Date(Date.now() + 12000).toISOString() } })
+        }).as('promotion')
+        cy.intercept('GET', '**/api/discount/BF2026*', { body: blackFridayCode }).as('promotionCode')
+        openLinkCheckout('BF2026', '4 weeks')
+        cy.wait('@promotionCode')
+        discountInput().should('have.value', 'BF2026')
+        cy.get('#buyPremium').should('contain.text', formatMoney(7.27, 'EUR'))
+        discountInput({ timeout: 20000 }).should('have.value', '')
+        cy.get('#buyPremium').should('not.contain.text', 'Discount code valid!').and('not.contain.text', formatMoney(7.27, 'EUR'))
+        payWithCard().should('not.have.property', 'discountcode')
+    })
+
+    // regression: a check that never answered kept the code field and the payment buttons blocked
+    it('lets the buyer clear a code while it is checked and gives up on a check that does not answer', () => {
+        stubProviders(directProviders)
+        cy.intercept('GET', '**/api/discount/HANGS*', { delay: 20000, body: { code: 'HANGS', amount: 50, amountType: 'percent', isValid: true, durationInMonths: 0 } })
+        openLinkCheckout('HANGS', '4 weeks')
+        confirmDeclaration()
+        cy.contains('button', 'Pay with card').should('be.disabled')
+        cy.get('#buyPremium input[placeholder="Enter discount code"]').closest('div').parent().contains('button', 'Clear').should('be.enabled')
+        // no answer within the time limit: the check gives up and the checkout is usable again
+        cy.get('#buyPremium', { timeout: 12000 }).should('contain.text', 'Failed to validate discount code')
+        cy.contains('button', 'Pay with card').should('be.enabled')
+    })
+
+    // regression: a payment button clicked while a code was still being checked opened the checkout without the code
+    it('keeps the payment buttons disabled while a discount code is being checked', () => {
+        stubProviders(directProviders)
+        cy.intercept('GET', '**/api/discount/SLOW60*', {
+            delay: 2500,
+            body: { code: 'SLOW60', name: 'Partner', amount: 60, amountType: 'percent', duration: 'once', isValid: true, durationInMonths: 0 }
+        }).as('slowCode')
+        openLinkCheckout('SLOW60', '4 weeks')
+        confirmDeclaration()
+        cy.contains('button', 'Pay with card').should('be.disabled')
+        cy.wait('@slowCode')
+        cy.get('#buyPremium').should('contain.text', 'Discount code valid!')
+        cy.contains('button', 'Pay with card').should('be.enabled')
+    })
+
+    // regression: a link code that does not cover the chosen period only showed its error and the sale was not applied either
+    it('applies the sale when the code from the link does not cover the billing period', () => {
+        stubProviders(directProviders)
+        stubPromotion()
+        // periods a code does not cover say 0 (a missing period falls back to its amount)
+        stubLinkCode('YEARONLY', { 4: 0, 13: 0, 52: 30 })
+        openLinkCheckout('YEARONLY', '4 weeks')
+        cy.wait(['@linkCode', '@promotion'])
+        discountInput().should('have.value', 'BF2026')
+        cy.get('#buyPremium').should('contain.text', formatMoney(7.27, 'EUR')).and('not.contain.text', 'does not apply to the selected billing period')
+        cy.get('[data-testid="link-code-replaced"]').should(
+            'have.text',
+            "Code YEARONLY does not apply to 4-week billing, so the Black Friday (25% off your first payment) applies. Codes can't be combined."
+        )
         stubCheckout('l_premium')
         confirmDeclaration()
         cy.contains('button', 'Pay with card').click()

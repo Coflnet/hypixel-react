@@ -80,3 +80,9 @@
 .priceNote {
     font-size: 12px;
 }
+
+/* the 4-week share of a longer plan under its charged total: a comparison only */
+.share {
+    font-size: 12px;
+    color: #adb5bd;
+}

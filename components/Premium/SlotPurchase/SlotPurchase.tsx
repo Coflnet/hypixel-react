@@ -16,7 +16,7 @@ import { Country } from '../../../utils/CountryUtils'
 import CountrySelect from '../../CountrySelect/CountrySelect'
 import SlotCodes from './SlotCodes'
 import SlotUpsell from './SlotUpsell'
-import { PromotionNote, ProviderButtons, Savings } from '../Checkout/CheckoutParts'
+import { LinkCodeReplacedNote, PromotionNote, ProviderButtons, Savings } from '../Checkout/CheckoutParts'
 import BuyPremiumConfirmationDialog from '../BuyPremiumConfirmationDialog/BuyPremiumConfirmationDialog'
 import styles from './SlotPurchase.module.css'
 import { usePremiumVariant } from '../PremiumVariantContext'
@@ -148,6 +148,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
         weeks: billingWeeks,
         validateInitial: true,
         autoCode: offer.promotion?.code,
+        weighing: { promotion: offer.promotion, planPrice: catalog.planPrice(selected ?? offered[0]), providers: offer.providers },
         isSubscription: purchaseType === PurchaseType.SUBSCRIPTION,
         provider: offer.codeProvider
     })
@@ -264,9 +265,11 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
 
     /** card and PayPal while the direct providers are on, otherwise the single Lemon Squeezy button */
     function renderPaymentButtons() {
+        // a discount code still being checked would be left out of the checkout
+        const blocked = busy || !canUsePrices || !declaration.confirmed || discount.validating
         if (offer.providers.length === 0 || offer.loading)
             return (
-                <Button variant="success" disabled={busy || !canUsePrices || offer.loading || !declaration.confirmed} onClick={() => void checkout()}>
+                <Button variant="success" disabled={blocked || offer.loading} onClick={() => void checkout()}>
                     {busy ? 'Opening checkout…' : offer.loading ? 'Loading payment options…' : 'Continue to checkout'}
                 </Button>
             )
@@ -276,7 +279,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
                     tier={tier}
                     providers={offer.providers}
                     busyProvider={busyProvider}
-                    disabled={busy || !canUsePrices || !declaration.confirmed}
+                    disabled={blocked}
                     onPay={provider => void checkout(undefined, undefined, provider)}
                 />
             </div>
@@ -328,6 +331,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
                     {slotCount} {getTierDisplayName(tier)} {slotCount === 1 ? 'slot' : 'slots'} · Assign to friends after payment
                 </p>
                 {showPromotion ? <PromotionNote promotion={offer.promotion!} weeks={billingWeeks} /> : null}
+                <LinkCodeReplacedNote replacement={discount.replacedLinkCode} promotion={offer.promotion} weeks={billingWeeks} />
             </div>
             {loading ? <p role="status">Loading slot options…</p> : null}
             {catalogError || (hasSubscriptions && pricingError) ? (

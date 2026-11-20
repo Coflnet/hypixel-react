@@ -435,7 +435,8 @@ function getPromotionEnd(expiresAt: string | null | undefined, timeZone?: string
     const date = new Date(expiresAt)
     if (Number.isNaN(date.getTime())) return null
     if (isMidnight(date, timeZone)) return { text: formatDay(new Date(date.getTime() - 1), timeZone), endOfDay: true }
-    const time = date.toLocaleTimeString('en-US', { timeZone, hour: 'numeric', minute: '2-digit', timeZoneName: 'short' })
+    // ICU versions differ in the space before AM/PM (U+202F or U+0020): one spelling, so the server and the browser render the same text
+    const time = date.toLocaleTimeString('en-US', { timeZone, hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }).replace(/\s/g, ' ')
     return { text: `${formatDay(date, timeZone)}, ${time}`, endOfDay: false }
 }
 
@@ -462,12 +463,8 @@ function describeAmount(promotion: AutoDiscount, weeks?: number): string {
     return `${getPeriodPercent(promotion, weeks)}% off`
 }
 
-/** what a promotion's discount covers: "your first payment" or "every payment" */
-export function describePromotionScope(promotion: AutoDiscount): string {
-    return describeScope(promotion)
-}
-
-function describeScope(promotion: AutoDiscount, weeks?: number): string {
+/** what a promotion's discount covers: "your first payment" (with its term when `weeks` is given) or "every payment" */
+export function describePromotionScope(promotion: AutoDiscount, weeks?: number): string {
     if (!isFirstPaymentOnly(promotion)) return 'every payment'
     return weeks === undefined ? 'your first payment' : `your first payment (the ${getFirstPeriodLabel(weeks)})`
 }
@@ -480,7 +477,7 @@ function describeScope(promotion: AutoDiscount, weeks?: number): string {
 export function describePromotion(promotion: AutoDiscount, weeks?: number, timeZone?: string): string {
     const end = describePromotionEnd(promotion.expiresAt, timeZone)
     const name = promotion.name || 'Sale'
-    return `${name}: ${describeAmount(promotion, weeks)} ${describeScope(promotion, weeks)}.${end ? ` ${end}` : ''}`
+    return `${name}: ${describeAmount(promotion, weeks)} ${describePromotionScope(promotion, weeks)}.${end ? ` ${end}` : ''}`
 }
 
 interface UpgradeCodeOffer {
@@ -538,4 +535,66 @@ export function formatUpgradeSavings({ code, discounted, original, weeks, net, f
     const period = firstOnly || hasRenewalTerm(weeks) ? `for the first ${weeks} weeks` : getPerPeriodLabel(weeks)
     const saved = Math.round((original - discounted) * 100) / 100
     return `With ${code}: ${money(discounted)}${tax} ${period} instead of ${money(original)} (you save ${money(saved)})`
+}
+
+/** whether every provider of the checkout honours the promotion, so it can stand in for another code on any of them */
+export function isHonouredByAll(promotion: AutoDiscount, providers: PaymentProvider[]): boolean {
+    if (providers.length === 0) return false
+    if (!promotion.providers?.length) return true
+    const valid = promotion.providers.map(provider => provider.toLowerCase())
+    return providers.every(provider => valid.includes(provider))
+}
+
+type SavingDiscount = PeriodDiscount | null | undefined
+
+/**
+ * The cents a code takes off one payment of `planPrice` (euros, before tax, after the creator code) for a billing period of `weeks`,
+ * rounded like the payment backend (see getDirectCents); null while the price is unknown.
+ */
+export function getPaymentSavingCents(discount: SavingDiscount, planPrice: number | null | undefined, weeks: number): number | null {
+    if (!discount || !planPrice || !Number.isFinite(planPrice) || planPrice <= 0) return null
+    const cents = Math.round(planPrice * 100)
+    if (!isPercentDiscount(discount)) return Math.min(cents, Math.max(0, discount.periodAmounts?.[String(weeks)] ?? discount.amount))
+    const keep = Math.round((100 - getPeriodPercent(discount, weeks)) * 100)
+    return cents - divideHalfEven(cents * keep, 10000)
+}
+
+/** why the promotion applies in place of the code from the link: the code does not cover the period, or the sale saves more on this payment */
+export type LinkCodeChoice = 'link' | 'period' | 'saving'
+
+export interface LinkWeighing {
+    promotion: AutoDiscount | null
+    /** the plan price of this payment, before tax and after the creator code; null while unknown */
+    planPrice: number | null
+    /** the providers of the checkout: the sale stands in for a code only when every one of them honours it */
+    providers: PaymentProvider[]
+}
+
+interface LinkCode extends PeriodDiscount {
+    code?: string | null
+}
+
+/**
+ * Which code a checkout opened with a code from the link uses for a period of `weeks`: the link's code, unless every provider honours
+ * the promotion and the code does not cover the period (`period`) or the sale saves more on this payment (`saving`). Without a price
+ * only two percent codes are compared; the link's code is kept when it is not certain that the sale saves more.
+ */
+export function weighLinkCode(link: LinkCode, coversPeriod: boolean, weeks: number | undefined, weighing: LinkWeighing): LinkCodeChoice {
+    const { promotion, planPrice, providers } = weighing
+    if (weeks === undefined || !promotion || !isHonouredByAll(promotion, providers)) return 'link'
+    if (getPeriodPercent(promotion, weeks) <= 0 || (link.code ?? '').toUpperCase() === (promotion.code ?? '').toUpperCase()) return 'link'
+    if (!coversPeriod) return 'period'
+    const sale = getPaymentSavingCents(promotion, planPrice, weeks)
+    const code = getPaymentSavingCents(link, planPrice, weeks)
+    if (sale !== null && code !== null) return sale > code ? 'saving' : 'link'
+    if (!isPercentDiscount(link)) return 'link'
+    return getPeriodPercent(promotion, weeks) > getPeriodPercent(link, weeks) ? 'saving' : 'link'
+}
+
+/** a code's terms for one billing period, e.g. "30% off your first payment" or "€5.00 off every payment" */
+export function describeCodeTerms(discount: PeriodDiscount & { duration?: string | null }, weeks: number): string {
+    const amount = isPercentDiscount(discount)
+        ? `${getPeriodPercent(discount, weeks)}% off`
+        : describeFixedAmount(discount.periodAmounts?.[String(weeks)] ?? discount.amount)
+    return `${amount} ${isFirstPaymentOnly(discount) ? 'your first payment' : 'every payment'}`
 }
