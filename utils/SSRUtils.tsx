@@ -33,7 +33,7 @@ export function getCanonicalUrl(pathname: string, search?: string): string {
 
 /** Canonical URL of an item's archived auctions; the base64 filter is kept, encoded, as the only query parameter */
 export function getArchiveCanonicalUrl(tag: string, filter?: string): string {
-    return getCanonicalUrl(`/item/${tag}/archive`, filter ? `filter=${encodeURIComponent(filter)}` : undefined)
+    return getCanonicalUrl(`/item/${encodeURIComponent(tag)}/archive`, filter ? `filter=${encodeURIComponent(filter)}` : undefined)
 }
 
 // What the site calls itself in the navbar; shown as og:site_name above every embed title

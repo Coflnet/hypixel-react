@@ -1,7 +1,6 @@
-import { cache, Suspense } from 'react'
+import { Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { initAPI } from '../../../../../api/ApiHelper'
 import { parseFlipTrackingFlip, parseFlipTrackingResponse, parsePlayer } from '../../../../../utils/Parser/APIResponseParser'
 import { removeMinecraftColorCoding } from '../../../../../utils/Formatter'
 import { FlipTracking } from '../../../../../components/FlipTracking/FlipTracking'
@@ -9,6 +8,8 @@ import Search from '../../../../../components/Search/Search'
 import { getHeadMetadata, getCanonicalUrl, applyPlayerRobots } from '../../../../../utils/SSRUtils'
 import { getFlipEmbedDescription, getFlipListEmbedDescription, getPlayerEmbedOptions, getPlayerHeadRenderUrl } from '../../../../../utils/EmbedUtils'
 import { Container } from 'react-bootstrap'
+import { DiscordEmbedLink } from '../../../../../components/DiscordEmbed/DiscordEmbedLink'
+import { getTargetFlipData as getFlipData } from '../flipData'
 
 export default async function Page(props) {
     const params = await props.params
@@ -20,6 +21,7 @@ export default async function Page(props) {
 
     return (
         <>
+            <DiscordEmbedLink segments={['player', params.uuid, 'flips', params.flipUid]} />
             <Container>
                 <Search
                     type="player"
@@ -55,21 +57,6 @@ export default async function Page(props) {
         </>
     )
 }
-
-// cache() shares the tracked flips between generateMetadata and the page
-const getFlipData = cache(async (uuid: string, flipUid: string) => {
-    const api = initAPI(true)
-    const apiResponses = await Promise.all([api.getPlayerName(uuid), api.getTrackedFlipsForPlayer(uuid)].map(p => p.catch(() => null)))
-
-    return {
-        player: {
-            uuid: uuid,
-            name: apiResponses[0] || uuid
-        },
-        flipTrackingResponse: apiResponses[1],
-        targetFlip: (apiResponses[1] as FlipTrackingResponse)?.flips?.find(f => f.uId.toString(16) === flipUid) || null
-    }
-})
 
 export async function generateMetadata(props) {
     const params = await props.params

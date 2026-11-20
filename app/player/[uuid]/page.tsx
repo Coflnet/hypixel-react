@@ -1,57 +1,29 @@
-import { initAPI } from '../../../api/ApiHelper'
 import { getHeadMetadata, getCanonicalUrl, applyPlayerRobots } from '../../../utils/SSRUtils'
-import { notFound, unstable_rethrow } from 'next/navigation'
-import { cache } from 'react'
+import { unstable_rethrow } from 'next/navigation'
 import PlayerDetails from '../../../components/PlayerDetails/PlayerDetails'
 import { parseAuction, parsePlayer } from '../../../utils/Parser/APIResponseParser'
 import { Container } from 'react-bootstrap'
 import { BottomBanner } from '../../../components/BottomBanner/BottomBanner'
 import { Metadata } from 'next'
-import { isDefinitePlayerMiss } from '../../../utils/GeneratedApiResponseUtils'
 import { getPlayerEmbedDescription, getPlayerEmbedOptions, getPlayerHeadRenderUrl } from '../../../utils/EmbedUtils'
+import { DiscordEmbedLink } from '../../../components/DiscordEmbed/DiscordEmbedLink'
+import { getPlayerInfo } from './playerData'
 
 export default async function Page(props) {
     const params = await props.params
     const playerInfo = await getPlayerInfo(params.uuid)
+    const auctions = playerInfo.auctions.map(parseAuction)
+    const renderedAt = Date.now()
     return (
         <>
+            <DiscordEmbedLink segments={['player', params.uuid]} />
             <Container>
-                <PlayerDetails player={parsePlayer(playerInfo.player)} auctions={playerInfo.auctions.map(parseAuction)} renderedAt={Date.now()} />
+                <PlayerDetails player={parsePlayer(playerInfo.player)} auctions={auctions} renderedAt={renderedAt} />
             </Container>
             <BottomBanner />
         </>
     )
 }
-
-// cache() shares the player name and auctions between generateMetadata and the page
-const getPlayerInfo = cache(async (uuid: string) => {
-    const api = initAPI(true)
-    let playerName = ''
-    try {
-        playerName = await api.getPlayerName(uuid)
-    } catch (e) {
-        // only a definite miss is a 404, backend failures must error so crawlers retry
-        if (isDefinitePlayerMiss(e)) {
-            notFound()
-        }
-        throw e
-    }
-    let auctions: Auction[] = []
-    try {
-        auctions = await api.getAuctions(uuid, 0)
-    } catch (e) {
-        console.error(`Error loading player auctions for player ${uuid}. ${JSON.stringify(e)}`)
-    }
-
-    return {
-        auctions: auctions || [],
-        player: {
-            uuid: uuid,
-            // players without a known name are shown by their uuid
-            name: playerName || uuid
-        }
-    }
-})
 
 export async function generateMetadata(props): Promise<Metadata> {
     const params = await props.params

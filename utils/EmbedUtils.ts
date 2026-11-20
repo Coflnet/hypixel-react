@@ -95,16 +95,28 @@ function getLatestAuctionText(auction: Auction): string {
     return `Latest: ${cleanName(auction.item?.name) || auction.item?.tag} (${price})`
 }
 
+export interface PlayerAuctionStats {
+    active: number
+    sold: number
+    soldTotal: number
+}
+
+/** Counts of the player's most recent auctions (the first page the player page loads anyway) */
+export function getPlayerAuctionStats(auctions: Auction[], now: number): PlayerAuctionStats {
+    const active = auctions.filter(auction => isActiveAuction(auction, now))
+    const sold = auctions.filter(auction => !isActiveAuction(auction, now) && auction.highestBid > 0)
+    return { active: active.length, sold: sold.length, soldTotal: sum(sold.map(a => a.highestBid)) }
+}
+
 /** Summarises the player's most recent auctions (the first page the player page loads anyway) */
 export function getPlayerEmbedDescription(playerName: string, auctions: Auction[] | undefined, now: number): string {
     if (!auctions || auctions.length === 0) {
         return `Auctions and bids for ${playerName} in Hypixel Skyblock.`
     }
-    const active = auctions.filter(auction => isActiveAuction(auction, now))
-    const sold = auctions.filter(auction => !isActiveAuction(auction, now) && auction.highestBid > 0)
+    const { active, sold, soldTotal } = getPlayerAuctionStats(auctions, now)
     const stats = joinEmbedParts([
-        active.length > 0 && `Active: ${active.length}`,
-        sold.length > 0 && `Recently sold: ${sold.length} for ${formatShortCoins(sum(sold.map(a => a.highestBid)))}`,
+        active > 0 && `Active: ${active}`,
+        sold > 0 && `Recently sold: ${sold} for ${formatShortCoins(soldTotal)}`,
         getLatestAuctionText(auctions[0])
     ])
     return `${playerName}'s Hypixel SkyBlock auctions: ${stats}`
@@ -112,11 +124,12 @@ export function getPlayerEmbedDescription(playerName: string, auctions: Auction[
 
 // ----- flip tracking -----
 
-function getBestFlip(flips: FlipTrackingFlip[]): FlipTrackingFlip {
+export function getBestFlip(flips: FlipTrackingFlip[]): FlipTrackingFlip {
     return flips.reduce((best, flip) => (flip.profit > best.profit ? flip : best), flips[0])
 }
 
-function getTopFinder(flips: FlipTrackingFlip[]): string | undefined {
+/** Finders by their summed profit, best first; finders without profit are left out */
+export function getProfitByFinder(flips: FlipTrackingFlip[]): [string, number][] {
     const profitByFinder = new Map<string, number>()
     flips.forEach(flip => {
         // the "Unknown" fallback finder has no value and is not worth showing
@@ -125,8 +138,13 @@ function getTopFinder(flips: FlipTrackingFlip[]): string | undefined {
         }
         profitByFinder.set(flip.finder.label, (profitByFinder.get(flip.finder.label) || 0) + flip.profit)
     })
-    const ranked = Array.from(profitByFinder.entries()).filter(([, profit]) => profit > 0).sort((a, b) => b[1] - a[1])
-    return ranked[0]?.[0]
+    return Array.from(profitByFinder.entries())
+        .filter(([, profit]) => profit > 0)
+        .sort((a, b) => b[1] - a[1])
+}
+
+function getTopFinder(flips: FlipTrackingFlip[]): string | undefined {
+    return getProfitByFinder(flips)[0]?.[0]
 }
 
 export function getFlipListEmbedDescription(response: FlipTrackingResponse | null | undefined, playerName: string): string {
@@ -153,7 +171,7 @@ export function getFlipProfitPercent(flip: Pick<FlipTrackingFlip, 'profit' | 'pr
     return Math.round((flip.profit / flip.pricePaid) * 100)
 }
 
-function getFlipProfitText(flip: FlipTrackingFlip): string {
+export function getFlipProfitText(flip: FlipTrackingFlip): string {
     const percent = getFlipProfitPercent(flip)
     const percentText = percent === undefined ? '' : ` (${percent > 0 ? '+' : ''}${percent}%)`
     if (flip.profit < 0) {
@@ -162,13 +180,19 @@ function getFlipProfitText(flip: FlipTrackingFlip): string {
     return `Profit: ${formatSignedShortCoins(flip.profit)}${percentText}`
 }
 
-function getHeldText(flip: FlipTrackingFlip): string | undefined {
+/** How long the flipper held the item, e.g. "3h"; a duration, not a point in time, so it does not go stale */
+export function getHeldDuration(flip: FlipTrackingFlip): string | undefined {
     const buy = flip.buyTime ? new Date(flip.buyTime).getTime() : NaN
     const sell = flip.sellTime ? new Date(flip.sellTime).getTime() : NaN
     if (Number.isNaN(buy) || Number.isNaN(sell) || sell < buy) {
         return undefined
     }
-    return `Held: ${formatShortDuration(sell - buy)}`
+    return formatShortDuration(sell - buy)
+}
+
+function getHeldText(flip: FlipTrackingFlip): string | undefined {
+    const held = getHeldDuration(flip)
+    return held && `Held: ${held}`
 }
 
 export function getFlipEmbedDescription(flip: FlipTrackingFlip, playerName: string): string {
@@ -195,17 +219,30 @@ function getVolumeWeightedAverage(prices: AveragePrice[], volume: number): numbe
     return sum(prices.map(price => price.avg * price.volume)) / volume
 }
 
+export interface AuctionItemStats {
+    average: number
+    volume: number
+}
+
 /** Volume weighted average price and number of sales of an auction house item */
-export function getAuctionItemEmbedDescription(prices: AveragePrice[] | undefined, range?: string | null): string | undefined {
+export function getAuctionItemStats(prices: AveragePrice[] | undefined): AuctionItemStats | undefined {
     const valid = (prices || []).filter(price => price && Number.isFinite(price.avg))
     if (valid.length === 0) {
         return undefined
     }
     const volume = sum(valid.map(price => price.volume))
+    return { average: getVolumeWeightedAverage(valid, volume), volume }
+}
+
+export function getAuctionItemEmbedDescription(prices: AveragePrice[] | undefined, range?: string | null): string | undefined {
+    const stats = getAuctionItemStats(prices)
+    if (!stats) {
+        return undefined
+    }
     // no lowest sale: single underpriced or mispriced sales make the minimum misleading
     return joinEmbedParts([
-        `Avg: ${formatShortCoins(getVolumeWeightedAverage(valid, volume))}`,
-        volume > 0 && `Sold: ${numberWithThousandsSeparators(volume, ',', '.')}`,
+        `Avg: ${formatShortCoins(stats.average)}`,
+        stats.volume > 0 && `Sold: ${numberWithThousandsSeparators(stats.volume, ',', '.')}`,
         getRangeLabel(range)
     ])
 }
@@ -215,32 +252,76 @@ function getLatestBazaarPrice(prices: BazaarPrice[]): BazaarPrice | undefined {
     return prices.reduce<BazaarPrice | undefined>((latest, price) => (!latest || time(price) > time(latest) ? price : latest), undefined)
 }
 
+export interface BazaarItemStats {
+    buy: number
+    sell: number
+    weeklyVolume: number
+}
+
 /** Latest instant buy/sell price and weekly volume of a bazaar item */
-export function getBazaarItemEmbedDescription(prices: BazaarPrice[] | undefined): string | undefined {
+export function getBazaarItemStats(prices: BazaarPrice[] | undefined): BazaarItemStats | undefined {
     const latest = getLatestBazaarPrice((prices || []).filter(price => price?.buyData && price?.sellData))
     if (!latest) {
         return undefined
     }
     const weeklyVolume = (latest.buyData.moving || 0) + (latest.sellData.moving || 0)
+    return { buy: latest.buyData.price, sell: latest.sellData.price, weeklyVolume }
+}
+
+export function getBazaarItemEmbedDescription(prices: BazaarPrice[] | undefined): string | undefined {
+    const stats = getBazaarItemStats(prices)
+    if (!stats) {
+        return undefined
+    }
     return joinEmbedParts([
-        `Buy: ${formatShortCoins(latest.buyData.price)}`,
-        `Sell: ${formatShortCoins(latest.sellData.price)}`,
-        weeklyVolume > 0 && `Weekly volume: ${formatShortCoins(weeklyVolume)}`
+        `Buy: ${formatShortCoins(stats.buy)}`,
+        `Sell: ${formatShortCoins(stats.sell)}`,
+        stats.weeklyVolume > 0 && `Weekly volume: ${formatShortCoins(stats.weeklyVolume)}`
     ])
 }
 
+const MAX_FILTER_VALUE_LENGTH = 40
+
+/** Filter values from the URL may be anything JSON.parse returns; objects with an own toString key must not throw */
+export function formatFilterValue(value: unknown): string {
+    return typeof value === 'object' && value !== null ? JSON.stringify(value) : String(value)
+}
+
+/** The filter without keys the item has no filter option for (tracking params like fbclid or utm_source) */
+export function pickKnownFilterKeys(filter: ItemFilter | null | undefined, knownKeys: string[]): ItemFilter | null {
+    const known = new Set(knownKeys)
+    const entries = Object.entries(filter || {}).filter(([key]) => known.has(key))
+    return entries.length > 0 ? Object.fromEntries(entries) : null
+}
+
+/**
+ * Filter entries safe to show in an embed: values with a URL (which Discord would autolink) are left out,
+ * backticks are removed (values are shown as inline code) and long values are cut.
+ */
+export function getDisplayFilterEntries(filter?: ItemFilter | null): [string, string][] {
+    return Object.entries(filter || {})
+        .map(([key, value]): [string, string] => [key, formatFilterValue(value).replace(/`/g, '').replace(/\s+/g, ' ').trim()])
+        .filter(([, value]) => value !== '' && !value.includes('://'))
+        .map(([key, value]): [string, string] => [key, shortenFilterValue(value)])
+}
+
+// cut on code points, so no lone surrogate is left
+function shortenFilterValue(value: string): string {
+    const codePoints = Array.from(value)
+    return codePoints.length > MAX_FILTER_VALUE_LENGTH ? `${codePoints.slice(0, MAX_FILTER_VALUE_LENGTH - 1).join('')}…` : value
+}
+
 export function getItemFilterEmbedText(filter?: ItemFilter | null): string | undefined {
-    if (!filter || Object.keys(filter).length === 0) {
+    const entries = getDisplayFilterEntries(filter)
+    if (entries.length === 0) {
         return undefined
     }
-    return `Filters: ${Object.entries(filter)
-        .map(([key, value]) => `${key}: ${value}`)
-        .join(', ')}`
+    return `Filters: ${entries.map(([key, value]) => `${key}: ${value}`).join(', ')}`
 }
 
 // ----- auctions -----
 
-function getAuctionPriceText(details: AuctionDetails, ended: boolean): string {
+export function getAuctionPriceText(details: AuctionDetails, ended: boolean): string {
     const { auction, bids } = details
     const bidCount = bids?.length || 0
     if (auction.bin) {
@@ -268,7 +349,7 @@ function getAuctionPeopleText(details: AuctionDetails): string | undefined {
     return buyer ? `Buyer: ${buyer}` : undefined
 }
 
-function formatRarity(tier?: string): string | undefined {
+export function formatRarity(tier?: string): string | undefined {
     if (!tier || typeof tier !== 'string') {
         return undefined
     }
@@ -279,9 +360,13 @@ function formatRarity(tier?: string): string | undefined {
         .join(' ')
 }
 
+export function isAuctionEnded(auction: Auction, now: number): boolean {
+    const end = auction.end ? new Date(auction.end).getTime() : NaN
+    return !Number.isNaN(end) && end <= now
+}
+
 export function getAuctionEmbedDescription(details: AuctionDetails, now: number): string {
-    const end = details.auction.end ? new Date(details.auction.end).getTime() : NaN
-    const ended = !Number.isNaN(end) && end <= now
+    const ended = isAuctionEnded(details.auction, now)
     return joinEmbedParts([
         cleanName(details.auction.item?.name) || details.auction.item?.tag,
         getAuctionPriceText(details, ended),

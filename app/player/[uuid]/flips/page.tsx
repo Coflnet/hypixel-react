@@ -1,7 +1,6 @@
-import { cache, Suspense } from 'react'
+import { Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { initAPI } from '../../../../api/ApiHelper'
 import { FlipTracking } from '../../../../components/FlipTracking/FlipTracking'
 import Search from '../../../../components/Search/Search'
 import { numberWithThousandsSeparators, removeMinecraftColorCoding } from '../../../../utils/Formatter'
@@ -9,6 +8,8 @@ import { parseFlipTrackingResponse, parsePlayer } from '../../../../utils/Parser
 import { getHeadMetadata, getCanonicalUrl, applyPlayerRobots } from '../../../../utils/SSRUtils'
 import { Container } from 'react-bootstrap'
 import { getFlipListEmbedDescription, getPlayerEmbedOptions, getPlayerHeadRenderUrl } from '../../../../utils/EmbedUtils'
+import { DiscordEmbedLink } from '../../../../components/DiscordEmbed/DiscordEmbedLink'
+import { getFlipData } from './flipData'
 
 export default async function Page(props) {
     const params = await props.params
@@ -25,6 +26,7 @@ export default async function Page(props) {
 
     return (
         <>
+            <DiscordEmbedLink segments={['player', params.uuid, 'flips']} />
             <Container>
                 <Search
                     type="player"
@@ -72,21 +74,6 @@ export default async function Page(props) {
         </>
     )
 }
-
-// cache() shares the player name and tracked flips between generateMetadata and the page
-const getFlipData = cache(async (uuid: string) => {
-    const api = initAPI(true)
-    const apiResponses = await Promise.all([api.getPlayerName(uuid), api.getTrackedFlipsForPlayer(uuid)].map(p => p.catch(() => null)))
-
-    return {
-        player: {
-            uuid: uuid,
-            name: apiResponses[0] || uuid
-        },
-        flipTrackingResponse: apiResponses[1] || { flips: [], totalProfit: 0 },
-        loadError: apiResponses[1] === null ? 'Could not load tracked flips. Please try again.' : undefined
-    }
-})
 
 export async function generateMetadata(props) {
     const params = await props.params

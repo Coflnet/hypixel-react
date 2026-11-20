@@ -1,33 +1,18 @@
-import type { AveragePrice, ItemMetadataElement, SkyblockItem } from '../../../api/_generated/skyApi.schemas'
-import { redirect } from 'next/navigation'
-import { cache } from 'react'
+import type { AveragePrice } from '../../../api/_generated/skyApi.schemas'
 import type { Metadata } from 'next'
-import { isRedirectError } from 'next/dist/client/components/redirect-error'
 import { parseItem } from '../../../utils/Parser/APIResponseParser'
 import { getHeadMetadata, getCanonicalUrl } from '../../../utils/SSRUtils'
 import { convertTagToName } from '../../../utils/Formatter'
-import api, { initAPI } from '../../../api/ApiHelper'
-import { atobUnicode } from '../../../utils/Base64Utils'
+import api from '../../../api/ApiHelper'
 import dynamic from 'next/dynamic'
 import { ItemPageClient } from './ItemPageClient'
-import { hasFlag } from '../../../components/FilterElement/FilterType'
-import { getCachedItemInfo, ItemFlagsNumeric, hasItemFlag, parseFlags } from '../../../utils/ItemsCache'
-import { normalizeItemFilter } from '../../../utils/Parser/URLParser'
-import { itemFilterFromEntries } from '../../../utils/Parser/ItemFilterParams'
-import { getResultNavigationUrl } from '../../../utils/Search/FilterResultId'
 import { getEnchantmentRename } from '../../../utils/EnchantmentRenames'
-import { getCustomItemRedirectPath } from '../../../utils/ItemRedirectUtils'
-import type { CachedItemInfo } from '../../../utils/ItemsCache'
 import { getBuiltTaskLinks } from '../../../utils/ItemTaskSourcesData'
 import { getAuctionItemEmbedDescription, getBazaarItemEmbedDescription, getItemFilterEmbedText, joinEmbedParts } from '../../../utils/EmbedUtils'
-
-interface ItemPageData {
-    item: Omit<Partial<SkyblockItem>, 'flags'> & { itemName?: string | null; flags?: number | string }
-    prices: (AveragePrice | BazaarPrice)[]
-    range: string | null
-    filter: ItemFilter | null
-    itemFlags: CachedItemInfo | null
-}
+import { getKnownItemFilter } from '../../../utils/KnownItemFilter'
+import { DiscordEmbedLink } from '../../../components/DiscordEmbed/DiscordEmbedLink'
+import { toSearchString } from '../../../utils/DiscordEmbedLink'
+import { getItemData, getItemDisplayName, isBazaarItemData, type ItemPageData } from './itemData'
 
 const BazaarPriceGraph = dynamic(() => import('../../../components/PriceGraph/BazaarPriceGraph/BazaarPriceGraph'), {
     loading: () => <div style={{ minHeight: '300px' }}>Loading chart...</div>
@@ -81,6 +66,7 @@ export default async function Page(props) {
 
     return (
         <>
+            <DiscordEmbedLink segments={['item', tag]} search={toSearchString(searchParams)} />
             <ItemPageClient item={getItem()}>
                 {enchantmentRename && (
                     <p>
@@ -141,7 +127,7 @@ export async function generateMetadata(props): Promise<Metadata> {
     const tag = params?.tag as string
     const { item, filter, prices, range, itemFlags } = await getItemData(searchParams, params)
     const enchantmentRename = getEnchantmentRename(tag)
-    const itemName = item.name || item.itemName || itemFlags?.name || convertTagToName(tag)
+    const itemName = getItemDisplayName(tag, item, itemFlags)
     const metadataName = enchantmentRename
         ? `${enchantmentRename.currentName} ${enchantmentRename.level} (legacy ${enchantmentRename.previousName} ${enchantmentRename.level})`
         : itemName
@@ -156,11 +142,12 @@ export async function generateMetadata(props): Promise<Metadata> {
               ]
             : [])
     ]
-    // same decision as the page, which also picked the fetched price type by it
-    const isBazaar = itemFlags?.isBazaar ?? hasFlag(Number(item.flags), 1)
+    const isBazaar = isBazaarItemData(item, itemFlags)
+    // only filter keys the item really has, so tracking params like fbclid never show up
+    const knownFilter = filter ? await getKnownItemFilter(tag, filter) : null
     return getHeadMetadata(
         `${metadataName} price`,
-        getItemDescription(itemName, isBazaar, prices, range, filter, enchantmentRename),
+        getItemDescription(itemName, isBazaar, prices, range, knownFilter, enchantmentRename),
         item.iconUrl || api.getItemImageUrl({ tag }),
         keywords,
         `${metadataName} | ${isBazaar ? 'Bazaar' : 'SkyBlock'} Price`,
@@ -186,215 +173,3 @@ function getItemDescription(
     return `${renameDescription}${details || `Price history of ${itemName} in Hypixel SkyBlock.`}`
 }
 
-// cache() needs primitive arguments to share the item data between generateMetadata and the page
-const getCachedItemData = cache((tag: string, searchParamsKey: string) => loadItemData(JSON.parse(searchParamsKey), { tag }))
-
-function getItemData(searchParams, params): Promise<ItemPageData> {
-    return getCachedItemData(params.tag as string, JSON.stringify(searchParams ?? {}))
-}
-
-async function loadItemData(searchParams, params): Promise<ItemPageData> {
-    const validRanges = ['active', 'hour', 'day', 'week', 'month', 'year', 'full']
-    const range = validRanges.includes(searchParams.range) ? searchParams.range : 'day'
-    const tag = params.tag as string
-    const customItemRedirect = getCustomItemRedirectPath(tag, searchParams)
-    if (customItemRedirect) redirect(customItemRedirect)
-
-    const api = initAPI(true)
-    const itemFilter = await normalizeServerItemFilter(api, tag, getItemFilterFromUrl(searchParams))
-    try {
-        const cachedInfo = await getCachedItemInfo(tag)
-        const isBazaarFromCache = cachedInfo?.isBazaar ?? null
-
-        if (isBazaarFromCache !== null && range !== 'active') {
-            const [itemDetails, prices] = await Promise.all([
-                api.getItemDetails(tag) as Promise<SkyblockItem>,
-                fetchPrices(api, tag, range, isBazaarFromCache, itemFilter).catch(e => {
-                    logPriceFetchError(tag, range, itemFilter, e)
-                    return []
-                })
-            ])
-
-            if (!itemDetails || !itemDetails.name) {
-                const searchResults = await api.itemSearch(tag)
-                if (searchResults && searchResults[0] && searchResults[0].id !== tag) {
-                    redirect(getResultNavigationUrl(searchResults[0]))
-                } else {
-                    return {
-                        item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
-                        prices: [],
-                        range: null,
-                        filter: itemFilter || null,
-                        itemFlags: cachedInfo
-                    }
-                }
-            }
-
-            return {
-                item: itemDetails,
-                prices: prices || [],
-                range: range || null,
-                filter: itemFilter ? itemFilter : null,
-                itemFlags: cachedInfo
-            }
-        }
-
-        const itemDetails = (await api.getItemDetails(tag)) as SkyblockItem
-
-        if (!itemDetails || !itemDetails.name) {
-            const searchResults = await api.itemSearch(tag)
-            if (searchResults && searchResults[0] && searchResults[0].id !== tag) {
-                redirect(getResultNavigationUrl(searchResults[0]))
-            } else {
-                return {
-                    item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
-                    prices: [],
-                    range: range || null,
-                    filter: itemFilter || null,
-                    itemFlags: cachedInfo
-                }
-            }
-        }
-
-        // Build item flags from item details when not available from cache.
-        // This ensures items not in the /api/items cache still get correct
-        // bazaar/auction/tradeable flags (e.g. BOOK_OF_STATS).
-        let itemFlags = cachedInfo
-        if (!itemFlags && itemDetails.flags !== undefined) {
-            const numericFlags = parseFlags(itemDetails.flags)
-            itemFlags = {
-                tag,
-                name: itemDetails.name || null,
-                isBazaar: hasItemFlag(numericFlags, ItemFlagsNumeric.BAZAAR),
-                isTradeable: hasItemFlag(numericFlags, ItemFlagsNumeric.TRADEABLE),
-                isAuction: hasItemFlag(numericFlags, ItemFlagsNumeric.AUCTION),
-                isCraftable: hasItemFlag(numericFlags, ItemFlagsNumeric.CRAFT),
-                isMuseum: hasItemFlag(numericFlags, ItemFlagsNumeric.MUSEUM),
-                isFireSale: hasItemFlag(numericFlags, ItemFlagsNumeric.FIRESALE),
-                flags: numericFlags
-            }
-        }
-
-        if (range === 'active') {
-            return {
-                item: itemDetails,
-                prices: [],
-                range: range || null,
-                filter: itemFilter || null,
-                itemFlags
-            }
-        }
-
-        const isBazaar = hasFlag(Number(itemDetails.flags), 1)
-        const prices = await fetchPrices(api, tag, range, isBazaar, itemFilter).catch(e => {
-            logPriceFetchError(tag, range, itemFilter, e)
-            return []
-        })
-
-        return {
-            item: itemDetails,
-            prices: prices || [],
-            range: range || null,
-            filter: itemFilter ? itemFilter : null,
-            itemFlags
-        }
-    } catch (error) {
-        if (isRedirectError(error)) throw error
-
-        console.error('Error fetching item data:', error instanceof Error ? error.message : error)
-
-        let cachedInfo = await getCachedItemInfo(tag).catch(() => null)
-
-        if (!cachedInfo) {
-            try {
-                const apiBase = process.env.API_ENDPOINT || 'https://sky.coflnet.com/api'
-                const itemsResponse = await fetch(`${apiBase}/items`, { next: { revalidate: 3600 } })
-                const items: ItemMetadataElement[] = await itemsResponse.json()
-                const item = items.find(i => i.tag === tag)
-                if (item) {
-                    const numericFlags = parseFlags(item.flags)
-                    cachedInfo = {
-                        tag,
-                        name: item.name || null,
-                        isBazaar: hasItemFlag(numericFlags, ItemFlagsNumeric.BAZAAR),
-                        isTradeable: hasItemFlag(numericFlags, ItemFlagsNumeric.TRADEABLE),
-                        isAuction: hasItemFlag(numericFlags, ItemFlagsNumeric.AUCTION),
-                        isCraftable: hasItemFlag(numericFlags, ItemFlagsNumeric.CRAFT),
-                        isMuseum: hasItemFlag(numericFlags, ItemFlagsNumeric.MUSEUM),
-                        isFireSale: hasItemFlag(numericFlags, ItemFlagsNumeric.FIRESALE),
-                        flags: numericFlags
-                    }
-                }
-            } catch (e) {
-                console.error('Failed direct API fallback:', e)
-            }
-        }
-
-        return {
-            item: { tag: tag, itemName: cachedInfo?.name, flags: cachedInfo?.flags },
-            prices: [],
-            range: range || null,
-            filter: itemFilter || null,
-            itemFlags: cachedInfo
-        }
-    }
-}
-
-async function normalizeServerItemFilter(api: API, tag: string, itemFilter: ItemFilter | null): Promise<ItemFilter | null> {
-    if (!itemFilter || !itemFilter.PetLevel || itemFilter.Rarity) {
-        return itemFilter
-    }
-
-    try {
-        const filterOptions = await api.getFilters(tag)
-        const normalizedFilter = normalizeItemFilter(itemFilter, filterOptions)
-        return Object.keys(normalizedFilter).length > 0 ? normalizedFilter : null
-    } catch (error) {
-        console.error('Error normalizing item filter:', error instanceof Error ? error.message : error)
-        return itemFilter
-    }
-}
-
-function logPriceFetchError(tag: string, range: string, itemFilter: ItemFilter | null, error: unknown) {
-    console.error('Error fetching item prices:', {
-        tag,
-        range,
-        itemFilter,
-        error: error instanceof Error ? error.message : error
-    })
-}
-
-/**
- * Fetch prices based on item type (bazaar or auction house)
- */
-async function fetchPrices(api: API, tag: string, range: string, isBazaar: boolean, itemFilter: ItemFilter | null): Promise<AveragePrice[] | BazaarPrice[]> {
-    if (isBazaar) {
-        if (range === 'full') {
-            return api.getBazaarPricesByRange(tag, new Date(0), new Date())
-        } else if (range === 'month') {
-            const monthAgo = new Date()
-            monthAgo.setMonth(monthAgo.getMonth() - 1)
-            return api.getBazaarPricesByRange(tag, monthAgo, new Date())
-        } else {
-            return api.getBazaarPrices(tag, range as DateRange)
-        }
-    } else {
-        // initAPI(true) returns the generated raw prices instead of the client-side parsed dates.
-        return (await api.getItemPrices(tag, range as DateRange, itemFilter ? itemFilter : {})) as unknown as AveragePrice[]
-    }
-}
-
-function getItemFilterFromUrl(searchParams) {
-    const itemFilterBase64 = searchParams.itemFilter
-    if (itemFilterBase64) {
-        try {
-            return JSON.parse(atobUnicode(itemFilterBase64))
-        } catch (e) {
-            console.error('Error parsing item filter from URL: ' + e)
-            return null
-        }
-    }
-
-    const itemFilter = itemFilterFromEntries(Object.entries(searchParams))
-    return Object.keys(itemFilter).length > 0 ? itemFilter : null
-}
