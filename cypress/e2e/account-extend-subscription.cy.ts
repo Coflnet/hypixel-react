@@ -1,8 +1,12 @@
 import { getLocalDateAndTime } from '../../utils/Formatter'
 import { formatMoney } from '../../utils/PricingUtils'
 
-beforeEach(() => {
+// A cold browser cache once per spec; clearing it before every test only makes every page load refetch all chunks.
+before(() => {
     cy.then(() => Cypress.automation('remote:debugger:protocol', { command: 'Network.clearBrowserCache' }))
+})
+
+beforeEach(() => {
     cy.intercept('GET', '**/api/premium/slots', { body: [] })
     // Until the backend offers Stripe and PayPal the checkout keeps the single Lemon Squeezy button without a promotion.
     cy.intercept('GET', '**/api/premium/subscription/providers*', { statusCode: 404, body: {} })
