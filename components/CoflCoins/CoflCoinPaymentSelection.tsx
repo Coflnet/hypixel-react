@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { Card, Button, Alert, Form, InputGroup, Spinner } from 'react-bootstrap'
 import Number from '../Number/Number'
 import PurchaseElement from './PurchaseElement'
+import GooglePlayBillingNotice from './GooglePlayBillingNotice'
 import { postApiTopupRates, getApiDiscountCode } from '../../api/_generated/skyApi'
 import type { BatchProductPricingResponse, ValidatedDiscount } from '../../api/_generated/skyApi.schemas'
 import { getProvider, getProviderPrice, getProviderOriginalPrice } from '../../utils/PricingUtils'
@@ -304,21 +305,7 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                 </Card.Body>
             </Card>
 
-            {isAndroidApp && (
-                <Alert variant="info" style={{ marginBottom: '20px' }}>
-                    <Alert.Heading style={{ fontSize: '0.95rem', marginBottom: '8px' }}>💡 Limited to Google Play</Alert.Heading>
-                    <p style={{ marginBottom: 0, fontSize: '0.9rem' }}>
-                        The Android app only supports Google Play Billing. For other payment methods like PayPal or Stripe, visit the <a
-                            href="https://coflnet.com/premium"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ fontWeight: '600' }}
-                        >
-                            website
-                        </a>.
-                    </p>
-                </Alert>
-            )}
+            {isAndroidApp && <GooglePlayBillingNotice />}
 
             <div style={{ marginBottom: '20px' }}>
                 <h5>Choose Payment Method</h5>

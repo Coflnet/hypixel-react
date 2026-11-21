@@ -1,4 +1,5 @@
 import type { CoinTransaction } from '../api/_generated/skyApi.schemas'
+import type { PlaySubscriptionSlug } from './PlaySubscriptions'
 
 // Whether a purchase the buyer just returned from (subscription, slot or CoflCoins top-up) is confirmed. Payments credits every
 // confirmed payment as a CoflCoins top-up transaction (a subscription period is credited and spent on the plan in the same
@@ -91,6 +92,7 @@ export interface PurchaseLookup {
     /** the credit keys of the first lookup, null on the first lookup itself */
     baseline: string[] | null
     purchase: PurchaseReturn
+    playSubscription?: PlaySubscriptionSlug
 }
 
 /**
@@ -98,7 +100,14 @@ export interface PurchaseLookup {
  * lookups for one that is not among the credits of the first. A PayPal return only accepts a PayPal credit.
  */
 export function isPurchaseConfirmed(transactions: CoinTransaction[], lookup: PurchaseLookup): boolean {
-    return transactions.filter(isPaymentCredit).some(credit => fitsReturn(credit, lookup.purchase) && isNewCredit(credit, lookup))
+    return transactions.filter(isPaymentCredit).some(credit => fitsPurchase(credit, lookup) && isNewCredit(credit, lookup))
+}
+
+function fitsPurchase(credit: CoinTransaction, lookup: PurchaseLookup): boolean {
+    if (lookup.playSubscription) {
+        return credit.productId === lookup.playSubscription && credit.reference?.startsWith('googleplay-order-') === true
+    }
+    return fitsReturn(credit, lookup.purchase)
 }
 
 function isNewCredit(credit: CoinTransaction, { returnedAt, baseline }: PurchaseLookup): boolean {

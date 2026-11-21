@@ -768,3 +768,220 @@ describe('Automatic promotion on /premium', () => {
         cy.get('[data-testid="promotion-banner"]').should('not.exist')
     })
 })
+
+describe('Google Play subscription checkout', () => {
+    const checkoutTime = Date.UTC(2030, 0, 1)
+    const signedCheckout = {
+        playProductId: 'premium_plus',
+        basePlanId: 'p4w',
+        obfuscatedAccountId: 'opaque-id',
+        accountLabel: 'Jörg & #',
+        expiresAt: checkoutTime / 1000 + 600,
+        signature: 'test-signature'
+    }
+
+    function playContext(window: Cypress.AUTWindow, enabled = true, app = true) {
+        Object.assign(window, { __playSubscriptionsEnabled: enabled })
+        if (app) {
+            Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 (Linux; Android 15) Chrome/131.0' })
+            Object.defineProperty(window.document, 'referrer', { value: 'android-app://com.coflnet.sky' })
+        }
+    }
+
+    function visitPlayCheckout(path = '/premium', loggedIn = true) {
+        visitNewPage(path, loggedIn, window => {
+            playContext(window)
+            cy.stub(window, 'open').as('openPlay')
+        })
+    }
+
+    function buyWithPlay() {
+        return cy.get('#buyPremium').contains('button', 'Buy with Google Play')
+    }
+
+    it('keeps the existing wizard in the Android app with the rollout off', () => {
+        stubAccount()
+        visitNewPage('/premium?premiumVariant=new&playUpdate=1', true, window => playContext(window, false))
+        cy.get('[data-testid="premium-wizard"]').should('be.visible')
+        cy.contains('Update the app from Google Play to subscribe').should('not.exist')
+        cy.contains('button', 'Buy with Google Play').should('not.exist')
+    })
+
+    it('prepares the selected plan, shows its account and offers the signed intent as a second tap', () => {
+        stubAccount()
+        cy.clock(checkoutTime, ['Date'])
+        cy.intercept('POST', '**/api/premium/subscription/l_prem_plus/playstore', { body: signedCheckout }).as('playStart')
+        visitPlayCheckout('/premium?premiumVariant=new&tier=premium_plus&code=WEB')
+        cy.wait(['@products', '@subscriptions'])
+        cy.get('#play-subscription-tier option:enabled').should('have.length', 2)
+        cy.get('#play-subscription-tier').should('have.value', 'l_prem_plus')
+        cy.get('#buyPremium').should('contain', 'every 4 weeks').and('contain', 'Google Play shows the final price before you pay')
+        cy.get('#plans').should('contain', 'creator and discount codes').and('contain', 'Premium for friends').and('not.contain', 'VAT').and('not.contain', '€')
+        cy.get('[data-testid="purchase-declaration"], [data-testid="premium-wizard"]').should('not.exist')
+        cy.contains('a', 'Continue to Google Play').should('not.exist')
+        buyWithPlay().click()
+        cy.wait('@playStart').its('request.headers.googletoken').should('equal', googleToken)
+        buyWithPlay().should('not.exist')
+        cy.get('#buyPremium').should('contain', signedCheckout.accountLabel)
+        cy.contains('a', 'Continue to Google Play').should('be.visible').and('have.class', 'matomo_ignore').and('have.attr', 'href',
+            'intent://subscribe?productId=premium_plus&basePlanId=p4w&userId=opaque-id&slug=l_prem_plus&label=J%C3%B6rg%20%26%20%23&exp=1893456600&sig=test-signature' +
+            '#Intent;scheme=skycofl;package=com.coflnet.sky;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;' +
+            'S.browser_fallback_url=https%3A%2F%2Fsky.coflnet.com%2Fpremium%3FplayUpdate%3D1;end'
+        )
+        cy.get('@openPlay').should('not.have.been.called')
+        cy.location('href').should('equal', `${Cypress.config('baseUrl')}/premium?premiumVariant=new&tier=premium_plus&code=WEB`)
+        cy.window().its('_paq').should(queue => {
+            const events = JSON.stringify(queue)
+            expect(events).not.to.contain(signedCheckout.signature)
+            expect(events).not.to.contain(signedCheckout.obfuscatedAccountId)
+            expect(events).not.to.contain(signedCheckout.accountLabel)
+        })
+        cy.get('#play-subscription-tier').select('l_premium')
+        cy.contains('a', 'Continue to Google Play').should('not.exist')
+        buyWithPlay().should('be.enabled')
+    })
+
+    it('prevents an expired link from navigating and lets the buyer prepare a fresh link', () => {
+        stubAccount()
+        cy.clock(checkoutTime, ['Date'])
+        cy.intercept('POST', '**/api/premium/subscription/l_prem_plus/playstore', { body: signedCheckout }).as('playStart')
+        visitPlayCheckout('/premium?tier=premium_plus')
+        cy.wait(['@products', '@subscriptions'])
+        buyWithPlay().click()
+        cy.wait('@playStart')
+        cy.contains('a', 'Continue to Google Play').should('be.visible')
+        cy.tick(600_000)
+        const wasPrevented = cy.spy((event: MouseEvent) => event.defaultPrevented)
+        cy.document().then(document => document.addEventListener('click', wasPrevented, { once: true }))
+        cy.contains('a', 'Continue to Google Play').click()
+        cy.wrap(wasPrevented).should('have.returned', true)
+        cy.contains('a', 'Continue to Google Play').should('not.exist')
+        buyWithPlay().should('be.enabled')
+        cy.location('pathname').should('equal', '/premium')
+        cy.get('@openPlay').should('not.have.been.called')
+        cy.intercept('POST', '**/api/premium/subscription/l_prem_plus/playstore', {
+            body: { ...signedCheckout, expiresAt: signedCheckout.expiresAt + 600 }
+        }).as('freshPlayStart')
+        buyWithPlay().click()
+        cy.wait('@freshPlayStart')
+        cy.contains('a', 'Continue to Google Play').should('be.visible')
+    })
+
+    it('discards a response for a plan changed while the request was pending', () => {
+        stubAccount()
+        cy.clock(checkoutTime, ['Date'])
+        let requested = false
+        let release: () => void
+        const pending = new Promise<void>(resolve => { release = resolve })
+        cy.intercept('POST', '**/api/premium/subscription/l_prem_plus/playstore', request => {
+            requested = true
+            return pending.then(() => request.reply({ body: signedCheckout }))
+        }).as('playStart')
+        visitPlayCheckout('/premium?tier=premium_plus')
+        cy.wait(['@products', '@subscriptions'])
+        cy.window().then(window => {
+            const fetch = window.fetch.bind(window)
+            // Deliver the previous response even when checkout cancels its request.
+            cy.stub(window, 'fetch').callsFake((input: RequestInfo | URL, init?: RequestInit) => {
+                if (!String(input).endsWith('/l_prem_plus/playstore')) return fetch(input, init)
+                return fetch(input, { ...init, signal: undefined })
+            })
+        })
+        buyWithPlay().click()
+        cy.wrap(null).should(() => expect(requested).to.equal(true))
+        cy.get('#play-subscription-tier').select('l_premium')
+        cy.then(() => release())
+        cy.wait('@playStart')
+        cy.get('#play-subscription-tier').should('have.value', 'l_premium')
+        cy.contains('a', 'Continue to Google Play').should('not.exist')
+        cy.get('#buyPremium').should('not.contain', signedCheckout.accountLabel)
+        buyWithPlay().should('be.enabled')
+        cy.get('@openPlay').should('not.have.been.called')
+    })
+
+    it('opens sign-in from Play checkout while signed out', () => {
+        cy.intercept('POST', '**/api/premium/subscription/*/playstore', cy.spy().as('playRequest'))
+        visitPlayCheckout('/premium?slots=true&tier=starter', false)
+        buyWithPlay().should('be.disabled')
+        cy.get('#play-subscription-tier').select('l_premium')
+        buyWithPlay().click()
+        signInDialog().should('be.visible')
+        cy.get('@playRequest').should('not.have.been.called')
+    })
+
+    it('shows the store update link on the fallback URL', () => {
+        visitPlayCheckout('/premium?playUpdate=1')
+        cy.contains('Update the app from Google Play to subscribe').should('be.visible')
+        cy.contains('a', 'Open Google Play').should('have.attr', 'href', 'https://play.google.com/store/apps/details?id=com.coflnet.sky')
+        cy.get('#buyPremium').should('not.exist')
+    })
+
+    for (const scenario of [
+        {
+            name: 'an existing subscription and its provider',
+            reply: { statusCode: 400, body: { slug: 'active_subscription', message: 'You already have an active subscription. The blocking subscription is billed by paypal.' } },
+            message: 'The blocking subscription is billed by paypal'
+        },
+        { name: 'a temporary outage', reply: { statusCode: 503, body: {} }, message: 'Please try again later' },
+        { name: 'a network failure', reply: { forceNetworkError: true }, message: 'Please try again later' }
+    ]) {
+        it(`handles ${scenario.name} and leaves the checkout ready to retry`, () => {
+            stubAccount()
+            cy.intercept('POST', '**/api/premium/subscription/l_premium/playstore', scenario.reply).as('playStart')
+            visitPlayCheckout()
+            cy.wait(['@products', '@subscriptions'])
+            buyWithPlay().click()
+            cy.wait('@playStart')
+            cy.get('#buyPremium').contains('[role="alert"]', scenario.message).should('be.visible')
+            buyWithPlay().should('be.enabled')
+            cy.get('@openPlay').should('not.have.been.called')
+        })
+    }
+
+    it('uses the existing agreement when the Play API requires new terms', () => {
+        stubAccount()
+        const required = {
+            ...TERMS_ALLOWING_PURCHASE, required: true, canStartNewContract: false,
+            version: 'updated-terms', agreementHash: 'updated-hash'
+        }
+        cy.intercept('POST', '**/api/premium/subscription/l_prem_plus/playstore', { statusCode: 428, body: { slug: 'terms_acceptance_required' } }).as('playStart')
+        cy.intercept('POST', '**/api/user/terms*', { body: TERMS_ALLOWING_PURCHASE }).as('acceptTerms')
+        visitPlayCheckout('/premium?tier=premium_plus')
+        cy.wait(['@products', '@subscriptions', '@terms'])
+        cy.intercept('GET', '**/api/user/terms*', { body: required }).as('freshTerms')
+        buyWithPlay().click()
+        cy.wait(['@playStart', '@freshTerms'])
+        buyWithPlay().should('be.disabled')
+        cy.get('#terms-acceptance').contains('button', 'Accept the SkyCofl agreement package').click()
+        cy.wait('@acceptTerms').its('request.body').should('include', { version: 'updated-terms', hash: 'updated-hash' })
+        buyWithPlay().should('be.enabled')
+        cy.get('#play-subscription-tier').should('have.value', 'l_prem_plus')
+    })
+
+    it('explains an existing Google Play subscription in the website checkout', () => {
+        stubAccount()
+        cy.intercept('GET', '**/api/premium/subscription/providers*', { body: [{ provider: 'stripe' }, { provider: 'paypal' }] })
+        cy.intercept('POST', '**/api/premium/subscription/l_premium?*', {
+            statusCode: 400,
+            body: { slug: 'active_play_subscription' }
+        }).as('websiteCheckout')
+        visitNewPage('/premium?premiumVariant=new&tier=premium', true, window => playContext(window, true, false))
+        cy.get('#buyPremium').contains('[data-testid="wizard-option-title"]', /^Subscription$/).click()
+        cy.get('#buyPremium').contains('[data-testid="wizard-option-title"]', 'Just for me').click()
+        cy.get('#buyPremium').contains('[data-testid="wizard-option-title"]', /^4 weeks$/).click()
+        confirmDeclaration()
+        cy.contains('button', 'Pay with card').click()
+        cy.wait('@websiteCheckout')
+        cy.contains('You already subscribe through Google Play. Manage your subscription in Google Play.').should('be.visible')
+    })
+
+    it('uses subscription labels on Android result pages and on a failed checkout return', () => {
+        visitPlayCheckout('/success#billing_success_l_premium', false)
+        cy.contains('Premium subscription through Google Play').should('be.visible')
+        visitPlayCheckout('/cancel#billing_error_l_prem_plus_Purchase%20canceled%20by%20user', false)
+        cy.contains('Premium+ subscription purchase canceled').should('be.visible')
+        cy.contains('Purchase canceled by user').should('be.visible')
+        visitPlayCheckout('/premium#billing_error_l_prem_plus_Could%20not%20open%20billing', false)
+        cy.contains('Your Premium+ subscription purchase could not be completed. Could not open billing').should('be.visible')
+    })
+})

@@ -801,6 +801,7 @@ export function parsePremiumSubscription(subscription: any): PremiumSubscription
         renewsAt: parseDate(subscription.renewsAt),
         createdAt: parseDate(subscription.createdAt),
         providerSlug: subscription.providerSlug ?? undefined,
+        manageUrl: subscription.manageUrl ?? undefined,
         canResume: typeof subscription.canResume === 'boolean' ? subscription.canResume : undefined,
         canChangePlan: typeof subscription.canChangePlan === 'boolean' ? subscription.canChangePlan : undefined,
         currency: subscription.currency ?? undefined,

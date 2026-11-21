@@ -18,11 +18,15 @@ import { getGeneratedApiErrorMessage } from '../../utils/GeneratedApiResponseUti
 import styles from './CoflCoinsPurchase.module.css'
 import { usePremiumVariant } from '../Premium/PremiumVariantContext'
 import { trackPremiumFunnelEvent } from '../../utils/PremiumTracking'
+import { isAndroidApp } from '../../utils/AndroidApp'
+import { usePlaySubscriptionsEnabled } from '../../hooks/usePlaySubscriptionsEnabled'
+import { getPlaySubscriptionResult } from '../../utils/PlaySubscriptions'
 
 const PAYMENT_REDIRECT_ERROR = 'Something went wrong. Please try again.'
 
 function Payment() {
     const variant = usePremiumVariant()
+    const playSubscriptionsEnabled = usePlaySubscriptionsEnabled()
     const [loadingId, setLoadingId] = useState('')
     const [currentRedirectLink, setCurrentRedirectLink] = useState('')
     const [showAll, setShowAll] = useState(false)
@@ -41,7 +45,7 @@ function Payment() {
     function initializeBilling() {
         // Check for billing errors in URL hash
         const hash = window.location.hash
-        if (hash.startsWith('#billing_error_')) {
+        if (hash.startsWith('#billing_error_') && !(playSubscriptionsEnabled && getPlaySubscriptionResult(hash, true))) {
             const errorMatch = hash.match(/#billing_error_([^_]+)_(.+)/)
             if (errorMatch) {
                 const errorId = errorMatch[1]
@@ -149,7 +153,7 @@ function Payment() {
     function checkGooglePlayAvailability() {
         const isAndroid = /android/i.test(navigator.userAgent)
         const isTWA = document.referrer.includes('android-app://com.coflnet.sky')
-        const available = isAndroid && (isTWA || window.matchMedia('(display-mode: standalone)').matches)
+        const available = isAndroidApp()
 
         console.log('[Billing] checkGooglePlayAvailability result:', available, {
             isAndroid,

@@ -79,6 +79,7 @@ import { getNextHigherTier, getTierHighlights, getTierIntro } from '../../Premiu
 import { useSubscriptionPricing } from './useSubscriptionPricing'
 import { usePurchaseDeclaration } from '../../../hooks/usePurchaseDeclaration'
 import { useCheckoutRequestId } from '../../../hooks/useCheckoutRequestId'
+import { usePlaySubscriptionsEnabled } from '../../../hooks/usePlaySubscriptionsEnabled'
 import PurchaseDeclaration from '../PurchaseDeclaration/PurchaseDeclaration'
 
 // The subscription checkout, the last step of the purchase wizard.
@@ -140,6 +141,7 @@ function CountryRequired() {
 }
 
 function BuySubscription(props: Props) {
+    const playSubscriptionsEnabled = usePlaySubscriptionsEnabled()
     const variant = usePremiumVariant()
     const [creatorCode, setCreatorCode] = useState(props.initialCreatorCode ?? '')
     const [busyCheckout, setBusyCheckout] = useState<PaymentProvider | null>(null)
@@ -264,7 +266,7 @@ function BuySubscription(props: Props) {
     function onCheckoutFailed(data: unknown) {
         setBusyCheckout(null)
         if (!getDeclarationErrorSlug(data)) {
-            toast.error(getCheckoutErrorMessage(data))
+            toast.error(getCheckoutErrorMessage(data, playSubscriptionsEnabled))
             return
         }
         checkoutRequest.renew()

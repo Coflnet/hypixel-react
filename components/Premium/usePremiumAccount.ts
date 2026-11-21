@@ -187,6 +187,7 @@ export function usePremiumAccount() {
         showSlots,
         requestedTier,
         termsStatus,
+        setTermsStatus,
         legalLocale,
         canPurchase,
         /** the purchase wizard is rendered at #buyPremium */

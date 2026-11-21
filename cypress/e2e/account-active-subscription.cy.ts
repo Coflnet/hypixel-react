@@ -186,6 +186,40 @@ const activeSubscription = {
     createdAt: '2026-01-01T00:00:00Z'
 }
 
+describe('Google Play subscription management', () => {
+    const manageUrl = 'https://play.google.com/store/account/subscriptions?sku=premium_plus&package=com.coflnet.sky'
+    const playSubscription = {
+        ...activeSubscription, externalId: 'play-active', providerSlug: 'googleplay', manageUrl,
+        canResume: true, canChangePlan: true, canExtendLongTerm: true, termWeeks: 13
+    }
+
+    it('puts active and canceled Play subscriptions under Google Play management', () => {
+        stubProducts()
+        stubSubscriptions({ body: [
+            playSubscription,
+            { ...playSubscription, externalId: 'play-canceled', endsAt: '2099-01-15T00:00:00Z' },
+            activeSubscription
+        ] })
+        visitAuthenticatedPage('/account', window => Object.assign(window, { __playSubscriptionsEnabled: true }))
+        for (const id of ['play-active', 'play-canceled']) {
+            cy.get(`#subscription-${id}`).within(() => {
+                cy.contains('a', 'Manage in Google Play').should('have.attr', 'href', manageUrl)
+                cy.get('button, [data-testid="reactivate-subscription"]').should('not.exist')
+            })
+        }
+        cy.get('#subscription-active-subscription').contains('button', 'Cancel subscription').should('be.visible')
+        cy.contains('h2', 'Danger Zone').parent().contains('a', 'Manage in Google Play').should('have.attr', 'href', manageUrl)
+    })
+
+    it('keeps the previous controls with the rollout off', () => {
+        stubProducts()
+        stubSubscriptions({ body: [playSubscription] })
+        visitAuthenticatedPage('/account', window => Object.assign(window, { __playSubscriptionsEnabled: false }))
+        cy.get('#subscription-play-active').contains('button', 'Cancel subscription').should('be.visible')
+        cy.contains('Manage in Google Play').should('not.exist')
+    })
+})
+
 describe('Premium refresh after checkout', () => {
     const ownership = { premium: { expiresAt: '2099-02-01T00:00:00Z' } }
     const cacheKey = 'skycoflApiCache:premium-products:cypress%40example.com'

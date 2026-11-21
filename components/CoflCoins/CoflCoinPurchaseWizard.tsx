@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import CoflCoinAmountSelection from './CoflCoinAmountSelection'
 import CoflCoinPaymentSelection, { PurchaseCodes } from './CoflCoinPaymentSelection'
+import { isAndroidApp as detectAndroidApp } from '../../utils/AndroidApp'
 
 interface CoflCoinOption {
     amount: number
@@ -30,10 +31,7 @@ function CoflCoinPurchaseWizard({ coflCoins, countryCode, onPayPalPay, onStripeP
     const [step, setStep] = useState<'amount' | 'payment'>('amount')
     const [selectedOption, setSelectedOption] = useState<CoflCoinOption | null>(null)
 
-    const isAndroidApp = typeof window !== 'undefined' &&
-        (/android/i.test(navigator.userAgent) &&
-            (document.referrer.includes('android-app://com.coflnet.sky') ||
-                window.matchMedia('(display-mode: standalone)').matches))
+    const isAndroidApp = detectAndroidApp()
 
     const handleAmountSelected = (option: CoflCoinOption) => {
         setSelectedOption(option)

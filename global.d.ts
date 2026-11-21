@@ -919,8 +919,10 @@ interface PremiumSubscription {
     paymentAmount: string
     renewsAt: Date
     createdAt: Date
-    /** lemonsqueezy, stripe or paypal; undefined from an older backend */
+    /** lemonsqueezy, stripe, paypal or googleplay; undefined from an older backend */
     providerSlug?: string
+    /** provider-hosted subscription management */
+    manageUrl?: string
     /** false when a canceled subscription cannot be reactivated (PayPal); undefined keeps resuming available */
     canResume?: boolean
     /** false when the plan cannot be switched; undefined keeps plan changes available */

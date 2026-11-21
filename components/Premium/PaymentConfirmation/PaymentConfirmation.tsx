@@ -6,6 +6,8 @@ import Confetti from '../../Confetti/Confetti'
 import GoogleSignIn from '../../GoogleSignIn/GoogleSignIn'
 import NavBar from '../../NavBar/NavBar'
 import { usePaymentConfirmation } from './usePaymentConfirmation'
+import { usePlaySubscriptionResult } from '../../../hooks/usePlaySubscriptionResult'
+import { getPlaySubscriptionLabel, type PlaySubscriptionSlug } from '../../../utils/PlaySubscriptions'
 
 // The success page after a payment provider sent the buyer back: it waits for Payments to confirm the purchase instead of
 // claiming success while the provider is still confirming the payment.
@@ -88,9 +90,19 @@ function LoggedOut({ onLogin }: { onLogin(): void }) {
     )
 }
 
-export default function PaymentConfirmation() {
-    const { status, slow, reference, recheck } = usePaymentConfirmation()
+function Confirmation({ playSubscription }: { playSubscription?: PlaySubscriptionSlug }) {
+    const { status, slow, reference, recheck } = usePaymentConfirmation(playSubscription)
     if (status === 'loggedOut') return <LoggedOut onLogin={recheck} />
     if (status === 'confirmed') return <Confirmed />
     return <Waiting slow={slow} reference={reference} />
+}
+
+export default function PaymentConfirmation() {
+    const result = usePlaySubscriptionResult(false)
+    return (
+        <>
+            {result ? <p>{getPlaySubscriptionLabel(result.slug)} subscription through Google Play</p> : null}
+            <Confirmation key={result?.slug} playSubscription={result?.slug} />
+        </>
+    )
 }

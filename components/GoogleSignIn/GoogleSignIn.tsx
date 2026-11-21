@@ -24,6 +24,7 @@ const RESTORE_FOCUS_WITHOUT_SCROLL = { preventScroll: true }
 
 interface Props {
     onAfterLogin?(): void
+    onAuthenticated?(token: string): void
     /** the login was rejected (invalid or expired token, failed agreement check); the visitor is logged out */
     onLoginFail?(): void
     onManualLoginClick?(): void
@@ -107,6 +108,7 @@ function GoogleSignIn(props: Props) {
             sessionStorage.removeItem(USER_CHANGED_RELOAD_KEY)
             const refId = window.refId
             if (refId) api.setRef(refId, 'new-user-100-v1', document.documentElement.lang || navigator.language || 'en')
+            props.onAuthenticated?.(token)
             completeLogin()
         } catch (error) {
             const slug = error && typeof error === 'object' && 'slug' in error ? error.slug : undefined

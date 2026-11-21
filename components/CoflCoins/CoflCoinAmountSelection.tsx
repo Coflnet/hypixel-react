@@ -4,6 +4,7 @@ import { Card, Button, Form, InputGroup, Alert } from 'react-bootstrap'
 import Number from '../Number/Number'
 import styles from './CoflCoinsPurchase.module.css'
 import NumberElement from '../Number/Number'
+import { isAndroidApp as detectAndroidApp } from '../../utils/AndroidApp'
 
 interface CoflCoinOption {
     amount: number
@@ -90,10 +91,7 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins, userCountryCode 
     const baseOption = coflCoinOptions[0]
 
     // Check if running in Android app (TWA or standalone mode)
-    const isAndroidApp = typeof window !== 'undefined' &&
-        (/android/i.test(navigator.userAgent) &&
-            (document.referrer.includes('android-app://com.coflnet.sky') ||
-                window.matchMedia('(display-mode: standalone)').matches))
+    const isAndroidApp = detectAndroidApp()
 
     // Check if user needs specific amount to make their coins divisible by 1800
     const remainder = coflCoins % 1800
