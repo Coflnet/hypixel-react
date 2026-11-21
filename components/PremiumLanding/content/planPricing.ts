@@ -1,6 +1,6 @@
 // Prices for the plan cards and the purchase wizard's tier cards.
 // Subscriptions bill every 4, 13 or 52 weeks, so prices name their term in weeks, never months. Every headline is a price that is
-// actually charged: Starter and Premium+ show their 52-week plan, Premium its 4-week plan.
+// actually charged: Starter shows its 52-week plan, Premium and Premium+ their 4-week plans.
 // The billing (PlanBilling) says how the checkout will charge: `exact` (a direct Stripe/PayPal checkout bills the buyer's country)
 // prices like the checkout, the exact charge with no "+ VAT" where none is added (the US); `net` (Stripe Managed Payments) shows net
 // prices, Stripe adds the tax; otherwise the tax estimate of the buyer's country (Lemon Squeezy). Until the offer settles
@@ -89,11 +89,11 @@ const PRODUCT_OF: Record<PremiumTier, ProductId> = {
 
 const PERIOD_OF_WEEKS: Record<number, Period> = { 4: 'monthly', 13: 'quarterly', 52: 'yearly' }
 
-/** the plan each card's headline shows: Premium's 4-week plan, the 52-week plan of Starter (sold only so) and Premium+ */
+/** each card's charged headline: Starter's only 52-week plan, Premium and Premium+ every 4 weeks */
 const HEADLINE_WEEKS: Record<PremiumTier, number> = {
     [PremiumTier.STARTER]: 52,
     [PremiumTier.PREMIUM]: 4,
-    [PremiumTier.PREMIUM_PLUS]: 52
+    [PremiumTier.PREMIUM_PLUS]: 4
 }
 
 function euro(value: number): string {
@@ -163,47 +163,29 @@ function thenRenewal(headline: PeriodOffer, renewal: string): string[] {
     return headline.firstTermOnly ? [`then ${renewal}every ${RENEWAL_WEEKS} weeks until cancelled. `] : []
 }
 
-/** a repeating 4-week plan offered beside a longer headline plan: "every 4 weeks from the start" */
-function fromTheStart(offer: PeriodOffer): PeriodOffer {
-    return { ...offer, period: `${offer.period} from the start` }
-}
-
 /** Stripe and PayPal: the 13 and 52 week plans continue every 4 weeks at the 4-week price after their first term */
 function getContinuationNote(tier: PremiumTier, pricer: PlanPricer, headline: PeriodOffer): NotePart[] {
     const product = PRODUCT_OF[tier]
     const renewal = pricer.renewal(product)
     const then = thenRenewal(headline, renewal)
     if (tier === PremiumTier.STARTER) return [...then, CANCEL_ANYTIME]
-    if (tier === PremiumTier.PREMIUM) {
-        // "until cancelled" is said once: after the headline's first term when it has one, otherwise here
-        const after = then.length > 0 ? '.' : ' until cancelled.'
-        return [
-            ...then,
-            'Or ',
-            pricer.offer(product, 13),
-            ' or ',
-            pricer.offer(product, 52),
-            `, then ${renewal}every ${RENEWAL_WEEKS} weeks${after} ${CANCEL_ANYTIME}`
-        ]
-    }
-    return getPremiumPlusOptions(pricer, renewal, then)
-}
-
-function getPremiumPlusOptions(pricer: PlanPricer, renewal: string, then: string[]): NotePart[] {
-    const quarter = pricer.offer('premium_plus', 13)
-    const fourWeeks = pricer.offer('premium_plus', RENEWAL_WEEKS)
-    const continuation = `then ${renewal}every ${RENEWAL_WEEKS} weeks`
-    // without a sale the 4-week plan simply repeats, so the continuation belongs to the 13-week plan alone
-    if (!fourWeeks.firstTermOnly) return [...then, 'Or ', quarter, `, ${continuation}, or `, fromTheStart(fourWeeks), `. ${CANCEL_ANYTIME}`]
-    return [...then, 'Or ', quarter, ', or ', fourWeeks, `, ${continuation}. ${CANCEL_ANYTIME}`]
+    // "until cancelled" is said once: after the headline's first term when it has one, otherwise here
+    const after = then.length > 0 ? '.' : ' until cancelled.'
+    return [
+        ...then,
+        'Or ',
+        pricer.offer(product, 13),
+        ' or ',
+        pricer.offer(product, 52),
+        `, then ${renewal}every ${RENEWAL_WEEKS} weeks${after} ${CANCEL_ANYTIME}`
+    ]
 }
 
 /** Lemon Squeezy renews for the same term again */
 function getRenewsSameTermNote(tier: PremiumTier, pricer: PlanPricer): NotePart[] {
     if (tier === PremiumTier.STARTER) return ['Billed every 52 weeks only, because of payment fees']
     const product = PRODUCT_OF[tier]
-    const other = tier === PremiumTier.PREMIUM ? 52 : RENEWAL_WEEKS
-    return ['Or ', pricer.offer(product, 13), ', ', pricer.offer(product, other)]
+    return ['Or ', pricer.offer(product, 13), ', ', pricer.offer(product, 52)]
 }
 
 /** the card price of `tier`: its headline plan with the promotion, the term and tax, and the tier's other plans in the note */

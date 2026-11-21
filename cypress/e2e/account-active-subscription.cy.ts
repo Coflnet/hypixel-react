@@ -1127,19 +1127,17 @@ describe('Slot packages in the Premium wizard', () => {
         cy.get('#buyPremium').contains('button', 'Continue').should('be.disabled')
     })
 
-    // regression: the Premium Plus row showed the yearly price per month without saying so, and 4-week billing read "per month";
-    // later it showed the 52-week price divided into 4-week shares, a price nobody is charged
-    // the card/PayPal wording is the default: Lemon Squeezy's "renews every 52 weeks" only appears once the offer settled on it
+    // card/PayPal first-term wording is the default until the checkout offer settles
     it('says how the tier prices are billed, and does not say a plan renews every 52 weeks while the payment providers are unknown', () => {
         const providers = responseGate()
         cy.intercept('GET', '**/api/premium/subscription/providers*', request => providers.hold(request, { statusCode: 404, body: {} })).as('slowProviders')
         visitAuthenticatedPage('/premium')
-        wizardOption(/^Premium Plus$/).closest('label').should('contain.text', 'then every 4 weeks until cancelled').and('not.contain.text', 'every 52 weeks')
+        const plus = () => wizardOption(/^Premium Plus$/).closest('label')
+        plus().should('contain.text', '€354.20 for the first 52 weeks, then every 4 weeks until cancelled').and('not.contain.text', 'every 52 weeks')
         providers.release()
         cy.wait('@slowProviders')
-        wizardOption(/^Premium Plus$/).closest('label').should('contain.text', 'every 52 weeks').and('not.contain.text', 'then every 4 weeks until cancelled')
-        wizardOption(/^Premium Plus$/).closest('label').should('contain.text', 'every 4 weeks')
-        wizardOption(/^Premium Plus$/).closest('label').should('contain.text', '€354.20').and('not.contain.text', '€27.25').and('not.contain.text', 'per 4 weeks').and('not.contain.text', 'month')
+        plus().should('contain.text', '€99.69 every 13 weeks, €354.20 every 52 weeks').and('not.contain.text', 'then every 4 weeks until cancelled')
+        plus().should('contain.text', 'every 4 weeks').and('not.contain.text', 'month').find('[class*="amount"]').should('have.text', '€35.69')
         // Starter is only sold for 52 weeks
         wizardOption(/^Starter$/).closest('label').should('contain.text', 'every 52 weeks only').and('contain.text', '€16.69').and('contain.text', 'every 52 weeks')
     })
@@ -1812,7 +1810,8 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         tierRow('Premium').should('contain.text', '-25%').and('contain.text', '€7.27').and('contain.text', 'for the first 4 weeks').and('contain.text', 'Sale price, applied automatically')
         // the price's struck original follows the struck prices of the note in the row
         tierRow('Premium').find('s').last().should('have.text', '€9.69')
-        tierRow('Premium Plus').should('contain.text', '-50%').and('contain.text', '€177.10').and('contain.text', 'for the first 52 weeks').find('s').last().should('have.text', '€354.20')
+        tierRow('Premium Plus').should('contain.text', '-25%').and('contain.text', 'for the first 4 weeks').and('contain.text', '€177.10')
+        tierRow('Premium Plus').find('[class*="amount"]').should('have.text', '€26.77 instead of €35.69')
         cy.get('[data-testid="tier-promotion-note"]').should('contain.text', 'Black Friday: up to 50% off your first payment.').and('contain.text', 'Applied automatically at checkout.')
         cy.get('#buyPremium').should('not.contain.text', 'with code')
     })

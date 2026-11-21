@@ -557,15 +557,15 @@ describe('Plan cards', () => {
             '€9.69 every 4 weeks, plus VAT where applicable | Or €27.69 every 13 weeks, €96.69 every 52 weeks'
         )
         expect(text(getPlanPrice(PremiumTier.PREMIUM_PLUS, undefined, lemonSqueezy))).to.equal(
-            '€354.20 every 52 weeks, plus VAT where applicable | Or €99.69 every 13 weeks, €35.69 every 4 weeks'
+            '€35.69 every 4 weeks, plus VAT where applicable | Or €99.69 every 13 weeks, €354.20 every 52 weeks'
         )
         expect(getPlanPrice(PremiumTier.PREMIUM, 'DE', lemonSqueezy)).to.deep.include({ amount: '€11.53', unit: 'every 4 weeks' })
         // card and PayPal: the 52 week plan continues every 4 weeks, also the default before the offer is known
         expect(text(getPlanPrice(PremiumTier.PREMIUM_PLUS, 'US', direct))).to.equal(
-            '€354.20 for the first 52 weeks | then €35.69 every 4 weeks until cancelled. Or €99.69 for the first 13 weeks, then €35.69 every 4 weeks, or €35.69 every 4 weeks from the start. Cancel anytime'
+            '€35.69 every 4 weeks | Or €99.69 for the first 13 weeks or €354.20 for the first 52 weeks, then €35.69 every 4 weeks until cancelled. Cancel anytime'
         )
         expect(getPlanNoteText(getPlanPrice(PremiumTier.PREMIUM_PLUS).note)).to.equal(
-            'then every 4 weeks until cancelled. Or €99.69 for the first 13 weeks, then every 4 weeks, or €35.69 every 4 weeks from the start. Cancel anytime'
+            'Or €99.69 for the first 13 weeks or €354.20 for the first 52 weeks, then every 4 weeks until cancelled. Cancel anytime'
         )
     })
 
@@ -576,7 +576,7 @@ describe('Plan cards', () => {
             '€11.53 every 4 weeks | Or €32.95 for the first 13 weeks or €115.06 for the first 52 weeks, then €11.53 every 4 weeks until cancelled. Cancel anytime'
         )
         expect(text(getPlanPrice(PremiumTier.PREMIUM_PLUS, 'DE', direct))).to.equal(
-            '€421.50 for the first 52 weeks | then €42.47 every 4 weeks until cancelled. Or €118.63 for the first 13 weeks, then €42.47 every 4 weeks, or €42.47 every 4 weeks from the start. Cancel anytime'
+            '€42.47 every 4 weeks | Or €118.63 for the first 13 weeks or €421.50 for the first 52 weeks, then €42.47 every 4 weeks until cancelled. Cancel anytime'
         )
     })
 
@@ -587,7 +587,7 @@ describe('Plan cards', () => {
             '€8.65 (instead of €11.53) for the first 4 weeks [-25%] | then €11.53 every 4 weeks until cancelled. Or €19.77 (instead of €32.95) for the first 13 weeks (-40%) or €57.52 (instead of €115.06) for the first 52 weeks (-50%), then €11.53 every 4 weeks. Cancel anytime'
         )
         expect(text(getPlanPrice(PremiumTier.PREMIUM_PLUS, 'DE', direct, blackweek))).to.equal(
-            '€210.75 (instead of €421.50) for the first 52 weeks [-50%] | then €42.47 every 4 weeks until cancelled. Or €71.17 (instead of €118.63) for the first 13 weeks (-40%), or €31.86 (instead of €42.47) for the first 4 weeks (-25%), then €42.47 every 4 weeks. Cancel anytime'
+            '€31.86 (instead of €42.47) for the first 4 weeks [-25%] | then €42.47 every 4 weeks until cancelled. Or €71.17 (instead of €118.63) for the first 13 weeks (-40%) or €210.75 (instead of €421.50) for the first 52 weeks (-50%), then €42.47 every 4 weeks. Cancel anytime'
         )
     })
 

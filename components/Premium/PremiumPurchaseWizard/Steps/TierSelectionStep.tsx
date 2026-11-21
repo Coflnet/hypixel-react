@@ -169,7 +169,7 @@ export default function TierSelectionStep({
         const tier = config.tier
         const isSuggested = suggestedTier === tier
         const canSelect = canSelectTier(tier, currentTier, isUpgrade)
-        // the plan card's price: a price that is charged (Premium every 4 weeks, Starter and Premium Plus for 52 weeks), with the promotion
+        // the plan card's price: a price that is charged (Premium and Premium Plus every 4 weeks, Starter for 52 weeks), with the promotion
         const price = getPlanPrice(tier, countryCode, billing, offer.promotion)
         return {
             value: tier,

@@ -288,18 +288,18 @@ test('finds the next start or end of a promotion', () => {
 // regression: the plan cards said "per month" for 4-week billing and showed Premium+ as its yearly price over 12 months
 test('prices the plan cards per 4 weeks and says when VAT is not included', () => {
     const plus = planPricing.getPlanPrice(PremiumTier.PREMIUM_PLUS, 'US', lemonBilling)
-    assert.equal(plus.amount, '€27.25')
-    assert.equal(plus.unit, '+ VAT per 4 weeks')
-    assert.match(plus.note, /every 52 weeks at €354\.20, or €35\.69 every 4 weeks/)
+    assert.equal(plus.amount, '€35.69')
+    assert.equal(plus.unit, '+ VAT every 4 weeks')
+    assert.equal(planPricing.getPlanNoteText(plus.note), 'Or €99.69 every 13 weeks, €354.20 every 52 weeks')
     assert.equal(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'DE', lemonBilling).amount, '€11.53')
-    assert.equal(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'DE', lemonBilling).unit, 'per 4 weeks')
+    assert.equal(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'DE', lemonBilling).unit, 'every 4 weeks')
     // Starter is sold for 52 weeks only (payment fees), at 16.69
     assert.equal(planPricing.getPlanPrice(PremiumTier.STARTER, 'US', exactBilling).amount, '€16.69')
-    assert.equal(planPricing.getPlanPrice(PremiumTier.STARTER, 'DE', lemonBilling).unit, 'per 52 weeks')
+    assert.equal(planPricing.getPlanPrice(PremiumTier.STARTER, 'DE', lemonBilling).unit, 'every 52 weeks')
     for (const tier of Object.values(PremiumTier)) {
         for (const billing of [lemonBilling, exactBilling, managedBilling, undefined]) {
             const price = planPricing.getPlanPrice(tier, 'DE', billing)
-            assert.doesNotMatch(`${price.unit} ${price.note}`, /month/i, tier)
+            assert.doesNotMatch(`${price.unit} ${planPricing.getPlanNoteText(price.note)}`, /month/i, tier)
         }
     }
 })
@@ -308,7 +308,7 @@ test('prices the plan cards per 4 weeks and says when VAT is not included', () =
 test('prices the plan cards before VAT while the country is unknown', () => {
     const premium = planPricing.getPlanPrice(PremiumTier.PREMIUM, undefined)
     assert.equal(premium.amount, '€9.69')
-    assert.equal(premium.unit, 'per 4 weeks, plus VAT where applicable')
+    assert.equal(premium.unit, 'every 4 weeks, plus VAT where applicable')
 })
 
 test('names subscription billing periods in weeks, never as a month', () => {
@@ -322,15 +322,30 @@ test('names subscription billing periods in weeks, never as a month', () => {
 // regression: US plan cards said "+ VAT" although the direct US checkout adds no tax
 test('prices the plan cards like the direct checkout charges where it is exact', () => {
     const plus = planPricing.getPlanPrice(PremiumTier.PREMIUM_PLUS, 'US', exactBilling)
-    assert.equal(plus.amount, '€27.25')
-    assert.equal(plus.unit, 'per 4 weeks')
-    assert.match(plus.note, /^€354\.20 for the first 52 weeks, then €35\.69 every 4 weeks until cancelled\./)
-    assert.match(plus.note, /Cancel anytime$/)
+    assert.equal(plus.amount, '€35.69')
+    assert.equal(plus.unit, 'every 4 weeks')
+    assert.equal(planPricing.getPlanNoteText(plus.note), 'Or €99.69 for the first 13 weeks or €354.20 for the first 52 weeks, then €35.69 every 4 weeks until cancelled. Cancel anytime')
     const premium = planPricing.getPlanPrice(PremiumTier.PREMIUM, 'DE', exactBilling)
     assert.equal(premium.amount, '€11.53')
-    assert.equal(premium.unit, 'per 4 weeks')
+    assert.equal(premium.unit, 'every 4 weeks')
     // Lemon Squeezy adds the US sales tax at checkout
-    assert.equal(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'US', lemonBilling).unit, '+ VAT per 4 weeks')
+    assert.equal(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'US', lemonBilling).unit, '+ VAT every 4 weeks')
+})
+
+test('Premium+ headlines the charged 4-week sale and preserves longer first-term alternatives', () => {
+    const plus = planPricing.getPlanPrice(PremiumTier.PREMIUM_PLUS, 'DE', exactBilling, blackFriday)
+    assert.equal(plus.amount, '€31.86')
+    assert.equal(plus.original, '€42.47')
+    assert.equal(plus.badge, '-25%')
+    assert.equal(plus.unit, 'for the first 4 weeks')
+    assert.equal(planPricing.getPlanNoteText(plus.note), 'then €42.47 every 4 weeks until cancelled. Or €59.31 (instead of €118.63) for the first 13 weeks (-50%) or €210.75 (instead of €421.50) for the first 52 weeks (-50%), then €42.47 every 4 weeks. Cancel anytime')
+    const managed = planPricing.getPlanPrice(PremiumTier.PREMIUM_PLUS, 'BR', managedBilling, blackFriday)
+    assert.equal(managed.amount, '€26.77')
+    assert.equal(managed.original, '€35.69')
+    assert.equal(managed.unit, '+ tax for the first 4 weeks')
+    const repeating = planPricing.getPlanPrice(PremiumTier.PREMIUM_PLUS, 'DE', exactBilling, { ...blackFriday, duration: 'forever' })
+    assert.equal(repeating.unit, 'every 4 weeks')
+    assert.match(planPricing.getPlanNoteText(repeating.note), /then €31\.86 every 4 weeks until cancelled/)
 })
 
 test('says under the plan cards how tax is charged, in the checkout wording', () => {
@@ -401,23 +416,23 @@ test('offers Starter for 52 weeks only, continuing every 4 weeks after the first
 })
 
 test('plan card notes say what plans continue with, without a renewal price until the offer settled', () => {
-    const premium = planPricing.getPlanPrice(PremiumTier.PREMIUM, 'US', exactBilling).note
-    assert.equal(premium, 'Or €27.69 for 13 weeks or €96.69 for 52 weeks, then €9.69 every 4 weeks until cancelled. Cancel anytime')
+    const premium = planPricing.getPlanNoteText(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'US', exactBilling).note)
+    assert.equal(premium, 'Or €27.69 for the first 13 weeks or €96.69 for the first 52 weeks, then €9.69 every 4 weeks until cancelled. Cancel anytime')
     assert.equal(
-        planPricing.getPlanPrice(PremiumTier.STARTER, 'US', exactBilling).note,
-        '€16.69 for the first 52 weeks, then €2.69 every 4 weeks until cancelled. Cancel anytime'
+        planPricing.getPlanNoteText(planPricing.getPlanPrice(PremiumTier.STARTER, 'US', exactBilling).note),
+        'then €2.69 every 4 weeks until cancelled. Cancel anytime'
     )
-    assert.equal(planPricing.getPlanPrice(PremiumTier.STARTER, 'US', lemonBilling).note, 'Billed every 52 weeks only, because of payment fees')
+    assert.equal(planPricing.getPlanNoteText(planPricing.getPlanPrice(PremiumTier.STARTER, 'US', lemonBilling).note), 'Billed every 52 weeks only, because of payment fees')
     // the default (server-rendered page, offer loading) is the same wording without the renewal price
     const ssr = planPricing.getPlanPrice(PremiumTier.PREMIUM, undefined)
-    assert.equal(ssr.note, 'Or €27.69 for 13 weeks or €96.69 for 52 weeks, then every 4 weeks until cancelled. Cancel anytime')
-    assert.doesNotMatch(ssr.note, /renews every/i)
+    assert.equal(planPricing.getPlanNoteText(ssr.note), 'Or €27.69 for the first 13 weeks or €96.69 for the first 52 weeks, then every 4 weeks until cancelled. Cancel anytime')
+    assert.doesNotMatch(planPricing.getPlanNoteText(ssr.note), /renews every/i)
     // Managed Payments: net prices, "+ tax"
     const managed = planPricing.getPlanPrice(PremiumTier.PREMIUM, 'BR', managedBilling)
     assert.equal(managed.amount, '€9.69')
-    assert.equal(managed.unit, '+ tax per 4 weeks')
-    assert.match(managed.note, /then €9\.69 every 4 weeks until cancelled/)
-    assert.equal(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'US', lemonBilling).note, 'Or €27.69 every 13 weeks, €96.69 every 52 weeks')
+    assert.equal(managed.unit, '+ tax every 4 weeks')
+    assert.match(planPricing.getPlanNoteText(managed.note), /then €9\.69 every 4 weeks until cancelled/)
+    assert.equal(planPricing.getPlanNoteText(planPricing.getPlanPrice(PremiumTier.PREMIUM, 'US', lemonBilling).note), 'Or €27.69 every 13 weeks, €96.69 every 52 weeks')
 })
 
 test('builds the plan billing from the offer, Lemon Squeezy only once the offer settled on it', () => {
