@@ -69,6 +69,7 @@ import {
     PromotionNote,
     ProviderButtons,
     Savings,
+    SubscriptionUnavailable,
     SummaryNote,
     SummaryRow,
     SummaryTotal
@@ -289,9 +290,9 @@ function BuySubscription(props: Props) {
         }
     }
 
-    /** opens the payment provider; nothing happens without a login or a country */
+    /** opens an available payment option for the buyer's country */
     function onSubscribeClick(choice: PaymentProvider) {
-        if (!buyerCountry || !declaration.confirmed) return
+        if (!buyerCountry || offer.loading || offer.unavailable || !declaration.confirmed) return
         const googleToken = sessionStorage.getItem('googleId')
         if (!googleToken) {
             toast.error('Please login to continue with the purchase')
@@ -489,17 +490,25 @@ function BuySubscription(props: Props) {
         )
     }
 
+    function renderActions() {
+        if (offer.unavailable)
+            return (
+                <PaymentActions>
+                    <CountrySelect />
+                    <SubscriptionUnavailable countryCode={buyerCountry} />
+                </PaymentActions>
+            )
+        return (
+            <>
+                {renderCodes()}
+                {renderDeclaration()}
+                <PaymentActions note={CHECKOUT_NOTE}>{renderPaymentButtons()}</PaymentActions>
+            </>
+        )
+    }
+
     return (
-        <CheckoutLayout
-            summary={renderSummary()}
-            actions={
-                <>
-                    {renderCodes()}
-                    {renderDeclaration()}
-                    <PaymentActions note={CHECKOUT_NOTE}>{renderPaymentButtons()}</PaymentActions>
-                </>
-            }
-        >
+        <CheckoutLayout summary={renderSummary()} actions={renderActions()}>
             <div className={discountStyles.featuresRow}>
                 <TierFeatures tier={tier} />
                 <TierUpsellPanel

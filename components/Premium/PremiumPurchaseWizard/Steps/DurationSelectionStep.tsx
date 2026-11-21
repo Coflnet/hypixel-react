@@ -3,7 +3,7 @@ import OptionGroup, { StruckOriginal, WizardOption } from '../OptionGroup'
 import { Duration, PurchaseType, PremiumTier, getDurationOptions } from '../types'
 import { VAT_RATES, SUBSCRIPTION_PRICES } from '../../../../utils/PricingUtils'
 import type { AutoDiscount } from '../../../../api/_generated/skyApi.schemas'
-import { CheckoutOffer, useCheckoutOffer } from '../../../../hooks/useCheckoutOffer'
+import type { CheckoutOffer } from '../../../../hooks/useCheckoutOffer'
 import {
     getBillingWeeks,
     describeRenewal,
@@ -21,7 +21,8 @@ import {
     isFirstPaymentOnly,
     showsVatSuffix
 } from '../../../../utils/SubscriptionCheckout'
-import { PromotionNote } from '../../Checkout/CheckoutParts'
+import { PromotionNote, SubscriptionUnavailable } from '../../Checkout/CheckoutParts'
+import CountrySelect from '../../../CountrySelect/CountrySelect'
 import styles from './Steps.module.css'
 
 interface Props {
@@ -30,6 +31,7 @@ interface Props {
     selectedDuration: Duration | null
     onDurationSelect: (duration: Duration, advance: boolean) => void
     countryCode?: string
+    offer: CheckoutOffer
 }
 
 /** CoflCoins price of the half-year Starter package, before VAT */
@@ -187,7 +189,8 @@ function getCoflCoinsUnit(props: Props, duration: Duration, direct: boolean): st
 type OptionPrices = Pick<WizardOption<Duration>, 'price' | 'originalPrice' | 'discountBadge' | 'unit'>
 
 /** subscriptions compare prices per 4 weeks, CoflCoins per month */
-function getOptionPrices(props: Props, duration: Duration, offer: CheckoutOffer): OptionPrices {
+function getOptionPrices(props: Props, duration: Duration): OptionPrices {
+    const { offer } = props
     const net = isNetCharge(offer.providers, offer.mode)
     // exact or net: the page shows the charge as the backend computes it; Managed Payments shows net prices, so no VAT is added
     const direct = isExactCharge(offer.providers, props.countryCode, offer.mode) || net
@@ -197,22 +200,22 @@ function getOptionPrices(props: Props, duration: Duration, offer: CheckoutOffer)
     return getSubscriptionPrices(taxProps, duration, billing)
 }
 
-/** the running promotion only applies to subscriptions paid with a provider that honours it */
-function useDurationOffer(props: Props): CheckoutOffer {
-    const isSubscription = props.selectedType === PurchaseType.SUBSCRIPTION
-    return useCheckoutOffer(isSubscription ? props.countryCode : undefined)
-}
-
 export default function DurationSelectionStep(props: Props) {
-    const { selectedType, selectedTier, selectedDuration, onDurationSelect } = props
-    const offer = useDurationOffer(props)
+    const { selectedType, selectedTier, selectedDuration, onDurationSelect, offer, countryCode } = props
+    if (offer.unavailable)
+        return (
+            <div className={styles.stepContent}>
+                <CountrySelect />
+                <SubscriptionUnavailable countryCode={countryCode} showCoflCoinsHint />
+            </div>
+        )
     const promotion = offer.promotion
     const options: WizardOption<Duration>[] = getDurationOptions(selectedTier, selectedType, isFourWeekContinuation(offer)).map(option => ({
         value: option.value,
         title: option.label,
         description: option.desc,
         badge: getBadge(option),
-        ...getOptionPrices(props, option.value, offer)
+        ...getOptionPrices(props, option.value)
     }))
 
     return (

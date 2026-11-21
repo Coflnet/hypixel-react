@@ -10,6 +10,7 @@ import { useCheckoutOffer } from '../../../../hooks/useCheckoutOffer'
 import { getTierHighlights, getTierIntro } from '../../../PremiumLanding/content/tierHighlights'
 import { describePromotion } from '../../../../utils/SubscriptionCheckout'
 import type { AutoDiscount } from '../../../../api/_generated/skyApi.schemas'
+import { SubscriptionUnavailable } from '../../Checkout/CheckoutParts'
 
 interface TierConfig {
     tier: PremiumTier
@@ -203,7 +204,11 @@ export default function TierSelectionStep({
                 </div>
             )}
             <OptionGroup legend="Premium tier" options={options} selected={selected} onChoose={onTierSelect} />
-            <TierNote forFriends={forFriends} countryCode={countryCode} billing={billing} promotion={billing.settled ? offer.promotion : null} />
+            {offer.unavailable ? (
+                <SubscriptionUnavailable countryCode={countryCode} showCoflCoinsHint />
+            ) : (
+                <TierNote forFriends={forFriends} countryCode={countryCode} billing={billing} promotion={billing.settled ? offer.promotion : null} />
+            )}
         </div>
     )
 }

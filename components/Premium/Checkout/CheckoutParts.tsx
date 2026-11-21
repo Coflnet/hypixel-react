@@ -1,6 +1,6 @@
 'use client'
 import { ReactNode, useId } from 'react'
-import { Spinner } from 'react-bootstrap'
+import { Alert, Spinner } from 'react-bootstrap'
 import type { AutoDiscount, ValidatedDiscount } from '../../../api/_generated/skyApi.schemas'
 import {
     PaymentProvider,
@@ -14,6 +14,7 @@ import {
 } from '../../../utils/SubscriptionCheckout'
 import { PremiumTier } from '../PremiumPurchaseWizard/types'
 import type { DiscountCodeState, LinkCodeReplacement } from '../../../hooks/useDiscountCode'
+import { getCountry } from '../../../utils/CountryUtils'
 import styles from './Checkout.module.css'
 
 // Building blocks of the wizard's last step, shared by the subscription and the CoflCoins checkout.
@@ -75,6 +76,25 @@ export function CheckoutError({ children }: { children: ReactNode }) {
         <div className={styles.error} role="alert">
             {children}
         </div>
+    )
+}
+
+export function SubscriptionUnavailable({
+    countryCode,
+    countryHint = 'If this is the wrong country, use the country selector to correct it.',
+    showCoflCoinsHint
+}: {
+    countryCode?: string
+    countryHint?: string
+    showCoflCoinsHint?: boolean
+}) {
+    const country = getCountry(countryCode?.toUpperCase())?.label ?? countryCode ?? 'your country'
+    return (
+        <Alert variant="warning" role="status">
+            Premium subscriptions are not available for buyers in {country} yet. We can only sell where our payment providers handle the local tax.
+            <div>{countryHint}</div>
+            {showCoflCoinsHint ? <div>You can still pay once with CoflCoins: go back and choose CoflCoins.</div> : null}
+        </Alert>
     )
 }
 

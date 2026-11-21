@@ -7,6 +7,7 @@ import { TierSelectionStep, PaymentMethodStep, DurationSelectionStep, PurchaseCo
 import { PREMIUM_RANK } from '../../../utils/PremiumTypeUtils'
 import { getTierOfProduct, parseTierFromUrl } from '../../../utils/PremiumUpgradeUtils'
 import { useCountryDetection } from '../../../hooks/useCountryDetection'
+import { useCheckoutOffer } from '../../../hooks/useCheckoutOffer'
 import SlotPurchase from '../SlotPurchase/SlotPurchase'
 import PackageSelectionStep from './Steps/PackageSelectionStep'
 import useSlotCatalog from '../../../hooks/useSlotCatalog'
@@ -89,6 +90,7 @@ function PremiumPurchaseWizard(props: Props) {
     const [upgradeDiscountCode, setUpgradeDiscountCode] = useState<string | null>(null)
     const [upgradeCreatorCode, setUpgradeCreatorCode] = useState<string | null>(null)
     const { selectedCountry, handleCountryChange } = useCountryDetection()
+    const durationOffer = useCheckoutOffer(currentStep === STEP.DURATION && selectedType === PurchaseType.SUBSCRIPTION ? selectedCountry?.value : undefined)
     const slotCatalog = useSlotCatalog(selectedCountry?.value)
     const variant = usePremiumVariant()
     const titleId = useId()
@@ -335,6 +337,7 @@ function PremiumPurchaseWizard(props: Props) {
                         selectedDuration={selectedDuration}
                         onDurationSelect={chooseDuration}
                         countryCode={selectedCountry?.value}
+                        offer={durationOffer}
                     />
                 )
             case STEP.PURCHASE:
@@ -395,7 +398,7 @@ function PremiumPurchaseWizard(props: Props) {
             <WizardFooter
                 canGoBack={getPreviousStep(flowState) !== null}
                 backDisabled={slotPurchaseBusy}
-                showContinue={currentStep < STEP.PURCHASE}
+                showContinue={currentStep < STEP.PURCHASE && !durationOffer.unavailable}
                 canContinue={getNextStep(flowState) !== null}
                 onBack={handleBack}
                 onContinue={handleContinue}
