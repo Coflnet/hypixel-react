@@ -2524,6 +2524,8 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         }).as('promotion')
         cy.intercept('GET', '**/api/discount/BF2026*', { body: blackFridayCode }).as('promotionCode')
         const checkout = openCheckoutOnClock('4 weeks')
+        // React Query hands the providers answer to the page on a (faked) timer, and the code is checked only once they are known
+        tickUntil(() => checkout.page.document.querySelectorAll('[data-testid="checkout-payment"] button').length === 2, 'the payment options are loaded')
         cy.wait('@promotionCode')
         cy.get('#buyPremium').should('contain.text', formatMoney(7.27, 'EUR'))
         discountInput().should('have.value', 'BF2026')
