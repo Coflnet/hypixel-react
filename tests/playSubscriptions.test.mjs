@@ -4,17 +4,17 @@ import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
 import ts from 'typescript'
 
-function loadModule(path, dependencies = {}) {
+function loadModule(path, dependencies = {}, globals = {}) {
     const source = ts.transpileModule(readFileSync(new URL(path, import.meta.url), 'utf8'), {
         compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 }
     }).outputText
-    const context = { exports: {}, require: name => dependencies[name] }
+    const context = { exports: {}, require: name => dependencies[name], ...globals }
     runInNewContext(source, context)
     return context.exports
 }
 
 const types = loadModule('../components/Premium/PremiumPurchaseWizard/types.ts')
-const { buildPlaySubscriptionIntent, getInitialPlayPlan, getPlayPurchaseMode, getPlayCheckoutError, getPlaySubscriptionResult, isPlayCheckoutExpired } = loadModule(
+const { buildPlaySubscriptionIntent, getInitialPlayPlan, getPlayPurchaseMode, getPlayCheckoutError, getPlayBillingError, getPlaySubscriptionResult, isPlayCheckoutExpired } = loadModule(
     '../utils/PlaySubscriptions.ts',
     {
         '../components/Premium/PremiumPurchaseWizard/types': types,
@@ -22,14 +22,42 @@ const { buildPlaySubscriptionIntent, getInitialPlayPlan, getPlayPurchaseMode, ge
     }
 )
 
-test('only Play mode honours the update URL and only that URL allows the web override', () => {
-    for (const update of [false, true]) {
-        for (const web of [false, true]) assert.equal(getPlayPurchaseMode(false, update, web), 'web')
+test('browsers use the web checkout and Android app visitors use Play or the update page', () => {
+    assert.equal(getPlayPurchaseMode(false, false), 'web')
+    assert.equal(getPlayPurchaseMode(false, true), 'web')
+    assert.equal(getPlayPurchaseMode(true, false), 'play')
+    assert.equal(getPlayPurchaseMode(true, true), 'update')
+})
+
+test('the Play app hook requires Android with standalone mode or the app referrer and respects the flag', () => {
+    const { isAndroidApp } = loadModule('../utils/AndroidApp.ts')
+    assert.equal(isAndroidApp(), false)
+
+    const navigator = { userAgent: 'Android Chrome' }
+    const document = { referrer: '' }
+    let standalone = false
+    let enabled = true
+    const window = { matchMedia: () => ({ matches: standalone }) }
+    const androidApp = loadModule('../utils/AndroidApp.ts', {}, { navigator, document, window })
+    const { usePlayApp } = loadModule('../hooks/usePlayApp.ts', {
+        react: { useSyncExternalStore: (_subscribe, snapshot) => snapshot() },
+        '../utils/AndroidApp': androidApp,
+        './usePlaySubscriptionsEnabled': { usePlaySubscriptionsEnabled: () => enabled }
+    })
+
+    assert.equal(usePlayApp(), false)
+    document.referrer = 'android-app://com.coflnet.sky'
+    assert.equal(usePlayApp(), true)
+    document.referrer = ''
+    standalone = true
+    assert.equal(usePlayApp(), true)
+    enabled = false
+    assert.equal(usePlayApp(), false)
+    enabled = true
+    for (const userAgent of ['Desktop Chrome', 'iPhone Safari']) {
+        navigator.userAgent = userAgent
+        assert.equal(usePlayApp(), false)
     }
-    assert.equal(getPlayPurchaseMode(true, false, false), 'play')
-    assert.equal(getPlayPurchaseMode(true, false, true), 'play')
-    assert.equal(getPlayPurchaseMode(true, true, false), 'update')
-    assert.equal(getPlayPurchaseMode(true, true, true), 'web')
 })
 
 test('Play starts on a personal four-week plan and requires a new choice for Starter or slots links', () => {
@@ -81,22 +109,38 @@ test('Play start errors distinguish login, terms, active subscriptions, unavaila
     assert.match(getPlayCheckoutError().message, /try again later/)
 })
 
-test('Android result hashes preserve full subscription slugs and map known failures to fixed copy', () => {
+test('Android result hashes preserve full subscription slugs and map known results to fixed copy', () => {
     assert.equal(getPlaySubscriptionResult('#billing_success_l_premium', false).slug, 'l_premium')
     assert.equal(getPlaySubscriptionResult('#billing_success_l_prem_plus', false).slug, 'l_prem_plus')
     const error = value => getPlaySubscriptionResult(`#billing_error_l_prem_plus_${value}`, true)
     const cancelled = error('Purchase%20canceled%20by%20user')
     assert.equal(cancelled.slug, 'l_prem_plus')
     assert.equal(cancelled.error, 'The purchase was cancelled.')
-    assert.match(error('Item%20already%20owned').error, /already be active/)
     assert.match(error('This%20subscription%20belongs%20to%20a%20different%20SkyCofl%20account').error, /another SkyCofl account/)
-    assert.match(error('Subscription%20confirmation%20will%20be%20retried').error, /payment is processing/)
+    assert.match(error('Could%20not%20securely%20save%20the%20subscription').error, /payment is processing/)
     assert.match(error('Could%20not%20securely%20save%20the%20subscription%20for%20confirmation').error, /payment is processing/)
     const generic = 'Google Play reported a checkout problem. Check your purchases in Google Play before trying again.'
     assert.equal(error('Arbitrary_text%20%26%20%23').error, generic)
     assert.equal(error('%E0%A4%A').error, generic)
     assert.equal(error('Purchase%2520canceled%2520by%2520user').error, generic)
+    for (const obsolete of ['Already owned', 'Item already owned', 'Subscription confirmation will be retried']) {
+        assert.equal(error(encodeURIComponent(obsolete)).error, generic)
+    }
     assert.equal(getPlaySubscriptionResult('#billing_success_ps_cc_1800', false), null)
     assert.equal(getPlaySubscriptionResult('#billing_error_ps_cc_1800_Problem', true), null)
     assert.equal(getPlaySubscriptionResult('#billing_success_l_premium-year', false), null)
+})
+
+test('CoflCoins retry results show processing and unrecoverable completion points to support', () => {
+    for (const message of [
+        'Server completed the purchase, but Play consumption will be retried',
+        'Purchase completion was interrupted and will be retried'
+    ]) {
+        const result = getPlayBillingError(encodeURIComponent(message))
+        assert.equal(result.kind, 'processing')
+        assert.equal(result.message, 'Your CoflCoins purchase is processing. Check your balance before trying again.')
+    }
+    const result = getPlayBillingError(encodeURIComponent('This purchase cannot be completed automatically. Contact support.'))
+    assert.equal(result.kind, 'error')
+    assert.equal(result.message, 'This CoflCoins purchase cannot be completed automatically. Please contact support before trying again.')
 })

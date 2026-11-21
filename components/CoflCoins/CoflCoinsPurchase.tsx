@@ -1,5 +1,5 @@
 'use client'
-import { useContext, useState } from 'react'
+import { useState } from 'react'
 import { Alert, Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import {
@@ -20,7 +20,7 @@ import { usePremiumVariant } from '../Premium/PremiumVariantContext'
 import { trackPremiumFunnelEvent } from '../../utils/PremiumTracking'
 import { isAndroidApp } from '../../utils/AndroidApp'
 import { usePlaySubscriptionsEnabled } from '../../hooks/usePlaySubscriptionsEnabled'
-import { PlayWebsiteCheckoutContext, usePlayApp } from '../../hooks/usePlayApp'
+import { usePlayApp } from '../../hooks/usePlayApp'
 import { getPlayBillingError, getPlaySubscriptionResult } from '../../utils/PlaySubscriptions'
 
 const PAYMENT_REDIRECT_ERROR = 'Something went wrong. Please try again.'
@@ -29,7 +29,6 @@ function Payment() {
     const variant = usePremiumVariant()
     const playSubscriptionsEnabled = usePlaySubscriptionsEnabled()
     const playApp = usePlayApp()
-    const websiteCheckout = useContext(PlayWebsiteCheckoutContext)
     const [loadingId, setLoadingId] = useState('')
     const [currentRedirectLink, setCurrentRedirectLink] = useState('')
     const [showAll, setShowAll] = useState(false)
@@ -46,36 +45,33 @@ function Payment() {
         initializeBilling()
     }
 
-    function initializeBilling() {
-        // Check for billing errors in URL hash
+    function showBillingHashResult() {
         const hash = window.location.hash
-        if (hash.startsWith('#billing_error_') && !(playSubscriptionsEnabled && getPlaySubscriptionResult(hash, true))) {
-            const errorMatch = hash.match(/#billing_error_([^_]+)_(.+)/)
-            if (errorMatch) {
-                const errorId = errorMatch[1]
-                const errorMessage = playSubscriptionsEnabled
-                    ? getPlayBillingError(hash.slice(hash.lastIndexOf('_') + 1))
-                    : decodeURIComponent(errorMatch[2].replace(/\+/g, ' '))
+        const errorMatch = hash.match(/^#billing_error_([^_]+)_(.+)/)
+        if (!errorMatch || (playSubscriptionsEnabled && getPlaySubscriptionResult(hash, true))) return
 
-                console.error('[Billing] Error from Android:', { errorId, errorMessage })
-
-                // Show user-friendly error message
-                let userMessage = playSubscriptionsEnabled ? errorMessage : 'Purchase failed: ' + errorMessage
-                if (errorMessage === 'Server validation failed' || errorMessage === 'Product not found') {
-                    userMessage += '. Please contact support if this issue persists.'
-                }
-
-                toast.error(userMessage, { autoClose: 10000 })
-
-                // Clear the error from URL
-                window.history.replaceState(null, '', window.location.pathname + window.location.search)
-
-                // Clear loading state if it matches the error ID
-                if (loadingId && loadingId.includes(errorId)) {
-                    setLoadingId('')
-                }
+        const [, errorId, encodedError] = errorMatch
+        if (playSubscriptionsEnabled) {
+            const { kind, message } = getPlayBillingError(hash.slice(hash.lastIndexOf('_') + 1))
+            const options = { autoClose: 10000 }
+            if (kind === 'processing') toast.info(message, { ...options, role: 'status' })
+            else toast.error(message, options)
+        } else {
+            const errorMessage = decodeURIComponent(encodedError.replace(/\+/g, ' '))
+            console.error('[Billing] Error from Android:', { errorId, errorMessage })
+            let userMessage = 'Purchase failed: ' + errorMessage
+            if (errorMessage === 'Server validation failed' || errorMessage === 'Product not found') {
+                userMessage += '. Please contact support if this issue persists.'
             }
+            toast.error(userMessage, { autoClose: 10000 })
         }
+
+        window.history.replaceState(null, '', window.location.pathname + window.location.search)
+        if (loadingId && loadingId.includes(errorId)) setLoadingId('')
+    }
+
+    function initializeBilling() {
+        showBillingHashResult()
 
         // Check for Android Billing availability with a delay
         setTimeout(() => {
@@ -321,8 +317,8 @@ function Payment() {
                     onLemonSqueezyPay={onPayLemonSqueezy}
                     onGooglePlayPay={onPayGooglePlay}
                     loadingProductId={loadingId}
-                    isGooglePlayAvailable={!websiteCheckout && (isGooglePlayAvailable || (playApp && androidApp))}
-                    isAndroidApp={!websiteCheckout && (playApp || androidApp)}
+                    isGooglePlayAvailable={isGooglePlayAvailable || playApp}
+                    isAndroidApp={androidApp}
                     playApp={playApp}
                 />
             </div>

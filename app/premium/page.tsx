@@ -23,10 +23,11 @@ export default async function Page() {
     // the page is rendered per request: the banner's space is reserved only where the visitor's country gets the sale
     const requestHeaders = await headers()
     const country = requestHeaders.get(COUNTRY_HEADER)
+    const mayBePlayApp = /android/i.test(requestHeaders.get('user-agent') ?? '')
     const [variant, likelyPromotion] = await Promise.all([getExperimentVariant(), getLikelyPromotion(country)])
     return (
         <PremiumVariantProvider variant={variant}>
-            <PremiumCheckoutSurface>
+            <PremiumCheckoutSurface mayBePlayApp={mayBePlayApp}>
                 {variant === 'new' ? (
                     <PremiumLanding likelyPromotion={likelyPromotion} />
                 ) : (

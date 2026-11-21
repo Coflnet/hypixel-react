@@ -5,7 +5,7 @@ import { getGeneratedApiMessage, getGeneratedApiSlug } from './GeneratedApiRespo
 export const PLAY_SUBSCRIPTIONS_ENABLED = false
 export const PLAY_STORE_LISTING = 'https://play.google.com/store/apps/details?id=com.coflnet.sky'
 export const PLAY_SUBSCRIPTION_MANAGEMENT = 'https://play.google.com/store/account/subscriptions'
-export const PLAY_WEBSITE_FALLBACK = '/premium?playUpdate=1&web=1'
+export const PLAY_WEBSITE_CHROME_INTENT = 'intent://sky.coflnet.com/premium#Intent;scheme=https;package=com.android.chrome;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end'
 export const PLAY_CHECKOUT_UNAVAILABLE = 'Google Play checkout is temporarily unavailable. Please try again later.'
 export const PLAY_SUBSCRIPTION_SLUGS = ['l_premium', 'l_prem_plus'] as const
 export type PlaySubscriptionSlug = (typeof PLAY_SUBSCRIPTION_SLUGS)[number]
@@ -14,10 +14,9 @@ export function getPlaySubscriptionLabel(slug: PlaySubscriptionSlug): string {
     return slug === 'l_premium' ? 'Premium' : 'Premium+'
 }
 
-export function getPlayPurchaseMode(app: boolean, update: boolean, web: boolean): 'web' | 'play' | 'update' {
+export function getPlayPurchaseMode(app: boolean, update: boolean): 'web' | 'play' | 'update' {
     if (!app) return 'web'
-    if (update) return web ? 'web' : 'update'
-    return 'play'
+    return update ? 'update' : 'play'
 }
 
 export function getInitialPlayPlan(tier: PremiumTier | null, forFriends: boolean): PlaySubscriptionSlug | '' {
@@ -67,9 +66,14 @@ export function getPlayCheckoutError(status?: number, data?: unknown): PlayCheck
     return { kind: 'error', message: PLAY_CHECKOUT_UNAVAILABLE }
 }
 
-const BILLING_FAILURE = 'Google Play reported a checkout problem. Check your purchases in Google Play before trying again.'
+type PlayBillingResult = { kind: 'processing' | 'error'; message: string }
 
-export function getPlayBillingError(encodedError: string): string {
+const BILLING_FAILURE: PlayBillingResult = {
+    kind: 'error',
+    message: 'Google Play reported a checkout problem. Check your purchases in Google Play before trying again.'
+}
+
+export function getPlayBillingError(encodedError: string): PlayBillingResult {
     let error: string
     try {
         error = decodeURIComponent(encodedError).toLowerCase()
@@ -78,16 +82,19 @@ export function getPlayBillingError(encodedError: string): string {
     }
     switch (error) {
         case 'purchase canceled by user':
-            return 'The purchase was cancelled.'
-        case 'already owned':
-        case 'item already owned':
+            return { kind: 'error', message: 'The purchase was cancelled.' }
         case 'this subscription belongs to a different skycofl account':
         case 'could not verify which skycofl account owns this subscription':
         case 'could not check subscription ownership in google play':
-            return 'This purchase may already be active in Google Play or belong to another SkyCofl account. Check your subscriptions in Google Play.'
-        case 'subscription confirmation will be retried':
+            return { kind: 'error', message: 'This purchase may already be active in Google Play or belong to another SkyCofl account. Check your subscriptions in Google Play.' }
+        case 'could not securely save the subscription':
         case 'could not securely save the subscription for confirmation':
-            return 'Your payment is processing. Check your subscription status before trying again.'
+            return { kind: 'processing', message: 'Your payment is processing. Check your subscription status before trying again.' }
+        case 'server completed the purchase, but play consumption will be retried':
+        case 'purchase completion was interrupted and will be retried':
+            return { kind: 'processing', message: 'Your CoflCoins purchase is processing. Check your balance before trying again.' }
+        case 'this purchase cannot be completed automatically. contact support.':
+            return { kind: 'error', message: 'This CoflCoins purchase cannot be completed automatically. Please contact support before trying again.' }
         default:
             return BILLING_FAILURE
     }
@@ -98,5 +105,5 @@ export function getPlaySubscriptionResult(hash: string, failed: boolean) {
     const slug = PLAY_SUBSCRIPTION_SLUGS.find(slug => failed ? hash.startsWith(`${prefix}${slug}_`) : hash === `${prefix}${slug}`)
     if (!slug) return null
     if (!failed) return { slug, error: null }
-    return { slug, error: getPlayBillingError(hash.slice(`${prefix}${slug}_`.length)) }
+    return { slug, error: getPlayBillingError(hash.slice(`${prefix}${slug}_`.length)).message }
 }

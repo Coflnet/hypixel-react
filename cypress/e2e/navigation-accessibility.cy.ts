@@ -45,4 +45,30 @@ describe('Navigation accessibility', () => {
             .focus()
             .should('be.focused')
     })
+
+    for (const method of ['push', 'replace'] as const) {
+        it(`leaves the top loading bar idle for router.${method}`, () => {
+            cy.intercept({ method: 'GET', headers: { rsc: '1' } }).as('routerReady')
+            cy.visit('/')
+            cy.wait('@routerReady')
+            cy.document().then(document => cy.spy(document.body, 'appendChild').as('appendToBody'))
+            cy.window().its('next.router').invoke(method, '/about')
+            cy.location('pathname').should('equal', '/about')
+            cy.contains('h2', 'Links/Legal').should('be.visible')
+            cy.get('@appendToBody').should('not.have.been.calledWithMatch', Cypress.sinon.match.has('id', 'nprogress'))
+            cy.get('#nprogress').should('not.exist')
+        })
+    }
+
+    it('starts the top loading bar for a Link click', () => {
+        cy.intercept({ method: 'GET', headers: { rsc: '1' } }).as('routerReady')
+        cy.visit('/')
+        cy.wait('@routerReady')
+        cy.get('button[aria-label="Navigation menu"]').click().should('have.attr', 'aria-expanded', 'true')
+        cy.document().then(document => cy.spy(document.body, 'appendChild').as('appendToBody'))
+        cy.get('#pro-sidebar a[href="/about"]').click()
+        cy.get('@appendToBody').should('have.been.calledWithMatch', Cypress.sinon.match.has('id', 'nprogress'))
+        cy.location('pathname').should('equal', '/about')
+        cy.get('#nprogress').should('not.exist')
+    })
 })
