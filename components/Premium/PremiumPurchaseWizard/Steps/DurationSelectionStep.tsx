@@ -1,5 +1,5 @@
 'use client'
-import OptionGroup, { WizardOption } from '../OptionGroup'
+import OptionGroup, { StruckOriginal, WizardOption } from '../OptionGroup'
 import { Duration, PurchaseType, PremiumTier, getDurationOptions } from '../types'
 import { VAT_RATES, SUBSCRIPTION_PRICES } from '../../../../utils/PricingUtils'
 import type { AutoDiscount } from '../../../../api/_generated/skyApi.schemas'
@@ -136,28 +136,14 @@ function getSubscriptionTerm(props: Props, weeks: number, firstOnly: boolean, bi
     return `for the first ${weeks} weeks${vat}, ${describeRenewal(weeks, getRenewalText(props, billing), true)}`
 }
 
-/** the 4-week share of a longer plan, e.g. "≈ €4.42 per 4 weeks in year 1"; only a comparison, never what is charged */
-function getFourWeekShare(total: number, weeks: number, billing: SubscriptionBilling): string | null {
-    if (weeks <= 4) return null
-    const share = euro(getPerFourWeeks(total, weeks), billing.direct)
-    if (!billing.continues) return `≈ ${share} ${getPerPeriodLabel(4)}`
-    return `≈ ${share} ${getPerPeriodLabel(4)} ${weeks === 52 ? 'in year 1' : `in the first ${weeks} weeks`}`
+/** the comparison price covers each term with Lemon Squeezy and the first term with 4-week continuation */
+function getFourWeekShareUnit(weeks: number, continues: boolean): string {
+    const unit = getPerPeriodLabel(4)
+    if (!continues) return unit
+    return `${unit} ${weeks === 52 ? 'in year 1' : `in the first ${weeks} weeks`}`
 }
 
-function SubscriptionUnit({ term, share }: { term: string; share: string | null }) {
-    if (!share) return <>{term}</>
-    return (
-        <>
-            {term}
-            <br />
-            <span className={styles.share} data-testid="four-week-share">
-                {share}
-            </span>
-        </>
-    )
-}
-
-/** the charged total of the billing period (struck and discounted while a promotion covers it), its term and its 4-week share */
+/** longer terms lead with the average per 4 weeks and show the charged total below */
 function getSubscriptionPrices(props: Props, duration: Duration, billing: SubscriptionBilling): OptionPrices {
     const weeks = getBillingWeeks(duration)
     const plan = getPlanPrice(props.selectedTier, duration)
@@ -166,11 +152,27 @@ function getSubscriptionPrices(props: Props, duration: Duration, billing: Subscr
     const total = getPeriodTotal(plan, percent, props, billing.direct)
     const discounted = percent > 0 && total < regular
     const firstOnly = discounted && isFirstPaymentOnly(billing.promotion)
+    const price = formatCharge(total, billing.direct)
+    const originalPrice = discounted ? formatCharge(regular, billing.direct) : undefined
+    const discountBadge = discounted ? `-${percent}%` : undefined
+    const term = getSubscriptionTerm(props, weeks, firstOnly, billing)
+    if (!hasRenewalTerm(weeks)) return { price, originalPrice, discountBadge, unit: term }
+
     return {
-        price: formatCharge(total, billing.direct),
-        originalPrice: discounted ? formatCharge(regular, billing.direct) : undefined,
-        discountBadge: discounted ? `-${percent}%` : undefined,
-        unit: <SubscriptionUnit term={getSubscriptionTerm(props, weeks, firstOnly, billing)} share={getFourWeekShare(total, weeks, billing)} />
+        price: <span data-testid="four-week-share">≈ {euro(getPerFourWeeks(total, weeks), billing.direct)}</span>,
+        originalPrice: discounted ? euro(getPerFourWeeks(regular, weeks), billing.direct) : undefined,
+        discountBadge,
+        unit: (
+            <>
+                {getFourWeekShareUnit(weeks, billing.continues)}
+                <span className="visually-hidden">, charged </span>
+                <span className={styles.subscriptionTotal} data-testid="subscription-total">
+                    <strong>{price}</strong>
+                    <StruckOriginal original={originalPrice} />
+                </span>{' '}
+                {term}
+            </>
+        )
     }
 }
 
@@ -184,7 +186,7 @@ function getCoflCoinsUnit(props: Props, duration: Duration, direct: boolean): st
 
 type OptionPrices = Pick<WizardOption<Duration>, 'price' | 'originalPrice' | 'discountBadge' | 'unit'>
 
-/** a subscription shows the charged total of its billing period, CoflCoins the price per month */
+/** subscriptions compare prices per 4 weeks, CoflCoins per month */
 function getOptionPrices(props: Props, duration: Duration, offer: CheckoutOffer): OptionPrices {
     const net = isNetCharge(offer.providers, offer.mode)
     // exact or net: the page shows the charge as the backend computes it; Managed Payments shows net prices, so no VAT is added

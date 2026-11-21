@@ -1842,15 +1842,19 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         for (const [title, badge] of [['4 weeks', '-25%'], ['Quarterly', '-50%'], ['Yearly', '-50%']]) {
             durationRow(title).contains('span', badge).parent().find('s').should('exist')
         }
-        // regression: prices read "per month" for 4-week periods; later 13 and 52 weeks were headed by a 4-week share nobody is charged:
-        // the headline is the exact charge of the period (no "~"), the 4-week share only a comparison under it
+        // A 4-week plan leads with the charge. Longer plans lead with an approximate share and show the charge below it.
         durationRow('4 weeks').should('contain.text', '€7.27').and('contain.text', 'for the first 4 weeks, then €9.69 every 4 weeks').and('not.contain.text', '~')
-        durationRow('Quarterly').should('contain.text', '-50%').and('contain.text', '€13.84').and('contain.text', 'for the first 13 weeks, then €9.69 every 4 weeks').find('s').should('have.text', '€27.69')
-        durationRow('Quarterly').find('[data-testid="four-week-share"]').should('have.text', '≈ €4.26 per 4 weeks in the first 13 weeks')
-        durationRow('Yearly').should('contain.text', '-50%').and('contain.text', '€48.34').and('contain.text', 'for the first 52 weeks, then €9.69 every 4 weeks').find('s').should('have.text', '€96.69')
-        durationRow('Yearly').find('[data-testid="four-week-share"]').should('have.text', '≈ €3.72 per 4 weeks in year 1')
-        // the struck price follows the charge in the text, for screen readers
-        durationRow('Yearly').find('[class*="amount"]').invoke('text').should('equal', '€48.34 instead of €96.69')
+        durationRow('4 weeks').find('[data-testid="four-week-share"], [data-testid="subscription-total"]').should('not.exist')
+        durationRow('Quarterly').should('contain.text', 'per 4 weeks in the first 13 weeks')
+            .find('[data-testid="four-week-share"]').closest('[class*="amount"]').should('have.text', '≈ €4.26 instead of €8.52')
+        durationRow('Quarterly').find('[data-testid="subscription-total"]')
+            .should('have.text', '€13.84 instead of €27.69').find('s').should('have.text', '€27.69')
+        durationRow('Quarterly').should('contain.text', 'for the first 13 weeks, then €9.69 every 4 weeks')
+        durationRow('Yearly').should('contain.text', 'per 4 weeks in year 1')
+            .find('[data-testid="four-week-share"]').closest('[class*="amount"]').should('have.text', '≈ €3.72 instead of €7.44')
+        durationRow('Yearly').find('[data-testid="subscription-total"]')
+            .should('have.text', '€48.34 instead of €96.69').find('s').should('have.text', '€96.69')
+        durationRow('Yearly').should('contain.text', 'for the first 52 weeks, then €9.69 every 4 weeks')
         cy.get('#buyPremium').should('not.contain.text', 'month')
         if (SCREENSHOTS) cy.get('#buyPremium').screenshot('promotion-durations')
         wizardOption(/^Yearly$/).click()
@@ -2264,7 +2268,10 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         cy.wait('@providers')
         cy.get('[data-testid="promotion-note"]').should('not.exist')
         durationRow('Yearly').find('s').should('not.exist')
-        durationRow('Yearly').should('not.contain.text', '-50%')
+        durationRow('Yearly').should('contain.text', 'per 4 weeks').and('not.contain.text', 'in year 1').and('not.contain.text', '-50%')
+            .find('[data-testid="four-week-share"]').should('have.text', '≈ €7.44')
+        durationRow('Yearly').find('[data-testid="subscription-total"]').should('have.text', '~€96.69')
+        durationRow('Yearly').should('contain.text', 'every 52 weeks (+VAT)')
         wizardOption(/^Yearly$/).click()
         cy.contains('button', 'Continue to our secure payment processor').should('be.visible')
         cy.get('#buyPremium input[placeholder="Enter discount code"]').should('have.value', '')
