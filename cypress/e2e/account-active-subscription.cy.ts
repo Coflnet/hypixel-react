@@ -1159,6 +1159,7 @@ describe('Slot packages in the Premium wizard', () => {
         cy.contains('button', 'Redirecting to payment provider...').should('be.disabled')
         cy.window().then(window => window.dispatchEvent(new window.PageTransitionEvent('pageshow', { persisted: true })))
         cy.contains('button', 'Continue to our secure payment processor').should('be.enabled').and('not.have.attr', 'aria-busy')
+        cy.get('[data-testid="lemonsqueezy-shutdown-note"]').should('contain.text', 'stops processing payments in 2027')
     })
 
     // regression: upgrading Starter in place added a "Just for me" chip and a Back path through a package step never shown
@@ -1254,6 +1255,7 @@ describe('Slot packages in the Premium wizard', () => {
             cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
             cy.contains('button', 'Continue with subscription').click()
             cy.contains('.modal-title', 'Review your slot subscription').should('be.visible')
+            cy.get('.modal [data-testid="lemonsqueezy-shutdown-note"]').scrollIntoView().should('be.visible')
             cy.get('.modal').should('contain.text', 'new subscription').and('contain.text', 'assign the slots')
             if (count === 1) cy.get('.modal').should('contain.text', 'Cancel slot subscription').and('contain.text', 'Only this slot subscription')
             cy.get('#slot-subscription-early-start-declaration').should('not.be.checked')
@@ -1759,6 +1761,9 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
             wizardOption(title).click()
         }
         tickUntil(() => pageText(holder.page!).includes('Complete Purchase'), 'the checkout is open')
+        // React Query delivers results through setTimeout, which cy.clock fakes.
+        // The page receives the provider list only after the clock ticks.
+        tickUntil(() => !pageText(holder.page!).includes('Loading payment options'), 'the payment options are loaded')
         return holder as { page: Cypress.AUTWindow }
     }
 
@@ -1814,6 +1819,32 @@ describe('Stripe and PayPal checkout with the automatic promotion', () => {
         tierRow('Premium Plus').find('[class*="amount"]').should('have.text', '€26.77 instead of €35.69')
         cy.get('[data-testid="tier-promotion-note"]').should('contain.text', 'Black Friday: up to 50% off your first payment.').and('contain.text', 'Applied automatically at checkout.')
         cy.get('#buyPremium').should('not.contain.text', 'with code')
+    })
+
+    it('offers no subscription durations when the country has no providers', () => {
+        stubProviders([])
+        visitAuthenticatedPage('/premium')
+        cy.get('#buyPremium').contains('You can still pay once with CoflCoins: go back and choose CoflCoins.').should('be.visible')
+        wizardOption(/^Premium$/).click()
+        wizardOption(/^Subscription$/).click()
+        wizardOption('Just for me').click()
+        cy.contains('#buyPremium h3', 'Select Duration').should('be.visible')
+        cy.get('#buyPremium').contains('Premium subscriptions are not available for buyers in United States yet. We can only sell where our payment providers handle the local tax.').should('be.visible')
+        cy.get('#buyPremium').contains('You can still pay once with CoflCoins: go back and choose CoflCoins.').should('be.visible')
+        cy.get('#buyPremium').contains('If this is the wrong country, use the country selector to correct it.').should('be.visible')
+        cy.get('#buyPremium').find(OPTION_TITLE).should('not.exist')
+        cy.get('#buyPremium').contains('button', /^Continue$/).should('not.exist')
+    })
+
+    it('offers no checkout when the product has no subscription providers', () => {
+        stubProviders(directProviders)
+        cy.intercept({ method: 'GET', url: '**/api/premium/subscription/providers*', query: { country: 'US', productSlug: 'l_premium' } }, { body: [] }).as('unavailableProviders')
+        openCheckout('4 weeks')
+        cy.wait('@unavailableProviders').its('request.query').should('deep.equal', { country: 'US', productSlug: 'l_premium' })
+        cy.get('#buyPremium').contains('Premium subscriptions are not available for buyers in United States yet. We can only sell where our payment providers handle the local tax.').should('be.visible')
+        cy.get('#buyPremium').should('not.contain.text', 'You can still pay once with CoflCoins: go back and choose CoflCoins.')
+        cy.get('#buyPremium').find('[data-testid="checkout-payment"] button').should('not.exist')
+        cy.contains('button', 'Continue to our secure payment processor').should('not.exist')
     })
 
     it('keeps the single Lemon Squeezy button when the providers cannot be loaded', () => {
@@ -2685,6 +2716,17 @@ describe('Slot subscriptions with Stripe, PayPal and the promotion', () => {
         cy.get('[data-testid="premium-package"]').contains(OPTION_TITLE, slotCount).click()
         cy.get('[data-testid="slot-offer"]').should('have.length', 1)
     }
+
+    it('offers no payment buttons when the reviewed slot bundle has no providers', () => {
+        stubProviders(directProviders)
+        cy.intercept({ method: 'GET', url: '**/api/premium/subscription/providers*', query: { productSlug: 'l_premium-slots-4' } }, { body: [] }).as('unavailableSlotProviders')
+        openSlotOffers('Package of 4')
+        cy.get('[data-testid="slot-offer"]').contains('button', 'Continue with subscription').click()
+        cy.wait('@unavailableSlotProviders')
+        cy.get('.modal').contains('Premium subscriptions are not available for buyers in').should('be.visible')
+        cy.get('.modal').should('not.contain.text', 'You can still pay once with CoflCoins: go back and choose CoflCoins.')
+        cy.get('.modal-footer button').should('have.length', 1).and('have.text', 'Back')
+    })
 
     // regression: a code could only be entered after "Continue with subscription" opened the review, nothing on the offers said so
     it('takes a discount code on the offers and reduces their price', () => {

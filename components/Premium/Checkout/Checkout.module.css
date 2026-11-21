@@ -92,6 +92,12 @@
     color: #adb5bd;
 }
 
+.lemonSqueezyNote {
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: #adb5bd;
+}
+
 .error {
     font-size: 14px;
     color: #f1948a;

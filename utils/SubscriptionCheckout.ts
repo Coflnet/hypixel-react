@@ -32,7 +32,7 @@ export function getProviderMode(options: SubscriptionProviderOption[] | null | u
     return modes.includes('managed') && !modes.includes('direct') && !modes.includes(undefined) ? 'managed' : 'direct'
 }
 
-/** the direct providers offered for a checkout, card (Stripe) first; empty keeps the single Lemon Squeezy checkout */
+/** the direct providers offered for a checkout, card (Stripe) first */
 export function getDirectProviders(options: SubscriptionProviderOption[] | null | undefined): PaymentProvider[] {
     if (!Array.isArray(options)) return []
     const offered = new Set(options.map(option => option.provider?.toLowerCase()))
@@ -299,7 +299,7 @@ export function getNextPromotionChange(promotion: AutoDiscount | null | undefine
 
 /**
  * The provider a typed discount code is checked for: the first direct one (Stripe and PayPal honour the same local codes),
- * Lemon Squeezy when the checkout falls back to it (it rejects local codes), undefined while the providers are not known yet.
+ * Lemon Squeezy when no direct providers are offered (it rejects local codes), undefined while the providers are not known yet.
  */
 export function getCodeProvider(providers: PaymentProvider[], pending: boolean): PaymentProvider | undefined {
     if (providers.length > 0) return providers[0]

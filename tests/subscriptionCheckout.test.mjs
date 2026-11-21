@@ -59,6 +59,60 @@ test('offers only the direct providers, card first, and nothing for a Lemon Sque
     assert.deepEqual([...checkout.getDirectProviders({ message: 'Not found' })], [])
 })
 
+function checkoutOfferFor(query, country = 'AE') {
+    const { useCheckoutOffer } = loadModule('../hooks/useCheckoutOffer.ts', {
+        react: { useState: initialize => [initialize()], useEffect: () => {} },
+        '../api/_generated/skyApi': {
+            useGetApiPremiumSubscriptionProviders: () => ({ isLoading: false, isPlaceholderData: false, isError: false, ...query }),
+            useGetApiPremiumDiscountAuto: () => ({ isLoading: false, isPlaceholderData: false })
+        },
+        '../utils/SubscriptionCheckout': checkout
+    })
+    return useCheckoutOffer(country, 'l_premium')
+}
+
+test('a successful empty providers list makes the subscription unavailable', () => {
+    const offer = checkoutOfferFor({ data: { status: 200, data: [] } })
+    assert.equal(offer.unavailable, true)
+    assert.equal(offer.loading, false)
+    assert.deepEqual([...offer.providers], [])
+    assert.equal(offer.codeProvider, 'lemonsqueezy')
+})
+
+test('failed providers requests and Lemon Squeezy-only offers keep the Lemon Squeezy fallback', () => {
+    for (const query of [
+        { data: { status: 404, data: [] } },
+        { data: { status: 500, data: [] } },
+        { isError: true },
+        { isError: true, data: { status: 200, data: [] } },
+        { data: { status: 200, data: [{ provider: 'lemonsqueezy', mode: 'merchant_of_record' }] } }
+    ]) {
+        const offer = checkoutOfferFor(query)
+        assert.equal(offer.unavailable, false)
+        assert.equal(offer.loading, false)
+        assert.deepEqual([...offer.providers], [])
+        assert.equal(offer.codeProvider, 'lemonsqueezy')
+    }
+})
+
+test('loading or placeholder providers do not mark the new offer unavailable', () => {
+    for (const offer of [
+        checkoutOfferFor({ isLoading: true }),
+        checkoutOfferFor({ isPlaceholderData: true, data: { status: 200, data: [] } })
+    ]) {
+        assert.equal(offer.loading, true)
+        assert.equal(offer.unavailable, false)
+    }
+})
+
+test('a disabled providers query ignores the previous country’s offers', () => {
+    const offer = checkoutOfferFor({ isPlaceholderData: true, data: { status: 200, data: [{ provider: 'stripe', mode: 'managed' }] } }, '')
+    assert.equal(offer.loading, true)
+    assert.equal(offer.unavailable, false)
+    assert.deepEqual([...offer.providers], [])
+    assert.equal(offer.mode, null)
+})
+
 test('maps billing periods to weeks', () => {
     assert.equal(checkout.getBillingWeeks(Duration.MONTHLY), 4)
     assert.equal(checkout.getBillingWeeks(Duration.QUARTER), 13)

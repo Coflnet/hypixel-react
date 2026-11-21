@@ -19,20 +19,26 @@ const PROVIDERS_STALE_TIME = 10 * 60 * 1000
 const MAX_TIMEOUT = 2 ** 31 - 1
 
 /**
- * The direct providers (Stripe, PayPal) a buyer from `country` can subscribe with, for `productSlug` when given.
- * Empty while they are off, or when the request fails (e.g. before the backend knows the endpoint): the checkout then
- * keeps the single Lemon Squeezy button. Another country or product keeps the last answer until its own arrives,
- * so a code applied for it is not dropped and applied again; `loading` stays true meanwhile so no checkout opens with it.
+ * The payment options for `country`, limited to `productSlug` when given. A failed request keeps the Lemon Squeezy
+ * fallback. While another country or product loads, the previous providers are kept to preserve applied codes.
  */
 export function useSubscriptionProviders(country?: string, productSlug?: string) {
     const query = useGetApiPremiumSubscriptionProviders(
         { country, productSlug },
         { query: { enabled: !!country, staleTime: PROVIDERS_STALE_TIME, retry: false, placeholderData: keepPreviousData } }
     )
-    const providers = query.data?.status === 200 ? getDirectProviders(query.data.data) : []
-    const mode = query.data?.status === 200 ? getProviderMode(query.data.data) : null
+    const options = country && query.data?.status === 200 ? query.data.data : undefined
+    const providers = getDirectProviders(options)
     const pending = !country || query.isLoading
-    return { providers, mode, loading: pending || query.isPlaceholderData, codeProvider: getCodeProvider(providers, pending) }
+    const loading = pending || query.isPlaceholderData
+    const unavailable = !loading && !query.isError && Array.isArray(options) && options.length === 0
+    return {
+        providers,
+        mode: getProviderMode(options),
+        loading,
+        unavailable,
+        codeProvider: getCodeProvider(providers, pending)
+    }
 }
 
 /** the current time, renewed when `promotion` starts or ends so the page stops applying it at its end */
@@ -62,13 +68,15 @@ export function useAutoPromotion(country?: string) {
 }
 
 export interface CheckoutOffer {
-    /** direct providers to offer, card first; empty for the Lemon Squeezy checkout */
+    /** direct providers to offer, card first */
     providers: PaymentProvider[]
+    /** true only when the providers API returns an empty list for the current country and product */
+    unavailable: boolean
     /** the automatic promotion, only when one of `providers` honours it */
     promotion: AutoDiscount | null
     /** how the providers bill: `managed` (Stripe adds the tax, the page shows net prices) or `direct`; null without providers */
     mode: ProviderMode | null
-    /** the provider a discount code is checked for, undefined while unknown */
+    /** the provider a discount code is checked for, regardless of availability and undefined while unknown */
     codeProvider?: PaymentProvider
     /** true until the providers of this country and product are known; no checkout may open meanwhile */
     loading: boolean
@@ -80,6 +88,7 @@ export function useCheckoutOffer(country?: string, productSlug?: string): Checko
     const auto = useAutoPromotion(country)
     return {
         providers: providers.providers,
+        unavailable: providers.unavailable,
         promotion: getPromotionFor(auto.promotion, providers.providers),
         mode: providers.mode,
         codeProvider: providers.codeProvider,
