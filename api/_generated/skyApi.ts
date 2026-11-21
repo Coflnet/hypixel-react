@@ -165,6 +165,7 @@ import type {
   GetApiUserTerms401One,
   GetApiUserTermsParams,
   GooglePlayPurchaseRequest,
+  GooglePlaySubscriptionResult,
   GraphResult,
   Int32Int64ValueTuple,
   InventoryBatchLookup,
@@ -194,6 +195,8 @@ import type {
   NpcFlip,
   OwnedTierSlot,
   PetLevelingFlip,
+  PlaySubscriptionCheckout,
+  PlaySubscriptionPurchase,
   PlayerResult,
   PlaystorTopup,
   PostApiAuctionsUidsSold200One,
@@ -221,6 +224,7 @@ import type {
   PostApiPremiumPricesAdjusted401One,
   PostApiPremiumSubscriptionExternalIdExtend401One,
   PostApiPremiumSubscriptionExternalIdTerm401One,
+  PostApiPremiumSubscriptionProductSlugPlaystore401One,
   PostApiPremiumSubscriptionSubscriptionSlug401One,
   PostApiPremiumSubscriptionSubscriptionSlugParams,
   PostApiPremiumUserOwns200One,
@@ -17617,6 +17621,331 @@ export const usePostApiBlacklistUnblock = <TError = unknown,
         TContext
       > => {
       return useMutation(getPostApiBlacklistUnblockMutationOptions(options), queryClient);
+    }
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse200TextPlain = {
+  data: PlaySubscriptionCheckout
+  status: 200
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse200ApplicationJson = {
+  data: PlaySubscriptionCheckout
+  status: 200
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse200TextJson = {
+  data: PlaySubscriptionCheckout
+  status: 200
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse400TextPlain = {
+  data: ErrorResponse
+  status: 400
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse400ApplicationJson = {
+  data: ErrorResponse
+  status: 400
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse400TextJson = {
+  data: ErrorResponse
+  status: 400
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse401ApplicationJson = {
+  data: PostApiPremiumSubscriptionProductSlugPlaystore401One
+  status: 401
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse401TextPlain = {
+  data: string
+  status: 401
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse403 = {
+  data: void
+  status: 403
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse428TextPlain = {
+  data: ProblemDetails
+  status: 428
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse428ApplicationJson = {
+  data: ProblemDetails
+  status: 428
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse428TextJson = {
+  data: ProblemDetails
+  status: 428
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse503TextPlain = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse503ApplicationJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse503TextJson = {
+  data: ErrorResponse
+  status: 503
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponseSuccess = (postApiPremiumSubscriptionProductSlugPlaystoreResponse200TextPlain | postApiPremiumSubscriptionProductSlugPlaystoreResponse200ApplicationJson | postApiPremiumSubscriptionProductSlugPlaystoreResponse200TextJson) & {
+  headers: Headers;
+};
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponseError = (postApiPremiumSubscriptionProductSlugPlaystoreResponse400TextPlain | postApiPremiumSubscriptionProductSlugPlaystoreResponse400ApplicationJson | postApiPremiumSubscriptionProductSlugPlaystoreResponse400TextJson | postApiPremiumSubscriptionProductSlugPlaystoreResponse401ApplicationJson | postApiPremiumSubscriptionProductSlugPlaystoreResponse401TextPlain | postApiPremiumSubscriptionProductSlugPlaystoreResponse403 | postApiPremiumSubscriptionProductSlugPlaystoreResponse428TextPlain | postApiPremiumSubscriptionProductSlugPlaystoreResponse428ApplicationJson | postApiPremiumSubscriptionProductSlugPlaystoreResponse428TextJson | postApiPremiumSubscriptionProductSlugPlaystoreResponse503TextPlain | postApiPremiumSubscriptionProductSlugPlaystoreResponse503ApplicationJson | postApiPremiumSubscriptionProductSlugPlaystoreResponse503TextJson) & {
+  headers: Headers;
+};
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreResponse = (postApiPremiumSubscriptionProductSlugPlaystoreResponseSuccess | postApiPremiumSubscriptionProductSlugPlaystoreResponseError)
+
+export const getPostApiPremiumSubscriptionProductSlugPlaystoreUrl = (productSlug: string,) => {
+
+
+
+
+  return `https://sky.coflnet.com/api/premium/subscription/${productSlug}/playstore`
+}
+
+/**
+ * @summary Checks whether the signed-in user can start a Google Play subscription.
+ */
+export const postApiPremiumSubscriptionProductSlugPlaystore = async (productSlug: string, options?: RequestInit): Promise<postApiPremiumSubscriptionProductSlugPlaystoreResponse> => {
+
+  const res = await fetch(getPostApiPremiumSubscriptionProductSlugPlaystoreUrl(productSlug),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postApiPremiumSubscriptionProductSlugPlaystoreResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as postApiPremiumSubscriptionProductSlugPlaystoreResponse
+}
+
+
+
+
+
+export const getPostApiPremiumSubscriptionProductSlugPlaystoreMutationOptions = <TError = ErrorResponse | PostApiPremiumSubscriptionProductSlugPlaystore401One | string | void | ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionProductSlugPlaystore>>, TError,{productSlug: string}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionProductSlugPlaystore>>, TError,{productSlug: string}, TContext> => {
+
+const mutationKey = ['postApiPremiumSubscriptionProductSlugPlaystore'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPremiumSubscriptionProductSlugPlaystore>>, {productSlug: string}> = (props) => {
+          const {productSlug} = props ?? {};
+
+          return  postApiPremiumSubscriptionProductSlugPlaystore(productSlug,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiPremiumSubscriptionProductSlugPlaystoreMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPremiumSubscriptionProductSlugPlaystore>>>
+
+    export type PostApiPremiumSubscriptionProductSlugPlaystoreMutationError = ErrorResponse | PostApiPremiumSubscriptionProductSlugPlaystore401One | string | void | ProblemDetails
+
+    /**
+ * @summary Checks whether the signed-in user can start a Google Play subscription.
+ */
+export const usePostApiPremiumSubscriptionProductSlugPlaystore = <TError = ErrorResponse | PostApiPremiumSubscriptionProductSlugPlaystore401One | string | void | ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionProductSlugPlaystore>>, TError,{productSlug: string}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiPremiumSubscriptionProductSlugPlaystore>>,
+        TError,
+        {productSlug: string},
+        TContext
+      > => {
+      return useMutation(getPostApiPremiumSubscriptionProductSlugPlaystoreMutationOptions(options), queryClient);
+    }
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse200TextPlain = {
+  data: GooglePlaySubscriptionResult
+  status: 200
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse200ApplicationJson = {
+  data: GooglePlaySubscriptionResult
+  status: 200
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse200TextJson = {
+  data: GooglePlaySubscriptionResult
+  status: 200
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse400TextPlain = {
+  data: GooglePlaySubscriptionResult
+  status: 400
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse400ApplicationJson = {
+  data: GooglePlaySubscriptionResult
+  status: 400
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse400TextJson = {
+  data: GooglePlaySubscriptionResult
+  status: 400
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse409TextPlain = {
+  data: GooglePlaySubscriptionResult
+  status: 409
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse409ApplicationJson = {
+  data: GooglePlaySubscriptionResult
+  status: 409
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse409TextJson = {
+  data: GooglePlaySubscriptionResult
+  status: 409
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse429TextPlain = {
+  data: GooglePlaySubscriptionResult
+  status: 429
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse429ApplicationJson = {
+  data: GooglePlaySubscriptionResult
+  status: 429
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse429TextJson = {
+  data: GooglePlaySubscriptionResult
+  status: 429
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse503TextPlain = {
+  data: GooglePlaySubscriptionResult
+  status: 503
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse503ApplicationJson = {
+  data: GooglePlaySubscriptionResult
+  status: 503
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse503TextJson = {
+  data: GooglePlaySubscriptionResult
+  status: 503
+}
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponseSuccess = (postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse200TextPlain | postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse200ApplicationJson | postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse200TextJson) & {
+  headers: Headers;
+};
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponseError = (postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse400TextPlain | postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse400ApplicationJson | postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse400TextJson | postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse409TextPlain | postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse409ApplicationJson | postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse409TextJson | postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse429TextPlain | postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse429ApplicationJson | postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse429TextJson | postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse503TextPlain | postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse503ApplicationJson | postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse503TextJson) & {
+  headers: Headers;
+};
+
+export type postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse = (postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponseSuccess | postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponseError)
+
+export const getPostApiPremiumSubscriptionProductSlugPlaystoreCompleteUrl = (productSlug: string,) => {
+
+
+
+
+  return `https://sky.coflnet.com/api/premium/subscription/${productSlug}/playstore/complete`
+}
+
+/**
+ * @summary Verifies a Google Play subscription without requiring login. Google Play supplies the buyer and plan.
+ */
+export const postApiPremiumSubscriptionProductSlugPlaystoreComplete = async (productSlug: string,
+    playSubscriptionPurchase?: PlaySubscriptionPurchase, options?: RequestInit): Promise<postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse> => {
+
+  const res = await fetch(getPostApiPremiumSubscriptionProductSlugPlaystoreCompleteUrl(productSlug),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(playSubscriptionPurchase)
+  }
+)
+
+  const contentType = (res.headers.get('content-type') ?? '').toLowerCase();
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+
+  const data: postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse['data'] = parseGeneratedResponseBody(body)
+  return { data, status: res.status, headers: res.headers } as postApiPremiumSubscriptionProductSlugPlaystoreCompleteResponse
+}
+
+
+
+
+
+export const getPostApiPremiumSubscriptionProductSlugPlaystoreCompleteMutationOptions = <TError = GooglePlaySubscriptionResult,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionProductSlugPlaystoreComplete>>, TError,{productSlug: string;data?: PlaySubscriptionPurchase}, TContext>, fetch?: RequestInit}
+): UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionProductSlugPlaystoreComplete>>, TError,{productSlug: string;data?: PlaySubscriptionPurchase}, TContext> => {
+
+const mutationKey = ['postApiPremiumSubscriptionProductSlugPlaystoreComplete'];
+const {mutation: mutationOptions, fetch: fetchOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, fetch: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPremiumSubscriptionProductSlugPlaystoreComplete>>, {productSlug: string;data?: PlaySubscriptionPurchase}> = (props) => {
+          const {productSlug,data} = props ?? {};
+
+          return  postApiPremiumSubscriptionProductSlugPlaystoreComplete(productSlug,data,fetchOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PostApiPremiumSubscriptionProductSlugPlaystoreCompleteMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPremiumSubscriptionProductSlugPlaystoreComplete>>>
+    export type PostApiPremiumSubscriptionProductSlugPlaystoreCompleteMutationBody = PlaySubscriptionPurchase | undefined
+    export type PostApiPremiumSubscriptionProductSlugPlaystoreCompleteMutationError = GooglePlaySubscriptionResult
+
+    /**
+ * @summary Verifies a Google Play subscription without requiring login. Google Play supplies the buyer and plan.
+ */
+export const usePostApiPremiumSubscriptionProductSlugPlaystoreComplete = <TError = GooglePlaySubscriptionResult,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiPremiumSubscriptionProductSlugPlaystoreComplete>>, TError,{productSlug: string;data?: PlaySubscriptionPurchase}, TContext>, fetch?: RequestInit}
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof postApiPremiumSubscriptionProductSlugPlaystoreComplete>>,
+        TError,
+        {productSlug: string;data?: PlaySubscriptionPurchase},
+        TContext
+      > => {
+      return useMutation(getPostApiPremiumSubscriptionProductSlugPlaystoreCompleteMutationOptions(options), queryClient);
     }
 
 export type getApiItemPriceItemTagResponse200TextPlain = {
