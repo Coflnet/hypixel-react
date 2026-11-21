@@ -70,4 +70,5 @@ server=$!
 trap 'kill "$server" 2>/dev/null || true' EXIT  # replaces the build's trap, which already ran
 wait_for_server
 
-env -u ELECTRON_RUN_AS_NODE npx cypress run --config "baseUrl=http://localhost:$port" "$@"
+# Cypress reads every CYPRESS_* variable as its own config: CYPRESS_PORT would move its proxy onto the server's port
+env -u ELECTRON_RUN_AS_NODE -u CYPRESS_PORT npx cypress run --config "baseUrl=http://localhost:$port" "$@"

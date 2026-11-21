@@ -15,7 +15,7 @@ export interface WizardOption<T extends string | number> {
     price?: ReactNode
     /** the price before a discount, struck through beside `price` */
     originalPrice?: ReactNode
-    /** e.g. "per month"; shown small under the price */
+    /** e.g. "per month", or the charged total under a 4-week average; shown under the price */
     unit?: ReactNode
     /** a full-width line under the row (features, "Cannot downgrade") */
     footer?: ReactNode
@@ -40,9 +40,9 @@ interface RowProps<T extends string | number> {
 
 /**
  * The price before a discount, struck through. It follows the price in the text, so screen readers (which do not read the
- * strike) hear "€8.65 instead of €11.53"; the layout shows it first.
+ * strike) hear "€8.65 instead of €11.53"; a flex layout shows it first.
  */
-function StruckOriginal({ original }: { original: ReactNode }) {
+export function StruckOriginal({ original }: { original: ReactNode }) {
     if (original == null) return null
     return (
         <span className={styles.originalWrap}>
