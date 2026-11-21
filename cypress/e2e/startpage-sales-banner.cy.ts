@@ -1,4 +1,5 @@
 import { recordHydrationErrors } from '../support/hydrationErrors'
+import { playContext } from '../support/playContext'
 
 // The start page's sale banner: the automatic promotion of the visitor's country (GET /api/premium/discount/auto), no code needed.
 
@@ -28,8 +29,8 @@ function stubSale(promotion: object | null = blackweek) {
     cy.intercept('GET', '**/api/prices/change*', [])
 }
 
-function visitStartPage(onBeforeLoad?: (window: Cypress.AUTWindow) => void) {
-    cy.visit('/', {
+function visitStartPage(onBeforeLoad?: (window: Cypress.AUTWindow) => void, path = '/') {
+    cy.visit(path, {
         onBeforeLoad(window) {
             window.localStorage.clear()
             window.sessionStorage.clear()
@@ -39,6 +40,14 @@ function visitStartPage(onBeforeLoad?: (window: Cypress.AUTWindow) => void) {
 }
 
 describe('Start page sale banner', () => {
+    it('hides the subscription sale from the Play app', () => {
+        stubSale()
+        cy.intercept('GET', '**/api/data/updates/*/*', { body: [{ content: 'Latest update from the test feed' }] })
+        visitStartPage(window => playContext(window))
+        cy.contains('Latest update from the test feed').should('be.visible')
+        cy.get('[data-testid="promotion-banner"], [data-testid="promotion-banner-placeholder"]').should('not.exist')
+    })
+
     it('advertises the running promotion and links to the plans without a code', () => {
         const hydrationErrors = recordHydrationErrors()
         stubSale()
@@ -87,4 +96,18 @@ describe('Start page sale banner', () => {
         cy.contains('a', 'Summer CoflCoins Sale').should('be.visible')
         cy.get('[data-testid="promotion-banner"]').should('not.exist')
     })
+})
+
+describe('Sale notes on locked flips', () => {
+    for (const enabled of [true, false]) {
+        it(`${enabled ? 'hides' : 'keeps'} the discount note in the app with the rollout ${enabled ? 'on' : 'off'}`, () => {
+            stubSale()
+            cy.intercept('GET', '**/api/flip/bazaar/spread', { body: [{ itemName: 'Stone', flip: { itemTag: 'STONE', profitPerHour: 50_000 } }] })
+            visitStartPage(window => playContext(window, enabled), '/bazaar')
+            cy.get('[aria-label="Get Starter Premium"]').should('exist')
+            cy.wait(['@promotion', '@providers'])
+            if (enabled) cy.get('[data-testid="flip-promotion-note"]').should('not.exist')
+            else cy.get('[data-testid="flip-promotion-note"]').should('contain.text', 'Blackweek sale')
+        })
+    }
 })

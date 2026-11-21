@@ -1,4 +1,6 @@
 import { PREMIUM_EXPERIMENT, PremiumVariant, resolvePremiumVariant } from '../../utils/PremiumExperiment'
+import { recordHydrationErrors } from '../support/hydrationErrors'
+import { ANDROID_USER_AGENT, playContext } from '../support/playContext'
 
 // The /premium A/B test: the current page (control) and the redesign ("new"), plus the redesign's feature explorer,
 // clip player, comparison previews and plan buttons.
@@ -780,14 +782,6 @@ describe('Google Play subscription checkout', () => {
         signature: 'test-signature'
     }
 
-    function playContext(window: Cypress.AUTWindow, enabled = true, app = true) {
-        Object.assign(window, { __playSubscriptionsEnabled: enabled })
-        if (app) {
-            Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 (Linux; Android 15) Chrome/131.0' })
-            Object.defineProperty(window.document, 'referrer', { value: 'android-app://com.coflnet.sky' })
-        }
-    }
-
     function visitPlayCheckout(path = '/premium', loggedIn = true) {
         visitNewPage(path, loggedIn, window => {
             playContext(window)
@@ -801,23 +795,55 @@ describe('Google Play subscription checkout', () => {
 
     it('keeps the existing wizard in the Android app with the rollout off', () => {
         stubAccount()
-        visitNewPage('/premium?premiumVariant=new&playUpdate=1', true, window => playContext(window, false))
+        visitNewPage('/premium?premiumVariant=new&playUpdate=1', true, window => playContext(window, false, 'standalone'))
         cy.get('[data-testid="premium-wizard"]').should('be.visible')
-        cy.contains('Update the app from Google Play to subscribe').should('not.exist')
+        cy.get('[data-testid="premium-web-checkout"]').should('not.exist')
+        cy.contains('a', 'Pay on the website instead').should('not.exist')
         cy.contains('button', 'Buy with Google Play').should('not.exist')
+    })
+
+    it('server-renders the web checkout for Android visitors and the mobile Googlebot', () => {
+        requestAs(ANDROID_USER_AGENT, '/premium?premiumVariant=new&playUpdate=1').its('body').should('match', /<h1[^>]*>Get Flips Before Everyone Else/)
+        requestAs(`${ANDROID_USER_AGENT} ${GOOGLEBOT}`, '/premium?playUpdate=1').its('body').should('match', /<h2[^>]*>Features<\/h2>/)
+    })
+
+    for (const context of ['browser', 'android'] as const) {
+        it(`ignores the Play update URL in the ${context} browser`, () => {
+            stubAccount()
+            visitNewPage('/premium?premiumVariant=new&playUpdate=1', true, window => playContext(window, true, context))
+            cy.get('[data-testid="premium-web-checkout"]').should('be.visible')
+            cy.get('[data-testid="premium-wizard"]').should('be.visible')
+            cy.contains('a', 'Update or install the app from Google Play').should('not.exist')
+            cy.contains('button', 'Buy with Google Play').should('not.exist')
+        })
+    }
+
+    it('ships the standalone hiding rule with the web checkout', () => {
+        visitNewPage('/premium', false, window => playContext(window, true, 'browser'))
+        cy.get('[data-testid="premium-web-checkout"]').should('be.visible').then(elements => {
+            const checkout = elements[0]
+            const { ownerDocument } = checkout
+            const stylesheets = Array.from(ownerDocument.styleSheets).filter(sheet => !sheet.href || new URL(sheet.href).origin === ownerDocument.location.origin)
+            const rules = stylesheets.flatMap(sheet => Array.from(sheet.cssRules)).filter(rule => rule.type === CSSRule.MEDIA_RULE) as CSSMediaRule[]
+            const standaloneRules = rules.filter(rule => rule.conditionText === '(display-mode: standalone)').flatMap(rule => Array.from(rule.cssRules))
+            const hidesCheckout = standaloneRules.some(rule => rule.type === CSSRule.STYLE_RULE
+                && checkout.matches((rule as CSSStyleRule).selectorText) && (rule as CSSStyleRule).style.display === 'none')
+            expect(hidesCheckout).to.equal(true)
+        })
     })
 
     it('prepares the selected plan, shows its account and offers the signed intent as a second tap', () => {
         stubAccount()
-        cy.clock(checkoutTime, ['Date'])
+        // The signed expiry is already in the past on this device.
+        cy.clock(checkoutTime + 660_000, ['Date'])
         cy.intercept('POST', '**/api/premium/subscription/l_prem_plus/playstore', { body: signedCheckout }).as('playStart')
         visitPlayCheckout('/premium?premiumVariant=new&tier=premium_plus&code=WEB')
         cy.wait(['@products', '@subscriptions'])
         cy.get('#play-subscription-tier option:enabled').should('have.length', 2)
         cy.get('#play-subscription-tier').should('have.value', 'l_prem_plus')
         cy.get('#buyPremium').should('contain', 'every 4 weeks').and('contain', 'Google Play shows the final price before you pay')
-        cy.get('#plans').should('contain', 'creator and discount codes').and('contain', 'Premium for friends').and('not.contain', 'VAT').and('not.contain', '€')
-        cy.get('[data-testid="purchase-declaration"], [data-testid="premium-wizard"]').should('not.exist')
+        cy.get('#plans').should('contain', 'creator and discount codes').and('not.contain', 'VAT').and('not.contain', '€')
+        cy.get('#plans').find('[data-testid="purchase-declaration"], [data-testid="premium-wizard"]').should('not.exist')
         cy.contains('a', 'Continue to Google Play').should('not.exist')
         buyWithPlay().click()
         cy.wait('@playStart').its('request.headers.googletoken').should('equal', googleToken)
@@ -836,6 +862,13 @@ describe('Google Play subscription checkout', () => {
             expect(events).not.to.contain(signedCheckout.obfuscatedAccountId)
             expect(events).not.to.contain(signedCheckout.accountLabel)
         })
+        // Observe the valid click after the progress listener, then stop the test browser opening the intent.
+        cy.document().then(document => document.addEventListener('click', event => {
+            expect(event.defaultPrevented).to.equal(false)
+            event.preventDefault()
+        }, { once: true }))
+        cy.contains('a', 'Continue to Google Play').click()
+        cy.get('#nprogress').should('not.exist')
         cy.get('#play-subscription-tier').select('l_premium')
         cy.contains('a', 'Continue to Google Play').should('not.exist')
         buyWithPlay().should('be.enabled')
@@ -845,16 +878,22 @@ describe('Google Play subscription checkout', () => {
         stubAccount()
         cy.clock(checkoutTime, ['Date'])
         cy.intercept('POST', '**/api/premium/subscription/l_prem_plus/playstore', { body: signedCheckout }).as('playStart')
-        visitPlayCheckout('/premium?tier=premium_plus')
+        visitNewPage('/premium?tier=premium_plus', true, window => {
+            playContext(window)
+            cy.stub(window, 'open').as('openPlay')
+            cy.stub(window.performance, 'now').callsFake(() => window.Date.now() - checkoutTime)
+        })
         cy.wait(['@products', '@subscriptions'])
         buyWithPlay().click()
         cy.wait('@playStart')
         cy.contains('a', 'Continue to Google Play').should('be.visible')
-        cy.tick(600_000)
+        cy.tick(540_000)
         const wasPrevented = cy.spy((event: MouseEvent) => event.defaultPrevented)
         cy.document().then(document => document.addEventListener('click', wasPrevented, { once: true }))
         cy.contains('a', 'Continue to Google Play').click()
         cy.wrap(wasPrevented).should('have.returned', true)
+        cy.get('#nprogress').should('not.exist')
+        cy.contains('This Google Play link expired. Please try again.').should('be.visible')
         cy.contains('a', 'Continue to Google Play').should('not.exist')
         buyWithPlay().should('be.enabled')
         cy.location('pathname').should('equal', '/premium')
@@ -865,6 +904,21 @@ describe('Google Play subscription checkout', () => {
         buyWithPlay().click()
         cy.wait('@freshPlayStart')
         cy.contains('a', 'Continue to Google Play').should('be.visible')
+    })
+
+    it('leaves the top loading bar idle for a cancelled HTTP link', () => {
+        visitPlayCheckout('/premium', false)
+        buyWithPlay().should('be.visible')
+        cy.document().then(document => {
+            const link = document.createElement('a')
+            link.href = '/cancel'
+            link.textContent = 'Cancelled test navigation'
+            link.addEventListener('click', event => event.preventDefault())
+            document.querySelector('#buyPremium')!.append(link)
+        })
+        cy.contains('a', 'Cancelled test navigation').click()
+        cy.location('pathname').should('equal', '/premium')
+        cy.get('#nprogress').should('not.exist')
     })
 
     it('discards a response for a plan changed while the request was pending', () => {
@@ -909,18 +963,57 @@ describe('Google Play subscription checkout', () => {
         cy.get('@playRequest').should('not.have.been.called')
     })
 
-    it('shows the store update link on the fallback URL', () => {
-        visitPlayCheckout('/premium?playUpdate=1')
-        cy.contains('Update the app from Google Play to subscribe').should('be.visible')
-        cy.contains('a', 'Open Google Play').should('have.attr', 'href', 'https://play.google.com/store/apps/details?id=com.coflnet.sky')
+    it('offers Google Play and the web checkout on the standalone update page', () => {
+        const hydrationErrors = recordHydrationErrors()
+        stubAccount()
+        visitNewPage('/premium?playUpdate=1', true, window => playContext(window, true, 'standalone'))
+        cy.contains('a', 'Update or install the app from Google Play')
+            .should('be.visible').and('have.attr', 'href', 'https://play.google.com/store/apps/details?id=com.coflnet.sky')
         cy.get('#buyPremium').should('not.exist')
+        cy.contains('a', 'Pay on the website instead').should('have.attr', 'href', '/premium?playUpdate=1&web=1').click()
+        cy.location('search').should('equal', '?playUpdate=1&web=1')
+        cy.get('[data-testid="premium-wizard"]').should('be.visible')
+        cy.contains('button', 'Buy with Google Play').should('not.exist')
+        cy.wrap(hydrationErrors).should('be.empty')
+    })
+
+    it('keeps the prepaid CoflCoins checkout in Play mode without showing website prices or methods', () => {
+        stubAccount()
+        stubGoogleIdentity()
+        cy.intercept('POST', '**/api/topup/rates', { body: { products: [] } })
+        cy.intercept('POST', '**/api/service/purchase', { statusCode: 200, body: {} }).as('coinsCheckout')
+        visitPlayCheckout()
+        cy.contains('h2', 'Pay with CoflCoins').should('be.visible')
+        cy.get('[data-testid="premium-wizard"]').should('not.contain.text', '€')
+        cy.get('#coflcoins-purchase').within(() => {
+            cy.contains('Choose CoflCoin Amount').should('be.visible')
+            cy.contains(/From €/).should('not.exist')
+            cy.contains('.card-title', /^1,800$/).click()
+            cy.contains('.card-title', /^1,800 CoflCoins$/).should('be.visible')
+            cy.contains('Buy with Google Play').should('be.visible')
+            cy.contains(/Buy with PayPal|Buy with other payment methods|Continue to payment/).should('not.exist')
+            cy.contains(/From €/).should('not.be.visible')
+            cy.get('[placeholder="Enter discount code"]').should('not.be.visible')
+        })
+        cy.get('[data-testid="premium-wizard"]').contains('[data-testid="wizard-option-title"]', /^Premium$/).click()
+        cy.get('[data-testid="premium-wizard"]').contains('[data-testid="wizard-option-title"]', /^Subscription$/).should('not.exist')
+        cy.get('[data-testid="premium-wizard"]').contains('[data-testid="wizard-option-title"]', /^CoflCoins$/).click()
+        cy.get('[data-testid="premium-wizard"]').contains('[data-testid="wizard-option-title"]', 'Just for me').click()
+        cy.get('[data-testid="premium-wizard"]').should('not.contain.text', '€')
+        cy.get('[data-testid="premium-wizard"]').contains('[data-testid="wizard-option-title"]', '1 Month').click()
+        cy.contains('button', /Purchase for .* CoflCoins/).click()
+        cy.contains('button', 'Confirm Google identity').click()
+        cy.get('#premium-early-start-declaration').check()
+        cy.contains('button', 'Buy now for').click()
+        cy.wait('@coinsCheckout').its('request.body').should('include', { slug: 'premium', count: 1 })
+        cy.contains('Purchase successful').should('be.visible')
     })
 
     for (const scenario of [
         {
             name: 'an existing subscription and its provider',
             reply: { statusCode: 400, body: { slug: 'active_subscription', message: 'You already have an active subscription. The blocking subscription is billed by paypal.' } },
-            message: 'The blocking subscription is billed by paypal'
+            message: 'You already have an active subscription billed by PayPal.'
         },
         { name: 'a temporary outage', reply: { statusCode: 503, body: {} }, message: 'Please try again later' },
         { name: 'a network failure', reply: { forceNetworkError: true }, message: 'Please try again later' }
@@ -965,7 +1058,7 @@ describe('Google Play subscription checkout', () => {
             statusCode: 400,
             body: { slug: 'active_play_subscription' }
         }).as('websiteCheckout')
-        visitNewPage('/premium?premiumVariant=new&tier=premium', true, window => playContext(window, true, false))
+        visitNewPage('/premium?premiumVariant=new&tier=premium', true, window => playContext(window, true, 'browser'))
         cy.get('#buyPremium').contains('[data-testid="wizard-option-title"]', /^Subscription$/).click()
         cy.get('#buyPremium').contains('[data-testid="wizard-option-title"]', 'Just for me').click()
         cy.get('#buyPremium').contains('[data-testid="wizard-option-title"]', /^4 weeks$/).click()
@@ -979,9 +1072,19 @@ describe('Google Play subscription checkout', () => {
         visitPlayCheckout('/success#billing_success_l_premium', false)
         cy.contains('Premium subscription through Google Play').should('be.visible')
         visitPlayCheckout('/cancel#billing_error_l_prem_plus_Purchase%20canceled%20by%20user', false)
-        cy.contains('Premium+ subscription purchase canceled').should('be.visible')
-        cy.contains('Purchase canceled by user').should('be.visible')
-        visitPlayCheckout('/premium#billing_error_l_prem_plus_Could%20not%20open%20billing', false)
-        cy.contains('Your Premium+ subscription purchase could not be completed. Could not open billing').should('be.visible')
+        cy.contains('h2', 'Premium+ subscription purchase').should('be.visible')
+        cy.contains('The purchase was cancelled.').should('be.visible')
+        visitPlayCheckout('/premium#billing_error_l_prem_plus_This%20subscription%20belongs%20to%20a%20different%20SkyCofl%20account', false)
+        cy.contains('[role="alert"]', 'belong to another SkyCofl account').should('be.visible')
+        cy.window().then(window => { window.location.hash = '#billing_error_l_prem_plus_Subscription%20confirmation%20will%20be%20retried' })
+        cy.contains('[role="alert"]', 'Your payment is processing.').should('be.visible').and('not.contain.text', 'could not be completed')
+        cy.window().then(window => { window.location.hash = '#billing_error_l_prem_plus_Arbitrary%20payment%20instructions' })
+        cy.contains('[role="alert"]', 'Google Play reported a checkout problem.').should('be.visible')
+        cy.contains('Arbitrary payment instructions').should('not.exist')
+        visitNewPage('/premium?premiumVariant=new#billing_error_l_prem_plus_Arbitrary%20payment%20instructions', false,
+            window => playContext(window, true, 'android'))
+        cy.contains(NEW_PAGE_TITLE).should('be.visible')
+        cy.contains('[role="alert"]', 'Google Play reported a checkout problem.').should('be.visible')
+        cy.contains('Arbitrary payment instructions').should('not.exist')
     })
 })

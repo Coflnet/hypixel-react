@@ -22,14 +22,14 @@ const { buildPlaySubscriptionIntent, getInitialPlayPlan, getPlayPurchaseMode, ge
     }
 )
 
-test('only the enabled Android app offers Play checkout, and the update URL shows the fallback', () => {
-    assert.equal(getPlayPurchaseMode(false, false, false), 'web')
-    assert.equal(getPlayPurchaseMode(false, true, false), 'web')
-    assert.equal(getPlayPurchaseMode(false, true, true), 'web')
-    assert.equal(getPlayPurchaseMode(true, false, false), 'web')
-    assert.equal(getPlayPurchaseMode(true, true, false), 'play')
-    assert.equal(getPlayPurchaseMode(true, true, true), 'update')
-    assert.equal(getPlayPurchaseMode(true, false, true), 'update')
+test('only Play mode honours the update URL and only that URL allows the web override', () => {
+    for (const update of [false, true]) {
+        for (const web of [false, true]) assert.equal(getPlayPurchaseMode(false, update, web), 'web')
+    }
+    assert.equal(getPlayPurchaseMode(true, false, false), 'play')
+    assert.equal(getPlayPurchaseMode(true, false, true), 'play')
+    assert.equal(getPlayPurchaseMode(true, true, false), 'update')
+    assert.equal(getPlayPurchaseMode(true, true, true), 'web')
 })
 
 test('Play starts on a personal four-week plan and requires a new choice for Starter or slots links', () => {
@@ -41,13 +41,13 @@ test('Play starts on a personal four-week plan and requires a new choice for Sta
     assert.equal(getInitialPlayPlan(PremiumTier.PREMIUM_PLUS, true), '')
 })
 
-test('Play checkout expires at the signed Unix second', () => {
-    const expiresAt = 1795280000
-    const boundary = 1795280000000
-    assert.equal(isPlayCheckoutExpired(expiresAt, boundary - 1), false)
-    assert.equal(isPlayCheckoutExpired(expiresAt, boundary), true)
-    assert.equal(isPlayCheckoutExpired(expiresAt, boundary + 1), true)
-    assert.equal(isPlayCheckoutExpired(undefined, boundary), true)
+test('Play checkout expires nine minutes after receipt on the monotonic clock', () => {
+    const receivedAt = 12_345
+    const boundary = receivedAt + 540_000
+    assert.equal(isPlayCheckoutExpired(receivedAt, receivedAt), false)
+    assert.equal(isPlayCheckoutExpired(receivedAt, boundary - 1), false)
+    assert.equal(isPlayCheckoutExpired(receivedAt, boundary), true)
+    assert.equal(isPlayCheckoutExpired(receivedAt, boundary + 1), true)
 })
 
 test('the signed Play checkout encodes each query value and the full browser fallback', () => {
@@ -70,20 +70,32 @@ test('Play start errors distinguish login, terms, active subscriptions, unavaila
     assert.equal(getPlayCheckoutError(401).kind, 'signIn')
     assert.equal(getPlayCheckoutError(403).kind, 'signIn')
     assert.equal(getPlayCheckoutError(428).kind, 'terms')
-    const active = { slug: 'active_subscription', message: 'You already have an active subscription in this plan’s line. The blocking subscription is billed by stripe.' }
-    assert.equal(getPlayCheckoutError(400, active).message, active.message)
+    for (const [slug, provider] of [['stripe', 'Stripe'], ['paypal', 'PayPal'], ['lemonsqueezy', 'Lemon Squeezy'], ['googleplay', 'Google Play']]) {
+        const active = { slug: 'active_subscription', message: `The blocking subscription is billed by ${slug}.` }
+        assert.equal(getPlayCheckoutError(400, active).message, `You already have an active subscription billed by ${provider}.`)
+    }
+    assert.equal(getPlayCheckoutError(400, { slug: 'active_subscription', message: 'The blocking subscription is billed by private_slug.' }).message, 'You already have an active subscription.')
     assert.equal(getPlayCheckoutError(400, { slug: 'active_subscription' }).message, 'You already have an active subscription.')
     assert.match(getPlayCheckoutError(400, { slug: 'plan_unavailable' }).message, /plan is unavailable/)
     assert.match(getPlayCheckoutError(503, { message: 'private diagnostic' }).message, /try again later/)
     assert.match(getPlayCheckoutError().message, /try again later/)
 })
 
-test('Android result hashes preserve full subscription slugs and decode the error message once', () => {
+test('Android result hashes preserve full subscription slugs and map known failures to fixed copy', () => {
     assert.equal(getPlaySubscriptionResult('#billing_success_l_premium', false).slug, 'l_premium')
     assert.equal(getPlaySubscriptionResult('#billing_success_l_prem_plus', false).slug, 'l_prem_plus')
-    const failure = getPlaySubscriptionResult('#billing_error_l_prem_plus_Test_error%20%26%20%23', true)
-    assert.equal(failure.slug, 'l_prem_plus')
-    assert.equal(failure.error, 'Test_error & #')
+    const error = value => getPlaySubscriptionResult(`#billing_error_l_prem_plus_${value}`, true)
+    const cancelled = error('Purchase%20canceled%20by%20user')
+    assert.equal(cancelled.slug, 'l_prem_plus')
+    assert.equal(cancelled.error, 'The purchase was cancelled.')
+    assert.match(error('Item%20already%20owned').error, /already be active/)
+    assert.match(error('This%20subscription%20belongs%20to%20a%20different%20SkyCofl%20account').error, /another SkyCofl account/)
+    assert.match(error('Subscription%20confirmation%20will%20be%20retried').error, /payment is processing/)
+    assert.match(error('Could%20not%20securely%20save%20the%20subscription%20for%20confirmation').error, /payment is processing/)
+    const generic = 'Google Play reported a checkout problem. Check your purchases in Google Play before trying again.'
+    assert.equal(error('Arbitrary_text%20%26%20%23').error, generic)
+    assert.equal(error('%E0%A4%A').error, generic)
+    assert.equal(error('Purchase%2520canceled%2520by%2520user').error, generic)
     assert.equal(getPlaySubscriptionResult('#billing_success_ps_cc_1800', false), null)
     assert.equal(getPlaySubscriptionResult('#billing_error_ps_cc_1800_Problem', true), null)
     assert.equal(getPlaySubscriptionResult('#billing_success_l_premium-year', false), null)

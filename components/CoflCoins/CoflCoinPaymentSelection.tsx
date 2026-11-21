@@ -37,9 +37,10 @@ interface Props {
     loadingProductId: string
     isGooglePlayAvailable?: boolean
     isAndroidApp?: boolean
+    playApp: boolean
 }
 
-function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoins, onPayPalPay, onStripePay, onLemonSqueezyPay, onGooglePlayPay, loadingProductId, isGooglePlayAvailable, isAndroidApp }: Props) {
+function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoins, onPayPalPay, onStripePay, onLemonSqueezyPay, onGooglePlayPay, loadingProductId, isGooglePlayAvailable, isAndroidApp, playApp }: Props) {
     const [creatorCode, setCreatorCode] = useState('')
     const [isLoadingPrices, setIsLoadingPrices] = useState(false)
     const [pricingData, setPricingData] = useState<BatchProductPricingResponse | null>(null)
@@ -284,7 +285,7 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                                 Current balance: <Number number={coflCoins} /> coins
                             </p>
                         </div>
-                        <div style={{ textAlign: 'right' }}>
+                        <div style={{ textAlign: 'right' }} hidden={playApp}>
                             <div style={{ fontSize: '1.3rem', fontWeight: '600', color: '#20c997' }}>From €{selectedOption.stripePrice.toFixed(2)}</div>
                             <div style={{ fontSize: '0.85rem', color: '#adb5bd' }}>
                                 €{(selectedOption.stripePrice / selectedOption.amount).toFixed(4)} per coin
@@ -348,7 +349,7 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                     googlePlayDiscount={discountMultipliers.googlepay}
                     currencyCode={currencyCode}
                 />
-                <div>
+                <div hidden={playApp}>
                     {/* Creator Code Input Card */}
                     <Card style={{ backgroundColor: '#2a3644', border: '1px solid #495057', height: 'fit-content' }}>
                         <Card.Header>

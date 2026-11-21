@@ -10,10 +10,10 @@ export default function PlaySubscriptionResult({ children }: { children: ReactNo
     if (!result) return children
     return (
         <>
-            <h2>{getPlaySubscriptionLabel(result.slug)} subscription purchase canceled</h2>
+            <h2>{getPlaySubscriptionLabel(result.slug)} subscription purchase</h2>
             <p>{result.error}</p>
             <p>
-                <Link href="/premium">Return to Premium to try again</Link>
+                <Link href="/premium">Return to Premium</Link>
             </p>
         </>
     )

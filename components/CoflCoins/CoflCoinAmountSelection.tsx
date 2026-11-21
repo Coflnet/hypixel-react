@@ -4,7 +4,6 @@ import { Card, Button, Form, InputGroup, Alert } from 'react-bootstrap'
 import Number from '../Number/Number'
 import styles from './CoflCoinsPurchase.module.css'
 import NumberElement from '../Number/Number'
-import { isAndroidApp as detectAndroidApp } from '../../utils/AndroidApp'
 
 interface CoflCoinOption {
     amount: number
@@ -24,6 +23,8 @@ interface Props {
     onAmountSelected: (option: CoflCoinOption) => void
     coflCoins: number
     userCountryCode?: string
+    isAndroidApp: boolean
+    playApp: boolean
 }
 
 const coflCoinOptions: CoflCoinOption[] = [
@@ -84,14 +85,11 @@ function calculateSavings(baseOption: CoflCoinOption, currentOption: CoflCoinOpt
     return ((basePricePerCoin - currentPricePerCoin) / basePricePerCoin) * 100
 }
 
-function CoflCoinAmountSelection({ onAmountSelected, coflCoins, userCountryCode }: Props) {
+function CoflCoinAmountSelection({ onAmountSelected, coflCoins, userCountryCode, isAndroidApp, playApp }: Props) {
     const [selectedOption, setSelectedOption] = useState<CoflCoinOption | null>(null)
     const [customAmount, setCustomAmount] = useState<string>('')
     const [showCustomInput, setShowCustomInput] = useState(false)
     const baseOption = coflCoinOptions[0]
-
-    // Check if running in Android app (TWA or standalone mode)
-    const isAndroidApp = detectAndroidApp()
 
     // Check if user needs specific amount to make their coins divisible by 1800
     const remainder = coflCoins % 1800
@@ -222,13 +220,13 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins, userCountryCode 
                             <Card.Header className="position-relative">
                                 <Card.Title>{isCustom ? 'Custom Amount' : <Number number={option.amount} />}</Card.Title>
                                 {isSpecialOption && <span className="position-absolute top-0 end-0 mt-2 me-2 badge bg-success">OPTIMAL</span>}
-                                {!isCustom && savings > 0 && (
+                                {!playApp && !isCustom && savings > 0 && (
                                     <span className="position-absolute top-0 end-0 mt-2 me-2 badge bg-warning text-dark">SAVE {Math.round(savings)}%</span>
                                 )}
                             </Card.Header>
                             <Card.Body>
                                 <div style={{ textAlign: 'center' }}>
-                                    {!isCustom && (
+                                    {!playApp && !isCustom && (
                                         <>
                                             <div className="h5 fw-semibold text-success mb-2">From €{option.stripePrice.toFixed(2)}</div>
                                             <div className="small text-muted mb-3">€{getPricePerCoin(option).toFixed(4)} per coin</div>

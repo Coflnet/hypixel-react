@@ -23,63 +23,75 @@ export default function TopLoadingAnimation() {
 
         function isNoSufficientNavigation(currentUrl: string, newUrl: string) {
             const currentUrlObj = new URL(currentUrl)
-            const newUrlObj = new URL(newUrl)
+            const newUrlObj = new URL(newUrl, currentUrl)
             // Compare hostname, pathname, and search parameters
             return currentUrlObj.hostname === newUrlObj.hostname && currentUrlObj.pathname === newUrlObj.pathname
         }
 
-        // eslint-disable-next-line no-var
-        var npgclass = document.querySelectorAll('html')
+        let restoreHistory: (() => void) | undefined
+
         function findClosestAnchor(element: HTMLElement | null): HTMLAnchorElement | null {
             while (element && element.tagName.toLowerCase() !== 'a') {
                 element = element.parentElement
             }
             return element as HTMLAnchorElement
         }
-        function handleClick(event: MouseEvent) {
-            try {
-                const target = event.target as HTMLElement
-                const anchor = findClosestAnchor(target)
-                if (anchor) {
-                    const currentUrl = window.location.href
-                    const newUrl = (anchor as HTMLAnchorElement).href
-                    const isExternalLink = (anchor as HTMLAnchorElement).target === '_blank'
-                    const isAnchor = isNoSufficientNavigation(currentUrl, newUrl)
-                    if (newUrl === currentUrl || isAnchor || isExternalLink) {
-                        NProgress.start()
-                        NProgress.done()
-                        ;[].forEach.call(npgclass, function (el: Element) {
-                            el.classList.remove('nprogress-busy')
-                        })
-                    } else {
-                        NProgress.start()
-                        ;(function (history) {
-                            const pushState = history.pushState
-                            history.pushState = function () {
-                                NProgress.done()
-                                ;[].forEach.call(npgclass, function (el: Element) {
-                                    el.classList.remove('nprogress-busy')
-                                })
-                                // eslint-disable-next-line prefer-rest-params, @typescript-eslint/no-explicit-any
-                                return pushState.apply(history, arguments as any)
-                            }
-                        })(window.history)
-                    }
-                }
-            } catch {
-                // Log the error in development only!
-                // console.log('NextTopLoader error: ', err);
-                NProgress.start()
-                NProgress.done()
+        function finishProgress() {
+            restoreHistory?.()
+            NProgress.done()
+            document.documentElement.classList.remove('nprogress-busy')
+        }
+        function watchHistory() {
+            if (restoreHistory) return
+            const { history } = window
+            const { pushState, replaceState } = history
+            const finishWith = (method: History['pushState']) => (...args: Parameters<History['pushState']>) => {
+                finishProgress()
+                return method.apply(history, args)
             }
+            const push = finishWith(pushState)
+            const replace = finishWith(replaceState)
+            history.pushState = push
+            history.replaceState = replace
+            restoreHistory = () => {
+                if (history.pushState === push) history.pushState = pushState
+                if (history.replaceState === replace) history.replaceState = replaceState
+                restoreHistory = undefined
+            }
+        }
+        function loadUrl(newUrl: string, isExternalLink = false) {
+            const currentUrl = window.location.href
+            const isAnchor = isNoSufficientNavigation(currentUrl, newUrl)
+            NProgress.start()
+            if (newUrl === currentUrl || isAnchor || isExternalLink) {
+                finishProgress()
+                return
+            }
+            watchHistory()
+        }
+        function handleClick(event: MouseEvent) {
+            if (event.defaultPrevented) return
+            try {
+                const anchor = findClosestAnchor(event.target as HTMLElement)
+                if (!anchor || (anchor.protocol !== 'http:' && anchor.protocol !== 'https:')) return
+                loadUrl(anchor.href, anchor.target === '_blank')
+            } catch {
+                finishProgress()
+            }
+        }
+        function handleRouteStart(event: Event) {
+            loadUrl((event as CustomEvent<string>).detail)
         }
 
         // Add the global click event listener
         document.addEventListener('click', handleClick)
+        window.addEventListener('next-route-start', handleRouteStart)
 
         // Clean up the global click event listener when the component is unmounted
         return () => {
             document.removeEventListener('click', handleClick)
+            window.removeEventListener('next-route-start', handleRouteStart)
+            restoreHistory?.()
         }
     }, [])
 

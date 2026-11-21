@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import CoflCoinAmountSelection from './CoflCoinAmountSelection'
 import CoflCoinPaymentSelection, { PurchaseCodes } from './CoflCoinPaymentSelection'
-import { isAndroidApp as detectAndroidApp } from '../../utils/AndroidApp'
 
 interface CoflCoinOption {
     amount: number
@@ -25,13 +24,13 @@ interface Props {
     onGooglePlayPay: (productId: string, coflCoins?: number) => void
     loadingProductId: string
     isGooglePlayAvailable?: boolean
+    isAndroidApp: boolean
+    playApp: boolean
 }
 
-function CoflCoinPurchaseWizard({ coflCoins, countryCode, onPayPalPay, onStripePay, onLemonSqueezyPay, onGooglePlayPay, loadingProductId, isGooglePlayAvailable }: Props) {
+function CoflCoinPurchaseWizard({ coflCoins, countryCode, onPayPalPay, onStripePay, onLemonSqueezyPay, onGooglePlayPay, loadingProductId, isGooglePlayAvailable, isAndroidApp, playApp }: Props) {
     const [step, setStep] = useState<'amount' | 'payment'>('amount')
     const [selectedOption, setSelectedOption] = useState<CoflCoinOption | null>(null)
-
-    const isAndroidApp = detectAndroidApp()
 
     const handleAmountSelected = (option: CoflCoinOption) => {
         setSelectedOption(option)
@@ -45,7 +44,15 @@ function CoflCoinPurchaseWizard({ coflCoins, countryCode, onPayPalPay, onStripeP
 
     return (
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-            {step === 'amount' && <CoflCoinAmountSelection coflCoins={coflCoins} onAmountSelected={handleAmountSelected} userCountryCode={countryCode} />}
+            {step === 'amount' && (
+                <CoflCoinAmountSelection
+                    coflCoins={coflCoins}
+                    onAmountSelected={handleAmountSelected}
+                    userCountryCode={countryCode}
+                    isAndroidApp={isAndroidApp}
+                    playApp={playApp}
+                />
+            )}
 
             {step === 'payment' && selectedOption && (
                 <CoflCoinPaymentSelection
@@ -60,6 +67,7 @@ function CoflCoinPurchaseWizard({ coflCoins, countryCode, onPayPalPay, onStripeP
                     loadingProductId={loadingProductId}
                     isGooglePlayAvailable={isGooglePlayAvailable}
                     isAndroidApp={isAndroidApp}
+                    playApp={playApp}
                 />
             )}
         </div>

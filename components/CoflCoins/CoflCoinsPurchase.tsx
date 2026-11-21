@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { Alert, Button } from 'react-bootstrap'
 import { toast } from 'react-toastify'
 import {
@@ -20,13 +20,16 @@ import { usePremiumVariant } from '../Premium/PremiumVariantContext'
 import { trackPremiumFunnelEvent } from '../../utils/PremiumTracking'
 import { isAndroidApp } from '../../utils/AndroidApp'
 import { usePlaySubscriptionsEnabled } from '../../hooks/usePlaySubscriptionsEnabled'
-import { getPlaySubscriptionResult } from '../../utils/PlaySubscriptions'
+import { PlayWebsiteCheckoutContext, usePlayApp } from '../../hooks/usePlayApp'
+import { getPlayBillingError, getPlaySubscriptionResult } from '../../utils/PlaySubscriptions'
 
 const PAYMENT_REDIRECT_ERROR = 'Something went wrong. Please try again.'
 
 function Payment() {
     const variant = usePremiumVariant()
     const playSubscriptionsEnabled = usePlaySubscriptionsEnabled()
+    const playApp = usePlayApp()
+    const websiteCheckout = useContext(PlayWebsiteCheckoutContext)
     const [loadingId, setLoadingId] = useState('')
     const [currentRedirectLink, setCurrentRedirectLink] = useState('')
     const [showAll, setShowAll] = useState(false)
@@ -35,6 +38,7 @@ function Payment() {
     const [isGooglePlayAvailable, setIsGooglePlayAvailable] = useState(false)
     const coflCoins = useCoflCoins()
     const isDisabled = !selectedCountry
+    const androidApp = isAndroidApp()
 
     // Initialize billing on first render
     if (typeof window !== 'undefined' && !window.__billingInitialized) {
@@ -49,12 +53,14 @@ function Payment() {
             const errorMatch = hash.match(/#billing_error_([^_]+)_(.+)/)
             if (errorMatch) {
                 const errorId = errorMatch[1]
-                const errorMessage = decodeURIComponent(errorMatch[2].replace(/\+/g, ' '))
+                const errorMessage = playSubscriptionsEnabled
+                    ? getPlayBillingError(hash.slice(hash.lastIndexOf('_') + 1))
+                    : decodeURIComponent(errorMatch[2].replace(/\+/g, ' '))
 
                 console.error('[Billing] Error from Android:', { errorId, errorMessage })
 
                 // Show user-friendly error message
-                let userMessage = 'Purchase failed: ' + errorMessage
+                let userMessage = playSubscriptionsEnabled ? errorMessage : 'Purchase failed: ' + errorMessage
                 if (errorMessage === 'Server validation failed' || errorMessage === 'Product not found') {
                     userMessage += '. Please contact support if this issue persists.'
                 }
@@ -293,16 +299,18 @@ function Payment() {
         )
     }
 
-    if (useWizard) {
+    if (useWizard || playApp) {
         return (
             <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <div>
                         <CountrySelect onCountryChange={handleCountryChange} />
                     </div>
-                    <Button variant="outline-secondary" size="sm" onClick={() => setUseWizard(false)}>
-                        Switch to Classic View
-                    </Button>
+                    {!playApp && (
+                        <Button variant="outline-secondary" size="sm" onClick={() => setUseWizard(false)}>
+                            Switch to Classic View
+                        </Button>
+                    )}
                 </div>
 
                 <CoflCoinPurchaseWizard
@@ -313,7 +321,9 @@ function Payment() {
                     onLemonSqueezyPay={onPayLemonSqueezy}
                     onGooglePlayPay={onPayGooglePlay}
                     loadingProductId={loadingId}
-                    isGooglePlayAvailable={isGooglePlayAvailable}
+                    isGooglePlayAvailable={!websiteCheckout && (isGooglePlayAvailable || (playApp && androidApp))}
+                    isAndroidApp={!websiteCheckout && (playApp || androidApp)}
+                    playApp={playApp}
                 />
             </div>
         )

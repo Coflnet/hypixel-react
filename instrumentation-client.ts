@@ -11,3 +11,9 @@ window.addEventListener('error', event => {
 window.addEventListener('unhandledrejection', event => {
     recordClientError(event.reason, 'unhandledrejection')
 })
+
+export function onRouterTransitionStart(url: string, navigationType: 'push' | 'replace' | 'traverse') {
+    if (navigationType === 'traverse') return
+    // Next Link prevents the native click before it reaches the document listener.
+    window.dispatchEvent(new CustomEvent('next-route-start', { detail: url }))
+}

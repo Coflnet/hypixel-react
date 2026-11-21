@@ -69,6 +69,7 @@ interface Props {
     onTierSelect(tier: PremiumTier, advance: boolean): void
     selectedTier: PremiumTier | null
     forFriends?: boolean
+    coinsOnly?: boolean
     currentTier?: PremiumTier | null
     isUpgrade?: boolean
     suggestedTier?: PremiumTier | null
@@ -155,6 +156,7 @@ export default function TierSelectionStep({
     onTierSelect,
     selectedTier,
     forFriends,
+    coinsOnly,
     currentTier,
     isUpgrade,
     suggestedTier,
@@ -163,7 +165,8 @@ export default function TierSelectionStep({
     onCountryChange
 }: Props) {
     const countryCode = selectedCountry?.value
-    const offer = useCheckoutOffer(forFriends ? undefined : countryCode)
+    const showPrices = !forFriends && !coinsOnly
+    const offer = useCheckoutOffer(showPrices ? countryCode : undefined)
     const billing = getPlanBilling(offer, countryCode)
 
     function toOption(config: TierConfig): WizardOption<PremiumTier> {
@@ -171,21 +174,21 @@ export default function TierSelectionStep({
         const isSuggested = suggestedTier === tier
         const canSelect = canSelectTier(tier, currentTier, isUpgrade)
         // the plan card's price: a price that is charged (Premium and Premium Plus every 4 weeks, Starter for 52 weeks), with the promotion
-        const price = getPlanPrice(tier, countryCode, billing, offer.promotion)
+        const price = showPrices ? getPlanPrice(tier, countryCode, billing, offer.promotion) : undefined
         return {
             value: tier,
             title: config.title,
             titleClassName: config.titleClass,
             badge: getTierBadge(tier, isCurrentTier(tier, currentTier, isUpgrade), isSuggested),
             description: canSelect ? (
-                <TierDescription text={(isSuggested && config.upgradeDescription) || getTierIntro(tier) || config.description} note={forFriends ? null : price.note} />
+                <TierDescription text={(isSuggested && config.upgradeDescription) || getTierIntro(tier) || config.description} note={price?.note ?? null} />
             ) : (
                 'Cannot downgrade'
             ),
-            price: forFriends ? undefined : price.amount,
-            originalPrice: forFriends ? undefined : (price.original ?? undefined),
-            discountBadge: forFriends ? undefined : (price.badge ?? undefined),
-            unit: forFriends ? undefined : getPriceUnit(price),
+            price: price?.amount,
+            originalPrice: price?.original ?? undefined,
+            discountBadge: price?.badge ?? undefined,
+            unit: price && getPriceUnit(price),
             footer: <TierFeatures features={getTierHighlights(tier)} extra={isSuggested ? SUGGESTED_FEATURES[tier] : undefined} />,
             disabled: !canSelect
         }
@@ -198,7 +201,7 @@ export default function TierSelectionStep({
     return (
         <div className={styles.stepContent}>
             {isUpgrade && currentTier ? <UpgradeIntro currentTier={currentTier} activePremiumProduct={activePremiumProduct} /> : null}
-            {!forFriends && (
+            {showPrices && (
                 <div className={styles.countrySelection}>
                     <CountrySelect onCountryChange={onCountryChange} />
                 </div>
@@ -206,9 +209,9 @@ export default function TierSelectionStep({
             <OptionGroup legend="Premium tier" options={options} selected={selected} onChoose={onTierSelect} />
             {offer.unavailable ? (
                 <SubscriptionUnavailable countryCode={countryCode} showCoflCoinsHint />
-            ) : (
+            ) : showPrices ? (
                 <TierNote forFriends={forFriends} countryCode={countryCode} billing={billing} promotion={billing.settled ? offer.promotion : null} />
-            )}
+            ) : null}
         </div>
     )
 }

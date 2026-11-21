@@ -13,7 +13,7 @@ import UpgradeSubscription from '../UpgradeSubscription/UpgradeSubscription'
 import ExtendSubscription from '../ExtendSubscription/ExtendSubscription'
 import SwitchSubscriptionTerm from '../SwitchSubscriptionTerm/SwitchSubscriptionTerm'
 import { usePlaySubscriptionsEnabled } from '../../../hooks/usePlaySubscriptionsEnabled'
-import { useAndroidApp } from '../../../hooks/useAndroidApp'
+import { usePlayApp } from '../../../hooks/usePlayApp'
 import { PLAY_SUBSCRIPTION_MANAGEMENT } from '../../../utils/PlaySubscriptions'
 
 interface Props {
@@ -42,8 +42,7 @@ function isLinked(subscription: PremiumSubscription, props: Props): boolean {
 
 function PremiumStatus(props: Props) {
     const playSubscriptionsEnabled = usePlaySubscriptionsEnabled()
-    const androidApp = useAndroidApp()
-    const showWebCheckout = !(playSubscriptionsEnabled && androidApp)
+    const showWebCheckout = !usePlayApp()
     const [highestPriorityProduct, setHighestPriorityProduct] = useState<PremiumProduct>()
     const [productsToShow, setProductsToShow] = useState<PremiumProductWithtimeDifference[]>()
     const [showCancelSubscriptionDialogSubscription, setShowCancelSubscriptionDialogSubscription] = useState<PremiumSubscription>()
@@ -205,7 +204,7 @@ function PremiumStatus(props: Props) {
                                             </a>
                                         ) : (
                                             <>
-                                                {subscription.endsAt && subscription.canResume !== false && (
+                                                {showWebCheckout && subscription.endsAt && subscription.canResume !== false && (
                                                     <Tooltip
                                                         type="hover"
                                                         content={
