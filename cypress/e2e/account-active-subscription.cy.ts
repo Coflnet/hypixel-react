@@ -1159,6 +1159,7 @@ describe('Slot packages in the Premium wizard', () => {
         cy.contains('button', 'Redirecting to payment provider...').should('be.disabled')
         cy.window().then(window => window.dispatchEvent(new window.PageTransitionEvent('pageshow', { persisted: true })))
         cy.contains('button', 'Continue to our secure payment processor').should('be.enabled').and('not.have.attr', 'aria-busy')
+        cy.get('[data-testid="lemonsqueezy-shutdown-note"]').should('contain.text', 'stops processing payments in 2027')
     })
 
     // regression: upgrading Starter in place added a "Just for me" chip and a Back path through a package step never shown
@@ -1254,6 +1255,7 @@ describe('Slot packages in the Premium wizard', () => {
             cy.window().then(window => cy.stub(window, 'open').as('checkoutNavigation'))
             cy.contains('button', 'Continue with subscription').click()
             cy.contains('.modal-title', 'Review your slot subscription').should('be.visible')
+            cy.get('.modal [data-testid="lemonsqueezy-shutdown-note"]').scrollIntoView().should('be.visible')
             cy.get('.modal').should('contain.text', 'new subscription').and('contain.text', 'assign the slots')
             if (count === 1) cy.get('.modal').should('contain.text', 'Cancel slot subscription').and('contain.text', 'Only this slot subscription')
             cy.get('#slot-subscription-early-start-declaration').should('not.be.checked')

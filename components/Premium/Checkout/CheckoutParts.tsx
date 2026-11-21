@@ -98,6 +98,16 @@ export function SubscriptionUnavailable({
     )
 }
 
+/** Lemon Squeezy is the fallback where no other provider applies, until it stops processing payments in 2027 */
+export function LemonSqueezyShutdownNote() {
+    return (
+        <p className={styles.lemonSqueezyNote} data-testid="lemonsqueezy-shutdown-note">
+            Payment in your country runs through Lemon Squeezy, which stops processing payments in 2027, so this subscription may not renew
+            after that.
+        </p>
+    )
+}
+
 export function CheckoutSuccess({ children }: { children: ReactNode }) {
     return (
         <div className={styles.success} role="status">

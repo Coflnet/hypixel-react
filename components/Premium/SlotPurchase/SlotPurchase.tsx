@@ -16,7 +16,7 @@ import { Country } from '../../../utils/CountryUtils'
 import CountrySelect from '../../CountrySelect/CountrySelect'
 import SlotCodes from './SlotCodes'
 import SlotUpsell from './SlotUpsell'
-import { LinkCodeReplacedNote, PromotionNote, ProviderButtons, Savings, SubscriptionUnavailable } from '../Checkout/CheckoutParts'
+import { LemonSqueezyShutdownNote, LinkCodeReplacedNote, PromotionNote, ProviderButtons, Savings, SubscriptionUnavailable } from '../Checkout/CheckoutParts'
 import BuyPremiumConfirmationDialog from '../BuyPremiumConfirmationDialog/BuyPremiumConfirmationDialog'
 import styles from './SlotPurchase.module.css'
 import { usePremiumVariant } from '../PremiumVariantContext'
@@ -539,6 +539,7 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
                         This starts a new subscription for these slots. It renews automatically until canceled; cancellation keeps access through the paid
                         period.
                     </p>
+                    {!offer.loading && !offer.unavailable && offer.providers.length === 0 ? <LemonSqueezyShutdownNote /> : null}
                     <p>{taxLabel}. Checkout confirms the final price.</p>
                     <p>After payment, you’ll return to your account to assign the slots to your friends.</p>
                     <p>Cancel from Account → Purchased slots using <strong>{selected?.slotCount === 1 ? 'Cancel slot subscription' : `Cancel ${selected?.slotCount}-slot subscription`}</strong>. {selected?.slotCount === 1 ? 'Only this slot subscription will stop renewing.' : 'All slots in this subscription stop renewing together.'}</p>

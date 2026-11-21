@@ -70,6 +70,7 @@ import {
     ProviderButtons,
     Savings,
     SubscriptionUnavailable,
+    LemonSqueezyShutdownNote,
     SummaryNote,
     SummaryRow,
     SummaryTotal
@@ -478,15 +479,18 @@ function BuySubscription(props: Props) {
         if (offer.providers.length > 0)
             return <ProviderButtons tier={tier} providers={offer.providers} busyProvider={busyCheckout} disabled={blocked} onPay={onSubscribeClick} />
         return (
-            <CheckoutButton
-                tier={tier}
-                busy={busyCheckout !== null}
-                busyLabel="Redirecting to payment provider..."
-                disabled={blocked}
-                onClick={() => onSubscribeClick('lemonsqueezy')}
-            >
-                Continue to our secure payment processor
-            </CheckoutButton>
+            <>
+                <CheckoutButton
+                    tier={tier}
+                    busy={busyCheckout !== null}
+                    busyLabel="Redirecting to payment provider..."
+                    disabled={blocked}
+                    onClick={() => onSubscribeClick('lemonsqueezy')}
+                >
+                    Continue to our secure payment processor
+                </CheckoutButton>
+                <LemonSqueezyShutdownNote />
+            </>
         )
     }
 
