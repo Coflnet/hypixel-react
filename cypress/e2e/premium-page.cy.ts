@@ -832,7 +832,12 @@ describe('Google Play subscription checkout', () => {
 
     it('keeps Android browser SSR content visible before hydration with the app hiding class', () => {
         // The rollout override is client-only. Exercise the shipped CSS on real SSR content without hydrating it.
-        cy.intercept('GET', '**/_next/**/*.js*', { headers: { 'content-type': 'application/javascript' }, body: '' })
+        // Strip the script tags from the document: chunks cached by earlier tests would bypass a stub on their URLs.
+        cy.intercept('GET', '/premium?premiumVariant=new', req => {
+            req.continue(res => {
+                res.body = String(res.body).replace(/<script\b[^>]*\bsrc=[^>]*>\s*<\/script>/g, '')
+            })
+        })
         cy.visit('/premium?premiumVariant=new', {
             headers: { 'user-agent': ANDROID_USER_AGENT },
             onBeforeLoad(window) {
