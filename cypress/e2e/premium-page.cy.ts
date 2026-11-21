@@ -793,18 +793,64 @@ describe('Google Play subscription checkout', () => {
         return cy.get('#buyPremium').contains('button', 'Buy with Google Play')
     }
 
+    function expectBrowserDirections() {
+        cy.contains('Open your browser and go to sky.coflnet.com/premium').should('be.visible')
+        cy.contains('span', /^sky\.coflnet\.com\/premium$/).should('be.visible').and('have.css', 'user-select', 'all')
+        cy.get('a[href^="intent:"][href*="package=com.android.chrome"], a[href="https://coflnet.com/premium"]').should('not.exist')
+    }
+
+    function stubAddressCopy(window: Cypress.AUTWindow) {
+        Object.defineProperty(window.navigator, 'clipboard', {
+            configurable: true,
+            value: { writeText: cy.stub().as('copyAddress').resolves() }
+        })
+    }
+
     it('keeps the existing wizard in the Android app with the rollout off', () => {
         stubAccount()
+        cy.intercept('POST', '**/api/topup/rates', { body: { products: [] } })
         visitNewPage('/premium?premiumVariant=new&playUpdate=1', true, window => playContext(window, false, 'standalone'))
         cy.get('[data-testid="premium-wizard"]').should('be.visible')
         cy.get('[data-testid="premium-web-checkout"]').should('not.exist')
         cy.contains('a', 'Pay on the website instead').should('not.exist')
         cy.contains('button', 'Buy with Google Play').should('not.exist')
+        cy.get('#coflcoins-purchase').within(() => {
+            cy.contains('Additional Payment Options').should('be.visible')
+            cy.contains('a', 'website').should('have.attr', 'href', 'https://coflnet.com/premium')
+            cy.contains('button', 'Copy address').should('not.exist')
+            cy.contains('.card-title', /^1,800$/).click()
+            cy.contains('Limited to Google Play').should('be.visible')
+            cy.contains('a', 'website').should('have.attr', 'href', 'https://coflnet.com/premium')
+            cy.contains('button', 'Copy address').should('not.exist')
+        })
     })
 
     it('server-renders the web checkout for Android visitors and the mobile Googlebot', () => {
         requestAs(ANDROID_USER_AGENT, '/premium?premiumVariant=new&playUpdate=1').its('body').should('match', /<h1[^>]*>Get Flips Before Everyone Else/)
         requestAs(`${ANDROID_USER_AGENT} ${GOOGLEBOT}`, '/premium?playUpdate=1').its('body').should('match', /<h2[^>]*>Features<\/h2>/)
+    })
+
+    it('keeps Android browser SSR content visible before hydration with the app hiding class', () => {
+        // The rollout override is client-only. Exercise the shipped CSS on real SSR content without hydrating it.
+        cy.intercept('GET', '**/_next/**/*.js*', { headers: { 'content-type': 'application/javascript' }, body: '' })
+        cy.visit('/premium?premiumVariant=new', {
+            headers: { 'user-agent': ANDROID_USER_AGENT },
+            onBeforeLoad(window) {
+                Object.defineProperty(window.navigator, 'userAgent', { value: ANDROID_USER_AGENT })
+            }
+        })
+        cy.document().then(document => {
+            expect(document.defaultView?.matchMedia('(display-mode: standalone)').matches).to.equal(false)
+            const checkoutClass = /\.([\w-]*webCheckout[\w-]*)/
+            const mediaRule = Array.from(document.styleSheets)
+                .filter(sheet => !sheet.href || new URL(sheet.href).origin === document.location.origin)
+                .flatMap(sheet => Array.from(sheet.cssRules))
+                .find(rule => rule.type === CSSRule.MEDIA_RULE && checkoutClass.test(rule.cssText)) as CSSMediaRule | undefined
+            expect(mediaRule?.media.mediaText, 'checkout hiding media query').to.equal('(display-mode: standalone)')
+            const className = mediaRule!.cssText.match(checkoutClass)![1]
+            cy.contains('h1', NEW_PAGE_TITLE).invoke('addClass', className).should('be.visible')
+        })
+        cy.contains('#premium-sign-in button', 'Sign in').should('not.exist')
     })
 
     for (const context of ['browser', 'android'] as const) {
@@ -955,18 +1001,42 @@ describe('Google Play subscription checkout', () => {
     })
 
     for (const query of ['?playUpdate=1', '?playUpdate=1&web=1']) {
-        it(`offers the Chrome checkout link from Android standalone with ${query}`, () => {
+        it(`offers browser directions from Android standalone with ${query}`, () => {
             const hydrationErrors = recordHydrationErrors()
             stubAccount()
-            visitNewPage(`/premium${query}`, true, window => playContext(window, true, 'standalone'))
+            visitNewPage(`/premium${query}`, true, window => {
+                playContext(window, true, 'standalone')
+                stubAddressCopy(window)
+            })
             cy.contains('a', 'Update or install the app from Google Play')
                 .should('be.visible').and('have.attr', 'href', 'https://play.google.com/store/apps/details?id=com.coflnet.sky')
             cy.get('#buyPremium').should('not.exist')
             cy.get('[data-testid="premium-web-checkout"]').should('not.exist')
-            cy.contains('a', 'Pay on the website instead').should('be.visible').and('have.attr', 'href',
-                'intent://sky.coflnet.com/premium#Intent;scheme=https;package=com.android.chrome;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end')
-            cy.contains('If Chrome isn’t installed, open sky.coflnet.com/premium in your browser.').should('be.visible')
+            expectBrowserDirections()
+            cy.contains('button', 'Copy address').click()
+            cy.get('@copyAddress').should('have.been.calledOnceWithExactly', 'sky.coflnet.com/premium')
+            cy.contains('[role="status"]', 'Address copied.').should('be.visible')
             cy.wrap(hydrationErrors).should('be.empty')
+        })
+    }
+
+    for (const clipboard of ['unavailable', 'rejected'] as const) {
+        it(`offers manual address copying when the clipboard is ${clipboard}`, () => {
+            stubAccount()
+            visitNewPage('/premium', true, window => {
+                playContext(window)
+                Object.defineProperty(window.navigator, 'clipboard', {
+                    configurable: true,
+                    value: clipboard === 'unavailable' ? undefined : { writeText: cy.stub().as('copyAddress').rejects(new Error('Copy denied')) }
+                })
+            })
+            cy.get('#plans').within(() => {
+                expectBrowserDirections()
+                cy.contains('button', 'Copy address').click()
+                if (clipboard === 'rejected') cy.get('@copyAddress').should('have.been.calledOnceWithExactly', 'sky.coflnet.com/premium')
+                cy.contains('[role="status"]', 'Select the address to copy it manually.').should('be.visible')
+                cy.contains('Address copied.').should('not.exist')
+            })
         })
     }
 
@@ -977,7 +1047,7 @@ describe('Google Play subscription checkout', () => {
         cy.contains('a', 'Pay on the website instead').should('not.exist')
     })
 
-    it('shows web checkout at the intent destination in Android Chrome', () => {
+    it('shows web checkout in an Android browser', () => {
         stubAccount()
         visitNewPage('/premium', true, window => playContext(window, true, 'android'))
         cy.get('[data-testid="premium-web-checkout"]').should('be.visible')
@@ -990,19 +1060,30 @@ describe('Google Play subscription checkout', () => {
         stubGoogleIdentity()
         cy.intercept('POST', '**/api/topup/rates', { body: { products: [] } })
         cy.intercept('POST', '**/api/service/purchase', { statusCode: 200, body: {} }).as('coinsCheckout')
-        visitPlayCheckout()
+        visitNewPage('/premium', true, window => {
+            playContext(window)
+            stubAddressCopy(window)
+        })
         cy.contains('h2', 'Pay with CoflCoins').should('be.visible')
+        cy.get('#plans').within(() => expectBrowserDirections())
         cy.get('[data-testid="premium-wizard"]').should('not.contain.text', '€')
         cy.get('#coflcoins-purchase').within(() => {
             cy.contains('Choose CoflCoin Amount').should('be.visible')
             cy.contains(/From €/).should('not.exist')
+            expectBrowserDirections()
+            cy.contains('button', 'Copy address').click()
+            cy.contains('[role="status"]', 'Address copied.').should('be.visible')
             cy.contains('.card-title', /^1,800$/).click()
             cy.contains('.card-title', /^1,800 CoflCoins$/).should('be.visible')
+            expectBrowserDirections()
+            cy.contains('button', 'Copy address').click()
+            cy.contains('[role="status"]', 'Address copied.').should('be.visible')
             cy.contains('Buy with Google Play').should('be.visible')
             cy.contains(/Buy with PayPal|Buy with other payment methods|Continue to payment/).should('not.exist')
             cy.contains(/From €/).should('not.be.visible')
             cy.get('[placeholder="Enter discount code"]').should('not.be.visible')
         })
+        cy.get('@copyAddress').should('have.been.calledTwice').and('always.have.been.calledWithExactly', 'sky.coflnet.com/premium')
         cy.get('[data-testid="premium-wizard"]').contains('[data-testid="wizard-option-title"]', /^Premium$/).click()
         cy.get('[data-testid="premium-wizard"]').contains('[data-testid="wizard-option-title"]', /^Subscription$/).should('not.exist')
         cy.get('[data-testid="premium-wizard"]').contains('[data-testid="wizard-option-title"]', /^CoflCoins$/).click()
@@ -1078,12 +1159,17 @@ describe('Google Play subscription checkout', () => {
 
     for (const message of [
         'Server completed the purchase, but Play consumption will be retried',
-        'Purchase completion was interrupted and will be retried'
+        'Purchase completion was interrupted and will be retried',
+        'Could not persist server completion; purchase was not consumed',
+        'Server validation failed for the purchase'
     ]) {
         it(`shows processing rather than failure for a CoflCoins return: ${message}`, () => {
             stubAccount()
             visitPlayCheckout(`/premium#billing_error_ps_cc_1800_${encodeURIComponent(message)}`)
-            cy.contains('[role="status"]', 'Your CoflCoins purchase is processing. Check your balance before trying again.').should('be.visible')
+            const expected = message === 'Server validation failed for the purchase'
+                ? "Your CoflCoins purchase is being verified. If your balance doesn't update soon, contact support."
+                : 'Your CoflCoins purchase is processing. Check your balance before trying again.'
+            cy.contains('[role="status"]', expected).should('be.visible')
             cy.contains('Purchase failed').should('not.exist')
             cy.contains('Google Play reported a checkout problem.').should('not.exist')
             cy.location('hash').should('equal', '')

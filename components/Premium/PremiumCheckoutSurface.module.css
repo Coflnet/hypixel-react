@@ -1,3 +1,5 @@
-.webCheckout {
-    display: none;
+@media (display-mode: standalone) {
+    .webCheckout {
+        display: none;
+    }
 }

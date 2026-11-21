@@ -5,7 +5,6 @@ import { getGeneratedApiMessage, getGeneratedApiSlug } from './GeneratedApiRespo
 export const PLAY_SUBSCRIPTIONS_ENABLED = false
 export const PLAY_STORE_LISTING = 'https://play.google.com/store/apps/details?id=com.coflnet.sky'
 export const PLAY_SUBSCRIPTION_MANAGEMENT = 'https://play.google.com/store/account/subscriptions'
-export const PLAY_WEBSITE_CHROME_INTENT = 'intent://sky.coflnet.com/premium#Intent;scheme=https;package=com.android.chrome;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;end'
 export const PLAY_CHECKOUT_UNAVAILABLE = 'Google Play checkout is temporarily unavailable. Please try again later.'
 export const PLAY_SUBSCRIPTION_SLUGS = ['l_premium', 'l_prem_plus'] as const
 export type PlaySubscriptionSlug = (typeof PLAY_SUBSCRIPTION_SLUGS)[number]
@@ -92,7 +91,10 @@ export function getPlayBillingError(encodedError: string): PlayBillingResult {
             return { kind: 'processing', message: 'Your payment is processing. Check your subscription status before trying again.' }
         case 'server completed the purchase, but play consumption will be retried':
         case 'purchase completion was interrupted and will be retried':
+        case 'could not persist server completion; purchase was not consumed':
             return { kind: 'processing', message: 'Your CoflCoins purchase is processing. Check your balance before trying again.' }
+        case 'server validation failed for the purchase':
+            return { kind: 'processing', message: "Your CoflCoins purchase is being verified. If your balance doesn't update soon, contact support." }
         case 'this purchase cannot be completed automatically. contact support.':
             return { kind: 'error', message: 'This CoflCoins purchase cannot be completed automatically. Please contact support before trying again.' }
         default:
