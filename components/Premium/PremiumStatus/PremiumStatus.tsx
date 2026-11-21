@@ -12,6 +12,9 @@ import { toast } from 'react-toastify'
 import UpgradeSubscription from '../UpgradeSubscription/UpgradeSubscription'
 import ExtendSubscription from '../ExtendSubscription/ExtendSubscription'
 import SwitchSubscriptionTerm from '../SwitchSubscriptionTerm/SwitchSubscriptionTerm'
+import { usePlaySubscriptionsEnabled } from '../../../hooks/usePlaySubscriptionsEnabled'
+import { usePlayApp } from '../../../hooks/usePlayApp'
+import { PLAY_SUBSCRIPTION_MANAGEMENT } from '../../../utils/PlaySubscriptions'
 
 interface Props {
     products: PremiumProduct[]
@@ -38,6 +41,8 @@ function isLinked(subscription: PremiumSubscription, props: Props): boolean {
 }
 
 function PremiumStatus(props: Props) {
+    const playSubscriptionsEnabled = usePlaySubscriptionsEnabled()
+    const showWebCheckout = !usePlayApp()
     const [highestPriorityProduct, setHighestPriorityProduct] = useState<PremiumProduct>()
     const [productsToShow, setProductsToShow] = useState<PremiumProductWithtimeDifference[]>()
     const [showCancelSubscriptionDialogSubscription, setShowCancelSubscriptionDialogSubscription] = useState<PremiumSubscription>()
@@ -193,48 +198,58 @@ function PremiumStatus(props: Props) {
                                                 </span>
                                             }
                                         />
-                                        {subscription.endsAt && subscription.canResume !== false && (
-                                            <Tooltip
-                                                type="hover"
-                                                content={
-                                                    <span style={{ color: 'green' }}>
-                                                        <RestartAlt
-                                                            data-testid="reactivate-subscription"
-                                                            style={{ cursor: 'pointer', color: 'green', marginLeft: 5 }}
-                                                            onClick={() => {
-                                                                reactivateMutation.mutate({ externalId: subscription.externalId })
-                                                            }}
-                                                        />
-                                                    </span>
-                                                }
-                                                tooltipContent={<span>Reactivate subscription</span>}
-                                            />
+                                        {playSubscriptionsEnabled && subscription.providerSlug === 'googleplay' ? (
+                                            <a href={subscription.manageUrl ?? PLAY_SUBSCRIPTION_MANAGEMENT} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline-primary ms-2">
+                                                Manage in Google Play
+                                            </a>
+                                        ) : (
+                                            <>
+                                                {showWebCheckout && subscription.endsAt && subscription.canResume !== false && (
+                                                    <Tooltip
+                                                        type="hover"
+                                                        content={
+                                                            <span style={{ color: 'green' }}>
+                                                                <RestartAlt
+                                                                    data-testid="reactivate-subscription"
+                                                                    style={{ cursor: 'pointer', color: 'green', marginLeft: 5 }}
+                                                                    onClick={() => {
+                                                                        reactivateMutation.mutate({ externalId: subscription.externalId })
+                                                                    }}
+                                                                />
+                                                            </span>
+                                                        }
+                                                        tooltipContent={<span>Reactivate subscription</span>}
+                                                    />
+                                                )}
+                                                {showWebCheckout && !subscription.endsAt && subscription.canChangePlan !== false && (
+                                                    <UpgradeSubscription subscription={subscription} />
+                                                )}
+                                                {!subscription.endsAt && (
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-sm btn-outline-danger"
+                                                        style={{ marginLeft: 5 }}
+                                                        onClick={() => setShowCancelSubscriptionDialogSubscription(subscription)}
+                                                    >
+                                                        <CancelOutlined fontSize="small" /> Cancel subscription
+                                                    </button>
+                                                )}
+                                                {showWebCheckout && !subscription.endsAt && (
+                                                    <ExtendSubscription
+                                                        subscription={subscription}
+                                                        linked={subscription.externalId === props.linkedSubscriptionId}
+                                                        onExtended={props.onSubscriptionsChanged ?? (() => undefined)}
+                                                    />
+                                                )}
+                                                {showWebCheckout && (
+                                                    <SwitchSubscriptionTerm
+                                                        subscription={subscription}
+                                                        linked={subscription.externalId === props.linkedSwitchSubscriptionId}
+                                                        onSubscriptionsChanged={props.onSubscriptionsChanged ?? (() => undefined)}
+                                                    />
+                                                )}
+                                            </>
                                         )}
-                                        {!subscription.endsAt && subscription.canChangePlan !== false && (
-                                            <UpgradeSubscription subscription={subscription} />
-                                        )}
-                                        {!subscription.endsAt && (
-                                            <button
-                                                type="button"
-                                                className="btn btn-sm btn-outline-danger"
-                                                style={{ marginLeft: 5 }}
-                                                onClick={() => setShowCancelSubscriptionDialogSubscription(subscription)}
-                                            >
-                                                <CancelOutlined fontSize="small" /> Cancel subscription
-                                            </button>
-                                        )}
-                                        {!subscription.endsAt && (
-                                            <ExtendSubscription
-                                                subscription={subscription}
-                                                linked={subscription.externalId === props.linkedSubscriptionId}
-                                                onExtended={props.onSubscriptionsChanged ?? (() => undefined)}
-                                            />
-                                        )}
-                                        <SwitchSubscriptionTerm
-                                            subscription={subscription}
-                                            linked={subscription.externalId === props.linkedSwitchSubscriptionId}
-                                            onSubscriptionsChanged={props.onSubscriptionsChanged ?? (() => undefined)}
-                                        />
                                 </li>
                             ))}
                             {productsToShow?.map(product => (

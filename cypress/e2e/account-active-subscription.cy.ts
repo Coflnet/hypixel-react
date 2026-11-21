@@ -4,6 +4,7 @@ import { withVariantOverride } from '../../utils/PremiumExperiment'
 import { getBazaarHistoryYears } from '../../utils/DataHistory'
 import type { CyHttpMessages, StaticResponse } from 'cypress/types/net-stubbing'
 import { DETECTION_TIMEOUT_MS } from '../../utils/CountryDetection'
+import { playContext } from '../support/playContext'
 
 const BAZAAR_ARCHIVE_BULLET = `Archive, CSV exports and about ${getBazaarHistoryYears()} years of bazaar data`
 
@@ -185,6 +186,65 @@ const activeSubscription = {
     renewsAt: '2099-02-01T00:00:00Z',
     createdAt: '2026-01-01T00:00:00Z'
 }
+
+describe('Google Play subscription management', () => {
+    const manageUrl = 'https://play.google.com/store/account/subscriptions?sku=premium_plus&package=com.coflnet.sky'
+    const playSubscription = {
+        ...activeSubscription, externalId: 'play-active', providerSlug: 'googleplay', manageUrl,
+        canResume: true, canChangePlan: true, canExtendLongTerm: true, termWeeks: 13
+    }
+
+    it('puts active and canceled Play subscriptions under Google Play management', () => {
+        stubProducts()
+        stubSubscriptions({ body: [
+            playSubscription,
+            { ...playSubscription, externalId: 'play-canceled', endsAt: '2099-01-15T00:00:00Z' },
+            activeSubscription
+        ] })
+        visitAuthenticatedPage('/account', window => Object.assign(window, { __playSubscriptionsEnabled: true }))
+        for (const id of ['play-active', 'play-canceled']) {
+            cy.get(`#subscription-${id}`).within(() => {
+                cy.contains('a', 'Manage in Google Play').should('have.attr', 'href', manageUrl)
+                cy.get('button, [data-testid="reactivate-subscription"]').should('not.exist')
+            })
+        }
+        cy.get('#subscription-active-subscription').contains('button', 'Cancel subscription').should('be.visible')
+        cy.contains('h2', 'Danger Zone').parent().contains('a', 'Manage in Google Play').should('have.attr', 'href', manageUrl)
+    })
+
+    it('keeps the previous controls with the rollout off', () => {
+        stubProducts()
+        stubSubscriptions({ body: [playSubscription] })
+        visitAuthenticatedPage('/account', window => Object.assign(window, { __playSubscriptionsEnabled: false }))
+        cy.get('#subscription-play-active').contains('button', 'Cancel subscription').should('be.visible')
+        cy.contains('Manage in Google Play').should('not.exist')
+    })
+
+    for (const enabled of [true, false]) {
+        it(`${enabled ? 'hides' : 'keeps'} Stripe reactivation in the app with the rollout ${enabled ? 'on' : 'off'}`, () => {
+            stubProducts()
+            stubSubscriptions({ body: [{ ...activeSubscription, providerSlug: 'stripe', endsAt: '2099-01-15T00:00:00Z', canResume: true }] })
+            visitAuthenticatedPage('/account', window => playContext(window, enabled))
+            cy.get('#subscription-active-subscription').should('contain.text', 'Canceled')
+                .find('[data-testid="reactivate-subscription"]').should(enabled ? 'not.exist' : 'be.visible')
+        })
+    }
+})
+
+describe('Notifier pricing in the app', () => {
+    for (const enabled of [true, false]) {
+        it(`${enabled ? 'hides' : 'keeps'} the web upgrade offer with the rollout ${enabled ? 'on' : 'off'}`, () => {
+            stubProducts()
+            cy.intercept('GET', '**/api/notifications/listeners', { body: [] })
+            cy.intercept('GET', '**/api/notifications/targets', { body: [] })
+            cy.intercept('GET', '**/api/notifications/subscriptions', { body: [1, 2, 3].map(id => ({ id, targets: [] })) })
+            visitAuthenticatedPage('/subscriptions', window => playContext(window, enabled))
+            cy.get('#notifier-3').should('be.visible')
+            cy.contains('a', 'Upgrade Now').should(enabled ? 'not.exist' : 'be.visible')
+            cy.contains('€16.69 for the first 52 weeks').should(enabled ? 'not.exist' : 'be.visible')
+        })
+    }
+})
 
 describe('Premium refresh after checkout', () => {
     const ownership = { premium: { expiresAt: '2099-02-01T00:00:00Z' } }
@@ -2915,7 +2975,7 @@ describe('Slot subscriptions with Stripe, PayPal and the promotion', () => {
         cy.get('.modal').contains('button', 'Loading payment options…').should('be.disabled')
         cy.get('.modal').contains('button', 'Pay with card').should('not.exist')
         germanProviders.release()
-        cy.get('.modal').contains('button', 'Continue to checkout').should('be.visible')
+        cy.get('.modal').contains('button', 'Continue to checkout').scrollIntoView().should('be.visible')
         cy.get('.modal button[aria-label="Pay with PayPal"]').should('not.exist')
     })
 })

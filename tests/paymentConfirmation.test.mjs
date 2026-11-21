@@ -29,6 +29,16 @@ const grant = (ms, reference = 'paypal-sale-1') => [
 const topUp = (ms, productId = 's_cc_1800', reference = 'pi_1') => ({ productId, reference, amount: 1800, timeStamp: iso(ms) })
 const firstLookup = (purchase = 'unknown') => ({ returnedAt: RETURNED_AT, baseline: null, purchase })
 
+test('a Play subscription return is confirmed only by a Play credit for that plan', () => {
+    const lookup = { ...firstLookup(), playSubscription: 'l_premium' }
+    assert.equal(isPurchaseConfirmed(grant(RETURNED_AT, 'stripe-invoice-1'), lookup), false)
+    assert.equal(isPurchaseConfirmed([topUp(RETURNED_AT, 'ps_cc_1800', 'play-coin-order')], lookup), false)
+    assert.equal(isPurchaseConfirmed([
+        { ...grant(RETURNED_AT, 'googleplay-order-GPA.1')[1], productId: 'l_prem_plus' }
+    ], lookup), false)
+    assert.equal(isPurchaseConfirmed(grant(RETURNED_AT, 'googleplay-order-GPA.2'), lookup), true)
+})
+
 test('only PayPal appends an id: a subscription id before its token, an order id as token', () => {
     assert.equal(getPurchaseReference('?subscription_id=I-ABC&ba_token=BA-1&token=EC-1'), 'I-ABC')
     assert.equal(getPurchaseReference('?token=5O190127TN364715T&PayerID=X'), '5O190127TN364715T')

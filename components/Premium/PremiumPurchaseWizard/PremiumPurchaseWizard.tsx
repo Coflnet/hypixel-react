@@ -19,6 +19,7 @@ import WizardHeader from './WizardHeader'
 
 interface Props {
     showSlots: boolean
+    coinsOnly?: boolean
     activePremiumProduct: PremiumProduct
     premiumSubscriptions: PremiumSubscription[]
     onNewActivePremiumProduct: () => void
@@ -140,7 +141,7 @@ function PremiumPurchaseWizard(props: Props) {
         }
     }
 
-    const isUpgradeFlow = (): boolean => !props.showSlots && !!(hasActivePremium() && getCurrentTier())
+    const isUpgradeFlow = (): boolean => !props.coinsOnly && !props.showSlots && !!(hasActivePremium() && getCurrentTier())
 
     const { visible: visibleStep, total: totalSteps } = getStepDisplay({
         currentStep,
@@ -193,7 +194,7 @@ function PremiumPurchaseWizard(props: Props) {
 
     function selectRequestedTier(tier: PremiumTier) {
         const currentTier = getCurrentTier()
-        const isUpgrade = !props.showSlots && !!(hasActivePremium() && currentTier)
+        const isUpgrade = isUpgradeFlow()
         // the same tier extends it (like /premium?tier=...), only a downgrade stays on the tier step
         if (isUpgrade && currentTier && getTierRank(tier) < getTierRank(currentTier)) {
             // the active tier cannot be bought as an upgrade: without a higher tier nothing is chosen
@@ -308,6 +309,7 @@ function PremiumPurchaseWizard(props: Props) {
                         onTierSelect={chooseTier}
                         selectedTier={selectedTier}
                         forFriends={props.showSlots}
+                        coinsOnly={props.coinsOnly}
                         currentTier={currentTier}
                         isUpgrade={isUpgrade}
                         suggestedTier={suggestedTier}
@@ -317,7 +319,7 @@ function PremiumPurchaseWizard(props: Props) {
                     />
                 )
             case STEP.TYPE:
-                return <PaymentMethodStep selectedType={selectedType} onTypeSelect={chooseType} />
+                return <PaymentMethodStep selectedType={selectedType} onTypeSelect={chooseType} coinsOnly={props.coinsOnly} />
             case STEP.PACKAGE:
                 return (
                     <PackageSelectionStep
@@ -338,6 +340,7 @@ function PremiumPurchaseWizard(props: Props) {
                         onDurationSelect={chooseDuration}
                         countryCode={selectedCountry?.value}
                         offer={durationOffer}
+                        coinsOnly={props.coinsOnly}
                     />
                 )
             case STEP.PURCHASE:
@@ -348,7 +351,7 @@ function PremiumPurchaseWizard(props: Props) {
                             tier={selectedTier!}
                             purchaseType={selectedType!}
                             slotCount={slotCount}
-                            initialDiscountCode={urlDiscountCode}
+                            initialDiscountCode={props.coinsOnly ? undefined : urlDiscountCode}
                             countryCode={selectedCountry?.value}
                             busy={slotPurchaseBusy}
                             onBusyChange={setSlotPurchaseBusy}
@@ -388,7 +391,7 @@ function PremiumPurchaseWizard(props: Props) {
                 title={getStepTitle(currentStep, copyContext)}
                 titleId={titleId}
                 titleRef={titleRef}
-                helper={getStepHelper(currentStep, copyContext)}
+                helper={props.coinsOnly && currentStep === STEP.TYPE ? null : getStepHelper(currentStep, copyContext)}
                 tier={selectedTier}
                 chips={getSummaryChips(flowState)}
                 chipsDisabled={slotPurchaseBusy}

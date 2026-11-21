@@ -3,6 +3,7 @@ import { headers } from 'next/headers'
 import { getHeadMetadata, getCanonicalUrl } from '../../utils/SSRUtils'
 import Premium from '../../components/Premium/Premium'
 import PremiumLanding from '../../components/PremiumLanding/PremiumLanding'
+import PremiumCheckoutSurface from '../../components/Premium/PremiumCheckoutSurface'
 import { PremiumVariantProvider } from '../../components/Premium/PremiumVariantContext'
 import { BOT_VARIANT_VALUE, CONTROL_VARIANT, isPremiumVariant, PREMIUM_VARIANT_HEADER, PremiumVariant } from '../../utils/PremiumExperiment'
 import { Container } from 'react-bootstrap'
@@ -20,17 +21,21 @@ async function getExperimentVariant(): Promise<PremiumVariant | undefined> {
 
 export default async function Page() {
     // the page is rendered per request: the banner's space is reserved only where the visitor's country gets the sale
-    const country = (await headers()).get(COUNTRY_HEADER)
+    const requestHeaders = await headers()
+    const country = requestHeaders.get(COUNTRY_HEADER)
+    const mayBePlayApp = /android/i.test(requestHeaders.get('user-agent') ?? '')
     const [variant, likelyPromotion] = await Promise.all([getExperimentVariant(), getLikelyPromotion(country)])
     return (
         <PremiumVariantProvider variant={variant}>
-            {variant === 'new' ? (
-                <PremiumLanding likelyPromotion={likelyPromotion} />
-            ) : (
-                <Container>
-                    <Premium likelyPromotion={likelyPromotion} />
-                </Container>
-            )}
+            <PremiumCheckoutSurface mayBePlayApp={mayBePlayApp}>
+                {variant === 'new' ? (
+                    <PremiumLanding likelyPromotion={likelyPromotion} />
+                ) : (
+                    <Container>
+                        <Premium likelyPromotion={likelyPromotion} />
+                    </Container>
+                )}
+            </PremiumCheckoutSurface>
         </PremiumVariantProvider>
     )
 }

@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import { Card, Button, Alert, Form, InputGroup, Spinner } from 'react-bootstrap'
 import Number from '../Number/Number'
 import PurchaseElement from './PurchaseElement'
+import GooglePlayBillingNotice from './GooglePlayBillingNotice'
 import { postApiTopupRates, getApiDiscountCode } from '../../api/_generated/skyApi'
 import type { BatchProductPricingResponse, ValidatedDiscount } from '../../api/_generated/skyApi.schemas'
 import { getProvider, getProviderPrice, getProviderOriginalPrice } from '../../utils/PricingUtils'
@@ -36,9 +37,10 @@ interface Props {
     loadingProductId: string
     isGooglePlayAvailable?: boolean
     isAndroidApp?: boolean
+    playApp: boolean
 }
 
-function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoins, onPayPalPay, onStripePay, onLemonSqueezyPay, onGooglePlayPay, loadingProductId, isGooglePlayAvailable, isAndroidApp }: Props) {
+function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoins, onPayPalPay, onStripePay, onLemonSqueezyPay, onGooglePlayPay, loadingProductId, isGooglePlayAvailable, isAndroidApp, playApp }: Props) {
     const [creatorCode, setCreatorCode] = useState('')
     const [isLoadingPrices, setIsLoadingPrices] = useState(false)
     const [pricingData, setPricingData] = useState<BatchProductPricingResponse | null>(null)
@@ -283,7 +285,7 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                                 Current balance: <Number number={coflCoins} /> coins
                             </p>
                         </div>
-                        <div style={{ textAlign: 'right' }}>
+                        <div style={{ textAlign: 'right' }} hidden={playApp}>
                             <div style={{ fontSize: '1.3rem', fontWeight: '600', color: '#20c997' }}>From €{selectedOption.stripePrice.toFixed(2)}</div>
                             <div style={{ fontSize: '0.85rem', color: '#adb5bd' }}>
                                 €{(selectedOption.stripePrice / selectedOption.amount).toFixed(4)} per coin
@@ -304,21 +306,7 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                 </Card.Body>
             </Card>
 
-            {isAndroidApp && (
-                <Alert variant="info" style={{ marginBottom: '20px' }}>
-                    <Alert.Heading style={{ fontSize: '0.95rem', marginBottom: '8px' }}>💡 Limited to Google Play</Alert.Heading>
-                    <p style={{ marginBottom: 0, fontSize: '0.9rem' }}>
-                        The Android app only supports Google Play Billing. For other payment methods like PayPal or Stripe, visit the <a
-                            href="https://coflnet.com/premium"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ fontWeight: '600' }}
-                        >
-                            website
-                        </a>.
-                    </p>
-                </Alert>
-            )}
+            {isAndroidApp && <GooglePlayBillingNotice />}
 
             <div style={{ marginBottom: '20px' }}>
                 <h5>Choose Payment Method</h5>
@@ -361,7 +349,7 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                     googlePlayDiscount={discountMultipliers.googlepay}
                     currencyCode={currencyCode}
                 />
-                <div>
+                <div hidden={playApp}>
                     {/* Creator Code Input Card */}
                     <Card style={{ backgroundColor: '#2a3644', border: '1px solid #495057', height: 'fit-content' }}>
                         <Card.Header>

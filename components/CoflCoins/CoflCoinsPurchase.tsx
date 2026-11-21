@@ -18,11 +18,17 @@ import { getGeneratedApiErrorMessage } from '../../utils/GeneratedApiResponseUti
 import styles from './CoflCoinsPurchase.module.css'
 import { usePremiumVariant } from '../Premium/PremiumVariantContext'
 import { trackPremiumFunnelEvent } from '../../utils/PremiumTracking'
+import { isAndroidApp } from '../../utils/AndroidApp'
+import { usePlaySubscriptionsEnabled } from '../../hooks/usePlaySubscriptionsEnabled'
+import { usePlayApp } from '../../hooks/usePlayApp'
+import { getPlayBillingError, getPlaySubscriptionResult } from '../../utils/PlaySubscriptions'
 
 const PAYMENT_REDIRECT_ERROR = 'Something went wrong. Please try again.'
 
 function Payment() {
     const variant = usePremiumVariant()
+    const playSubscriptionsEnabled = usePlaySubscriptionsEnabled()
+    const playApp = usePlayApp()
     const [loadingId, setLoadingId] = useState('')
     const [currentRedirectLink, setCurrentRedirectLink] = useState('')
     const [showAll, setShowAll] = useState(false)
@@ -31,6 +37,7 @@ function Payment() {
     const [isGooglePlayAvailable, setIsGooglePlayAvailable] = useState(false)
     const coflCoins = useCoflCoins()
     const isDisabled = !selectedCountry
+    const androidApp = isAndroidApp()
 
     // Initialize billing on first render
     if (typeof window !== 'undefined' && !window.__billingInitialized) {
@@ -38,34 +45,33 @@ function Payment() {
         initializeBilling()
     }
 
-    function initializeBilling() {
-        // Check for billing errors in URL hash
+    function showBillingHashResult() {
         const hash = window.location.hash
-        if (hash.startsWith('#billing_error_')) {
-            const errorMatch = hash.match(/#billing_error_([^_]+)_(.+)/)
-            if (errorMatch) {
-                const errorId = errorMatch[1]
-                const errorMessage = decodeURIComponent(errorMatch[2].replace(/\+/g, ' '))
+        const errorMatch = hash.match(/^#billing_error_([^_]+)_(.+)/)
+        if (!errorMatch || (playSubscriptionsEnabled && getPlaySubscriptionResult(hash, true))) return
 
-                console.error('[Billing] Error from Android:', { errorId, errorMessage })
-
-                // Show user-friendly error message
-                let userMessage = 'Purchase failed: ' + errorMessage
-                if (errorMessage === 'Server validation failed' || errorMessage === 'Product not found') {
-                    userMessage += '. Please contact support if this issue persists.'
-                }
-
-                toast.error(userMessage, { autoClose: 10000 })
-
-                // Clear the error from URL
-                window.history.replaceState(null, '', window.location.pathname + window.location.search)
-
-                // Clear loading state if it matches the error ID
-                if (loadingId && loadingId.includes(errorId)) {
-                    setLoadingId('')
-                }
+        const [, errorId, encodedError] = errorMatch
+        if (playSubscriptionsEnabled) {
+            const { kind, message } = getPlayBillingError(hash.slice(hash.lastIndexOf('_') + 1))
+            const options = { autoClose: 10000 }
+            if (kind === 'processing') toast.info(message, { ...options, role: 'status' })
+            else toast.error(message, options)
+        } else {
+            const errorMessage = decodeURIComponent(encodedError.replace(/\+/g, ' '))
+            console.error('[Billing] Error from Android:', { errorId, errorMessage })
+            let userMessage = 'Purchase failed: ' + errorMessage
+            if (errorMessage === 'Server validation failed' || errorMessage === 'Product not found') {
+                userMessage += '. Please contact support if this issue persists.'
             }
+            toast.error(userMessage, { autoClose: 10000 })
         }
+
+        window.history.replaceState(null, '', window.location.pathname + window.location.search)
+        if (loadingId && loadingId.includes(errorId)) setLoadingId('')
+    }
+
+    function initializeBilling() {
+        showBillingHashResult()
 
         // Check for Android Billing availability with a delay
         setTimeout(() => {
@@ -149,7 +155,7 @@ function Payment() {
     function checkGooglePlayAvailability() {
         const isAndroid = /android/i.test(navigator.userAgent)
         const isTWA = document.referrer.includes('android-app://com.coflnet.sky')
-        const available = isAndroid && (isTWA || window.matchMedia('(display-mode: standalone)').matches)
+        const available = isAndroidApp()
 
         console.log('[Billing] checkGooglePlayAvailability result:', available, {
             isAndroid,
@@ -289,16 +295,18 @@ function Payment() {
         )
     }
 
-    if (useWizard) {
+    if (useWizard || playApp) {
         return (
             <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                     <div>
                         <CountrySelect onCountryChange={handleCountryChange} />
                     </div>
-                    <Button variant="outline-secondary" size="sm" onClick={() => setUseWizard(false)}>
-                        Switch to Classic View
-                    </Button>
+                    {!playApp && (
+                        <Button variant="outline-secondary" size="sm" onClick={() => setUseWizard(false)}>
+                            Switch to Classic View
+                        </Button>
+                    )}
                 </div>
 
                 <CoflCoinPurchaseWizard
@@ -309,7 +317,9 @@ function Payment() {
                     onLemonSqueezyPay={onPayLemonSqueezy}
                     onGooglePlayPay={onPayGooglePlay}
                     loadingProductId={loadingId}
-                    isGooglePlayAvailable={isGooglePlayAvailable}
+                    isGooglePlayAvailable={isGooglePlayAvailable || playApp}
+                    isAndroidApp={androidApp}
+                    playApp={playApp}
                 />
             </div>
         )

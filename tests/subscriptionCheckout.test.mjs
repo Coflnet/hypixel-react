@@ -33,6 +33,16 @@ const highlights = loadModule('../components/PremiumLanding/content/tierHighligh
 const slotUpsell = loadModule('../utils/SlotUpsell.ts', { '../components/Premium/PremiumPurchaseWizard/types': types })
 const { Duration, PremiumTier, PurchaseType } = types
 
+test('website checkout explains an existing Play subscription only while Play subscriptions are enabled', () => {
+    const error = { slug: 'active_play_subscription' }
+    assert.match(checkout.getCheckoutErrorMessage(error, false), /Failed to redirect/)
+    assert.match(checkout.getCheckoutErrorMessage(error, true), /already subscribe through Google Play/)
+    assert.match(
+        checkout.getCheckoutErrorMessage({ slug: 'payment_error', message: 'Cancel your Google Play subscription before subscribing here.' }, true),
+        /Manage your subscription in Google Play/
+    )
+})
+
 /** how the plan cards are charged: card/PayPal in a direct country, Lemon Squeezy only, Stripe Managed Payments, and before the offer is known */
 const exactBilling = { exact: true, net: false, continues: true, settled: true }
 const lemonBilling = { exact: false, net: false, continues: false, settled: true }

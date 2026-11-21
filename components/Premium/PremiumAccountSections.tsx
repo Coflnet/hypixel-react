@@ -24,6 +24,7 @@ import type { SignInDialogControl } from './useSignInPrompt'
 import { PREMIUM_VARIANT_QUERY, withVariantOverride } from '../../utils/PremiumExperiment'
 import { useScrollToHashTarget } from '../../hooks/useScrollToHashTarget'
 import { getScrollBehavior } from '../../hooks/useScrollToAfterRender'
+import { usePlaySubscriptionsEnabled } from '../../hooks/usePlaySubscriptionsEnabled'
 import sectionStyles from './PremiumAccountSections.module.css'
 
 // Account and purchase building blocks of /premium, shared by both A/B variants so behaviour stays identical.
@@ -64,7 +65,7 @@ export function PremiumStatusLine({ account }: AccountProps) {
  * Owns the page's GoogleSignIn, so it stays mounted through the whole login. `dialog` (useSignInPrompt) lets actions
  * open the sign-in dialog and continue after the login; without it the inline "Sign in" is the only entry point.
  */
-export function PremiumSignIn({ account, dialog }: AccountProps & { dialog?: SignInDialogControl }) {
+export function PremiumSignIn({ account, dialog, onAuthenticated }: AccountProps & { dialog?: SignInDialogControl; onAuthenticated?(token: string): void }) {
     const { isLoggedIn, isLoading, products, premiumSubscriptions, onSubscriptionCancel, hasSubscriptionLoadingError, loadPremiumSubscriptions, onLogin, onLoginFail } = account
     return (
         <div id={SIGN_IN_TARGET} style={{ marginBottom: '20px' }}>
@@ -77,7 +78,7 @@ export function PremiumSignIn({ account, dialog }: AccountProps & { dialog?: Sig
                     onSubscriptionsChanged={loadPremiumSubscriptions}
                 />
             ) : null}
-            {dialog ? <GoogleSignIn {...dialog} /> : <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />}
+            <GoogleSignIn {...(dialog ?? { onAfterLogin: onLogin, onLoginFail })} onAuthenticated={onAuthenticated} />
             <div>{isLoading ? getLoadingElement() : ''}</div>
         </div>
     )
@@ -202,10 +203,13 @@ export function SlotsLink({ children, className, variant = 'success', onSignInNe
 }
 
 function ExtendHeaderActions({ account }: AccountProps) {
+    const playSubscriptionsEnabled = usePlaySubscriptionsEnabled()
     const { hasSubscriptionLoadingError, activeSubscriptions } = account
     if (!hasSubscriptionLoadingError && activeSubscriptions.length > 0) {
         // a subscription whose plan cannot change (e.g. PayPal) gets no upgrade button
-        const upgradable = activeSubscriptions.filter(subscription => subscription.canChangePlan !== false)
+        const upgradable = activeSubscriptions.filter(subscription =>
+            subscription.canChangePlan !== false && !(playSubscriptionsEnabled && subscription.providerSlug === 'googleplay')
+        )
         return (
             <div>
                 {upgradable.map(subscription => (

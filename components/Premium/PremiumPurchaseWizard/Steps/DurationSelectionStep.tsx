@@ -32,6 +32,7 @@ interface Props {
     onDurationSelect: (duration: Duration, advance: boolean) => void
     countryCode?: string
     offer: CheckoutOffer
+    coinsOnly?: boolean
 }
 
 /** CoflCoins price of the half-year Starter package, before VAT */
@@ -190,6 +191,7 @@ type OptionPrices = Pick<WizardOption<Duration>, 'price' | 'originalPrice' | 'di
 
 /** subscriptions compare prices per 4 weeks, CoflCoins per month */
 function getOptionPrices(props: Props, duration: Duration): OptionPrices {
+    if (props.coinsOnly) return {}
     const { offer } = props
     const net = isNetCharge(offer.providers, offer.mode)
     // exact or net: the page shows the charge as the backend computes it; Managed Payments shows net prices, so no VAT is added

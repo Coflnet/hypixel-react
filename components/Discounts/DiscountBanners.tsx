@@ -5,6 +5,7 @@ import { Button } from 'react-bootstrap'
 import api from '../../api/ApiHelper'
 import { Discount, formatDiscountEndDate, getActiveCoinsDiscount } from '../../utils/DiscountUtils'
 import { useVisitorPromotion } from '../../hooks/useCheckoutOffer'
+import { usePlayApp } from '../../hooks/usePlayApp'
 import { describeBestAmount, describePromotionScope, formatPromotionEnd } from '../../utils/SubscriptionCheckout'
 import type { AutoDiscount } from '../../api/_generated/skyApi.schemas'
 import { PremiumTier, getTierDisplayName } from '../Premium/PremiumPurchaseWizard/types'
@@ -108,9 +109,11 @@ function getPromotionHeadline(promotion: AutoDiscount): string {
  * discount is useless to them, so they instead see the CoflCoins sale (or nothing when no coins sale is running).
  */
 export function SubscriptionSalesBanner({ likelyPromotion }: { likelyPromotion?: AutoDiscount | null }) {
+    const playApp = usePlayApp()
     const hasPremiumPlus = useHasPremiumPlus()
     const coinsDiscount = getActiveCoinsDiscount()
 
+    if (playApp) return null
     if (!hasPremiumPlus) return <PromotionBanner likelyPromotion={likelyPromotion} />
     if (!coinsDiscount) return null
     return (
@@ -126,8 +129,9 @@ export function SubscriptionSalesBanner({ likelyPromotion }: { likelyPromotion?:
  * Rendered above the CoflCoins shop. Renders nothing while no coins discount is active.
  */
 export function CoinsSaleNote() {
+    const playApp = usePlayApp()
     const discount = getActiveCoinsDiscount()
-    if (!discount) {
+    if (playApp || !discount) {
         return null
     }
 
@@ -197,8 +201,9 @@ export function TierUpsellPanel({ currentTier, price, codeSavings, onUpgrade }: 
  * Renders nothing while no promotion runs for the visitor.
  */
 export function FlipListDiscountNote() {
+    const playApp = usePlayApp()
     const { promotion } = useVisitorPromotion()
-    if (!promotion) return null
+    if (playApp || !promotion) return null
     return (
         <span className={styles.flipNote} data-testid="flip-promotion-note">
             🎮 {promotion.name || 'Sale'}: {describeBestAmount(promotion)} {describePromotionScope(promotion)} of Premium, applied automatically

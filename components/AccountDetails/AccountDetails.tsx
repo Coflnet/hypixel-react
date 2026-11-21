@@ -24,8 +24,11 @@ import TransactionHistory from './TransactionHistory/TransactionHistory'
 import TierSlots from './TierSlots/TierSlots'
 import usePremiumRefresh from '../../hooks/usePremiumRefresh'
 import { useExtensionLinks } from '../../hooks/useExtensionLinks'
+import { usePlaySubscriptionsEnabled } from '../../hooks/usePlaySubscriptionsEnabled'
+import { PLAY_SUBSCRIPTION_MANAGEMENT } from '../../utils/PlaySubscriptions'
 
 function AccountDetails() {
+    const playSubscriptionsEnabled = usePlaySubscriptionsEnabled()
     const [isLoggedIn, setIsLoggedIn] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
     const [rerenderGoogleSignIn, setRerenderGoogleSignIn] = useState(0)
@@ -349,9 +352,15 @@ function AccountDetails() {
                         .map(subscription => (
                             <div key={subscription.externalId} style={{ paddingBottom: '1rem' }}>
                                 <p>{subscription.productName} · Subscription #{subscription.externalId}</p>
-                                <Button variant="outline-danger" onClick={() => setSubscriptionToCancel(subscription)}>
-                                    Cancel subscription
-                                </Button>
+                                {playSubscriptionsEnabled && subscription.providerSlug === 'googleplay' ? (
+                                    <Button as="a" href={subscription.manageUrl ?? PLAY_SUBSCRIPTION_MANAGEMENT} target="_blank" rel="noreferrer" variant="outline-primary">
+                                        Manage in Google Play
+                                    </Button>
+                                ) : (
+                                    <Button variant="outline-danger" onClick={() => setSubscriptionToCancel(subscription)}>
+                                        Cancel subscription
+                                    </Button>
+                                )}
                             </div>
                         ))}
                     <span className={styles.label}>Delete account:</span>

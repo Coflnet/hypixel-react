@@ -1,4 +1,5 @@
 'use client'
+import { usePlayApp } from '../../hooks/usePlayApp'
 import DeleteIcon from '@mui/icons-material/Delete'
 import UndoIcon from '@mui/icons-material/Undo'
 import Link from 'next/link'
@@ -37,6 +38,7 @@ function SubscriptionList() {
     const [highlightedTargetId, setHighlightedTargetId] = useState<number | undefined>()
     const [isLoading, setIsLoading] = useState(false)
     const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
+    const playApp = usePlayApp()
 
     useEffect(() => {
         mounted = true
@@ -551,7 +553,7 @@ function SubscriptionList() {
             {wasAlreadyLoggedIn && !isLoggedIn ? getLoadingElement() : ''}
             {!wasAlreadyLoggedIn && !isLoggedIn ? <p>To use subscriptions, please login with Google:</p> : ''}
             <GoogleSignIn onAfterLogin={onLogin} onLoginFail={onLoginFail} />
-            {subscriptions.length >= 3 && !hasStarterPremium ? (
+            {!playApp && subscriptions.length >= 3 && !hasStarterPremium ? (
                 <div className="alert alert-info d-flex align-items-center justify-content-between flex-wrap gap-3" style={{ marginTop: '20px' }}>
                     <span>
                         <strong>Want more notifiers?</strong> You have reached the free limit of 3. Unlock more notifiers with{' '}

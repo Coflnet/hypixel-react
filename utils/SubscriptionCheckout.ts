@@ -270,8 +270,12 @@ export function getDeclarationErrorSlug(data: unknown): DeclarationErrorSlug | n
     return slugs.find(slug => text.includes(slug)) ?? null
 }
 
-/** what a failed subscription checkout tells the buyer: what to do about the declaration, otherwise to try again */
-export function getCheckoutErrorMessage(data: unknown): string {
+export function getCheckoutErrorMessage(data: unknown, playSubscriptionsEnabled = false): string {
+    if (playSubscriptionsEnabled && (
+        hasErrorSlug(data, 'active_play_subscription') || readSlug(data).includes('Cancel your Google Play subscription before subscribing here.')
+    )) {
+        return 'You already subscribe through Google Play. Manage your subscription in Google Play.'
+    }
     const slug = getDeclarationErrorSlug(data)
     return slug ? DECLARATION_ERROR_MESSAGES[slug] : CHECKOUT_FAILED_MESSAGE
 }

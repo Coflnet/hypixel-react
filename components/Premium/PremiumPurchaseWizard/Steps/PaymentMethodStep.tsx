@@ -5,6 +5,7 @@ import { PurchaseType } from '../types'
 interface Props {
     selectedType: PurchaseType | null
     onTypeSelect: (type: PurchaseType, advance: boolean) => void
+    coinsOnly?: boolean
 }
 
 const TYPE_OPTIONS: WizardOption<PurchaseType>[] = [
@@ -21,6 +22,7 @@ const TYPE_OPTIONS: WizardOption<PurchaseType>[] = [
     }
 ]
 
-export default function PaymentMethodStep({ selectedType, onTypeSelect }: Props) {
-    return <OptionGroup legend="Plan type" options={TYPE_OPTIONS} selected={selectedType} onChoose={onTypeSelect} />
+export default function PaymentMethodStep({ selectedType, onTypeSelect, coinsOnly }: Props) {
+    const options = coinsOnly ? TYPE_OPTIONS.filter(option => option.value === PurchaseType.COFLCOINS) : TYPE_OPTIONS
+    return <OptionGroup legend="Plan type" options={options} selected={selectedType} onChoose={onTypeSelect} />
 }

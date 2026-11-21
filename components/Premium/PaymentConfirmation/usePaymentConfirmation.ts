@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useSyncExternalStore, type RefObject } fro
 import { useQuery, type Query } from '@tanstack/react-query'
 import { getApiPremiumTransactions } from '../../../api/_generated/skyApi'
 import { useGoogleToken } from '../../../hooks/useGoogleToken'
+import type { PlaySubscriptionSlug } from '../../../utils/PlaySubscriptions'
 import {
     RETURNED_AT_PARAM,
     SLOW_CONFIRMATION_MS,
@@ -94,14 +95,14 @@ function getReturnedAt(headers: Headers, loadedAt: number): number {
     return getServerReturnedAt(new URLSearchParams(window.location.search).get(RETURNED_AT_PARAM), loadedAt, serverNow, deviceNow)
 }
 
-async function lookUpPurchase(token: string, loadedAt: number, first: RefObject<FirstLookup | null>, signal: AbortSignal): Promise<LookupData> {
+async function lookUpPurchase(token: string, loadedAt: number, first: RefObject<FirstLookup | null>, signal: AbortSignal, playSubscription?: PlaySubscriptionSlug): Promise<LookupData> {
     const response = await getApiPremiumTransactions({ headers: { GoogleToken: token }, signal })
     if (response.status === 401 || response.status === 403) return { status: 'loggedOut', returnedAt: null }
     if (response.status !== 200 || !Array.isArray(response.data)) return { status: 'waiting', returnedAt: null }
     const known = first.current?.token === token ? first.current : null
     const returnedAt = known?.returnedAt ?? getReturnedAt(response.headers, loadedAt)
     const purchase = getPurchaseReturn(window.location.search)
-    const confirmed = isPurchaseConfirmed(response.data, { returnedAt, baseline: known?.keys ?? null, purchase })
+    const confirmed = isPurchaseConfirmed(response.data, { returnedAt, baseline: known?.keys ?? null, purchase, playSubscription })
     if (!known) first.current = { token, returnedAt, keys: getCreditKeys(response.data) }
     if (!confirmed) return { status: 'waiting', returnedAt }
     // the premium and account pages read the cached ownership; the buttons of the success state lead there
@@ -114,11 +115,11 @@ function isWaiting(query: Query<LookupData, Error, LookupData, readonly unknown[
 }
 
 /** polls the transactions with backoff while waiting; stops once confirmed, logged out or the page is left */
-function usePurchaseLookup(token: string | null, loadedAt: number | null) {
+function usePurchaseLookup(token: string | null, loadedAt: number | null, playSubscription?: PlaySubscriptionSlug) {
     const first = useRef<FirstLookup | null>(null)
     return useQuery({
-        queryKey: ['paymentConfirmation', token, loadedAt],
-        queryFn: ({ signal }) => lookUpPurchase(token!, loadedAt!, first, signal),
+        queryKey: ['paymentConfirmation', token, loadedAt, playSubscription],
+        queryFn: ({ signal }) => lookUpPurchase(token!, loadedAt!, first, signal, playSubscription),
         enabled: !!token && loadedAt !== null,
         staleTime: 0,
         retry: false,
@@ -133,11 +134,11 @@ function getStatus(hydrated: boolean, token: string | null, result: LookupResult
     return result ?? 'waiting'
 }
 
-export function usePaymentConfirmation(): PaymentConfirmation {
+export function usePaymentConfirmation(playSubscription?: PlaySubscriptionSlug): PaymentConfirmation {
     const hydrated = useHydrated()
     const token = useGoogleToken()
     const loadedAt = useLoadedAt()
-    const lookup = usePurchaseLookup(token, loadedAt)
+    const lookup = usePurchaseLookup(token, loadedAt, playSubscription)
     useReturnedAtInUrl(lookup.data?.returnedAt)
     const status = getStatus(hydrated, token, lookup.data?.status)
     const slow = useHasPassed(loadedAt === null ? null : loadedAt + SLOW_CONFIRMATION_MS)

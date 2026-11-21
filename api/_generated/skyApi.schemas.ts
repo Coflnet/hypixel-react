@@ -2802,6 +2802,14 @@ export interface GooglePlayPurchaseRequest {
   userId: string | null;
 }
 
+export interface GooglePlaySubscriptionResult {
+  isValid: boolean;
+  /** @nullable */
+  status?: string | null;
+  /** @nullable */
+  errorMessage?: string | null;
+}
+
 export interface GraphResult {
   maxBuy: number;
   maxSell: number;
@@ -3956,6 +3964,55 @@ export interface PetLevelingFlip {
   coinsPerExp: number;
 }
 
+/**
+ * Signed checkout data for the app.
+ */
+export interface PlaySubscriptionCheckout {
+  /**
+     * The signed-in user's identifier.
+     * @minLength 1
+     */
+  obfuscatedAccountId: string;
+  /**
+     * The Google Play subscription product ID.
+     * @minLength 1
+     */
+  playProductId: string;
+  /**
+     * The Google Play base plan ID.
+     * @minLength 1
+     */
+  basePlanId: string;
+  /**
+     * The verified Minecraft name, masked email, or a generic label.
+     * @minLength 1
+     */
+  accountLabel: string;
+  /** Expiration as Unix seconds. */
+  expiresAt: number;
+  /**
+     * Base64url-encoded DER ECDSA P-256 signature over the checkout data.
+     * @minLength 1
+     */
+  signature: string;
+}
+
+/**
+ * A purchase returned by Google Play Billing.
+ */
+export interface PlaySubscriptionPurchase {
+  /**
+     * The token returned by Play Billing.
+     * @nullable
+     */
+  purchaseToken?: string | null;
+  /**
+     * The optional Google Play subscription product ID.
+     * @nullable
+     */
+  subscriptionId?: string | null;
+}
+
 export interface PlayerResult {
   /** @nullable */
   name: string | null;
@@ -4006,10 +4063,15 @@ export interface PremiumSubscription {
   /** Gets or sets the created at. */
   createdAt: string;
   /**
-     * Payment provider that bills this subscription (lemonsqueezy, stripe, paypal).
+     * Payment provider that bills this subscription (lemonsqueezy, stripe, paypal, googleplay).
      * @nullable
      */
   providerSlug?: string | null;
+  /**
+     * Provider page where the customer can manage this subscription, if available.
+     * @nullable
+     */
+  manageUrl?: string | null;
   /** Whether a cancelled subscription can be reactivated; false for example for PayPal. */
   canResume: boolean;
   /** Whether the plan can be switched to another tier. */
@@ -5963,6 +6025,8 @@ export interface TopUpIdResponse {
   dirctLink?: string | null;
   /** @nullable */
   directLink?: string | null;
+  /** @nullable */
+  trialDays?: number | null;
 }
 
 export interface TopUpProduct {
@@ -6610,6 +6674,10 @@ export type PutApiPremiumSubscriptionExternalIdSwitch401One = {
 };
 
 export type GetApiPremiumSubscriptionExternalIdPlans401One = {
+  message?: string;
+};
+
+export type PostApiPremiumSubscriptionProductSlugPlaystore401One = {
   message?: string;
 };
 

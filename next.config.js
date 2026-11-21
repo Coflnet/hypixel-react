@@ -4,6 +4,9 @@ const withMDX = require('@next/mdx')()
 const nextConfig = {
     reactStrictMode: true,
     poweredByHeader: false,
+    env: {
+        NEXT_PUBLIC_TEST_RUNNER: process.env.NEXT_PUBLIC_TEST_RUNNER ?? 'false'
+    },
     // scripts/cypress-prod.sh builds into its own directory so the dev server's .next survives
     distDir: process.env.NEXT_DIST_DIR || '.next',
     compress: true,

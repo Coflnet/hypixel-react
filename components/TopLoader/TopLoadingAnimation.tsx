@@ -28,8 +28,6 @@ export default function TopLoadingAnimation() {
             return currentUrlObj.hostname === newUrlObj.hostname && currentUrlObj.pathname === newUrlObj.pathname
         }
 
-        // eslint-disable-next-line no-var
-        var npgclass = document.querySelectorAll('html')
         function findClosestAnchor(element: HTMLElement | null): HTMLAnchorElement | null {
             while (element && element.tagName.toLowerCase() !== 'a') {
                 element = element.parentElement
@@ -38,39 +36,37 @@ export default function TopLoadingAnimation() {
         }
         function handleClick(event: MouseEvent) {
             try {
-                const target = event.target as HTMLElement
-                const anchor = findClosestAnchor(target)
-                if (anchor) {
-                    const currentUrl = window.location.href
-                    const newUrl = (anchor as HTMLAnchorElement).href
-                    const isExternalLink = (anchor as HTMLAnchorElement).target === '_blank'
-                    const isAnchor = isNoSufficientNavigation(currentUrl, newUrl)
-                    if (newUrl === currentUrl || isAnchor || isExternalLink) {
-                        NProgress.start()
-                        NProgress.done()
-                        ;[].forEach.call(npgclass, function (el: Element) {
-                            el.classList.remove('nprogress-busy')
-                        })
-                    } else {
-                        NProgress.start()
-                        ;(function (history) {
-                            const pushState = history.pushState
-                            history.pushState = function () {
-                                NProgress.done()
-                                ;[].forEach.call(npgclass, function (el: Element) {
-                                    el.classList.remove('nprogress-busy')
-                                })
-                                // eslint-disable-next-line prefer-rest-params, @typescript-eslint/no-explicit-any
-                                return pushState.apply(history, arguments as any)
-                            }
-                        })(window.history)
-                    }
+                const anchor = findClosestAnchor(event.target as HTMLElement)
+                if (!anchor || (anchor.protocol !== 'http:' && anchor.protocol !== 'https:')) return
+
+                const currentUrl = window.location.href
+                const newUrl = anchor.href
+                const isExternalLink = anchor.target === '_blank'
+                const isAnchor = isNoSufficientNavigation(currentUrl, newUrl)
+                NProgress.start()
+                if (newUrl === currentUrl || isAnchor || isExternalLink) {
+                    finishProgress()
+                } else {
+                    finishOnPushState(window.history)
                 }
             } catch {
                 // Log the error in development only!
                 // console.log('NextTopLoader error: ', err);
                 NProgress.start()
                 NProgress.done()
+            }
+        }
+
+        function finishProgress() {
+            NProgress.done()
+            document.documentElement.classList.remove('nprogress-busy')
+        }
+
+        function finishOnPushState(history: History) {
+            const pushState = history.pushState
+            history.pushState = function (...args: Parameters<History['pushState']>) {
+                finishProgress()
+                return pushState.apply(history, args)
             }
         }
 
