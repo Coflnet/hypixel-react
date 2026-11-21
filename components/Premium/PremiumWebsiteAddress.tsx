@@ -23,7 +23,7 @@ export default function PremiumWebsiteAddress() {
 
     return (
         <>
-            Open your browser and go to <span style={{ userSelect: 'text' }}>{ADDRESS}</span>{' '}
+            Open your browser and go to <span style={{ userSelect: 'all' }}>{ADDRESS}</span>{' '}
             <Button type="button" variant="secondary" size="sm" onClick={copyAddress}>Copy address</Button>
             <span className="ms-2" role="status">{status}</span>
         </>

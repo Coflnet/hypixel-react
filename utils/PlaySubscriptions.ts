@@ -92,8 +92,9 @@ export function getPlayBillingError(encodedError: string): PlayBillingResult {
         case 'server completed the purchase, but play consumption will be retried':
         case 'purchase completion was interrupted and will be retried':
         case 'could not persist server completion; purchase was not consumed':
-        case 'server validation failed for the purchase':
             return { kind: 'processing', message: 'Your CoflCoins purchase is processing. Check your balance before trying again.' }
+        case 'server validation failed for the purchase':
+            return { kind: 'processing', message: "Your CoflCoins purchase is being verified. If your balance doesn't update soon, contact support." }
         case 'this purchase cannot be completed automatically. contact support.':
             return { kind: 'error', message: 'This CoflCoins purchase cannot be completed automatically. Please contact support before trying again.' }
         default:

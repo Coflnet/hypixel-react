@@ -131,17 +131,19 @@ test('Android result hashes preserve full subscription slugs and map known resul
     assert.equal(getPlaySubscriptionResult('#billing_success_l_premium-year', false), null)
 })
 
-test('CoflCoins retry results show processing and unrecoverable completion points to support', () => {
+test('CoflCoins billing results distinguish retries, verification, and unrecoverable completion', () => {
     for (const message of [
         'Server completed the purchase, but Play consumption will be retried',
         'Purchase completion was interrupted and will be retried',
-        'Could not persist server completion; purchase was not consumed',
-        'Server validation failed for the purchase'
+        'Could not persist server completion; purchase was not consumed'
     ]) {
         const result = getPlayBillingError(encodeURIComponent(message))
         assert.equal(result.kind, 'processing')
         assert.equal(result.message, 'Your CoflCoins purchase is processing. Check your balance before trying again.')
     }
+    const verification = getPlayBillingError(encodeURIComponent('Server validation failed for the purchase'))
+    assert.equal(verification.kind, 'processing')
+    assert.equal(verification.message, "Your CoflCoins purchase is being verified. If your balance doesn't update soon, contact support.")
     const result = getPlayBillingError(encodeURIComponent('This purchase cannot be completed automatically. Contact support.'))
     assert.equal(result.kind, 'error')
     assert.equal(result.message, 'This CoflCoins purchase cannot be completed automatically. Please contact support before trying again.')

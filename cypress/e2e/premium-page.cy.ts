@@ -795,7 +795,7 @@ describe('Google Play subscription checkout', () => {
 
     function expectBrowserDirections() {
         cy.contains('Open your browser and go to sky.coflnet.com/premium').should('be.visible')
-        cy.contains('span', /^sky\.coflnet\.com\/premium$/).should('be.visible').and('have.css', 'user-select', 'text')
+        cy.contains('span', /^sky\.coflnet\.com\/premium$/).should('be.visible').and('have.css', 'user-select', 'all')
         cy.get('a[href^="intent:"][href*="package=com.android.chrome"], a[href="https://coflnet.com/premium"]').should('not.exist')
     }
 
@@ -841,12 +841,14 @@ describe('Google Play subscription checkout', () => {
         })
         cy.document().then(document => {
             expect(document.defaultView?.matchMedia('(display-mode: standalone)').matches).to.equal(false)
-            const css = Array.from(document.styleSheets)
+            const checkoutClass = /\.([\w-]*webCheckout[\w-]*)/
+            const mediaRule = Array.from(document.styleSheets)
                 .filter(sheet => !sheet.href || new URL(sheet.href).origin === document.location.origin)
-                .flatMap(sheet => Array.from(sheet.cssRules, rule => rule.cssText)).join('\n')
-            const className = css.match(/\.([\w-]*webCheckout[\w-]*)/)
-            expect(className, 'shipped checkout hiding class').not.to.equal(null)
-            cy.contains('h1', NEW_PAGE_TITLE).invoke('addClass', className![1]).should('be.visible')
+                .flatMap(sheet => Array.from(sheet.cssRules))
+                .find(rule => rule.type === CSSRule.MEDIA_RULE && checkoutClass.test(rule.cssText)) as CSSMediaRule | undefined
+            expect(mediaRule?.media.mediaText, 'checkout hiding media query').to.equal('(display-mode: standalone)')
+            const className = mediaRule!.cssText.match(checkoutClass)![1]
+            cy.contains('h1', NEW_PAGE_TITLE).invoke('addClass', className).should('be.visible')
         })
         cy.contains('#premium-sign-in button', 'Sign in').should('not.exist')
     })
@@ -1025,12 +1027,13 @@ describe('Google Play subscription checkout', () => {
                 playContext(window)
                 Object.defineProperty(window.navigator, 'clipboard', {
                     configurable: true,
-                    value: clipboard === 'unavailable' ? undefined : { writeText: cy.stub().rejects(new Error('Copy denied')) }
+                    value: clipboard === 'unavailable' ? undefined : { writeText: cy.stub().as('copyAddress').rejects(new Error('Copy denied')) }
                 })
             })
             cy.get('#plans').within(() => {
                 expectBrowserDirections()
                 cy.contains('button', 'Copy address').click()
+                if (clipboard === 'rejected') cy.get('@copyAddress').should('have.been.calledOnceWithExactly', 'sky.coflnet.com/premium')
                 cy.contains('[role="status"]', 'Select the address to copy it manually.').should('be.visible')
                 cy.contains('Address copied.').should('not.exist')
             })
@@ -1163,7 +1166,10 @@ describe('Google Play subscription checkout', () => {
         it(`shows processing rather than failure for a CoflCoins return: ${message}`, () => {
             stubAccount()
             visitPlayCheckout(`/premium#billing_error_ps_cc_1800_${encodeURIComponent(message)}`)
-            cy.contains('[role="status"]', 'Your CoflCoins purchase is processing. Check your balance before trying again.').should('be.visible')
+            const expected = message === 'Server validation failed for the purchase'
+                ? "Your CoflCoins purchase is being verified. If your balance doesn't update soon, contact support."
+                : 'Your CoflCoins purchase is processing. Check your balance before trying again.'
+            cy.contains('[role="status"]', expected).should('be.visible')
             cy.contains('Purchase failed').should('not.exist')
             cy.contains('Google Play reported a checkout problem.').should('not.exist')
             cy.location('hash').should('equal', '')
