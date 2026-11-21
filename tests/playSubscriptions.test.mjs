@@ -134,7 +134,9 @@ test('Android result hashes preserve full subscription slugs and map known resul
 test('CoflCoins retry results show processing and unrecoverable completion points to support', () => {
     for (const message of [
         'Server completed the purchase, but Play consumption will be retried',
-        'Purchase completion was interrupted and will be retried'
+        'Purchase completion was interrupted and will be retried',
+        'Could not persist server completion; purchase was not consumed',
+        'Server validation failed for the purchase'
     ]) {
         const result = getPlayBillingError(encodeURIComponent(message))
         assert.equal(result.kind, 'processing')

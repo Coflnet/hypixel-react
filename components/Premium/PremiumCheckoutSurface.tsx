@@ -6,10 +6,11 @@ import { usePlaySubscriptionsEnabled } from '../../hooks/usePlaySubscriptionsEna
 import { usePlayApp } from '../../hooks/usePlayApp'
 import { usePlaySubscriptionResult } from '../../hooks/usePlaySubscriptionResult'
 import { useIsMounted } from '../../utils/Hooks'
-import { getPlayPurchaseMode, getPlaySubscriptionLabel, PLAY_STORE_LISTING, PLAY_WEBSITE_CHROME_INTENT } from '../../utils/PlaySubscriptions'
+import { getPlayPurchaseMode, getPlaySubscriptionLabel, PLAY_STORE_LISTING } from '../../utils/PlaySubscriptions'
 import { parseTierFromUrl } from '../../utils/PremiumUpgradeUtils'
 import NavBar from '../NavBar/NavBar'
 import PlaySubscriptionPurchase from './PlaySubscriptionPurchase'
+import PremiumWebsiteAddress from './PremiumWebsiteAddress'
 import styles from './PremiumCheckoutSurface.module.css'
 
 export default function PremiumCheckoutSurface({ children, mayBePlayApp }: { children: ReactNode; mayBePlayApp: boolean }) {
@@ -43,11 +44,10 @@ export default function PremiumCheckoutSurface({ children, mayBePlayApp }: { chi
             {failureNotice}
             {mode === 'update' ? (
                 <Alert variant="info">
-                    <div className="d-flex flex-wrap gap-3 mb-2">
+                    <p className="mb-2">
                         <a href={PLAY_STORE_LISTING}>Update or install the app from Google Play</a>
-                        <a href={PLAY_WEBSITE_CHROME_INTENT}>Pay on the website instead</a>
-                    </div>
-                    <p className="mb-0">If Chrome isn’t installed, open sky.coflnet.com/premium in your browser.</p>
+                    </p>
+                    <p className="mb-0"><PremiumWebsiteAddress /></p>
                 </Alert>
             ) : (
                 <PlaySubscriptionPurchase requestedTier={parseTierFromUrl(params?.get('tier') ?? null)} forFriends={params?.get('slots') === 'true'} />

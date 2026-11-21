@@ -306,7 +306,7 @@ function CoflCoinPaymentSelection({ selectedOption, onBack, countryCode, coflCoi
                 </Card.Body>
             </Card>
 
-            {isAndroidApp && <GooglePlayBillingNotice />}
+            {isAndroidApp && <GooglePlayBillingNotice playApp={playApp} />}
 
             <div style={{ marginBottom: '20px' }}>
                 <h5>Choose Payment Method</h5>

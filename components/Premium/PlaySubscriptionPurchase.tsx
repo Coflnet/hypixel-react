@@ -16,11 +16,11 @@ import {
     PLAY_SUBSCRIPTION_SLUGS,
     type PlaySubscriptionSlug
 } from '../../utils/PlaySubscriptions'
-import { PREMIUM_WEBSITE_URL } from '../CoflCoins/GooglePlayBillingNotice'
 import { CoflCoinsPurchaseBlock, PremiumSignIn, PremiumStatusLine, TermsAlerts } from './PremiumAccountSections'
 import PremiumFeatures from './PremiumFeatures/PremiumFeatures'
 import PremiumPurchaseWizard from './PremiumPurchaseWizard/PremiumPurchaseWizard'
 import type { PremiumTier } from './PremiumPurchaseWizard/types'
+import PremiumWebsiteAddress from './PremiumWebsiteAddress'
 import { SIGN_IN_TARGET, WIZARD_TARGET } from './purchaseTarget'
 import { usePremiumAccount } from './usePremiumAccount'
 
@@ -131,8 +131,8 @@ export default function PlaySubscriptionPurchase({ requestedTier, forFriends }: 
             <TermsAlerts account={account} />
             <section id="plans">
                 <p>
-                    Starter subscriptions, 13- and 52-week subscriptions, and creator and discount codes are available on the{' '}
-                    <a href={PREMIUM_WEBSITE_URL} target="_blank" rel="noreferrer">website</a>.
+                    Starter subscriptions, 13- and 52-week subscriptions, and creator and discount codes are available on the website.{' '}
+                    <PremiumWebsiteAddress />
                 </p>
                 <Card id={WIZARD_TARGET} ref={scrollOnArrival} className="mb-4">
                     <Card.Body>

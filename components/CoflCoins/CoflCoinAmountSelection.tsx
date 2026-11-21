@@ -4,6 +4,7 @@ import { Card, Button, Form, InputGroup, Alert } from 'react-bootstrap'
 import Number from '../Number/Number'
 import styles from './CoflCoinsPurchase.module.css'
 import NumberElement from '../Number/Number'
+import PremiumWebsiteAddress from '../Premium/PremiumWebsiteAddress'
 
 interface CoflCoinOption {
     amount: number
@@ -360,14 +361,14 @@ function CoflCoinAmountSelection({ onAmountSelected, coflCoins, userCountryCode,
                     <div style={{ fontSize: '0.95rem' }}>
                         <strong>💡 Additional Payment Options</strong>
                         <p style={{ marginBottom: 0, marginTop: '0.5rem' }}>
-                            More payment options including PayPal, Stripe, and region-specific methods are available on our <a
-                                href="https://coflnet.com/premium"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                style={{ fontWeight: '600' }}
-                            >
-                                website
-                            </a>.
+                            More payment options including PayPal, Stripe, and region-specific methods are available on our{' '}
+                            {playApp ? (
+                                <>website. <PremiumWebsiteAddress /></>
+                            ) : (
+                                <>
+                                    <a href="https://coflnet.com/premium" target="_blank" rel="noopener noreferrer" style={{ fontWeight: '600' }}>website</a>.
+                                </>
+                            )}
                         </p>
                     </div>
                 </Alert>
