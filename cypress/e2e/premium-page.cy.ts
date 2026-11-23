@@ -931,6 +931,66 @@ describe('Google Play subscription checkout', () => {
         buyWithPlay().should('be.enabled')
     })
 
+    it('shows the sale and signs its offer into the Google Play link', () => {
+        stubAccount()
+        cy.clock(checkoutTime, ['Date'])
+        cy.intercept('POST', '**/api/premium/subscription/l_prem_plus/playstore', {
+            body: { ...signedCheckout, offerId: 'sale-30', discountPercent: 30 }
+        }).as('playStart')
+        visitPlayCheckout('/premium?premiumVariant=new&tier=premium_plus')
+        cy.wait(['@products', '@subscriptions'])
+        buyWithPlay().click()
+        cy.wait('@playStart')
+        cy.get('#buyPremium').should('contain', 'Sale: 30% off your first 4-week payment, then the normal price.')
+        cy.contains('a', 'Continue to Google Play').should('have.attr', 'href').and('contain', '&sig=test-signature&offerId=sale-30#Intent')
+        cy.window().its('_paq').should(queue => expect(JSON.stringify(queue)).not.to.contain('sale-30'))
+
+        cy.intercept('POST', '**/api/premium/subscription/l_premium/playstore', {
+            body: { ...signedCheckout, playProductId: 'premium', offerId: null, discountPercent: null }
+        }).as('playStartNoSale')
+        cy.get('#play-subscription-tier').select('l_premium')
+        buyWithPlay().click()
+        cy.wait('@playStartNoSale')
+        cy.contains('a', 'Continue to Google Play').should('have.attr', 'href').and('not.contain', 'offerId')
+        cy.get('#buyPremium').should('not.contain', 'Sale:')
+    })
+
+    const noSaleCheckouts = [
+        { name: 'null fields', fields: { offerId: null, discountPercent: null } },
+        { name: 'an empty offer', fields: { offerId: '', discountPercent: 30 } },
+        { name: 'a percent without an offer', fields: { offerId: null, discountPercent: 30 } }
+    ]
+    noSaleCheckouts.forEach(({ name, fields }) => {
+        it(`leaves the offer and sale notice out for ${name}`, () => {
+            stubAccount()
+            cy.clock(checkoutTime, ['Date'])
+            cy.intercept('POST', '**/api/premium/subscription/l_prem_plus/playstore', { body: { ...signedCheckout, ...fields } }).as('playStart')
+            visitPlayCheckout('/premium?premiumVariant=new&tier=premium_plus')
+            cy.wait(['@products', '@subscriptions'])
+            buyWithPlay().click()
+            cy.wait('@playStart')
+            cy.contains('a', 'Continue to Google Play').should('have.attr', 'href').and('contain', '&sig=test-signature#Intent').and('not.contain', 'offerId')
+            cy.get('#buyPremium').should('not.contain', 'Sale:')
+        })
+    })
+
+    const offersWithoutUsablePercent = [undefined, null, 0, 100, 12.5]
+    offersWithoutUsablePercent.forEach(discountPercent => {
+        it(`still announces the sale when the offer has percent ${discountPercent}`, () => {
+            stubAccount()
+            cy.clock(checkoutTime, ['Date'])
+            cy.intercept('POST', '**/api/premium/subscription/l_prem_plus/playstore', {
+                body: { ...signedCheckout, offerId: 'sale-30', discountPercent }
+            }).as('playStart')
+            visitPlayCheckout('/premium?premiumVariant=new&tier=premium_plus')
+            cy.wait(['@products', '@subscriptions'])
+            buyWithPlay().click()
+            cy.wait('@playStart')
+            cy.contains('a', 'Continue to Google Play').should('have.attr', 'href').and('contain', '&offerId=sale-30#Intent')
+            cy.get('#buyPremium').should('contain', 'Sale: A discount on your first 4-week payment, then the normal price.')
+        })
+    })
+
     it('prevents an expired link from navigating and lets the buyer prepare a fresh link', () => {
         stubAccount()
         cy.clock(checkoutTime, ['Date'])

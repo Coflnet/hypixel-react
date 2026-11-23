@@ -35,10 +35,21 @@ export function buildPlaySubscriptionIntent(slug: PlaySubscriptionSlug, checkout
         slug,
         label: checkout.accountLabel,
         exp: checkout.expiresAt,
-        sig: checkout.signature
+        sig: checkout.signature,
+        ...(checkout.offerId ? { offerId: checkout.offerId } : {})
     }).map(([key, value]) => key + '=' + encodeURIComponent(value)).join('&')
     const fallback = encodeURIComponent('https://sky.coflnet.com/premium?playUpdate=1')
     return `intent://subscribe?${query}#Intent;scheme=skycofl;package=com.coflnet.sky;action=android.intent.action.VIEW;category=android.intent.category.BROWSABLE;S.browser_fallback_url=${fallback};end`
+}
+
+function isSalePercent(percent?: number | null): percent is number {
+    return Number.isInteger(percent) && percent! >= 1 && percent! <= 99
+}
+
+export function getPlaySaleNotice({ offerId, discountPercent }: PlaySubscriptionCheckout): string | null {
+    if (!offerId) return null
+    const discount = isSalePercent(discountPercent) ? `${discountPercent}% off` : 'A discount on'
+    return `Sale: ${discount} your first 4-week payment, then the normal price.`
 }
 
 type PlayCheckoutError = { kind: 'terms' } | { kind: 'signIn' | 'error'; message: string }
