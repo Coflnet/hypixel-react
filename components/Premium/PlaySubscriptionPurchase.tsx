@@ -10,6 +10,7 @@ import {
     buildPlaySubscriptionIntent,
     getInitialPlayPlan,
     getPlayCheckoutError,
+    getPlaySaleNotice,
     getPlaySubscriptionLabel,
     isPlayCheckoutExpired,
     PLAY_CHECKOUT_UNAVAILABLE,
@@ -40,6 +41,7 @@ export default function PlaySubscriptionPurchase({ requestedTier, forFriends }: 
     const scrollToPrepaid = useScrollToHashTarget(PREPAID_TARGET)
     const expired = checkout && isPlayCheckoutExpired(checkout.receivedAt)
     const notice = message || (expired ? CHECKOUT_EXPIRED : '')
+    const saleNotice = checkout ? getPlaySaleNotice(checkout.details) : null
 
     async function refreshTerms(headers: HeadersInit, signal: AbortSignal) {
         const response = await getApiUserTerms({ locale: account.legalLocale }, { headers, signal, cache: 'no-store' })
@@ -151,6 +153,7 @@ export default function PlaySubscriptionPurchase({ requestedTier, forFriends }: 
                         {slug && checkout && !expired ? (
                             <>
                                 <p>Purchasing for {checkout.details.accountLabel}</p>
+                                {saleNotice ? <Alert variant="success" className="text-dark">{saleNotice}</Alert> : null}
                                 <a className="btn btn-primary matomo_ignore" href={buildPlaySubscriptionIntent(slug, checkout.details)} onClick={guardCheckoutLink}>
                                     Continue to Google Play
                                 </a>

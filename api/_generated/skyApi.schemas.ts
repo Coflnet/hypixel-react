@@ -3995,6 +3995,16 @@ export interface PlaySubscriptionCheckout {
      * @minLength 1
      */
   signature: string;
+  /**
+     * The signed Google Play sale offer ID, or null when no sale applies.
+     * @nullable
+     */
+  offerId?: string | null;
+  /**
+     * The sale discount percentage from 1 to 99, or null when no sale applies.
+     * @nullable
+     */
+  discountPercent?: number | null;
 }
 
 /**
