@@ -33,12 +33,14 @@ const highlights = loadModule('../components/PremiumLanding/content/tierHighligh
 const slotUpsell = loadModule('../utils/SlotUpsell.ts', { '../components/Premium/PremiumPurchaseWizard/types': types })
 const { Duration, PremiumTier, PurchaseType } = types
 
-test('website checkout explains an existing Play subscription only while Play subscriptions are enabled', () => {
+test('website checkout explains an existing Play subscription without refusing the declaration', () => {
     const error = { slug: 'active_play_subscription' }
-    assert.match(checkout.getCheckoutErrorMessage(error, false), /Failed to redirect/)
-    assert.match(checkout.getCheckoutErrorMessage(error, true), /already subscribe through Google Play/)
+    const message = 'You already subscribe through Google Play. Manage your subscription in Google Play.'
+    assert.equal(checkout.getCheckoutErrorMessage(error), message)
+    assert.equal(checkout.getCheckoutErrorMessage(error, 'Generic slot error'), message)
+    assert.equal(checkout.getDeclarationErrorSlug(error), null)
     assert.match(
-        checkout.getCheckoutErrorMessage({ slug: 'payment_error', message: 'Cancel your Google Play subscription before subscribing here.' }, true),
+        checkout.getCheckoutErrorMessage({ slug: 'payment_error', message: 'Cancel your Google Play subscription before subscribing here.' }),
         /Manage your subscription in Google Play/
     )
 })
@@ -453,6 +455,7 @@ test('explains a refused declaration and keeps the generic message for other che
     assert.match(checkout.getCheckoutErrorMessage({ slug: 'service_performance_declaration_required' }), /tick the early start declaration/)
     assert.match(checkout.getCheckoutErrorMessage({ slug: 'invalid_service_performance_declaration' }), /has changed or could not be verified/)
     assert.equal(checkout.getCheckoutErrorMessage({ slug: 'payment_error' }), 'Failed to redirect to payment provider. Please try again.')
+    assert.equal(checkout.getCheckoutErrorMessage({ slug: 'payment_error' }, 'Generic slot error'), 'Generic slot error')
 })
 
 const durationTexts = (continues, tier = PremiumTier.PREMIUM) =>

@@ -194,31 +194,53 @@ describe('Google Play subscription management', () => {
         canResume: true, canChangePlan: true, canExtendLongTerm: true, termWeeks: 13
     }
 
-    it('puts active and canceled Play subscriptions under Google Play management', () => {
-        stubProducts()
-        stubSubscriptions({ body: [
-            playSubscription,
-            { ...playSubscription, externalId: 'play-canceled', endsAt: '2099-01-15T00:00:00Z' },
-            activeSubscription
-        ] })
-        visitAuthenticatedPage('/account', window => Object.assign(window, { __playSubscriptionsEnabled: true }))
-        for (const id of ['play-active', 'play-canceled']) {
-            cy.get(`#subscription-${id}`).within(() => {
-                cy.contains('a', 'Manage in Google Play').should('have.attr', 'href', manageUrl)
-                cy.get('button, [data-testid="reactivate-subscription"]').should('not.exist')
+    for (const enabled of [true, false]) {
+        it(`puts active and canceled Play subscriptions under Google Play management with the rollout ${enabled ? 'on' : 'off'}`, () => {
+            stubProducts()
+            stubSubscriptions({ body: [
+                playSubscription,
+                { ...playSubscription, externalId: 'play-canceled', endsAt: '2099-01-15T00:00:00Z' },
+                activeSubscription
+            ] })
+            visitAuthenticatedPage('/account', window => Object.assign(window, { __playSubscriptionsEnabled: enabled }))
+            for (const id of ['play-active', 'play-canceled']) {
+                cy.get(`#subscription-${id}`).within(() => {
+                    cy.contains('a', 'Manage in Google Play').should('be.visible').and('have.attr', 'href', manageUrl)
+                    cy.get('button, [data-testid="reactivate-subscription"]').should('not.exist')
+                })
+            }
+            cy.get('#subscription-active-subscription').contains('button', 'Cancel subscription').should('be.visible')
+            cy.contains('h2', 'Danger Zone').parent().contains('p', 'Subscription #play-active').parent().within(() => {
+                cy.contains('a', 'Manage in Google Play').should('be.visible').and('have.attr', 'href', manageUrl)
+                cy.contains('button', 'Cancel subscription').should('not.exist')
             })
-        }
-        cy.get('#subscription-active-subscription').contains('button', 'Cancel subscription').should('be.visible')
-        cy.contains('h2', 'Danger Zone').parent().contains('a', 'Manage in Google Play').should('have.attr', 'href', manageUrl)
-    })
+        })
+    }
 
-    it('keeps the previous controls with the rollout off', () => {
-        stubProducts()
-        stubSubscriptions({ body: [playSubscription] })
-        visitAuthenticatedPage('/account', window => Object.assign(window, { __playSubscriptionsEnabled: false }))
-        cy.get('#subscription-play-active').contains('button', 'Cancel subscription').should('be.visible')
-        cy.contains('Manage in Google Play').should('not.exist')
-    })
+    for (const variant of ['current', 'new']) {
+        it(`offers Play management and prepaid time on the ${variant} Premium page with the rollout off`, () => {
+            const subscription = variant === 'current' ? playSubscription : { ...playSubscription, manageUrl: undefined }
+            const expectedUrl = subscription.manageUrl ?? 'https://play.google.com/store/account/subscriptions'
+            stubProducts({ body: { premium_plus: { expiresAt: '2099-02-01T00:00:00Z' } } })
+            stubSubscriptions({ body: [subscription] })
+            visitAuthenticatedPage(`/premium?premiumVariant=${variant}`, window => playContext(window, false, 'browser'))
+
+            cy.contains('#extendPremium a', 'Manage in Google Play').should('be.visible').and('have.attr', 'href', expectedUrl)
+            cy.contains('#extendPremium button', 'Extend with a subscription').should('not.exist')
+            cy.get('#extendPremium').should('not.contain.text', 'billed in addition')
+            cy.get('[data-testid="premium-wizard"]').should('not.exist')
+            cy.contains('#extendPremium summary', 'Advanced Options').click()
+            cy.contains('#extendPremium h4', /^Prepaid$/).should('be.visible')
+        })
+
+        it(`offers subscription extension after Play cancellation on the ${variant} Premium page with the rollout off`, () => {
+            stubProducts({ body: { premium_plus: { expiresAt: '2099-02-01T00:00:00Z' } } })
+            stubSubscriptions({ body: [{ ...playSubscription, endsAt: '2099-01-15T00:00:00Z' }] })
+            visitAuthenticatedPage(`/premium?premiumVariant=${variant}`, window => playContext(window, false, 'browser'))
+
+            cy.contains('#extendPremium button', 'Extend with a subscription').should('be.visible').and('be.enabled')
+        })
+    }
 
     for (const enabled of [true, false]) {
         it(`${enabled ? 'hides' : 'keeps'} Stripe reactivation in the app with the rollout ${enabled ? 'on' : 'off'}`, () => {
@@ -1296,6 +1318,21 @@ describe('Slot packages in the Premium wizard', () => {
         cy.contains('h2', 'Get slots').should('be.visible')
         cy.get(`#buyPremium ${OPTION_TITLE}`).should('have.length', 2)
         cy.contains('.modal-title', 'Upgrade subscription').should('not.exist')
+    })
+
+    it('explains an existing Google Play subscription in slot checkout with the rollout off', () => {
+        cy.intercept('POST', '**/api/premium/subscription/l_premium-slots-4?*', {
+            statusCode: 400,
+            body: { slug: 'active_play_subscription' }
+        }).as('slotCheckout')
+        visitAuthenticatedPage('/premium?slots=true#buyPremium', window => playContext(window, false, 'browser'))
+        choosePackage('Premium', 4, 'Subscription')
+        cy.contains('button', 'Continue with subscription').click()
+        confirmDeclaration()
+        cy.contains('.modal button', 'Continue to checkout').click()
+        cy.wait('@slotCheckout')
+        cy.get('.modal').contains(/^You already subscribe through Google Play\. Manage your subscription in Google Play\.$/).should('be.visible')
+        cy.get('#slot-subscription-early-start-declaration').should('be.checked')
     })
 
     for (const [index, slug, count, amount] of [[0, 'l_premium-slots', 1, '9.69'], [1, 'l_prem_plus-slots', 1, '35.69'], [0, 'l_premium-slots-4', 4, '29.69'], [1, 'l_prem_plus-slots-4', 4, '99.69']] as const) {

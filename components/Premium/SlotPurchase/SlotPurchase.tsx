@@ -100,20 +100,6 @@ function describeBilling(product: PurchaseableProduct, renewal: string, firstPay
     return `First ${duration(product)}, then ${renewal} every ${duration(product)}`
 }
 
-/** a failed subscription checkout; `declarationRefused` when the server refused the early start declaration */
-class CheckoutFailure extends Error {
-    constructor(
-        message: string,
-        readonly declarationRefused: boolean
-    ) {
-        super(message)
-    }
-}
-
-function toCheckoutFailure(data: unknown): CheckoutFailure {
-    return new CheckoutFailure(getCheckoutErrorMessage(data), !!getDeclarationErrorSlug(data))
-}
-
 /** the providers and promotion of the reviewed product, or of the whole country while none is reviewed */
 function useSlotCheckoutOffer(countryCode: string | undefined, purchaseType: PurchaseType, selected?: PurchaseableProduct): CheckoutOffer {
     const recurring = purchaseType === PurchaseType.SUBSCRIPTION
@@ -201,18 +187,15 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
             headers: { GoogleToken: sessionStorage.getItem('googleId') || '' }
         })
         const link = response.status === 200 ? getCheckoutLink(response.data) : null
-        if (!link) throw toCheckoutFailure(response.data)
-        window.open(link, '_self')
+        if (link) window.open(link, '_self')
+        else onCheckoutFailed(response.data)
     }
 
-    /** the declaration was refused: it is loaded again, unticked, and the next attempt gets a new request id */
-    function onCheckoutFailed(failure: unknown) {
-        if (!(failure instanceof CheckoutFailure) || !failure.declarationRefused) {
-            setError('The purchase could not be completed. Check your account before trying again.')
-            return
-        }
+    /** a refused declaration is reloaded, unticked, and gets a new request id on the next attempt */
+    function onCheckoutFailed(data: unknown) {
+        setError(getCheckoutErrorMessage(data, 'The purchase could not be completed. Check your account before trying again.'))
+        if (!getDeclarationErrorSlug(data)) return
         checkoutRequest.renew()
-        setError(failure.message)
         void declaration.reload()
     }
 
@@ -244,8 +227,8 @@ export default function SlotPurchase({ catalog, tier, purchaseType, slotCount, i
                 document.dispatchEvent(new CustomEvent(CUSTOM_EVENTS.COFLCOIN_UPDATE, { detail: { coflCoins: coflCoins - product.cost! } }))
                 setPurchased(product)
             }
-        } catch (failure) {
-            onCheckoutFailed(failure)
+        } catch {
+            onCheckoutFailed(null)
         } finally {
             setBusy(false)
             setBusyProvider(null)

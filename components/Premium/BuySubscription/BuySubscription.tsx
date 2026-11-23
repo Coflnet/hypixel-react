@@ -79,7 +79,6 @@ import { getNextHigherTier, getTierHighlights, getTierIntro } from '../../Premiu
 import { useSubscriptionPricing } from './useSubscriptionPricing'
 import { usePurchaseDeclaration } from '../../../hooks/usePurchaseDeclaration'
 import { useCheckoutRequestId } from '../../../hooks/useCheckoutRequestId'
-import { usePlaySubscriptionsEnabled } from '../../../hooks/usePlaySubscriptionsEnabled'
 import PurchaseDeclaration from '../PurchaseDeclaration/PurchaseDeclaration'
 
 // The subscription checkout, the last step of the purchase wizard.
@@ -141,7 +140,6 @@ function CountryRequired() {
 }
 
 function BuySubscription(props: Props) {
-    const playSubscriptionsEnabled = usePlaySubscriptionsEnabled()
     const variant = usePremiumVariant()
     const [creatorCode, setCreatorCode] = useState(props.initialCreatorCode ?? '')
     const [busyCheckout, setBusyCheckout] = useState<PaymentProvider | null>(null)
@@ -265,12 +263,13 @@ function BuySubscription(props: Props) {
     /** the server refused the declaration: it is loaded again, unticked, and the next attempt gets a new request id */
     function onCheckoutFailed(data: unknown) {
         setBusyCheckout(null)
+        const message = getCheckoutErrorMessage(data)
         if (!getDeclarationErrorSlug(data)) {
-            toast.error(getCheckoutErrorMessage(data, playSubscriptionsEnabled))
+            toast.error(message)
             return
         }
         checkoutRequest.renew()
-        setRefusal({ productSlug, message: getCheckoutErrorMessage(data) })
+        setRefusal({ productSlug, message })
         void declaration.reload()
     }
 
