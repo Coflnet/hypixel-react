@@ -54,19 +54,6 @@ function ModDetails() {
                     </ol>
                     <p>The old Forge 1.8.9 version can no longer be used for SkyBlock, because Hypixel does not let 1.8.9 clients join SkyBlock.</p>
                     <hr />
-                    <div className={styles.modEmbedContainer}>
-                        <iframe
-                            width="560"
-                            height="315"
-                            src="https://www.youtube-nocookie.com/embed/kOSmuky_wjg?si=74mVWza3el6LEaMR"
-                            title="YouTube video player"
-                            frameBorder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowFullScreen
-                            className={styles.modEmbed}
-                        ></iframe>
-                    </div>
-                    <hr />
                     <div className={styles.modDetailsFooter}>
                         <a href="https://www.youtube.com/watch?v=dv66Y_cra8U&list=PLDpPmxIcq9tAssQlyJMBlSmSg5JOpq699">
                             <svg
