@@ -1191,12 +1191,20 @@ describe('Google Play subscription checkout', () => {
         cy.location('hash').should('equal', '')
     })
 
+    it('offers a button back to Premium after a canceled checkout', () => {
+        visitNewPage('/cancel', false)
+        cy.contains('You canceled the payment process').should('be.visible')
+        cy.contains('a.btn', 'Back to Premium').should('be.visible').and('have.attr', 'href', '/premium')
+        cy.contains('a.btn', 'Back to the main page').should('be.visible').and('have.attr', 'href', '/')
+    })
+
     it('uses subscription labels on Android result pages and on a failed checkout return', () => {
         visitPlayCheckout('/success#billing_success_l_premium', false)
         cy.contains('Premium subscription through Google Play').should('be.visible')
         visitPlayCheckout('/cancel#billing_error_l_prem_plus_Purchase%20canceled%20by%20user', false)
         cy.contains('h2', 'Premium+ subscription purchase').should('be.visible')
         cy.contains('The purchase was cancelled.').should('be.visible')
+        cy.contains('a.btn', 'Return to Premium').should('be.visible').and('have.attr', 'href', '/premium')
         visitPlayCheckout('/premium#billing_error_l_prem_plus_This%20subscription%20belongs%20to%20a%20different%20SkyCofl%20account', false)
         cy.contains('[role="alert"]', 'belong to another SkyCofl account').should('be.visible')
         cy.window().then(window => { window.location.hash = '#billing_error_l_prem_plus_Could%20not%20securely%20save%20the%20subscription' })

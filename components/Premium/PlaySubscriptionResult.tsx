@@ -13,7 +13,9 @@ export default function PlaySubscriptionResult({ children }: { children: ReactNo
             <h2>{getPlaySubscriptionLabel(result.slug)} subscription purchase</h2>
             <p>{result.error}</p>
             <p>
-                <Link href="/premium">Return to Premium</Link>
+                <Link href="/premium" className="btn btn-primary">
+                    Return to Premium
+                </Link>
             </p>
         </>
     )
