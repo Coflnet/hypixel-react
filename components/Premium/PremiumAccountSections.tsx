@@ -20,11 +20,11 @@ import { SIGN_IN_TARGET, WIZARD_TARGET } from './purchaseTarget'
 import { PremiumTier, getTierDisplayName } from './PremiumPurchaseWizard/types'
 import { getPurchaseHeading } from './PremiumPurchaseWizard/wizardFlow'
 import { findRenewingSubscription, getTierOfProduct, getTierOfSubscription } from '../../utils/PremiumUpgradeUtils'
+import { PLAY_SUBSCRIPTION_MANAGEMENT } from '../../utils/PlaySubscriptions'
 import type { SignInDialogControl } from './useSignInPrompt'
 import { PREMIUM_VARIANT_QUERY, withVariantOverride } from '../../utils/PremiumExperiment'
 import { useScrollToHashTarget } from '../../hooks/useScrollToHashTarget'
 import { getScrollBehavior } from '../../hooks/useScrollToAfterRender'
-import { usePlaySubscriptionsEnabled } from '../../hooks/usePlaySubscriptionsEnabled'
 import sectionStyles from './PremiumAccountSections.module.css'
 
 // Account and purchase building blocks of /premium, shared by both A/B variants so behaviour stays identical.
@@ -203,12 +203,11 @@ export function SlotsLink({ children, className, variant = 'success', onSignInNe
 }
 
 function ExtendHeaderActions({ account }: AccountProps) {
-    const playSubscriptionsEnabled = usePlaySubscriptionsEnabled()
     const { hasSubscriptionLoadingError, activeSubscriptions } = account
     if (!hasSubscriptionLoadingError && activeSubscriptions.length > 0) {
         // a subscription whose plan cannot change (e.g. PayPal) gets no upgrade button
         const upgradable = activeSubscriptions.filter(subscription =>
-            subscription.canChangePlan !== false && !(playSubscriptionsEnabled && subscription.providerSlug === 'googleplay')
+            subscription.canChangePlan !== false && subscription.providerSlug !== 'googleplay'
         )
         return (
             <div>
@@ -274,9 +273,21 @@ function RenewingSubscriptionNotice({ subscription, confirming, onConfirm, onCan
 
 /** a new subscription goes through the purchase wizard (prices for the buyer's country, all payment providers, the promotion) */
 function ExtendWithSubscription({ account }: AccountProps) {
+    const [confirming, setConfirming] = useState(false)
+    const playSubscription = account.activeSubscriptions.find(subscription => subscription.providerSlug === 'googleplay')
+    if (playSubscription) {
+        return (
+            <Alert variant="info">
+                Your subscription is managed in Google Play.{' '}
+                <a href={playSubscription.manageUrl ?? PLAY_SUBSCRIPTION_MANAGEMENT} target="_blank" rel="noreferrer">
+                    Manage in Google Play
+                </a>
+            </Alert>
+        )
+    }
+
     const tier = getTierOfProduct(account.activePremiumProduct) ?? PremiumTier.PREMIUM
     const renewing = findRenewingSubscription(account.activeSubscriptions, tier)
-    const [confirming, setConfirming] = useState(false)
 
     function openWizard() {
         setConfirming(false)

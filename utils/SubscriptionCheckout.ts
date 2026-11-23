@@ -270,14 +270,12 @@ export function getDeclarationErrorSlug(data: unknown): DeclarationErrorSlug | n
     return slugs.find(slug => text.includes(slug)) ?? null
 }
 
-export function getCheckoutErrorMessage(data: unknown, playSubscriptionsEnabled = false): string {
-    if (playSubscriptionsEnabled && (
-        hasErrorSlug(data, 'active_play_subscription') || readSlug(data).includes('Cancel your Google Play subscription before subscribing here.')
-    )) {
+export function getCheckoutErrorMessage(data: unknown, fallbackMessage = CHECKOUT_FAILED_MESSAGE): string {
+    if (hasErrorSlug(data, 'active_play_subscription') || readSlug(data).includes('Cancel your Google Play subscription before subscribing here.')) {
         return 'You already subscribe through Google Play. Manage your subscription in Google Play.'
     }
     const slug = getDeclarationErrorSlug(data)
-    return slug ? DECLARATION_ERROR_MESSAGES[slug] : CHECKOUT_FAILED_MESSAGE
+    return slug ? DECLARATION_ERROR_MESSAGES[slug] : fallbackMessage
 }
 
 /** the checkout url of a subscription purchase response (`dirctLink` is the deprecated spelling) */

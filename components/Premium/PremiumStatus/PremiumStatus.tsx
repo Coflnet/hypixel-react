@@ -12,7 +12,6 @@ import { toast } from 'react-toastify'
 import UpgradeSubscription from '../UpgradeSubscription/UpgradeSubscription'
 import ExtendSubscription from '../ExtendSubscription/ExtendSubscription'
 import SwitchSubscriptionTerm from '../SwitchSubscriptionTerm/SwitchSubscriptionTerm'
-import { usePlaySubscriptionsEnabled } from '../../../hooks/usePlaySubscriptionsEnabled'
 import { usePlayApp } from '../../../hooks/usePlayApp'
 import { PLAY_SUBSCRIPTION_MANAGEMENT } from '../../../utils/PlaySubscriptions'
 
@@ -41,7 +40,6 @@ function isLinked(subscription: PremiumSubscription, props: Props): boolean {
 }
 
 function PremiumStatus(props: Props) {
-    const playSubscriptionsEnabled = usePlaySubscriptionsEnabled()
     const showWebCheckout = !usePlayApp()
     const [highestPriorityProduct, setHighestPriorityProduct] = useState<PremiumProduct>()
     const [productsToShow, setProductsToShow] = useState<PremiumProductWithtimeDifference[]>()
@@ -198,7 +196,7 @@ function PremiumStatus(props: Props) {
                                                 </span>
                                             }
                                         />
-                                        {playSubscriptionsEnabled && subscription.providerSlug === 'googleplay' ? (
+                                        {subscription.providerSlug === 'googleplay' ? (
                                             <a href={subscription.manageUrl ?? PLAY_SUBSCRIPTION_MANAGEMENT} target="_blank" rel="noreferrer" className="btn btn-sm btn-outline-primary ms-2">
                                                 Manage in Google Play
                                             </a>

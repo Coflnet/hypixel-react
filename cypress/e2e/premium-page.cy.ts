@@ -1145,21 +1145,22 @@ describe('Google Play subscription checkout', () => {
         cy.get('#play-subscription-tier').should('have.value', 'l_prem_plus')
     })
 
-    it('explains an existing Google Play subscription in the website checkout', () => {
+    it('explains an existing Google Play subscription in the website checkout with the rollout off', () => {
         stubAccount()
         cy.intercept('GET', '**/api/premium/subscription/providers*', { body: [{ provider: 'stripe' }, { provider: 'paypal' }] })
         cy.intercept('POST', '**/api/premium/subscription/l_premium?*', {
             statusCode: 400,
             body: { slug: 'active_play_subscription' }
         }).as('websiteCheckout')
-        visitNewPage('/premium?premiumVariant=new&tier=premium', true, window => playContext(window, true, 'browser'))
+        visitNewPage('/premium?premiumVariant=new&tier=premium', true, window => playContext(window, false, 'browser'))
         cy.get('#buyPremium').contains('[data-testid="wizard-option-title"]', /^Subscription$/).click()
         cy.get('#buyPremium').contains('[data-testid="wizard-option-title"]', 'Just for me').click()
         cy.get('#buyPremium').contains('[data-testid="wizard-option-title"]', /^4 weeks$/).click()
         confirmDeclaration()
         cy.contains('button', 'Pay with card').click()
         cy.wait('@websiteCheckout')
-        cy.contains('You already subscribe through Google Play. Manage your subscription in Google Play.').should('be.visible')
+        cy.contains(/^You already subscribe through Google Play\. Manage your subscription in Google Play\.$/).should('be.visible')
+        cy.get('#subscription-early-start-declaration').should('be.checked')
     })
 
     for (const message of [
