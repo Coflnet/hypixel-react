@@ -62,9 +62,11 @@ function visitFlipper() {
     })
     // The headless runner sometimes stops advancing CSS transitions for seconds after a visit, which leaves the
     // fading tooltip at opacity 0 past the retry timeout. The fade is not under test, so show its end state directly.
+    // Bootstrap's smooth scroll-behavior stalls the same way: the scroll Cypress makes before acting on the flip card
+    // then keeps it "animating" past the retry timeout, so scroll instantly too.
     cy.document().then(document => {
         const style = document.createElement('style')
-        style.textContent = '*, *::before, *::after { transition: none !important; }'
+        style.textContent = '*, *::before, *::after { transition: none !important; } :root { scroll-behavior: auto !important; }'
         document.head.appendChild(style)
     })
 }
