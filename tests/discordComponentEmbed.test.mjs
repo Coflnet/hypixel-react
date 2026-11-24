@@ -528,6 +528,12 @@ test('player uuids and flip uids are validated', () => {
     assert.equal(link.isValidPlayerUuid('Ekwav'), false)
     assert.equal(link.isValidPlayerUuid(`${UUID}?x=1`), false)
     assert.ok(link.isValidFlipUid('abc123'))
+    // regression: negative uids (toString(16) of a signed long) got no component embed
+    assert.ok(link.isValidFlipUid('-1d2840a54bc36b00'))
+    assert.equal(link.isValidFlipUid('-'), false)
+    assert.equal(link.isValidFlipUid('--1d28'), false)
+    assert.equal(link.isValidFlipUid('1d28-00'), false)
+    assert.equal(link.isValidFlipUid('1'.repeat(17)), false)
     assert.equal(link.isValidFlipUid('../x'), false)
 })
 
@@ -572,6 +578,7 @@ test('the embed route maps page paths to their loaders, repeated query keys stay
     await resolve(['player', UUID])
     await resolve(['player', UUID, 'flips'])
     await resolve(['player', UUID, 'flips', 'abc'])
+    await resolve(['player', UUID, 'flips', '-1d2840a54bc36b00'])
     await resolve(['auction', '924c0480753e41aab'])
     await resolve(['item', 'LOG_2:2'], 'range=week&Stars=4&Stars=5')
     await resolve(['item', 'HYPERION', 'archive'], 'filter=eyJ9')
@@ -579,6 +586,7 @@ test('the embed route maps page paths to their loaders, repeated query keys stay
         ['player', UUID],
         ['flips', UUID],
         ['flip', UUID, 'abc'],
+        ['flip', UUID, '-1d2840a54bc36b00'],
         ['auction', '924c0480753e41aab'],
         ['item', 'LOG_2:2', { range: 'week', Stars: ['4', '5'] }],
         ['archive', 'HYPERION', 'eyJ9']

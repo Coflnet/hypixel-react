@@ -44,7 +44,8 @@ export function toSearchString(searchParams?: Record<string, string | string[] |
 export type SearchParamsObject = Record<string, string | string[]>
 
 const PLAYER_UUID = /^[0-9a-f]{32}$|^[0-9a-f-]{36}$/i
-const FLIP_UID = /^[0-9a-f]+$/i
+// flip uids are signed 64-bit numbers written with toString(16), so negative ones start with '-'
+const FLIP_UID = /^-?[0-9a-f]{1,16}$/i
 // real tags use letters, digits, _ : - (LOG_2:2, PET_ITEM_X-2); route params arrive percent-decoded, so no / ? # % may pass
 const ITEM_TAG = /^[A-Za-z0-9_:;+.-]{1,100}$/
 const ONLY_DOTS = /^\.+$/
