@@ -35,6 +35,74 @@ describe('Player page', () => {
         cy.contains('Cheap Coffee').should('be.visible')
     })
 
+    function failSecondBidsPageOnce(response: { statusCode: number; headers?: Record<string, string>; body: unknown }) {
+        let failedOnce = false
+        cy.intercept('GET', '**/api/player/b876ec32e396476ba1158438d83c67d4/bids*', request => {
+            const page = new URL(request.url).searchParams.get('page')
+            if (page === '1' && !failedOnce) {
+                failedOnce = true
+                request.reply(response)
+                return
+            }
+            request.reply(page === '0' ? data.playerBids : page === '1' ? data.playerOlderBids : [])
+        }).as('bids')
+    }
+
+    function scrollToSecondBidsPage(expectedStatus: number) {
+        cy.visit(player)
+        cy.contains('Bids').click()
+        cy.wait('@bids')
+        cy.scrollTo('bottom')
+        cy.wait('@bids').its('response.statusCode').should('eq', expectedStatus)
+    }
+
+    it('offers a retry when a bids page fails instead of ending the list', () => {
+        // the generated client resolves error responses, their object body must not reach the list parser
+        failSecondBidsPageOnce({ statusCode: 503, body: { slug: 'unavailable', message: 'Service unavailable' } })
+        scrollToSecondBidsPage(503)
+        cy.contains('Loading more bids failed.').should('be.visible')
+        cy.contains('button', 'Try again').click()
+        cy.contains('Cheap Coffee').should('be.visible')
+    })
+
+    it('shows the rate limit with its cooldown and allows a retry once it ran out', () => {
+        failSecondBidsPageOnce({
+            statusCode: 429,
+            headers: { 'Retry-After': '2', 'Content-Type': 'text/plain' },
+            body: 'API calls quota exceeded! maximum admitted 30 per 10s.'
+        })
+        scrollToSecondBidsPage(429)
+        cy.contains('Too many requests were sent in a short time.').should('be.visible')
+        cy.contains('button', /^Try again in \d s$/).should('be.disabled')
+        // the list shows the cooldown, a toast with the raw rate limiter text would only repeat it
+        cy.get('.Toastify__toast').should('not.exist')
+        cy.contains('button', /^Try again$/).should('not.be.disabled').click()
+        cy.contains('Cheap Coffee').should('be.visible')
+    })
+
+    it('keeps the cooldown when switching to auctions and back', () => {
+        failSecondBidsPageOnce({ statusCode: 429, headers: { 'Retry-After': '30' }, body: 'API calls quota exceeded! maximum admitted 30 per 10s.' })
+        scrollToSecondBidsPage(429)
+        cy.contains('Too many requests were sent in a short time.').should('be.visible')
+        cy.contains('Auctions').click()
+        cy.contains('.list-group>button', '[MAYOR] Technoblade').should('be.visible')
+        cy.contains('Bids').click()
+        // the remounted bid list waits for the cooldown instead of requesting its first page again
+        cy.contains('button', /^Try again in \d+ s$/).should('be.disabled')
+        cy.get('@bids.all').should('have.length', 2)
+    })
+
+    it('loads the auctions in the browser when the server could not load them', () => {
+        cy.intercept('GET', '**/api/player/cd0cc8da7fc148c280893a94e591f991/auctions*', request => {
+            const page = new URL(request.url).searchParams.get('page')
+            request.reply(page === '0' ? data.playerAuctions : [])
+        }).as('auctions')
+        cy.visit('/player/cd0cc8da7fc148c280893a94e591f991')
+        cy.wait('@auctions')
+        cy.contains('.list-group>button', '[MAYOR] Technoblade').should('be.visible')
+        cy.contains('No auctions found').should('not.exist')
+    })
+
     it('hydrates the auction end time for a visitor with another locale and time zone', () => {
         const hydrationErrors = recordHydrationErrors()
         cy.visit(player, {

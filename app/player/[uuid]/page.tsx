@@ -18,7 +18,12 @@ export default async function Page(props) {
         <>
             <DiscordEmbedLink segments={['player', params.uuid]} />
             <Container>
-                <PlayerDetails player={parsePlayer(playerInfo.player)} auctions={auctions} renderedAt={renderedAt} />
+                {/* without server data the list loads the auctions itself instead of claiming there are none */}
+                <PlayerDetails
+                    player={parsePlayer(playerInfo.player)}
+                    auctions={playerInfo.auctionsLoadError ? undefined : auctions}
+                    renderedAt={renderedAt}
+                />
             </Container>
             <BottomBanner />
         </>

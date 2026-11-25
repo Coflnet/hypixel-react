@@ -22,7 +22,10 @@ export function getSsrFixture(input: RequestInfo | URL, init?: RequestInit): Res
     else if (path.startsWith('tasks/')) return getTaskFixture(path.slice('tasks/'.length))
     else if (path === 'items/bazaar/tags') body = data.bazaarTags
     else if (path === 'items') body = Object.values(data.items)
-    else if (path.startsWith('player/b876ec32e396476ba1158438d83c67d4/')) {
+    // a real player (its name still comes from the live api) whose server-side auction load is rate limited
+    else if (path === 'player/cd0cc8da7fc148c280893a94e591f991/auctions') {
+        return new Response('API calls quota exceeded! maximum admitted 30 per 10s.', { status: 429, headers: { 'Retry-After': '1' } })
+    } else if (path.startsWith('player/b876ec32e396476ba1158438d83c67d4/')) {
         const page = url.searchParams.get('page')
         if (path.endsWith('/auctions')) body = page === '0' ? data.playerAuctions : []
         else if (path.endsWith('/bids')) body = page === '0' ? data.playerBids : []
