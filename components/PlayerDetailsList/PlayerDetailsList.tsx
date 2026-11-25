@@ -11,6 +11,8 @@ import api from '../../api/ApiHelper'
 import { convertTagToName, getMinecraftColorCodedElement, getStyleForTier } from '../../utils/Formatter'
 import { formatDateAndTime } from '../../utils/DateFormatUtils'
 import { useIsMounted, useWasAlreadyLoggedIn } from '../../utils/Hooks'
+import { isRateLimitError } from '../../utils/GeneratedApiResponseUtils'
+import { useCooldown } from '../../hooks/useCooldown'
 import { getLoadingElement } from '../../utils/LoadingUtils'
 import { getHighestPriorityPremiumProduct, getPremiumType, PREMIUM_RANK } from '../../utils/PremiumTypeUtils'
 import { CopyButton } from '../CopyButton/CopyButton'
@@ -49,6 +51,8 @@ const listStates: ListState[] = []
 
 const FETCH_RESULT_SIZE = 10
 
+const RATE_LIMIT_COOLDOWN_KEY = 'skyApi'
+
 function PlayerDetailsList(props: Props) {
     const [listElementsState, setListElements] = useState<(Auction | BidForList)[]>(props.auctions || [])
     let listElements = listElementsState
@@ -61,6 +65,10 @@ function PlayerDetailsList(props: Props) {
     const [premiumRankState, setPremiumRank] = useState<PremiumType>()
     let premiumRank = premiumRankState
     const isLoadingElements = useRef(false)
+    const [loadFailed, setLoadFailed] = useState(false)
+    // the api limits per ip, so the cooldown is shared by the auction and bid lists and survives a tab switch
+    const cooldown = useCooldown(RATE_LIMIT_COOLDOWN_KEY)
+    const [rateLimited, setRateLimited] = useState(cooldown.isActive)
     const wasAlreadyLoggedIn = useWasAlreadyLoggedIn()
     const isMounted = useIsMounted()
     const now = isMounted ? Date.now() : props.renderedAt
@@ -152,6 +160,11 @@ function PlayerDetailsList(props: Props) {
         if (isLoadingElements.current && !reset) {
             return
         }
+        // every request during the cooldown is rejected again and counts towards the api's scraping detection
+        if (cooldown.isActive()) {
+            setRateLimited(true)
+            return
+        }
 
         const filter = { ...itemFilter }
         if (filteredItemRef.current) {
@@ -159,6 +172,8 @@ function PlayerDetailsList(props: Props) {
         }
 
         isLoadingElements.current = true
+        setLoadFailed(false)
+        setRateLimited(false)
         props
             .loadingDataFunction(props.player.uuid, reset ? 0 : Math.ceil(listElements.length / FETCH_RESULT_SIZE), filter)
             .then(newListElements => {
@@ -184,9 +199,62 @@ function PlayerDetailsList(props: Props) {
                     loadNewElements()
                 }
             })
-            .catch(() => {
-                setAllElementsLoaded(true)
+            // the api helper already reported the error; keep the list open so the page can be retried
+            .catch(error => {
+                isLoadingElements.current = false
+                // recorded even after an unmount, the next list must not send a request during the cooldown either
+                if (isRateLimitError(error)) {
+                    cooldown.start(error.retryAfterSeconds ?? 0)
+                }
+                if (!mounted) {
+                    return
+                }
+                setLoadFailed(true)
+                setRateLimited(isRateLimitError(error))
             })
+    }
+
+    const getLoader = () => {
+        if (rateLimited) {
+            return getRateLimitMessage()
+        }
+        if (loadFailed) {
+            return (
+                <div className={styles.loadFailed}>
+                    <p>Loading more {props.type} failed.</p>
+                    <Button onClick={() => loadNewElements()}>Try again</Button>
+                </div>
+            )
+        }
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <div>
+                    <div>{getLoadingElement()}</div>
+                    <Button
+                        onClick={() => {
+                            loadNewElements()
+                        }}
+                    >
+                        Click here to manually load new data...
+                    </Button>
+                </div>
+            </div>
+        )
+    }
+
+    const getRateLimitMessage = () => {
+        const waiting = cooldown.secondsLeft > 0
+        return (
+            <div className={styles.loadFailed}>
+                <p>
+                    Too many requests were sent in a short time.{' '}
+                    {waiting ? `You can load more ${props.type} in ${cooldown.secondsLeft} s.` : `You can load more ${props.type} now.`}
+                </p>
+                <Button disabled={waiting} onClick={() => loadNewElements()}>
+                    {waiting ? `Try again in ${cooldown.secondsLeft} s` : 'Try again'}
+                </Button>
+            </div>
+        )
     }
 
     const getCoinImage = () => {
@@ -401,20 +469,7 @@ function PlayerDetailsList(props: Props) {
                         loadNewElements()
                     }}
                     hasMore={!allElementsLoaded}
-                    loader={
-                        <div style={{ display: 'flex', justifyContent: 'center' }}>
-                            <div>
-                                <div>{getLoadingElement()}</div>
-                                <Button
-                                    onClick={() => {
-                                        loadNewElements()
-                                    }}
-                                >
-                                    Click here to manually load new data...
-                                </Button>
-                            </div>
-                        </div>
-                    }
+                    loader={getLoader()}
                 >
                     <ListGroup className={styles.list}>{list}</ListGroup>
                 </InfiniteScroll>

@@ -22,7 +22,7 @@ let prevDetailType: DetailType
 
 interface Props {
     player: Player
-    auctions: Auction[]
+    auctions?: Auction[]
     renderedAt: number
 }
 

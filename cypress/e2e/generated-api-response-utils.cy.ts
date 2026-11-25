@@ -1,4 +1,4 @@
-import { getGeneratedApiErrorText, isDefinitePlayerMiss, unwrapGeneratedApiArrayResponse, unwrapGeneratedApiPlayerNameResponse } from '../../utils/GeneratedApiResponseUtils'
+import { getGeneratedApiErrorText, getRetryAfterSeconds, isDefinitePlayerMiss, isRateLimitError, unwrapGeneratedApiArrayResponse, unwrapGeneratedApiPlayerNameResponse } from '../../utils/GeneratedApiResponseUtils'
 
 describe('Generated API response utilities', () => {
     it('returns successful array responses', () => {
@@ -15,6 +15,39 @@ describe('Generated API response utilities', () => {
                 'fallback'
             )
         ).to.throw('could not find item')
+    })
+
+    it('turns a rate limited response into an error with its cooldown', () => {
+        const unwrapRateLimited = (headers: Record<string, string>) => {
+            try {
+                unwrapGeneratedApiArrayResponse({ status: 429, data: 'API calls quota exceeded! maximum admitted 30 per 10s.', headers: new Headers(headers) }, 'fallback')
+            } catch (error) {
+                return error
+            }
+            throw new Error('expected the rate limited response to throw')
+        }
+
+        const error = unwrapRateLimited({ 'Retry-After': '7' })
+        expect(isRateLimitError(error)).to.equal(true)
+        expect(error.retryAfterSeconds).to.equal(7)
+        expect(error.message).to.equal('Too many requests. Please wait 7 seconds before trying again.')
+        // without the header the shortest limiter window is assumed
+        expect(unwrapRateLimited({}).retryAfterSeconds).to.equal(10)
+    })
+
+    it('reads Retry-After as seconds or as an http date', () => {
+        const now = Date.UTC(2026, 10, 25, 12, 0, 0)
+        expect(getRetryAfterSeconds(new Headers({ 'Retry-After': '5' }), now)).to.equal(5)
+        expect(getRetryAfterSeconds(new Headers({ 'Retry-After': new Date(now + 3000).toUTCString() }), now)).to.equal(3)
+        expect(getRetryAfterSeconds(new Headers({ 'Retry-After': 'soon' }), now)).to.equal(undefined)
+        expect(getRetryAfterSeconds(new Headers(), now)).to.equal(undefined)
+    })
+
+    it('keeps the status of other failed responses', () => {
+        expect(() => unwrapGeneratedApiArrayResponse({ status: 503, data: { message: 'down' } }, 'fallback'))
+            .to.throw('down')
+            .and.have.property('status', 503)
+        expect(isRateLimitError(new Error('plain'))).to.equal(false)
     })
 
     it('resolves the empty name response of a nameless player to an empty string instead of an object', () => {

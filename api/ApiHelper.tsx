@@ -70,7 +70,7 @@ import { USER_CHANGED_SLUG, websocketHelper } from './WebsocketHelper'
 import { canUseClipBoard, writeToClipboard } from '../utils/ClipboardUtils'
 import properties from '../properties'
 import { getCurrentCoflCoins } from '../utils/CoflCoinsUtils'
-import { getGeneratedApiMessage, unwrapGeneratedApiArrayResponse, unwrapGeneratedApiPlayerNameResponse } from '../utils/GeneratedApiResponseUtils'
+import { getGeneratedApiMessage, isRateLimitError, unwrapGeneratedApiArrayResponse, unwrapGeneratedApiPlayerNameResponse } from '../utils/GeneratedApiResponseUtils'
 import {
     getApiSearchSearchVal,
     getApiItemItemTagDetails,
@@ -250,16 +250,25 @@ export function initAPI(returnSSRResponse: boolean = false): API {
     const termsStatusRequests = new Map<string, Promise<TermsStatus>>()
     const premiumProductsRequests = new Map<string, Promise<any>>()
 
+    // RatChecker already shows a per-file "scanner unavailable"/"rate limited" message inline with a link to
+    // isthisarat.com, and the player auction/bid lists show a rate limit inline with its cooldown - the generic
+    // toast would just duplicate that on top of it.
+    let showsErrorInline = (requestType: RequestType, error: any): boolean => {
+        if (requestType === RequestType.CHECK_FOR_RAT) {
+            return true
+        }
+        const isPlayerList = requestType === RequestType.PLAYER_AUCTION || requestType === RequestType.PLAYER_BIDS
+        return isPlayerList && isRateLimitError(error)
+    }
+
     let apiErrorHandler = (requestType: RequestType, error: any, requestData: any = null) => {
         if (!error || !error.message) {
             return
         }
         if (isClientSideRendering()) {
             recordClientError(error, 'api', { requestType })
-            // RatChecker already shows a per-file "scanner unavailable"/"rate limited" message inline
-            // with a link to isthisarat.com - the generic toast would just duplicate that on top of it.
             // The error-log entry above (used for feedback diagnostics) is still recorded either way.
-            if (requestType !== RequestType.CHECK_FOR_RAT) {
+            if (!showsErrorInline(requestType, error)) {
                 toast.error(
                     <span>
                         <div>{error.message}</div>
@@ -463,7 +472,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
         return getApiPlayerPlayerUuidAuctions(uuid, params)
             .then(response => {
-                let auctions = response.data as any
+                let auctions = unwrapGeneratedApiArrayResponse<any>(response, 'The player auctions service returned an invalid response.')
                 return returnSSRResponse ? auctions : auctions.map((auction: any) => parseAuction(auction))
             })
             .catch(error => {
@@ -477,7 +486,7 @@ export function initAPI(returnSSRResponse: boolean = false): API {
 
         return getApiPlayerPlayerUuidBids(uuid, params)
             .then(response => {
-                let bids = response.data as any
+                let bids = unwrapGeneratedApiArrayResponse<any>(response, 'The player bids service returned an invalid response.')
                 return bids.map((bid: any) => parseItemBidForList(bid))
             })
             .catch(error => {

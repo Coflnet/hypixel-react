@@ -1,6 +1,35 @@
 export interface GeneratedApiResponse<TData = unknown> {
     data?: TData
     status?: number | null
+    headers?: Headers | null
+}
+
+export type GeneratedApiError = Error & { slug?: string; traceId?: string; status?: number; retryAfterSeconds?: number }
+
+const DEFAULT_RATE_LIMIT_COOLDOWN_SECONDS = 10
+
+/** Seconds from a `Retry-After` header (delta-seconds or an http date); undefined when missing or unreadable */
+export function getRetryAfterSeconds(headers: Headers | null | undefined, now: number = Date.now()): number | undefined {
+    const value = headers?.get('retry-after')?.trim()
+    if (!value) {
+        return undefined
+    }
+    if (/^\d+$/.test(value)) {
+        return parseInt(value, 10)
+    }
+    const date = Date.parse(value)
+    if (isNaN(date)) {
+        return undefined
+    }
+    return Math.max(0, Math.ceil((date - now) / 1000))
+}
+
+export function isRateLimitError(error: unknown): error is GeneratedApiError {
+    return (error as GeneratedApiError | null)?.status === 429
+}
+
+function getRateLimitMessage(retryAfterSeconds: number): string {
+    return `Too many requests. Please wait ${retryAfterSeconds} seconds before trying again.`
 }
 
 const PREMIUM_PLUS_SLUGS = new Set([
@@ -152,11 +181,22 @@ export function unwrapGeneratedApiArrayResponse<T>(response: GeneratedApiRespons
         return response.data as T[]
     }
 
+    throw createGeneratedApiError(response, fallbackMessage)
+}
+
+function createGeneratedApiError(response: GeneratedApiResponse, fallbackMessage: string): GeneratedApiError {
     const data = response?.data as any
-    const error = new Error(getGeneratedApiMessage(data) || fallbackMessage) as Error & { slug?: string; traceId?: string }
+    const status = response?.status ?? undefined
+    if (status === 429) {
+        // the rate limiter answers with plain text, give the user the cooldown instead
+        const retryAfterSeconds = getRetryAfterSeconds(response.headers) ?? DEFAULT_RATE_LIMIT_COOLDOWN_SECONDS
+        return Object.assign(new Error(getRateLimitMessage(retryAfterSeconds)), { status, retryAfterSeconds })
+    }
+    const error = new Error(getGeneratedApiMessage(data) || fallbackMessage) as GeneratedApiError
     error.slug = getGeneratedApiSlug(data) ?? undefined
     error.traceId = data?.traceId || data?.trace || undefined
-    throw error
+    error.status = status
+    return error
 }
 
 export function hasSuccessfulArrayResponse<T>(response: GeneratedApiResponse<unknown> | null | undefined): response is GeneratedApiResponse<T[]> & { status: 200; data: T[] } {
