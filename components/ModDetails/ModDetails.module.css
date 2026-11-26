@@ -11,15 +11,6 @@
 .modCard {
 	margin-bottom: 20px;
 }
-.modEmbedContainer {
-	width: 100%;
-	display: flex;
-	justify-content: center;
-}
-.modEmbed {
-	width: 50vw;
-	height: 28vw;
-}
 
 @media only screen and (max-height: 500px) {
     .modDetailsFooter {
