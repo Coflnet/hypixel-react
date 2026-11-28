@@ -6,6 +6,7 @@ import type { PublicTask } from '../../../api/publicTaskApi'
 import NavBar from '../../../components/NavBar/NavBar'
 import { JsonLd } from '../../../components/Tasks/JsonLd'
 import { RelatedTasks } from '../../../components/Tasks/RelatedTasks'
+import { TaskAvailabilityNote } from '../../../components/Tasks/TaskAvailabilityNote'
 import { TaskBestZones } from '../../../components/Tasks/TaskBestZones'
 import { TaskDropsTable } from '../../../components/Tasks/TaskDropsTable'
 import { TaskLocation } from '../../../components/Tasks/TaskLocation'
@@ -67,6 +68,7 @@ export default async function Page({ params }: Props) {
 }
 
 async function TaskDetails({ task }: { task: PublicTask }) {
+    // the listed tasks: tasks whose event isn't running are left out, so they never show up as related tasks
     const allTasks = await loadTasks()
     return (
         <>
@@ -78,6 +80,7 @@ async function TaskDetails({ task }: { task: PublicTask }) {
                 <TaskTypeBadge type={task.type} />
             </h1>
             <hr />
+            <TaskAvailabilityNote task={task} />
             {task.description ? <p className="lead">{task.description}</p> : null}
             <TaskStats task={task} />
             <TaskSteps steps={task.steps} />

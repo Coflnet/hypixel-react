@@ -21,6 +21,8 @@ export type PublicTask = PublicTaskEstimate & {
     name: string
     slug: string
     category: string
+    /** False only while the task's SkyBlock event or mayor perk is known not to run (see availabilityNote). */
+    available: boolean
     wikiUrl?: string
     whereWikiUrl?: string
     steps: PublicTaskTextStep[]
@@ -45,13 +47,20 @@ function getRequestOptions(): RequestInit {
     }
 }
 
+export interface PublicTaskListOptions {
+    /** Also load tasks whose event isn't running (the API leaves them out of the list by default), e.g. for the sitemap. */
+    includeUnavailable?: boolean
+}
+
 /**
- * Loads all public task estimates, sorted by coins per hour descending.
+ * Loads the public task estimates, sorted by coins per hour descending.
+ * Tasks that can't be done right now (an event or mayor perk isn't active) are only included with `includeUnavailable`.
  * @returns The tasks, or null when the endpoint is unreachable or returns an error
  */
-export async function getPublicTasks(): Promise<PublicTask[] | null> {
+export async function getPublicTasks(options: PublicTaskListOptions = {}): Promise<PublicTask[] | null> {
     try {
-        const res = await getApiTasks(getRequestOptions())
+        const params = options.includeUnavailable ? { includeUnavailable: true } : undefined
+        const res = await getApiTasks(params, getRequestOptions())
         if (res.status !== 200 || !Array.isArray(res.data)) {
             return null
         }
@@ -128,6 +137,8 @@ function normalizeTask(task: PublicTaskEstimate & { slug: string }): PublicTask 
         wikiUrl: toSafeHttpsUrl(task.wikiUrl),
         whereWikiUrl: toSafeHttpsUrl(task.whereWikiUrl),
         category: task.category || 'Other',
+        // an older API without the field lists every task, so a missing flag means available
+        available: task.available !== false,
         coinsPerHour: task.coinsPerHour ?? 0,
         communityTrackedHours: task.communityTrackedHours ?? 0,
         contributors: task.contributors ?? 0,

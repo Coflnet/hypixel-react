@@ -5190,6 +5190,23 @@ export interface PublicTaskEstimate {
      * @nullable
      */
   bestZones?: PublicTaskZone[] | null;
+  /**
+     * SkyBlock event or mayor perk the task needs, for example "Spooky Festival" or "Mythological Ritual", null when it is always doable
+     * @nullable
+     */
+  requiredEvent?: string | null;
+  /** False while the required event is known not to run. Such tasks are left out of the list but still served by slug */
+  available?: boolean;
+  /**
+     * Why the task is not (or maybe not) possible right now and what has to be active, null when plainly available
+     * @nullable
+     */
+  availabilityNote?: string | null;
+  /**
+     * When an unavailable task is possible again (UTC), null when available or unknown
+     * @nullable
+     */
+  nextAvailableAt?: string | null;
 }
 
 /**
@@ -6822,6 +6839,13 @@ limit?: number;
  * Wait longer for slow sources (eg. resolving unknown players), used when the user explicitly refreshes
  */
 update?: boolean;
+};
+
+export type GetApiTasksParams = {
+/**
+ * Also list tasks that can't be done right now, for example for a sitemap
+ */
+includeUnavailable?: boolean;
 };
 
 export type GetApiPremiumSlotsProducts401One = {

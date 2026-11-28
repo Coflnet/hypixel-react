@@ -93,3 +93,15 @@ export function formatRate(value: number): string {
     }
     return formatCoins(value)
 }
+
+/** True while the task can't be done: not once its event started by its own schedule, even if the cached flag still says so. */
+export function isUnavailableAt(task: PublicTask, now: Date): boolean {
+    if (task.available) {
+        return false
+    }
+    if (!task.nextAvailableAt) {
+        return true
+    }
+    const next = new Date(task.nextAvailableAt).getTime()
+    return Number.isNaN(next) || next > now.getTime()
+}

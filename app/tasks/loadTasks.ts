@@ -3,7 +3,7 @@ import { cache } from 'react'
 import { getPublicTask, getPublicTasks, type PublicTask } from '../../api/publicTaskApi'
 
 /** One fetch per request for metadata and page; the fetch `signal` opts out of Next's own dedupe. */
-export const loadTasks = cache(getPublicTasks)
+export const loadTasks = cache(() => getPublicTasks())
 const loadTask = cache(getPublicTask)
 
 /** The build (and local dev) must not fail when the API is down, it renders the empty state instead. */

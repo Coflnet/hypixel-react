@@ -135,7 +135,8 @@ async function generateItemSitemap(type: 'auction' | 'bazaar'): Promise<Metadata
 }
 
 async function generateTaskSitemapEntries(): Promise<MetadataRoute.Sitemap> {
-    const tasks = await getPublicTasks()
+    // seasonal tasks are left out of the list while their event isn't running, their pages stay indexable
+    const tasks = await getPublicTasks({ includeUnavailable: true })
     if (!tasks) {
         return []
     }

@@ -155,6 +155,7 @@ import type {
   GetApiPricesNeu200Two,
   GetApiReferralInfo401One,
   GetApiSearchSearchValParams,
+  GetApiTasksParams,
   GetApiTradesBodyFour,
   GetApiTradesBodyOne,
   GetApiTradesBodyThree,
@@ -21195,20 +21196,27 @@ export type getApiTasksResponseError = (getApiTasksResponse503TextPlain | getApi
 
 export type getApiTasksResponse = (getApiTasksResponseSuccess | getApiTasksResponseError)
 
-export const getGetApiTasksUrl = () => {
+export const getGetApiTasksUrl = (params?: GetApiTasksParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `https://sky.coflnet.com/api/tasks`
+  return stringifiedParams.length > 0 ? `https://sky.coflnet.com/api/tasks?${stringifiedParams}` : `https://sky.coflnet.com/api/tasks`
 }
 
 /**
- * @summary All task estimates sorted by coins per hour, best first
+ * @summary Task estimates sorted by coins per hour, best first. Tasks whose SkyBlock event or mayor perk is not running (available false, for example Spooky Fishing outside the Spooky Festival) are left out unless includeUnavailable is set, the slug endpoint always serves them with their availability note.
  */
-export const getApiTasks = async ( options?: RequestInit): Promise<getApiTasksResponse> => {
+export const getApiTasks = async (params?: GetApiTasksParams, options?: RequestInit): Promise<getApiTasksResponse> => {
 
-  const res = await fetch(getGetApiTasksUrl(),
+  const res = await fetch(getGetApiTasksUrl(params),
   {
     ...options,
     method: 'GET'
@@ -21228,23 +21236,23 @@ export const getApiTasks = async ( options?: RequestInit): Promise<getApiTasksRe
 
 
 
-export const getGetApiTasksQueryKey = () => {
+export const getGetApiTasksQueryKey = (params?: GetApiTasksParams,) => {
     return [
-    `https://sky.coflnet.com/api/tasks`
+    `https://sky.coflnet.com/api/tasks`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetApiTasksQueryOptions = <TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>>, fetch?: RequestInit}
+export const getGetApiTasksQueryOptions = <TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>(params?: GetApiTasksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>>, fetch?: RequestInit}
 ) => {
 
 const {query: queryOptions, fetch: fetchOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiTasksQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetApiTasksQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTasks>>> = ({ signal }) => getApiTasks({ signal, ...fetchOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiTasks>>> = ({ signal }) => getApiTasks(params, { signal, ...fetchOptions });
 
 
 
@@ -21258,7 +21266,7 @@ export type GetApiTasksQueryError = ErrorResponse
 
 
 export function useGetApiTasks<TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>> & Pick<
+ params: undefined |  GetApiTasksParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiTasks>>,
           TError,
@@ -21268,7 +21276,7 @@ export function useGetApiTasks<TData = Awaited<ReturnType<typeof getApiTasks>>, 
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiTasks<TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>> & Pick<
+ params?: GetApiTasksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getApiTasks>>,
           TError,
@@ -21278,19 +21286,19 @@ export function useGetApiTasks<TData = Awaited<ReturnType<typeof getApiTasks>>, 
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiTasks<TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>>, fetch?: RequestInit}
+ params?: GetApiTasksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 /**
- * @summary All task estimates sorted by coins per hour, best first
+ * @summary Task estimates sorted by coins per hour, best first. Tasks whose SkyBlock event or mayor perk is not running (available false, for example Spooky Fishing outside the Spooky Festival) are left out unless includeUnavailable is set, the slug endpoint always serves them with their availability note.
  */
 
 export function useGetApiTasks<TData = Awaited<ReturnType<typeof getApiTasks>>, TError = ErrorResponse>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>>, fetch?: RequestInit}
+ params?: GetApiTasksParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiTasks>>, TError, TData>>, fetch?: RequestInit}
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiTasksQueryOptions(options)
+  const queryOptions = getGetApiTasksQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 

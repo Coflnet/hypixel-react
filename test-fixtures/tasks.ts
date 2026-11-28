@@ -22,6 +22,23 @@ const warpTask = {
     ]
 }
 
+/** A seasonal task out of season: the API leaves it out of the list unless includeUnavailable is set. */
+const eventTask = {
+    ...task('event-task', 'Event Task'),
+    requiredEvent: 'Spooky Festival',
+    available: false,
+    availabilityNote: 'Only possible during the Spooky Festival.',
+    nextAvailableAt: '2099-12-01T00:00:00Z'
+}
+
+/** A task whose event could not be checked: still listed, with a hint. */
+const maybeTask = {
+    ...task('maybe-task', 'Maybe Task'),
+    requiredEvent: 'Mythological Ritual',
+    available: true,
+    availabilityNote: "Needs Mayor Diana's Mythological Ritual perk. The current mayor could not be checked."
+}
+
 /** The API never sends these for locked setups, the fixture does on purpose to prove the page drops them. */
 export const LEAK = 987654321
 
@@ -173,13 +190,17 @@ export const sparseTaskSetups = {
 }
 
 export const taskFixtures = {
-    list: [task('gear-task', 'Gear Task'), task('plain-task', 'Plain Task'), task('community-task', 'Community Task'), task('sparse-task', 'Sparse Task')],
+    list: [task('gear-task', 'Gear Task'), task('plain-task', 'Plain Task'), task('community-task', 'Community Task'), task('sparse-task', 'Sparse Task'), maybeTask],
+    /** Only listed with ?includeUnavailable=true, like the API does. */
+    unavailable: [eventTask],
     tasks: {
         'gear-task': task('gear-task', 'Gear Task'),
         'plain-task': task('plain-task', 'Plain Task'),
         'community-task': task('community-task', 'Community Task'),
         'sparse-task': task('sparse-task', 'Sparse Task'),
-        'warp-task': warpTask
+        'warp-task': warpTask,
+        'event-task': eventTask,
+        'maybe-task': maybeTask
     } as Record<string, unknown>,
     setups: { 'gear-task': publicTaskSetups, 'community-task': communityTaskSetups, 'sparse-task': sparseTaskSetups } as Record<string, unknown>
 }

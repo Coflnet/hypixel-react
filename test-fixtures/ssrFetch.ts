@@ -18,7 +18,7 @@ export function getSsrFixture(input: RequestInfo | URL, init?: RequestInit): Res
     else if (path === 'flip/stats/player/00000000000040008000000000000002') body = { flips: [], totalProfit: 0 }
     else if (path === 'flip/forge') body = forgeFlips
     else if (path === 'craft/profit') body = data.crafts
-    else if (path === 'tasks') body = taskFixtures.list
+    else if (path === 'tasks') body = url.searchParams.get('includeUnavailable') === 'true' ? [...taskFixtures.list, ...taskFixtures.unavailable] : taskFixtures.list
     else if (path.startsWith('tasks/')) return getTaskFixture(path.slice('tasks/'.length))
     else if (path === 'items/bazaar/tags') body = data.bazaarTags
     else if (path === 'items') body = Object.values(data.items)

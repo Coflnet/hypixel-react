@@ -1,4 +1,5 @@
-import { getPublicTask, getPublicTasks, getPublicTaskSetups, normalizeSetups } from '../../api/publicTaskApi'
+import { getPublicTask, getPublicTasks, getPublicTaskSetups, normalizeSetups, type PublicTask } from '../../api/publicTaskApi'
+import { isUnavailableAt } from '../../components/Tasks/taskUtils'
 
 type Answer = { body: string; status: number; contentType?: string }
 
@@ -92,6 +93,37 @@ describe('Public task api', () => {
         cy.wrap(null)
             .then(() => getPublicTasks())
             .then(tasks => expect(tasks?.map(t => t.slug)).to.deep.equal(['high', 'mid', 'low']))
+    })
+
+    it('asks for unavailable tasks only when told to', () => {
+        const fetchStub = answerTaskRequestsWith({ body: JSON.stringify([task()]), status: 200 })
+
+        cy.wrap(null)
+            .then(() => getPublicTasks())
+            .then(() => getPublicTasks({ includeUnavailable: true }))
+            .then(() => {
+                expect(String(fetchStub.firstCall.args[0])).to.equal('https://sky.coflnet.com/api/tasks')
+                expect(String(fetchStub.secondCall.args[0])).to.equal('https://sky.coflnet.com/api/tasks?includeUnavailable=true')
+            })
+    })
+
+    it('treats a task without the available flag as available', () => {
+        const body = [task({ slug: 'old' }), task({ slug: 'off', available: false, availabilityNote: 'Only during the Spooky Festival' })]
+        answerTaskRequestsWith({ body: JSON.stringify(body), status: 200 })
+
+        cy.wrap(null)
+            .then(() => getPublicTasks({ includeUnavailable: true }))
+            .then(tasks => expect(tasks?.map(t => [t.slug, t.available])).to.deep.equal([['old', true], ['off', false]]))
+    })
+
+    it('stops calling a task unavailable once its event started by schedule', () => {
+        const now = new Date('2026-12-01T00:00:01Z')
+        const unavailable = (available: boolean, nextAvailableAt?: string) => isUnavailableAt({ available, nextAvailableAt } as PublicTask, now)
+
+        expect(unavailable(true)).to.equal(false)
+        expect(unavailable(false)).to.equal(true)
+        expect(unavailable(false, '2026-12-01T00:00:02Z')).to.equal(true)
+        expect(unavailable(false, '2026-12-01T00:00:00Z')).to.equal(false)
     })
 
     it('returns no list when the estimator is unavailable', () => {
