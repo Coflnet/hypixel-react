@@ -460,6 +460,14 @@ export const SITEMAP_CONFIG = {
             keywords: ['money making', 'profit methods', 'skyblock income']
         },
         {
+            url: '/guides/money-making-methods-by-stage',
+            priority: 0.7,
+            changefreq: 'weekly' as const,
+            title: 'Best Money Making Methods 2026 by Stage',
+            description: 'Early game, AFK, Ironman and endgame money making methods with live coins per hour.',
+            keywords: ['money making methods by stage', 'early game money making', 'afk money making', 'ironman money making']
+        },
+        {
             url: '/guides/optimal-minion-setups',
             priority: 0.6,
             changefreq: 'monthly' as const,

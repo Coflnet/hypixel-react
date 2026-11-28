@@ -7,7 +7,7 @@ const LAST_UPDATED_ISO = "2026-04-19";
 const LAST_UPDATED_LABEL = "April 19, 2026";
 
 export const metadata: Metadata = getHeadMetadata(
-    "Best Money Making Methods in Hypixel Skyblock 2025 | Complete Comparison Guide",
+    "Best Money Making Methods in Hypixel Skyblock 2026 | Complete Comparison Guide",
     "Complete comparison of all Skyblock money-making methods: flipping, farming, slaying, mining, fishing, dungeons, minions, and more. Includes coins/hour, time investment, barrier to entry, and SkyCofl tool recommendations.",
     undefined,
     [],
@@ -22,7 +22,7 @@ export default function MoneyMakingMethodsPage() {
                 <Col>
                     <Card>
                         <CardBody>
-                            <CardTitle as="h1">Best Money Making Methods in Hypixel Skyblock (2025)</CardTitle>
+                            <CardTitle as="h1">Best Money Making Methods in Hypixel Skyblock (2026)</CardTitle>
                             <CardText className="text-muted small mb-0">
                                 Last updated <time dateTime={LAST_UPDATED_ISO}>{LAST_UPDATED_LABEL}</time>
                             </CardText>
@@ -32,7 +32,8 @@ export default function MoneyMakingMethodsPage() {
                             <div className="alert alert-info my-3" role="note">
                                 <strong>See live coins/hour:</strong> the numbers below are long-term ranges. For current estimates measured from what players
                                 actually earn right now, check the <Link href="/tasks">live money making methods list</Link> (coins/hour, players doing each method
-                                and the best zones).
+                                and the best zones). Looking for a method for your stage (early game, AFK, Ironman or endgame)? See{" "}
+                                <Link href="/guides/money-making-methods-by-stage">money making methods by stage</Link>.
                             </div>
                             <CardText>
                                 <strong>Use the SkyCofl Mod to track actual profits from any method.</strong> Commands like <strong>/cofl profit</strong> and <strong>/cofl flips</strong> show you exactly what you're earning, removing guesswork and helping you optimize over time.
@@ -152,13 +153,13 @@ export default function MoneyMakingMethodsPage() {
 
                             <CardTitle as="h4" className="mt-4">🌾 Farming (Best for AFK passive income)</CardTitle>
                             <CardText>
-                                <strong>Why it wins:</strong> Zero capital needed, highly AFK-able, consistent income, builds farming XP.
+                                <strong>Why it wins:</strong> Zero capital needed, low effort, consistent income, builds farming XP.
                             </CardText>
                             <CardText>
                                 <strong>Best crops by profitability:</strong> Focus on high-margin crops like sugar cane, melon, or pumpkin. Avoid low-margin crops like wheat unless farming for XP.
                             </CardText>
                             <CardText>
-                                <strong>Time commitment:</strong> 20–40 minutes of active farming per session, though you can AFK part of it with proper setups.
+                                <strong>Time commitment:</strong> 20–40 minutes of active farming per session, though parts of it are low effort with proper setups.
                             </CardText>
                             <CardText>
                                 <strong>Profitability ceiling:</strong> Farming has diminishing returns. After maxing farming fortune gear, you hit a plateau. Most serious players eventually switch to flipping or slaying.
@@ -200,13 +201,13 @@ export default function MoneyMakingMethodsPage() {
 
                             <CardTitle as="h4" className="mt-4">🎣 Fishing (Best for chill gameplay)</CardTitle>
                             <CardText>
-                                <strong>Why it wins:</strong> Extremely AFK-able, zero capital, fishing XP, builds comp tier.
+                                <strong>Why it wins:</strong> Low effort, zero capital, fishing XP, builds comp tier.
                             </CardText>
                             <CardText>
                                 <strong>Time commitment:</strong> 30–60 minutes of mostly AFK fishing per session.
                             </CardText>
                             <CardText>
-                                <strong>Profitability:</strong> Lower than mining or farming, but highly AFK-able. Good side income while doing other things.
+                                <strong>Profitability:</strong> Lower than mining or farming, but low effort. Good side income while doing other things.
                             </CardText>
 
                             <CardTitle as="h4" className="mt-4">🏰 Dungeons (Best for endgame teams)</CardTitle>

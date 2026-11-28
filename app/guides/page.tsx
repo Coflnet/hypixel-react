@@ -99,6 +99,9 @@ export default function GuidesPage() {
                                     <Link href="/guides/money-making-methods">Best Money Making Methods</Link> - Beyond flipping: comprehensive profit strategies
                                 </li>
                                 <li>
+                                    <Link href="/guides/money-making-methods-by-stage">Money Making Methods by Stage</Link> - Early game, AFK, Ironman and endgame methods with live coins per hour
+                                </li>
+                                <li>
                                     <Link href="/guides/optimal-minion-setups">Optimal Minion Setups</Link> - Passive income to complement your flipping
                                 </li>
                             </ul>
