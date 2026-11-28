@@ -111,4 +111,63 @@ describe('Stale chunk recovery (react error boundary)', () => {
         cy.wrap(null).should(() => expect(pageLoads).to.equal(2))
         expectRecordedBoundaryError()
     })
+
+    describe('error without a recognisable stale chunk signature', () => {
+        const skewStack = [
+            "TypeError: Cannot read properties of undefined (reading 'removeOldSubscriptionByType')",
+            '    at subscribeAuctionUpdates (https://sky.coflnet.com/_next/static/chunks/app/item/page-abcdef123456.js:1:4321)'
+        ].join('\n')
+
+        function visitWithSkewError() {
+            cy.on('window:before:load', window => {
+                pageLoads++
+                if (pageLoads > 1) return
+                const error = Object.assign(
+                    new window.TypeError("Cannot read properties of undefined (reading 'removeOldSubscriptionByType')"),
+                    { stack: skewStack }
+                )
+                const getItem = window.Storage.prototype.getItem
+                window.Storage.prototype.getItem = function (key) {
+                    if (key === 'bazaarGraphLegendSelection') throw error
+                    return getItem.call(this, key)
+                }
+            })
+            cy.visit('/item/BOOSTER_COOKIE')
+        }
+
+        beforeEach(() => {
+            cy.on('uncaught:exception', error => {
+                if (error.message.includes('removeOldSubscriptionByType')) return false
+            })
+        })
+
+        it('reloads when the server runs a different build', () => {
+            cy.intercept('GET', '**/api/build-id', { body: 'some-newer-build-id', headers: { 'content-type': 'text/plain' } }).as('buildId')
+            visitWithSkewError()
+            cy.wrap(null).should(() => expect(pageLoads).to.equal(2))
+            cy.contains('Bazaar data').should('be.visible')
+            cy.contains('Unable to load this page').should('not.exist')
+            cy.window().then(window => expect(window.localStorage.getItem('chunkErrorReload')).to.be.a('string'))
+        })
+
+        it('shows the error page without reloading when the server runs the same build', () => {
+            cy.request('/api/build-id').then(response => {
+                cy.intercept('GET', '**/api/build-id', { body: response.body, headers: { 'content-type': 'text/plain' } }).as('buildId')
+            })
+            visitWithSkewError()
+            cy.contains('Unable to load this page', { timeout: 15000 }).should('be.visible')
+            cy.wait('@buildId')
+            cy.wait(1000)
+            cy.wrap(null).should(() => expect(pageLoads).to.equal(1))
+        })
+
+        it('shows the error page without reloading when the build id request fails', () => {
+            cy.intercept('GET', '**/api/build-id', { statusCode: 500, body: 'boom' }).as('buildId')
+            visitWithSkewError()
+            cy.contains('Unable to load this page', { timeout: 15000 }).should('be.visible')
+            cy.wait('@buildId')
+            cy.wait(1000)
+            cy.wrap(null).should(() => expect(pageLoads).to.equal(1))
+        })
+    })
 })

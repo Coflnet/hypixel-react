@@ -3,8 +3,12 @@
 // __webpack_require__ then asks for a module id whose factory was never registered, which surfaces as a
 // plain TypeError thrown from inside the webpack runtime rather than a ChunkLoadError. The fix is the
 // same in both cases: clear caches and reload once to pick up a consistent build.
+// Internal to Next, but it is exactly what Next's own router compares against RSC responses to detect a new deployment.
+import { getAppBuildId } from 'next/dist/client/app-build-id'
+
 const STORAGE_KEY = 'chunkErrorReload'
 const RELOAD_GUARD_WINDOW_MS = 60_000
+const BUILD_ID_TIMEOUT_MS = 3000
 
 const WEBPACK_RUNTIME_FRAME = /\/_next\/static\/chunks\/webpack-/
 const CHUNK_LOAD_MESSAGE = /Loading (chunk|CSS chunk) .* failed/i
@@ -73,4 +77,33 @@ export function recoverFromStaleChunks(): boolean {
 
     location.reload()
     return true
+}
+
+async function fetchServerBuildId(): Promise<string> {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), BUILD_ID_TIMEOUT_MS)
+    try {
+        const response = await fetch('/api/build-id', { cache: 'no-store', signal: controller.signal })
+        if (!response.ok) {
+            return ''
+        }
+        return (await response.text()).trim()
+    } finally {
+        clearTimeout(timeout)
+    }
+}
+
+/**
+ * True when the server is running a different build than this tab. Errors that don't look like a stale chunk
+ * (e.g. a minified export name missing from an older copy of a module) can still be version skew, which this detects.
+ * Any failure to find out counts as "no".
+ */
+export async function isNewerBuildDeployed(): Promise<boolean> {
+    try {
+        const tabBuildId = getAppBuildId()
+        const serverBuildId = await fetchServerBuildId()
+        return !!tabBuildId && !!serverBuildId && tabBuildId !== serverBuildId
+    } catch {
+        return false
+    }
 }
